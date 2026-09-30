@@ -65,3 +65,25 @@ partida consulta LOCAL
 ```
 
 O agente não deve baixar arquivos pesados no meio de uma decisão.
+
+## Normalizar CommunityDragon
+
+O arquivo bruto do CommunityDragon é grande. Depois do sync, gere um pacote estático compacto selecionando explicitamente o set:
+
+```bash
+python -m ingestion.normalize_cdragon \
+  --input knowledge/raw/communitydragon_tft_pt_br.json \
+  --set TFTSet17 \
+  --output knowledge/database/tft_static.json
+```
+
+O normalizador aceita `setData` em formato array ou objeto e produz apenas:
+
+- campeões;
+- traits;
+- itens;
+- augments;
+- metadados do set;
+- SHA-256 da fonte.
+
+A seleção do set deve ser explícita para evitar misturar conteúdo evergreen, PvE ou sets antigos.
