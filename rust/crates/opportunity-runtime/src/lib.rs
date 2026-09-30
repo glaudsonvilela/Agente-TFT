@@ -462,6 +462,7 @@ mod tests {
                 unit_instance_id: "A-2".into(),
                 strength_gain: 0.7,
                 flexibility_cost: 0.1,
+                external_meta_prior: 0.0,
                 confidence: Confidence::new(0.90).unwrap(),
             }],
             ..OpportunityFacts::default()
