@@ -1,0 +1,13 @@
+[package]
+name = "agente-tft-opportunity-runtime"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-decision-core = { path = "../decision-core" }
+agente-tft-meta-context = { path = "../meta-context" }
+agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+agente-tft-remote-training-protocol = { path = "../remote-training-protocol" }
