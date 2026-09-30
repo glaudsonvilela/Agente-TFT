@@ -6,7 +6,9 @@ from core.coach import (
     CoachDeps,
     CoachExplanation,
     DecisionPacket,
+    assemble_fallback_recommendation,
     assemble_recommendation,
+    fallback_explanation,
     coach_agent,
 )
 from schemas.contracts import (
@@ -102,3 +104,52 @@ def test_decision_packet_can_represent_non_roll_actions():
         confidence=0.77,
     )
     assert packet.action.type == "hold_econ"
+
+
+
+def test_fallback_keeps_roll_action_and_stop_condition():
+    deps = make_deps()
+    explanation = fallback_explanation(deps.decision)
+
+    assert "Rolar agora" in explanation.reason_short
+    assert explanation.next_step == "X reaches 2 stars"
+
+    recommendation = assemble_fallback_recommendation(
+        deps.decision,
+        generated_at_ms=1300,
+        recommendation_id="fallback-1",
+    )
+
+    assert recommendation.action == deps.decision.action
+    assert recommendation.confidence == 0.84
+    assert recommendation.recommendation_id == "fallback-1"
+
+
+def test_fallback_wait_is_direct_and_non_empty():
+    packet = DecisionPacket(
+        state_revision=10,
+        action={"type": "wait"},
+        confidence=0.0,
+        evidence=(),
+    )
+
+    explanation = fallback_explanation(packet)
+    assert explanation.reason_short
+    assert explanation.next_step == "Espere uma mudança relevante de estado."
+
+
+def test_fallback_reason_never_exceeds_contract_limit():
+    packet = DecisionPacket(
+        state_revision=1,
+        action=HoldEconAction(),
+        confidence=0.9,
+        evidence=(
+            {
+                "code": "DETERMINISTIC_CONTEXT",
+                "detail": "x" * 500,
+            },
+        ),
+    )
+
+    explanation = fallback_explanation(packet)
+    assert len(explanation.reason_short) <= 160
