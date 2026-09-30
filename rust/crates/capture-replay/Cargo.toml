@@ -1,0 +1,9 @@
+[package]
+name = "agente-tft-capture-replay"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../capture-core" }
+serde_json.workspace = true
