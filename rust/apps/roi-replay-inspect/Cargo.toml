@@ -1,0 +1,10 @@
+[package]
+name = "agente-tft-roi-replay-inspect"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../../crates/capture-core" }
+agente-tft-capture-replay = { path = "../../crates/capture-replay" }
+serde_json.workspace = true
