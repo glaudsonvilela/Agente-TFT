@@ -5,6 +5,7 @@ use std::{
 };
 
 use agente_tft_contracts::{DecisionPacket, GameEvent, GameState, Recommendation};
+use agente_tft_opportunity_runtime::OpportunityCycle;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -38,6 +39,9 @@ pub enum TelemetryPayload {
     Analysis {
         name: String,
         data: Value,
+    },
+    OpportunityCycle {
+        cycle: OpportunityCycle,
     },
     Decision {
         decision: DecisionPacket,
@@ -231,6 +235,73 @@ mod tests {
         let parsed: TelemetryRecord = serde_json::from_str(lines[1]).unwrap();
         assert_eq!(parsed.sequence, 1);
         assert!(matches!(parsed.payload, TelemetryPayload::Metric { .. }));
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn recorder_round_trips_opportunity_cycle() {
+        use agente_tft_contracts::{
+            Action, Confidence, DecisionPacket,
+        };
+        use agente_tft_opportunity_engine::{
+            OpportunityDelta, OpportunityReport,
+        };
+
+        let root = temp_dir();
+        let mut recorder =
+            JsonlRecorder::create(&root, "opportunity-fixture").unwrap();
+
+        let cycle = OpportunityCycle {
+            report: OpportunityReport {
+                state_revision: 7,
+                evaluated_at_ms: 100,
+                all: vec![],
+                shortlist: vec![],
+            },
+            delta: OpportunityDelta {
+                previous_revision: None,
+                current_revision: 7,
+                added: vec![Action::HoldEcon],
+                removed: vec![],
+                top_changed: true,
+                previous_top: None,
+                current_top: Some(Action::HoldEcon),
+                material_utility_shifts: vec![],
+            },
+            decision: DecisionPacket::new(
+                7,
+                Action::HoldEcon,
+                Confidence::new(0.90).unwrap(),
+                vec![],
+                vec![],
+            ),
+            remote_shortlist: vec![],
+            should_refresh_ui: true,
+            should_remote_evaluate: true,
+        };
+
+        recorder
+            .append(
+                100,
+                TelemetryPayload::OpportunityCycle {
+                    cycle: cycle.clone(),
+                },
+            )
+            .unwrap();
+        recorder.flush().unwrap();
+
+        let content = fs::read_to_string(recorder.path()).unwrap();
+        let parsed: TelemetryRecord =
+            serde_json::from_str(content.lines().next().unwrap()).unwrap();
+
+        match parsed.payload {
+            TelemetryPayload::OpportunityCycle { cycle: saved } => {
+                assert_eq!(saved, cycle);
+                assert_eq!(saved.decision.state_revision, 7);
+            }
+            other => panic!("unexpected payload: {other:?}"),
+        }
 
         let _ = fs::remove_dir_all(root);
     }
