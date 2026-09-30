@@ -85,6 +85,7 @@ pub struct BuildDiagnostics {
     pub unaffordable_shop_slots: Vec<u8>,
     pub skipped_fully_upgraded_units: Vec<String>,
     pub roll_targets: Vec<RollTargetDiagnostic>,
+    pub roll_targets_blocked_by_shop: Vec<String>,
     pub xp_rules_available: bool,
     pub unaffordable_level_targets: Vec<u8>,
 }
@@ -97,6 +98,7 @@ impl Default for BuildDiagnostics {
             unaffordable_shop_slots: Vec::new(),
             skipped_fully_upgraded_units: Vec::new(),
             roll_targets: Vec::new(),
+            roll_targets_blocked_by_shop: Vec::new(),
             xp_rules_available: false,
             unaffordable_level_targets: Vec::new(),
         }
@@ -286,6 +288,17 @@ impl OpportunityFactBuilder {
                 continue;
             };
 
+            let visible_affordable_copy = state.player.shop.iter().any(|slot| {
+                slot.value.unit_id.as_deref() == Some(unit_id.as_str())
+                    && current_gold >= definition.cost as u16
+            });
+            if visible_affordable_copy {
+                diagnostics
+                    .roll_targets_blocked_by_shop
+                    .push(unit_id);
+                continue;
+            }
+
             let Some((target_stars, target_copies)) =
                 next_upgrade_threshold(owned)
             else {
@@ -379,6 +392,8 @@ impl OpportunityFactBuilder {
         diagnostics.unknown_owned_unit_ids.dedup();
         diagnostics.skipped_fully_upgraded_units.sort();
         diagnostics.skipped_fully_upgraded_units.dedup();
+        diagnostics.roll_targets_blocked_by_shop.sort();
+        diagnostics.roll_targets_blocked_by_shop.dedup();
         diagnostics.roll_targets.sort_by(|a, b| {
             a.unit_id.cmp(&b.unit_id)
         });
@@ -752,6 +767,12 @@ mod tests {
         state
     }
 
+    fn roll_state() -> GameState {
+        let mut state = state();
+        state.player.shop.clear();
+        state
+    }
+
     #[test]
     fn generates_buy_facts_and_detects_upgrade_close() {
         let builder =
@@ -775,7 +796,7 @@ mod tests {
     }
 
     #[test]
-    fn generates_roll_windows_for_owned_upgrade_targets() {
+    fn visible_affordable_target_blocks_roll_until_bought() {
         let builder =
             OpportunityFactBuilder::new(FactBuilderConfig {
                 roll_budgets_gold: vec![10, 20],
@@ -786,6 +807,37 @@ mod tests {
 
         let result = builder
             .build(&state(), &rules(), &catalog(), 10_000)
+            .unwrap();
+
+        // B is already visible and affordable in slot 0.
+        assert!(result
+            .facts
+            .buys
+            .iter()
+            .any(|fact| fact.unit_id == "B"));
+        assert!(result
+            .diagnostics
+            .roll_targets_blocked_by_shop
+            .contains(&"B".to_string()));
+        assert!(!result
+            .facts
+            .rolls
+            .iter()
+            .any(|fact| fact.target_unit_id.as_deref() == Some("B")));
+    }
+
+    #[test]
+    fn generates_roll_windows_for_owned_upgrade_targets() {
+        let builder =
+            OpportunityFactBuilder::new(FactBuilderConfig {
+                roll_budgets_gold: vec![10, 20],
+                include_max_affordable_budget: false,
+                ..FactBuilderConfig::default()
+            })
+            .unwrap();
+
+        let result = builder
+            .build(&roll_state(), &rules(), &catalog(), 10_000)
             .unwrap();
 
         // A is already 2★ => target 3★; B has two 1★ copies => target 2★.
