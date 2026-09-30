@@ -116,7 +116,7 @@ pub enum AutomaticOpportunityError {
     Opportunity(#[from] OpportunityError),
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AutomaticOpportunityCycle {
     pub fact_build: OpportunityFactBuild,
     pub cycle: OpportunityCycle,
