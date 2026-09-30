@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/state-fusion", "crates/perception-hud", "crates/image-preprocess", "crates/ocr-tesseract", "apps/replay-inspect", "apps/roi-replay-inspect"]
+members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/state-fusion", "crates/perception-hud", "crates/image-preprocess", "crates/ocr-tesseract", "crates/riot-api", "apps/replay-inspect", "apps/roi-replay-inspect"]
 resolver = "2"
 
 [workspace.package]
@@ -10,3 +10,6 @@ rust-version = "1.80"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
+
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
