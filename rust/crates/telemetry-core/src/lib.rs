@@ -7,6 +7,7 @@ use std::{
 use agente_tft_contracts::{DecisionPacket, GameEvent, GameState, Recommendation};
 use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
 use agente_tft_opportunity_runtime::{CompleteOpportunityCycle, OpportunityCycle};
+use agente_tft_pattern_engine::EvaluatorFeedbackEngine;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -49,6 +50,9 @@ pub enum TelemetryPayload {
     },
     CompleteOpportunityCycle {
         cycle: CompleteOpportunityCycle,
+    },
+    EvaluatorFeedbackSnapshot {
+        feedback: EvaluatorFeedbackEngine,
     },
     Decision {
         decision: DecisionPacket,
@@ -422,6 +426,40 @@ mod tests {
             TelemetryPayload::CompleteOpportunityCycle { cycle: saved } => {
                 assert_eq!(saved, cycle);
                 assert_eq!(saved.cycle.decision.state_revision, 11);
+            }
+            other => panic!("unexpected payload: {other:?}"),
+        }
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn recorder_round_trips_evaluator_feedback_snapshot() {
+        let root = temp_dir();
+        let mut recorder =
+            JsonlRecorder::create(&root, "feedback-fixture").unwrap();
+
+        let feedback = EvaluatorFeedbackEngine::default();
+
+        recorder
+            .append(
+                300,
+                TelemetryPayload::EvaluatorFeedbackSnapshot {
+                    feedback: feedback.clone(),
+                },
+            )
+            .unwrap();
+        recorder.flush().unwrap();
+
+        let content = fs::read_to_string(recorder.path()).unwrap();
+        let parsed: TelemetryRecord =
+            serde_json::from_str(content.lines().next().unwrap()).unwrap();
+
+        match parsed.payload {
+            TelemetryPayload::EvaluatorFeedbackSnapshot {
+                feedback: saved,
+            } => {
+                assert_eq!(saved, feedback);
             }
             other => panic!("unexpected payload: {other:?}"),
         }
