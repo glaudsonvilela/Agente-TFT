@@ -37,6 +37,7 @@ class RemoteTrainingConfig:
     timeout_seconds: float = 2.0
     client_id: str = "agente-tft-local"
     profile: str = "lab"
+    api_token: str | None = None
 
 
 class RemoteTrainingClient:
@@ -54,10 +55,15 @@ class RemoteTrainingClient:
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self.config = config
+        headers = {}
+        if config.api_token:
+            headers["Authorization"] = f"Bearer {config.api_token}"
+
         self._http = httpx.AsyncClient(
             base_url=config.base_url.rstrip("/") + "/",
             timeout=config.timeout_seconds,
             transport=transport,
+            headers=headers,
         )
         self.session: RemoteSession | None = None
 
