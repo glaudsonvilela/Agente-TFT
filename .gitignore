@@ -1,0 +1,59 @@
+# Secrets / local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Rust
+target/
+**/*.rs.bk
+
+# Node / Tauri / Svelte
+node_modules/
+.svelte-kit/
+.vite/
+dist/
+src-tauri/target/
+
+# Models / datasets / runtime data
+models/**/*.onnx
+models/**/*.pt
+models/**/*.pth
+datasets/
+runtime/
+recordings/
+captures/
+telemetry/data/
+knowledge/database/
+*.sqlite
+*.sqlite3
+*.db
+
+# Local caches
+.cache/
+cache/
+tmp/
+temp/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
