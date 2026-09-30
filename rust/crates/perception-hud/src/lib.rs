@@ -4,7 +4,7 @@ use agente_tft_contracts::{Confidence, ObservationSource, Observed};
 use agente_tft_image_preprocess::{preprocess_for_numeric_ocr, GrayImage};
 use agente_tft_state_fusion::HudObservationBatch;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HudField {
     Stage,
