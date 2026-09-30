@@ -306,6 +306,15 @@ class Evidence(StrictModel):
     detail: str
 
 
+class DecisionPacket(StrictModel):
+    schema_version: Literal[SCHEMA_VERSION] = SCHEMA_VERSION
+    state_revision: int = Field(ge=0)
+    action: Action
+    confidence: Confidence
+    alternatives: tuple[AlternativeAction, ...] = ()
+    evidence: tuple[Evidence, ...] = ()
+
+
 class Recommendation(StrictModel):
     schema_version: Literal[SCHEMA_VERSION] = SCHEMA_VERSION
     recommendation_id: str
