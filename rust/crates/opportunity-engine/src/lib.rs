@@ -832,6 +832,143 @@ impl OpportunityEngine {
     }
 }
 
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct UtilityShift {
+    pub action: Action,
+    pub previous: f32,
+    pub current: f32,
+    pub absolute_delta: f32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityDelta {
+    pub previous_revision: Option<u64>,
+    pub current_revision: u64,
+    pub added: Vec<Action>,
+    pub removed: Vec<Action>,
+    pub top_changed: bool,
+    pub previous_top: Option<Action>,
+    pub current_top: Option<Action>,
+    pub material_utility_shifts: Vec<UtilityShift>,
+}
+
+impl OpportunityDelta {
+    pub fn is_material(&self) -> bool {
+        self.top_changed
+            || !self.added.is_empty()
+            || !self.removed.is_empty()
+            || !self.material_utility_shifts.is_empty()
+    }
+}
+
+pub struct OpportunityTracker {
+    previous: Option<OpportunityReport>,
+    utility_shift_threshold: f32,
+}
+
+impl OpportunityTracker {
+    pub fn new(utility_shift_threshold: f32) -> Result<Self, OpportunityError> {
+        if !utility_shift_threshold.is_finite() || utility_shift_threshold < 0.0 {
+            return Err(OpportunityError::NonFiniteMetric);
+        }
+        Ok(Self {
+            previous: None,
+            utility_shift_threshold,
+        })
+    }
+
+    pub fn observe(
+        &mut self,
+        current: OpportunityReport,
+    ) -> Result<OpportunityDelta, OpportunityError> {
+        let previous = self.previous.as_ref();
+
+        let previous_by_key = previous
+            .map(index_candidates)
+            .unwrap_or_default();
+        let current_by_key = index_candidates(&current);
+
+        let mut added = Vec::new();
+        let mut removed = Vec::new();
+        let mut shifts = Vec::new();
+
+        for (key, candidate) in &current_by_key {
+            match previous_by_key.get(key) {
+                None => added.push(candidate.action.clone()),
+                Some(old) => {
+                    let delta = (candidate.utility - old.utility).abs();
+                    if delta >= self.utility_shift_threshold {
+                        shifts.push(UtilityShift {
+                            action: candidate.action.clone(),
+                            previous: old.utility,
+                            current: candidate.utility,
+                            absolute_delta: delta,
+                        });
+                    }
+                }
+            }
+        }
+
+        for (key, candidate) in &previous_by_key {
+            if !current_by_key.contains_key(key) {
+                removed.push(candidate.action.clone());
+            }
+        }
+
+        let previous_top = previous
+            .and_then(|report| report.all.first())
+            .map(|candidate| candidate.action.clone());
+        let current_top = current
+            .all
+            .first()
+            .map(|candidate| candidate.action.clone());
+
+        let top_changed = match (&previous_top, &current_top) {
+            (None, None) => false,
+            (Some(a), Some(b)) => action_key(a)? != action_key(b)?,
+            _ => true,
+        };
+
+        let delta = OpportunityDelta {
+            previous_revision: previous.map(|report| report.state_revision),
+            current_revision: current.state_revision,
+            added,
+            removed,
+            top_changed,
+            previous_top,
+            current_top,
+            material_utility_shifts: shifts,
+        };
+
+        self.previous = Some(current);
+        Ok(delta)
+    }
+
+    pub fn reset(&mut self) {
+        self.previous = None;
+    }
+}
+
+fn action_key(action: &Action) -> Result<String, OpportunityError> {
+    serde_json::to_string(action)
+        .map_err(|_| OpportunityError::NonFiniteMetric)
+}
+
+fn index_candidates(
+    report: &OpportunityReport,
+) -> std::collections::BTreeMap<String, OpportunityCandidate> {
+    report
+        .all
+        .iter()
+        .filter_map(|candidate| {
+            action_key(&candidate.action)
+                .ok()
+                .map(|key| (key, candidate.clone()))
+        })
+        .collect()
+}
+
 fn allows_economic_actions(phase: &MatchPhase) -> bool {
     matches!(phase, MatchPhase::Planning | MatchPhase::PostCombat)
 }
@@ -1105,6 +1242,54 @@ mod tests {
             decision.action,
             Action::Roll { budget_gold: 20, .. }
         ));
+    }
+
+    #[test]
+    fn tracker_detects_new_and_changed_top_opportunity() {
+        let engine = OpportunityEngine::new(OpportunityConfig::default()).unwrap();
+        let first_facts = OpportunityFacts::default();
+        let first = engine
+            .evaluate(OpportunityInput {
+                state: &state(),
+                facts: &first_facts,
+                meta: None,
+                now_ms: 1_001,
+            })
+            .unwrap();
+
+        let second_facts = OpportunityFacts {
+            rolls: vec![RollOpportunityFact {
+                budget_gold: 20,
+                stop_condition: Some("X 2-star".into()),
+                target_unit_id: Some("X".into()),
+                probability_at_least_one: Some(0.90),
+                expected_target_copies: Some(1.5),
+                interest_lost: Some(1),
+                contested_copies: Some(6),
+                confidence: Confidence::new(0.95).unwrap(),
+            }],
+            ..OpportunityFacts::default()
+        };
+        let second = engine
+            .evaluate(OpportunityInput {
+                state: &state(),
+                facts: &second_facts,
+                meta: None,
+                now_ms: 1_002,
+            })
+            .unwrap();
+
+        let mut tracker = OpportunityTracker::new(0.20).unwrap();
+        let initial = tracker.observe(first).unwrap();
+        assert!(initial.is_material());
+
+        let delta = tracker.observe(second).unwrap();
+        assert!(delta.is_material());
+        assert!(delta.top_changed);
+        assert!(delta.added.iter().any(|action| matches!(
+            action,
+            Action::Roll { budget_gold: 20, .. }
+        )));
     }
 
     #[test]
