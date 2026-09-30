@@ -71,6 +71,126 @@ pub fn unit_meta_hints(
     })
 }
 
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ItemMetaCandidate {
+    pub unit_instance_id: String,
+    pub unit_id: String,
+    pub item_id: String,
+    pub recommended: bool,
+    pub top_item: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct PositioningMetaHint {
+    pub unit_instance_id: String,
+    pub unit_id: String,
+    pub positioning: String,
+}
+
+pub fn generate_item_meta_candidates(
+    state: &GameState,
+    snapshot: &MetaSnapshot,
+) -> Vec<ItemMetaCandidate> {
+    let held_items: BTreeSet<String> = state
+        .player
+        .items
+        .iter()
+        .cloned()
+        .collect();
+
+    if held_items.is_empty() {
+        return Vec::new();
+    }
+
+    let mut result = Vec::new();
+    let mut seen = BTreeSet::new();
+
+    for unit in state
+        .player
+        .board
+        .iter()
+        .chain(state.player.bench.iter())
+    {
+        let Some(hints) = unit_meta_hints(snapshot, &unit.unit_id) else {
+            continue;
+        };
+
+        let recommended: BTreeSet<_> = hints
+            .recommended_item_ids
+            .iter()
+            .cloned()
+            .collect();
+        let top: BTreeSet<_> = hints
+            .top_item_ids
+            .iter()
+            .cloned()
+            .collect();
+
+        for item_id in held_items.iter() {
+            let is_recommended = recommended.contains(item_id);
+            let is_top = top.contains(item_id);
+            if !is_recommended && !is_top {
+                continue;
+            }
+
+            let key = (
+                unit.instance_id.clone(),
+                item_id.clone(),
+            );
+            if !seen.insert(key) {
+                continue;
+            }
+
+            result.push(ItemMetaCandidate {
+                unit_instance_id: unit.instance_id.clone(),
+                unit_id: unit.unit_id.clone(),
+                item_id: item_id.clone(),
+                recommended: is_recommended,
+                top_item: is_top,
+            });
+        }
+    }
+
+    result.sort_by(|a, b| {
+        b.recommended
+            .cmp(&a.recommended)
+            .then_with(|| b.top_item.cmp(&a.top_item))
+            .then_with(|| a.unit_instance_id.cmp(&b.unit_instance_id))
+            .then_with(|| a.item_id.cmp(&b.item_id))
+    });
+
+    result
+}
+
+pub fn generate_positioning_meta_hints(
+    state: &GameState,
+    snapshot: &MetaSnapshot,
+) -> Vec<PositioningMetaHint> {
+    let mut result = Vec::new();
+
+    for unit in &state.player.board {
+        let Some(hints) = unit_meta_hints(snapshot, &unit.unit_id) else {
+            continue;
+        };
+        let Some(positioning) = hints.positioning else {
+            continue;
+        };
+        if positioning.trim().is_empty() {
+            continue;
+        }
+
+        result.push(PositioningMetaHint {
+            unit_instance_id: unit.instance_id.clone(),
+            unit_id: unit.unit_id.clone(),
+            positioning,
+        });
+    }
+
+    result.sort_by(|a, b| a.unit_instance_id.cmp(&b.unit_instance_id));
+    result
+}
+
 pub fn generate_comp_transition_candidates(
     state: &GameState,
     snapshot: &MetaSnapshot,
@@ -336,6 +456,33 @@ mod tests {
             vec!["ITEM_1", "ITEM_2", "ITEM_3"]
         );
         assert_eq!(hints.positioning.as_deref(), Some("in the front row"));
+    }
+
+    #[test]
+    fn owned_meta_recommended_item_becomes_candidate() {
+        let mut state = state();
+        state.player.items = vec!["ITEM_1".into(), "OTHER".into()];
+
+        let candidates = generate_item_meta_candidates(
+            &state,
+            &snapshot(),
+        );
+
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].unit_id, "A");
+        assert_eq!(candidates[0].item_id, "ITEM_1");
+        assert!(candidates[0].recommended);
+    }
+
+    #[test]
+    fn positioning_hint_is_emitted_only_for_owned_board_unit() {
+        let hints = generate_positioning_meta_hints(
+            &state(),
+            &snapshot(),
+        );
+        assert_eq!(hints.len(), 1);
+        assert_eq!(hints[0].unit_id, "A");
+        assert_eq!(hints[0].positioning, "in the front row");
     }
 
     #[test]
