@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use agente_tft_contracts::Action;
+use agente_tft_opportunity_engine::OpportunityCandidate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -211,6 +212,236 @@ impl PatternStats {
     }
 }
 
+
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum OpportunitySignal {
+    Utility,
+    Confidence,
+    ImmediateBoardGain,
+    UpgradeValue,
+    HpPreservation,
+    EconomyValue,
+    ContestUrgency,
+    Flexibility,
+    InformationValue,
+    ExternalMetaPrior,
+    Uncertainty,
+}
+
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
+pub struct SignalKey {
+    pub action: ActionClass,
+    pub signal: OpportunitySignal,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct SignalCorrelationStats {
+    pub samples: u64,
+    sum_signal: f64,
+    sum_reward: f64,
+    sum_signal_sq: f64,
+    sum_reward_sq: f64,
+    sum_cross: f64,
+}
+
+impl SignalCorrelationStats {
+    pub fn observe(&mut self, signal: f32, reward: f32) -> bool {
+        if !signal.is_finite() || !reward.is_finite() {
+            return false;
+        }
+
+        let x = signal as f64;
+        let y = reward as f64;
+
+        self.samples = self.samples.saturating_add(1);
+        self.sum_signal += x;
+        self.sum_reward += y;
+        self.sum_signal_sq += x * x;
+        self.sum_reward_sq += y * y;
+        self.sum_cross += x * y;
+        true
+    }
+
+    pub fn mean_signal(&self) -> Option<f32> {
+        if self.samples == 0 {
+            None
+        } else {
+            Some((self.sum_signal / self.samples as f64) as f32)
+        }
+    }
+
+    pub fn mean_reward(&self) -> Option<f32> {
+        if self.samples == 0 {
+            None
+        } else {
+            Some((self.sum_reward / self.samples as f64) as f32)
+        }
+    }
+
+    pub fn correlation(&self) -> Option<f32> {
+        if self.samples < 2 {
+            return None;
+        }
+
+        let n = self.samples as f64;
+        let numerator =
+            n * self.sum_cross - self.sum_signal * self.sum_reward;
+        let signal_term =
+            n * self.sum_signal_sq - self.sum_signal * self.sum_signal;
+        let reward_term =
+            n * self.sum_reward_sq - self.sum_reward * self.sum_reward;
+
+        if signal_term <= f64::EPSILON || reward_term <= f64::EPSILON {
+            return None;
+        }
+
+        let denominator = (signal_term * reward_term).sqrt();
+        let value = (numerator / denominator).clamp(-1.0, 1.0);
+        Some(value as f32)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct EvaluatorFeedbackEngine {
+    stats: BTreeMap<SignalKey, SignalCorrelationStats>,
+}
+
+impl EvaluatorFeedbackEngine {
+    pub fn observe_candidate(
+        &mut self,
+        candidate: &OpportunityCandidate,
+        realized_reward: f32,
+    ) -> bool {
+        if !realized_reward.is_finite() {
+            return false;
+        }
+
+        let action = ActionClass::from(&candidate.action);
+        let signals = [
+            (OpportunitySignal::Utility, candidate.utility),
+            (
+                OpportunitySignal::Confidence,
+                candidate.confidence.value(),
+            ),
+            (
+                OpportunitySignal::ImmediateBoardGain,
+                candidate.vector.immediate_board_gain,
+            ),
+            (
+                OpportunitySignal::UpgradeValue,
+                candidate.vector.upgrade_value,
+            ),
+            (
+                OpportunitySignal::HpPreservation,
+                candidate.vector.hp_preservation,
+            ),
+            (
+                OpportunitySignal::EconomyValue,
+                candidate.vector.economy_value,
+            ),
+            (
+                OpportunitySignal::ContestUrgency,
+                candidate.vector.contest_urgency,
+            ),
+            (
+                OpportunitySignal::Flexibility,
+                candidate.vector.flexibility,
+            ),
+            (
+                OpportunitySignal::InformationValue,
+                candidate.vector.information_value,
+            ),
+            (
+                OpportunitySignal::ExternalMetaPrior,
+                candidate.vector.external_meta_prior,
+            ),
+            (
+                OpportunitySignal::Uncertainty,
+                candidate.vector.uncertainty,
+            ),
+        ];
+
+        for (signal, value) in signals {
+            self.stats
+                .entry(SignalKey {
+                    action,
+                    signal,
+                })
+                .or_default()
+                .observe(value, realized_reward);
+        }
+
+        true
+    }
+
+    pub fn stats(
+        &self,
+        action: ActionClass,
+        signal: OpportunitySignal,
+    ) -> Option<&SignalCorrelationStats> {
+        self.stats.get(&SignalKey { action, signal })
+    }
+
+    pub fn ranked_correlations(
+        &self,
+        action: ActionClass,
+        min_samples: u64,
+    ) -> Vec<(OpportunitySignal, &SignalCorrelationStats)> {
+        let mut values: Vec<_> = self
+            .stats
+            .iter()
+            .filter(|(key, stats)| {
+                key.action == action
+                    && stats.samples >= min_samples
+                    && stats.correlation().is_some()
+            })
+            .map(|(key, stats)| (key.signal, stats))
+            .collect();
+
+        values.sort_by(|(signal_a, stats_a), (signal_b, stats_b)| {
+            let a = stats_a
+                .correlation()
+                .unwrap_or(0.0)
+                .abs();
+            let b = stats_b
+                .correlation()
+                .unwrap_or(0.0)
+                .abs();
+
+            b.total_cmp(&a)
+                .then_with(|| signal_a.cmp(signal_b))
+        });
+
+        values
+    }
+
+    pub fn all(
+        &self,
+    ) -> &BTreeMap<SignalKey, SignalCorrelationStats> {
+        &self.stats
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct PatternEngine {
     stats: BTreeMap<PatternKey, PatternStats>,
@@ -278,6 +509,123 @@ mod tests {
             counterfactual_best_reward: Some(0.40),
             placement: Some(5),
         }
+    }
+
+    fn opportunity_candidate(
+        upgrade_value: f32,
+        economy_value: f32,
+        reward_proxy: f32,
+    ) -> OpportunityCandidate {
+        use agente_tft_contracts::{Confidence, Evidence};
+        use agente_tft_opportunity_engine::{
+            OpportunityTier, OpportunityVector,
+        };
+
+        OpportunityCandidate {
+            action: Action::Roll {
+                budget_gold: 20,
+                stop_condition: None,
+            },
+            tier: OpportunityTier::Tactical,
+            utility: reward_proxy,
+            confidence: Confidence::new(0.90).unwrap(),
+            vector: OpportunityVector {
+                upgrade_value,
+                economy_value,
+                ..OpportunityVector::default()
+            },
+            evidence: vec![Evidence {
+                code: "fixture".into(),
+                detail: "fixture".into(),
+            }],
+        }
+    }
+
+    #[test]
+    fn evaluator_feedback_measures_signal_reward_correlation() {
+        let mut engine = EvaluatorFeedbackEngine::default();
+
+        let rows = [
+            (0.10, 0.90, 0.10),
+            (0.40, 0.60, 0.40),
+            (0.70, 0.30, 0.70),
+            (1.00, 0.00, 1.00),
+        ];
+
+        for (upgrade, economy, reward) in rows {
+            let candidate =
+                opportunity_candidate(upgrade, economy, reward);
+            assert!(engine.observe_candidate(
+                &candidate,
+                reward,
+            ));
+        }
+
+        let upgrade = engine
+            .stats(
+                ActionClass::Roll,
+                OpportunitySignal::UpgradeValue,
+            )
+            .unwrap()
+            .correlation()
+            .unwrap();
+
+        let economy = engine
+            .stats(
+                ActionClass::Roll,
+                OpportunitySignal::EconomyValue,
+            )
+            .unwrap()
+            .correlation()
+            .unwrap();
+
+        assert!(upgrade > 0.99);
+        assert!(economy < -0.99);
+    }
+
+    #[test]
+    fn evaluator_feedback_keeps_action_classes_separate() {
+        let mut engine = EvaluatorFeedbackEngine::default();
+
+        let roll = opportunity_candidate(0.8, 0.2, 0.8);
+        engine.observe_candidate(&roll, 0.8);
+
+        let mut hold = opportunity_candidate(0.0, 0.9, 0.4);
+        hold.action = Action::HoldEcon;
+        engine.observe_candidate(&hold, 0.4);
+
+        assert_eq!(
+            engine
+                .stats(
+                    ActionClass::Roll,
+                    OpportunitySignal::UpgradeValue,
+                )
+                .unwrap()
+                .samples,
+            1
+        );
+        assert_eq!(
+            engine
+                .stats(
+                    ActionClass::HoldEcon,
+                    OpportunitySignal::UpgradeValue,
+                )
+                .unwrap()
+                .samples,
+            1
+        );
+    }
+
+    #[test]
+    fn non_finite_feedback_is_rejected() {
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let candidate = opportunity_candidate(0.8, 0.2, 0.8);
+
+        assert!(!engine.observe_candidate(
+            &candidate,
+            f32::NAN,
+        ));
+        assert!(engine.all().is_empty());
     }
 
     #[test]
