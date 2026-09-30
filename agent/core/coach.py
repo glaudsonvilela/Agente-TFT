@@ -8,22 +8,10 @@ from pydantic import BaseModel, Field, field_validator
 from pydantic_ai import Agent, RunContext
 
 from schemas.contracts import (
-    Action,
-    AlternativeAction,
-    Evidence,
+    DecisionPacket,
     GameState,
     Recommendation,
 )
-
-
-class DecisionPacket(BaseModel):
-    """Canonical decision produced by math/policy before the LLM is invoked."""
-
-    state_revision: int = Field(ge=0)
-    action: Action
-    confidence: float = Field(ge=0.0, le=1.0)
-    alternatives: tuple[AlternativeAction, ...] = ()
-    evidence: tuple[Evidence, ...] = ()
 
 
 class CoachExplanation(BaseModel):
