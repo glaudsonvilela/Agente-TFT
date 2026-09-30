@@ -14,3 +14,5 @@ agente-tft-shadow-player = { path = "../shadow-player" }
 
 [dev-dependencies]
 serde_json.workspace = true
+agente-tft-item-strength = { path = "../item-strength" }
+agente-tft-opportunity-fact-builder = { path = "../opportunity-fact-builder" }
