@@ -5,6 +5,8 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+agente-tft-trait-core = { path = "../trait-core" }
+agente-tft-board-strength = { path = "../board-strength" }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
