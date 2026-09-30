@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="600" viewBox="0 0 1800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Agente TFT</title>
+  <desc id="desc">Banner técnico do projeto Agente TFT</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#19162f"/>
+      <stop offset="45%" stop-color="#392b72"/>
+      <stop offset="100%" stop-color="#0d7690"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f4d06f"/>
+      <stop offset="100%" stop-color="#ff9f43"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1800" height="600" rx="28" fill="url(#bg)"/>
+  <g opacity=".16" stroke="#8eeeff" fill="none">
+    <path d="M0 475H1800"/>
+    <path d="M120 420H1680"/>
+    <path d="M250 365H1550"/>
+    <path d="M380 310H1420"/>
+  </g>
+  <g transform="translate(120 150)" fill="none" stroke="#62e7ff" stroke-width="4" opacity=".85" filter="url(#glow)">
+    <polygon points="0,130 75,85 150,130 150,215 75,260 0,215"/>
+    <polygon points="150,130 225,85 300,130 300,215 225,260 150,215"/>
+    <polygon points="300,130 375,85 450,130 450,215 375,260 300,215"/>
+    <polygon points="75,260 150,215 225,260 225,345 150,390 75,345"/>
+    <polygon points="225,260 300,215 375,260 375,345 300,390 225,345"/>
+  </g>
+  <g transform="translate(1010 150)">
+    <rect x="0" y="0" width="600" height="290" rx="28" fill="#081b2e" opacity=".72" stroke="#64ecff" stroke-width="3"/>
+    <text x="55" y="80" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#ffffff">ROLL 18–22G AGORA</text>
+    <text x="55" y="140" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#bfefff">Player 2 está contestando X.</text>
+    <text x="55" y="190" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#bfefff">Busque X 2★ e pare.</text>
+    <text x="55" y="255" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#f4d06f">Confiança 84%</text>
+  </g>
+  <g transform="translate(570 120)">
+    <path d="M110 0l20 50 54 3-42 34 14 53-46-29-46 29 14-53-42-34 54-3z" fill="url(#gold)"/>
+  </g>
+  <text x="560" y="290" font-family="Arial, Helvetica, sans-serif" font-size="104" font-weight="900" fill="#ffffff" letter-spacing="2">AGENTE</text>
+  <text x="560" y="390" font-family="Arial, Helvetica, sans-serif" font-size="104" font-weight="900" fill="url(#gold)" letter-spacing="2">TFT</text>
+  <text x="565" y="455" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#d9f8ff">Coach estratégico local • Rust + PydanticAI-slim + ONNX</text>
+  <text x="565" y="510" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#9fdce8">Observe → Calcule → Decida → Explique</text>
+</svg>
