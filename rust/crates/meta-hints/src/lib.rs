@@ -1,8 +1,9 @@
 use std::collections::BTreeSet;
 
-use agente_tft_contracts::GameState;
+use agente_tft_contracts::{Confidence, GameState};
 use agente_tft_lobby_analysis::analyze_unit_contestation;
 use agente_tft_meta_context::{MetaEntityKind, MetaSnapshot};
+use agente_tft_opportunity_engine::ItemOpportunityFact;
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -79,6 +80,23 @@ pub struct ItemMetaCandidate {
     pub item_id: String,
     pub recommended: bool,
     pub top_item: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MetaItemOpportunityPolicy {
+    /// Maximum magnitude of categorical MetaTFT item prior.
+    pub max_abs_prior: f32,
+    /// Confidence cap for meta-only item opportunities.
+    pub confidence_cap: f32,
+}
+
+impl Default for MetaItemOpportunityPolicy {
+    fn default() -> Self {
+        Self {
+            max_abs_prior: 0.08,
+            confidence_cap: 0.45,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -161,6 +179,80 @@ pub fn generate_item_meta_candidates(
     });
 
     result
+}
+
+pub fn generate_item_opportunity_facts(
+    state: &GameState,
+    snapshot: &MetaSnapshot,
+    policy: MetaItemOpportunityPolicy,
+) -> Vec<ItemOpportunityFact> {
+    let prior_cap = if policy.max_abs_prior.is_finite() {
+        policy.max_abs_prior.abs().clamp(0.0, 0.10)
+    } else {
+        0.0
+    };
+    let confidence_cap = if policy.confidence_cap.is_finite() {
+        policy.confidence_cap.clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+
+    let confidence = Confidence::new(
+        state
+            .overall_confidence
+            .value()
+            .min(confidence_cap),
+    )
+    .expect("clamped confidence remains valid");
+
+    let mut facts = Vec::new();
+
+    for candidate in generate_item_meta_candidates(state, snapshot) {
+        let unit = state
+            .player
+            .board
+            .iter()
+            .chain(state.player.bench.iter())
+            .find(|unit| unit.instance_id == candidate.unit_instance_id);
+
+        let Some(unit) = unit else {
+            continue;
+        };
+
+        if unit.items.len() >= 3 {
+            continue;
+        }
+
+        let raw_prior = match (
+            candidate.recommended,
+            candidate.top_item,
+        ) {
+            (true, true) => 1.0,
+            (true, false) => 0.85,
+            (false, true) => 0.70,
+            (false, false) => 0.0,
+        };
+
+        facts.push(ItemOpportunityFact {
+            item_id: candidate.item_id,
+            unit_instance_id: candidate.unit_instance_id,
+            // No local combat/board evaluator has supplied strength yet.
+            strength_gain: 0.0,
+            // Meta hint alone does not claim the flexibility cost either.
+            flexibility_cost: 0.0,
+            external_meta_prior: raw_prior * prior_cap,
+            confidence,
+        });
+    }
+
+    facts.sort_by(|a, b| {
+        b.external_meta_prior
+            .total_cmp(&a.external_meta_prior)
+            .then_with(|| a.unit_instance_id.cmp(&b.unit_instance_id))
+            .then_with(|| a.item_id.cmp(&b.item_id))
+    });
+
+    facts
 }
 
 pub fn generate_positioning_meta_hints(
@@ -483,6 +575,45 @@ mod tests {
         assert_eq!(hints.len(), 1);
         assert_eq!(hints[0].unit_id, "A");
         assert_eq!(hints[0].positioning, "in the front row");
+    }
+
+    #[test]
+    fn meta_item_fact_is_low_confidence_and_prior_bounded() {
+        let mut state = state();
+        state.player.items = vec!["ITEM_1".into()];
+
+        let facts = generate_item_opportunity_facts(
+            &state,
+            &snapshot(),
+            MetaItemOpportunityPolicy::default(),
+        );
+
+        assert_eq!(facts.len(), 1);
+        assert_eq!(facts[0].item_id, "ITEM_1");
+        assert_eq!(facts[0].strength_gain, 0.0);
+        assert!(facts[0].external_meta_prior <= 0.08);
+        assert!(facts[0].confidence.value() <= 0.45);
+    }
+
+    #[test]
+    fn full_item_slots_block_meta_item_fact() {
+        let mut state = state();
+        state.player.items = vec!["ITEM_1".into()];
+        state.player.board[0].items = vec![
+            "A".into(),
+            "B".into(),
+            "C".into(),
+        ];
+
+        let facts = generate_item_opportunity_facts(
+            &state,
+            &snapshot(),
+            MetaItemOpportunityPolicy::default(),
+        );
+
+        assert!(facts
+            .iter()
+            .all(|fact| fact.unit_instance_id != state.player.board[0].instance_id));
     }
 
     #[test]
