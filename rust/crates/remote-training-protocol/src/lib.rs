@@ -1,4 +1,4 @@
-use agente_tft_contracts::{DecisionPacket, GameState};
+use agente_tft_contracts::{Action, Confidence, DecisionPacket, Evidence, GameState};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -20,6 +20,10 @@ pub enum ProtocolError {
     InvalidRolloutCount,
     #[error("horizon_steps must be in [1, 10000]")]
     InvalidHorizon,
+    #[error("opportunity utility must be finite")]
+    InvalidUtility,
+    #[error("opportunity tier cannot be empty")]
+    EmptyTier,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -48,6 +52,30 @@ impl Default for OpponentPoolConfig {
     }
 }
 
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OpportunitySummary {
+    pub action: Action,
+    /// Ranking utility from the local Opportunity Engine, not a probability.
+    pub utility: f32,
+    pub confidence: Confidence,
+    pub tier: String,
+    #[serde(default)]
+    pub evidence: Vec<Evidence>,
+}
+
+impl OpportunitySummary {
+    pub fn validate(&self) -> Result<(), ProtocolError> {
+        if !self.utility.is_finite() {
+            return Err(ProtocolError::InvalidUtility);
+        }
+        if self.tier.trim().is_empty() {
+            return Err(ProtocolError::EmptyTier);
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TrainingJobRequest {
     pub protocol_version: u32,
@@ -58,6 +86,8 @@ pub struct TrainingJobRequest {
     pub mode: TrainingMode,
     pub state: GameState,
     pub decision: DecisionPacket,
+    #[serde(default)]
+    pub opportunities: Vec<OpportunitySummary>,
     pub rollout_count: u32,
     pub horizon_steps: u32,
     pub opponent_pool: OpponentPoolConfig,
@@ -87,6 +117,9 @@ impl TrainingJobRequest {
         }
         if !(1..=10_000).contains(&self.horizon_steps) {
             return Err(ProtocolError::InvalidHorizon);
+        }
+        for opportunity in &self.opportunities {
+            opportunity.validate()?;
         }
         Ok(())
     }
@@ -201,6 +234,7 @@ mod tests {
             mode: TrainingMode::SelfPlay,
             state: state(),
             decision: decision(),
+            opportunities: vec![],
             rollout_count: 128,
             horizon_steps: 200,
             opponent_pool: OpponentPoolConfig::default(),
@@ -221,6 +255,7 @@ mod tests {
             mode: TrainingMode::Simulator,
             state: state(),
             decision: decision(),
+            opportunities: vec![],
             rollout_count: 64,
             horizon_steps: 100,
             opponent_pool: OpponentPoolConfig::default(),
