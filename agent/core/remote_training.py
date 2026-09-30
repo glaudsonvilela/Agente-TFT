@@ -31,6 +31,20 @@ class RemoteJobRecord(StrictModel):
     error: str | None = None
 
 
+class RemoteShadowRecord(StrictModel):
+    shadow_id: str
+    training_session_id: str
+    episode_id: str
+    status: str
+    created_at_ms: int
+    updated_at_ms: int
+    real_revision: int
+    simulated_revision: int | None = None
+    last_divergence: dict[str, Any] | None = None
+    last_step: dict[str, Any] | None = None
+    error: str | None = None
+
+
 @dataclass(frozen=True)
 class RemoteTrainingConfig:
     base_url: str
@@ -153,3 +167,80 @@ class RemoteTrainingClient:
         response.raise_for_status()
         payload = response.json()
         return str(payload["status"])
+
+
+    async def create_shadow_session(
+        self,
+        *,
+        state: GameState,
+        created_at_ms: int,
+        episode_id: str,
+    ) -> RemoteShadowRecord:
+        if self.session is None or not self.session.active:
+            raise RuntimeError("remote training session is not active")
+
+        response = await self._http.post(
+            "v1/shadow/sessions",
+            json={
+                "training_session_id": self.session.session_id,
+                "episode_id": episode_id,
+                "created_at_ms": created_at_ms,
+                "state": state.model_dump(mode="json", by_alias=True),
+            },
+        )
+        response.raise_for_status()
+        return RemoteShadowRecord.model_validate(response.json())
+
+    async def sync_shadow(
+        self,
+        shadow_id: str,
+        *,
+        state: GameState,
+        observed_at_ms: int,
+    ) -> RemoteShadowRecord:
+        response = await self._http.post(
+            f"v1/shadow/sessions/{shadow_id}/sync",
+            json={
+                "observed_at_ms": observed_at_ms,
+                "state": state.model_dump(mode="json", by_alias=True),
+            },
+        )
+        response.raise_for_status()
+        return RemoteShadowRecord.model_validate(response.json())
+
+    async def step_shadow(
+        self,
+        shadow_id: str,
+        *,
+        decision: DecisionPacket,
+        observed_at_ms: int,
+    ) -> RemoteShadowRecord:
+        response = await self._http.post(
+            f"v1/shadow/sessions/{shadow_id}/step",
+            json={
+                "observed_at_ms": observed_at_ms,
+                "decision": decision.model_dump(mode="json", by_alias=True),
+            },
+        )
+        response.raise_for_status()
+        return RemoteShadowRecord.model_validate(response.json())
+
+    async def get_shadow(
+        self,
+        shadow_id: str,
+    ) -> RemoteShadowRecord:
+        response = await self._http.get(
+            f"v1/shadow/sessions/{shadow_id}"
+        )
+        response.raise_for_status()
+        return RemoteShadowRecord.model_validate(response.json())
+
+    async def end_shadow(
+        self,
+        shadow_id: str,
+    ) -> RemoteShadowRecord:
+        response = await self._http.post(
+            f"v1/shadow/sessions/{shadow_id}/end"
+        )
+        response.raise_for_status()
+        return RemoteShadowRecord.model_validate(response.json())
