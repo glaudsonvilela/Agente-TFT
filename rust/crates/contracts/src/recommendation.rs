@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{Confidence, ContractError, HexPosition, CONTRACT_SCHEMA_VERSION};
+use crate::{Confidence, ContractError, HexPosition};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PositionMove {
