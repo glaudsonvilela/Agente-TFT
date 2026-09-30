@@ -126,9 +126,11 @@ A interface detalhada fica disponível sob demanda, mas o modo de partida perman
 
 Já estão implementados e testados em Rust e Pydantic os contratos versionados `GameState`, `GameEvent` e `Recommendation`, incluindo confiança validada, ações tipadas e o formato de recomendação curta. A CI executa testes Rust e Python a cada push.
 
-**Topologia atual:** single-host local no Windows, sem pendrive, drive externo, segundo computador, injeção ou leitura de memória do jogo.
+**Ambiente atual de desenvolvimento:** Ubuntu. Core, replay, visão, dados, treinamento, PydanticAI e UI são desenvolvidos e testados aqui.
 
-**Próximo bloco:** P1 — captura e calibração da janela do TFT no Windows.
+**Runtime live alvo:** single-host no Windows, com TFT + Agente TFT no mesmo PC, sem pendrive, drive externo, segundo computador, VM, injeção ou leitura de memória do jogo.
+
+**Próximo bloco:** P1 — abstração de captura + replay no Ubuntu; backend de captura da janela do TFT entra depois no Windows.
 
 Veja:
 
