@@ -4,7 +4,12 @@ use agente_tft_contracts::{Confidence, GameState};
 use agente_tft_lobby_analysis::analyze_unit_contestation;
 use agente_tft_meta_context::{MetaEntityKind, MetaSnapshot};
 use agente_tft_opportunity_engine::{
-    ItemOpportunityFact, PivotOpportunityFact,
+    ItemOpportunityFact, PivotOpportunityFact, PositionOpportunityFact,
+};
+use agente_tft_positioning_core::{
+    propose_moves_from_hints,
+    BoardCoordinateConvention,
+    PositioningError,
 };
 use serde::Serialize;
 
@@ -107,6 +112,19 @@ pub struct MetaPivotOpportunityPolicy {
 }
 
 impl Default for MetaPivotOpportunityPolicy {
+    fn default() -> Self {
+        Self {
+            confidence_cap: 0.45,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MetaPositionOpportunityPolicy {
+    pub confidence_cap: f32,
+}
+
+impl Default for MetaPositionOpportunityPolicy {
     fn default() -> Self {
         Self {
             confidence_cap: 0.45,
@@ -351,6 +369,48 @@ pub fn generate_positioning_meta_hints(
 
     result.sort_by(|a, b| a.unit_instance_id.cmp(&b.unit_instance_id));
     result
+}
+
+pub fn generate_position_opportunity_facts(
+    state: &GameState,
+    snapshot: &MetaSnapshot,
+    convention: &BoardCoordinateConvention,
+    policy: MetaPositionOpportunityPolicy,
+) -> Result<Vec<PositionOpportunityFact>, PositioningError> {
+    let confidence_cap = if policy.confidence_cap.is_finite() {
+        policy.confidence_cap.clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+
+    let confidence = Confidence::new(
+        state
+            .overall_confidence
+            .value()
+            .min(confidence_cap),
+    )
+    .expect("clamped confidence remains valid");
+
+    let hints = generate_positioning_meta_hints(state, snapshot)
+        .into_iter()
+        .map(|hint| (hint.unit_instance_id, hint.positioning))
+        .collect::<Vec<_>>();
+
+    let proposals = propose_moves_from_hints(
+        &state.player.board,
+        hints,
+        convention,
+    )?;
+
+    Ok(proposals
+        .into_iter()
+        .map(|proposal| PositionOpportunityFact {
+            moves: vec![proposal.movement],
+            // External positioning hint alone does not claim matchup gain.
+            matchup_gain: 0.0,
+            confidence,
+        })
+        .collect())
 }
 
 pub fn generate_comp_transition_candidates(
@@ -704,6 +764,40 @@ mod tests {
             facts[0].meta_comp_id.as_deref(),
             Some("comp-abcd")
         );
+        assert!(facts[0].confidence.value() <= 0.45);
+    }
+
+    #[test]
+    fn meta_position_hint_requires_geometry_and_remains_low_confidence() {
+        use agente_tft_contracts::HexPosition;
+
+        let mut state = state();
+        state.player.board[0].position = Some(
+            HexPosition { row: 3, col: 3 },
+        );
+
+        let convention = BoardCoordinateConvention {
+            rows: 4,
+            cols: 7,
+            front_rows: vec![0],
+            back_rows: vec![3],
+            left_cols: vec![0, 1],
+            right_cols: vec![5, 6],
+            center_cols: vec![3],
+        };
+
+        let facts = generate_position_opportunity_facts(
+            &state,
+            &snapshot(),
+            &convention,
+            MetaPositionOpportunityPolicy::default(),
+        )
+        .unwrap();
+
+        assert_eq!(facts.len(), 1);
+        assert_eq!(facts[0].moves[0].to.row, 0);
+        assert_eq!(facts[0].moves[0].to.col, 3);
+        assert_eq!(facts[0].matchup_gain, 0.0);
         assert!(facts[0].confidence.value() <= 0.45);
     }
 
