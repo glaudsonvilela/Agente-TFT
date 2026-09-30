@@ -130,6 +130,137 @@ fn sorted_shop(mut slots: Vec<Observed<ShopSlot>>) -> Vec<Observed<ShopSlot>> {
 }
 
 
+
+#[derive(Debug, Clone)]
+pub struct AugmentObservationBatch {
+    pub observed_at_ms: u64,
+    pub options: Vec<Observed<String>>,
+    pub complete: bool,
+}
+
+#[derive(Debug, Clone)]
+struct AugmentPending {
+    signature: Vec<String>,
+    confirmations: u8,
+    last_seen_ms: u64,
+    best_min_confidence: f32,
+    best_options: Vec<Observed<String>>,
+}
+
+#[derive(Debug)]
+struct AugmentGate {
+    config: ConsensusConfig,
+    pending: Option<AugmentPending>,
+}
+
+impl AugmentGate {
+    fn new(config: ConsensusConfig) -> Self {
+        Self {
+            config: ConsensusConfig {
+                min_confidence: config.min_confidence.clamp(0.0, 1.0),
+                confirmations: config.confirmations.max(1),
+                max_gap_ms: config.max_gap_ms,
+            },
+            pending: None,
+        }
+    }
+
+    fn observe(
+        &mut self,
+        batch: AugmentObservationBatch,
+    ) -> Option<Vec<Observed<String>>> {
+        if !batch.complete || batch.options.is_empty() {
+            return None;
+        }
+
+        let mut seen = std::collections::BTreeSet::new();
+        if batch
+            .options
+            .iter()
+            .any(|option| {
+                option.value.trim().is_empty()
+                    || !seen.insert(option.value.clone())
+            })
+        {
+            return None;
+        }
+
+        let min_confidence = batch
+            .options
+            .iter()
+            .map(|option| option.confidence.value())
+            .fold(1.0_f32, f32::min);
+
+        if min_confidence < self.config.min_confidence {
+            return None;
+        }
+
+        let signature = semantic_augment_options(&batch.options);
+        let should_reset = self
+            .pending
+            .as_ref()
+            .map(|pending| {
+                pending.signature != signature
+                    || batch
+                        .observed_at_ms
+                        .saturating_sub(pending.last_seen_ms)
+                        > self.config.max_gap_ms
+            })
+            .unwrap_or(true);
+
+        if should_reset {
+            self.pending = Some(AugmentPending {
+                signature,
+                confirmations: 1,
+                last_seen_ms: batch.observed_at_ms,
+                best_min_confidence: min_confidence,
+                best_options: batch.options,
+            });
+        } else if let Some(pending) = &mut self.pending {
+            pending.confirmations =
+                pending.confirmations.saturating_add(1);
+            pending.last_seen_ms = batch.observed_at_ms;
+
+            if min_confidence >= pending.best_min_confidence {
+                pending.best_min_confidence = min_confidence;
+                pending.best_options = batch.options;
+            }
+        }
+
+        let pending = self.pending.as_ref()?;
+        if pending.confirmations >= self.config.confirmations {
+            Some(sorted_augment_options(
+                pending.best_options.clone(),
+            ))
+        } else {
+            None
+        }
+    }
+
+    fn reset(&mut self) {
+        self.pending = None;
+    }
+}
+
+fn semantic_augment_options(
+    options: &[Observed<String>],
+) -> Vec<String> {
+    let mut values: Vec<_> = options
+        .iter()
+        .map(|option| option.value.clone())
+        .collect();
+    values.sort();
+    values.dedup();
+    values
+}
+
+fn sorted_augment_options(
+    mut options: Vec<Observed<String>>,
+) -> Vec<Observed<String>> {
+    options.sort_by(|a, b| a.value.cmp(&b.value));
+    options
+}
+
 #[derive(Debug, Clone)]
 pub struct OpponentObservationBatch {
     pub player_id: String,
@@ -319,6 +450,7 @@ pub struct StateFusion {
     state: GameState,
     hud: HudGates,
     shop: ShopGate,
+    augment_options: AugmentGate,
     opponents: std::collections::HashMap<String, OpponentGate>,
 }
 
@@ -328,6 +460,7 @@ impl StateFusion {
             state: GameState::empty(now_ms),
             hud: HudGates::new(consensus),
             shop: ShopGate::new(consensus),
+            augment_options: AugmentGate::new(consensus),
             opponents: std::collections::HashMap::new(),
         }
     }
@@ -448,6 +581,41 @@ impl StateFusion {
         diff_event_kinds(&previous, &self.state)
     }
 
+
+
+    pub fn apply_augment_options(
+        &mut self,
+        batch: AugmentObservationBatch,
+    ) -> Vec<GameEventKind> {
+        let previous = self.state.clone();
+        let observed_at_ms = batch.observed_at_ms;
+
+        let Some(stable_options) =
+            self.augment_options.observe(batch)
+        else {
+            self.state.observed_at_ms =
+                self.state.observed_at_ms.max(observed_at_ms);
+            return Vec::new();
+        };
+
+        let semantic_change =
+            semantic_augment_options(
+                &self.state.player.augment_options,
+            )
+            != semantic_augment_options(&stable_options);
+
+        self.state.player.augment_options = stable_options;
+        self.state.observed_at_ms =
+            self.state.observed_at_ms.max(observed_at_ms);
+
+        if semantic_change {
+            self.state.revision =
+                self.state.revision.saturating_add(1);
+        }
+
+        diff_event_kinds(&previous, &self.state)
+    }
+
     pub fn reset_hud_consensus(&mut self) {
         self.hud.hp.reset();
         self.hud.gold.reset();
@@ -455,6 +623,7 @@ impl StateFusion {
         self.hud.xp.reset();
         self.hud.stage.reset();
         self.shop.reset();
+        self.augment_options.reset();
     }
 
 
