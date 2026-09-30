@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner/agente-tft-banner.jpg" alt="Agente TFT" width="100%">
+  <img src="assets/banner/agente-tft-banner.svg" alt="Agente TFT" width="100%">
 </p>
 
 # Agente TFT
