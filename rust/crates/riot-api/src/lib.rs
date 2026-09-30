@@ -4,6 +4,7 @@ use reqwest::{
     header::{HeaderMap, HeaderValue, RETRY_AFTER},
     Client, StatusCode,
 };
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
 
@@ -111,6 +112,48 @@ pub enum RiotApiError {
     InvalidJson(String),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RiotAccount {
+    pub puuid: String,
+    #[serde(default)]
+    pub game_name: Option<String>,
+    #[serde(default)]
+    pub tag_line: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActiveTftParticipant {
+    pub puuid: String,
+    #[serde(default)]
+    pub riot_id: Option<String>,
+    #[serde(default)]
+    pub summoner_id: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActiveTftGame {
+    pub game_id: i64,
+    #[serde(default)]
+    pub game_length: i64,
+    #[serde(default)]
+    pub game_queue_config_id: i64,
+    #[serde(default)]
+    pub game_start_time: i64,
+    #[serde(default)]
+    pub map_id: i64,
+    #[serde(default)]
+    pub participants: Vec<ActiveTftParticipant>,
+}
+
+impl ActiveTftGame {
+    pub fn participant_puuids(&self) -> impl Iterator<Item = &str> {
+        self.participants.iter().map(|participant| participant.puuid.as_str())
+    }
+}
+
 #[derive(Clone)]
 pub struct RiotApiClient {
     http: Client,
@@ -144,6 +187,28 @@ impl RiotApiClient {
         &self.config
     }
 
+    pub fn account_by_riot_id_url(&self, game_name: &str, tag_line: &str) -> String {
+        let mut url = reqwest::Url::parse(&format!(
+            "https://{}/",
+            self.config.regional.host()
+        ))
+        .expect("known Riot regional host is a valid URL");
+
+        url.path_segments_mut()
+            .expect("Riot API URL is a base URL")
+            .extend([
+                "riot",
+                "account",
+                "v1",
+                "accounts",
+                "by-riot-id",
+                game_name,
+                tag_line,
+            ]);
+
+        url.to_string()
+    }
+
     pub fn active_game_url(&self, puuid: &str) -> String {
         format!(
             "https://{}/lol/spectator/tft/v5/active-games/by-puuid/{}",
@@ -168,10 +233,22 @@ impl RiotApiClient {
         )
     }
 
+    pub async fn account_by_riot_id(
+        &self,
+        game_name: &str,
+        tag_line: &str,
+    ) -> Result<RiotAccount, RiotApiError> {
+        let response = self
+            .request(self.http.get(self.account_by_riot_id_url(game_name, tag_line)))
+            .await?;
+
+        parse_typed_json_response(response).await
+    }
+
     pub async fn active_tft_game_by_puuid(
         &self,
         puuid: &str,
-    ) -> Result<Option<Value>, RiotApiError> {
+    ) -> Result<Option<ActiveTftGame>, RiotApiError> {
         let response = self
             .request(self.http.get(self.active_game_url(puuid)))
             .await?;
@@ -180,7 +257,7 @@ impl RiotApiClient {
             return Ok(None);
         }
 
-        Ok(Some(parse_json_response(response).await?))
+        Ok(Some(parse_typed_json_response(response).await?))
     }
 
     pub async fn tft_match_ids_by_puuid(
@@ -255,6 +332,26 @@ fn retry_after_seconds(headers: &HeaderMap) -> Option<u64> {
         .and_then(|value| value.parse::<u64>().ok())
 }
 
+async fn parse_typed_json_response<T>(response: reqwest::Response) -> Result<T, RiotApiError>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let status = response.status();
+
+    if status == StatusCode::NOT_FOUND {
+        let body = response.text().await.unwrap_or_default();
+        return Err(RiotApiError::Http {
+            status: 404,
+            body: truncate_body(body),
+        });
+    }
+
+    response
+        .json::<T>()
+        .await
+        .map_err(|e| RiotApiError::InvalidJson(e.to_string()))
+}
+
 async fn parse_json_response(response: reqwest::Response) -> Result<Value, RiotApiError> {
     let status = response.status();
 
@@ -297,6 +394,10 @@ mod tests {
         let client = RiotApiClient::new("RGAPI-test", RiotApiConfig::default()).unwrap();
 
         assert_eq!(
+            client.account_by_riot_id_url("Player Name", "BR1"),
+            "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/Player%20Name/BR1"
+        );
+        assert_eq!(
             client.active_game_url("puuid"),
             "https://br1.api.riotgames.com/lol/spectator/tft/v5/active-games/by-puuid/puuid"
         );
@@ -308,6 +409,26 @@ mod tests {
             client.match_url("BR1_123"),
             "https://americas.api.riotgames.com/tft/match/v1/matches/BR1_123"
         );
+    }
+
+    #[test]
+    fn deserializes_active_tft_game() {
+        let json = r#"{
+            "gameId": 123,
+            "gameLength": 42,
+            "gameQueueConfigId": 1100,
+            "gameStartTime": 999,
+            "mapId": 22,
+            "participants": [
+                {"puuid":"p1","riotId":"One#BR1"},
+                {"puuid":"p2"}
+            ]
+        }"#;
+
+        let game: ActiveTftGame = serde_json::from_str(json).unwrap();
+        assert_eq!(game.game_id, 123);
+        assert_eq!(game.participants.len(), 2);
+        assert_eq!(game.participant_puuids().collect::<Vec<_>>(), vec!["p1", "p2"]);
     }
 
     #[test]
