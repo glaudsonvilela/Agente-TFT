@@ -623,6 +623,7 @@ impl OpportunityEngine {
     ) -> Result<OpportunityCandidate, OpportunityError> {
         let strength = bounded01(fact.strength_gain)?;
         let flexibility_cost = bounded01(fact.flexibility_cost)?;
+        let external_meta_prior = signed01(fact.external_meta_prior)?;
 
         self.build(
             state,
@@ -637,17 +638,29 @@ impl OpportunityEngine {
                     state.player.hp.as_ref().map(|value| value.value),
                 ) * strength,
                 flexibility: -flexibility_cost,
+                external_meta_prior,
                 uncertainty: 1.0 - fact.confidence.value(),
                 ..OpportunityVector::default()
             },
             conservative_confidence(state, fact.confidence)?,
-            vec![Evidence {
-                code: "ITEM_SLAM".into(),
-                detail: format!(
-                    "{} on {} has normalized strength gain {:.2}.",
-                    fact.item_id, fact.unit_instance_id, strength
-                ),
-            }],
+            {
+                let mut evidence = vec![Evidence {
+                    code: "ITEM_SLAM".into(),
+                    detail: format!(
+                        "{} on {} has normalized local strength gain {:.2}.",
+                        fact.item_id, fact.unit_instance_id, strength
+                    ),
+                }];
+                if external_meta_prior != 0.0 {
+                    evidence.push(Evidence {
+                        code: "ITEM_EXTERNAL_META_PRIOR".into(),
+                        detail: format!(
+                            "External item prior: {external_meta_prior:.3}."
+                        ),
+                    });
+                }
+                evidence
+            },
         )
     }
 
