@@ -17,6 +17,7 @@ pub enum GameEventKind {
     ItemAdded { item_id: String },
     ItemEquipped { item_id: String, unit_instance_id: String },
     AugmentScreen,
+    AugmentOptionsChanged,
     CombatStarted,
     CombatEnded,
     OpponentObserved { player_id: String },
