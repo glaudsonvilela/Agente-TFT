@@ -133,6 +133,8 @@ pub struct MetaEntity {
     pub performance: MetaPerformance,
     #[serde(default)]
     pub tags: Vec<String>,
+    #[serde(default)]
+    pub attributes: BTreeMap<String, serde_json::Value>,
 }
 
 impl MetaEntity {
@@ -351,6 +353,7 @@ mod tests {
                         sample_size: Some(10_000),
                     },
                     tags: vec![],
+                    attributes: BTreeMap::new(),
                 },
                 MetaEntity {
                     kind: MetaEntityKind::Comp,
@@ -366,6 +369,7 @@ mod tests {
                         sample_size: Some(5_000),
                     },
                     tags: vec![],
+                    attributes: BTreeMap::new(),
                 },
             ],
             metadata: BTreeMap::new(),
