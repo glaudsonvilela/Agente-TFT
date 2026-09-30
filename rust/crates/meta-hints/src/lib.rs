@@ -74,7 +74,6 @@ pub fn unit_meta_hints(
 pub fn generate_comp_transition_candidates(
     state: &GameState,
     snapshot: &MetaSnapshot,
-    *,
     now_ms: u64,
     config: CompCandidateConfig,
 ) -> Vec<CompTransitionCandidate> {
@@ -344,8 +343,8 @@ mod tests {
         let candidates = generate_comp_transition_candidates(
             &state(),
             &snapshot(),
-            now_ms: 1_000,
-            config: CompCandidateConfig::default(),
+            1_000,
+            CompCandidateConfig::default(),
         );
 
         assert_eq!(candidates.len(), 1);
@@ -359,8 +358,8 @@ mod tests {
         let candidates = generate_comp_transition_candidates(
             &state(),
             &snapshot(),
-            now_ms: 1_000,
-            config: CompCandidateConfig::default(),
+            1_000,
+            CompCandidateConfig::default(),
         );
 
         // Opponent holds A 1★ (1 copy) + D 2★ (3 copies).
@@ -372,8 +371,8 @@ mod tests {
         let candidates = generate_comp_transition_candidates(
             &state(),
             &snapshot(),
-            now_ms: 100_000,
-            config: CompCandidateConfig {
+            100_000,
+            CompCandidateConfig {
                 max_age_ms: 100,
                 ..CompCandidateConfig::default()
             },
@@ -389,8 +388,8 @@ mod tests {
         let candidates = generate_comp_transition_candidates(
             &state,
             &snapshot(),
-            now_ms: 1_000,
-            config: CompCandidateConfig::default(),
+            1_000,
+            CompCandidateConfig::default(),
         );
 
         assert!(candidates.is_empty());
