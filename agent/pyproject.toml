@@ -9,6 +9,7 @@ requires-python = ">=3.11"
 dependencies = [
   "pydantic>=2.8,<3",
   "pydantic-ai-slim>=2.44,<3",
+  "httpx>=0.28,<1",
 ]
 
 [project.optional-dependencies]
