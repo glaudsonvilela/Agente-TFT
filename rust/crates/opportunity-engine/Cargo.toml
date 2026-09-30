@@ -1,0 +1,12 @@
+[package]
+name = "agente-tft-opportunity-engine"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-decision-core = { path = "../decision-core" }
+agente-tft-meta-context = { path = "../meta-context" }
