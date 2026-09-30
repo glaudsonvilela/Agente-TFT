@@ -1,7 +1,7 @@
 use agente_tft_contracts::{
-    Action, Confidence, Evidence, GameState, MatchPhase, PositionMove,
+    Action, Confidence, DecisionPacket, Evidence, GameState, MatchPhase, PositionMove,
 };
-use agente_tft_decision_core::CandidateDecision;
+use agente_tft_decision_core::{select_decision, CandidateDecision, DecisionConfig};
 use agente_tft_meta_context::{
     entity_meta_prior, unit_meta_prior, MetaEntityKind, MetaPriorPolicy, MetaSnapshot,
 };
@@ -248,6 +248,35 @@ pub struct OpportunityReport {
     pub all: Vec<OpportunityCandidate>,
     /// Ranked subset for deeper policy/Shadow/Swarm evaluation.
     pub shortlist: Vec<OpportunityCandidate>,
+}
+
+
+impl OpportunityReport {
+    pub fn shortlist_decision_candidates(&self) -> Vec<CandidateDecision> {
+        self.shortlist
+            .iter()
+            .map(OpportunityCandidate::to_decision_candidate)
+            .collect()
+    }
+
+    pub fn all_decision_candidates(&self) -> Vec<CandidateDecision> {
+        self.all
+            .iter()
+            .map(OpportunityCandidate::to_decision_candidate)
+            .collect()
+    }
+
+    /// Produce the immediate local decision from the shortlist.
+    ///
+    /// Shadow/Swarm may refine the decision later, but the local response never
+    /// waits for the network.
+    pub fn local_decision(&self, config: DecisionConfig) -> DecisionPacket {
+        select_decision(
+            self.state_revision,
+            self.shortlist_decision_candidates(),
+            config,
+        )
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
