@@ -178,6 +178,47 @@ async def capture_public_page(
                         }))
                         .filter((row) => row.text && row.text.length <= 2000);
 
+                    const sections = [...document.querySelectorAll('h1,h2,h3')].map((heading, index) => {
+                        const level = Number(heading.tagName.substring(1));
+                        const chunks = [];
+                        const imageAlts = [];
+                        const sectionLinks = [];
+                        let node = heading.nextElementSibling;
+
+                        while (node) {
+                            if (/^H[1-3]$/.test(node.tagName)) {
+                                const nextLevel = Number(node.tagName.substring(1));
+                                if (nextLevel <= level) break;
+                            }
+
+                            const text = visibleText(node);
+                            if (text) chunks.push(text);
+
+                            for (const img of node.querySelectorAll('img[alt]')) {
+                                const alt = (img.getAttribute('alt') || '').trim();
+                                if (alt) imageAlts.push(alt);
+                            }
+
+                            for (const a of node.querySelectorAll('a[href]')) {
+                                const text = visibleText(a);
+                                if (text || a.href) {
+                                    sectionLinks.push({text, href: a.href});
+                                }
+                            }
+
+                            node = node.nextElementSibling;
+                        }
+
+                        return {
+                            index,
+                            level,
+                            heading: visibleText(heading),
+                            text: chunks.join('\n'),
+                            image_alts: [...new Set(imageAlts)],
+                            links: sectionLinks
+                        };
+                    }).filter((row) => row.heading);
+
                     return {
                         title: document.title,
                         final_url: location.href,
@@ -186,6 +227,7 @@ async def capture_public_page(
                         links,
                         data_blocks: dataBlocks,
                         repeated_blocks: repeatedBlocks,
+                        sections,
                         body_text: document.body ? document.body.innerText : ''
                     };
                 }"""
@@ -203,6 +245,7 @@ async def capture_public_page(
                 "links": snapshot.get("links", []),
                 "data_blocks": snapshot.get("data_blocks", []),
                 "repeated_blocks": snapshot.get("repeated_blocks", []),
+                "sections": snapshot.get("sections", []),
                 "body_text": snapshot.get("body_text", ""),
             }
         finally:
