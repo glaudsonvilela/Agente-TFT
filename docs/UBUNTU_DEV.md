@@ -69,3 +69,13 @@ O vídeo original não é modificado.
 ## Regra de dados grandes
 
 Vídeos, capturas, datasets e modelos não entram no Git normal. Eles ficam em diretórios ignorados ou, futuramente, em armazenamento de artefatos/versionamento específico.
+
+## Inspecionar um vídeo de TFT
+
+```bash
+cargo run --manifest-path rust/Cargo.toml \
+  -p agente-tft-replay-inspect -- \
+  partida.mp4 10 600
+```
+
+Isso valida o caminho `vídeo → FFmpeg → FrameEnvelope` e imprime metadados/timestamps em JSON.
