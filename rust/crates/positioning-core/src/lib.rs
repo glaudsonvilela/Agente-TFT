@@ -93,11 +93,27 @@ pub fn parse_directive(text: &str) -> Option<PositioningDirective> {
 
     let front = contains_any(
         &normalized,
-        &["front row", "frontline", "front line", "na frente", "linha da frente"],
+        &[
+            "front row",
+            "frontline",
+            "front line",
+            "front left",
+            "front right",
+            "na frente",
+            "linha da frente",
+        ],
     );
     let back = contains_any(
         &normalized,
-        &["back row", "backline", "back line", "atrás", "linha de trás"],
+        &[
+            "back row",
+            "backline",
+            "back line",
+            "back left",
+            "back right",
+            "atrás",
+            "linha de trás",
+        ],
     );
     let left = contains_any(
         &normalized,
@@ -234,7 +250,11 @@ fn desired_cols(
         | PositioningDirective::FrontRight
         | PositioningDirective::BackRight => convention.right_cols.clone(),
         PositioningDirective::Center => convention.center_cols.clone(),
-        PositioningDirective::Front | PositioningDirective::Back => vec![current],
+        PositioningDirective::Front | PositioningDirective::Back => {
+            let mut cols: Vec<u8> = (0..convention.cols).collect();
+            cols.sort_by_key(|col| current.abs_diff(*col));
+            cols
+        }
     }
 }
 
@@ -339,7 +359,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(proposal.movement.to.row, 0);
-        assert_eq!(proposal.movement.to.col, 3);
+        assert_eq!(proposal.movement.to.col, 2);
     }
 
     #[test]
