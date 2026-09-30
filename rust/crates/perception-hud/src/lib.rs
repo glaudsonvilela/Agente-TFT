@@ -1,4 +1,6 @@
+use agente_tft_capture_core::RoiFrame;
 use agente_tft_contracts::{Confidence, ObservationSource, Observed};
+use agente_tft_image_preprocess::{preprocess_for_numeric_ocr, GrayImage};
 use agente_tft_state_fusion::HudObservationBatch;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,8 +29,68 @@ pub enum HudParseError {
     InvalidStage,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct RecognizedText {
+    pub text: String,
+    pub confidence: Confidence,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HudPreprocessConfig {
+    pub upscale_factor: u8,
+    pub invert: bool,
+}
+
+impl Default for HudPreprocessConfig {
+    fn default() -> Self {
+        Self {
+            upscale_factor: 3,
+            invert: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum HudReadError {
+    Preprocess(String),
+    Recognizer(String),
+    Parse(HudParseError),
+}
+
 pub trait HudOcrEngine {
-    fn read_field(&mut self, field: HudField) -> Result<Option<OcrCandidate>, String>;
+    fn recognize(
+        &mut self,
+        field: HudField,
+        image: &GrayImage,
+    ) -> Result<Option<RecognizedText>, String>;
+}
+
+pub fn read_roi_with_ocr(
+    engine: &mut impl HudOcrEngine,
+    field: HudField,
+    roi: &RoiFrame,
+    config: HudPreprocessConfig,
+) -> Result<Option<HudObservationBatch>, HudReadError> {
+    let image = preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
+        .map_err(|e| HudReadError::Preprocess(e.to_string()))?;
+
+    let Some(recognized) = engine
+        .recognize(field, &image)
+        .map_err(HudReadError::Recognizer)?
+    else {
+        return Ok(None);
+    };
+
+    let candidate = OcrCandidate {
+        field,
+        text: recognized.text,
+        confidence: recognized.confidence,
+        observed_at_ms: roi.captured_at_ms,
+    };
+
+    parse_candidate(candidate)
+        .map(Some)
+        .map_err(HudReadError::Parse)
 }
 
 pub fn parse_candidate(candidate: OcrCandidate) -> Result<HudObservationBatch, HudParseError> {
@@ -252,6 +314,119 @@ mod tests {
     fn rejects_invalid_stage() {
         assert_eq!(parse_stage("abc").unwrap_err(), HudParseError::InvalidStage);
         assert_eq!(parse_stage("0-2").unwrap_err(), HudParseError::InvalidStage);
+    }
+
+
+    struct FakeRecognizer {
+        text: Option<String>,
+        confidence: f32,
+        seen_width: Option<u32>,
+        seen_height: Option<u32>,
+    }
+
+    impl HudOcrEngine for FakeRecognizer {
+        fn recognize(
+            &mut self,
+            _field: HudField,
+            image: &GrayImage,
+        ) -> Result<Option<RecognizedText>, String> {
+            self.seen_width = Some(image.width);
+            self.seen_height = Some(image.height);
+
+            Ok(self.text.clone().map(|text| RecognizedText {
+                text,
+                confidence: Confidence::new(self.confidence).unwrap(),
+            }))
+        }
+    }
+
+    fn roi_fixture() -> RoiFrame {
+        use agente_tft_capture_core::{PixelFormat, PixelRect};
+
+        RoiFrame {
+            source_frame_id: 1,
+            captured_at_ms: 777,
+            rect: PixelRect {
+                x: 0,
+                y: 0,
+                width: 2,
+                height: 1,
+            },
+            stride_bytes: 8,
+            pixel_format: PixelFormat::Rgba8,
+            bytes_per_pixel: 4,
+            pixels: vec![
+                0, 0, 0, 255,
+                255, 255, 255, 255,
+            ],
+        }
+    }
+
+    #[test]
+    fn roi_flows_through_preprocess_and_recognizer() {
+        let mut engine = FakeRecognizer {
+            text: Some("50".into()),
+            confidence: 0.94,
+            seen_width: None,
+            seen_height: None,
+        };
+
+        let batch = read_roi_with_ocr(
+            &mut engine,
+            HudField::Gold,
+            &roi_fixture(),
+            HudPreprocessConfig {
+                upscale_factor: 3,
+                invert: false,
+            },
+        )
+        .unwrap()
+        .unwrap();
+
+        assert_eq!(engine.seen_width, Some(6));
+        assert_eq!(engine.seen_height, Some(3));
+        assert_eq!(batch.gold.unwrap().value, 50);
+        assert_eq!(batch.observed_at_ms, 777);
+    }
+
+    #[test]
+    fn recognizer_none_produces_no_observation() {
+        let mut engine = FakeRecognizer {
+            text: None,
+            confidence: 0.0,
+            seen_width: None,
+            seen_height: None,
+        };
+
+        let result = read_roi_with_ocr(
+            &mut engine,
+            HudField::Gold,
+            &roi_fixture(),
+            HudPreprocessConfig::default(),
+        )
+        .unwrap();
+
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn recognizer_text_still_passes_domain_validation() {
+        let mut engine = FakeRecognizer {
+            text: Some("999".into()),
+            confidence: 0.99,
+            seen_width: None,
+            seen_height: None,
+        };
+
+        let error = read_roi_with_ocr(
+            &mut engine,
+            HudField::Hp,
+            &roi_fixture(),
+            HudPreprocessConfig::default(),
+        )
+        .unwrap_err();
+
+        assert_eq!(error, HudReadError::Parse(HudParseError::OutOfRange));
     }
 
     #[test]
