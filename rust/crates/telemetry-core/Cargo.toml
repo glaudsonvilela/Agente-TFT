@@ -9,3 +9,5 @@ agente-tft-contracts = { path = "../contracts" }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+
+agente-tft-opportunity-runtime = { path = "../opportunity-runtime" }
