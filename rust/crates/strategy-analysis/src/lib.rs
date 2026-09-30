@@ -247,6 +247,9 @@ mod tests {
                 (4, 10),
                 (5, 9),
             ]),
+            xp_purchase_cost_gold: 0,
+            xp_per_purchase: 0,
+            xp_required_to_next_level: BTreeMap::new(),
             source: Some("fixture".into()),
             source_hash: None,
         }
