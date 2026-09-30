@@ -1,0 +1,11 @@
+[package]
+name = "agente-tft-meta-hints"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-lobby-analysis = { path = "../lobby-analysis" }
+agente-tft-meta-context = { path = "../meta-context" }
