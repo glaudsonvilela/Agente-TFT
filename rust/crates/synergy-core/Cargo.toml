@@ -1,0 +1,11 @@
+[package]
+name = "agente-tft-synergy-core"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-knowledge-core = { path = "../knowledge-core" }
+agente-tft-trait-core = { path = "../trait-core" }
