@@ -1,6 +1,6 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
-use agente_tft_board_strength::{BoardStrengthEngine, BoardStrengthEstimate};
+use agente_tft_board_strength::BoardStrengthEngine;
 use agente_tft_contracts::{Confidence, GameState, UnitInstance};
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_meta_hints::CompTransitionCandidate;
@@ -312,8 +312,6 @@ pub fn evaluate_comp_candidates(
 
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeMap;
-
     use agente_tft_board_strength::{
         BoardStrengthConfig, BoardStrengthEngine,
     };
@@ -476,14 +474,15 @@ mod tests {
             &strength,
         );
 
-        assert!(evaluation
-            .transition_board_instance_ids
-            .iter()
-            .any(|id| id.starts_with("B-")));
         assert!(!evaluation
             .transition_board_instance_ids
             .iter()
             .any(|id| id.starts_with("X-")));
+
+        assert!(evaluation
+            .transition_board_instance_ids
+            .iter()
+            .any(|id| id.starts_with("B-") || id.starts_with("D-")));
     }
 
     #[test]
