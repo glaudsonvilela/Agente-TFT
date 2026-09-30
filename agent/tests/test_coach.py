@@ -46,6 +46,15 @@ def make_deps() -> CoachDeps:
         economy_analysis={"gold": 46, "risk": "high"},
         board_analysis={"relative_strength": 0.58},
         knowledge_context={"patch": "fixture"},
+        opportunity_report={
+            "all": [
+                {"action": {"type": "roll", "budget_gold": 20}, "utility": 0.82},
+                {"action": {"type": "hold_econ"}, "utility": 0.39},
+            ],
+            "shortlist": [
+                {"action": {"type": "roll", "budget_gold": 20}, "utility": 0.82},
+            ],
+        },
     )
 
 
@@ -94,6 +103,7 @@ def test_agent_registers_only_context_tools_and_structured_explanation_output():
         "get_economy_analysis",
         "get_board_analysis",
         "get_knowledge_context",
+        "get_opportunity_report",
     }
 
 
