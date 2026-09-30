@@ -469,6 +469,14 @@ impl AutomaticOpportunityRuntime {
             extend_facts(&mut fact_build.facts, extra);
         }
 
+        inject_structural_item_facts(
+            state,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
         let opponent = state
             .lobby
             .iter()
@@ -1848,6 +1856,77 @@ mod tests {
         assert!(augment.external_meta_prior > 0.0);
         assert_eq!(augment.board_gain, 0.0);
         assert!(augment.confidence.value() <= 0.45);
+    }
+
+    #[test]
+    fn complete_runtime_includes_conservative_sell_facts() {
+        use agente_tft_board_strength::BoardStrengthConfig;
+        use agente_tft_sell_core::{
+            SellConfig,
+            SellEvaluator,
+            SellValueRule,
+        };
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig {
+                roll_budgets_gold: vec![10, 20],
+                include_max_affordable_budget: false,
+                ..FactBuilderConfig::default()
+            },
+        )
+        .unwrap();
+
+        let strength =
+            BoardStrengthEngine::new(BoardStrengthConfig::default()).unwrap();
+
+        let sell = SellEvaluator::new(SellConfig {
+            bench_capacity: 1,
+            economy_scale_gold: 10,
+            min_bench_occupancy_ratio: 1.0,
+            confidence_cap: 0.70,
+            preserve_upgrade_material: false,
+            skip_itemized_bench_units: true,
+            sell_values: vec![SellValueRule {
+                cost: 4,
+                stars: 1,
+                gold: 4,
+            }],
+        })
+        .unwrap();
+
+        let result = runtime
+            .evaluate_complete(
+                &automatic_state(),
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                CompleteOpportunityRequest {
+                    positioning: None,
+                    matchup: None,
+                    sell_evaluator: Some(&sell),
+                },
+                None,
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        assert!(!result.fact_build.facts.buys.is_empty());
+        assert!(!result.fact_build.facts.rolls.is_empty());
+        assert!(result
+            .fact_build
+            .facts
+            .levels
+            .iter()
+            .any(|fact| fact.target_level == 8));
+        assert_eq!(result.fact_build.facts.sells.len(), 1);
+        assert!(result.sell_diagnostic.is_some());
+
+        assert!(result.cycle.report.all.iter().any(|candidate| {
+            matches!(candidate.action, Action::Sell { .. })
+        }));
     }
 
     #[test]
