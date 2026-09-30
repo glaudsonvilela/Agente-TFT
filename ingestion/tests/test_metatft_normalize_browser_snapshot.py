@@ -334,7 +334,11 @@ class MetaTftCompCardTests(unittest.TestCase):
         self.assertEqual(comp["trait_ids"], ["TFT18_Void"])
         self.assertEqual(comp["performance"]["avg_place"], 3.91)
         self.assertEqual(comp["performance"]["win_rate"], 0.172)
-        self.assertEqual(comp["performance"]["frequency"], 0.054)
+        self.assertAlmostEqual(
+            comp["performance"]["frequency"],
+            0.054,
+            places=9,
+        )
         self.assertEqual(comp["performance"]["sample_size"], 18250)
 
     def test_weak_comp_like_block_stays_unparsed(self):
