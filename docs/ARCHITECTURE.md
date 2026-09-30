@@ -224,3 +224,140 @@ Detalhes ficam sob demanda.
 - **live-approved** — somente funcionalidades revisadas contra políticas aplicáveis.
 
 A arquitetura deve permitir habilitar/desabilitar capacidades por perfil sem forks de código.
+
+
+## Opportunity Engine — núcleo obrigatório
+
+Toda recomendação passa por este estágio antes de chegar ao `DecisionPacket`.
+
+```text
+GameState
+   ↓
+specialized facts
+   ├── economy
+   ├── shop/pool
+   ├── board strength
+   ├── items
+   ├── positioning
+   ├── scouting
+   └── external meta prior
+   ↓
+Opportunity Engine (Rust)
+   ↓
+ALL opportunities
+   ↓
+local utility ranking
+   ↓
+shortlist
+   ├── Decision Core → resposta local imediata
+   ├── Shadow Player → linha contínua
+   └── Counterfactual Swarm → branches profundos
+```
+
+### Regra
+
+O motor mantém duas saídas:
+
+- `all`: todas as oportunidades válidas avaliadas;
+- `shortlist`: pequeno subconjunto para avaliação profunda.
+
+Nenhum candidato é omitido apenas por ter score baixo; ele continua disponível em `all` para auditoria e replay.
+
+### Utility
+
+A utility local combina, de forma explícita e versionada:
+
+```text
+immediate_board_gain
+upgrade_value
+hp_preservation
+economy_value
+contest_urgency
+flexibility
+information_value
+external_meta_prior
+uncertainty_penalty
+```
+
+Utility é score de ranking, não probabilidade.
+
+Os pesos iniciais são baseline heurístico e deverão posteriormente ser calibrados/substituídos por policy/modelos avaliados.
+
+## External Meta Context
+
+Fontes estatísticas externas são tratadas como **priors limitados**.
+
+Exemplo de fonte: MetaTFT.
+
+```text
+MetaTFT/public snapshot
+       ↓
+normalize + provenance
+       ↓
+local MetaSnapshot
+       ↓
+patch/set/freshness gate
+       ↓
+bounded prior
+       ↓
+Opportunity Engine
+```
+
+O contexto externo pode conter:
+
+- comps;
+- units;
+- items/builds;
+- traits;
+- augments;
+- ranking/player style.
+
+### Regras
+
+- nunca consultar site externo no hot path;
+- provenance obrigatório;
+- patch/set mismatch invalida o snapshot por padrão;
+- snapshot stale é ignorado;
+- influência externa é limitada;
+- GameState e matemática local têm prioridade;
+- não usar endpoints privados/undocumented como dependência do projeto.
+
+Exemplo:
+
+```text
+META:
+comp X historicamente forte → +0.06
+
+LOBBY:
+6 cópias da carry observadas fora → -0.42
+
+RESULTADO:
+Opportunity Engine pode rejeitar o pivot.
+```
+
+## Realtime Remote Evaluation
+
+Depois do shortlist:
+
+```text
+top opportunities
+   ├── Shadow Player
+   │     mantém uma linha sequencial
+   │     + reconcile contra o estado real
+   │
+   └── Counterfactual Swarm
+         executa múltiplos rollouts
+         das melhores alternativas
+```
+
+O Pattern Engine agrega:
+
+```text
+recomendação
+× ação humana observada
+× Shadow
+× melhor branch
+× outcome
+```
+
+O BigBANANA é acelerador de avaliação/training; falha de rede não bloqueia a decisão local.
