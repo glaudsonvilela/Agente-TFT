@@ -256,6 +256,77 @@ impl Default for MetaPriorPolicy {
 }
 
 
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MetaCacheReject {
+    InvalidSnapshot(String),
+    Stale,
+    PatchSetMismatch,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum MetaCacheUpdate {
+    Accepted {
+        source: String,
+        captured_at_ms: u64,
+        entities: usize,
+    },
+    Rejected(MetaCacheReject),
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct MetaSnapshotCache {
+    current: Option<MetaSnapshot>,
+}
+
+impl MetaSnapshotCache {
+    pub fn current(&self) -> Option<&MetaSnapshot> {
+        self.current.as_ref()
+    }
+
+    pub fn clear(&mut self) {
+        self.current = None;
+    }
+
+    pub fn try_update_json(
+        &mut self,
+        value: &str,
+        now_ms: u64,
+        patch: Option<&str>,
+        set: Option<&str>,
+        policy: MetaPriorPolicy,
+    ) -> MetaCacheUpdate {
+        let snapshot = match MetaSnapshot::from_json_str(value) {
+            Ok(snapshot) => snapshot,
+            Err(error) => {
+                return MetaCacheUpdate::Rejected(
+                    MetaCacheReject::InvalidSnapshot(error.to_string()),
+                )
+            }
+        };
+
+        if !snapshot.is_fresh(now_ms, policy.max_age_ms) {
+            return MetaCacheUpdate::Rejected(MetaCacheReject::Stale);
+        }
+
+        if !snapshot.matches_patch_set(patch, set)
+            && !policy.allow_unknown_patch_set
+        {
+            return MetaCacheUpdate::Rejected(
+                MetaCacheReject::PatchSetMismatch,
+            );
+        }
+
+        let result = MetaCacheUpdate::Accepted {
+            source: snapshot.source.clone(),
+            captured_at_ms: snapshot.captured_at_ms,
+            entities: snapshot.entities.len(),
+        };
+        self.current = Some(snapshot);
+        result
+    }
+}
+
 pub fn entity_meta_prior(
     snapshot: &MetaSnapshot,
     policy: MetaPriorPolicy,
@@ -433,6 +504,78 @@ mod tests {
         let encoded = snapshot.to_json_string().unwrap();
         let decoded = MetaSnapshot::from_json_str(&encoded).unwrap();
         assert_eq!(decoded, snapshot);
+    }
+
+    #[test]
+    fn cache_keeps_last_good_snapshot() {
+        let good = snapshot().to_json_string().unwrap();
+        let mut cache = MetaSnapshotCache::default();
+
+        let accepted = cache.try_update_json(
+            &good,
+            1_001,
+            Some("18.3b"),
+            Some("TFTSet18"),
+            MetaPriorPolicy::default(),
+        );
+        assert!(matches!(accepted, MetaCacheUpdate::Accepted { .. }));
+        assert_eq!(cache.current().unwrap().patch.as_deref(), Some("18.3b"));
+
+        let rejected = cache.try_update_json(
+            "{not json}",
+            1_002,
+            Some("18.3b"),
+            Some("TFTSet18"),
+            MetaPriorPolicy::default(),
+        );
+        assert!(matches!(
+            rejected,
+            MetaCacheUpdate::Rejected(MetaCacheReject::InvalidSnapshot(_))
+        ));
+        assert_eq!(cache.current().unwrap().patch.as_deref(), Some("18.3b"));
+    }
+
+    #[test]
+    fn cache_rejects_stale_and_patch_mismatch_without_replacing() {
+        let good = snapshot().to_json_string().unwrap();
+        let mut cache = MetaSnapshotCache::default();
+
+        cache.try_update_json(
+            &good,
+            1_001,
+            Some("18.3b"),
+            Some("TFTSet18"),
+            MetaPriorPolicy::default(),
+        );
+
+        let stale = cache.try_update_json(
+            &good,
+            100_000_000,
+            Some("18.3b"),
+            Some("TFTSet18"),
+            MetaPriorPolicy {
+                max_age_ms: 100,
+                ..MetaPriorPolicy::default()
+            },
+        );
+        assert_eq!(
+            stale,
+            MetaCacheUpdate::Rejected(MetaCacheReject::Stale)
+        );
+
+        let mismatch = cache.try_update_json(
+            &good,
+            1_002,
+            Some("18.4"),
+            Some("TFTSet18"),
+            MetaPriorPolicy::default(),
+        );
+        assert_eq!(
+            mismatch,
+            MetaCacheUpdate::Rejected(MetaCacheReject::PatchSetMismatch)
+        );
+
+        assert_eq!(cache.current().unwrap().patch.as_deref(), Some("18.3b"));
     }
 
     #[test]
