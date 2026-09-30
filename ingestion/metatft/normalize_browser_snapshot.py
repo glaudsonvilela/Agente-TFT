@@ -605,7 +605,7 @@ def extract_comp_cards(
             and (
                 len(unit_ids) >= 3
                 or metric_count >= 2
-                or (len(unit_ids) >= 2 && metric_count >= 1)
+                or (len(unit_ids) >= 2 and metric_count >= 1)
             )
         )
 
