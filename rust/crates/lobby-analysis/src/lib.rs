@@ -144,7 +144,7 @@ pub fn observed_total_copies(state: &GameState, unit_id: &str) -> u16 {
 #[cfg(test)]
 mod tests {
     use agente_tft_contracts::{
-        Confidence, HexPosition, OpponentState, PlayerState,
+        Confidence, HexPosition, OpponentState, PlayerState, UnitInstance,
     };
 
     use super::*;
