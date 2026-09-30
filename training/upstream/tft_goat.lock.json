@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "TFT_GOAT",
+  "repository": "https://github.com/MielPopsssssss/TFT_GOAT.git",
+  "commit": "d5358e9402569f745bea81b61c5aed0500c57d66",
+  "license": "MIT",
+  "purpose": "offline RL/self-play training laboratory; never imported into live runtime",
+  "pinned_on": "2026-09-30"
+}
