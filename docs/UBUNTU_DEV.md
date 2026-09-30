@@ -25,7 +25,7 @@ A captura live do cliente TFT será validada posteriormente no Windows.
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y build-essential ffmpeg python3 python3-venv python3-pip
+sudo apt-get install -y build-essential ffmpeg tesseract-ocr python3 python3-venv python3-pip
 ```
 
 Rust deve estar instalado pelo `rustup`.
@@ -79,3 +79,13 @@ cargo run --manifest-path rust/Cargo.toml \
 ```
 
 Isso valida o caminho `vídeo → FFmpeg → FrameEnvelope` e imprime metadados/timestamps em JSON.
+
+## OCR baseline
+
+O baseline local usa Tesseract:
+
+```bash
+tesseract --version
+```
+
+Ele é usado apenas como referência inicial. O backend continua substituível e poderá migrar para ONNX sem alterar `GameState` ou `StateFusion`.
