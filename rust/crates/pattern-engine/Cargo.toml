@@ -9,6 +9,7 @@ serde.workspace = true
 agente-tft-contracts = { path = "../contracts" }
 agente-tft-opportunity-engine = { path = "../opportunity-engine" }
 agente-tft-remote-training-protocol = { path = "../remote-training-protocol" }
+agente-tft-shadow-player = { path = "../shadow-player" }
 
 [dev-dependencies]
 serde_json.workspace = true
