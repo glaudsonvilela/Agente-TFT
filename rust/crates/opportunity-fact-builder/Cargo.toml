@@ -1,0 +1,15 @@
+[package]
+name = "agente-tft-opportunity-fact-builder"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-knowledge-core = { path = "../knowledge-core" }
+agente-tft-lobby-analysis = { path = "../lobby-analysis" }
+agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+agente-tft-strategy-analysis = { path = "../strategy-analysis" }
+agente-tft-tft-rules = { path = "../tft-rules" }
