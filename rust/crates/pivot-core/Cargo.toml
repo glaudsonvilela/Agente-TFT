@@ -1,0 +1,18 @@
+[package]
+name = "agente-tft-pivot-core"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+agente-tft-board-strength = { path = "../board-strength" }
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-knowledge-core = { path = "../knowledge-core" }
+agente-tft-meta-hints = { path = "../meta-hints" }
+agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+agente-tft-trait-core = { path = "../trait-core" }
+
+[dev-dependencies]
+serde_json.workspace = true
