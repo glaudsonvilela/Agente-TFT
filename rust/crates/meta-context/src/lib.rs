@@ -21,6 +21,8 @@ pub enum MetaContextError {
     InvalidFrequency,
     #[error("sample_size must be > 0 when supplied")]
     InvalidSampleSize,
+    #[error("invalid meta snapshot JSON: {0}")]
+    InvalidJson(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -157,6 +159,19 @@ pub struct MetaSnapshot {
 }
 
 impl MetaSnapshot {
+    pub fn from_json_str(value: &str) -> Result<Self, MetaContextError> {
+        let snapshot: Self = serde_json::from_str(value)
+            .map_err(|error| MetaContextError::InvalidJson(error.to_string()))?;
+        snapshot.validate()?;
+        Ok(snapshot)
+    }
+
+    pub fn to_json_string(&self) -> Result<String, MetaContextError> {
+        self.validate()?;
+        serde_json::to_string_pretty(self)
+            .map_err(|error| MetaContextError::InvalidJson(error.to_string()))
+    }
+
     pub fn validate(&self) -> Result<(), MetaContextError> {
         if self.source.trim().is_empty() {
             return Err(MetaContextError::EmptySource);
@@ -406,6 +421,14 @@ mod tests {
 
         assert!(result > 0.0);
         assert!(result <= 0.10);
+    }
+
+    #[test]
+    fn snapshot_round_trips_json() {
+        let snapshot = snapshot();
+        let encoded = snapshot.to_json_string().unwrap();
+        let decoded = MetaSnapshot::from_json_str(&encoded).unwrap();
+        assert_eq!(decoded, snapshot);
     }
 
     #[test]
