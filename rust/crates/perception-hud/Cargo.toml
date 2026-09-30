@@ -1,0 +1,9 @@
+[package]
+name = "agente-tft-perception-hud"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-state-fusion = { path = "../state-fusion" }
