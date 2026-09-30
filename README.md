@@ -122,9 +122,13 @@ A interface detalhada fica disponível sob demanda, mas o modo de partida perman
 
 ## Estado do projeto
 
-**Fase 0 — Fundação e engenharia.**
+**P0 — Fundação em andamento, contratos centrais validados.**
 
-O repositório começa com a arquitetura, contratos, organização e roadmap antes da implementação. O primeiro objetivo técnico é reconstruir o estado do TFT com alta confiabilidade e latência baixa; só depois entra o policy model.
+Já estão implementados e testados em Rust e Pydantic os contratos versionados `GameState`, `GameEvent` e `Recommendation`, incluindo confiança validada, ações tipadas e o formato de recomendação curta. A CI executa testes Rust e Python a cada push.
+
+**Topologia atual:** single-host local no Windows, sem pendrive, drive externo, segundo computador, injeção ou leitura de memória do jogo.
+
+**Próximo bloco:** P1 — captura e calibração da janela do TFT no Windows.
 
 Veja:
 
