@@ -313,17 +313,14 @@ mod tests {
         assert_eq!(stats.samples, 1);
         assert_eq!(stats.human_agreement_rate(), Some(0.0));
         assert_eq!(stats.shadow_agreement_rate(), Some(1.0));
-        assert_eq!(
-            stats.mean_human_minus_recommended_reward,
-            Some(-0.10)
+        assert!(
+            (stats.mean_human_minus_recommended_reward.unwrap() - (-0.10)).abs() < 1e-6
         );
-        assert_eq!(
-            stats.mean_shadow_minus_recommended_reward,
-            Some(0.10)
+        assert!(
+            (stats.mean_shadow_minus_recommended_reward.unwrap() - 0.10).abs() < 1e-6
         );
-        assert_eq!(
-            stats.mean_counterfactual_minus_recommended_reward,
-            Some(0.20)
+        assert!(
+            (stats.mean_counterfactual_minus_recommended_reward.unwrap() - 0.20).abs() < 1e-6
         );
     }
 
