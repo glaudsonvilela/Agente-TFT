@@ -221,14 +221,6 @@ impl AutomaticOpportunityRuntime {
             extend_facts(&mut fact_build.facts, extra);
         }
 
-        inject_structural_item_facts(
-            state,
-            catalog,
-            traits,
-            board_strength,
-            &mut fact_build.facts,
-        );
-
         dedupe_specialized_facts(&mut fact_build.facts);
 
         let cycle = self.runtime.evaluate(
