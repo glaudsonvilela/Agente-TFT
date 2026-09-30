@@ -2,6 +2,10 @@ use std::collections::BTreeMap;
 
 use agente_tft_contracts::Action;
 use agente_tft_opportunity_engine::OpportunityCandidate;
+use agente_tft_remote_training_protocol::{
+    TrainingJobResult,
+    TrainingJobStatus,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -442,6 +446,67 @@ impl EvaluatorFeedbackEngine {
     }
 }
 
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct SwarmFeedbackIngest {
+    pub outcomes_seen: u32,
+    pub outcomes_accepted: u32,
+    pub skipped_invalid_index: u32,
+    pub skipped_non_finite_reward: u32,
+    pub skipped_zero_samples: u32,
+    pub skipped_non_completed_job: bool,
+}
+
+impl EvaluatorFeedbackEngine {
+    pub fn observe_swarm_result(
+        &mut self,
+        shortlist: &[OpportunityCandidate],
+        result: &TrainingJobResult,
+    ) -> SwarmFeedbackIngest {
+        let mut summary = SwarmFeedbackIngest::default();
+
+        if result.status != TrainingJobStatus::Completed {
+            summary.skipped_non_completed_job = true;
+            return summary;
+        }
+
+        for outcome in &result.outcomes {
+            summary.outcomes_seen =
+                summary.outcomes_seen.saturating_add(1);
+
+            if outcome.samples == 0 {
+                summary.skipped_zero_samples =
+                    summary.skipped_zero_samples.saturating_add(1);
+                continue;
+            }
+
+            if !outcome.reward_mean.is_finite() {
+                summary.skipped_non_finite_reward =
+                    summary.skipped_non_finite_reward.saturating_add(1);
+                continue;
+            }
+
+            let Some(candidate) =
+                shortlist.get(outcome.action_index as usize)
+            else {
+                summary.skipped_invalid_index =
+                    summary.skipped_invalid_index.saturating_add(1);
+                continue;
+            };
+
+            if self.observe_candidate(
+                candidate,
+                outcome.reward_mean,
+            ) {
+                summary.outcomes_accepted =
+                    summary.outcomes_accepted.saturating_add(1);
+            }
+        }
+
+        summary
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct PatternEngine {
     stats: BTreeMap<PatternKey, PatternStats>,
@@ -626,6 +691,140 @@ mod tests {
             f32::NAN,
         ));
         assert!(engine.all().is_empty());
+    }
+
+    #[test]
+    fn swarm_result_updates_feedback_from_action_indices() {
+        use agente_tft_remote_training_protocol::{
+            ActionOutcome,
+            TrainingJobResult,
+            TrainingJobStatus,
+            REMOTE_TRAINING_PROTOCOL_VERSION,
+        };
+
+        let shortlist = vec![
+            opportunity_candidate(0.20, 0.80, 0.20),
+            opportunity_candidate(0.80, 0.20, 0.80),
+        ];
+
+        let result = TrainingJobResult {
+            protocol_version: REMOTE_TRAINING_PROTOCOL_VERSION,
+            session_id: "s1".into(),
+            job_id: "j1".into(),
+            episode_id: "e1".into(),
+            status: TrainingJobStatus::Completed,
+            completed_at_ms: 1000,
+            simulator_version: "fixture".into(),
+            policy_version: "fixture".into(),
+            outcomes: vec![
+                ActionOutcome {
+                    action_index: 0,
+                    placement_mean: None,
+                    placement_p25: None,
+                    placement_p75: None,
+                    top4_rate: None,
+                    first_rate: None,
+                    hp_mean_after_horizon: None,
+                    gold_mean_after_horizon: None,
+                    reward_mean: 0.20,
+                    reward_stddev: 0.01,
+                    samples: 128,
+                },
+                ActionOutcome {
+                    action_index: 1,
+                    placement_mean: None,
+                    placement_p25: None,
+                    placement_p75: None,
+                    top4_rate: None,
+                    first_rate: None,
+                    hp_mean_after_horizon: None,
+                    gold_mean_after_horizon: None,
+                    reward_mean: 0.80,
+                    reward_stddev: 0.01,
+                    samples: 128,
+                },
+            ],
+            metrics: serde_json::json!({}),
+            error: None,
+        };
+
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let ingest = engine.observe_swarm_result(
+            &shortlist,
+            &result,
+        );
+
+        assert_eq!(ingest.outcomes_seen, 2);
+        assert_eq!(ingest.outcomes_accepted, 2);
+        assert_eq!(ingest.skipped_invalid_index, 0);
+
+        let correlation = engine
+            .stats(
+                ActionClass::Roll,
+                OpportunitySignal::UpgradeValue,
+            )
+            .unwrap()
+            .correlation()
+            .unwrap();
+
+        assert!(correlation > 0.99);
+    }
+
+    #[test]
+    fn swarm_feedback_rejects_bad_indices_and_non_completed_jobs() {
+        use agente_tft_remote_training_protocol::{
+            ActionOutcome,
+            TrainingJobResult,
+            TrainingJobStatus,
+            REMOTE_TRAINING_PROTOCOL_VERSION,
+        };
+
+        let shortlist = vec![
+            opportunity_candidate(0.50, 0.50, 0.50),
+        ];
+
+        let mut result = TrainingJobResult {
+            protocol_version: REMOTE_TRAINING_PROTOCOL_VERSION,
+            session_id: "s1".into(),
+            job_id: "j1".into(),
+            episode_id: "e1".into(),
+            status: TrainingJobStatus::Running,
+            completed_at_ms: 1000,
+            simulator_version: "fixture".into(),
+            policy_version: "fixture".into(),
+            outcomes: vec![],
+            metrics: serde_json::json!({}),
+            error: None,
+        };
+
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let running = engine.observe_swarm_result(
+            &shortlist,
+            &result,
+        );
+        assert!(running.skipped_non_completed_job);
+
+        result.status = TrainingJobStatus::Completed;
+        result.outcomes = vec![ActionOutcome {
+            action_index: 99,
+            placement_mean: None,
+            placement_p25: None,
+            placement_p75: None,
+            top4_rate: None,
+            first_rate: None,
+            hp_mean_after_horizon: None,
+            gold_mean_after_horizon: None,
+            reward_mean: 0.2,
+            reward_stddev: 0.0,
+            samples: 64,
+        }];
+
+        let invalid = engine.observe_swarm_result(
+            &shortlist,
+            &result,
+        );
+        assert_eq!(invalid.skipped_invalid_index, 1);
+        assert_eq!(invalid.outcomes_accepted, 0);
     }
 
     #[test]
