@@ -1,0 +1,12 @@
+{
+  "riot_ddragon_versions": {
+    "url": "https://ddragon.leagueoflegends.com/api/versions.json",
+    "format": "json",
+    "ttl_seconds": 3600
+  },
+  "communitydragon_tft_pt_br": {
+    "url": "https://raw.communitydragon.org/latest/cdragon/tft/pt_br.json",
+    "format": "json",
+    "ttl_seconds": 21600
+  }
+}
