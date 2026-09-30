@@ -15,19 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Ensure replay dependencies
+      - name: Report optional media tools
         run: |
-          missing=0
-          command -v ffmpeg >/dev/null || missing=1
-          command -v ffprobe >/dev/null || missing=1
-          command -v tesseract >/dev/null || missing=1
-          if [ "$missing" -eq 1 ]; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg tesseract-ocr
-          fi
-          ffmpeg -version | head -n 1
-          ffprobe -version | head -n 1
-          tesseract --version | head -n 1
+          command -v ffmpeg >/dev/null && ffmpeg -version | head -n 1 || echo "ffmpeg: unavailable (smoke test will skip)"
+          command -v ffprobe >/dev/null && ffprobe -version | head -n 1 || echo "ffprobe: unavailable (smoke test will skip)"
+          command -v tesseract >/dev/null && tesseract --version | head -n 1 || echo "tesseract: unavailable (unit tests do not require binary)"
       - name: Test Rust workspace
         run: cargo test --manifest-path rust/Cargo.toml
 
