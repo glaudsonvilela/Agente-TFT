@@ -1,0 +1,12 @@
+[package]
+name = "agente-tft-matchup-positioning"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+agente-tft-positioning-core = { path = "../positioning-core" }
