@@ -931,6 +931,122 @@ impl EvaluatorFeedbackEngine {
     }
 }
 
+
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "source", content = "feature", rename_all = "snake_case")]
+pub enum CalibrationFeature {
+    Opportunity(OpportunitySignal),
+    Diagnostic(EvaluatorDiagnosticMetric),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CalibrationEntry {
+    pub action: ActionClass,
+    pub feature: CalibrationFeature,
+    pub samples: u64,
+    pub mean_signal: Option<f32>,
+    pub mean_reward: Option<f32>,
+    pub correlation: f32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CalibrationReport {
+    pub min_samples: u64,
+    pub min_abs_correlation: f32,
+    pub entries: Vec<CalibrationEntry>,
+    pub ready_for_weight_review: bool,
+}
+
+impl EvaluatorFeedbackEngine {
+    pub fn calibration_report(
+        &self,
+        min_samples: u64,
+        min_abs_correlation: f32,
+    ) -> CalibrationReport {
+        let threshold = if min_abs_correlation.is_finite() {
+            min_abs_correlation.abs().clamp(0.0, 1.0)
+        } else {
+            1.0
+        };
+        let required_samples = min_samples.max(2);
+
+        let mut entries = Vec::new();
+
+        for (key, stats) in &self.stats {
+            if stats.samples < required_samples {
+                continue;
+            }
+            let Some(correlation) = stats.correlation() else {
+                continue;
+            };
+            if correlation.abs() < threshold {
+                continue;
+            }
+
+            entries.push(CalibrationEntry {
+                action: key.action,
+                feature: CalibrationFeature::Opportunity(key.signal),
+                samples: stats.samples,
+                mean_signal: stats.mean_signal(),
+                mean_reward: stats.mean_reward(),
+                correlation,
+            });
+        }
+
+        for (key, stats) in &self.diagnostic_stats {
+            if stats.samples < required_samples {
+                continue;
+            }
+            let Some(correlation) = stats.correlation() else {
+                continue;
+            };
+            if correlation.abs() < threshold {
+                continue;
+            }
+
+            entries.push(CalibrationEntry {
+                action: key.action,
+                feature: CalibrationFeature::Diagnostic(key.metric),
+                samples: stats.samples,
+                mean_signal: stats.mean_signal(),
+                mean_reward: stats.mean_reward(),
+                correlation,
+            });
+        }
+
+        entries.sort_by(|a, b| {
+            b.correlation
+                .abs()
+                .total_cmp(&a.correlation.abs())
+                .then_with(|| b.samples.cmp(&a.samples))
+                .then_with(|| a.action.cmp(&b.action))
+                .then_with(|| calibration_feature_key(&a.feature)
+                    .cmp(&calibration_feature_key(&b.feature)))
+        });
+
+        CalibrationReport {
+            min_samples: required_samples,
+            min_abs_correlation: threshold,
+            ready_for_weight_review: !entries.is_empty(),
+            entries,
+        }
+    }
+}
+
+fn calibration_feature_key(
+    feature: &CalibrationFeature,
+) -> String {
+    match feature {
+        CalibrationFeature::Opportunity(signal) => {
+            format!("opportunity:{signal:?}")
+        }
+        CalibrationFeature::Diagnostic(metric) => {
+            format!("diagnostic:{metric:?}")
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct PatternEngine {
     stats: BTreeMap<PatternKey, PatternStats>,
@@ -1258,6 +1374,44 @@ mod tests {
                 .samples,
             1
         );
+    }
+
+    #[test]
+    fn calibration_report_requires_samples_and_orders_by_signal() {
+        let mut engine = EvaluatorFeedbackEngine::default();
+
+        let rows = [
+            (0.10, 0.90, 0.10),
+            (0.40, 0.60, 0.40),
+            (0.70, 0.30, 0.70),
+            (1.00, 0.00, 1.00),
+        ];
+
+        for (upgrade, economy, reward) in rows {
+            let candidate =
+                opportunity_candidate(upgrade, economy, reward);
+            engine.observe_candidate(&candidate, reward);
+        }
+
+        let report = engine.calibration_report(4, 0.80);
+
+        assert!(report.ready_for_weight_review);
+        assert!(!report.entries.is_empty());
+        assert!(report.entries.iter().all(|entry| {
+            entry.samples >= 4
+                && entry.correlation.abs() >= 0.80
+        }));
+
+        for window in report.entries.windows(2) {
+            assert!(
+                window[0].correlation.abs()
+                    >= window[1].correlation.abs()
+            );
+        }
+
+        let strict = engine.calibration_report(10, 0.80);
+        assert!(!strict.ready_for_weight_review);
+        assert!(strict.entries.is_empty());
     }
 
     #[test]
