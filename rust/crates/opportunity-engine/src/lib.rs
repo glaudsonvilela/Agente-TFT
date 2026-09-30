@@ -586,8 +586,7 @@ impl OpportunityEngine {
             .max(1);
         let cost_ratio = bounded01(fact.gold_cost as f32 / current_gold as f32)?;
         let board_gain = bounded01(
-            fact.expected_board_gain
-                .unwrap_or((fact.slots_gained as f32 * 0.45).min(1.0)),
+            fact.expected_board_gain.unwrap_or(0.0),
         )?;
 
         self.build(
