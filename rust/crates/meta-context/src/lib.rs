@@ -238,6 +238,37 @@ impl Default for MetaPriorPolicy {
     }
 }
 
+
+pub fn entity_meta_prior(
+    snapshot: &MetaSnapshot,
+    policy: MetaPriorPolicy,
+    *,
+    now_ms: u64,
+    patch: Option<&str>,
+    set: Option<&str>,
+    kind: MetaEntityKind,
+    id: &str,
+) -> Result<Option<f32>, MetaContextError> {
+    snapshot.validate()?;
+
+    if !snapshot.is_fresh(now_ms, policy.max_age_ms) {
+        return Ok(None);
+    }
+
+    let matches = snapshot.matches_patch_set(patch, set);
+    if !matches && !policy.allow_unknown_patch_set {
+        return Ok(None);
+    }
+
+    let Some(entity) = snapshot.entity(kind, id) else {
+        return Ok(None);
+    };
+
+    let prior = entity.performance.descriptive_strength_prior()?;
+    let max = policy.max_abs_adjustment.abs().min(1.0);
+    Ok(Some(prior.clamp(-1.0, 1.0) * max))
+}
+
 pub fn unit_meta_prior(
     snapshot: &MetaSnapshot,
     policy: MetaPriorPolicy,
