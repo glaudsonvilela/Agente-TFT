@@ -1,0 +1,10 @@
+[package]
+name = "agente-tft-tft-rules"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-tft-math = { path = "../tft-math" }
+serde.workspace = true
+thiserror.workspace = true
