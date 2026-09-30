@@ -1,0 +1,13 @@
+[package]
+name = "agente-tft-shop-runtime"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+agente-tft-capture-core = { path = "../capture-core" }
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-perception-core = { path = "../perception-core" }
+agente-tft-perception-shop = { path = "../perception-shop" }
+agente-tft-state-fusion = { path = "../state-fusion" }
