@@ -1,5 +1,6 @@
 use agente_tft_contracts::{
-    GameEventKind, GameState, MatchPhase, Observed, PlayerState, ShopSlot,
+    Confidence, GameEventKind, GameState, MatchPhase, Observed, OpponentState, PlayerState,
+    ShopSlot, UnitInstance,
 };
 use agente_tft_perception_core::{ConsensusConfig, TemporalConsensus};
 use agente_tft_state_engine::diff_event_kinds;
@@ -128,6 +129,170 @@ fn sorted_shop(mut slots: Vec<Observed<ShopSlot>>) -> Vec<Observed<ShopSlot>> {
     slots
 }
 
+
+#[derive(Debug, Clone)]
+pub struct OpponentObservationBatch {
+    pub player_id: String,
+    pub display_name: Option<String>,
+    pub hp: Option<Observed<u16>>,
+    pub level: Option<Observed<u8>>,
+    pub board: Vec<Observed<UnitInstance>>,
+    pub complete_board: bool,
+    pub observed_at_ms: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct UnitSemanticKey {
+    row: u8,
+    col: u8,
+    unit_id: String,
+    stars: u8,
+    items: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+struct OpponentPending {
+    signature: Vec<UnitSemanticKey>,
+    confirmations: u8,
+    last_seen_ms: u64,
+    best_min_confidence: f32,
+    best: OpponentObservationBatch,
+    emitted: bool,
+}
+
+#[derive(Debug)]
+struct OpponentGate {
+    config: ConsensusConfig,
+    pending: Option<OpponentPending>,
+}
+
+impl OpponentGate {
+    fn new(config: ConsensusConfig) -> Self {
+        Self {
+            config: ConsensusConfig {
+                min_confidence: config.min_confidence.clamp(0.0, 1.0),
+                confirmations: config.confirmations.max(1),
+                max_gap_ms: config.max_gap_ms,
+            },
+            pending: None,
+        }
+    }
+
+    fn observe(
+        &mut self,
+        batch: OpponentObservationBatch,
+    ) -> Option<OpponentObservationBatch> {
+        if !batch.complete_board || batch.player_id.trim().is_empty() {
+            return None;
+        }
+
+        let min_confidence = opponent_batch_confidence(&batch);
+        if min_confidence < self.config.min_confidence {
+            return None;
+        }
+
+        let signature = semantic_units(&batch.board);
+        let should_reset = self
+            .pending
+            .as_ref()
+            .map(|pending| {
+                pending.signature != signature
+                    || batch
+                        .observed_at_ms
+                        .saturating_sub(pending.last_seen_ms)
+                        > self.config.max_gap_ms
+            })
+            .unwrap_or(true);
+
+        if should_reset {
+            self.pending = Some(OpponentPending {
+                signature,
+                confirmations: 1,
+                last_seen_ms: batch.observed_at_ms,
+                best_min_confidence: min_confidence,
+                best: batch,
+                emitted: false,
+            });
+        } else if let Some(pending) = &mut self.pending {
+            pending.confirmations = pending.confirmations.saturating_add(1);
+            pending.last_seen_ms = batch.observed_at_ms;
+            if min_confidence >= pending.best_min_confidence {
+                pending.best_min_confidence = min_confidence;
+                pending.best = batch;
+            }
+        }
+
+        let pending = self.pending.as_mut()?;
+        if pending.confirmations < self.config.confirmations || pending.emitted {
+            return None;
+        }
+
+        pending.emitted = true;
+        Some(pending.best.clone())
+    }
+}
+
+fn semantic_units(units: &[Observed<UnitInstance>]) -> Vec<UnitSemanticKey> {
+    let mut result: Vec<_> = units
+        .iter()
+        .map(|observed| {
+            let mut items = observed.value.items.clone();
+            items.sort();
+            UnitSemanticKey {
+                row: observed.value.position.map(|p| p.row).unwrap_or(u8::MAX),
+                col: observed.value.position.map(|p| p.col).unwrap_or(u8::MAX),
+                unit_id: observed.value.unit_id.clone(),
+                stars: observed.value.stars,
+                items,
+            }
+        })
+        .collect();
+
+    result.sort_by(|a, b| {
+        (a.row, a.col, &a.unit_id, a.stars, &a.items)
+            .cmp(&(b.row, b.col, &b.unit_id, b.stars, &b.items))
+    });
+    result
+}
+
+fn opponent_batch_confidence(batch: &OpponentObservationBatch) -> f32 {
+    let mut values = Vec::new();
+    values.extend(batch.board.iter().map(|unit| unit.confidence.value()));
+    if let Some(hp) = &batch.hp {
+        values.push(hp.confidence.value());
+    }
+    if let Some(level) = &batch.level {
+        values.push(level.confidence.value());
+    }
+
+    if values.is_empty() {
+        0.0
+    } else {
+        values.into_iter().fold(1.0_f32, f32::min)
+    }
+}
+
+fn opponent_state_from_batch(batch: OpponentObservationBatch) -> OpponentState {
+    let confidence = Confidence::new(opponent_batch_confidence(&batch))
+        .unwrap_or_default();
+    let mut board: Vec<_> = batch.board.into_iter().map(|unit| unit.value).collect();
+    board.sort_by(|a, b| {
+        let a_pos = a.position.map(|p| (p.row, p.col)).unwrap_or((u8::MAX, u8::MAX));
+        let b_pos = b.position.map(|p| (p.row, p.col)).unwrap_or((u8::MAX, u8::MAX));
+        a_pos.cmp(&b_pos).then_with(|| a.unit_id.cmp(&b.unit_id))
+    });
+
+    OpponentState {
+        player_id: batch.player_id,
+        display_name: batch.display_name,
+        hp: batch.hp,
+        level: batch.level,
+        board,
+        last_seen_ms: batch.observed_at_ms,
+        confidence,
+    }
+}
+
 #[derive(Debug)]
 struct HudGates {
     hp: TemporalConsensus<u16>,
@@ -154,6 +319,7 @@ pub struct StateFusion {
     state: GameState,
     hud: HudGates,
     shop: ShopGate,
+    opponents: std::collections::HashMap<String, OpponentGate>,
 }
 
 impl StateFusion {
@@ -162,6 +328,7 @@ impl StateFusion {
             state: GameState::empty(now_ms),
             hud: HudGates::new(consensus),
             shop: ShopGate::new(consensus),
+            opponents: std::collections::HashMap::new(),
         }
     }
 
@@ -288,6 +455,64 @@ impl StateFusion {
         self.hud.xp.reset();
         self.hud.stage.reset();
         self.shop.reset();
+    }
+
+
+
+    pub fn apply_opponent(
+        &mut self,
+        batch: OpponentObservationBatch,
+        consensus: ConsensusConfig,
+    ) -> Vec<GameEventKind> {
+        let player_id = batch.player_id.clone();
+        let gate = self
+            .opponents
+            .entry(player_id.clone())
+            .or_insert_with(|| OpponentGate::new(consensus));
+
+        let Some(stable) = gate.observe(batch) else {
+            return Vec::new();
+        };
+
+        let previous = self.state.clone();
+        let next = opponent_state_from_batch(stable);
+
+        match self
+            .state
+            .lobby
+            .iter_mut()
+            .find(|opponent| opponent.player_id == player_id)
+        {
+            Some(existing) => *existing = next,
+            None => self.state.lobby.push(next),
+        }
+
+        self.state
+            .lobby
+            .sort_by(|a, b| a.player_id.cmp(&b.player_id));
+        self.state.observed_at_ms = self
+            .state
+            .observed_at_ms
+            .max(
+                self.state
+                    .lobby
+                    .iter()
+                    .find(|opponent| opponent.player_id == player_id)
+                    .map(|opponent| opponent.last_seen_ms)
+                    .unwrap_or(self.state.observed_at_ms),
+            );
+        self.state.revision = self.state.revision.saturating_add(1);
+
+        diff_event_kinds(&previous, &self.state)
+    }
+
+    pub fn reset_opponent_consensus(&mut self, player_id: Option<&str>) {
+        match player_id {
+            Some(player_id) => {
+                self.opponents.remove(player_id);
+            }
+            None => self.opponents.clear(),
+        }
     }
 
     pub fn replace_player_state(&mut self, player: PlayerState, now_ms: u64) -> Vec<GameEventKind> {
