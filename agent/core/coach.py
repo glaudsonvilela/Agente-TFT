@@ -46,6 +46,7 @@ class CoachDeps:
     economy_analysis: dict[str, Any]
     board_analysis: dict[str, Any]
     knowledge_context: dict[str, Any]
+    opportunity_report: dict[str, Any]
 
 
 coach_agent = Agent(
@@ -91,6 +92,12 @@ def get_board_analysis(ctx: RunContext[CoachDeps]) -> dict[str, Any]:
 def get_knowledge_context(ctx: RunContext[CoachDeps]) -> dict[str, Any]:
     """Return local patch-aware knowledge selected for this decision."""
     return ctx.deps.knowledge_context
+
+
+@coach_agent.tool
+def get_opportunity_report(ctx: RunContext[CoachDeps]) -> dict[str, Any]:
+    """Return the Rust Opportunity Engine report: all candidates and shortlist."""
+    return ctx.deps.opportunity_report
 
 
 def assemble_recommendation(
