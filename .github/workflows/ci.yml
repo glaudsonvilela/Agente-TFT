@@ -37,3 +37,5 @@ jobs:
         run: python -m pytest -q
       - name: Test ingestion pipeline
         run: python -m unittest discover -s ingestion/tests -v
+      - name: Test training utilities
+        run: python -m unittest discover -s training/tests -v
