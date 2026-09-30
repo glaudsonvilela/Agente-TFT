@@ -117,3 +117,83 @@ def assemble_recommendation(
         alternatives=decision.alternatives,
         evidence=decision.evidence,
     )
+
+
+
+def _trim(text: str, limit: int = 160) -> str:
+    text = " ".join(text.split()).strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 1)].rstrip() + "…"
+
+
+def fallback_explanation(decision: DecisionPacket) -> CoachExplanation:
+    """
+    Deterministic low-latency explanation used when the language model is
+    unavailable or exceeds its latency budget.
+
+    It never changes the action or confidence.
+    """
+    action = decision.action
+    action_type = action.type
+
+    reason_by_action = {
+        "buy": "Comprar agora foi a ação com maior utilidade entre as alternativas avaliadas.",
+        "skip_buy": "Não comprar agora preserva mais valor que ocupar esse slot.",
+        "sell": "Vender agora foi a ação com maior utilidade no estado atual.",
+        "roll": "Rolar agora teve maior utilidade que segurar ouro ou subir de nível.",
+        "level": "Subir de nível agora teve maior utilidade que continuar no nível atual.",
+        "hold_econ": "Preservar economia teve maior utilidade que gastar ouro agora.",
+        "equip_item": "Equipar o item agora teve maior utilidade que continuar segurando o componente.",
+        "choose_augment": "Esse augment teve maior utilidade entre as opções avaliadas.",
+        "pivot": "A transição completa teve maior utilidade que manter a linha atual.",
+        "partial_pivot": "A transição parcial teve maior utilidade sem abandonar todo o board.",
+        "position": "Esse reposicionamento teve maior utilidade para o confronto avaliado.",
+        "scout": "Observar esse jogador reduz a principal incerteza antes da próxima decisão.",
+        "wait": "Nenhuma ação atingiu confiança suficiente para recomendar uma mudança agora.",
+    }
+
+    reason = reason_by_action.get(
+        action_type,
+        "Essa foi a ação com maior utilidade entre as alternativas avaliadas.",
+    )
+
+    # Deterministic evidence can make the fallback more specific without
+    # allowing the language layer to invent facts.
+    useful_evidence = [
+        evidence.detail.strip()
+        for evidence in decision.evidence
+        if evidence.detail.strip()
+        and evidence.code not in {"CLOSE_ALTERNATIVE", "NO_CONFIDENT_CANDIDATE"}
+    ]
+    if useful_evidence:
+        reason = useful_evidence[0]
+
+    next_step: str | None = None
+    if action_type == "roll":
+        next_step = getattr(action, "stop_condition", None) or "Reavalie após o roll."
+    elif action_type == "level":
+        next_step = f"Reavalie o board ao chegar no nível {action.target_level}."
+    elif action_type == "scout":
+        next_step = "Reavalie depois de atualizar o board desse jogador."
+    elif action_type == "wait":
+        next_step = "Espere uma mudança relevante de estado."
+
+    return CoachExplanation(
+        reason_short=_trim(reason),
+        next_step=_trim(next_step) if next_step else None,
+    )
+
+
+def assemble_fallback_recommendation(
+    decision: DecisionPacket,
+    *,
+    generated_at_ms: int,
+    recommendation_id: str | None = None,
+) -> Recommendation:
+    return assemble_recommendation(
+        decision,
+        fallback_explanation(decision),
+        generated_at_ms=generated_at_ms,
+        recommendation_id=recommendation_id,
+    )
