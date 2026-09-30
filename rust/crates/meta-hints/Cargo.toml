@@ -11,3 +11,4 @@ agente-tft-contracts = { path = "../contracts" }
 agente-tft-lobby-analysis = { path = "../lobby-analysis" }
 agente-tft-meta-context = { path = "../meta-context" }
 agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+agente-tft-positioning-core = { path = "../positioning-core" }
