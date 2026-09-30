@@ -179,7 +179,7 @@ pub struct MatchupAutomaticOpportunityCycle {
 
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct CompleteOpportunityRequest<'a> {
     pub positioning: Option<&'a BoardCoordinateConvention>,
     pub matchup: Option<ObservedMatchupRequest<'a>>,
