@@ -1073,6 +1073,41 @@ mod tests {
     }
 
     #[test]
+    fn local_decision_comes_from_shortlist() {
+        let facts = OpportunityFacts {
+            rolls: vec![RollOpportunityFact {
+                budget_gold: 20,
+                stop_condition: Some("X 2-star".into()),
+                target_unit_id: Some("X".into()),
+                probability_at_least_one: Some(0.80),
+                expected_target_copies: Some(1.2),
+                interest_lost: Some(2),
+                contested_copies: Some(6),
+                confidence: Confidence::new(0.95).unwrap(),
+            }],
+            ..OpportunityFacts::default()
+        };
+
+        let report = OpportunityEngine::new(OpportunityConfig::default())
+            .unwrap()
+            .evaluate(OpportunityInput {
+                state: &state(),
+                facts: &facts,
+                meta: None,
+                now_ms: 1_001,
+            })
+            .unwrap();
+
+        let decision = report.local_decision(DecisionConfig::default());
+
+        assert_eq!(decision.state_revision, report.state_revision);
+        assert!(matches!(
+            decision.action,
+            Action::Roll { budget_gold: 20, .. }
+        ));
+    }
+
+    #[test]
     fn augment_phase_only_evaluates_augment_facts() {
         let mut state = state();
         state.phase = MatchPhase::AugmentSelection;
