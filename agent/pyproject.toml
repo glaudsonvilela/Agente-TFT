@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
   "pydantic>=2.8,<3",
+  "pydantic-ai-slim>=2.44,<3",
 ]
 
 [project.optional-dependencies]
