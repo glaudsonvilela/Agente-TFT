@@ -14,3 +14,5 @@ agente-tft-opportunity-runtime = { path = "../opportunity-runtime" }
 
 [dev-dependencies]
 agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+
+agente-tft-opportunity-fact-builder = { path = "../opportunity-fact-builder" }
