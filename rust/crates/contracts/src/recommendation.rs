@@ -42,6 +42,35 @@ pub struct Evidence {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DecisionPacket {
+    pub schema_version: String,
+    pub state_revision: u64,
+    pub action: Action,
+    pub confidence: Confidence,
+    pub alternatives: Vec<AlternativeAction>,
+    pub evidence: Vec<Evidence>,
+}
+
+impl DecisionPacket {
+    pub fn new(
+        state_revision: u64,
+        action: Action,
+        confidence: Confidence,
+        alternatives: Vec<AlternativeAction>,
+        evidence: Vec<Evidence>,
+    ) -> Self {
+        Self {
+            schema_version: crate::CONTRACT_SCHEMA_VERSION.to_string(),
+            state_revision,
+            action,
+            confidence,
+            alternatives,
+            evidence,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Recommendation {
     pub schema_version: String,
     pub recommendation_id: String,
