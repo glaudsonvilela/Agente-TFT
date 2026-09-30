@@ -7,8 +7,8 @@ use agente_tft_lobby_analysis::{
     analyze_unit_contestation, self_owned_copies,
 };
 use agente_tft_opportunity_engine::{
-    BuyOpportunityFact, LevelOpportunityFact, OpportunityFacts,
-    RollOpportunityFact, ScoutOpportunityFact,
+    AugmentOpportunityFact, BuyOpportunityFact, LevelOpportunityFact,
+    OpportunityFacts, RollOpportunityFact, ScoutOpportunityFact,
 };
 use agente_tft_strategy_analysis::{
     analyze_target_roll, StrategyAnalysisError, TargetRollInput,
@@ -51,6 +51,8 @@ pub struct FactBuilderConfig {
     pub pool_accounting_confidence: f32,
     pub scout_stale_after_ms: u64,
     pub scout_full_value_age_ms: u64,
+    /// Confidence cap for offered augment identity without a local value model.
+    pub augment_base_confidence_cap: f32,
 }
 
 impl Default for FactBuilderConfig {
@@ -64,6 +66,7 @@ impl Default for FactBuilderConfig {
             pool_accounting_confidence: 0.80,
             scout_stale_after_ms: 8_000,
             scout_full_value_age_ms: 30_000,
+            augment_base_confidence_cap: 0.25,
         }
     }
 }
@@ -137,6 +140,11 @@ impl OpportunityFactBuilder {
         {
             return Err(FactBuildError::InvalidPoolConfidence);
         }
+        if !config.augment_base_confidence_cap.is_finite()
+            || !(0.0..=1.0).contains(&config.augment_base_confidence_cap)
+        {
+            return Err(FactBuildError::InvalidPoolConfidence);
+        }
 
         Ok(Self { config })
     }
@@ -175,6 +183,11 @@ impl OpportunityFactBuilder {
             &mut facts,
             &mut diagnostics,
         )?;
+
+        self.build_augment_facts(
+            state,
+            &mut facts,
+        );
 
         self.build_scout_facts(
             state,
@@ -579,6 +592,44 @@ impl OpportunityFactBuilder {
         diagnostics.unaffordable_level_targets.sort_unstable();
         diagnostics.unaffordable_level_targets.dedup();
         Ok(())
+    }
+
+    fn build_augment_facts(
+        &self,
+        state: &GameState,
+        facts: &mut OpportunityFacts,
+    ) {
+        if state.phase != agente_tft_contracts::MatchPhase::AugmentSelection {
+            return;
+        }
+
+        for option in &state.player.augment_options {
+            if option.value.trim().is_empty() {
+                continue;
+            }
+
+            let confidence = Confidence::new(
+                state
+                    .overall_confidence
+                    .value()
+                    .min(option.confidence.value())
+                    .min(self.config.augment_base_confidence_cap),
+            )
+            .expect("bounded augment confidence remains valid");
+
+            facts.augments.push(AugmentOpportunityFact {
+                augment_id: option.value.clone(),
+                board_gain: 0.0,
+                flexibility: 0.0,
+                external_meta_prior: 0.0,
+                confidence,
+            });
+        }
+
+        facts.augments.sort_by(|a, b| {
+            a.augment_id.cmp(&b.augment_id)
+        });
+        facts.augments.dedup_by(|a, b| a.augment_id == b.augment_id);
     }
 
     fn build_scout_facts(
@@ -1075,6 +1126,58 @@ mod tests {
             .level_board_plans
             .iter()
             .any(|plan| plan.target_level == 8));
+    }
+
+    #[test]
+    fn augment_selection_enumerates_options_without_claiming_value() {
+        let builder =
+            OpportunityFactBuilder::new(FactBuilderConfig::default()).unwrap();
+
+        let mut state = state();
+        state.phase = agente_tft_contracts::MatchPhase::AugmentSelection;
+        state.player.augment_options = vec![
+            observed("AUG_A".to_string(), 0.95),
+            observed("AUG_B".to_string(), 0.90),
+            observed("AUG_C".to_string(), 0.92),
+        ];
+
+        let result = builder
+            .build(&state, &rules(), &catalog(), 10_000)
+            .unwrap();
+
+        assert_eq!(result.facts.augments.len(), 3);
+        assert!(result
+            .facts
+            .augments
+            .iter()
+            .all(|fact| fact.board_gain == 0.0));
+        assert!(result
+            .facts
+            .augments
+            .iter()
+            .all(|fact| fact.external_meta_prior == 0.0));
+        assert!(result
+            .facts
+            .augments
+            .iter()
+            .all(|fact| fact.confidence.value() <= 0.25));
+    }
+
+    #[test]
+    fn augment_options_are_ignored_outside_selection_phase() {
+        let builder =
+            OpportunityFactBuilder::new(FactBuilderConfig::default()).unwrap();
+
+        let mut state = state();
+        state.player.augment_options = vec![
+            observed("AUG_A".to_string(), 0.95),
+        ];
+
+        let result = builder
+            .build(&state, &rules(), &catalog(), 10_000)
+            .unwrap();
+
+        assert!(result.facts.augments.is_empty());
     }
 
     #[test]
