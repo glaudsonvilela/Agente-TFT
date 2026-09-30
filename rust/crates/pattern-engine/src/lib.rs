@@ -766,6 +766,43 @@ impl EvaluatorFeedbackEngine {
     }
 }
 
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct CompleteShadowFeedbackIngest {
+    pub base: ShadowFeedbackIngest,
+    pub diagnostics: DiagnosticFeedbackIngest,
+}
+
+impl EvaluatorFeedbackEngine {
+    pub fn observe_complete_shadow_transition(
+        &mut self,
+        cycle: &CompleteOpportunityCycle,
+        transition: &ShadowTransition,
+    ) -> CompleteShadowFeedbackIngest {
+        let base = self.observe_shadow_transition(
+            &cycle.cycle.report.shortlist,
+            transition,
+        );
+
+        let diagnostics = match (base.accepted, transition.reward) {
+            (true, Some(reward)) if reward.is_finite() => {
+                self.observe_complete_cycle_action(
+                    cycle,
+                    &transition.action,
+                    reward,
+                )
+            }
+            _ => DiagnosticFeedbackIngest::default(),
+        };
+
+        CompleteShadowFeedbackIngest {
+            base,
+            diagnostics,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct SwarmFeedbackIngest {
     pub outcomes_seen: u32,
@@ -820,6 +857,74 @@ impl EvaluatorFeedbackEngine {
                 summary.outcomes_accepted =
                     summary.outcomes_accepted.saturating_add(1);
             }
+        }
+
+        summary
+    }
+}
+
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct CompleteSwarmFeedbackIngest {
+    pub base: SwarmFeedbackIngest,
+    pub diagnostic_actions_seen: u32,
+    pub diagnostic_actions_supported: u32,
+    pub diagnostic_metrics_accepted: u32,
+}
+
+impl EvaluatorFeedbackEngine {
+    pub fn observe_complete_swarm_result(
+        &mut self,
+        cycle: &CompleteOpportunityCycle,
+        result: &TrainingJobResult,
+    ) -> CompleteSwarmFeedbackIngest {
+        let base = self.observe_swarm_result(
+            &cycle.cycle.report.shortlist,
+            result,
+        );
+
+        let mut summary = CompleteSwarmFeedbackIngest {
+            base,
+            ..CompleteSwarmFeedbackIngest::default()
+        };
+
+        if result.status != TrainingJobStatus::Completed {
+            return summary;
+        }
+
+        for outcome in &result.outcomes {
+            if outcome.samples == 0
+                || !outcome.reward_mean.is_finite()
+            {
+                continue;
+            }
+
+            let Some(candidate) = cycle
+                .cycle
+                .report
+                .shortlist
+                .get(outcome.action_index as usize)
+            else {
+                continue;
+            };
+
+            summary.diagnostic_actions_seen =
+                summary.diagnostic_actions_seen.saturating_add(1);
+
+            let diagnostics = self.observe_complete_cycle_action(
+                cycle,
+                &candidate.action,
+                outcome.reward_mean,
+            );
+
+            if diagnostics.action_supported {
+                summary.diagnostic_actions_supported =
+                    summary.diagnostic_actions_supported.saturating_add(1);
+            }
+            summary.diagnostic_metrics_accepted =
+                summary.diagnostic_metrics_accepted
+                    .saturating_add(diagnostics.metrics_accepted);
         }
 
         summary
@@ -1035,6 +1140,124 @@ mod tests {
             .unwrap();
 
         assert!(corr > 0.99);
+    }
+
+    #[test]
+    fn complete_shadow_feedback_updates_diagnostics() {
+        use agente_tft_contracts::{
+            Confidence, DecisionPacket,
+        };
+        use agente_tft_item_strength::ItemStrengthEvaluation;
+        use agente_tft_opportunity_engine::{
+            ItemOpportunityFact, OpportunityDelta, OpportunityReport,
+            OpportunityTier, OpportunityVector,
+        };
+        use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
+        use agente_tft_opportunity_runtime::{
+            CompleteOpportunityCycle, OpportunityCycle,
+        };
+
+        let action = Action::EquipItem {
+            item_id: "ITEM_1".into(),
+            unit_instance_id: "A-1".into(),
+        };
+
+        let candidate = OpportunityCandidate {
+            action: action.clone(),
+            tier: OpportunityTier::Micro,
+            utility: 0.50,
+            confidence: Confidence::new(0.90).unwrap(),
+            vector: OpportunityVector {
+                immediate_board_gain: 0.25,
+                ..OpportunityVector::default()
+            },
+            evidence: vec![],
+        };
+
+        let complete = CompleteOpportunityCycle {
+            fact_build: OpportunityFactBuild {
+                facts: Default::default(),
+                diagnostics: Default::default(),
+            },
+            cycle: OpportunityCycle {
+                report: OpportunityReport {
+                    state_revision: 7,
+                    evaluated_at_ms: 100,
+                    all: vec![candidate.clone()],
+                    shortlist: vec![candidate],
+                },
+                delta: OpportunityDelta {
+                    previous_revision: None,
+                    current_revision: 7,
+                    added: vec![action.clone()],
+                    removed: vec![],
+                    top_changed: true,
+                    previous_top: None,
+                    current_top: Some(action.clone()),
+                    material_utility_shifts: vec![],
+                },
+                decision: DecisionPacket::new(
+                    7,
+                    action.clone(),
+                    Confidence::new(0.90).unwrap(),
+                    vec![],
+                    vec![],
+                ),
+                remote_shortlist: vec![],
+                should_refresh_ui: true,
+                should_remote_evaluate: true,
+            },
+            item_evaluations: vec![ItemStrengthEvaluation {
+                fact: ItemOpportunityFact {
+                    item_id: "ITEM_1".into(),
+                    unit_instance_id: "A-1".into(),
+                    strength_gain: 0.25,
+                    flexibility_cost: 0.0,
+                    external_meta_prior: 0.0,
+                    confidence: Confidence::new(0.35).unwrap(),
+                },
+                before_score: 0.40,
+                after_score: 0.65,
+                structural_gain: 0.25,
+                target_on_board: true,
+                item_available: true,
+                target_had_free_slot: true,
+            }],
+            pivot_evaluations: vec![],
+            sell_diagnostic: None,
+            matchup_opponent_id: None,
+            matchup_opponent_found: false,
+            matchup_positioning: None,
+        };
+
+        let transition = ShadowTransition {
+            before_revision: 7,
+            action,
+            simulated_state: agente_tft_contracts::GameState::empty(200),
+            reward: Some(0.80),
+            metrics: serde_json::json!({}),
+        };
+
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let summary = engine.observe_complete_shadow_transition(
+            &complete,
+            &transition,
+        );
+
+        assert!(summary.base.accepted);
+        assert!(summary.diagnostics.action_supported);
+        assert_eq!(summary.diagnostics.metrics_accepted, 3);
+
+        assert_eq!(
+            engine
+                .diagnostic_stats(
+                    ActionClass::EquipItem,
+                    EvaluatorDiagnosticMetric::ItemStructuralGain,
+                )
+                .unwrap()
+                .samples,
+            1
+        );
     }
 
     #[test]
