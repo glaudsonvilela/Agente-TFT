@@ -134,6 +134,18 @@ impl OpportunityWeights {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SellOpportunityFact {
+    pub unit_instance_id: String,
+    /// Normalized economy benefit supplied by a specialized evaluator.
+    pub economy_value: f32,
+    /// Normalized immediate board-strength loss caused by selling.
+    pub board_strength_loss: f32,
+    /// Normalized flexibility/bench-space benefit.
+    pub flexibility_gain: f32,
+    pub confidence: Confidence,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RollOpportunityFact {
     pub budget_gold: u16,
     pub stop_condition: Option<String>,
@@ -215,6 +227,7 @@ pub struct AugmentOpportunityFact {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OpportunityFacts {
+    pub sells: Vec<SellOpportunityFact>,
     pub rolls: Vec<RollOpportunityFact>,
     pub buys: Vec<BuyOpportunityFact>,
     pub levels: Vec<LevelOpportunityFact>,
@@ -330,6 +343,9 @@ impl OpportunityEngine {
 
         if allows_economic_actions(&input.state.phase) {
             candidates.push(self.hold_candidate(input.state)?);
+            for fact in &input.facts.sells {
+                candidates.push(self.sell_candidate(input.state, fact)?);
+            }
             for fact in &input.facts.rolls {
                 candidates.push(self.roll_candidate(&input, fact)?);
             }
@@ -417,6 +433,46 @@ impl OpportunityEngine {
                 Evidence {
                     code: "HP_PRESSURE".into(),
                     detail: format!("HP pressure score: {pressure:.2}."),
+                },
+            ],
+        )
+    }
+
+    fn sell_candidate(
+        &self,
+        state: &GameState,
+        fact: &SellOpportunityFact,
+    ) -> Result<OpportunityCandidate, OpportunityError> {
+        let economy = signed01(fact.economy_value)?;
+        let board_loss = bounded01(fact.board_strength_loss)?;
+        let flexibility = bounded01(fact.flexibility_gain)?;
+
+        self.build(
+            state,
+            Action::Sell {
+                unit_instance_id: fact.unit_instance_id.clone(),
+            },
+            OpportunityTier::Micro,
+            OpportunityVector {
+                immediate_board_gain: -board_loss,
+                economy_value: economy,
+                flexibility,
+                uncertainty: 1.0 - fact.confidence.value(),
+                ..OpportunityVector::default()
+            },
+            conservative_confidence(state, fact.confidence)?,
+            vec![
+                Evidence {
+                    code: "SELL_ECONOMY_VALUE".into(),
+                    detail: format!(
+                        "Normalized sell economy value: {economy:.2}."
+                    ),
+                },
+                Evidence {
+                    code: "SELL_BOARD_LOSS".into(),
+                    detail: format!(
+                        "Normalized immediate board loss: {board_loss:.2}."
+                    ),
                 },
             ],
         )
@@ -1120,6 +1176,42 @@ mod tests {
             }],
             metadata: BTreeMap::new(),
         }
+    }
+
+    #[test]
+    fn sell_fact_is_evaluated_as_micro_opportunity() {
+        let facts = OpportunityFacts {
+            sells: vec![SellOpportunityFact {
+                unit_instance_id: "bench-x".into(),
+                economy_value: 0.50,
+                board_strength_loss: 0.0,
+                flexibility_gain: 0.40,
+                confidence: Confidence::new(0.90).unwrap(),
+            }],
+            ..OpportunityFacts::default()
+        };
+
+        let report = OpportunityEngine::new(
+            OpportunityConfig::default(),
+        )
+        .unwrap()
+        .evaluate(OpportunityInput {
+            state: &state(),
+            facts: &facts,
+            meta: None,
+            now_ms: 1_001,
+        })
+        .unwrap();
+
+        let sell = report.all.iter().find(|candidate| matches!(
+            candidate.action,
+            Action::Sell { .. }
+        ))
+        .unwrap();
+
+        assert_eq!(sell.tier, OpportunityTier::Micro);
+        assert!(sell.vector.economy_value > 0.0);
+        assert_eq!(sell.vector.immediate_board_gain, 0.0);
     }
 
     #[test]
