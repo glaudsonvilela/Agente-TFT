@@ -207,6 +207,9 @@ pub struct AugmentOpportunityFact {
     pub augment_id: String,
     pub board_gain: f32,
     pub flexibility: f32,
+    /// External prior only; never substitutes local board evaluation.
+    #[serde(default)]
+    pub external_meta_prior: f32,
     pub confidence: Confidence,
 }
 
@@ -786,6 +789,21 @@ impl OpportunityEngine {
     ) -> Result<OpportunityCandidate, OpportunityError> {
         let board_gain = signed01(fact.board_gain)?;
         let flexibility = signed01(fact.flexibility)?;
+        let external_meta_prior = signed01(fact.external_meta_prior)?;
+
+        let mut evidence = vec![Evidence {
+            code: "AUGMENT_OPTION".into(),
+            detail: fact.augment_id.clone(),
+        }];
+
+        if external_meta_prior != 0.0 {
+            evidence.push(Evidence {
+                code: "AUGMENT_EXTERNAL_META_PRIOR".into(),
+                detail: format!(
+                    "External augment prior: {external_meta_prior:.3}."
+                ),
+            });
+        }
 
         self.build(
             state,
@@ -796,14 +814,12 @@ impl OpportunityEngine {
             OpportunityVector {
                 immediate_board_gain: board_gain,
                 flexibility,
+                external_meta_prior,
                 uncertainty: 1.0 - fact.confidence.value(),
                 ..OpportunityVector::default()
             },
             conservative_confidence(state, fact.confidence)?,
-            vec![Evidence {
-                code: "AUGMENT_OPTION".into(),
-                detail: fact.augment_id.clone(),
-            }],
+            evidence,
         )
     }
 
@@ -1329,6 +1345,7 @@ mod tests {
                 augment_id: "AUG_A".into(),
                 board_gain: 0.6,
                 flexibility: 0.2,
+                external_meta_prior: 0.0,
                 confidence: Confidence::new(0.95).unwrap(),
             }],
             ..OpportunityFacts::default()
