@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+agente-tft-positioning-core = { path = "../positioning-core" }
 agente-tft-pivot-core = { path = "../pivot-core" }
 agente-tft-meta-hints = { path = "../meta-hints" }
 agente-tft-trait-core = { path = "../trait-core" }
