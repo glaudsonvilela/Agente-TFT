@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use agente_tft_contracts::Action;
 use agente_tft_opportunity_engine::OpportunityCandidate;
+use agente_tft_opportunity_runtime::CompleteOpportunityCycle;
 use agente_tft_remote_training_protocol::{
     TrainingJobResult,
     TrainingJobStatus,
@@ -326,9 +327,62 @@ impl SignalCorrelationStats {
     }
 }
 
+
+
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum EvaluatorDiagnosticMetric {
+    ItemStructuralGain,
+    ItemBeforeScore,
+    ItemAfterScore,
+    PivotBoardDelta,
+    PivotTransitionCost,
+    PivotReplacementRatio,
+    PivotMissingRatio,
+    PositionExposureBefore,
+    PositionExposureAfter,
+    PositionExposureGain,
+    PositionObservedCoverage,
+    SellBenchOccupancy,
+}
+
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
+pub struct DiagnosticSignalKey {
+    pub action: ActionClass,
+    pub metric: EvaluatorDiagnosticMetric,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct DiagnosticFeedbackIngest {
+    pub action_supported: bool,
+    pub metrics_seen: u32,
+    pub metrics_accepted: u32,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct EvaluatorFeedbackEngine {
     stats: BTreeMap<SignalKey, SignalCorrelationStats>,
+    #[serde(default)]
+    diagnostic_stats: BTreeMap<DiagnosticSignalKey, SignalCorrelationStats>,
 }
 
 impl EvaluatorFeedbackEngine {
@@ -448,6 +502,227 @@ impl EvaluatorFeedbackEngine {
 }
 
 
+
+
+impl EvaluatorFeedbackEngine {
+    pub fn observe_complete_cycle_action(
+        &mut self,
+        cycle: &CompleteOpportunityCycle,
+        action: &Action,
+        realized_reward: f32,
+    ) -> DiagnosticFeedbackIngest {
+        let mut summary = DiagnosticFeedbackIngest::default();
+
+        if !realized_reward.is_finite() {
+            return summary;
+        }
+
+        let action_class = ActionClass::from(action);
+
+        let mut observe = |metric: EvaluatorDiagnosticMetric, value: f32| {
+            summary.metrics_seen = summary.metrics_seen.saturating_add(1);
+            if !value.is_finite() {
+                return;
+            }
+
+            if self
+                .diagnostic_stats
+                .entry(DiagnosticSignalKey {
+                    action: action_class,
+                    metric,
+                })
+                .or_default()
+                .observe(value, realized_reward)
+            {
+                summary.metrics_accepted =
+                    summary.metrics_accepted.saturating_add(1);
+            }
+        };
+
+        match action {
+            Action::EquipItem {
+                item_id,
+                unit_instance_id,
+            } => {
+                if let Some(value) = cycle.item_evaluations.iter().find(
+                    |evaluation| {
+                        evaluation.fact.item_id == *item_id
+                            && evaluation.fact.unit_instance_id
+                                == *unit_instance_id
+                    },
+                ) {
+                    summary.action_supported = true;
+                    observe(
+                        EvaluatorDiagnosticMetric::ItemStructuralGain,
+                        value.structural_gain,
+                    );
+                    observe(
+                        EvaluatorDiagnosticMetric::ItemBeforeScore,
+                        value.before_score,
+                    );
+                    observe(
+                        EvaluatorDiagnosticMetric::ItemAfterScore,
+                        value.after_score,
+                    );
+                }
+            }
+            Action::Pivot { target } => {
+                if let Some(value) = cycle.pivot_evaluations.iter().find(
+                    |evaluation| evaluation.fact.target == *target,
+                ) {
+                    summary.action_supported = true;
+
+                    let board_delta =
+                        value.transition_board_score - value.current_board_score;
+                    let replacement_ratio = if value.board_capacity == 0 {
+                        0.0
+                    } else {
+                        value.replacement_count as f32
+                            / value.board_capacity as f32
+                    };
+                    let total_target_units =
+                        value.target_owned_unit_ids.len()
+                            + value.missing_unit_ids.len();
+                    let missing_ratio = if total_target_units == 0 {
+                        0.0
+                    } else {
+                        value.missing_unit_ids.len() as f32
+                            / total_target_units as f32
+                    };
+
+                    observe(
+                        EvaluatorDiagnosticMetric::PivotBoardDelta,
+                        board_delta,
+                    );
+                    observe(
+                        EvaluatorDiagnosticMetric::PivotTransitionCost,
+                        value.fact.transition_cost,
+                    );
+                    observe(
+                        EvaluatorDiagnosticMetric::PivotReplacementRatio,
+                        replacement_ratio,
+                    );
+                    observe(
+                        EvaluatorDiagnosticMetric::PivotMissingRatio,
+                        missing_ratio,
+                    );
+                }
+            }
+            Action::Position { moves } => {
+                if let Some(diagnostic) =
+                    cycle.matchup_positioning.as_ref()
+                {
+                    let ids: std::collections::BTreeSet<&str> = moves
+                        .iter()
+                        .map(|movement| movement.unit_instance_id.as_str())
+                        .collect();
+
+                    let selected: Vec<_> = diagnostic
+                        .measurements
+                        .iter()
+                        .filter(|measurement| {
+                            ids.contains(measurement.unit_instance_id.as_str())
+                        })
+                        .collect();
+
+                    if !selected.is_empty() {
+                        summary.action_supported = true;
+
+                        let count = selected.len() as f32;
+                        let before = selected
+                            .iter()
+                            .map(|value| value.before)
+                            .sum::<f32>()
+                            / count;
+                        let after = selected
+                            .iter()
+                            .map(|value| value.after)
+                            .sum::<f32>()
+                            / count;
+                        let gain = selected
+                            .iter()
+                            .map(|value| value.normalized_gain)
+                            .sum::<f32>()
+                            / count;
+                        let coverage =
+                            if diagnostic.observed_opponent_units == 0 {
+                                0.0
+                            } else {
+                                diagnostic.usable_opponent_units as f32
+                                    / diagnostic.observed_opponent_units as f32
+                            };
+
+                        observe(
+                            EvaluatorDiagnosticMetric::PositionExposureBefore,
+                            before,
+                        );
+                        observe(
+                            EvaluatorDiagnosticMetric::PositionExposureAfter,
+                            after,
+                        );
+                        observe(
+                            EvaluatorDiagnosticMetric::PositionExposureGain,
+                            gain,
+                        );
+                        observe(
+                            EvaluatorDiagnosticMetric::PositionObservedCoverage,
+                            coverage,
+                        );
+                    }
+                }
+            }
+            Action::Sell { .. } => {
+                if let Some(diagnostic) = cycle.sell_diagnostic.as_ref() {
+                    summary.action_supported = true;
+                    observe(
+                        EvaluatorDiagnosticMetric::SellBenchOccupancy,
+                        diagnostic.bench_occupancy_ratio,
+                    );
+                }
+            }
+            _ => {}
+        }
+
+        summary
+    }
+
+    pub fn diagnostic_stats(
+        &self,
+        action: ActionClass,
+        metric: EvaluatorDiagnosticMetric,
+    ) -> Option<&SignalCorrelationStats> {
+        self.diagnostic_stats.get(
+            &DiagnosticSignalKey { action, metric },
+        )
+    }
+
+    pub fn ranked_diagnostic_correlations(
+        &self,
+        action: ActionClass,
+        min_samples: u64,
+    ) -> Vec<(EvaluatorDiagnosticMetric, &SignalCorrelationStats)> {
+        let mut values: Vec<_> = self
+            .diagnostic_stats
+            .iter()
+            .filter(|(key, stats)| {
+                key.action == action
+                    && stats.samples >= min_samples
+                    && stats.correlation().is_some()
+            })
+            .map(|(key, stats)| (key.metric, stats))
+            .collect();
+
+        values.sort_by(|(metric_a, stats_a), (metric_b, stats_b)| {
+            let a = stats_a.correlation().unwrap_or(0.0).abs();
+            let b = stats_b.correlation().unwrap_or(0.0).abs();
+
+            b.total_cmp(&a)
+                .then_with(|| metric_a.cmp(metric_b))
+        });
+
+        values
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct ShadowFeedbackIngest {
@@ -648,6 +923,118 @@ mod tests {
                 detail: "fixture".into(),
             }],
         }
+    }
+
+    #[test]
+    fn diagnostic_feedback_tracks_item_structural_gain() {
+        use agente_tft_contracts::{
+            Confidence, DecisionPacket,
+        };
+        use agente_tft_item_strength::ItemStrengthEvaluation;
+        use agente_tft_opportunity_engine::{
+            ItemOpportunityFact, OpportunityDelta, OpportunityReport,
+        };
+        use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
+        use agente_tft_opportunity_runtime::{
+            CompleteOpportunityCycle, OpportunityCycle,
+        };
+
+        let action = Action::EquipItem {
+            item_id: "ITEM_1".into(),
+            unit_instance_id: "A-1".into(),
+        };
+
+        let item_fact = ItemOpportunityFact {
+            item_id: "ITEM_1".into(),
+            unit_instance_id: "A-1".into(),
+            strength_gain: 0.25,
+            flexibility_cost: 0.0,
+            external_meta_prior: 0.0,
+            confidence: Confidence::new(0.35).unwrap(),
+        };
+
+        let complete = CompleteOpportunityCycle {
+            fact_build: OpportunityFactBuild {
+                facts: Default::default(),
+                diagnostics: Default::default(),
+            },
+            cycle: OpportunityCycle {
+                report: OpportunityReport {
+                    state_revision: 7,
+                    evaluated_at_ms: 100,
+                    all: vec![],
+                    shortlist: vec![],
+                },
+                delta: OpportunityDelta {
+                    previous_revision: None,
+                    current_revision: 7,
+                    added: vec![action.clone()],
+                    removed: vec![],
+                    top_changed: true,
+                    previous_top: None,
+                    current_top: Some(action.clone()),
+                    material_utility_shifts: vec![],
+                },
+                decision: DecisionPacket::new(
+                    7,
+                    action.clone(),
+                    Confidence::new(0.90).unwrap(),
+                    vec![],
+                    vec![],
+                ),
+                remote_shortlist: vec![],
+                should_refresh_ui: true,
+                should_remote_evaluate: true,
+            },
+            item_evaluations: vec![ItemStrengthEvaluation {
+                fact: item_fact,
+                before_score: 0.40,
+                after_score: 0.65,
+                structural_gain: 0.25,
+                target_on_board: true,
+                item_available: true,
+                target_had_free_slot: true,
+            }],
+            pivot_evaluations: vec![],
+            sell_diagnostic: None,
+            matchup_opponent_id: None,
+            matchup_opponent_found: false,
+            matchup_positioning: None,
+        };
+
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let rows = [
+            (0.10_f32, 0.10_f32),
+            (0.30, 0.30),
+            (0.60, 0.60),
+        ];
+
+        for (gain, reward) in rows {
+            let mut sample = complete.clone();
+            sample.item_evaluations[0].structural_gain = gain;
+            sample.item_evaluations[0].fact.strength_gain = gain;
+            sample.item_evaluations[0].after_score =
+                sample.item_evaluations[0].before_score + gain;
+
+            let summary = engine.observe_complete_cycle_action(
+                &sample,
+                &action,
+                reward,
+            );
+            assert!(summary.action_supported);
+            assert_eq!(summary.metrics_accepted, 3);
+        }
+
+        let corr = engine
+            .diagnostic_stats(
+                ActionClass::EquipItem,
+                EvaluatorDiagnosticMetric::ItemStructuralGain,
+            )
+            .unwrap()
+            .correlation()
+            .unwrap();
+
+        assert!(corr > 0.99);
     }
 
     #[test]
