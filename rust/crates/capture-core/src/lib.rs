@@ -1,8 +1,10 @@
 mod change;
 mod roi;
+mod profile;
 
 pub use change::*;
 pub use roi::*;
+pub use profile::*;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
