@@ -15,7 +15,7 @@ use agente_tft_strategy_analysis::{
 };
 use agente_tft_tft_rules::{RuleSetError, TftRuleSet};
 use agente_tft_trait_core::TraitCatalog;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq)]
@@ -71,7 +71,7 @@ impl Default for FactBuilderConfig {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RollTargetDiagnostic {
     pub unit_id: String,
     pub unit_name: String,
@@ -83,7 +83,7 @@ pub struct RollTargetDiagnostic {
     pub known_tier_remaining: u16,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LevelBoardPlanDiagnostic {
     pub target_level: u8,
     pub added_instance_ids: Vec<String>,
@@ -94,7 +94,7 @@ pub struct LevelBoardPlanDiagnostic {
     pub searched_combinations: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BuildDiagnostics {
     pub unknown_shop_unit_ids: Vec<String>,
     pub unknown_owned_unit_ids: Vec<String>,
@@ -123,7 +123,7 @@ impl Default for BuildDiagnostics {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OpportunityFactBuild {
     pub facts: OpportunityFacts,
     pub diagnostics: BuildDiagnostics,
