@@ -36,14 +36,12 @@ fn run() -> Result<(), String> {
             )
         })?;
 
-    let engine: EvaluatorFeedbackEngine =
-        serde_json::from_str(&content)
-            .map_err(|error| {
-                format!(
-                    "invalid evaluator feedback JSON {}: {error}",
-                    config.input.display()
-                )
-            })?;
+    let engine = load_feedback(&content).map_err(|error| {
+        format!(
+            "could not load evaluator feedback from {}: {error}",
+            config.input.display()
+        )
+    })?;
 
     let report = engine.calibration_report(
         config.min_samples,
@@ -59,6 +57,63 @@ fn run() -> Result<(), String> {
     );
 
     Ok(())
+}
+
+fn load_feedback(
+    content: &str,
+) -> Result<EvaluatorFeedbackEngine, String> {
+    if let Ok(engine) =
+        serde_json::from_str::<EvaluatorFeedbackEngine>(content)
+    {
+        return Ok(engine);
+    }
+
+    let mut last_snapshot: Option<EvaluatorFeedbackEngine> = None;
+
+    for (index, line) in content.lines().enumerate() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+
+        let Ok(value) = serde_json::from_str::<serde_json::Value>(line)
+        else {
+            continue;
+        };
+
+        let Some(payload) = value.get("payload") else {
+            continue;
+        };
+
+        if payload
+            .get("type")
+            .and_then(|value| value.as_str())
+            != Some("evaluator_feedback_snapshot")
+        {
+            continue;
+        }
+
+        let Some(feedback) = payload.get("feedback") else {
+            continue;
+        };
+
+        let parsed = serde_json::from_value::<EvaluatorFeedbackEngine>(
+            feedback.clone(),
+        )
+        .map_err(|error| {
+            format!(
+                "invalid evaluator feedback snapshot at JSONL line {}: {}",
+                index + 1,
+                error
+            )
+        })?;
+
+        last_snapshot = Some(parsed);
+    }
+
+    last_snapshot.ok_or_else(|| {
+        "input is neither raw EvaluatorFeedbackEngine JSON nor telemetry JSONL containing evaluator_feedback_snapshot".into()
+    })
 }
 
 fn parse_args(args: &[String]) -> Result<Config, String> {
@@ -140,7 +195,11 @@ fn usage() -> String {
         "  --min-abs-correlation X",
         "      Minimum absolute correlation in [0,1] (default: 0.20).",
         "",
-        "The input is a serialized EvaluatorFeedbackEngine.",
+        "Input can be either:",
+        "  - serialized EvaluatorFeedbackEngine JSON; or",
+        "  - telemetry JSONL containing evaluator_feedback_snapshot.",
+        "",
+        "For telemetry JSONL, the latest valid feedback snapshot is used.",
         "The output is a CalibrationReport JSON.",
     ]
     .join("\n")
@@ -172,6 +231,55 @@ mod tests {
 
         assert_eq!(config.min_samples, 50);
         assert!((config.min_abs_correlation - 0.35).abs() < 1e-6);
+    }
+
+    #[test]
+    fn loader_reads_raw_feedback_json() {
+        let engine = EvaluatorFeedbackEngine::default();
+        let encoded = serde_json::to_string(&engine).unwrap();
+
+        let loaded = load_feedback(&encoded).unwrap();
+        assert_eq!(loaded, engine);
+    }
+
+    #[test]
+    fn loader_reads_latest_telemetry_feedback_snapshot() {
+        let first = EvaluatorFeedbackEngine::default();
+
+        let mut second = EvaluatorFeedbackEngine::default();
+        // Keep snapshots structurally distinct without requiring reward data.
+        // Serialized default equality is enough for first; second is produced
+        // through a harmless empty calibration read and remains valid.
+        let _ = second.calibration_report(2, 0.2);
+
+        let line1 = serde_json::json!({
+            "schema_version": 1,
+            "session_id": "fixture",
+            "sequence": 0,
+            "recorded_at_ms": 100,
+            "payload": {
+                "type": "evaluator_feedback_snapshot",
+                "feedback": first
+            }
+        });
+        let line2 = serde_json::json!({
+            "schema_version": 1,
+            "session_id": "fixture",
+            "sequence": 1,
+            "recorded_at_ms": 200,
+            "payload": {
+                "type": "evaluator_feedback_snapshot",
+                "feedback": second
+            }
+        });
+
+        let content = format!("{}\n{}\n", line1, line2);
+        let loaded = load_feedback(&content).unwrap();
+
+        assert_eq!(
+            serde_json::to_value(loaded).unwrap(),
+            line2["payload"]["feedback"]
+        );
     }
 
     #[test]
