@@ -11,8 +11,7 @@ serde_json.workspace = true
 thiserror.workspace = true
 
 agente-tft-opportunity-runtime = { path = "../opportunity-runtime" }
+agente-tft-opportunity-fact-builder = { path = "../opportunity-fact-builder" }
 
 [dev-dependencies]
 agente-tft-opportunity-engine = { path = "../opportunity-engine" }
-
-agente-tft-opportunity-fact-builder = { path = "../opportunity-fact-builder" }
