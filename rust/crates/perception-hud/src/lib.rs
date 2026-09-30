@@ -1,9 +1,11 @@
+use serde::{Deserialize, Serialize};
 use agente_tft_capture_core::RoiFrame;
 use agente_tft_contracts::{Confidence, ObservationSource, Observed};
 use agente_tft_image_preprocess::{preprocess_for_numeric_ocr, GrayImage};
 use agente_tft_state_fusion::HudObservationBatch;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum HudField {
     Stage,
     Gold,
@@ -35,7 +37,7 @@ pub struct RecognizedText {
     pub confidence: Confidence,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HudPreprocessConfig {
     pub upscale_factor: u8,
     pub invert: bool,
@@ -266,7 +268,7 @@ fn observed<T>(value: T, confidence: Confidence, observed_at_ms: u64) -> Observe
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HudReadPolicy {
     pub attempts: Vec<HudPreprocessConfig>,
     pub min_confidence: f32,
