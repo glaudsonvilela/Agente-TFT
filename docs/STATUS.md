@@ -88,27 +88,43 @@ Implementado:
 
 ## Estado da CI
 
-HEAD no momento desta atualização:
+Checkpoint confirmado:
 
-`6b1aee32602253f219b79c0a455b53f43f2c791f`
+- GitHub Actions CI run: **#446**
+- resultado: **SUCCESS**
+- SHA validado: `a88fa8336d54ff97f03c9eac11a80800828fabf9`
+- branch congelada: `checkpoint/pre-real-replay-2026-09-30`
 
-CI em validação após correção da dependência runtime de `OpportunityFactBuild` em `telemetry-core`.
+No mesmo run passaram:
 
-Regra: não considerar o checkpoint fechado até Rust + Python estarem verdes no mesmo HEAD ou sucessor direto.
+- Rust workspace;
+- Python agent/contracts;
+- ingestion;
+- training utilities;
+- remote trainer.
+
+Este é o ponto seguro de retorno antes da primeira calibração com replay real.
+
+Regra: novas mudanças não invalidam este checkpoint; a branch acima permanece presa ao SHA verde.
 
 ## Próximos passos — ordem
 
-1. **CI verde**
-   - validar o checkpoint atual completo;
-   - corrigir qualquer regressão;
-   - congelar checkpoint.
+1. **Primeiro replay real**
+   - obter uma gravação completa de TFT;
+   - extrair 20–50 frames estratégicos;
+   - preencher ground truth.
 
-2. **Weight calibration offline**
+2. **Replay accuracy / perception calibration**
+   - medir HUD/shop/board/lobby;
+   - corrigir ROI, preprocessing, OCR/detector e consensus;
+   - revisar confidence caps.
+
+3. **Weight calibration offline**
    - comparar baseline × candidate weights sobre ciclos gravados;
    - nunca promover pesos apenas por correlação;
    - exigir evaluation gate/replay antes de promoção.
 
-3. **Real replay calibration**
+4. **Weight promotion gate**
    - aprender/ajustar pesos candidatos fora da partida;
    - comparar contra baseline congelado;
    - promover somente depois de evaluation gate;
@@ -121,21 +137,21 @@ Regra: não considerar o checkpoint fechado até Rust + Python estarem verdes no
    - opponent/scouting confidence;
    - Opportunity latency.
 
-4. **BigBANANA simulator workers**
+5. **BigBANANA simulator workers**
    - ligar simulador real ao ShadowBackend;
    - bot pool;
    - self-play;
    - historical-policy pool;
    - rollout parallelism.
 
-5. **Policy training**
+6. **Policy training**
    - imitation/bootstrap;
    - PPO/self-play;
    - evaluation;
    - export ONNX;
    - inference Rust.
 
-6. **UI**
+7. **UI**
    - AÇÃO;
    - motivo em uma frase;
    - próximo passo/stop condition;
