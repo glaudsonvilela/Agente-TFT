@@ -57,7 +57,7 @@ impl Default for FactBuilderConfig {
             roll_budgets_gold: vec![2, 6, 10, 20, 30],
             include_max_affordable_budget: true,
             min_owned_copies_for_roll_target: 1,
-            include_current_shop_in_roll_math: true,
+            include_current_shop_in_roll_math: false,
             max_level_targets: 3,
             pool_accounting_confidence: 0.80,
             scout_stale_after_ms: 8_000,
