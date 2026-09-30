@@ -6,12 +6,16 @@ on:
   pull_request:
 
 jobs:
-  rust-contracts:
+  rust-core:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Test Rust contracts
+      - name: Install replay dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Test Rust workspace
         run: cargo test --manifest-path rust/Cargo.toml
 
   python-contracts:
