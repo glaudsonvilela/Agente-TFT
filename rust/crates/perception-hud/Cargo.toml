@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+serde.workspace = true
 agente-tft-contracts = { path = "../contracts" }
 agente-tft-state-fusion = { path = "../state-fusion" }
 agente-tft-capture-core = { path = "../capture-core" }
