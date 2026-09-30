@@ -66,6 +66,7 @@ pub struct RoiFrame {
     pub captured_at_ms: u64,
     pub rect: PixelRect,
     pub stride_bytes: u32,
+    pub pixel_format: crate::PixelFormat,
     pub bytes_per_pixel: usize,
     pub pixels: Vec<u8>,
 }
@@ -96,6 +97,7 @@ pub fn extract_roi(frame: &FrameEnvelope, roi: NormalizedRect) -> Result<RoiFram
         captured_at_ms: frame.captured_at_ms,
         rect,
         stride_bytes: row_bytes as u32,
+        pixel_format: frame.pixel_format,
         bytes_per_pixel: bpp,
         pixels,
     })
