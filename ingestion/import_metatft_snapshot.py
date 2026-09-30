@@ -102,6 +102,11 @@ def normalize_entity(entity: dict[str, Any]) -> dict[str, Any]:
             "sample_size": _sample_size(performance.get("sample_size")),
         },
         "tags": [str(value) for value in tags],
+        "attributes": (
+            entity.get("attributes")
+            if isinstance(entity.get("attributes"), dict)
+            else {}
+        ),
     }
 
 
