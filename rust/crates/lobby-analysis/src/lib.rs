@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use agente_tft_contracts::{GameState, OpponentState, UnitInstance};
+use agente_tft_contracts::{GameState, OpponentState};
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
