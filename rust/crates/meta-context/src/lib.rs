@@ -242,7 +242,6 @@ impl Default for MetaPriorPolicy {
 pub fn entity_meta_prior(
     snapshot: &MetaSnapshot,
     policy: MetaPriorPolicy,
-    *,
     now_ms: u64,
     patch: Option<&str>,
     set: Option<&str>,
@@ -272,7 +271,6 @@ pub fn entity_meta_prior(
 pub fn unit_meta_prior(
     snapshot: &MetaSnapshot,
     policy: MetaPriorPolicy,
-    *,
     now_ms: u64,
     patch: Option<&str>,
     set: Option<&str>,
