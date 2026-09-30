@@ -249,3 +249,118 @@ class MetaTftRichUnitTests(unittest.TestCase):
         normalized = normalize_browser_snapshot(raw)
         self.assertEqual(len(normalized["entities"]), 1)
         self.assertEqual(normalized["entities"][0]["kind"], "unit")
+
+
+
+class MetaTftCompCardTests(unittest.TestCase):
+    def test_comp_card_requires_enough_signal_and_resolves_units(self):
+        raw = {
+            "source": "metatft_public_browser",
+            "source_url": "https://www.metatft.com/comps",
+            "captured_at_epoch": 1000.0,
+            "title": "MetaTFT Comps",
+            "headings": ["TFT Meta Comps"],
+            "tables": [],
+            "body_text": "Ranked\n18.3b\nLast 3 Days\nPlatinum +\nSet 18",
+            "links": [],
+            "sections": [],
+            "repeated_blocks": [
+                {
+                    "index": 0,
+                    "tag": "LI",
+                    "text": (
+                        "Void Flex\n"
+                        "S\n"
+                        "3.91\n"
+                        "Avg Place\n"
+                        "17.2%\n"
+                        "Win Rate\n"
+                        "18,250 5.4%\n"
+                        "Frequency"
+                    ),
+                    "image_alts": ["Kha'Zix", "Rakan", "Akali", "Void"],
+                    "links": [
+                        {
+                            "text": "Void Flex",
+                            "href": "https://www.metatft.com/comps/void-flex",
+                        }
+                    ],
+                }
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            units = root / "units.json"
+            traits = root / "traits.json"
+
+            units.write_text(
+                json.dumps(
+                    {
+                        "champions": [
+                            {"api_name": "TFT18_KhaZix", "name": "Kha'Zix"},
+                            {"api_name": "TFT18_Rakan", "name": "Rakan"},
+                            {"api_name": "TFT18_Akali", "name": "Akali"},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            traits.write_text(
+                json.dumps(
+                    {
+                        "traits": [
+                            {"api_name": "TFT18_Void", "name": "Void"},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            resolver = CatalogResolver.from_catalogs(
+                unit_catalog=units,
+                trait_catalog=traits,
+            )
+            normalized = normalize_browser_snapshot(raw, resolver=resolver)
+
+        self.assertEqual(len(normalized["entities"]), 1)
+        comp = normalized["entities"][0]
+        self.assertEqual(comp["kind"], "comp")
+        self.assertEqual(comp["name"], "Void Flex")
+        self.assertEqual(
+            comp["unit_ids"],
+            ["TFT18_KhaZix", "TFT18_Rakan", "TFT18_Akali"],
+        )
+        self.assertEqual(comp["trait_ids"], ["TFT18_Void"])
+        self.assertEqual(comp["performance"]["avg_place"], 3.91)
+        self.assertEqual(comp["performance"]["win_rate"], 0.172)
+        self.assertEqual(comp["performance"]["frequency"], 0.054)
+        self.assertEqual(comp["performance"]["sample_size"], 18250)
+
+    def test_weak_comp_like_block_stays_unparsed(self):
+        raw = {
+            "source_url": "https://www.metatft.com/comps",
+            "captured_at_epoch": 1000.0,
+            "title": "MetaTFT Comps",
+            "headings": [],
+            "tables": [],
+            "body_text": "Ranked\n18.3b",
+            "links": [],
+            "sections": [],
+            "repeated_blocks": [
+                {
+                    "index": 0,
+                    "tag": "LI",
+                    "text": "Random UI\n4.10\nAvg Place",
+                    "image_alts": [],
+                    "links": [],
+                }
+            ],
+        }
+
+        normalized = normalize_browser_snapshot(raw)
+        self.assertEqual(normalized["entities"], [])
+        self.assertEqual(
+            len(normalized["diagnostics"]["unparsed_comp_blocks"]),
+            1,
+        )
