@@ -16,11 +16,13 @@ use agente_tft_matchup_positioning::{
     OpponentPerspective,
 };
 use agente_tft_meta_hints::{
+    generate_augment_meta_facts,
     generate_comp_transition_candidates,
     generate_item_opportunity_facts,
     generate_pivot_opportunity_facts,
     generate_position_opportunity_facts,
     CompCandidateConfig,
+    MetaAugmentOpportunityPolicy,
     MetaItemOpportunityPolicy,
     MetaPivotOpportunityPolicy,
     MetaPositionOpportunityPolicy,
@@ -510,6 +512,15 @@ fn inject_meta_facts(
         ),
     );
 
+    facts.augments.extend(
+        generate_augment_meta_facts(
+            state,
+            snapshot,
+            now_ms,
+            MetaAugmentOpportunityPolicy::default(),
+        ),
+    );
+
     facts.pivots.extend(
         generate_pivot_opportunity_facts(
             state,
@@ -601,6 +612,7 @@ fn dedupe_specialized_facts(facts: &mut OpportunityFacts) {
     dedupe_item_facts(&mut facts.items);
     dedupe_pivot_facts(&mut facts.pivots);
     dedupe_position_facts(&mut facts.positions);
+    dedupe_augment_facts(&mut facts.augments);
 }
 
 fn dedupe_item_facts(
@@ -680,6 +692,52 @@ fn dedupe_pivot_facts(
                     } else {
                         existing
                     };
+                by_key.insert(key, chosen);
+            }
+        }
+    }
+
+    *values = by_key.into_values().collect();
+}
+
+fn dedupe_augment_facts(
+    values: &mut Vec<agente_tft_opportunity_engine::AugmentOpportunityFact>,
+) {
+    use std::collections::BTreeMap;
+
+    let mut by_key: BTreeMap<
+        String,
+        agente_tft_opportunity_engine::AugmentOpportunityFact,
+    > = BTreeMap::new();
+
+    for fact in values.drain(..) {
+        let key = fact.augment_id.clone();
+
+        match by_key.remove(&key) {
+            None => {
+                by_key.insert(key, fact);
+            }
+            Some(existing) => {
+                let preserved_prior =
+                    if fact.external_meta_prior.abs()
+                        >= existing.external_meta_prior.abs()
+                    {
+                        fact.external_meta_prior
+                    } else {
+                        existing.external_meta_prior
+                    };
+
+                let mut chosen =
+                    if fact.confidence.value() > existing.confidence.value()
+                        || fact.board_gain > existing.board_gain
+                        || fact.flexibility > existing.flexibility
+                    {
+                        fact
+                    } else {
+                        existing
+                    };
+
+                chosen.external_meta_prior = preserved_prior;
                 by_key.insert(key, chosen);
             }
         }
@@ -1506,6 +1564,72 @@ mod tests {
         assert!(item.strength_gain > 0.0);
         assert_eq!(item.external_meta_prior, 0.08);
         assert!(item.confidence.value() <= 0.35);
+    }
+
+    #[test]
+    fn augment_meta_prior_merges_with_base_offer() {
+        use agente_tft_meta_context::{
+            MetaEntity, MetaEntityKind, MetaPerformance,
+        };
+        use std::collections::BTreeMap;
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let mut state = automatic_state();
+        state.phase = MatchPhase::AugmentSelection;
+        state.patch = Some("18.3b".into());
+        state.set = Some("TFTSet18".into());
+        state.player.augment_options = vec![
+            Observed {
+                value: "AUG_A".into(),
+                confidence: Confidence::new(0.95).unwrap(),
+                source: ObservationSource::Simulator,
+                observed_at_ms: 100,
+            },
+        ];
+
+        let mut snapshot = meta_snapshot();
+        snapshot.patch = Some("18.3b".into());
+        snapshot.set = Some("TFTSet18".into());
+        snapshot.captured_at_ms = 9_900;
+        snapshot.entities.push(MetaEntity {
+            kind: MetaEntityKind::Augment,
+            id: "AUG_A".into(),
+            name: "Aug A".into(),
+            unit_ids: vec![],
+            trait_ids: vec![],
+            performance: MetaPerformance {
+                avg_place: Some(3.7),
+                top4_rate: Some(0.61),
+                win_rate: Some(0.17),
+                frequency: Some(0.08),
+                sample_size: Some(10_000),
+            },
+            tags: vec![],
+            attributes: BTreeMap::new(),
+        });
+
+        let result = runtime
+            .evaluate(
+                &state,
+                &rules(),
+                &catalog(),
+                Some(&snapshot),
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        assert_eq!(result.fact_build.facts.augments.len(), 1);
+        let augment = &result.fact_build.facts.augments[0];
+        assert_eq!(augment.augment_id, "AUG_A");
+        assert!(augment.external_meta_prior > 0.0);
+        assert_eq!(augment.board_gain, 0.0);
+        assert!(augment.confidence.value() <= 0.45);
     }
 
     #[test]
