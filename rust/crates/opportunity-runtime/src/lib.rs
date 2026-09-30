@@ -176,9 +176,18 @@ impl AutomaticOpportunityRuntime {
             .fact_builder
             .build(state, rules, catalog, now_ms)?;
 
+        inject_meta_facts(
+            state,
+            meta,
+            now_ms,
+            &mut fact_build.facts,
+        );
+
         if let Some(extra) = extra_facts {
             extend_facts(&mut fact_build.facts, extra);
         }
+
+        dedupe_specialized_facts(&mut fact_build.facts);
 
         let cycle = self.runtime.evaluate(
             state,
