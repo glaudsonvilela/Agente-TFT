@@ -1084,6 +1084,7 @@ mod tests {
                     sample_size: Some(10_000),
                 },
                 tags: vec![],
+                attributes: BTreeMap::new(),
             }],
             metadata: BTreeMap::new(),
         }
