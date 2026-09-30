@@ -258,6 +258,7 @@ mod tests {
             })],
             items: vec![],
             augments: vec![],
+            augment_options: vec![],
         };
         state
     }
