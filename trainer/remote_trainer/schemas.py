@@ -57,6 +57,7 @@ class TrainingJobRequest(StrictModel):
     mode: TrainingMode
     state: dict[str, Any]
     decision: dict[str, Any]
+    opportunities: tuple[dict[str, Any], ...] = ()
     rollout_count: int = Field(ge=1, le=4096)
     horizon_steps: int = Field(ge=1, le=10000)
     opponent_pool: OpponentPoolConfig = Field(default_factory=OpponentPoolConfig)
