@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use agente_tft_contracts::{Confidence, GameState};
 use agente_tft_knowledge_core::UnitCatalog;
@@ -601,6 +601,12 @@ mod tests {
                 (3, 18),
                 (4, 10),
                 (5, 9),
+            ]),
+            xp_purchase_cost_gold: 4,
+            xp_per_purchase: 4,
+            xp_required_to_next_level: BTreeMap::from([
+                (7, 36),
+                (8, 68),
             ]),
             source: Some("fixture".into()),
             source_hash: None,
