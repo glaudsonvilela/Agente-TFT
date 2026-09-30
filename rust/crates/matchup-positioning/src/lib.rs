@@ -1,5 +1,5 @@
 use agente_tft_contracts::{
-    Confidence, HexPosition, UnitInstance,
+    Confidence, HexPosition, PositionMove, UnitInstance,
 };
 use agente_tft_opportunity_engine::PositionOpportunityFact;
 use agente_tft_positioning_core::PositionProposal;
@@ -177,6 +177,58 @@ impl MatchupPositioningEvaluator {
         proposals: &[PositionProposal],
         source_confidence: Confidence,
     ) -> MatchupPositioningEvaluation {
+        let move_sets = proposals
+            .iter()
+            .map(|proposal| vec![proposal.movement.clone()])
+            .collect::<Vec<_>>();
+
+        self.evaluate_move_sets(
+            own_board,
+            opponent_board,
+            &move_sets,
+            source_confidence,
+        )
+    }
+
+    pub fn evaluate_position_facts(
+        &self,
+        own_board: &[UnitInstance],
+        opponent_board: &[UnitInstance],
+        facts: &[PositionOpportunityFact],
+        opponent_confidence: Confidence,
+    ) -> MatchupPositioningEvaluation {
+        let move_sets = facts
+            .iter()
+            .map(|fact| fact.moves.clone())
+            .collect::<Vec<_>>();
+
+        let fact_confidence = facts
+            .iter()
+            .map(|fact| fact.confidence.value())
+            .fold(1.0_f32, f32::min);
+
+        let source_confidence = Confidence::new(
+            opponent_confidence
+                .value()
+                .min(fact_confidence),
+        )
+        .expect("minimum of valid confidences remains valid");
+
+        self.evaluate_move_sets(
+            own_board,
+            opponent_board,
+            &move_sets,
+            source_confidence,
+        )
+    }
+
+    pub fn evaluate_move_sets(
+        &self,
+        own_board: &[UnitInstance],
+        opponent_board: &[UnitInstance],
+        move_sets: &[Vec<PositionMove>],
+        source_confidence: Confidence,
+    ) -> MatchupPositioningEvaluation {
         let threats = opponent_board
             .iter()
             .filter_map(|unit| {
@@ -201,7 +253,7 @@ impl MatchupPositioningEvaluator {
                     usable_opponent_units,
                     threats,
                     measurements: Vec::new(),
-                    skipped_proposals: proposals.len(),
+                    skipped_proposals: move_sets.len(),
                 },
             };
         }
@@ -224,33 +276,55 @@ impl MatchupPositioningEvaluator {
         let mut measurements = Vec::new();
         let mut skipped = 0usize;
 
-        for proposal in proposals {
-            let Some(unit) = own_board
-                .iter()
-                .find(|unit| unit.instance_id == proposal.unit_instance_id)
-            else {
+        for moves in move_sets {
+            if moves.is_empty() {
                 skipped += 1;
                 continue;
-            };
+            }
 
-            let Some(before_position) = unit.position else {
+            let mut before_total = 0.0_f32;
+            let mut after_total = 0.0_f32;
+            let mut valid_moves = 0usize;
+
+            for movement in moves {
+                let Some(unit) = own_board
+                    .iter()
+                    .find(|unit| unit.instance_id == movement.unit_instance_id)
+                else {
+                    continue;
+                };
+
+                let Some(before_position) = unit.position else {
+                    continue;
+                };
+
+                let before = self.exposure(before_position, &threats);
+                let after = self.exposure(movement.to, &threats);
+
+                before_total += before;
+                after_total += after;
+                valid_moves += 1;
+
+                let denominator = before.max(after).max(f32::EPSILON);
+                let normalized_gain =
+                    ((before - after) / denominator).clamp(-1.0, 1.0);
+
+                measurements.push(ExposureMeasurement {
+                    unit_instance_id: unit.instance_id.clone(),
+                    before,
+                    after,
+                    normalized_gain,
+                });
+            }
+
+            if valid_moves != moves.len() {
                 skipped += 1;
                 continue;
-            };
+            }
 
-            let before = self.exposure(before_position, &threats);
-            let after = self.exposure(proposal.movement.to, &threats);
-
-            let denominator = before.max(after).max(f32::EPSILON);
+            let denominator = before_total.max(after_total).max(f32::EPSILON);
             let normalized_gain =
-                ((before - after) / denominator).clamp(-1.0, 1.0);
-
-            measurements.push(ExposureMeasurement {
-                unit_instance_id: unit.instance_id.clone(),
-                before,
-                after,
-                normalized_gain,
-            });
+                ((before_total - after_total) / denominator).clamp(-1.0, 1.0);
 
             if normalized_gain < self.config.min_gain {
                 skipped += 1;
@@ -258,7 +332,7 @@ impl MatchupPositioningEvaluator {
             }
 
             facts.push(PositionOpportunityFact {
-                moves: vec![proposal.movement.clone()],
+                moves: moves.clone(),
                 matchup_gain: normalized_gain,
                 confidence,
             });
@@ -402,6 +476,34 @@ mod tests {
         assert_eq!(evaluation.facts.len(), 1);
         assert!(evaluation.facts[0].matchup_gain > 0.0);
         assert!(evaluation.facts[0].confidence.value() <= 0.45);
+    }
+
+    #[test]
+    fn refines_existing_position_fact() {
+        let own = vec![unit("carry", 3, 0, 2, 3)];
+        let opponent = vec![
+            unit("enemy-a", 3, 0, 2, 3),
+            unit("enemy-b", 2, 1, 1, 2),
+        ];
+        let base = PositionOpportunityFact {
+            moves: vec![PositionMove {
+                unit_instance_id: "carry".into(),
+                to: HexPosition { row: 3, col: 6 },
+            }],
+            matchup_gain: 0.0,
+            confidence: Confidence::new(0.40).unwrap(),
+        };
+
+        let evaluation = evaluator().evaluate_position_facts(
+            &own,
+            &opponent,
+            &[base],
+            Confidence::new(0.90).unwrap(),
+        );
+
+        assert_eq!(evaluation.facts.len(), 1);
+        assert!(evaluation.facts[0].matchup_gain > 0.0);
+        assert!(evaluation.facts[0].confidence.value() <= 0.40);
     }
 
     #[test]
