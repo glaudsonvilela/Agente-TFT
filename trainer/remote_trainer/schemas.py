@@ -119,3 +119,51 @@ class TrainingJobRecord(StrictModel):
 class CancelResponse(StrictModel):
     job_id: str
     status: TrainingJobStatus
+
+
+
+class ShadowStatus(str, Enum):
+    INITIALIZING = "initializing"
+    ACTIVE = "active"
+    DEGRADED = "degraded"
+    ENDED = "ended"
+
+
+class ShadowSessionRequest(StrictModel):
+    training_session_id: str = Field(min_length=1)
+    episode_id: str = Field(min_length=1)
+    created_at_ms: int = Field(ge=0)
+    state: dict[str, Any]
+
+
+class ShadowSyncRequest(StrictModel):
+    observed_at_ms: int = Field(ge=0)
+    state: dict[str, Any]
+
+
+class ShadowStepRequest(StrictModel):
+    observed_at_ms: int = Field(ge=0)
+    decision: dict[str, Any]
+
+    @field_validator("decision")
+    @classmethod
+    def require_state_revision(cls, value: dict[str, Any]) -> dict[str, Any]:
+        if "state_revision" not in value:
+            raise ValueError("decision.state_revision is required")
+        if "action" not in value:
+            raise ValueError("decision.action is required")
+        return value
+
+
+class ShadowSessionRecord(StrictModel):
+    shadow_id: str
+    training_session_id: str
+    episode_id: str
+    status: ShadowStatus
+    created_at_ms: int
+    updated_at_ms: int
+    real_revision: int = Field(ge=0)
+    simulated_revision: int | None = Field(default=None, ge=0)
+    last_divergence: dict[str, Any] | None = None
+    last_step: dict[str, Any] | None = None
+    error: str | None = None
