@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/contracts", "crates/capture-core"]
+members = ["crates/contracts", "crates/capture-core", "crates/capture-replay"]
 resolver = "2"
 
 [workspace.package]
