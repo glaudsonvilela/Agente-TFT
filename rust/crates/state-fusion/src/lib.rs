@@ -5,7 +5,7 @@ use agente_tft_contracts::{
 use agente_tft_perception_core::{ConsensusConfig, TemporalConsensus};
 use agente_tft_state_engine::diff_event_kinds;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct HudObservationBatch {
     pub observed_at_ms: u64,
     pub hp: Option<Observed<u16>>,
