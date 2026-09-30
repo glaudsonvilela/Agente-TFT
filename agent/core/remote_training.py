@@ -119,6 +119,7 @@ class RemoteTrainingClient:
         episode_id: str | None = None,
         job_id: str | None = None,
         metadata: dict[str, Any] | None = None,
+        opportunities: tuple[dict[str, Any], ...] = (),
     ) -> RemoteJobRecord:
         if self.session is None or not self.session.active:
             raise RuntimeError("remote training session is not active")
@@ -138,6 +139,7 @@ class RemoteTrainingClient:
             "mode": mode,
             "state": state.model_dump(mode="json", by_alias=True),
             "decision": decision.model_dump(mode="json", by_alias=True),
+            "opportunities": list(opportunities),
             "rollout_count": rollout_count,
             "horizon_steps": horizon_steps,
             "opponent_pool": {
