@@ -65,6 +65,12 @@ pub fn diff_event_kinds(previous: &GameState, current: &GameState) -> Vec<GameEv
         events.push(GameEventKind::BenchChanged);
     }
 
+    if semantic_augment_options(&previous.player.augment_options)
+        != semantic_augment_options(&current.player.augment_options)
+    {
+        events.push(GameEventKind::AugmentOptionsChanged);
+    }
+
     push_added_items(&mut events, &previous.player.items, &current.player.items);
     push_opponent_observations(&mut events, previous, current);
     push_contestation_changes(&mut events, previous, current);
@@ -113,6 +119,18 @@ fn semantic_shop(shop: &[Observed<ShopSlot>]) -> Vec<(u8, Option<String>)> {
         .collect();
     result.sort_by_key(|(slot, _)| *slot);
     result
+}
+
+fn semantic_augment_options(
+    options: &[Observed<String>],
+) -> Vec<String> {
+    let mut values: Vec<_> = options
+        .iter()
+        .map(|value| value.value.clone())
+        .collect();
+    values.sort();
+    values.dedup();
+    values
 }
 
 fn item_counts(items: &[String]) -> BTreeMap<&str, usize> {
@@ -307,6 +325,44 @@ mod tests {
             GameEventKind::RoundChanged { from: Some(from), to }
             if from == "4-1" && to == "4-2"
         )));
+    }
+
+    #[test]
+    fn detects_augment_option_changes() {
+        let previous = state();
+        let mut current = previous.clone();
+        current.player.augment_options = vec![
+            observed("AUG_A".to_string()),
+            observed("AUG_B".to_string()),
+            observed("AUG_C".to_string()),
+        ];
+
+        let events = diff_event_kinds(&previous, &current);
+        assert!(events.iter().any(|event| matches!(
+            event,
+            GameEventKind::AugmentOptionsChanged
+        )));
+    }
+
+    #[test]
+    fn augment_option_timestamp_only_change_is_ignored() {
+        let mut previous = state();
+        previous.player.augment_options = vec![
+            observed("AUG_A".to_string()),
+            observed("AUG_B".to_string()),
+            observed("AUG_C".to_string()),
+        ];
+        let mut current = previous.clone();
+        for option in &mut current.player.augment_options {
+            option.observed_at_ms = 999;
+        }
+
+        assert!(!diff_event_kinds(&previous, &current)
+            .iter()
+            .any(|event| matches!(
+                event,
+                GameEventKind::AugmentOptionsChanged
+            )));
     }
 
     #[test]
