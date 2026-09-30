@@ -89,3 +89,17 @@ tesseract --version
 ```
 
 Ele é usado apenas como referência inicial. O backend continua substituível e poderá migrar para ONNX sem alterar `GameState` ou `StateFusion`.
+
+## Testar Riot API
+
+Com uma chave válida do Riot Developer Portal:
+
+```bash
+export RIOT_API_KEY='RGAPI-...'
+
+cargo run --manifest-path rust/Cargo.toml \
+  -p agente-tft-riot-api-inspect -- \
+  "Seu Game Name" BR1 5
+```
+
+O comando resolve Riot ID → PUUID, verifica partida TFT ativa e lista IDs recentes. O PUUID completo e a chave não são impressos.
