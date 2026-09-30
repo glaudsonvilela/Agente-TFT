@@ -6,8 +6,8 @@ use agente_tft_lobby_analysis::{
     analyze_unit_contestation, self_owned_copies,
 };
 use agente_tft_opportunity_engine::{
-    BuyOpportunityFact, OpportunityFacts, RollOpportunityFact,
-    ScoutOpportunityFact,
+    BuyOpportunityFact, LevelOpportunityFact, OpportunityFacts,
+    RollOpportunityFact, ScoutOpportunityFact,
 };
 use agente_tft_strategy_analysis::{
     analyze_target_roll, StrategyAnalysisError, TargetRollInput,
@@ -42,6 +42,8 @@ pub struct FactBuilderConfig {
     pub include_max_affordable_budget: bool,
     pub min_owned_copies_for_roll_target: u16,
     pub include_current_shop_in_roll_math: bool,
+    /// Maximum number of sequential higher levels to consider in one state.
+    pub max_level_targets: usize,
     /// Explicit confidence applied to probability calculations that depend on
     /// observed pool accounting. This is a caller-owned calibration knob.
     pub pool_accounting_confidence: f32,
@@ -56,6 +58,7 @@ impl Default for FactBuilderConfig {
             include_max_affordable_budget: true,
             min_owned_copies_for_roll_target: 1,
             include_current_shop_in_roll_math: true,
+            max_level_targets: 3,
             pool_accounting_confidence: 0.80,
             scout_stale_after_ms: 8_000,
             scout_full_value_age_ms: 30_000,
@@ -82,6 +85,8 @@ pub struct BuildDiagnostics {
     pub unaffordable_shop_slots: Vec<u8>,
     pub skipped_fully_upgraded_units: Vec<String>,
     pub roll_targets: Vec<RollTargetDiagnostic>,
+    pub xp_rules_available: bool,
+    pub unaffordable_level_targets: Vec<u8>,
 }
 
 impl Default for BuildDiagnostics {
@@ -92,6 +97,8 @@ impl Default for BuildDiagnostics {
             unaffordable_shop_slots: Vec::new(),
             skipped_fully_upgraded_units: Vec::new(),
             roll_targets: Vec::new(),
+            xp_rules_available: false,
+            unaffordable_level_targets: Vec::new(),
         }
     }
 }
@@ -141,6 +148,13 @@ impl OpportunityFactBuilder {
             state,
             rules,
             catalog,
+            &mut facts,
+            &mut diagnostics,
+        )?;
+
+        self.build_level_facts(
+            state,
+            rules,
             &mut facts,
             &mut diagnostics,
         )?;
@@ -369,6 +383,86 @@ impl OpportunityFactBuilder {
             a.unit_id.cmp(&b.unit_id)
         });
 
+        Ok(())
+    }
+
+    fn build_level_facts(
+        &self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        facts: &mut OpportunityFacts,
+        diagnostics: &mut BuildDiagnostics,
+    ) -> Result<(), FactBuildError> {
+        diagnostics.xp_rules_available = rules.xp_rules_available();
+        if !rules.xp_rules_available() || self.config.max_level_targets == 0 {
+            return Ok(());
+        }
+
+        let (Some(level), Some(xp), Some(gold)) = (
+            state.player.level.as_ref(),
+            state.player.xp.as_ref(),
+            state.player.gold.as_ref(),
+        ) else {
+            return Ok(());
+        };
+
+        let confidence = Confidence::new(
+            state
+                .overall_confidence
+                .value()
+                .min(level.confidence.value())
+                .min(xp.confidence.value())
+                .min(gold.confidence.value()),
+        )
+        .expect("minimum of valid confidences remains valid");
+
+        let current_level = level.value;
+        let current_xp = xp.value;
+        let current_gold = gold.value;
+
+        for step in 1..=self.config.max_level_targets {
+            let Some(target_level) =
+                current_level.checked_add(step as u8)
+            else {
+                break;
+            };
+
+            let gold_cost = match rules.gold_to_level(
+                current_level,
+                current_xp,
+                target_level,
+            ) {
+                Ok(Some(cost)) => cost,
+                Ok(None) => break,
+                Err(RuleSetError::MissingXpThreshold(_)) => break,
+                Err(error) => return Err(error.into()),
+            };
+
+            // A zero-cost transition should be reflected by the next observed
+            // GameState rather than recommending a redundant LEVEL action.
+            if gold_cost == 0 {
+                continue;
+            }
+
+            if gold_cost > current_gold {
+                diagnostics
+                    .unaffordable_level_targets
+                    .push(target_level);
+                continue;
+            }
+
+            facts.levels.push(LevelOpportunityFact {
+                target_level,
+                gold_cost,
+                expected_board_gain: None,
+                slots_gained: target_level.saturating_sub(current_level),
+                confidence,
+            });
+        }
+
+        facts.levels.sort_by_key(|fact| fact.target_level);
+        diagnostics.unaffordable_level_targets.sort_unstable();
+        diagnostics.unaffordable_level_targets.dedup();
         Ok(())
     }
 
@@ -622,6 +716,7 @@ mod tests {
             hp: Some(observed(31u16, 0.95)),
             gold: Some(observed(48u16, 0.95)),
             level: Some(observed(7u8, 0.95)),
+            xp: Some(observed(20u16, 0.94)),
             board: vec![unit("A", 2), unit("B", 1)],
             bench: vec![unit("B", 1)],
             shop: vec![
@@ -723,6 +818,57 @@ mod tests {
         // Own: A2★=3, B1★+B1★=2 => 5.
         // Opponents: A1★=1, C2★=3 => 4.
         assert_eq!(remaining, 31);
+    }
+
+    #[test]
+    fn generates_affordable_level_opportunity_from_rules() {
+        let builder =
+            OpportunityFactBuilder::new(FactBuilderConfig::default()).unwrap();
+
+        let result = builder
+            .build(&state(), &rules(), &catalog(), 10_000)
+            .unwrap();
+
+        let level8 = result
+            .facts
+            .levels
+            .iter()
+            .find(|fact| fact.target_level == 8)
+            .unwrap();
+
+        // Fixture: 36 XP needed from level 7, already have 20.
+        // Need 16 XP = four purchases × 4g = 16g.
+        assert_eq!(level8.gold_cost, 16);
+        assert_eq!(level8.slots_gained, 1);
+        assert_eq!(level8.confidence.value(), 0.94);
+
+        // Level 9 needs 84g in this fixture and is not affordable at 48g.
+        assert!(!result
+            .facts
+            .levels
+            .iter()
+            .any(|fact| fact.target_level == 9));
+        assert!(result
+            .diagnostics
+            .unaffordable_level_targets
+            .contains(&9));
+    }
+
+    #[test]
+    fn absent_xp_rules_generate_no_level_fact() {
+        let builder =
+            OpportunityFactBuilder::new(FactBuilderConfig::default()).unwrap();
+        let mut rules = rules();
+        rules.xp_purchase_cost_gold = 0;
+        rules.xp_per_purchase = 0;
+        rules.xp_required_to_next_level.clear();
+
+        let result = builder
+            .build(&state(), &rules, &catalog(), 10_000)
+            .unwrap();
+
+        assert!(result.facts.levels.is_empty());
+        assert!(!result.diagnostics.xp_rules_available);
     }
 
     #[test]
