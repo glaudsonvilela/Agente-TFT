@@ -1,0 +1,314 @@
+use agente_tft_contracts::{
+    GameEventKind, GameState, MatchPhase, Observed, PlayerState,
+};
+use agente_tft_perception_core::{ConsensusConfig, TemporalConsensus};
+use agente_tft_state_engine::diff_event_kinds;
+
+#[derive(Debug, Clone, Default)]
+pub struct HudObservationBatch {
+    pub observed_at_ms: u64,
+    pub hp: Option<Observed<u16>>,
+    pub gold: Option<Observed<u16>>,
+    pub level: Option<Observed<u8>>,
+    pub xp: Option<Observed<u16>>,
+    pub stage: Option<Observed<String>>,
+}
+
+#[derive(Debug)]
+struct HudGates {
+    hp: TemporalConsensus<u16>,
+    gold: TemporalConsensus<u16>,
+    level: TemporalConsensus<u8>,
+    xp: TemporalConsensus<u16>,
+    stage: TemporalConsensus<String>,
+}
+
+impl HudGates {
+    fn new(config: ConsensusConfig) -> Self {
+        Self {
+            hp: TemporalConsensus::new(config),
+            gold: TemporalConsensus::new(config),
+            level: TemporalConsensus::new(config),
+            xp: TemporalConsensus::new(config),
+            stage: TemporalConsensus::new(config),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct StateFusion {
+    state: GameState,
+    hud: HudGates,
+}
+
+impl StateFusion {
+    pub fn new(now_ms: u64, consensus: ConsensusConfig) -> Self {
+        Self {
+            state: GameState::empty(now_ms),
+            hud: HudGates::new(consensus),
+        }
+    }
+
+    pub fn state(&self) -> &GameState {
+        &self.state
+    }
+
+    pub fn set_match_context(
+        &mut self,
+        match_id: Option<String>,
+        patch: Option<String>,
+        set: Option<String>,
+    ) -> Vec<GameEventKind> {
+        let previous = self.state.clone();
+        let mut changed = false;
+
+        if self.state.match_id != match_id {
+            self.state.match_id = match_id;
+            changed = true;
+        }
+        if self.state.patch != patch {
+            self.state.patch = patch;
+            changed = true;
+        }
+        if self.state.set != set {
+            self.state.set = set;
+            changed = true;
+        }
+
+        if changed {
+            self.state.revision = self.state.revision.saturating_add(1);
+        }
+
+        diff_event_kinds(&previous, &self.state)
+    }
+
+    pub fn set_phase(&mut self, phase: MatchPhase, now_ms: u64) -> Vec<GameEventKind> {
+        if self.state.phase == phase {
+            self.state.observed_at_ms = self.state.observed_at_ms.max(now_ms);
+            return Vec::new();
+        }
+
+        let previous = self.state.clone();
+        self.state.phase = phase;
+        self.state.observed_at_ms = self.state.observed_at_ms.max(now_ms);
+        self.state.revision = self.state.revision.saturating_add(1);
+
+        diff_event_kinds(&previous, &self.state)
+    }
+
+    pub fn apply_hud(&mut self, batch: HudObservationBatch) -> Vec<GameEventKind> {
+        let previous = self.state.clone();
+        let mut semantic_change = false;
+
+        if let Some(candidate) = batch.hp {
+            if let Some(stable) = self.hud.hp.observe(candidate) {
+                semantic_change |= assign_observed(&mut self.state.player.hp, stable);
+            }
+        }
+
+        if let Some(candidate) = batch.gold {
+            if let Some(stable) = self.hud.gold.observe(candidate) {
+                semantic_change |= assign_observed(&mut self.state.player.gold, stable);
+            }
+        }
+
+        if let Some(candidate) = batch.level {
+            if let Some(stable) = self.hud.level.observe(candidate) {
+                semantic_change |= assign_observed(&mut self.state.player.level, stable);
+            }
+        }
+
+        if let Some(candidate) = batch.xp {
+            if let Some(stable) = self.hud.xp.observe(candidate) {
+                semantic_change |= assign_observed(&mut self.state.player.xp, stable);
+            }
+        }
+
+        if let Some(candidate) = batch.stage {
+            if let Some(stable) = self.hud.stage.observe(candidate) {
+                semantic_change |= assign_observed(&mut self.state.player.stage, stable);
+            }
+        }
+
+        self.state.observed_at_ms = self.state.observed_at_ms.max(batch.observed_at_ms);
+
+        if semantic_change {
+            self.state.revision = self.state.revision.saturating_add(1);
+        }
+
+        diff_event_kinds(&previous, &self.state)
+    }
+
+    pub fn reset_hud_consensus(&mut self) {
+        self.hud.hp.reset();
+        self.hud.gold.reset();
+        self.hud.level.reset();
+        self.hud.xp.reset();
+        self.hud.stage.reset();
+    }
+
+    pub fn replace_player_state(&mut self, player: PlayerState, now_ms: u64) -> Vec<GameEventKind> {
+        let previous = self.state.clone();
+
+        if self.state.player == player {
+            self.state.observed_at_ms = self.state.observed_at_ms.max(now_ms);
+            return Vec::new();
+        }
+
+        self.state.player = player;
+        self.state.observed_at_ms = self.state.observed_at_ms.max(now_ms);
+        self.state.revision = self.state.revision.saturating_add(1);
+
+        diff_event_kinds(&previous, &self.state)
+    }
+}
+
+fn assign_observed<T: PartialEq>(slot: &mut Option<Observed<T>>, value: Observed<T>) -> bool {
+    let semantic_change = slot
+        .as_ref()
+        .map(|current| current.value != value.value)
+        .unwrap_or(true);
+
+    match slot {
+        None => *slot = Some(value),
+        Some(current) => {
+            if semantic_change
+                || value.observed_at_ms > current.observed_at_ms
+                || value.confidence.value() > current.confidence.value()
+            {
+                *current = value;
+            }
+        }
+    }
+
+    semantic_change
+}
+
+#[cfg(test)]
+mod tests {
+    use agente_tft_contracts::{
+        Confidence, GameEventKind, ObservationSource, Observed,
+    };
+
+    use super::*;
+
+    fn obs<T>(value: T, confidence: f32, at: u64) -> Observed<T> {
+        Observed {
+            value,
+            confidence: Confidence::new(confidence).unwrap(),
+            source: ObservationSource::Vision,
+            observed_at_ms: at,
+        }
+    }
+
+    fn fusion() -> StateFusion {
+        StateFusion::new(
+            0,
+            ConsensusConfig {
+                min_confidence: 0.80,
+                confirmations: 2,
+                max_gap_ms: 500,
+            },
+        )
+    }
+
+    #[test]
+    fn single_hud_read_does_not_enter_state() {
+        let mut fusion = fusion();
+
+        let events = fusion.apply_hud(HudObservationBatch {
+            observed_at_ms: 100,
+            gold: Some(obs(50, 0.95, 100)),
+            ..HudObservationBatch::default()
+        });
+
+        assert!(events.is_empty());
+        assert!(fusion.state().player.gold.is_none());
+        assert_eq!(fusion.state().revision, 0);
+    }
+
+    #[test]
+    fn repeated_hud_read_is_promoted() {
+        let mut fusion = fusion();
+
+        fusion.apply_hud(HudObservationBatch {
+            observed_at_ms: 100,
+            gold: Some(obs(50, 0.90, 100)),
+            ..HudObservationBatch::default()
+        });
+
+        fusion.apply_hud(HudObservationBatch {
+            observed_at_ms: 150,
+            gold: Some(obs(50, 0.96, 150)),
+            ..HudObservationBatch::default()
+        });
+
+        assert_eq!(fusion.state().player.gold.as_ref().unwrap().value, 50);
+        assert_eq!(fusion.state().revision, 1);
+    }
+
+    #[test]
+    fn low_confidence_noise_does_not_replace_stable_value() {
+        let mut fusion = fusion();
+
+        for at in [100, 150] {
+            fusion.apply_hud(HudObservationBatch {
+                observed_at_ms: at,
+                gold: Some(obs(50, 0.95, at)),
+                ..HudObservationBatch::default()
+            });
+        }
+
+        for at in [200, 250, 300] {
+            fusion.apply_hud(HudObservationBatch {
+                observed_at_ms: at,
+                gold: Some(obs(43, 0.50, at)),
+                ..HudObservationBatch::default()
+            });
+        }
+
+        assert_eq!(fusion.state().player.gold.as_ref().unwrap().value, 50);
+    }
+
+    #[test]
+    fn stable_gold_change_emits_event() {
+        let mut fusion = fusion();
+
+        for at in [100, 150] {
+            fusion.apply_hud(HudObservationBatch {
+                observed_at_ms: at,
+                gold: Some(obs(50, 0.95, at)),
+                ..HudObservationBatch::default()
+            });
+        }
+
+        fusion.apply_hud(HudObservationBatch {
+            observed_at_ms: 200,
+            gold: Some(obs(48, 0.93, 200)),
+            ..HudObservationBatch::default()
+        });
+
+        let events = fusion.apply_hud(HudObservationBatch {
+            observed_at_ms: 250,
+            gold: Some(obs(48, 0.94, 250)),
+            ..HudObservationBatch::default()
+        });
+
+        assert!(events.iter().any(|event| matches!(
+            event,
+            GameEventKind::GoldChanged { from: 50, to: 48 }
+        )));
+    }
+
+    #[test]
+    fn phase_transition_emits_combat_started() {
+        let mut fusion = fusion();
+        fusion.set_phase(MatchPhase::Planning, 100);
+
+        let events = fusion.set_phase(MatchPhase::Combat, 200);
+
+        assert!(events
+            .iter()
+            .any(|event| matches!(event, GameEventKind::CombatStarted)));
+    }
+}
