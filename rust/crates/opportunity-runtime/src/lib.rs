@@ -609,10 +609,63 @@ fn inject_structural_pivot_facts(
 }
 
 fn dedupe_specialized_facts(facts: &mut OpportunityFacts) {
+    dedupe_sell_facts(&mut facts.sells);
     dedupe_item_facts(&mut facts.items);
     dedupe_pivot_facts(&mut facts.pivots);
     dedupe_position_facts(&mut facts.positions);
     dedupe_augment_facts(&mut facts.augments);
+}
+
+fn dedupe_sell_facts(
+    values: &mut Vec<agente_tft_opportunity_engine::SellOpportunityFact>,
+) {
+    use std::collections::BTreeMap;
+
+    let mut by_key: BTreeMap<
+        String,
+        agente_tft_opportunity_engine::SellOpportunityFact,
+    > = BTreeMap::new();
+
+    for fact in values.drain(..) {
+        let key = fact.unit_instance_id.clone();
+
+        match by_key.remove(&key) {
+            None => {
+                by_key.insert(key, fact);
+            }
+            Some(existing) => {
+                let chosen =
+                    if fact.confidence.value() > existing.confidence.value()
+                        || (
+                            (fact.confidence.value()
+                                - existing.confidence.value())
+                                .abs()
+                                <= f32::EPSILON
+                            && (
+                                fact.board_strength_loss
+                                    < existing.board_strength_loss
+                                || (
+                                    (fact.board_strength_loss
+                                        - existing.board_strength_loss)
+                                        .abs()
+                                        <= f32::EPSILON
+                                    && fact.economy_value
+                                        > existing.economy_value
+                                )
+                            )
+                        )
+                    {
+                        fact
+                    } else {
+                        existing
+                    };
+
+                by_key.insert(key, chosen);
+            }
+        }
+    }
+
+    *values = by_key.into_values().collect();
 }
 
 fn dedupe_item_facts(
@@ -785,6 +838,7 @@ fn extend_facts(
     destination: &mut OpportunityFacts,
     extra: &OpportunityFacts,
 ) {
+    destination.sells.extend(extra.sells.iter().cloned());
     destination.rolls.extend(extra.rolls.iter().cloned());
     destination.buys.extend(extra.buys.iter().cloned());
     destination.levels.extend(extra.levels.iter().cloned());
