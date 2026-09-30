@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 
 import httpx
@@ -33,8 +34,7 @@ def decision(revision: int = 7) -> DecisionPacket:
     )
 
 
-@pytest.mark.asyncio
-async def test_client_creates_session_and_submits_structured_job():
+def test_client_creates_session_and_submits_structured_job():
     requests: list[httpx.Request] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -67,26 +67,28 @@ async def test_client_creates_session_and_submits_structured_job():
 
         raise AssertionError(request.url)
 
-    client = RemoteTrainingClient(
-        RemoteTrainingConfig(
-            base_url="https://trainer.example",
-            client_id="local",
-        ),
-        transport=httpx.MockTransport(handler),
-    )
-
-    try:
-        await client.create_session(requested_at_ms=1000)
-        record = await client.submit_decision_job(
-            state=state(),
-            decision=decision(),
-            created_at_ms=1100,
-            job_id="job-1",
-            episode_id="episode-1",
-            scripted_bots=("econ", "aggressive"),
+    async def scenario():
+        client = RemoteTrainingClient(
+            RemoteTrainingConfig(
+                base_url="https://trainer.example",
+                client_id="local",
+            ),
+            transport=httpx.MockTransport(handler),
         )
-    finally:
-        await client.aclose()
+        try:
+            await client.create_session(requested_at_ms=1000)
+            return await client.submit_decision_job(
+                state=state(),
+                decision=decision(),
+                created_at_ms=1100,
+                job_id="job-1",
+                episode_id="episode-1",
+                scripted_bots=("econ", "aggressive"),
+            )
+        finally:
+            await client.aclose()
+
+    record = asyncio.run(scenario())
 
     assert record.status == "accepted"
     payload = record.request
@@ -97,8 +99,7 @@ async def test_client_creates_session_and_submits_structured_job():
     assert "keyboard" not in json.dumps(payload).lower()
 
 
-@pytest.mark.asyncio
-async def test_revision_mismatch_is_rejected_before_network():
+def test_revision_mismatch_is_rejected_before_network():
     calls = 0
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -115,20 +116,21 @@ async def test_revision_mismatch_is_rejected_before_network():
             },
         )
 
-    client = RemoteTrainingClient(
-        RemoteTrainingConfig(base_url="https://trainer.example"),
-        transport=httpx.MockTransport(handler),
-    )
+    async def scenario():
+        client = RemoteTrainingClient(
+            RemoteTrainingConfig(base_url="https://trainer.example"),
+            transport=httpx.MockTransport(handler),
+        )
+        try:
+            await client.create_session(requested_at_ms=1000)
+            with pytest.raises(ValueError):
+                await client.submit_decision_job(
+                    state=state(8),
+                    decision=decision(7),
+                    created_at_ms=1100,
+                )
+        finally:
+            await client.aclose()
 
-    try:
-        await client.create_session(requested_at_ms=1000)
-        with pytest.raises(ValueError):
-            await client.submit_decision_job(
-                state=state(8),
-                decision=decision(7),
-                created_at_ms=1100,
-            )
-    finally:
-        await client.aclose()
-
+    asyncio.run(scenario())
     assert calls == 1
