@@ -28,6 +28,14 @@ pub enum RuleSetError {
     MissingLevel(u8),
     #[error("no pool copy count configured for cost tier {0}")]
     MissingCost(u8),
+    #[error("XP purchase cost and XP per purchase must both be > 0 when XP rules are configured")]
+    InvalidXpPurchase,
+    #[error("XP threshold for level {level} must be > 0")]
+    InvalidXpThreshold { level: u8 },
+    #[error("no XP threshold configured for level {0}")]
+    MissingXpThreshold(u8),
+    #[error("target level must be greater than current level")]
+    InvalidTargetLevel,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -73,6 +81,13 @@ pub struct TftRuleSet {
     pub shop_odds_by_level: BTreeMap<u8, ShopOdds>,
     pub unit_pool_copies_by_cost: BTreeMap<u8, u16>,
     #[serde(default)]
+    pub xp_purchase_cost_gold: u16,
+    #[serde(default)]
+    pub xp_per_purchase: u16,
+    /// XP required to advance from the keyed level to the next level.
+    #[serde(default)]
+    pub xp_required_to_next_level: BTreeMap<u8, u16>,
+    #[serde(default)]
     pub source: Option<String>,
     #[serde(default)]
     pub source_hash: Option<String>,
@@ -109,6 +124,21 @@ impl TftRuleSet {
             }
         }
 
+        let xp_rules_present = self.xp_purchase_cost_gold > 0
+            || self.xp_per_purchase > 0
+            || !self.xp_required_to_next_level.is_empty();
+
+        if xp_rules_present {
+            if self.xp_purchase_cost_gold == 0 || self.xp_per_purchase == 0 {
+                return Err(RuleSetError::InvalidXpPurchase);
+            }
+            for (&level, &required) in &self.xp_required_to_next_level {
+                if required == 0 {
+                    return Err(RuleSetError::InvalidXpThreshold { level });
+                }
+            }
+        }
+
         Ok(())
     }
 
@@ -130,6 +160,57 @@ impl TftRuleSet {
             .get(&cost)
             .copied()
             .ok_or(RuleSetError::MissingCost(cost))
+    }
+
+    pub fn xp_rules_available(&self) -> bool {
+        self.xp_purchase_cost_gold > 0
+            && self.xp_per_purchase > 0
+            && !self.xp_required_to_next_level.is_empty()
+    }
+
+    pub fn gold_to_level(
+        &self,
+        current_level: u8,
+        current_xp: u16,
+        target_level: u8,
+    ) -> Result<Option<u16>, RuleSetError> {
+        if target_level <= current_level {
+            return Err(RuleSetError::InvalidTargetLevel);
+        }
+        if !self.xp_rules_available() {
+            return Ok(None);
+        }
+
+        let mut total_xp_needed: u32 = 0;
+        for level in current_level..target_level {
+            let required = self
+                .xp_required_to_next_level
+                .get(&level)
+                .copied()
+                .ok_or(RuleSetError::MissingXpThreshold(level))?;
+
+            let needed = if level == current_level {
+                required.saturating_sub(current_xp)
+            } else {
+                required
+            };
+
+            total_xp_needed = total_xp_needed.saturating_add(needed as u32);
+        }
+
+        if total_xp_needed == 0 {
+            return Ok(Some(0));
+        }
+
+        let xp_per_purchase = self.xp_per_purchase as u32;
+        let purchases = total_xp_needed
+            .saturating_add(xp_per_purchase - 1)
+            / xp_per_purchase;
+        let gold = purchases
+            .saturating_mul(self.xp_purchase_cost_gold as u32)
+            .min(u16::MAX as u32) as u16;
+
+        Ok(Some(gold))
     }
 
     pub fn shop_hit_input(
@@ -177,6 +258,12 @@ mod tests {
                 (4, 10),
                 (5, 9),
             ]),
+            xp_purchase_cost_gold: 4,
+            xp_per_purchase: 4,
+            xp_required_to_next_level: BTreeMap::from([
+                (7, 36),
+                (8, 68),
+            ]),
             source: Some("fixture".into()),
             source_hash: None,
         }
@@ -202,6 +289,33 @@ mod tests {
         assert!((input.target_tier_probability - 0.10).abs() < 1e-10);
         assert_eq!(input.pool.total_remaining, 80);
         assert_eq!(input.pool.target_remaining, 6);
+    }
+
+    #[test]
+    fn calculates_gold_to_level_from_patch_rules() {
+        let rules = fixture();
+
+        assert_eq!(
+            rules.gold_to_level(7, 20, 8).unwrap(),
+            Some(16)
+        );
+        assert_eq!(
+            rules.gold_to_level(7, 20, 9).unwrap(),
+            Some(84)
+        );
+    }
+
+    #[test]
+    fn missing_xp_rules_return_none_instead_of_guessing() {
+        let mut rules = fixture();
+        rules.xp_purchase_cost_gold = 0;
+        rules.xp_per_purchase = 0;
+        rules.xp_required_to_next_level.clear();
+
+        assert_eq!(
+            rules.gold_to_level(7, 20, 8).unwrap(),
+            None
+        );
     }
 
     #[test]
