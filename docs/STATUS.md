@@ -70,7 +70,11 @@ Implementado:
 - `calibration-inspect` lê JSON puro ou último snapshot de um JSONL;
 - Replay Calibration para coverage/latência/NO_CONFIDENT_CANDIDATE;
 - ground-truth replay accuracy para HUD/shop/board/lobby;
-- ferramenta FFmpeg para extrair frames e criar template de anotações.
+- ferramenta FFmpeg para extrair frames e criar template de anotações;
+- Replay Intake Gate para validar vídeo + ground truth antes da calibração;
+- validação de source_video, timestamps, duração, imagens, shop, HUD, board e lobby;
+- labels opcionais de cena para auditar cobertura estratégica da primeira amostra;
+- testes unitários do Replay Intake Gate integrados à suíte de training utilities.
 
 O simulador pesado / bot pool definitivo ainda precisa ser ligado ao backend remoto.
 
@@ -88,12 +92,13 @@ Implementado:
 
 ## Estado da CI
 
-Checkpoint confirmado:
+Checkpoint funcional atual:
 
-- GitHub Actions CI run: **#446**
+- GitHub Actions PR CI run: **#448**
 - resultado: **SUCCESS**
-- SHA validado: `a88fa8336d54ff97f03c9eac11a80800828fabf9`
-- branch congelada: `checkpoint/pre-real-replay-2026-09-30`
+- merge no main: `a7f03484e79b8c45c7dceee13de2c306316acbf3`
+- branch congelada: `checkpoint/replay-intake-green-2026-09-30`
+- checkpoint anterior preservado: `checkpoint/pre-real-replay-2026-09-30`
 
 No mesmo run passaram:
 
@@ -103,16 +108,17 @@ No mesmo run passaram:
 - training utilities;
 - remote trainer.
 
-Este é o ponto seguro de retorno antes da primeira calibração com replay real.
+Este é o ponto seguro de retorno com o intake do primeiro replay real já protegido por gate estrutural.
 
-Regra: novas mudanças não invalidam este checkpoint; a branch acima permanece presa ao SHA verde.
+Regra: novas mudanças não invalidam este checkpoint; a branch acima permanece presa ao merge cuja árvore foi validada integralmente na CI #448.
 
 ## Próximos passos — ordem
 
 1. **Primeiro replay real**
    - obter uma gravação completa de TFT;
    - extrair 20–50 frames estratégicos;
-   - preencher ground truth.
+   - preencher ground truth;
+   - executar `python -m training.replay_intake` até zerar blockers estruturais.
 
 2. **Replay accuracy / perception calibration**
    - medir HUD/shop/board/lobby;
