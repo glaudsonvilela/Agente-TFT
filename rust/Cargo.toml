@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/state-fusion", "crates/perception-hud", "crates/image-preprocess", "apps/replay-inspect", "apps/roi-replay-inspect"]
+members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/state-fusion", "crates/perception-hud", "crates/image-preprocess", "crates/ocr-tesseract", "apps/replay-inspect", "apps/roi-replay-inspect"]
 resolver = "2"
 
 [workspace.package]
