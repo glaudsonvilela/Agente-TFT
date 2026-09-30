@@ -3,9 +3,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use agente_tft_contracts::UnitInstance;
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_trait_core::TraitCatalog;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TraitActivation {
     pub trait_id: String,
     pub trait_name: String,
@@ -14,7 +14,7 @@ pub struct TraitActivation {
     pub next_breakpoint: Option<u8>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ClosedTraitBreakpoint {
     pub trait_id: String,
     pub trait_name: String,
@@ -23,7 +23,7 @@ pub struct ClosedTraitBreakpoint {
     pub breakpoint: u8,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SynergyDelta {
     pub unit_id: String,
     pub closed_breakpoints: Vec<ClosedTraitBreakpoint>,
