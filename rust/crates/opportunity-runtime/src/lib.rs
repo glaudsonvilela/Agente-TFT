@@ -13,7 +13,7 @@ use agente_tft_opportunity_engine::{
 };
 use agente_tft_remote_training_protocol::OpportunitySummary;
 use agente_tft_tft_rules::TftRuleSet;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -33,7 +33,7 @@ impl Default for OpportunityRuntimeConfig {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OpportunityCycle {
     pub report: OpportunityReport,
     pub delta: OpportunityDelta,
@@ -116,7 +116,7 @@ pub enum AutomaticOpportunityError {
     Opportunity(#[from] OpportunityError),
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AutomaticOpportunityCycle {
     pub fact_build: OpportunityFactBuild,
     pub cycle: OpportunityCycle,
