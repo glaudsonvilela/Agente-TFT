@@ -6,7 +6,7 @@ use std::{
 
 use agente_tft_contracts::{DecisionPacket, GameEvent, GameState, Recommendation};
 use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
-use agente_tft_opportunity_runtime::OpportunityCycle;
+use agente_tft_opportunity_runtime::{CompleteOpportunityCycle, OpportunityCycle};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -46,6 +46,9 @@ pub enum TelemetryPayload {
     },
     OpportunityCycle {
         cycle: OpportunityCycle,
+    },
+    CompleteOpportunityCycle {
+        cycle: CompleteOpportunityCycle,
     },
     Decision {
         decision: DecisionPacket,
@@ -338,6 +341,87 @@ mod tests {
             TelemetryPayload::OpportunityCycle { cycle: saved } => {
                 assert_eq!(saved, cycle);
                 assert_eq!(saved.decision.state_revision, 7);
+            }
+            other => panic!("unexpected payload: {other:?}"),
+        }
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn recorder_round_trips_complete_opportunity_cycle() {
+        use agente_tft_contracts::{
+            Action, Confidence, DecisionPacket,
+        };
+        use agente_tft_opportunity_engine::{
+            OpportunityDelta, OpportunityReport,
+        };
+
+        let root = temp_dir();
+        let mut recorder =
+            JsonlRecorder::create(&root, "complete-opportunity-fixture").unwrap();
+
+        let opportunity_cycle = OpportunityCycle {
+            report: OpportunityReport {
+                state_revision: 11,
+                evaluated_at_ms: 200,
+                all: vec![],
+                shortlist: vec![],
+            },
+            delta: OpportunityDelta {
+                previous_revision: Some(10),
+                current_revision: 11,
+                added: vec![Action::HoldEcon],
+                removed: vec![],
+                top_changed: true,
+                previous_top: None,
+                current_top: Some(Action::HoldEcon),
+                material_utility_shifts: vec![],
+            },
+            decision: DecisionPacket::new(
+                11,
+                Action::HoldEcon,
+                Confidence::new(0.90).unwrap(),
+                vec![],
+                vec![],
+            ),
+            remote_shortlist: vec![],
+            should_refresh_ui: true,
+            should_remote_evaluate: true,
+        };
+
+        let cycle = CompleteOpportunityCycle {
+            fact_build: OpportunityFactBuild {
+                facts: Default::default(),
+                diagnostics: Default::default(),
+            },
+            cycle: opportunity_cycle,
+            item_evaluations: vec![],
+            pivot_evaluations: vec![],
+            sell_diagnostic: None,
+            matchup_opponent_id: Some("p2".into()),
+            matchup_opponent_found: false,
+            matchup_positioning: None,
+        };
+
+        recorder
+            .append(
+                200,
+                TelemetryPayload::CompleteOpportunityCycle {
+                    cycle: cycle.clone(),
+                },
+            )
+            .unwrap();
+        recorder.flush().unwrap();
+
+        let content = fs::read_to_string(recorder.path()).unwrap();
+        let parsed: TelemetryRecord =
+            serde_json::from_str(content.lines().next().unwrap()).unwrap();
+
+        match parsed.payload {
+            TelemetryPayload::CompleteOpportunityCycle { cycle: saved } => {
+                assert_eq!(saved, cycle);
+                assert_eq!(saved.cycle.decision.state_revision, 11);
             }
             other => panic!("unexpected payload: {other:?}"),
         }
