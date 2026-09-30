@@ -421,8 +421,11 @@ impl OpportunityFactBuilder {
         let current_gold = gold.value;
 
         for step in 1..=self.config.max_level_targets {
+            let Ok(step_u8) = u8::try_from(step) else {
+                break;
+            };
             let Some(target_level) =
-                current_level.checked_add(step as u8)
+                current_level.checked_add(step_u8)
             else {
                 break;
             };
