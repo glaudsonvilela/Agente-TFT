@@ -6,6 +6,7 @@ use agente_tft_remote_training_protocol::{
     TrainingJobResult,
     TrainingJobStatus,
 };
+use agente_tft_shadow_player::ShadowTransition;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -447,6 +448,49 @@ impl EvaluatorFeedbackEngine {
 }
 
 
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct ShadowFeedbackIngest {
+    pub accepted: bool,
+    pub skipped_missing_reward: bool,
+    pub skipped_non_finite_reward: bool,
+    pub skipped_action_not_in_shortlist: bool,
+}
+
+impl EvaluatorFeedbackEngine {
+    pub fn observe_shadow_transition(
+        &mut self,
+        shortlist: &[OpportunityCandidate],
+        transition: &ShadowTransition,
+    ) -> ShadowFeedbackIngest {
+        let mut summary = ShadowFeedbackIngest::default();
+
+        let Some(reward) = transition.reward else {
+            summary.skipped_missing_reward = true;
+            return summary;
+        };
+
+        if !reward.is_finite() {
+            summary.skipped_non_finite_reward = true;
+            return summary;
+        }
+
+        let Some(candidate) = shortlist
+            .iter()
+            .find(|candidate| candidate.action == transition.action)
+        else {
+            summary.skipped_action_not_in_shortlist = true;
+            return summary;
+        };
+
+        summary.accepted = self.observe_candidate(
+            candidate,
+            reward,
+        );
+        summary
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct SwarmFeedbackIngest {
     pub outcomes_seen: u32,
@@ -690,6 +734,70 @@ mod tests {
             &candidate,
             f32::NAN,
         ));
+        assert!(engine.all().is_empty());
+    }
+
+    #[test]
+    fn shadow_transition_updates_feedback_for_matching_candidate() {
+        let candidate = opportunity_candidate(
+            0.75,
+            0.25,
+            0.75,
+        );
+
+        let transition = ShadowTransition {
+            before_revision: 7,
+            action: candidate.action.clone(),
+            simulated_state: agente_tft_contracts::GameState::empty(100),
+            reward: Some(0.80),
+            metrics: serde_json::json!({}),
+        };
+
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let ingest = engine.observe_shadow_transition(
+            &[candidate],
+            &transition,
+        );
+
+        assert!(ingest.accepted);
+        assert!(!ingest.skipped_missing_reward);
+
+        assert_eq!(
+            engine
+                .stats(
+                    ActionClass::Roll,
+                    OpportunitySignal::UpgradeValue,
+                )
+                .unwrap()
+                .samples,
+            1
+        );
+    }
+
+    #[test]
+    fn shadow_transition_without_reward_is_rejected() {
+        let candidate = opportunity_candidate(
+            0.75,
+            0.25,
+            0.75,
+        );
+
+        let transition = ShadowTransition {
+            before_revision: 7,
+            action: candidate.action.clone(),
+            simulated_state: agente_tft_contracts::GameState::empty(100),
+            reward: None,
+            metrics: serde_json::json!({}),
+        };
+
+        let mut engine = EvaluatorFeedbackEngine::default();
+        let ingest = engine.observe_shadow_transition(
+            &[candidate],
+            &transition,
+        );
+
+        assert!(!ingest.accepted);
+        assert!(ingest.skipped_missing_reward);
         assert!(engine.all().is_empty());
     }
 
