@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 from collections import Counter, defaultdict
+from collections.abc import Mapping
 from pathlib import Path
 from statistics import median
 from typing import Any, Iterable
@@ -77,7 +78,268 @@ def _has_no_confident_candidate(decision: dict[str, Any]) -> bool:
     return False
 
 
-def summarize(records: Iterable[dict[str, Any]], malformed: int = 0) -> dict[str, Any]:
+
+def load_annotations(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError("annotation file must be a JSON object")
+    if value.get("schema_version") != 1:
+        raise ValueError("unsupported annotation schema_version")
+    frames = value.get("frames")
+    if not isinstance(frames, list):
+        raise ValueError("annotations.frames must be an array")
+    return value
+
+
+def _state_snapshot_rows(
+    records: Iterable[dict[str, Any]],
+) -> list[tuple[int, dict[str, Any]]]:
+    rows: list[tuple[int, dict[str, Any]]] = []
+
+    for record in records:
+        payload = _payload(record)
+        if not payload or payload.get("type") != "state_snapshot":
+            continue
+        state = payload.get("state")
+        if not isinstance(state, dict):
+            continue
+
+        observed_at_ms = state.get("observed_at_ms")
+        if not isinstance(observed_at_ms, int):
+            observed_at_ms = record.get("recorded_at_ms")
+        if not isinstance(observed_at_ms, int):
+            continue
+
+        rows.append((observed_at_ms, state))
+
+    rows.sort(key=lambda row: row[0])
+    return rows
+
+
+def _nearest_state(
+    rows: list[tuple[int, dict[str, Any]]],
+    timestamp_ms: int,
+    tolerance_ms: int,
+) -> dict[str, Any] | None:
+    if not rows:
+        return None
+
+    best_time, best_state = min(
+        rows,
+        key=lambda row: abs(row[0] - timestamp_ms),
+    )
+    if abs(best_time - timestamp_ms) > tolerance_ms:
+        return None
+    return best_state
+
+
+def _observed_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return value.get("value")
+    return None
+
+
+def _multiset_scores(
+    expected: list[str],
+    observed: list[str],
+) -> tuple[int, int, int]:
+    expected_counts = Counter(expected)
+    observed_counts = Counter(observed)
+    intersection = sum(
+        min(expected_counts[key], observed_counts[key])
+        for key in expected_counts.keys() | observed_counts.keys()
+    )
+    return intersection, len(expected), len(observed)
+
+
+def evaluate_ground_truth(
+    records: Iterable[dict[str, Any]],
+    annotations: dict[str, Any],
+    tolerance_ms: int = 250,
+) -> dict[str, Any]:
+    if tolerance_ms < 0:
+        raise ValueError("tolerance_ms must be >= 0")
+
+    rows = _state_snapshot_rows(records)
+    frames = annotations.get("frames") or []
+
+    matched = 0
+    unmatched = 0
+    hud_total = Counter()
+    hud_correct = Counter()
+
+    shop_total = 0
+    shop_correct = 0
+
+    board_intersection = 0
+    board_expected = 0
+    board_observed = 0
+    board_exact_total = 0
+    board_exact_correct = 0
+
+    lobby_intersection = 0
+    lobby_expected = 0
+    lobby_observed = 0
+    lobby_exact_total = 0
+    lobby_exact_correct = 0
+
+    for frame in frames:
+        if not isinstance(frame, dict):
+            continue
+        timestamp_ms = frame.get("timestamp_ms")
+        if not isinstance(timestamp_ms, int):
+            continue
+
+        state = _nearest_state(rows, timestamp_ms, tolerance_ms)
+        if state is None:
+            unmatched += 1
+            continue
+
+        matched += 1
+        player = state.get("player")
+        if not isinstance(player, dict):
+            player = {}
+
+        for field in STATE_FIELDS:
+            if field not in frame:
+                continue
+            expected_value = frame.get(field)
+            hud_total[field] += 1
+            if _observed_value(player.get(field)) == expected_value:
+                hud_correct[field] += 1
+
+        if "shop" in frame and isinstance(frame["shop"], list):
+            expected_shop = frame["shop"]
+            observed_shop: dict[int, Any] = {}
+            for slot in player.get("shop") or []:
+                if not isinstance(slot, dict):
+                    continue
+                value = slot.get("value")
+                if not isinstance(value, dict):
+                    continue
+                index = value.get("slot")
+                if isinstance(index, int):
+                    observed_shop[index] = value.get("unit_id")
+
+            for index, expected_unit in enumerate(expected_shop):
+                shop_total += 1
+                if observed_shop.get(index) == expected_unit:
+                    shop_correct += 1
+
+        if "board_unit_ids" in frame and isinstance(
+            frame["board_unit_ids"], list
+        ):
+            expected_ids = [
+                str(value)
+                for value in frame["board_unit_ids"]
+                if value is not None
+            ]
+            observed_ids = []
+            for unit in player.get("board") or []:
+                if isinstance(unit, dict) and unit.get("unit_id"):
+                    observed_ids.append(str(unit["unit_id"]))
+
+            intersection, expected_count, observed_count = _multiset_scores(
+                expected_ids,
+                observed_ids,
+            )
+            board_intersection += intersection
+            board_expected += expected_count
+            board_observed += observed_count
+            board_exact_total += 1
+            if Counter(expected_ids) == Counter(observed_ids):
+                board_exact_correct += 1
+
+        if "lobby_player_ids" in frame and isinstance(
+            frame["lobby_player_ids"], list
+        ):
+            expected_ids = sorted(
+                str(value)
+                for value in frame["lobby_player_ids"]
+                if value is not None
+            )
+            observed_ids = sorted(
+                str(row.get("player_id"))
+                for row in state.get("lobby") or []
+                if isinstance(row, dict) and row.get("player_id") is not None
+            )
+
+            expected_set = set(expected_ids)
+            observed_set = set(observed_ids)
+            lobby_intersection += len(expected_set & observed_set)
+            lobby_expected += len(expected_set)
+            lobby_observed += len(observed_set)
+            lobby_exact_total += 1
+            if expected_set == observed_set:
+                lobby_exact_correct += 1
+
+    hud_accuracy = {
+        field: (
+            hud_correct[field] / hud_total[field]
+            if hud_total[field]
+            else None
+        )
+        for field in STATE_FIELDS
+    }
+
+    return {
+        "annotation_frames": len(
+            [frame for frame in frames if isinstance(frame, dict)]
+        ),
+        "matched_frames": matched,
+        "unmatched_frames": unmatched,
+        "match_rate": (
+            matched / (matched + unmatched)
+            if matched + unmatched
+            else None
+        ),
+        "tolerance_ms": tolerance_ms,
+        "hud_exact_accuracy": hud_accuracy,
+        "shop_slot_accuracy": (
+            shop_correct / shop_total
+            if shop_total
+            else None
+        ),
+        "shop_slots_evaluated": shop_total,
+        "board_precision": (
+            board_intersection / board_observed
+            if board_observed
+            else None
+        ),
+        "board_recall": (
+            board_intersection / board_expected
+            if board_expected
+            else None
+        ),
+        "board_exact_rate": (
+            board_exact_correct / board_exact_total
+            if board_exact_total
+            else None
+        ),
+        "lobby_precision": (
+            lobby_intersection / lobby_observed
+            if lobby_observed
+            else None
+        ),
+        "lobby_recall": (
+            lobby_intersection / lobby_expected
+            if lobby_expected
+            else None
+        ),
+        "lobby_exact_rate": (
+            lobby_exact_correct / lobby_exact_total
+            if lobby_exact_total
+            else None
+        ),
+    }
+
+
+def summarize(
+    records: Iterable[dict[str, Any]],
+    malformed: int = 0,
+    annotations: dict[str, Any] | None = None,
+    annotation_tolerance_ms: int = 250,
+) -> dict[str, Any]:
     records = list(records)
     payload_counts: Counter[str] = Counter()
 
@@ -214,7 +476,7 @@ def summarize(records: Iterable[dict[str, Any]], malformed: int = 0) -> dict[str
         else None
     )
 
-    return {
+    report = {
         "schema_version": 1,
         "records": len(records),
         "malformed_lines": malformed,
@@ -260,6 +522,15 @@ def summarize(records: Iterable[dict[str, Any]], malformed: int = 0) -> dict[str
         ],
     }
 
+    if annotations is not None:
+        report["ground_truth"] = evaluate_ground_truth(
+            records,
+            annotations,
+            annotation_tolerance_ms,
+        )
+
+    return report
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -267,10 +538,26 @@ def main() -> int:
     )
     parser.add_argument("telemetry_jsonl", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--annotations", type=Path)
+    parser.add_argument(
+        "--annotation-tolerance-ms",
+        type=int,
+        default=250,
+    )
     args = parser.parse_args()
 
     records, malformed = load_jsonl(args.telemetry_jsonl)
-    report = summarize(records, malformed)
+    annotations = (
+        load_annotations(args.annotations)
+        if args.annotations
+        else None
+    )
+    report = summarize(
+        records,
+        malformed,
+        annotations=annotations,
+        annotation_tolerance_ms=args.annotation_tolerance_ms,
+    )
 
     encoded = json.dumps(
         report,
