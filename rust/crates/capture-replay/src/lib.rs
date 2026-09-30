@@ -1,5 +1,4 @@
 use std::{
-    fs,
     io::{self, BufReader, Read},
     path::{Path, PathBuf},
     process::{Child, ChildStdout, Command, Stdio},
@@ -246,6 +245,8 @@ fn parse_fraction(value: &str) -> Option<f32> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
 
     #[test]
