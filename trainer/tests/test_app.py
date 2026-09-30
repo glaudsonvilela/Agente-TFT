@@ -99,3 +99,36 @@ def test_null_backend_never_fabricates_result():
     assert record["status"] == "failed"
     assert record["error"] == "simulator_not_configured"
     assert record["result"] is None
+
+
+
+def test_protected_endpoints_require_bearer_token():
+    app = create_app(
+        clock_ms=lambda: 1000,
+        api_token="secret-token",
+    )
+    client = TestClient(app)
+
+    unauthorized = client.post(
+        "/v1/training/sessions",
+        json=session_payload(),
+    )
+    assert unauthorized.status_code == 401
+
+    authorized = client.post(
+        "/v1/training/sessions",
+        json=session_payload(),
+        headers={"Authorization": "Bearer secret-token"},
+    )
+    assert authorized.status_code == 201
+
+
+def test_health_remains_public_when_token_is_enabled():
+    app = create_app(
+        clock_ms=lambda: 1000,
+        api_token="secret-token",
+    )
+    client = TestClient(app)
+
+    response = client.get("/v1/training/health")
+    assert response.status_code == 200
