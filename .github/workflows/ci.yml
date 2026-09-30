@@ -38,3 +38,5 @@ jobs:
       - name: Test Python contracts
         working-directory: agent
         run: python -m pytest -q
+      - name: Test ingestion pipeline
+        run: python -m unittest discover -s ingestion/tests -v
