@@ -277,6 +277,7 @@ mod tests {
             mode: TrainingMode::BotPool,
             state: state(),
             decision: decision(),
+            opportunities: vec![],
             rollout_count: 64,
             horizon_steps: 100,
             opponent_pool: OpponentPoolConfig::default(),
