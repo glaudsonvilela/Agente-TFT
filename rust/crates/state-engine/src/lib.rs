@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use agente_tft_contracts::{
-    GameEventKind, GameState, MatchPhase, Observed, ShopSlot, UnitInstance,
+    GameEventKind, GameState, MatchPhase, Observed, ShopSlot,
 };
 
 pub fn diff_event_kinds(previous: &GameState, current: &GameState) -> Vec<GameEventKind> {
