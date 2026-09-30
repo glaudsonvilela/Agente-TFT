@@ -38,6 +38,7 @@ recordings/
 captures/
 telemetry/data/
 knowledge/database/
+knowledge/raw/
 *.sqlite
 *.sqlite3
 *.db
