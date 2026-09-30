@@ -151,11 +151,41 @@ async def capture_public_page(
                         .map(el => visibleText(el))
                         .filter(Boolean);
 
+                    const links = [...document.querySelectorAll('a[href]')]
+                        .map((a) => ({
+                            text: visibleText(a),
+                            href: a.href
+                        }))
+                        .filter((row) => row.text || row.href);
+
+                    const dataBlocks = [...document.querySelectorAll('[data-testid],[data-name],[data-id],[role="row"],[role="listitem"]')]
+                        .map((el, index) => ({
+                            index,
+                            tag: el.tagName,
+                            role: el.getAttribute('role'),
+                            data_testid: el.getAttribute('data-testid'),
+                            data_name: el.getAttribute('data-name'),
+                            data_id: el.getAttribute('data-id'),
+                            text: visibleText(el)
+                        }))
+                        .filter((row) => row.text);
+
+                    const repeatedBlocks = [...document.querySelectorAll('article,li')]
+                        .map((el, index) => ({
+                            index,
+                            tag: el.tagName,
+                            text: visibleText(el)
+                        }))
+                        .filter((row) => row.text && row.text.length <= 2000);
+
                     return {
                         title: document.title,
                         final_url: location.href,
                         headings,
                         tables,
+                        links,
+                        data_blocks: dataBlocks,
+                        repeated_blocks: repeatedBlocks,
                         body_text: document.body ? document.body.innerText : ''
                     };
                 }"""
@@ -170,6 +200,9 @@ async def capture_public_page(
                 "final_url": snapshot.get("final_url"),
                 "headings": snapshot.get("headings", []),
                 "tables": snapshot.get("tables", []),
+                "links": snapshot.get("links", []),
+                "data_blocks": snapshot.get("data_blocks", []),
+                "repeated_blocks": snapshot.get("repeated_blocks", []),
                 "body_text": snapshot.get("body_text", ""),
             }
         finally:
