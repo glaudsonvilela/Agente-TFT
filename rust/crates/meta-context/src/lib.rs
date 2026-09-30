@@ -366,10 +366,10 @@ mod tests {
                 max_age_ms: 100,
                 allow_unknown_patch_set: false,
             },
-            now_ms: 2_000,
-            patch: Some("18.3b"),
-            set: Some("TFTSet18"),
-            unit_id: "TFT18_X",
+            2_000,
+            Some("18.3b"),
+            Some("TFTSet18"),
+            "TFT18_X",
         )
         .unwrap();
 
@@ -381,10 +381,10 @@ mod tests {
         let result = unit_meta_prior(
             &snapshot(),
             MetaPriorPolicy::default(),
-            now_ms: 1_001,
-            patch: Some("18.4"),
-            set: Some("TFTSet18"),
-            unit_id: "TFT18_X",
+            1_001,
+            Some("18.4"),
+            Some("TFTSet18"),
+            "TFT18_X",
         )
         .unwrap();
 
@@ -396,10 +396,10 @@ mod tests {
         let result = unit_meta_prior(
             &snapshot(),
             MetaPriorPolicy::default(),
-            now_ms: 1_001,
-            patch: Some("18.3b"),
-            set: Some("TFTSet18"),
-            unit_id: "TFT18_X",
+            1_001,
+            Some("18.3b"),
+            Some("TFTSet18"),
+            "TFT18_X",
         )
         .unwrap()
         .unwrap();
