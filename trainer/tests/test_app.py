@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from remote_trainer.app import create_app
+from remote_trainer.store import NullTrainerBackend, TrainerStore
 
 
 def session_payload():
@@ -132,3 +133,145 @@ def test_health_remains_public_when_token_is_enabled():
 
     response = client.get("/v1/training/health")
     assert response.status_code == 200
+
+
+
+class FakeShadowBackend:
+    def __init__(self):
+        self.states = {}
+
+    async def initialize(self, shadow_id: str, state: dict) -> dict:
+        self.states[shadow_id] = dict(state)
+        return {
+            "simulated_revision": state["revision"],
+            "divergence": None,
+        }
+
+    async def reconcile(self, shadow_id: str, state: dict) -> dict:
+        previous = self.states[shadow_id]
+        self.states[shadow_id] = dict(state)
+        return {
+            "simulated_revision": state["revision"],
+            "divergence": {
+                "revision_delta": state["revision"] - previous["revision"],
+            },
+        }
+
+    async def step(self, shadow_id: str, decision: dict) -> dict:
+        state = dict(self.states[shadow_id])
+        state["revision"] = state["revision"] + 1
+        self.states[shadow_id] = state
+        return {
+            "simulated_revision": state["revision"],
+            "action": decision["action"],
+            "reward": 0.25,
+            "metrics": {"fixture": True},
+        }
+
+    async def end(self, shadow_id: str) -> None:
+        return None
+
+
+def shadow_payload(training_session_id: str):
+    return {
+        "training_session_id": training_session_id,
+        "episode_id": "episode-1",
+        "created_at_ms": 1100,
+        "state": {
+            "schema_version": "0.1.0",
+            "revision": 7,
+        },
+    }
+
+
+def test_null_shadow_backend_is_explicitly_degraded():
+    client = TestClient(create_app(clock_ms=lambda: 1000))
+    session = client.post("/v1/training/sessions", json=session_payload()).json()
+
+    response = client.post(
+        "/v1/shadow/sessions",
+        json=shadow_payload(session["session_id"]),
+    )
+    assert response.status_code == 201
+    record = response.json()
+    assert record["status"] == "degraded"
+    assert record["error"] == "simulator_not_configured"
+
+
+def test_shadow_session_sync_and_step_with_backend():
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        shadow_backend=FakeShadowBackend(),
+    )
+    client = TestClient(create_app(store=store, clock_ms=lambda: 1000))
+    session = client.post("/v1/training/sessions", json=session_payload()).json()
+
+    created = client.post(
+        "/v1/shadow/sessions",
+        json=shadow_payload(session["session_id"]),
+    )
+    assert created.status_code == 201
+    shadow = created.json()
+    assert shadow["status"] == "active"
+    assert shadow["real_revision"] == 7
+    shadow_id = shadow["shadow_id"]
+
+    stepped = client.post(
+        f"/v1/shadow/sessions/{shadow_id}/step",
+        json={
+            "observed_at_ms": 1200,
+            "decision": {
+                "state_revision": 7,
+                "action": {"type": "hold_econ"},
+            },
+        },
+    )
+    assert stepped.status_code == 200
+    stepped_body = stepped.json()
+    assert stepped_body["simulated_revision"] == 8
+    assert stepped_body["last_step"]["reward"] == 0.25
+
+    synced = client.post(
+        f"/v1/shadow/sessions/{shadow_id}/sync",
+        json={
+            "observed_at_ms": 1300,
+            "state": {
+                "schema_version": "0.1.0",
+                "revision": 8,
+            },
+        },
+    )
+    assert synced.status_code == 200
+    synced_body = synced.json()
+    assert synced_body["real_revision"] == 8
+    assert synced_body["simulated_revision"] == 8
+    assert synced_body["last_divergence"]["revision_delta"] == 0
+
+    ended = client.post(f"/v1/shadow/sessions/{shadow_id}/end")
+    assert ended.status_code == 200
+    assert ended.json()["status"] == "ended"
+
+
+def test_shadow_step_rejects_stale_decision_revision():
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        shadow_backend=FakeShadowBackend(),
+    )
+    client = TestClient(create_app(store=store, clock_ms=lambda: 1000))
+    session = client.post("/v1/training/sessions", json=session_payload()).json()
+    shadow = client.post(
+        "/v1/shadow/sessions",
+        json=shadow_payload(session["session_id"]),
+    ).json()
+
+    response = client.post(
+        f"/v1/shadow/sessions/{shadow['shadow_id']}/step",
+        json={
+            "observed_at_ms": 1200,
+            "decision": {
+                "state_revision": 6,
+                "action": {"type": "hold_econ"},
+            },
+        },
+    )
+    assert response.status_code == 409
