@@ -3,6 +3,13 @@ use agente_tft_contracts::{DecisionPacket, GameState};
 use agente_tft_decision_core::DecisionConfig;
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_meta_context::MetaSnapshot;
+use agente_tft_meta_hints::{
+    generate_item_opportunity_facts,
+    generate_pivot_opportunity_facts,
+    CompCandidateConfig,
+    MetaItemOpportunityPolicy,
+    MetaPivotOpportunityPolicy,
+};
 use agente_tft_opportunity_fact_builder::{
     FactBuildError, FactBuilderConfig, OpportunityFactBuild,
     OpportunityFactBuilder,
@@ -126,9 +133,18 @@ impl OpportunityRuntime {
                 now_ms,
             )?;
 
+        inject_meta_facts(
+            state,
+            meta,
+            now_ms,
+            &mut fact_build.facts,
+        );
+
         if let Some(extra) = extra_facts {
             extend_facts(&mut fact_build.facts, extra);
         }
+
+        dedupe_specialized_facts(&mut fact_build.facts);
 
         let cycle = self.runtime.evaluate(
             state,
@@ -214,6 +230,125 @@ impl AutomaticOpportunityRuntime {
     pub fn reset(&mut self) {
         self.runtime.reset();
     }
+}
+
+fn inject_meta_facts(
+    state: &GameState,
+    meta: Option<&MetaSnapshot>,
+    now_ms: u64,
+    facts: &mut OpportunityFacts,
+) {
+    let Some(snapshot) = meta else {
+        return;
+    };
+
+    facts.items.extend(
+        generate_item_opportunity_facts(
+            state,
+            snapshot,
+            MetaItemOpportunityPolicy::default(),
+        ),
+    );
+
+    facts.pivots.extend(
+        generate_pivot_opportunity_facts(
+            state,
+            snapshot,
+            now_ms,
+            CompCandidateConfig::default(),
+            MetaPivotOpportunityPolicy::default(),
+        ),
+    );
+}
+
+fn dedupe_specialized_facts(facts: &mut OpportunityFacts) {
+    dedupe_item_facts(&mut facts.items);
+    dedupe_pivot_facts(&mut facts.pivots);
+}
+
+fn dedupe_item_facts(
+    values: &mut Vec<agente_tft_opportunity_engine::ItemOpportunityFact>,
+) {
+    use std::collections::BTreeMap;
+
+    let mut by_key: BTreeMap<
+        (String, String),
+        agente_tft_opportunity_engine::ItemOpportunityFact,
+    > = BTreeMap::new();
+
+    for fact in values.drain(..) {
+        let key = (
+            fact.unit_instance_id.clone(),
+            fact.item_id.clone(),
+        );
+
+        match by_key.remove(&key) {
+            None => {
+                by_key.insert(key, fact);
+            }
+            Some(existing) => {
+                let preserved_prior =
+                    if fact.external_meta_prior.abs()
+                        >= existing.external_meta_prior.abs()
+                    {
+                        fact.external_meta_prior
+                    } else {
+                        existing.external_meta_prior
+                    };
+
+                let mut chosen =
+                    if fact.confidence.value() > existing.confidence.value()
+                        || fact.strength_gain > existing.strength_gain
+                    {
+                        fact
+                    } else {
+                        existing
+                    };
+
+                chosen.external_meta_prior = preserved_prior;
+                by_key.insert(key, chosen);
+            }
+        }
+    }
+
+    *values = by_key.into_values().collect();
+}
+
+fn dedupe_pivot_facts(
+    values: &mut Vec<agente_tft_opportunity_engine::PivotOpportunityFact>,
+) {
+    use std::collections::BTreeMap;
+
+    let mut by_key: BTreeMap<
+        String,
+        agente_tft_opportunity_engine::PivotOpportunityFact,
+    > = BTreeMap::new();
+
+    for fact in values.drain(..) {
+        let key = fact
+            .meta_comp_id
+            .clone()
+            .unwrap_or_else(|| fact.target.clone());
+
+        match by_key.remove(&key) {
+            None => {
+                by_key.insert(key, fact);
+            }
+            Some(existing) => {
+                let chosen =
+                    if fact.confidence.value() > existing.confidence.value()
+                        || fact.immediate_gain > existing.immediate_gain
+                    {
+                        fact
+                    } else {
+                        existing
+                    };
+                by_key.insert(key, chosen);
+            }
+        }
+    }
+
+    *values = by_key.into_values().collect();
 }
 
 fn extend_facts(
@@ -324,6 +459,71 @@ mod tests {
             .to_string(),
         )
         .unwrap()
+    }
+
+    fn meta_snapshot() -> MetaSnapshot {
+        use std::collections::BTreeMap;
+        use agente_tft_meta_context::{
+            MetaEntity, MetaEntityKind, MetaPerformance,
+        };
+
+        let mut attributes = BTreeMap::new();
+        attributes.insert(
+            "recommended_item_ids".into(),
+            serde_json::json!(["ITEM_META"]),
+        );
+
+        MetaSnapshot {
+            schema_version: 1,
+            source: "metatft_public".into(),
+            source_url: "https://www.metatft.com/comps".into(),
+            captured_at_ms: 9_000,
+            patch: Some("18.3b".into()),
+            set: Some("TFTSet18".into()),
+            queue: Some("ranked".into()),
+            rank_filter: Some("platinum_plus".into()),
+            window: Some("last_3_days".into()),
+            entities: vec![
+                MetaEntity {
+                    kind: MetaEntityKind::Unit,
+                    id: "A".into(),
+                    name: "Alpha".into(),
+                    unit_ids: vec![],
+                    trait_ids: vec![],
+                    performance: MetaPerformance {
+                        avg_place: Some(4.0),
+                        top4_rate: Some(0.55),
+                        win_rate: Some(0.14),
+                        frequency: Some(0.10),
+                        sample_size: Some(10_000),
+                    },
+                    tags: vec![],
+                    attributes,
+                },
+                MetaEntity {
+                    kind: MetaEntityKind::Comp,
+                    id: "comp-abcd".into(),
+                    name: "ABCD".into(),
+                    unit_ids: vec![
+                        "A".into(),
+                        "B".into(),
+                        "C".into(),
+                        "D".into(),
+                    ],
+                    trait_ids: vec![],
+                    performance: MetaPerformance {
+                        avg_place: Some(3.9),
+                        top4_rate: Some(0.58),
+                        win_rate: Some(0.16),
+                        frequency: Some(0.08),
+                        sample_size: Some(20_000),
+                    },
+                    tags: vec![],
+                    attributes: BTreeMap::new(),
+                },
+            ],
+            metadata: BTreeMap::new(),
+        }
     }
 
     fn rules() -> TftRuleSet {
@@ -533,6 +733,95 @@ mod tests {
             .level_board_plans
             .iter()
             .any(|plan| plan.target_level == 8));
+    }
+
+    #[test]
+    fn runtime_auto_injects_meta_item_and_pivot_candidates() {
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let mut state = automatic_state();
+        state.player.items = vec!["ITEM_META".into()];
+
+        let result = runtime
+            .evaluate(
+                &state,
+                &rules(),
+                &catalog(),
+                Some(&meta_snapshot()),
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        assert!(result
+            .fact_build
+            .facts
+            .items
+            .iter()
+            .any(|fact| fact.item_id == "ITEM_META"));
+
+        assert!(result
+            .fact_build
+            .facts
+            .pivots
+            .iter()
+            .any(|fact| fact.meta_comp_id.as_deref() == Some("comp-abcd")));
+    }
+
+    #[test]
+    fn local_item_fact_overrides_meta_only_duplicate_but_keeps_prior() {
+        use agente_tft_opportunity_engine::ItemOpportunityFact;
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let mut state = automatic_state();
+        state.player.items = vec!["ITEM_META".into()];
+
+        let extra = OpportunityFacts {
+            items: vec![ItemOpportunityFact {
+                item_id: "ITEM_META".into(),
+                unit_instance_id: "A-2".into(),
+                strength_gain: 0.70,
+                flexibility_cost: 0.10,
+                external_meta_prior: 0.0,
+                confidence: Confidence::new(0.90).unwrap(),
+            }],
+            ..OpportunityFacts::default()
+        };
+
+        let result = runtime
+            .evaluate(
+                &state,
+                &rules(),
+                &catalog(),
+                Some(&meta_snapshot()),
+                10_000,
+                Some(&extra),
+            )
+            .unwrap();
+
+        let fact = result
+            .fact_build
+            .facts
+            .items
+            .iter()
+            .find(|fact| {
+                fact.item_id == "ITEM_META"
+                    && fact.unit_instance_id == "A-2"
+            })
+            .unwrap();
+
+        assert_eq!(fact.strength_gain, 0.70);
+        assert_eq!(fact.confidence.value(), 0.90);
+        assert!(fact.external_meta_prior > 0.0);
     }
 
     #[test]
