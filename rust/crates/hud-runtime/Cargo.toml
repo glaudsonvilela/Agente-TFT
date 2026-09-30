@@ -12,3 +12,6 @@ agente-tft-contracts = { path = "../contracts" }
 agente-tft-perception-core = { path = "../perception-core" }
 agente-tft-perception-hud = { path = "../perception-hud" }
 agente-tft-state-fusion = { path = "../state-fusion" }
+
+[dev-dependencies]
+agente-tft-image-preprocess = { path = "../image-preprocess" }
