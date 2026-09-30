@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+agente-tft-meta-hints = { path = "../meta-hints" }
 agente-tft-trait-core = { path = "../trait-core" }
 agente-tft-board-strength = { path = "../board-strength" }
 serde.workspace = true
