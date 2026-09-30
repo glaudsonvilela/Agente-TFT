@@ -12,3 +12,6 @@ agente-tft-contracts = { path = "../contracts" }
 agente-tft-knowledge-core = { path = "../knowledge-core" }
 agente-tft-opportunity-engine = { path = "../opportunity-engine" }
 agente-tft-trait-core = { path = "../trait-core" }
+
+[dev-dependencies]
+serde_json.workspace = true
