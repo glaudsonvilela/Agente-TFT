@@ -138,3 +138,114 @@ class MetaTftBrowserNormalizerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class MetaTftRichUnitTests(unittest.TestCase):
+    def test_detail_unit_extracts_items_and_positioning(self):
+        raw = {
+            "source": "metatft_public_browser",
+            "source_url": "https://www.metatft.com/units/KhaZix",
+            "captured_at_epoch": 1000.0,
+            "title": "KhaZix TFT - Best Items and BiS Build",
+            "headings": ["Kha'Zix TFT Builds, Items and Stats"],
+            "tables": [],
+            "body_text": (
+                "Stats on how Kha'Zix performs in the current TFT Set 18 meta.\n"
+                "Kha'Zix Stats\n"
+                "4.53\n"
+                "Avg Place\n"
+                "Positioning\n"
+                "Kha'Zix should be positioned in the front row.\n"
+                "Recommended Builds\n"
+                "We recommend Lich Bane, Edge of Night, Hand Of Justice "
+                "as the best build for Kha'Zix in TFT.\n"
+                "Top Items\n"
+                "The best items for Kha'Zix are Hand Of Justice, "
+                "Rabadon's Deathcap, Edge of Night and Nashor's Tooth\n"
+                "Ranked\n18.3b\nLast 3 Days\nPlatinum +"
+            ),
+            "sections": [],
+            "links": [],
+            "repeated_blocks": [],
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            units = root / "units.json"
+            items = root / "items.json"
+
+            units.write_text(
+                json.dumps(
+                    {
+                        "champions": [
+                            {
+                                "api_name": "TFT18_KhaZix",
+                                "name": "Kha'Zix",
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            items.write_text(
+                json.dumps(
+                    {
+                        "items": [
+                            {"api_name": "TFT_Item_LichBane", "name": "Lich Bane"},
+                            {"api_name": "TFT_Item_EdgeOfNight", "name": "Edge of Night"},
+                            {"api_name": "TFT_Item_HandOfJustice", "name": "Hand Of Justice"},
+                            {"api_name": "TFT_Item_RabadonsDeathcap", "name": "Rabadon's Deathcap"},
+                            {"api_name": "TFT_Item_NashorsTooth", "name": "Nashor's Tooth"},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            resolver = CatalogResolver.from_catalogs(
+                unit_catalog=units,
+                item_catalog=items,
+            )
+            normalized = normalize_browser_snapshot(raw, resolver=resolver)
+
+        self.assertEqual(len(normalized["entities"]), 1)
+        unit = normalized["entities"][0]
+        self.assertEqual(unit["id"], "TFT18_KhaZix")
+        self.assertEqual(
+            unit["attributes"]["recommended_item_ids"],
+            [
+                "TFT_Item_LichBane",
+                "TFT_Item_EdgeOfNight",
+                "TFT_Item_HandOfJustice",
+            ],
+        )
+        self.assertEqual(
+            unit["attributes"]["positioning"],
+            "in the front row",
+        )
+
+    def test_trait_detail_unit_table_is_typed_as_units(self):
+        raw = {
+            "source_url": "https://www.metatft.com/traits/heroic",
+            "captured_at_epoch": 1000.0,
+            "title": "TFT heroic Trait - Stats, Units and Best Comps",
+            "headings": ["TFT heroic Trait"],
+            "tables": [
+                {
+                    "table_index": 0,
+                    "rows": [
+                        ["Unit", "Tier", "Avg Place", "Win Rate", "Frequency"],
+                        ["Kha'Zix", "S", "3.90", "16.0%", "20,000 4.0%"],
+                    ],
+                }
+            ],
+            "body_text": "Ranked\n18.3b\nLast 3 Days\nPlatinum +\nSet 18",
+            "links": [],
+            "repeated_blocks": [],
+            "sections": [],
+        }
+
+        normalized = normalize_browser_snapshot(raw)
+        self.assertEqual(len(normalized["entities"]), 1)
+        self.assertEqual(normalized["entities"][0]["kind"], "unit")
