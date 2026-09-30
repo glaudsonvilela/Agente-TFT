@@ -265,6 +265,174 @@ fn observed<T>(value: T, confidence: Confidence, observed_at_ms: u64) -> Observe
     }
 }
 
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct HudReadPolicy {
+    pub attempts: Vec<HudPreprocessConfig>,
+    pub min_confidence: f32,
+    /// If two different valid values have almost the same confidence,
+    /// suppress the read instead of choosing arbitrarily.
+    pub ambiguity_margin: f32,
+}
+
+impl Default for HudReadPolicy {
+    fn default() -> Self {
+        Self {
+            attempts: vec![
+                HudPreprocessConfig {
+                    upscale_factor: 3,
+                    invert: false,
+                },
+                HudPreprocessConfig {
+                    upscale_factor: 3,
+                    invert: true,
+                },
+                HudPreprocessConfig {
+                    upscale_factor: 4,
+                    invert: false,
+                },
+            ],
+            min_confidence: 0.70,
+            ambiguity_margin: 0.03,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct RobustHudRead {
+    pub batch: HudObservationBatch,
+    pub recognized_text: String,
+    pub confidence: Confidence,
+    pub preprocess: HudPreprocessConfig,
+    pub attempts_made: usize,
+}
+
+#[derive(Debug, Clone)]
+struct ValidAttempt {
+    batch: HudObservationBatch,
+    recognized_text: String,
+    confidence: Confidence,
+    preprocess: HudPreprocessConfig,
+}
+
+pub fn read_roi_robust(
+    engine: &mut impl HudOcrEngine,
+    field: HudField,
+    roi: &RoiFrame,
+    policy: &HudReadPolicy,
+) -> Result<Option<RobustHudRead>, HudReadError> {
+    let min_confidence = if policy.min_confidence.is_finite() {
+        policy.min_confidence.clamp(0.0, 1.0)
+    } else {
+        1.0
+    };
+    let ambiguity_margin = if policy.ambiguity_margin.is_finite() {
+        policy.ambiguity_margin.max(0.0)
+    } else {
+        0.0
+    };
+
+    let attempts = if policy.attempts.is_empty() {
+        vec![HudPreprocessConfig::default()]
+    } else {
+        policy.attempts.clone()
+    };
+
+    let mut valid = Vec::<ValidAttempt>::new();
+    let mut recognizer_errors = Vec::<String>::new();
+
+    for config in attempts.iter().copied() {
+        let image = preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
+            .map_err(|e| HudReadError::Preprocess(e.to_string()))?;
+
+        let recognized = match engine.recognize(field, &image) {
+            Ok(value) => value,
+            Err(error) => {
+                recognizer_errors.push(error);
+                continue;
+            }
+        };
+
+        let Some(recognized) = recognized else {
+            continue;
+        };
+
+        if recognized.confidence.value() < min_confidence {
+            continue;
+        }
+
+        let candidate = OcrCandidate {
+            field,
+            text: recognized.text.clone(),
+            confidence: recognized.confidence,
+            observed_at_ms: roi.captured_at_ms,
+        };
+
+        let Ok(batch) = parse_candidate(candidate) else {
+            // Domain validation is intentionally a hard gate. A high OCR
+            // confidence does not make an impossible HP/level/stage valid.
+            continue;
+        };
+
+        valid.push(ValidAttempt {
+            batch,
+            recognized_text: recognized.text,
+            confidence: recognized.confidence,
+            preprocess: config,
+        });
+    }
+
+    if valid.is_empty() {
+        if recognizer_errors.len() == attempts.len() && !recognizer_errors.is_empty() {
+            return Err(HudReadError::Recognizer(recognizer_errors.join(" | ")));
+        }
+        return Ok(None);
+    }
+
+    valid.sort_by(|a, b| {
+        b.confidence
+            .value()
+            .total_cmp(&a.confidence.value())
+    });
+
+    let winner = &valid[0];
+    if let Some(runner_up) = valid.get(1) {
+        let confidence_gap = winner.confidence.value() - runner_up.confidence.value();
+        if semantic_fingerprint(&winner.batch) != semantic_fingerprint(&runner_up.batch)
+            && confidence_gap <= ambiguity_margin
+        {
+            return Ok(None);
+        }
+    }
+
+    Ok(Some(RobustHudRead {
+        batch: winner.batch.clone(),
+        recognized_text: winner.recognized_text.clone(),
+        confidence: winner.confidence,
+        preprocess: winner.preprocess,
+        attempts_made: attempts.len(),
+    }))
+}
+
+fn semantic_fingerprint(batch: &HudObservationBatch) -> String {
+    if let Some(value) = &batch.gold {
+        return format!("gold:{}", value.value);
+    }
+    if let Some(value) = &batch.hp {
+        return format!("hp:{}", value.value);
+    }
+    if let Some(value) = &batch.level {
+        return format!("level:{}", value.value);
+    }
+    if let Some(value) = &batch.xp {
+        return format!("xp:{}", value.value);
+    }
+    if let Some(value) = &batch.stage {
+        return format!("stage:{}", value.value);
+    }
+    "empty".into()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
