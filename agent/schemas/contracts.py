@@ -154,6 +154,10 @@ class AugmentScreen(StrictModel):
     type: Literal["augment_screen"] = "augment_screen"
 
 
+class AugmentOptionsChanged(StrictModel):
+    type: Literal["augment_options_changed"] = "augment_options_changed"
+
+
 class CombatStarted(StrictModel):
     type: Literal["combat_started"] = "combat_started"
 
@@ -188,6 +192,7 @@ EventKind = Annotated[
         ItemAdded,
         ItemEquipped,
         AugmentScreen,
+        AugmentOptionsChanged,
         CombatStarted,
         CombatEnded,
         OpponentObserved,
