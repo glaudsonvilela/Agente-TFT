@@ -92,6 +92,7 @@ mod tests {
                 height: 2,
             },
             stride_bytes: 8,
+            pixel_format: crate::PixelFormat::Rgba8,
             bytes_per_pixel: 4,
             pixels: vec![value; 16],
         }
