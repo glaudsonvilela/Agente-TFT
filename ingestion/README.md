@@ -87,3 +87,28 @@ O normalizador aceita `setData` em formato array ou objeto e produz apenas:
 - SHA-256 da fonte.
 
 A seleção do set deve ser explícita para evitar misturar conteúdo evergreen, PvE ou sets antigos.
+
+## Catálogo de campeões por set
+
+Depois de sincronizar o JSON TFT do CommunityDragon:
+
+```bash
+python -m ingestion.build_unit_catalog knowledge/raw/communitydragon_tft_pt_br.json --list-sets
+
+python -m ingestion.build_unit_catalog \
+  knowledge/raw/communitydragon_tft_pt_br.json \
+  --set <SET_EXPLICITO> \
+  --output knowledge/unit_catalog.json
+```
+
+O comando não escolhe o set silenciosamente. O set precisa ser explícito para evitar misturar revival/PBE/sets antigos.
+
+## Assets de unidades
+
+```bash
+python -m ingestion.download_unit_assets \
+  knowledge/unit_catalog.json \
+  --output-dir knowledge/assets/units
+```
+
+O downloader prioriza `squareIcon`, grava arquivos atomicamente e registra SHA-256 em `manifest.json`. Os binários baixados ficam fora do Git.
