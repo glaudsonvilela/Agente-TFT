@@ -1,6 +1,11 @@
 use agente_tft_board_strength::BoardStrengthEngine;
 use agente_tft_contracts::{DecisionPacket, GameState};
 use agente_tft_decision_core::DecisionConfig;
+use agente_tft_item_strength::{
+    evaluate_item_facts,
+    ItemStrengthConfig,
+    ItemStrengthEvaluator,
+};
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_meta_context::MetaSnapshot;
 use agente_tft_matchup_positioning::{
@@ -214,6 +219,14 @@ impl AutomaticOpportunityRuntime {
             extend_facts(&mut fact_build.facts, extra);
         }
 
+        inject_structural_item_facts(
+            state,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
         dedupe_specialized_facts(&mut fact_build.facts);
 
         let cycle = self.runtime.evaluate(
@@ -271,6 +284,14 @@ impl AutomaticOpportunityRuntime {
         if let Some(extra) = extra_facts {
             extend_facts(&mut fact_build.facts, extra);
         }
+
+        inject_structural_item_facts(
+            state,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
 
         dedupe_specialized_facts(&mut fact_build.facts);
 
@@ -341,6 +362,14 @@ impl AutomaticOpportunityRuntime {
         if let Some(extra) = extra_facts {
             extend_facts(&mut fact_build.facts, extra);
         }
+
+        inject_structural_item_facts(
+            state,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
 
         dedupe_specialized_facts(&mut fact_build.facts);
 
@@ -489,6 +518,40 @@ fn inject_meta_facts(
             CompCandidateConfig::default(),
             MetaPivotOpportunityPolicy::default(),
         ),
+    );
+}
+
+fn inject_structural_item_facts(
+    state: &GameState,
+    catalog: &UnitCatalog,
+    traits: &TraitCatalog,
+    board_strength: &BoardStrengthEngine,
+    facts: &mut OpportunityFacts,
+) {
+    if facts.items.is_empty() {
+        return;
+    }
+
+    let Ok(evaluator) =
+        ItemStrengthEvaluator::new(ItemStrengthConfig::default())
+    else {
+        return;
+    };
+
+    let refined = evaluate_item_facts(
+        state,
+        &facts.items,
+        catalog,
+        traits,
+        board_strength,
+        &evaluator,
+    );
+
+    facts.items.extend(
+        refined
+            .into_iter()
+            .filter(|evaluation| evaluation.structural_gain > 0.0)
+            .map(|evaluation| evaluation.fact),
     );
 }
 
@@ -1387,6 +1450,62 @@ mod tests {
 
         assert!(!result.matchup_opponent_found);
         assert!(result.matchup_positioning.is_none());
+    }
+
+    #[test]
+    fn board_strength_runtime_refines_item_gain() {
+        use agente_tft_board_strength::BoardStrengthConfig;
+        use agente_tft_opportunity_engine::ItemOpportunityFact;
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let strength =
+            BoardStrengthEngine::new(BoardStrengthConfig::default()).unwrap();
+
+        let mut state = automatic_state();
+        state.player.items = vec!["ITEM_1".into()];
+        state.player.board[0].items.clear();
+
+        let extra = OpportunityFacts {
+            items: vec![ItemOpportunityFact {
+                item_id: "ITEM_1".into(),
+                unit_instance_id: state.player.board[0].instance_id.clone(),
+                strength_gain: 0.0,
+                flexibility_cost: 0.0,
+                external_meta_prior: 0.08,
+                confidence: Confidence::new(0.45).unwrap(),
+            }],
+            ..OpportunityFacts::default()
+        };
+
+        let result = runtime
+            .evaluate_with_board_strength(
+                &state,
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                None,
+                10_000,
+                Some(&extra),
+            )
+            .unwrap();
+
+        let item = result
+            .fact_build
+            .facts
+            .items
+            .iter()
+            .find(|fact| fact.item_id == "ITEM_1")
+            .unwrap();
+
+        assert!(item.strength_gain > 0.0);
+        assert_eq!(item.external_meta_prior, 0.08);
+        assert!(item.confidence.value() <= 0.35);
     }
 
     #[test]
