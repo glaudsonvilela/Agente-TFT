@@ -8,6 +8,7 @@ rust-version.workspace = true
 serde.workspace = true
 agente-tft-contracts = { path = "../contracts" }
 agente-tft-opportunity-engine = { path = "../opportunity-engine" }
+agente-tft-opportunity-runtime = { path = "../opportunity-runtime" }
 agente-tft-remote-training-protocol = { path = "../remote-training-protocol" }
 agente-tft-shadow-player = { path = "../shadow-player" }
 
