@@ -3,8 +3,7 @@ use agente_tft_lobby_analysis::{
     analyze_unit_contestation, self_owned_copies, ContestingPlayer,
 };
 use agente_tft_tft_math::{
-    estimate_roll_budget, interest_lost_by_spending, RollBudgetEstimate, TierPoolSnapshot,
-    UnitPoolSnapshot,
+    estimate_roll_budget, interest_lost_by_spending, RollBudgetEstimate, UnitPoolSnapshot,
 };
 use agente_tft_tft_rules::{RuleSetError, TftRuleSet};
 use serde::Serialize;
