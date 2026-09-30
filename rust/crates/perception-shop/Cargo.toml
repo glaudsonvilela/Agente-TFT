@@ -1,0 +1,13 @@
+[package]
+name = "agente-tft-perception-shop"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+agente-tft-capture-core = { path = "../capture-core" }
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-image-preprocess = { path = "../image-preprocess" }
+agente-tft-visual-match = { path = "../visual-match" }
