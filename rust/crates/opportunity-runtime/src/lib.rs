@@ -123,6 +123,76 @@ impl OpportunityRuntime {
         })
     }
 
+    pub fn reset(&mut self) {
+        self.tracker.reset();
+    }
+}
+
+
+#[derive(Debug, Error)]
+pub enum AutomaticOpportunityError {
+    #[error("fact builder error: {0}")]
+    Facts(#[from] FactBuildError),
+    #[error("opportunity engine error: {0}")]
+    Opportunity(#[from] OpportunityError),
+    #[error("positioning error: {0}")]
+    Positioning(#[from] PositioningError),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct AutomaticOpportunityCycle {
+    pub fact_build: OpportunityFactBuild,
+    pub cycle: OpportunityCycle,
+}
+
+pub struct AutomaticOpportunityRuntime {
+    fact_builder: OpportunityFactBuilder,
+    runtime: OpportunityRuntime,
+}
+
+impl AutomaticOpportunityRuntime {
+    pub fn new(
+        runtime_config: OpportunityRuntimeConfig,
+        fact_builder_config: FactBuilderConfig,
+    ) -> Result<Self, AutomaticOpportunityError> {
+        Ok(Self {
+            fact_builder: OpportunityFactBuilder::new(
+                fact_builder_config,
+            )?,
+            runtime: OpportunityRuntime::new(runtime_config)?,
+        })
+    }
+
+    pub fn evaluate(
+        &mut self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        meta: Option<&MetaSnapshot>,
+        now_ms: u64,
+        extra_facts: Option<&OpportunityFacts>,
+    ) -> Result<AutomaticOpportunityCycle, AutomaticOpportunityError> {
+        let mut fact_build = self
+            .fact_builder
+            .build(state, rules, catalog, now_ms)?;
+
+        if let Some(extra) = extra_facts {
+            extend_facts(&mut fact_build.facts, extra);
+        }
+
+        let cycle = self.runtime.evaluate(
+            state,
+            &fact_build.facts,
+            meta,
+            now_ms,
+        )?;
+
+        Ok(AutomaticOpportunityCycle {
+            fact_build,
+            cycle,
+        })
+    }
+
     pub fn evaluate_with_board_strength(
         &mut self,
         state: &GameState,
@@ -237,76 +307,6 @@ impl OpportunityRuntime {
         }
 
         dedupe_specialized_facts(&mut fact_build.facts);
-
-        let cycle = self.runtime.evaluate(
-            state,
-            &fact_build.facts,
-            meta,
-            now_ms,
-        )?;
-
-        Ok(AutomaticOpportunityCycle {
-            fact_build,
-            cycle,
-        })
-    }
-
-    pub fn reset(&mut self) {
-        self.tracker.reset();
-    }
-}
-
-
-#[derive(Debug, Error)]
-pub enum AutomaticOpportunityError {
-    #[error("fact builder error: {0}")]
-    Facts(#[from] FactBuildError),
-    #[error("opportunity engine error: {0}")]
-    Opportunity(#[from] OpportunityError),
-    #[error("positioning error: {0}")]
-    Positioning(#[from] PositioningError),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct AutomaticOpportunityCycle {
-    pub fact_build: OpportunityFactBuild,
-    pub cycle: OpportunityCycle,
-}
-
-pub struct AutomaticOpportunityRuntime {
-    fact_builder: OpportunityFactBuilder,
-    runtime: OpportunityRuntime,
-}
-
-impl AutomaticOpportunityRuntime {
-    pub fn new(
-        runtime_config: OpportunityRuntimeConfig,
-        fact_builder_config: FactBuilderConfig,
-    ) -> Result<Self, AutomaticOpportunityError> {
-        Ok(Self {
-            fact_builder: OpportunityFactBuilder::new(
-                fact_builder_config,
-            )?,
-            runtime: OpportunityRuntime::new(runtime_config)?,
-        })
-    }
-
-    pub fn evaluate(
-        &mut self,
-        state: &GameState,
-        rules: &TftRuleSet,
-        catalog: &UnitCatalog,
-        meta: Option<&MetaSnapshot>,
-        now_ms: u64,
-        extra_facts: Option<&OpportunityFacts>,
-    ) -> Result<AutomaticOpportunityCycle, AutomaticOpportunityError> {
-        let mut fact_build = self
-            .fact_builder
-            .build(state, rules, catalog, now_ms)?;
-
-        if let Some(extra) = extra_facts {
-            extend_facts(&mut fact_build.facts, extra);
-        }
 
         let cycle = self.runtime.evaluate(
             state,
