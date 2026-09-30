@@ -65,7 +65,12 @@ Implementado:
 - correlações evaluator diagnostic × reward para item/pivot/position/sell;
 - CompleteOpportunityCycle preservando diagnósticos especializados;
 - CalibrationReport offline com min_samples/min_abs_correlation;
-- CLI `calibration-inspect` para exportar relatório JSON.
+- CLI `calibration-inspect` para exportar relatório JSON;
+- EvaluatorFeedbackSnapshot persistível na telemetria;
+- `calibration-inspect` lê JSON puro ou último snapshot de um JSONL;
+- Replay Calibration para coverage/latência/NO_CONFIDENT_CANDIDATE;
+- ground-truth replay accuracy para HUD/shop/board/lobby;
+- ferramenta FFmpeg para extrair frames e criar template de anotações.
 
 O simulador pesado / bot pool definitivo ainda precisa ser ligado ao backend remoto.
 
@@ -98,18 +103,17 @@ Regra: não considerar o checkpoint fechado até Rust + Python estarem verdes no
    - corrigir qualquer regressão;
    - congelar checkpoint.
 
-2. **Feedback snapshot/export**
-   - persistir snapshots do EvaluatorFeedbackEngine;
-   - reproduzir CalibrationReport a partir de dados salvos;
-   - manter dados de treino separados de secrets.
+2. **Weight calibration offline**
+   - comparar baseline × candidate weights sobre ciclos gravados;
+   - nunca promover pesos apenas por correlação;
+   - exigir evaluation gate/replay antes de promoção.
 
-3. **Weight calibration offline**
+3. **Real replay calibration**
    - aprender/ajustar pesos candidatos fora da partida;
    - comparar contra baseline congelado;
    - promover somente depois de evaluation gate;
    - nunca alterar policy/pesos silenciosamente no meio de um match.
 
-4. **Real replay calibration**
    - usar gravações/screenshots reais;
    - medir HUD accuracy;
    - shop top-1 / unknown rate;
@@ -117,21 +121,21 @@ Regra: não considerar o checkpoint fechado até Rust + Python estarem verdes no
    - opponent/scouting confidence;
    - Opportunity latency.
 
-5. **BigBANANA simulator workers**
+4. **BigBANANA simulator workers**
    - ligar simulador real ao ShadowBackend;
    - bot pool;
    - self-play;
    - historical-policy pool;
    - rollout parallelism.
 
-6. **Policy training**
+5. **Policy training**
    - imitation/bootstrap;
    - PPO/self-play;
    - evaluation;
    - export ONNX;
    - inference Rust.
 
-7. **UI**
+6. **UI**
    - AÇÃO;
    - motivo em uma frase;
    - próximo passo/stop condition;
