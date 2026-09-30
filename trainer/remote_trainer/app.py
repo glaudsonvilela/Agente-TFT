@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import secrets
 import time
 from typing import Callable
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, status
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, status
 
 from .schemas import (
     CancelResponse,
@@ -25,6 +27,7 @@ def create_app(
     *,
     store: TrainerStore | None = None,
     clock_ms: Callable[[], int] = unix_ms,
+    api_token: str | None = None,
 ) -> FastAPI:
     app = FastAPI(
         title="Agente TFT Remote Trainer",
@@ -32,6 +35,32 @@ def create_app(
     )
     app.state.store = store or TrainerStore(backend=NullTrainerBackend())
     app.state.clock_ms = clock_ms
+    app.state.api_token = (
+        api_token
+        if api_token is not None
+        else os.environ.get("TRAINER_API_TOKEN")
+    )
+
+    async def require_token(
+        authorization: str | None = Header(default=None),
+    ) -> None:
+        expected = app.state.api_token
+        if not expected:
+            return
+
+        prefix = "Bearer "
+        if not authorization or not authorization.startswith(prefix):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="missing bearer token",
+            )
+
+        supplied = authorization[len(prefix):]
+        if not secrets.compare_digest(supplied, expected):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="invalid bearer token",
+            )
 
     @app.get("/v1/training/health")
     async def health() -> dict[str, object]:
@@ -45,6 +74,7 @@ def create_app(
         "/v1/training/sessions",
         response_model=TrainingSession,
         status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(require_token)],
     )
     async def create_session(request: TrainingSessionRequest) -> TrainingSession:
         return await app.state.store.create_session(request)
@@ -53,6 +83,7 @@ def create_app(
         "/v1/training/jobs",
         response_model=TrainingJobRecord,
         status_code=status.HTTP_202_ACCEPTED,
+        dependencies=[Depends(require_token)],
     )
     async def submit_job(
         request: TrainingJobRequest,
@@ -80,6 +111,7 @@ def create_app(
     @app.get(
         "/v1/training/jobs/{job_id}",
         response_model=TrainingJobRecord,
+        dependencies=[Depends(require_token)],
     )
     async def get_job(job_id: str) -> TrainingJobRecord:
         record = await app.state.store.get_job(job_id)
@@ -90,6 +122,7 @@ def create_app(
     @app.post(
         "/v1/training/jobs/{job_id}/cancel",
         response_model=CancelResponse,
+        dependencies=[Depends(require_token)],
     )
     async def cancel_job(job_id: str) -> CancelResponse:
         record = await app.state.store.cancel_job(
