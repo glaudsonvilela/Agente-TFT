@@ -7,9 +7,11 @@ use agente_tft_meta_hints::{
     generate_comp_transition_candidates,
     generate_item_opportunity_facts,
     generate_pivot_opportunity_facts,
+    generate_position_opportunity_facts,
     CompCandidateConfig,
     MetaItemOpportunityPolicy,
     MetaPivotOpportunityPolicy,
+    MetaPositionOpportunityPolicy,
 };
 use agente_tft_opportunity_fact_builder::{
     FactBuildError, FactBuilderConfig, OpportunityFactBuild,
@@ -19,6 +21,10 @@ use agente_tft_opportunity_engine::{
     OpportunityConfig, OpportunityDelta, OpportunityEngine, OpportunityError,
     OpportunityFacts, OpportunityInput, OpportunityReport, OpportunityTier,
     OpportunityTracker,
+};
+use agente_tft_positioning_core::{
+    BoardCoordinateConvention,
+    PositioningError,
 };
 use agente_tft_pivot_core::{
     evaluate_comp_candidates,
@@ -175,6 +181,76 @@ impl OpportunityRuntime {
         })
     }
 
+    pub fn evaluate_full(
+        &mut self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        traits: &TraitCatalog,
+        board_strength: &BoardStrengthEngine,
+        positioning: Option<&BoardCoordinateConvention>,
+        meta: Option<&MetaSnapshot>,
+        now_ms: u64,
+        extra_facts: Option<&OpportunityFacts>,
+    ) -> Result<AutomaticOpportunityCycle, AutomaticOpportunityError> {
+        let mut fact_build = self
+            .fact_builder
+            .build_with_board_strength(
+                state,
+                rules,
+                catalog,
+                traits,
+                board_strength,
+                now_ms,
+            )?;
+
+        inject_meta_facts(
+            state,
+            meta,
+            now_ms,
+            &mut fact_build.facts,
+        );
+
+        inject_structural_pivot_facts(
+            state,
+            meta,
+            now_ms,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
+        if let (Some(snapshot), Some(convention)) = (meta, positioning) {
+            fact_build.facts.positions.extend(
+                generate_position_opportunity_facts(
+                    state,
+                    snapshot,
+                    convention,
+                    MetaPositionOpportunityPolicy::default(),
+                )?,
+            );
+        }
+
+        if let Some(extra) = extra_facts {
+            extend_facts(&mut fact_build.facts, extra);
+        }
+
+        dedupe_specialized_facts(&mut fact_build.facts);
+
+        let cycle = self.runtime.evaluate(
+            state,
+            &fact_build.facts,
+            meta,
+            now_ms,
+        )?;
+
+        Ok(AutomaticOpportunityCycle {
+            fact_build,
+            cycle,
+        })
+    }
+
     pub fn reset(&mut self) {
         self.tracker.reset();
     }
@@ -187,6 +263,8 @@ pub enum AutomaticOpportunityError {
     Facts(#[from] FactBuildError),
     #[error("opportunity engine error: {0}")]
     Opportunity(#[from] OpportunityError),
+    #[error("positioning error: {0}")]
+    Positioning(#[from] PositioningError),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -322,6 +400,7 @@ fn inject_structural_pivot_facts(
 fn dedupe_specialized_facts(facts: &mut OpportunityFacts) {
     dedupe_item_facts(&mut facts.items);
     dedupe_pivot_facts(&mut facts.pivots);
+    dedupe_position_facts(&mut facts.positions);
 }
 
 fn dedupe_item_facts(
@@ -396,6 +475,41 @@ fn dedupe_pivot_facts(
                 let chosen =
                     if fact.confidence.value() > existing.confidence.value()
                         || fact.immediate_gain > existing.immediate_gain
+                    {
+                        fact
+                    } else {
+                        existing
+                    };
+                by_key.insert(key, chosen);
+            }
+        }
+    }
+
+    *values = by_key.into_values().collect();
+}
+
+fn dedupe_position_facts(
+    values: &mut Vec<agente_tft_opportunity_engine::PositionOpportunityFact>,
+) {
+    use std::collections::BTreeMap;
+
+    let mut by_key: BTreeMap<
+        String,
+        agente_tft_opportunity_engine::PositionOpportunityFact,
+    > = BTreeMap::new();
+
+    for fact in values.drain(..) {
+        let key = serde_json::to_string(&fact.moves)
+            .unwrap_or_else(|_| format!("{:?}", fact.moves));
+
+        match by_key.remove(&key) {
+            None => {
+                by_key.insert(key, fact);
+            }
+            Some(existing) => {
+                let chosen =
+                    if fact.confidence.value() > existing.confidence.value()
+                        || fact.matchup_gain > existing.matchup_gain
                     {
                         fact
                     } else {
@@ -529,6 +643,10 @@ mod tests {
         attributes.insert(
             "recommended_item_ids".into(),
             serde_json::json!(["ITEM_META"]),
+        );
+        attributes.insert(
+            "positioning".into(),
+            serde_json::json!("in the front row"),
         );
 
         MetaSnapshot {
@@ -921,6 +1039,62 @@ mod tests {
         // Meta-only candidate is capped at 0.45. Structural evaluation is
         // preferred by dedupe when its board model has better confidence.
         assert!(pivot.confidence.value() >= 0.45);
+    }
+
+    #[test]
+    fn full_runtime_turns_meta_position_hint_into_valid_move() {
+        use agente_tft_contracts::HexPosition;
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let strength = BoardStrengthEngine::new(
+            agente_tft_board_strength::BoardStrengthConfig::default(),
+        )
+        .unwrap();
+
+        let convention = BoardCoordinateConvention {
+            rows: 4,
+            cols: 7,
+            front_rows: vec![0],
+            back_rows: vec![3],
+            left_cols: vec![0, 1],
+            right_cols: vec![5, 6],
+            center_cols: vec![3],
+        };
+
+        let mut state = automatic_state();
+        state.player.board[0].position =
+            Some(HexPosition { row: 3, col: 3 });
+
+        let result = runtime
+            .evaluate_full(
+                &state,
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                Some(&convention),
+                Some(&meta_snapshot()),
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        let position = result
+            .fact_build
+            .facts
+            .positions
+            .first()
+            .unwrap();
+
+        assert_eq!(position.moves[0].to.row, 0);
+        assert_eq!(position.moves[0].to.col, 3);
+        assert_eq!(position.matchup_gain, 0.0);
+        assert!(position.confidence.value() <= 0.45);
     }
 
     #[test]
