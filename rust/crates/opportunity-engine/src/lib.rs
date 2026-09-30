@@ -171,6 +171,10 @@ pub struct ItemOpportunityFact {
     pub unit_instance_id: String,
     pub strength_gain: f32,
     pub flexibility_cost: f32,
+    /// External prior only. Expected range is small (e.g. ±0.10);
+    /// it is not local board-strength evidence.
+    #[serde(default)]
+    pub external_meta_prior: f32,
     pub confidence: Confidence,
 }
 
