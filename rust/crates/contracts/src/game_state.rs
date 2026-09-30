@@ -42,6 +42,8 @@ pub struct PlayerState {
     pub shop: Vec<Observed<ShopSlot>>,
     pub items: Vec<String>,
     pub augments: Vec<String>,
+    #[serde(default)]
+    pub augment_options: Vec<Observed<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
