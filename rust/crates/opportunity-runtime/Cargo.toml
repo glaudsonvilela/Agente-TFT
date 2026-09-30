@@ -11,6 +11,7 @@ agente-tft-pivot-core = { path = "../pivot-core" }
 agente-tft-meta-hints = { path = "../meta-hints" }
 agente-tft-trait-core = { path = "../trait-core" }
 agente-tft-board-strength = { path = "../board-strength" }
+agente-tft-item-strength = { path = "../item-strength" }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
