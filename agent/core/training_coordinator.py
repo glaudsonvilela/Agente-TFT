@@ -23,6 +23,7 @@ class RemoteTrainingCoordinator:
     client: RemoteTrainingClient
     phase: RemoteTrainingPhase = RemoteTrainingPhase.IDLE
     episode_id: str | None = None
+    shadow_id: str | None = None
     last_error: str | None = None
 
     async def on_matchmaking_requested(
@@ -40,6 +41,7 @@ class RemoteTrainingCoordinator:
         self.phase = RemoteTrainingPhase.SESSION_STARTING
         self.last_error = None
         self.episode_id = str(uuid4())
+        self.shadow_id = None
 
         try:
             await self.client.create_session(
@@ -99,6 +101,117 @@ class RemoteTrainingCoordinator:
             self.last_error = f"{type(exc).__name__}:{exc}"
             return None
 
+
+
+    async def start_realtime_shadow(
+        self,
+        *,
+        state: GameState,
+        now_ms: int,
+    ) -> bool:
+        if self.phase != RemoteTrainingPhase.MATCH_ACTIVE:
+            return False
+        if self.episode_id is None:
+            return False
+
+        try:
+            record = await self.client.create_shadow_session(
+                state=state,
+                created_at_ms=now_ms,
+                episode_id=self.episode_id,
+            )
+        except Exception as exc:
+            self.last_error = f"{type(exc).__name__}:{exc}"
+            return False
+
+        self.shadow_id = record.shadow_id
+        if record.status != "active":
+            self.last_error = record.error or f"shadow_status:{record.status}"
+            return False
+
+        return True
+
+    async def sync_realtime_shadow(
+        self,
+        *,
+        state: GameState,
+        now_ms: int,
+    ) -> bool:
+        if not self.shadow_id:
+            return False
+
+        try:
+            record = await self.client.sync_shadow(
+                self.shadow_id,
+                state=state,
+                observed_at_ms=now_ms,
+            )
+        except Exception as exc:
+            self.last_error = f"{type(exc).__name__}:{exc}"
+            return False
+
+        if record.status != "active":
+            self.last_error = record.error or f"shadow_status:{record.status}"
+            return False
+        return True
+
+    async def step_realtime_shadow(
+        self,
+        *,
+        decision: DecisionPacket,
+        now_ms: int,
+    ) -> dict[str, Any] | None:
+        if not self.shadow_id:
+            return None
+
+        try:
+            record = await self.client.step_shadow(
+                self.shadow_id,
+                decision=decision,
+                observed_at_ms=now_ms,
+            )
+        except Exception as exc:
+            self.last_error = f"{type(exc).__name__}:{exc}"
+            return None
+
+        if record.status != "active":
+            self.last_error = record.error or f"shadow_status:{record.status}"
+            return None
+
+        return record.last_step
+
+    async def end_realtime_shadow(self) -> None:
+        shadow_id = self.shadow_id
+        self.shadow_id = None
+        if not shadow_id:
+            return
+
+        try:
+            await self.client.end_shadow(shadow_id)
+        except Exception as exc:
+            self.last_error = f"{type(exc).__name__}:{exc}"
+
+    async def submit_counterfactual_job(
+        self,
+        *,
+        state: GameState,
+        decision: DecisionPacket,
+        now_ms: int,
+        rollout_count: int = 128,
+        horizon_steps: int = 200,
+        scripted_bots: tuple[str, ...] = (),
+        historical_policy_versions: tuple[str, ...] = (),
+    ) -> RemoteJobRecord | None:
+        return await self.submit_shadow_decision(
+            state=state,
+            decision=decision,
+            now_ms=now_ms,
+            rollout_count=rollout_count,
+            horizon_steps=horizon_steps,
+            scripted_bots=scripted_bots,
+            historical_policy_versions=historical_policy_versions,
+        )
+
     def on_match_ended(self) -> None:
         if self.phase in {
             RemoteTrainingPhase.MATCH_ACTIVE,
@@ -109,4 +222,5 @@ class RemoteTrainingCoordinator:
     def reset(self) -> None:
         self.phase = RemoteTrainingPhase.IDLE
         self.episode_id = None
+        self.shadow_id = None
         self.last_error = None
