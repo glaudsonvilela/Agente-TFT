@@ -1,0 +1,9 @@
+[package]
+name = "agente-tft-calibration-inspect"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+agente-tft-pattern-engine = { path = "../../crates/pattern-engine" }
