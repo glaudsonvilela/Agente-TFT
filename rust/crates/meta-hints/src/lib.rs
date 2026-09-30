@@ -49,7 +49,9 @@ impl Default for CompCandidateConfig {
     fn default() -> Self {
         Self {
             min_comp_units: 4,
-            min_overlap_ratio: 0.25,
+            // Pivot candidates should already have a meaningful real foothold.
+            // A single coincidental unit in a 4-unit comp is not enough.
+            min_overlap_ratio: 0.50,
             max_candidates: 12,
             max_age_ms: 6 * 60 * 60 * 1000,
             allow_unknown_patch_set: false,
