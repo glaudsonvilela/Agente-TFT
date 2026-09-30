@@ -3,6 +3,13 @@ use agente_tft_contracts::{DecisionPacket, GameState};
 use agente_tft_decision_core::DecisionConfig;
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_meta_context::MetaSnapshot;
+use agente_tft_matchup_positioning::{
+    MatchupPositioningConfig,
+    MatchupPositioningDiagnostic,
+    MatchupPositioningError,
+    MatchupPositioningEvaluator,
+    OpponentPerspective,
+};
 use agente_tft_meta_hints::{
     generate_comp_transition_candidates,
     generate_item_opportunity_facts,
@@ -137,6 +144,26 @@ pub enum AutomaticOpportunityError {
     Opportunity(#[from] OpportunityError),
     #[error("positioning error: {0}")]
     Positioning(#[from] PositioningError),
+    #[error("matchup positioning error: {0}")]
+    MatchupPositioning(#[from] MatchupPositioningError),
+}
+
+
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ObservedMatchupRequest<'a> {
+    pub opponent_id: &'a str,
+    pub perspective: OpponentPerspective,
+    pub config: MatchupPositioningConfig,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct MatchupAutomaticOpportunityCycle {
+    pub fact_build: OpportunityFactBuild,
+    pub cycle: OpportunityCycle,
+    pub matchup_opponent_id: String,
+    pub matchup_opponent_found: bool,
+    pub matchup_positioning: Option<MatchupPositioningDiagnostic>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -327,6 +354,107 @@ impl AutomaticOpportunityRuntime {
         Ok(AutomaticOpportunityCycle {
             fact_build,
             cycle,
+        })
+    }
+
+    pub fn evaluate_full_with_matchup(
+        &mut self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        traits: &TraitCatalog,
+        board_strength: &BoardStrengthEngine,
+        positioning: Option<&BoardCoordinateConvention>,
+        matchup: ObservedMatchupRequest<'_>,
+        meta: Option<&MetaSnapshot>,
+        now_ms: u64,
+        extra_facts: Option<&OpportunityFacts>,
+    ) -> Result<MatchupAutomaticOpportunityCycle, AutomaticOpportunityError> {
+        let mut fact_build = self
+            .fact_builder
+            .build_with_board_strength(
+                state,
+                rules,
+                catalog,
+                traits,
+                board_strength,
+                now_ms,
+            )?;
+
+        inject_meta_facts(
+            state,
+            meta,
+            now_ms,
+            &mut fact_build.facts,
+        );
+
+        inject_structural_pivot_facts(
+            state,
+            meta,
+            now_ms,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
+        if let (Some(snapshot), Some(convention)) = (meta, positioning) {
+            fact_build.facts.positions.extend(
+                generate_position_opportunity_facts(
+                    state,
+                    snapshot,
+                    convention,
+                    MetaPositionOpportunityPolicy::default(),
+                )?,
+            );
+        }
+
+        if let Some(extra) = extra_facts {
+            extend_facts(&mut fact_build.facts, extra);
+        }
+
+        let opponent = state
+            .lobby
+            .iter()
+            .find(|value| value.player_id == matchup.opponent_id);
+
+        let mut matchup_positioning = None;
+        let opponent_found = opponent.is_some();
+
+        if let Some(opponent) = opponent {
+            if !fact_build.facts.positions.is_empty() {
+                let evaluator = MatchupPositioningEvaluator::new(
+                    matchup.config,
+                    matchup.perspective,
+                )?;
+
+                let refined = evaluator.evaluate_position_facts(
+                    &state.player.board,
+                    &opponent.board,
+                    &fact_build.facts.positions,
+                    opponent.confidence,
+                );
+
+                fact_build.facts.positions.extend(refined.facts);
+                matchup_positioning = Some(refined.diagnostic);
+            }
+        }
+
+        dedupe_specialized_facts(&mut fact_build.facts);
+
+        let cycle = self.runtime.evaluate(
+            state,
+            &fact_build.facts,
+            meta,
+            now_ms,
+        )?;
+
+        Ok(MatchupAutomaticOpportunityCycle {
+            fact_build,
+            cycle,
+            matchup_opponent_id: matchup.opponent_id.to_string(),
+            matchup_opponent_found: opponent_found,
+            matchup_positioning,
         })
     }
 
@@ -1104,6 +1232,161 @@ mod tests {
         assert_eq!(position.moves[0].to.col, 3);
         assert_eq!(position.matchup_gain, 0.0);
         assert!(position.confidence.value() <= 0.45);
+    }
+
+    #[test]
+    fn full_matchup_runtime_refines_meta_positioning() {
+        use agente_tft_contracts::{
+            HexPosition, OpponentState,
+        };
+        use agente_tft_board_strength::{
+            BoardStrengthConfig,
+        };
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let strength =
+            BoardStrengthEngine::new(BoardStrengthConfig::default()).unwrap();
+
+        let convention = BoardCoordinateConvention {
+            rows: 4,
+            cols: 7,
+            front_rows: vec![0],
+            back_rows: vec![3],
+            left_cols: vec![0, 1],
+            right_cols: vec![5, 6],
+            center_cols: vec![3],
+        };
+
+        let mut state = automatic_state();
+        state.player.board[0].position =
+            Some(HexPosition { row: 3, col: 0 });
+
+        state.lobby = vec![OpponentState {
+            player_id: "p2".into(),
+            display_name: Some("P2".into()),
+            hp: None,
+            level: None,
+            board: vec![
+                agente_tft_contracts::UnitInstance {
+                    instance_id: "enemy-a".into(),
+                    unit_id: "C".into(),
+                    stars: 2,
+                    position: Some(HexPosition { row: 3, col: 0 }),
+                    items: vec!["I1".into(), "I2".into()],
+                },
+                agente_tft_contracts::UnitInstance {
+                    instance_id: "enemy-b".into(),
+                    unit_id: "D".into(),
+                    stars: 2,
+                    position: Some(HexPosition { row: 2, col: 1 }),
+                    items: vec!["I1".into()],
+                },
+            ],
+            last_seen_ms: 9_900,
+            confidence: Confidence::new(0.90).unwrap(),
+        }];
+
+        // Provide an explicit position proposal to the far side so this test
+        // doesn't depend on external meta text orientation.
+        let extra = OpportunityFacts {
+            positions: vec![
+                agente_tft_opportunity_engine::PositionOpportunityFact {
+                    moves: vec![
+                        agente_tft_contracts::PositionMove {
+                            unit_instance_id:
+                                state.player.board[0].instance_id.clone(),
+                            to: HexPosition { row: 3, col: 6 },
+                        },
+                    ],
+                    matchup_gain: 0.0,
+                    confidence: Confidence::new(0.40).unwrap(),
+                },
+            ],
+            ..OpportunityFacts::default()
+        };
+
+        let result = runtime
+            .evaluate_full_with_matchup(
+                &state,
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                Some(&convention),
+                ObservedMatchupRequest {
+                    opponent_id: "p2",
+                    perspective: OpponentPerspective {
+                        rows: 4,
+                        cols: 7,
+                        mirror_rows: false,
+                        mirror_cols: false,
+                    },
+                    config: MatchupPositioningConfig {
+                        min_gain: 0.01,
+                        min_observed_opponent_units: 2,
+                        ..MatchupPositioningConfig::default()
+                    },
+                },
+                None,
+                10_000,
+                Some(&extra),
+            )
+            .unwrap();
+
+        assert!(result.matchup_opponent_found);
+        assert!(result.matchup_positioning.is_some());
+        assert!(result
+            .fact_build
+            .facts
+            .positions
+            .iter()
+            .any(|fact| fact.matchup_gain > 0.0));
+    }
+
+    #[test]
+    fn unknown_matchup_opponent_does_not_invent_position_gain() {
+        use agente_tft_board_strength::BoardStrengthConfig;
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let strength =
+            BoardStrengthEngine::new(BoardStrengthConfig::default()).unwrap();
+
+        let result = runtime
+            .evaluate_full_with_matchup(
+                &automatic_state(),
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                None,
+                ObservedMatchupRequest {
+                    opponent_id: "missing",
+                    perspective: OpponentPerspective {
+                        rows: 4,
+                        cols: 7,
+                        mirror_rows: false,
+                        mirror_cols: false,
+                    },
+                    config: MatchupPositioningConfig::default(),
+                },
+                None,
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        assert!(!result.matchup_opponent_found);
+        assert!(result.matchup_positioning.is_none());
     }
 
     #[test]
