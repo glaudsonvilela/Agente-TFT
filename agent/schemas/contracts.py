@@ -69,6 +69,7 @@ class PlayerState(StrictModel):
     shop: tuple[Observed, ...] = ()
     items: tuple[str, ...] = ()
     augments: tuple[str, ...] = ()
+    augment_options: tuple[Observed, ...] = ()
 
 
 class OpponentState(StrictModel):
