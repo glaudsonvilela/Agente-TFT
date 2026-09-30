@@ -37,7 +37,7 @@ impl FrameEnvelope {
         }
 
         let min_stride = self.width as usize * self.pixel_format.bytes_per_pixel();
-        if self.stride_bytes as usize < min_stride {
+        if (self.stride_bytes as usize) < min_stride {
             return Err(CaptureError::InvalidStride);
         }
 
