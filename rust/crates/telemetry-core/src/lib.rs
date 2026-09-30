@@ -250,9 +250,8 @@ mod tests {
             JsonlRecorder::create(&root, "fact-build-fixture").unwrap();
 
         let build = OpportunityFactBuild {
-            facts: agente_tft_opportunity_engine::OpportunityFacts::default(),
-            diagnostics:
-                agente_tft_opportunity_fact_builder::BuildDiagnostics::default(),
+            facts: Default::default(),
+            diagnostics: Default::default(),
         };
 
         recorder
