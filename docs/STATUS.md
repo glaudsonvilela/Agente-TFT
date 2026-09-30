@@ -61,7 +61,11 @@ Implementado:
 - Counterfactual Swarm protocol;
 - Pattern Engine;
 - rewards do Shadow e do Swarm alimentando evaluator feedback;
-- correlações signal × reward por ActionClass.
+- correlações OpportunitySignal × reward por ActionClass;
+- correlações evaluator diagnostic × reward para item/pivot/position/sell;
+- CompleteOpportunityCycle preservando diagnósticos especializados;
+- CalibrationReport offline com min_samples/min_abs_correlation;
+- CLI `calibration-inspect` para exportar relatório JSON.
 
 O simulador pesado / bot pool definitivo ainda precisa ser ligado ao backend remoto.
 
@@ -90,29 +94,22 @@ Regra: não considerar o checkpoint fechado até Rust + Python estarem verdes no
 ## Próximos passos — ordem
 
 1. **CI verde**
-   - corrigir qualquer erro mecânico restante;
+   - validar o checkpoint atual completo;
+   - corrigir qualquer regressão;
    - congelar checkpoint.
 
-2. **Evaluator diagnostics**
-   - registrar diagnósticos especializados junto ao OpportunityCycle;
-   - item-strength;
-   - pivot;
-   - matchup-positioning;
-   - sell;
-   - Fact Builder.
+2. **Feedback snapshot/export**
+   - persistir snapshots do EvaluatorFeedbackEngine;
+   - reproduzir CalibrationReport a partir de dados salvos;
+   - manter dados de treino separados de secrets.
 
-3. **Feedback calibrável**
-   - associar diagnostics + Opportunity signals + Shadow/Swarm reward;
-   - manter correlação separada de causalidade;
-   - produzir relatório de calibração por ActionClass.
-
-4. **Weight calibration offline**
+3. **Weight calibration offline**
    - aprender/ajustar pesos candidatos fora da partida;
    - comparar contra baseline congelado;
    - promover somente depois de evaluation gate;
    - nunca alterar policy/pesos silenciosamente no meio de um match.
 
-5. **Real replay calibration**
+4. **Real replay calibration**
    - usar gravações/screenshots reais;
    - medir HUD accuracy;
    - shop top-1 / unknown rate;
@@ -120,21 +117,21 @@ Regra: não considerar o checkpoint fechado até Rust + Python estarem verdes no
    - opponent/scouting confidence;
    - Opportunity latency.
 
-6. **BigBANANA simulator workers**
+5. **BigBANANA simulator workers**
    - ligar simulador real ao ShadowBackend;
    - bot pool;
    - self-play;
    - historical-policy pool;
    - rollout parallelism.
 
-7. **Policy training**
+6. **Policy training**
    - imitation/bootstrap;
    - PPO/self-play;
    - evaluation;
    - export ONNX;
    - inference Rust.
 
-8. **UI**
+7. **UI**
    - AÇÃO;
    - motivo em uma frase;
    - próximo passo/stop condition;
