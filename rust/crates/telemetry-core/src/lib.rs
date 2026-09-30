@@ -5,6 +5,7 @@ use std::{
 };
 
 use agente_tft_contracts::{DecisionPacket, GameEvent, GameState, Recommendation};
+use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
 use agente_tft_opportunity_runtime::OpportunityCycle;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -39,6 +40,9 @@ pub enum TelemetryPayload {
     Analysis {
         name: String,
         data: Value,
+    },
+    OpportunityFactBuild {
+        build: OpportunityFactBuild,
     },
     OpportunityCycle {
         cycle: OpportunityCycle,
@@ -235,6 +239,42 @@ mod tests {
         let parsed: TelemetryRecord = serde_json::from_str(lines[1]).unwrap();
         assert_eq!(parsed.sequence, 1);
         assert!(matches!(parsed.payload, TelemetryPayload::Metric { .. }));
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn recorder_round_trips_opportunity_fact_build() {
+        let root = temp_dir();
+        let mut recorder =
+            JsonlRecorder::create(&root, "fact-build-fixture").unwrap();
+
+        let build = OpportunityFactBuild {
+            facts: agente_tft_opportunity_engine::OpportunityFacts::default(),
+            diagnostics:
+                agente_tft_opportunity_fact_builder::BuildDiagnostics::default(),
+        };
+
+        recorder
+            .append(
+                100,
+                TelemetryPayload::OpportunityFactBuild {
+                    build: build.clone(),
+                },
+            )
+            .unwrap();
+        recorder.flush().unwrap();
+
+        let content = fs::read_to_string(recorder.path()).unwrap();
+        let parsed: TelemetryRecord =
+            serde_json::from_str(content.lines().next().unwrap()).unwrap();
+
+        match parsed.payload {
+            TelemetryPayload::OpportunityFactBuild { build: saved } => {
+                assert_eq!(saved, build);
+            }
+            other => panic!("unexpected payload: {other:?}"),
+        }
 
         let _ = fs::remove_dir_all(root);
     }
