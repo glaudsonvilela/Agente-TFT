@@ -442,6 +442,224 @@ def parse_table_entities(
     return entities, None
 
 
+
+def parse_labeled_number(text: str, label: str) -> float | None:
+    escaped = re.escape(label)
+    patterns = (
+        rf"(-?\d+(?:\.\d+)?)\s*%?\s*(?:\n|\s)*{escaped}",
+        rf"{escaped}\s*(?:\n|\s)*(-?\d+(?:\.\d+)?)\s*%?",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            value = float(match.group(1))
+            return value
+    return None
+
+
+def parse_labeled_rate(text: str, label: str) -> float | None:
+    value = parse_labeled_number(text, label)
+    if value is None:
+        return None
+    if value > 1.0:
+        value /= 100.0
+    return value if 0.0 <= value <= 1.0 else None
+
+
+def parse_labeled_avg_place(text: str) -> float | None:
+    value = parse_labeled_number(text, "Avg Place")
+    if value is None:
+        return None
+    return value if 1.0 <= value <= 8.0 else None
+
+
+def parse_labeled_frequency(text: str) -> tuple[float | None, int | None]:
+    lines = [" ".join(line.split()) for line in text.splitlines() if line.strip()]
+    for index, line in enumerate(lines):
+        if "frequency" in line.casefold() or "play rate" in line.casefold() or "pick rate" in line.casefold():
+            candidates = []
+            if index > 0:
+                candidates.append(lines[index - 1])
+            if index + 1 < len(lines):
+                candidates.append(lines[index + 1])
+            for candidate in candidates:
+                rate, sample = parse_frequency_cell(candidate)
+                if rate is not None or sample is not None:
+                    return rate, sample
+
+    # Fallback: a count and percent on the same line often represents Frequency.
+    for line in lines:
+        rate, sample = parse_frequency_cell(line)
+        if rate is not None and sample is not None:
+            return rate, sample
+    return None, None
+
+
+def resolve_image_alts(
+    resolver: CatalogResolver,
+    kind: str,
+    image_alts: list[Any],
+) -> tuple[list[str], list[str]]:
+    names: list[str] = []
+    ids: list[str] = []
+    seen_ids: set[str] = set()
+
+    for raw in image_alts:
+        name = " ".join(str(raw or "").split()).strip()
+        if not name:
+            continue
+        resolved = resolver.resolve(kind, name)
+        if resolved and resolved not in seen_ids:
+            names.append(name)
+            ids.append(resolved)
+            seen_ids.add(resolved)
+
+    return names, ids
+
+
+def comp_name_from_block(block: dict[str, Any]) -> tuple[str | None, str | None]:
+    links = block.get("links") or []
+    if isinstance(links, list):
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            href = str(link.get("href") or "")
+            text = " ".join(str(link.get("text") or "").split()).strip()
+            parsed = urlparse(href)
+            if text and parsed.netloc.endswith("metatft.com") and "/comps/" in parsed.path:
+                return text, href
+
+    ignored = {
+        "avg place",
+        "win rate",
+        "top 4 rate",
+        "frequency",
+        "play rate",
+        "pick rate",
+        "tier",
+        "details",
+    }
+    for line in str(block.get("text") or "").splitlines():
+        cleaned = " ".join(line.split()).strip()
+        folded = cleaned.casefold()
+        if not cleaned or folded in ignored:
+            continue
+        if cleaned in {"S", "A", "B", "C", "D"}:
+            continue
+        if PATCH_RE.fullmatch(cleaned):
+            continue
+        if re.fullmatch(r"[+-]?\d+(?:\.\d+)?%?", cleaned):
+            continue
+        if len(cleaned) > 120:
+            continue
+        return cleaned, None
+
+    return None, None
+
+
+def extract_comp_cards(
+    raw: dict[str, Any],
+    *,
+    source_url: str,
+    resolver: CatalogResolver,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    entities: list[dict[str, Any]] = []
+    diagnostics: list[dict[str, Any]] = []
+
+    blocks = raw.get("repeated_blocks") or []
+    if not isinstance(blocks, list):
+        return entities, diagnostics
+
+    for block in blocks:
+        if not isinstance(block, dict):
+            continue
+
+        text = str(block.get("text") or "")
+        if not text.strip():
+            continue
+
+        name, detail_url = comp_name_from_block(block)
+        avg_place = parse_labeled_avg_place(text)
+        win_rate = parse_labeled_rate(text, "Win Rate")
+        top4_rate = parse_labeled_rate(text, "Top 4 Rate")
+        frequency, sample_size = parse_labeled_frequency(text)
+
+        image_alts = block.get("image_alts") or []
+        unit_names, unit_ids = resolve_image_alts(
+            resolver,
+            "unit",
+            image_alts if isinstance(image_alts, list) else [],
+        )
+        trait_names, trait_ids = resolve_image_alts(
+            resolver,
+            "trait",
+            image_alts if isinstance(image_alts, list) else [],
+        )
+
+        metric_count = sum(
+            value is not None
+            for value in (avg_place, win_rate, top4_rate, frequency, sample_size)
+        )
+        enough_signal = (
+            bool(name)
+            and (
+                len(unit_ids) >= 3
+                or metric_count >= 2
+                or (len(unit_ids) >= 2 && metric_count >= 1)
+            )
+        )
+
+        if not enough_signal:
+            if any(token in text.casefold() for token in ("avg place", "win rate", "frequency")):
+                diagnostics.append(
+                    {
+                        "block_index": block.get("index"),
+                        "reason": "insufficient_comp_signal",
+                        "resolved_units": len(unit_ids),
+                        "metric_count": metric_count,
+                    }
+                )
+            continue
+
+        entity_url = detail_url or source_url
+        entity_id = stable_source_id("comp", name or "unknown", entity_url)
+
+        tier = None
+        for line in text.splitlines():
+            candidate = " ".join(line.split()).strip()
+            if candidate in {"S", "A", "B", "C", "D"}:
+                tier = candidate
+                break
+
+        attributes: dict[str, Any] = {
+            "unit_names": unit_names,
+            "trait_names": trait_names,
+        }
+        if detail_url:
+            attributes["detail_url"] = detail_url
+
+        entities.append(
+            {
+                "kind": "comp",
+                "id": entity_id,
+                "name": name,
+                "unit_ids": unit_ids,
+                "trait_ids": trait_ids,
+                "performance": {
+                    "avg_place": avg_place,
+                    "top4_rate": top4_rate,
+                    "win_rate": win_rate,
+                    "frequency": frequency,
+                    "sample_size": sample_size,
+                },
+                "tags": [f"tier:{tier}"] if tier else [],
+                "attributes": attributes,
+            }
+        )
+
+    return entities, diagnostics
+
+
 def parse_named_list_sentence(
     body: str,
     pattern: str,
@@ -629,6 +847,15 @@ def normalize_browser_snapshot(
             if unparsed is not None:
                 unparsed_tables.append(unparsed)
 
+    comp_diagnostics: list[dict[str, Any]] = []
+    if kind == "comp":
+        comp_entities, comp_diagnostics = extract_comp_cards(
+            raw,
+            source_url=source_url,
+            resolver=resolver,
+        )
+        entities.extend(comp_entities)
+
     detail = (
         extract_detail_entity(
             raw,
@@ -670,6 +897,7 @@ def normalize_browser_snapshot(
         },
         "diagnostics": {
             "unparsed_tables": unparsed_tables,
+            "unparsed_comp_blocks": comp_diagnostics,
         },
     }
 
