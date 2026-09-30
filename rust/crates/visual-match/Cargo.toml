@@ -1,0 +1,9 @@
+[package]
+name = "agente-tft-visual-match"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+agente-tft-image-preprocess = { path = "../image-preprocess" }
