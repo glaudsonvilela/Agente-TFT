@@ -251,6 +251,13 @@ def find_header_index(headers: list[str], semantic: str) -> int | None:
     return None
 
 
+def infer_table_kind(headers: list[str], fallback_kind: str) -> str:
+    for semantic in ("player", "unit", "item", "trait", "augment", "comp"):
+        if find_header_index(headers, semantic) is not None:
+            return semantic
+    return fallback_kind
+
+
 def entity_name_index(headers: list[str], kind: str) -> int | None:
     for semantic in (kind, "name"):
         index = find_header_index(headers, semantic)
@@ -347,6 +354,7 @@ def parse_table_entities(
         return [], {"reason": "invalid_header", "table": table}
 
     headers = canonical_headers(header_row)
+    kind = infer_table_kind(headers, kind)
     name_idx = entity_name_index(headers, kind)
     avg_idx = find_header_index(headers, "avg_place")
     win_idx = find_header_index(headers, "win_rate")
@@ -427,10 +435,39 @@ def parse_table_entities(
                     "sample_size": sample_size,
                 },
                 "tags": [],
+                "attributes": {},
             }
         )
 
     return entities, None
+
+
+def parse_named_list_sentence(
+    body: str,
+    pattern: str,
+) -> list[str]:
+    match = re.search(pattern, body, re.IGNORECASE | re.DOTALL)
+    if not match:
+        return []
+
+    value = " ".join(match.group(1).split())
+    value = re.sub(r"\s+as the best.*$", "", value, flags=re.IGNORECASE)
+    value = re.sub(r"\s+in TFT.*$", "", value, flags=re.IGNORECASE)
+
+    parts = re.split(r"\s*,\s*|\s+and\s+", value)
+    return [part.strip() for part in parts if part.strip()]
+
+
+def resolve_names(
+    resolver: CatalogResolver,
+    kind: str,
+    names: list[str],
+) -> list[str]:
+    result: list[str] = []
+    for name in names:
+        resolved = resolver.resolve(kind, name)
+        result.append(resolved or name)
+    return result
 
 
 def extract_detail_entity(
@@ -459,14 +496,79 @@ def extract_detail_entity(
         name = path_slug.replace("-", " ")
 
     body = str(raw.get("body_text") or "")
-    avg_match = re.search(r"(\d+(?:\.\d+)?)\s*\n?\s*Avg Place", body, re.IGNORECASE)
+    avg_match = re.search(
+        r"(\d+(?:\.\d+)?)\s*\n?\s*Avg Place",
+        body,
+        re.IGNORECASE,
+    )
     avg_place = None
     if avg_match:
         value = float(avg_match.group(1))
         if 1.0 <= value <= 8.0:
             avg_place = value
 
-    if avg_place is None:
+    attributes: dict[str, Any] = {}
+
+    if kind == "unit":
+        recommended_names = parse_named_list_sentence(
+            body,
+            rf"We recommend\s+(.+?)\s+as the best build for\s+{re.escape(name)}",
+        )
+        top_names = parse_named_list_sentence(
+            body,
+            rf"The best items for\s+{re.escape(name)}\s+are\s+(.+?)(?:\n|Ranked|$)",
+        )
+
+        if recommended_names:
+            attributes["recommended_item_names"] = recommended_names
+            attributes["recommended_item_ids"] = resolve_names(
+                resolver,
+                "item",
+                recommended_names,
+            )
+
+        if top_names:
+            attributes["top_item_names"] = top_names
+            attributes["top_item_ids"] = resolve_names(
+                resolver,
+                "item",
+                top_names,
+            )
+
+        position_match = re.search(
+            rf"{re.escape(name)}\s+should be positioned\s+(.+?)(?:\.|\n)",
+            body,
+            re.IGNORECASE,
+        )
+        if position_match:
+            positioning = " ".join(position_match.group(1).split()).strip()
+            if positioning:
+                attributes["positioning"] = positioning
+
+        sections = raw.get("sections") or []
+        if isinstance(sections, list):
+            for section in sections:
+                if not isinstance(section, dict):
+                    continue
+                heading = str(section.get("heading") or "").casefold()
+                if "recommended builds" in heading:
+                    image_alts = [
+                        str(value).strip()
+                        for value in section.get("image_alts") or []
+                        if str(value).strip()
+                    ]
+                    if image_alts:
+                        attributes["recommended_build_image_alts"] = image_alts
+                if "top items" in heading:
+                    image_alts = [
+                        str(value).strip()
+                        for value in section.get("image_alts") or []
+                        if str(value).strip()
+                    ]
+                    if image_alts:
+                        attributes["top_item_image_alts"] = image_alts
+
+    if avg_place is None and not attributes:
         return None
 
     return {
@@ -488,8 +590,8 @@ def extract_detail_entity(
             "sample_size": None,
         },
         "tags": ["detail_page"],
+        "attributes": attributes,
     }
-
 
 def normalize_browser_snapshot(
     raw: dict[str, Any],
@@ -564,6 +666,7 @@ def normalize_browser_snapshot(
             "tables_unparsed": str(len(unparsed_tables)),
             "links_total": str(len(raw.get("links") or [])),
             "repeated_blocks_total": str(len(raw.get("repeated_blocks") or [])),
+            "sections_total": str(len(raw.get("sections") or [])),
         },
         "diagnostics": {
             "unparsed_tables": unparsed_tables,
