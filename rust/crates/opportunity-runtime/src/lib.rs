@@ -198,7 +198,7 @@ impl<'a> Default for CompleteOpportunityRequest<'a> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CompleteOpportunityCycle {
     pub fact_build: OpportunityFactBuild,
     pub cycle: OpportunityCycle,
