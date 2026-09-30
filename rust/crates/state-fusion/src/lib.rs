@@ -1,5 +1,5 @@
 use agente_tft_contracts::{
-    GameEventKind, GameState, MatchPhase, Observed, PlayerState,
+    GameEventKind, GameState, MatchPhase, Observed, PlayerState, ShopSlot,
 };
 use agente_tft_perception_core::{ConsensusConfig, TemporalConsensus};
 use agente_tft_state_engine::diff_event_kinds;
@@ -12,6 +12,120 @@ pub struct HudObservationBatch {
     pub level: Option<Observed<u8>>,
     pub xp: Option<Observed<u16>>,
     pub stage: Option<Observed<String>>,
+}
+
+
+#[derive(Debug, Clone)]
+pub struct ShopObservationBatch {
+    pub observed_at_ms: u64,
+    pub slots: Vec<Observed<ShopSlot>>,
+}
+
+#[derive(Debug, Clone)]
+struct ShopPending {
+    signature: Vec<(u8, Option<String>)>,
+    confirmations: u8,
+    last_seen_ms: u64,
+    best_min_confidence: f32,
+    best_slots: Vec<Observed<ShopSlot>>,
+}
+
+#[derive(Debug)]
+struct ShopGate {
+    config: ConsensusConfig,
+    pending: Option<ShopPending>,
+}
+
+impl ShopGate {
+    fn new(config: ConsensusConfig) -> Self {
+        Self {
+            config: ConsensusConfig {
+                min_confidence: config.min_confidence.clamp(0.0, 1.0),
+                confirmations: config.confirmations.max(1),
+                max_gap_ms: config.max_gap_ms,
+            },
+            pending: None,
+        }
+    }
+
+    fn observe(
+        &mut self,
+        batch: ShopObservationBatch,
+    ) -> Option<Vec<Observed<ShopSlot>>> {
+        if batch.slots.is_empty() {
+            return None;
+        }
+
+        let mut seen = std::collections::BTreeSet::new();
+        if batch.slots.iter().any(|slot| !seen.insert(slot.value.slot)) {
+            return None;
+        }
+
+        let min_confidence = batch
+            .slots
+            .iter()
+            .map(|slot| slot.confidence.value())
+            .fold(1.0_f32, f32::min);
+
+        if min_confidence < self.config.min_confidence {
+            return None;
+        }
+
+        let signature = semantic_shop(&batch.slots);
+        let should_reset = self
+            .pending
+            .as_ref()
+            .map(|pending| {
+                pending.signature != signature
+                    || batch
+                        .observed_at_ms
+                        .saturating_sub(pending.last_seen_ms)
+                        > self.config.max_gap_ms
+            })
+            .unwrap_or(true);
+
+        if should_reset {
+            self.pending = Some(ShopPending {
+                signature,
+                confirmations: 1,
+                last_seen_ms: batch.observed_at_ms,
+                best_min_confidence: min_confidence,
+                best_slots: batch.slots,
+            });
+        } else if let Some(pending) = &mut self.pending {
+            pending.confirmations = pending.confirmations.saturating_add(1);
+            pending.last_seen_ms = batch.observed_at_ms;
+            if min_confidence >= pending.best_min_confidence {
+                pending.best_min_confidence = min_confidence;
+                pending.best_slots = batch.slots;
+            }
+        }
+
+        let pending = self.pending.as_ref()?;
+        if pending.confirmations >= self.config.confirmations {
+            Some(sorted_shop(pending.best_slots.clone()))
+        } else {
+            None
+        }
+    }
+
+    fn reset(&mut self) {
+        self.pending = None;
+    }
+}
+
+fn semantic_shop(slots: &[Observed<ShopSlot>]) -> Vec<(u8, Option<String>)> {
+    let mut signature: Vec<_> = slots
+        .iter()
+        .map(|slot| (slot.value.slot, slot.value.unit_id.clone()))
+        .collect();
+    signature.sort_by_key(|(slot, _)| *slot);
+    signature
+}
+
+fn sorted_shop(mut slots: Vec<Observed<ShopSlot>>) -> Vec<Observed<ShopSlot>> {
+    slots.sort_by_key(|slot| slot.value.slot);
+    slots
 }
 
 #[derive(Debug)]
@@ -39,6 +153,7 @@ impl HudGates {
 pub struct StateFusion {
     state: GameState,
     hud: HudGates,
+    shop: ShopGate,
 }
 
 impl StateFusion {
@@ -46,6 +161,7 @@ impl StateFusion {
         Self {
             state: GameState::empty(now_ms),
             hud: HudGates::new(consensus),
+            shop: ShopGate::new(consensus),
         }
     }
 
@@ -139,12 +255,39 @@ impl StateFusion {
         diff_event_kinds(&previous, &self.state)
     }
 
+
+
+    pub fn apply_shop(&mut self, batch: ShopObservationBatch) -> Vec<GameEventKind> {
+        let previous = self.state.clone();
+        let observed_at_ms = batch.observed_at_ms;
+
+        let Some(stable_slots) = self.shop.observe(batch) else {
+            self.state.observed_at_ms = self.state.observed_at_ms.max(observed_at_ms);
+            return Vec::new();
+        };
+
+        let semantic_change =
+            semantic_shop(&self.state.player.shop) != semantic_shop(&stable_slots);
+
+        if semantic_change {
+            self.state.player.shop = stable_slots;
+            self.state.revision = self.state.revision.saturating_add(1);
+        } else {
+            // Refresh metadata/confidence without creating a semantic revision.
+            self.state.player.shop = stable_slots;
+        }
+
+        self.state.observed_at_ms = self.state.observed_at_ms.max(observed_at_ms);
+        diff_event_kinds(&previous, &self.state)
+    }
+
     pub fn reset_hud_consensus(&mut self) {
         self.hud.hp.reset();
         self.hud.gold.reset();
         self.hud.level.reset();
         self.hud.xp.reset();
         self.hud.stage.reset();
+        self.shop.reset();
     }
 
     pub fn replace_player_state(&mut self, player: PlayerState, now_ms: u64) -> Vec<GameEventKind> {
