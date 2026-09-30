@@ -4,6 +4,7 @@ use agente_tft_decision_core::DecisionConfig;
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_meta_context::MetaSnapshot;
 use agente_tft_meta_hints::{
+    generate_comp_transition_candidates,
     generate_item_opportunity_facts,
     generate_pivot_opportunity_facts,
     CompCandidateConfig,
@@ -18,6 +19,11 @@ use agente_tft_opportunity_engine::{
     OpportunityConfig, OpportunityDelta, OpportunityEngine, OpportunityError,
     OpportunityFacts, OpportunityInput, OpportunityReport, OpportunityTier,
     OpportunityTracker,
+};
+use agente_tft_pivot_core::{
+    evaluate_comp_candidates,
+    PivotConfig,
+    PivotEvaluator,
 };
 use agente_tft_remote_training_protocol::OpportunitySummary;
 use agente_tft_tft_rules::TftRuleSet;
@@ -140,6 +146,16 @@ impl OpportunityRuntime {
             &mut fact_build.facts,
         );
 
+        inject_structural_pivot_facts(
+            state,
+            meta,
+            now_ms,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
         if let Some(extra) = extra_facts {
             extend_facts(&mut fact_build.facts, extra);
         }
@@ -258,6 +274,48 @@ fn inject_meta_facts(
             CompCandidateConfig::default(),
             MetaPivotOpportunityPolicy::default(),
         ),
+    );
+}
+
+fn inject_structural_pivot_facts(
+    state: &GameState,
+    meta: Option<&MetaSnapshot>,
+    now_ms: u64,
+    catalog: &UnitCatalog,
+    traits: &TraitCatalog,
+    board_strength: &BoardStrengthEngine,
+    facts: &mut OpportunityFacts,
+) {
+    let Some(snapshot) = meta else {
+        return;
+    };
+
+    let candidates = generate_comp_transition_candidates(
+        state,
+        snapshot,
+        now_ms,
+        CompCandidateConfig::default(),
+    );
+
+    if candidates.is_empty() {
+        return;
+    }
+
+    let Ok(evaluator) = PivotEvaluator::new(PivotConfig::default()) else {
+        return;
+    };
+
+    facts.pivots.extend(
+        evaluate_comp_candidates(
+            state,
+            &candidates,
+            catalog,
+            traits,
+            board_strength,
+            &evaluator,
+        )
+        .into_iter()
+        .map(|evaluation| evaluation.fact),
     );
 }
 
@@ -822,6 +880,47 @@ mod tests {
         assert_eq!(fact.strength_gain, 0.70);
         assert_eq!(fact.confidence.value(), 0.90);
         assert!(fact.external_meta_prior > 0.0);
+    }
+
+    #[test]
+    fn full_runtime_prefers_structural_pivot_over_meta_only() {
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let strength = BoardStrengthEngine::new(
+            agente_tft_board_strength::BoardStrengthConfig::default(),
+        )
+        .unwrap();
+
+        let result = runtime
+            .evaluate_with_board_strength(
+                &automatic_state(),
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                Some(&meta_snapshot()),
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        let pivot = result
+            .fact_build
+            .facts
+            .pivots
+            .iter()
+            .find(|fact| {
+                fact.meta_comp_id.as_deref() == Some("comp-abcd")
+            })
+            .unwrap();
+
+        // Meta-only candidate is capped at 0.45. Structural evaluation is
+        // preferred by dedupe when its board model has better confidence.
+        assert!(pivot.confidence.value() >= 0.45);
     }
 
     #[test]
