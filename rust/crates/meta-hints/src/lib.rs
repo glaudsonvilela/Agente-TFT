@@ -3,7 +3,9 @@ use std::collections::BTreeSet;
 use agente_tft_contracts::{Confidence, GameState};
 use agente_tft_lobby_analysis::analyze_unit_contestation;
 use agente_tft_meta_context::{MetaEntityKind, MetaSnapshot};
-use agente_tft_opportunity_engine::ItemOpportunityFact;
+use agente_tft_opportunity_engine::{
+    ItemOpportunityFact, PivotOpportunityFact,
+};
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -94,6 +96,19 @@ impl Default for MetaItemOpportunityPolicy {
     fn default() -> Self {
         Self {
             max_abs_prior: 0.08,
+            confidence_cap: 0.45,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MetaPivotOpportunityPolicy {
+    pub confidence_cap: f32,
+}
+
+impl Default for MetaPivotOpportunityPolicy {
+    fn default() -> Self {
+        Self {
             confidence_cap: 0.45,
         }
     }
@@ -250,6 +265,61 @@ pub fn generate_item_opportunity_facts(
             .total_cmp(&a.external_meta_prior)
             .then_with(|| a.unit_instance_id.cmp(&b.unit_instance_id))
             .then_with(|| a.item_id.cmp(&b.item_id))
+    });
+
+    facts
+}
+
+pub fn generate_pivot_opportunity_facts(
+    state: &GameState,
+    snapshot: &MetaSnapshot,
+    now_ms: u64,
+    candidate_config: CompCandidateConfig,
+    policy: MetaPivotOpportunityPolicy,
+) -> Vec<PivotOpportunityFact> {
+    let confidence_cap = if policy.confidence_cap.is_finite() {
+        policy.confidence_cap.clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+
+    let confidence = Confidence::new(
+        state
+            .overall_confidence
+            .value()
+            .min(confidence_cap),
+    )
+    .expect("clamped confidence remains valid");
+
+    let mut facts = Vec::new();
+
+    for candidate in generate_comp_transition_candidates(
+        state,
+        snapshot,
+        now_ms,
+        candidate_config,
+    ) {
+        let total_units = candidate.unit_ids.len().max(1);
+        let transition_cost =
+            (candidate.missing_unit_ids.len() as f32 / total_units as f32)
+                .clamp(0.0, 1.0);
+
+        facts.push(PivotOpportunityFact {
+            target: candidate.name,
+            // Unknown until a local board-transition evaluator measures it.
+            immediate_gain: 0.0,
+            transition_cost,
+            // Unknown until future board paths are evaluated.
+            flexibility_after: 0.0,
+            meta_comp_id: Some(candidate.comp_id),
+            confidence,
+        });
+    }
+
+    facts.sort_by(|a, b| {
+        a.transition_cost
+            .total_cmp(&b.transition_cost)
+            .then_with(|| a.target.cmp(&b.target))
     });
 
     facts
@@ -614,6 +684,27 @@ mod tests {
         assert!(facts
             .iter()
             .all(|fact| fact.unit_instance_id != state.player.board[0].instance_id));
+    }
+
+    #[test]
+    fn meta_pivot_fact_uses_overlap_as_transition_cost() {
+        let facts = generate_pivot_opportunity_facts(
+            &state(),
+            &snapshot(),
+            1_000,
+            CompCandidateConfig::default(),
+            MetaPivotOpportunityPolicy::default(),
+        );
+
+        assert_eq!(facts.len(), 1);
+        assert_eq!(facts[0].target, "ABCD");
+        assert_eq!(facts[0].immediate_gain, 0.0);
+        assert!((facts[0].transition_cost - 0.25).abs() < 1e-6);
+        assert_eq!(
+            facts[0].meta_comp_id.as_deref(),
+            Some("comp-abcd")
+        );
+        assert!(facts[0].confidence.value() <= 0.45);
     }
 
     #[test]
