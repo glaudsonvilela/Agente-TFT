@@ -77,7 +77,7 @@ impl SellConfig {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SellDiagnostic {
     pub bench_occupancy_ratio: f32,
     pub unknown_unit_ids: Vec<String>,
@@ -86,7 +86,7 @@ pub struct SellDiagnostic {
     pub skipped_itemized_units: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SellEvaluation {
     pub facts: Vec<SellOpportunityFact>,
     pub diagnostic: SellDiagnostic,
