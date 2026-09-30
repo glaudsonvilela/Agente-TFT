@@ -39,6 +39,7 @@ captures/
 telemetry/data/
 knowledge/database/
 knowledge/raw/
+knowledge/assets/
 *.sqlite
 *.sqlite3
 *.db
