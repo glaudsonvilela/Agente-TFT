@@ -72,6 +72,7 @@ class RemoteTrainingCoordinator:
         horizon_steps: int = 200,
         scripted_bots: tuple[str, ...] = (),
         historical_policy_versions: tuple[str, ...] = (),
+        opportunities: tuple[dict[str, Any], ...] = (),
     ) -> RemoteJobRecord | None:
         """
         Submit a decision for counterfactual simulation.
@@ -95,6 +96,7 @@ class RemoteTrainingCoordinator:
                 historical_policy_versions=historical_policy_versions,
                 episode_id=self.episode_id,
                 metadata={"trigger": "shadow_decision"},
+                opportunities=opportunities,
             )
         except Exception as exc:
             self.phase = RemoteTrainingPhase.DEGRADED_LOCAL_ONLY
@@ -201,6 +203,7 @@ class RemoteTrainingCoordinator:
         horizon_steps: int = 200,
         scripted_bots: tuple[str, ...] = (),
         historical_policy_versions: tuple[str, ...] = (),
+        opportunities: tuple[dict[str, Any], ...] = (),
     ) -> RemoteJobRecord | None:
         return await self.submit_shadow_decision(
             state=state,
@@ -210,6 +213,7 @@ class RemoteTrainingCoordinator:
             horizon_steps=horizon_steps,
             scripted_bots=scripted_bots,
             historical_policy_versions=historical_policy_versions,
+            opportunities=opportunities,
         )
 
     def on_match_ended(self) -> None:
