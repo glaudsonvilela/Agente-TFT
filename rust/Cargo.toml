@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/state-fusion", "crates/perception-hud", "crates/image-preprocess", "crates/ocr-tesseract", "crates/riot-api", "apps/replay-inspect", "apps/roi-replay-inspect", "apps/riot-api-inspect"]
+members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/state-fusion", "crates/perception-hud", "crates/image-preprocess", "crates/ocr-tesseract", "crates/riot-api", "crates/tft-math", "apps/replay-inspect", "apps/roi-replay-inspect", "apps/riot-api-inspect"]
 resolver = "2"
 
 [workspace.package]
