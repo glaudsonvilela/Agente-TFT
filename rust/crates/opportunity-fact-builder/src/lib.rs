@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use agente_tft_board_strength::BoardStrengthEngine;
 use agente_tft_contracts::{Confidence, GameState};
 use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_lobby_analysis::{
@@ -13,6 +14,7 @@ use agente_tft_strategy_analysis::{
     analyze_target_roll, StrategyAnalysisError, TargetRollInput,
 };
 use agente_tft_tft_rules::{RuleSetError, TftRuleSet};
+use agente_tft_trait_core::TraitCatalog;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -78,7 +80,18 @@ pub struct RollTargetDiagnostic {
     pub known_tier_remaining: u16,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct LevelBoardPlanDiagnostic {
+    pub target_level: u8,
+    pub added_instance_ids: Vec<String>,
+    pub added_unit_ids: Vec<String>,
+    pub normalized_gain: f32,
+    pub confidence: f32,
+    pub closed_breakpoints: Vec<String>,
+    pub searched_combinations: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct BuildDiagnostics {
     pub unknown_shop_unit_ids: Vec<String>,
     pub unknown_owned_unit_ids: Vec<String>,
@@ -88,6 +101,7 @@ pub struct BuildDiagnostics {
     pub roll_targets_blocked_by_shop: Vec<String>,
     pub xp_rules_available: bool,
     pub unaffordable_level_targets: Vec<u8>,
+    pub level_board_plans: Vec<LevelBoardPlanDiagnostic>,
 }
 
 impl Default for BuildDiagnostics {
@@ -101,6 +115,7 @@ impl Default for BuildDiagnostics {
             roll_targets_blocked_by_shop: Vec::new(),
             xp_rules_available: false,
             unaffordable_level_targets: Vec::new(),
+            level_board_plans: Vec::new(),
         }
     }
 }
@@ -171,6 +186,88 @@ impl OpportunityFactBuilder {
             facts,
             diagnostics,
         })
+    }
+
+    pub fn build_with_board_strength(
+        &self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        traits: &TraitCatalog,
+        board_strength: &BoardStrengthEngine,
+        now_ms: u64,
+    ) -> Result<OpportunityFactBuild, FactBuildError> {
+        let mut result = self.build(
+            state,
+            rules,
+            catalog,
+            now_ms,
+        )?;
+
+        self.enrich_level_board_gain(
+            state,
+            catalog,
+            traits,
+            board_strength,
+            &mut result.facts,
+            &mut result.diagnostics,
+        );
+
+        Ok(result)
+    }
+
+    fn enrich_level_board_gain(
+        &self,
+        state: &GameState,
+        catalog: &UnitCatalog,
+        traits: &TraitCatalog,
+        board_strength: &BoardStrengthEngine,
+        facts: &mut OpportunityFacts,
+        diagnostics: &mut BuildDiagnostics,
+    ) {
+        for fact in &mut facts.levels {
+            let plan = board_strength.best_bench_additions(
+                &state.player.board,
+                &state.player.bench,
+                fact.slots_gained as usize,
+                Some(fact.target_level),
+                catalog,
+                traits,
+                fact.confidence,
+            );
+
+            fact.expected_board_gain = Some(plan.normalized_gain);
+            fact.confidence = min_confidence(
+                fact.confidence,
+                plan.confidence,
+            );
+
+            diagnostics.level_board_plans.push(
+                LevelBoardPlanDiagnostic {
+                    target_level: fact.target_level,
+                    added_instance_ids: plan.added_instance_ids,
+                    added_unit_ids: plan.added_unit_ids,
+                    normalized_gain: plan.normalized_gain,
+                    confidence: plan.confidence.value(),
+                    closed_breakpoints: plan
+                        .closed_breakpoints
+                        .into_iter()
+                        .map(|value| {
+                            format!(
+                                "{}:{}",
+                                value.trait_name,
+                                value.breakpoint
+                            )
+                        })
+                        .collect(),
+                    searched_combinations: plan.searched_combinations,
+                },
+            );
+        }
+
+        diagnostics
+            .level_board_plans
+            .sort_by_key(|plan| plan.target_level);
     }
 
     fn build_buy_facts(
@@ -693,6 +790,24 @@ mod tests {
         .unwrap()
     }
 
+    fn trait_catalog() -> TraitCatalog {
+        TraitCatalog::from_json_str(
+            &serde_json::json!({
+                "traits": [
+                    {
+                        "api_name": "T_DUMMY",
+                        "name": "Dummy",
+                        "effects": [
+                            {"min_units": 2}
+                        ]
+                    }
+                ]
+            })
+            .to_string(),
+        )
+        .unwrap()
+    }
+
     fn rules() -> TftRuleSet {
         TftRuleSet {
             schema_version: RULESET_SCHEMA_VERSION,
@@ -924,6 +1039,42 @@ mod tests {
 
         assert!(result.facts.levels.is_empty());
         assert!(!result.diagnostics.xp_rules_available);
+    }
+
+    #[test]
+    fn board_strength_enriches_level_fact_conservatively() {
+        let builder =
+            OpportunityFactBuilder::new(FactBuilderConfig::default()).unwrap();
+        let strength = BoardStrengthEngine::new(
+            agente_tft_board_strength::BoardStrengthConfig::default(),
+        )
+        .unwrap();
+
+        let result = builder
+            .build_with_board_strength(
+                &state(),
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                10_000,
+            )
+            .unwrap();
+
+        let level8 = result
+            .facts
+            .levels
+            .iter()
+            .find(|fact| fact.target_level == 8)
+            .unwrap();
+
+        assert!(level8.expected_board_gain.is_some());
+        assert!(level8.confidence.value() <= 0.55);
+        assert!(result
+            .diagnostics
+            .level_board_plans
+            .iter()
+            .any(|plan| plan.target_level == 8));
     }
 
     #[test]
