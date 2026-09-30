@@ -454,9 +454,9 @@ impl OpportunityEngine {
             (Some(meta), Some(unit_id)) => unit_meta_prior(
                 meta,
                 self.config.meta_policy,
-                now_ms: input.now_ms,
-                patch: input.state.patch.as_deref(),
-                set: input.state.set.as_deref(),
+                input.now_ms,
+                input.state.patch.as_deref(),
+                input.state.set.as_deref(),
                 unit_id,
             )
             .map_err(|error| OpportunityError::Meta(error.to_string()))?
@@ -528,10 +528,10 @@ impl OpportunityEngine {
             Some(meta) => unit_meta_prior(
                 meta,
                 self.config.meta_policy,
-                now_ms: input.now_ms,
-                patch: input.state.patch.as_deref(),
-                set: input.state.set.as_deref(),
-                unit_id: &fact.unit_id,
+                input.now_ms,
+                input.state.patch.as_deref(),
+                input.state.set.as_deref(),
+                &fact.unit_id,
             )
             .map_err(|error| OpportunityError::Meta(error.to_string()))?
             .unwrap_or(0.0),
@@ -694,11 +694,11 @@ impl OpportunityEngine {
             (Some(meta), Some(comp_id)) => entity_meta_prior(
                 meta,
                 self.config.meta_policy,
-                now_ms: input.now_ms,
-                patch: input.state.patch.as_deref(),
-                set: input.state.set.as_deref(),
-                kind: MetaEntityKind::Comp,
-                id: comp_id,
+                input.now_ms,
+                input.state.patch.as_deref(),
+                input.state.set.as_deref(),
+                MetaEntityKind::Comp,
+                comp_id,
             )
             .map_err(|error| OpportunityError::Meta(error.to_string()))?
             .unwrap_or(0.0),
