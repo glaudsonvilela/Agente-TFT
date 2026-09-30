@@ -2,9 +2,12 @@ use std::collections::BTreeSet;
 
 use agente_tft_contracts::{Confidence, GameState};
 use agente_tft_lobby_analysis::analyze_unit_contestation;
-use agente_tft_meta_context::{MetaEntityKind, MetaSnapshot};
+use agente_tft_meta_context::{
+    entity_meta_prior, MetaEntityKind, MetaPriorPolicy, MetaSnapshot,
+};
 use agente_tft_opportunity_engine::{
-    ItemOpportunityFact, PivotOpportunityFact, PositionOpportunityFact,
+    AugmentOpportunityFact, ItemOpportunityFact, PivotOpportunityFact,
+    PositionOpportunityFact,
 };
 use agente_tft_positioning_core::{
     propose_moves_from_hints,
@@ -134,11 +137,110 @@ impl Default for MetaPositionOpportunityPolicy {
     }
 }
 
+
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MetaAugmentOpportunityPolicy {
+    pub max_abs_prior: f32,
+    pub confidence_cap: f32,
+    pub max_age_ms: u64,
+    pub allow_unknown_patch_set: bool,
+}
+
+impl Default for MetaAugmentOpportunityPolicy {
+    fn default() -> Self {
+        Self {
+            max_abs_prior: 0.08,
+            confidence_cap: 0.45,
+            max_age_ms: 6 * 60 * 60 * 1000,
+            allow_unknown_patch_set: false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct PositioningMetaHint {
     pub unit_instance_id: String,
     pub unit_id: String,
     pub positioning: String,
+}
+
+pub fn generate_augment_meta_facts(
+    state: &GameState,
+    snapshot: &MetaSnapshot,
+    now_ms: u64,
+    policy: MetaAugmentOpportunityPolicy,
+) -> Vec<AugmentOpportunityFact> {
+    if state.phase != agente_tft_contracts::MatchPhase::AugmentSelection {
+        return Vec::new();
+    }
+
+    let confidence_cap = if policy.confidence_cap.is_finite() {
+        policy.confidence_cap.clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+    let prior_cap = if policy.max_abs_prior.is_finite() {
+        policy.max_abs_prior.abs().clamp(0.0, 0.10)
+    } else {
+        0.0
+    };
+
+    let meta_policy = MetaPriorPolicy {
+        max_abs_adjustment: prior_cap,
+        max_age_ms: policy.max_age_ms,
+        allow_unknown_patch_set: policy.allow_unknown_patch_set,
+    };
+
+    let mut result = Vec::new();
+
+    for option in &state.player.augment_options {
+        if option.value.trim().is_empty() {
+            continue;
+        }
+
+        let prior = entity_meta_prior(
+            snapshot,
+            meta_policy,
+            now_ms,
+            state.patch.as_deref(),
+            state.set.as_deref(),
+            MetaEntityKind::Augment,
+            &option.value,
+        )
+        .ok()
+        .flatten()
+        .unwrap_or(0.0);
+
+        if prior == 0.0 {
+            continue;
+        }
+
+        let confidence = Confidence::new(
+            state
+                .overall_confidence
+                .value()
+                .min(option.confidence.value())
+                .min(confidence_cap),
+        )
+        .expect("bounded augment meta confidence remains valid");
+
+        result.push(AugmentOpportunityFact {
+            augment_id: option.value.clone(),
+            board_gain: 0.0,
+            flexibility: 0.0,
+            external_meta_prior: prior,
+            confidence,
+        });
+    }
+
+    result.sort_by(|a, b| {
+        b.external_meta_prior
+            .total_cmp(&a.external_meta_prior)
+            .then_with(|| a.augment_id.cmp(&b.augment_id))
+    });
+
+    result
 }
 
 pub fn generate_item_meta_candidates(
@@ -670,6 +772,64 @@ mod tests {
             ],
             metadata: BTreeMap::new(),
         }
+    }
+
+    #[test]
+    fn augment_meta_prior_is_bounded_and_phase_gated() {
+        let mut state = state();
+        state.phase = agente_tft_contracts::MatchPhase::AugmentSelection;
+        state.patch = Some("18.3b".into());
+        state.set = Some("TFTSet18".into());
+        state.overall_confidence = Confidence::new(0.95).unwrap();
+        state.player.augment_options = vec![
+            agente_tft_contracts::Observed {
+                value: "AUG_A".into(),
+                confidence: Confidence::new(0.90).unwrap(),
+                source: agente_tft_contracts::ObservationSource::Simulator,
+                observed_at_ms: 100,
+            },
+        ];
+
+        let mut snapshot = snapshot();
+        snapshot.captured_at_ms = 900;
+        snapshot.entities.push(agente_tft_meta_context::MetaEntity {
+            kind: MetaEntityKind::Augment,
+            id: "AUG_A".into(),
+            name: "Aug A".into(),
+            unit_ids: vec![],
+            trait_ids: vec![],
+            performance: agente_tft_meta_context::MetaPerformance {
+                avg_place: Some(3.8),
+                top4_rate: Some(0.60),
+                win_rate: Some(0.16),
+                frequency: Some(0.08),
+                sample_size: Some(10_000),
+            },
+            tags: vec![],
+            attributes: BTreeMap::new(),
+        });
+
+        let facts = generate_augment_meta_facts(
+            &state,
+            &snapshot,
+            1_000,
+            MetaAugmentOpportunityPolicy::default(),
+        );
+
+        assert_eq!(facts.len(), 1);
+        assert!(facts[0].external_meta_prior > 0.0);
+        assert!(facts[0].external_meta_prior <= 0.08);
+        assert_eq!(facts[0].board_gain, 0.0);
+        assert!(facts[0].confidence.value() <= 0.45);
+
+        state.phase = agente_tft_contracts::MatchPhase::Planning;
+        assert!(generate_augment_meta_facts(
+            &state,
+            &snapshot,
+            1_000,
+            MetaAugmentOpportunityPolicy::default(),
+        )
+        .is_empty());
     }
 
     #[test]
