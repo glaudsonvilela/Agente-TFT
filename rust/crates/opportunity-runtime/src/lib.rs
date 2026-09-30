@@ -1,3 +1,4 @@
+use agente_tft_board_strength::BoardStrengthEngine;
 use agente_tft_contracts::{DecisionPacket, GameState};
 use agente_tft_decision_core::DecisionConfig;
 use agente_tft_knowledge_core::UnitCatalog;
@@ -13,6 +14,7 @@ use agente_tft_opportunity_engine::{
 };
 use agente_tft_remote_training_protocol::OpportunitySummary;
 use agente_tft_tft_rules::TftRuleSet;
+use agente_tft_trait_core::TraitCatalog;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -99,6 +101,45 @@ impl OpportunityRuntime {
             remote_shortlist,
             should_refresh_ui: material,
             should_remote_evaluate: material,
+        })
+    }
+
+    pub fn evaluate_with_board_strength(
+        &mut self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        traits: &TraitCatalog,
+        board_strength: &BoardStrengthEngine,
+        meta: Option<&MetaSnapshot>,
+        now_ms: u64,
+        extra_facts: Option<&OpportunityFacts>,
+    ) -> Result<AutomaticOpportunityCycle, AutomaticOpportunityError> {
+        let mut fact_build = self
+            .fact_builder
+            .build_with_board_strength(
+                state,
+                rules,
+                catalog,
+                traits,
+                board_strength,
+                now_ms,
+            )?;
+
+        if let Some(extra) = extra_facts {
+            extend_facts(&mut fact_build.facts, extra);
+        }
+
+        let cycle = self.runtime.evaluate(
+            state,
+            &fact_build.facts,
+            meta,
+            now_ms,
+        )?;
+
+        Ok(AutomaticOpportunityCycle {
+            fact_build,
+            cycle,
         })
     }
 
@@ -267,6 +308,24 @@ mod tests {
         .unwrap()
     }
 
+    fn trait_catalog() -> TraitCatalog {
+        TraitCatalog::from_json_str(
+            &serde_json::json!({
+                "traits": [
+                    {
+                        "api_name": "T_DUMMY",
+                        "name": "Dummy",
+                        "effects": [
+                            {"min_units": 2}
+                        ]
+                    }
+                ]
+            })
+            .to_string(),
+        )
+        .unwrap()
+    }
+
     fn rules() -> TftRuleSet {
         use std::collections::BTreeMap;
         use agente_tft_tft_math::EconomyRules;
@@ -425,6 +484,54 @@ mod tests {
             .items
             .iter()
             .any(|fact| fact.item_id == "ITEM_1"));
+    }
+
+    #[test]
+    fn full_automatic_runtime_enriches_level_with_board_strength() {
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig {
+                roll_budgets_gold: vec![10, 20],
+                include_max_affordable_budget: false,
+                ..FactBuilderConfig::default()
+            },
+        )
+        .unwrap();
+
+        let strength = BoardStrengthEngine::new(
+            agente_tft_board_strength::BoardStrengthConfig::default(),
+        )
+        .unwrap();
+
+        let result = runtime
+            .evaluate_with_board_strength(
+                &automatic_state(),
+                &rules(),
+                &catalog(),
+                &trait_catalog(),
+                &strength,
+                None,
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        let level8 = result
+            .fact_build
+            .facts
+            .levels
+            .iter()
+            .find(|fact| fact.target_level == 8)
+            .unwrap();
+
+        assert!(level8.expected_board_gain.is_some());
+        assert!(level8.confidence.value() <= 0.55);
+        assert!(result
+            .fact_build
+            .diagnostics
+            .level_board_plans
+            .iter()
+            .any(|plan| plan.target_level == 8));
     }
 
     #[test]
