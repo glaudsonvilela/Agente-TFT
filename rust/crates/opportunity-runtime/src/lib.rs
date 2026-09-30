@@ -1,13 +1,20 @@
 use agente_tft_contracts::{DecisionPacket, GameState};
 use agente_tft_decision_core::DecisionConfig;
+use agente_tft_knowledge_core::UnitCatalog;
 use agente_tft_meta_context::MetaSnapshot;
+use agente_tft_opportunity_fact_builder::{
+    FactBuildError, FactBuilderConfig, OpportunityFactBuild,
+    OpportunityFactBuilder,
+};
 use agente_tft_opportunity_engine::{
     OpportunityConfig, OpportunityDelta, OpportunityEngine, OpportunityError,
     OpportunityFacts, OpportunityInput, OpportunityReport, OpportunityTier,
     OpportunityTracker,
 };
 use agente_tft_remote_training_protocol::OpportunitySummary;
+use agente_tft_tft_rules::TftRuleSet;
 use serde::Serialize;
+use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct OpportunityRuntimeConfig {
@@ -100,6 +107,88 @@ impl OpportunityRuntime {
     }
 }
 
+
+#[derive(Debug, Error)]
+pub enum AutomaticOpportunityError {
+    #[error("fact builder error: {0}")]
+    Facts(#[from] FactBuildError),
+    #[error("opportunity engine error: {0}")]
+    Opportunity(#[from] OpportunityError),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct AutomaticOpportunityCycle {
+    pub fact_build: OpportunityFactBuild,
+    pub cycle: OpportunityCycle,
+}
+
+pub struct AutomaticOpportunityRuntime {
+    fact_builder: OpportunityFactBuilder,
+    runtime: OpportunityRuntime,
+}
+
+impl AutomaticOpportunityRuntime {
+    pub fn new(
+        runtime_config: OpportunityRuntimeConfig,
+        fact_builder_config: FactBuilderConfig,
+    ) -> Result<Self, AutomaticOpportunityError> {
+        Ok(Self {
+            fact_builder: OpportunityFactBuilder::new(
+                fact_builder_config,
+            )?,
+            runtime: OpportunityRuntime::new(runtime_config)?,
+        })
+    }
+
+    pub fn evaluate(
+        &mut self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        meta: Option<&MetaSnapshot>,
+        now_ms: u64,
+        extra_facts: Option<&OpportunityFacts>,
+    ) -> Result<AutomaticOpportunityCycle, AutomaticOpportunityError> {
+        let mut fact_build = self
+            .fact_builder
+            .build(state, rules, catalog, now_ms)?;
+
+        if let Some(extra) = extra_facts {
+            extend_facts(&mut fact_build.facts, extra);
+        }
+
+        let cycle = self.runtime.evaluate(
+            state,
+            &fact_build.facts,
+            meta,
+            now_ms,
+        )?;
+
+        Ok(AutomaticOpportunityCycle {
+            fact_build,
+            cycle,
+        })
+    }
+
+    pub fn reset(&mut self) {
+        self.runtime.reset();
+    }
+}
+
+fn extend_facts(
+    destination: &mut OpportunityFacts,
+    extra: &OpportunityFacts,
+) {
+    destination.rolls.extend(extra.rolls.iter().cloned());
+    destination.buys.extend(extra.buys.iter().cloned());
+    destination.levels.extend(extra.levels.iter().cloned());
+    destination.items.extend(extra.items.iter().cloned());
+    destination.positions.extend(extra.positions.iter().cloned());
+    destination.pivots.extend(extra.pivots.iter().cloned());
+    destination.scouts.extend(extra.scouts.iter().cloned());
+    destination.augments.extend(extra.augments.iter().cloned());
+}
+
 fn tier_name(tier: OpportunityTier) -> &'static str {
     match tier {
         OpportunityTier::Micro => "micro",
@@ -156,6 +245,186 @@ mod tests {
             }],
             ..OpportunityFacts::default()
         }
+    }
+
+    fn catalog() -> UnitCatalog {
+        UnitCatalog::from_json_str(
+            &serde_json::json!({
+                "set": {
+                    "key": "TFTSet18",
+                    "number": 18,
+                    "name": "Set 18"
+                },
+                "champions": [
+                    {"api_name": "A", "name": "Alpha", "cost": 4, "traits": []},
+                    {"api_name": "B", "name": "Beta", "cost": 4, "traits": []},
+                    {"api_name": "C", "name": "Gamma", "cost": 4, "traits": []},
+                    {"api_name": "D", "name": "Delta", "cost": 4, "traits": []}
+                ]
+            })
+            .to_string(),
+        )
+        .unwrap()
+    }
+
+    fn rules() -> TftRuleSet {
+        use std::collections::BTreeMap;
+        use agente_tft_tft_math::EconomyRules;
+        use agente_tft_tft_rules::{
+            ShopOdds, RULESET_SCHEMA_VERSION,
+        };
+
+        TftRuleSet {
+            schema_version: RULESET_SCHEMA_VERSION,
+            patch: "18.3b".into(),
+            set: "TFTSet18".into(),
+            shop_slots: 5,
+            roll_cost_gold: 2,
+            economy: EconomyRules::default(),
+            shop_odds_by_level: BTreeMap::from([(
+                7,
+                ShopOdds {
+                    by_cost: [0.19, 0.30, 0.40, 0.10, 0.01],
+                },
+            )]),
+            unit_pool_copies_by_cost: BTreeMap::from([
+                (1, 30),
+                (2, 25),
+                (3, 18),
+                (4, 10),
+                (5, 9),
+            ]),
+            xp_purchase_cost_gold: 4,
+            xp_per_purchase: 4,
+            xp_required_to_next_level: BTreeMap::from([
+                (7, 36),
+                (8, 68),
+            ]),
+            source: Some("fixture".into()),
+            source_hash: None,
+        }
+    }
+
+    fn automatic_state() -> GameState {
+        use agente_tft_contracts::{
+            ShopSlot, UnitInstance,
+        };
+
+        let mut state = state();
+        state.patch = Some("18.3b".into());
+        state.set = Some("TFTSet18".into());
+        state.player.xp = Some(observed(20u16));
+        state.player.board = vec![
+            UnitInstance {
+                instance_id: "A-2".into(),
+                unit_id: "A".into(),
+                stars: 2,
+                position: None,
+                items: vec![],
+            },
+            UnitInstance {
+                instance_id: "B-1".into(),
+                unit_id: "B".into(),
+                stars: 1,
+                position: None,
+                items: vec![],
+            },
+        ];
+        state.player.bench = vec![
+            UnitInstance {
+                instance_id: "B-1b".into(),
+                unit_id: "B".into(),
+                stars: 1,
+                position: None,
+                items: vec![],
+            },
+        ];
+        state.player.shop = vec![
+            Observed {
+                value: ShopSlot {
+                    slot: 0,
+                    unit_id: Some("B".into()),
+                },
+                confidence: Confidence::new(0.95).unwrap(),
+                source: ObservationSource::Simulator,
+                observed_at_ms: 100,
+            },
+        ];
+        state
+    }
+
+    #[test]
+    fn automatic_runtime_builds_buy_roll_level_and_scout() {
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig {
+                roll_budgets_gold: vec![10, 20],
+                include_max_affordable_budget: false,
+                ..FactBuilderConfig::default()
+            },
+        )
+        .unwrap();
+
+        let result = runtime
+            .evaluate(
+                &automatic_state(),
+                &rules(),
+                &catalog(),
+                None,
+                10_000,
+                None,
+            )
+            .unwrap();
+
+        assert!(!result.fact_build.facts.buys.is_empty());
+        assert!(!result.fact_build.facts.rolls.is_empty());
+        assert!(result
+            .fact_build
+            .facts
+            .levels
+            .iter()
+            .any(|fact| fact.target_level == 8));
+        assert!(!result.cycle.report.all.is_empty());
+    }
+
+    #[test]
+    fn automatic_runtime_merges_specialized_facts() {
+        use agente_tft_opportunity_engine::ItemOpportunityFact;
+
+        let mut runtime = AutomaticOpportunityRuntime::new(
+            OpportunityRuntimeConfig::default(),
+            FactBuilderConfig::default(),
+        )
+        .unwrap();
+
+        let extra = OpportunityFacts {
+            items: vec![ItemOpportunityFact {
+                item_id: "ITEM_1".into(),
+                unit_instance_id: "A-2".into(),
+                strength_gain: 0.7,
+                flexibility_cost: 0.1,
+                confidence: Confidence::new(0.90).unwrap(),
+            }],
+            ..OpportunityFacts::default()
+        };
+
+        let result = runtime
+            .evaluate(
+                &automatic_state(),
+                &rules(),
+                &catalog(),
+                None,
+                10_000,
+                Some(&extra),
+            )
+            .unwrap();
+
+        assert!(result
+            .fact_build
+            .facts
+            .items
+            .iter()
+            .any(|fact| fact.item_id == "ITEM_1"));
     }
 
     #[test]
