@@ -46,6 +46,10 @@ use agente_tft_pivot_core::{
     PivotEvaluator,
 };
 use agente_tft_remote_training_protocol::OpportunitySummary;
+use agente_tft_sell_core::{
+    SellDiagnostic,
+    SellEvaluator,
+};
 use agente_tft_tft_rules::TftRuleSet;
 use agente_tft_trait_core::TraitCatalog;
 use serde::{Deserialize, Serialize};
@@ -169,6 +173,35 @@ pub struct MatchupAutomaticOpportunityCycle {
     pub fact_build: OpportunityFactBuild,
     pub cycle: OpportunityCycle,
     pub matchup_opponent_id: String,
+    pub matchup_opponent_found: bool,
+    pub matchup_positioning: Option<MatchupPositioningDiagnostic>,
+}
+
+
+
+#[derive(Debug, Clone, Copy)]
+pub struct CompleteOpportunityRequest<'a> {
+    pub positioning: Option<&'a BoardCoordinateConvention>,
+    pub matchup: Option<ObservedMatchupRequest<'a>>,
+    pub sell_evaluator: Option<&'a SellEvaluator>,
+}
+
+impl<'a> Default for CompleteOpportunityRequest<'a> {
+    fn default() -> Self {
+        Self {
+            positioning: None,
+            matchup: None,
+            sell_evaluator: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct CompleteOpportunityCycle {
+    pub fact_build: OpportunityFactBuild,
+    pub cycle: OpportunityCycle,
+    pub sell_diagnostic: Option<SellDiagnostic>,
+    pub matchup_opponent_id: Option<String>,
     pub matchup_opponent_found: bool,
     pub matchup_positioning: Option<MatchupPositioningDiagnostic>,
 }
@@ -477,6 +510,145 @@ impl AutomaticOpportunityRuntime {
             cycle,
             matchup_opponent_id: matchup.opponent_id.to_string(),
             matchup_opponent_found: opponent_found,
+            matchup_positioning,
+        })
+    }
+
+    pub fn evaluate_complete(
+        &mut self,
+        state: &GameState,
+        rules: &TftRuleSet,
+        catalog: &UnitCatalog,
+        traits: &TraitCatalog,
+        board_strength: &BoardStrengthEngine,
+        request: CompleteOpportunityRequest<'_>,
+        meta: Option<&MetaSnapshot>,
+        now_ms: u64,
+        extra_facts: Option<&OpportunityFacts>,
+    ) -> Result<CompleteOpportunityCycle, AutomaticOpportunityError> {
+        let mut fact_build = self
+            .fact_builder
+            .build_with_board_strength(
+                state,
+                rules,
+                catalog,
+                traits,
+                board_strength,
+                now_ms,
+            )?;
+
+        inject_meta_facts(
+            state,
+            meta,
+            now_ms,
+            &mut fact_build.facts,
+        );
+
+        inject_structural_pivot_facts(
+            state,
+            meta,
+            now_ms,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
+        if let (Some(snapshot), Some(convention)) =
+            (meta, request.positioning)
+        {
+            fact_build.facts.positions.extend(
+                generate_position_opportunity_facts(
+                    state,
+                    snapshot,
+                    convention,
+                    MetaPositionOpportunityPolicy::default(),
+                )?,
+            );
+        }
+
+        if let Some(extra) = extra_facts {
+            extend_facts(&mut fact_build.facts, extra);
+        }
+
+        inject_structural_item_facts(
+            state,
+            catalog,
+            traits,
+            board_strength,
+            &mut fact_build.facts,
+        );
+
+        let sell_diagnostic =
+            request.sell_evaluator.map(|evaluator| {
+                let evaluation =
+                    evaluator.evaluate(state, catalog);
+                fact_build
+                    .facts
+                    .sells
+                    .extend(evaluation.facts);
+                evaluation.diagnostic
+            });
+
+        let mut matchup_opponent_id = None;
+        let mut matchup_opponent_found = false;
+        let mut matchup_positioning = None;
+
+        if let Some(matchup) = request.matchup {
+            matchup_opponent_id =
+                Some(matchup.opponent_id.to_string());
+
+            if let Some(opponent) = state
+                .lobby
+                .iter()
+                .find(|value| {
+                    value.player_id == matchup.opponent_id
+                })
+            {
+                matchup_opponent_found = true;
+
+                if !fact_build.facts.positions.is_empty() {
+                    let evaluator =
+                        MatchupPositioningEvaluator::new(
+                            matchup.config,
+                            matchup.perspective,
+                        )?;
+
+                    let refined =
+                        evaluator.evaluate_position_facts(
+                            &state.player.board,
+                            &opponent.board,
+                            &fact_build.facts.positions,
+                            opponent.confidence,
+                        );
+
+                    fact_build
+                        .facts
+                        .positions
+                        .extend(refined.facts);
+                    matchup_positioning =
+                        Some(refined.diagnostic);
+                }
+            }
+        }
+
+        dedupe_specialized_facts(
+            &mut fact_build.facts,
+        );
+
+        let cycle = self.runtime.evaluate(
+            state,
+            &fact_build.facts,
+            meta,
+            now_ms,
+        )?;
+
+        Ok(CompleteOpportunityCycle {
+            fact_build,
+            cycle,
+            sell_diagnostic,
+            matchup_opponent_id,
+            matchup_opponent_found,
             matchup_positioning,
         })
     }
