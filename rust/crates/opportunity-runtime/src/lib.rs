@@ -4,6 +4,7 @@ use agente_tft_decision_core::DecisionConfig;
 use agente_tft_item_strength::{
     evaluate_item_facts,
     ItemStrengthConfig,
+    ItemStrengthEvaluation,
     ItemStrengthEvaluator,
 };
 use agente_tft_knowledge_core::UnitCatalog;
@@ -43,6 +44,7 @@ use agente_tft_positioning_core::{
 use agente_tft_pivot_core::{
     evaluate_comp_candidates,
     PivotConfig,
+    PivotEvaluation,
     PivotEvaluator,
 };
 use agente_tft_remote_training_protocol::OpportunitySummary;
@@ -200,6 +202,8 @@ impl<'a> Default for CompleteOpportunityRequest<'a> {
 pub struct CompleteOpportunityCycle {
     pub fact_build: OpportunityFactBuild,
     pub cycle: OpportunityCycle,
+    pub item_evaluations: Vec<ItemStrengthEvaluation>,
+    pub pivot_evaluations: Vec<PivotEvaluation>,
     pub sell_diagnostic: Option<SellDiagnostic>,
     pub matchup_opponent_id: Option<String>,
     pub matchup_opponent_found: bool,
@@ -552,7 +556,7 @@ impl AutomaticOpportunityRuntime {
             &mut fact_build.facts,
         );
 
-        inject_structural_pivot_facts(
+        let pivot_evaluations = inject_structural_pivot_facts(
             state,
             meta,
             now_ms,
@@ -579,7 +583,7 @@ impl AutomaticOpportunityRuntime {
             extend_facts(&mut fact_build.facts, extra);
         }
 
-        inject_structural_item_facts(
+        let item_evaluations = inject_structural_item_facts(
             state,
             catalog,
             traits,
@@ -654,6 +658,8 @@ impl AutomaticOpportunityRuntime {
         Ok(CompleteOpportunityCycle {
             fact_build,
             cycle,
+            item_evaluations,
+            pivot_evaluations,
             sell_diagnostic,
             matchup_opponent_id,
             matchup_opponent_found,
@@ -710,15 +716,15 @@ fn inject_structural_item_facts(
     traits: &TraitCatalog,
     board_strength: &BoardStrengthEngine,
     facts: &mut OpportunityFacts,
-) {
+) -> Vec<ItemStrengthEvaluation> {
     if facts.items.is_empty() {
-        return;
+        return Vec::new();
     }
 
     let Ok(evaluator) =
         ItemStrengthEvaluator::new(ItemStrengthConfig::default())
     else {
-        return;
+        return Vec::new();
     };
 
     let refined = evaluate_item_facts(
@@ -732,10 +738,12 @@ fn inject_structural_item_facts(
 
     facts.items.extend(
         refined
-            .into_iter()
+            .iter()
             .filter(|evaluation| evaluation.structural_gain > 0.0)
-            .map(|evaluation| evaluation.fact),
+            .map(|evaluation| evaluation.fact.clone()),
     );
+
+    refined
 }
 
 fn inject_structural_pivot_facts(
@@ -746,9 +754,9 @@ fn inject_structural_pivot_facts(
     traits: &TraitCatalog,
     board_strength: &BoardStrengthEngine,
     facts: &mut OpportunityFacts,
-) {
+) -> Vec<PivotEvaluation> {
     let Some(snapshot) = meta else {
-        return;
+        return Vec::new();
     };
 
     let candidates = generate_comp_transition_candidates(
@@ -759,25 +767,29 @@ fn inject_structural_pivot_facts(
     );
 
     if candidates.is_empty() {
-        return;
+        return Vec::new();
     }
 
     let Ok(evaluator) = PivotEvaluator::new(PivotConfig::default()) else {
-        return;
+        return Vec::new();
     };
 
-    facts.pivots.extend(
-        evaluate_comp_candidates(
-            state,
-            &candidates,
-            catalog,
-            traits,
-            board_strength,
-            &evaluator,
-        )
-        .into_iter()
-        .map(|evaluation| evaluation.fact),
+    let evaluations = evaluate_comp_candidates(
+        state,
+        &candidates,
+        catalog,
+        traits,
+        board_strength,
+        &evaluator,
     );
+
+    facts.pivots.extend(
+        evaluations
+            .iter()
+            .map(|evaluation| evaluation.fact.clone()),
+    );
+
+    evaluations
 }
 
 fn dedupe_specialized_facts(facts: &mut OpportunityFacts) {
