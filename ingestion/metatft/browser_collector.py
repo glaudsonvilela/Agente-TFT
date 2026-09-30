@@ -174,9 +174,18 @@ async def capture_public_page(
                         .map((el, index) => ({
                             index,
                             tag: el.tagName,
-                            text: visibleText(el)
+                            text: visibleText(el),
+                            image_alts: [...new Set(
+                                [...el.querySelectorAll('img[alt]')]
+                                    .map(img => (img.getAttribute('alt') || '').trim())
+                                    .filter(Boolean)
+                            )],
+                            links: [...el.querySelectorAll('a[href]')].map(a => ({
+                                text: visibleText(a),
+                                href: a.href
+                            }))
                         }))
-                        .filter((row) => row.text && row.text.length <= 2000);
+                        .filter((row) => row.text && row.text.length <= 4000);
 
                     const sections = [...document.querySelectorAll('h1,h2,h3')].map((heading, index) => {
                         const level = Number(heading.tagName.substring(1));
