@@ -120,8 +120,8 @@ impl TraitCatalog {
     }
 
     pub fn resolve_id(&self, reference: &str) -> Option<&str> {
-        if self.traits.contains_key(reference) {
-            return Some(reference);
+        if let Some((canonical_id, _)) = self.traits.get_key_value(reference) {
+            return Some(canonical_id.as_str());
         }
 
         self.aliases
