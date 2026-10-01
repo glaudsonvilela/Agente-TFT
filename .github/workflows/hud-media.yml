@@ -4,6 +4,10 @@ on:
     paths:
       - 'rust/**'
       - 'configs/hud/**'
+      - 'configs/player-list/**'
+      - 'training/player_hp_dense.py'
+      - 'training/tests/test_player_hp_dense.py'
+      - 'scripts/probe_match001_player_hp_dense.sh'
       - '.github/workflows/hud-media.yml'
 jobs:
   native-media:
@@ -21,3 +25,10 @@ jobs:
         env:
           TFT_REQUIRE_OCR_SMOKE: '1'
         run: cargo test --manifest-path rust/Cargo.toml -p agente-tft-perception-hud -p agente-tft-ocr-tesseract -p agente-tft-hud-replay-probe -- --nocapture
+      - name: Dense source timestamps and native HP probe integration
+        env:
+          TFT_HP2_REQUIRE_MEDIA: '1'
+          TFT_HP2_PROBE_BIN: ${{ github.workspace }}/rust/target/debug/agente-tft-player-hp-probe
+        run: |
+          cargo build --manifest-path rust/Cargo.toml -p agente-tft-player-hp-probe
+          python3 -m unittest training.tests.test_player_hp_dense -v
