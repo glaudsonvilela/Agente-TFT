@@ -8,7 +8,13 @@ on:
       - 'training/player_hp_dense.py'
       - 'training/tests/test_player_hp_dense.py'
       - 'scripts/probe_match001_player_hp_dense.sh'
+      - 'training/player_hp_text_fit.py'
+      - 'training/tests/test_player_hp_text_fit.py'
+      - 'scripts/probe_match001_player_hp_fit.sh'
       - '.github/workflows/hud-media.yml'
+concurrency:
+  group: hud-media-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   native-media:
     runs-on: ubuntu-latest
@@ -17,9 +23,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Install real media backends
+        timeout-minutes: 4
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg tesseract-ocr tesseract-ocr-eng
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install --no-install-recommends -y ffmpeg tesseract-ocr tesseract-ocr-eng
           tesseract --list-langs
       - name: Native preparation, OCR process and sparse seek tests
         env:
@@ -32,3 +39,12 @@ jobs:
         run: |
           cargo build --manifest-path rust/Cargo.toml -p agente-tft-player-hp-probe
           python3 -m unittest training.tests.test_player_hp_dense -v
+      - name: Paired text fitting with native HP1 and candidate
+        env:
+          TFT_REQUIRE_HP3_NATIVE: '1'
+          TFT_HP3_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-player-hp-fit-probe
+          OMP_THREAD_LIMIT: '1'
+        run: |
+          cargo test --manifest-path rust/Cargo.toml -p agente-tft-player-hp-fit-probe -- --nocapture
+          cargo build --manifest-path rust/Cargo.toml -p agente-tft-player-hp-fit-probe
+          python3 -m unittest training.tests.test_player_hp_text_fit -v
