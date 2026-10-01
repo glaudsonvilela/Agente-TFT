@@ -243,7 +243,6 @@ pub struct PerceptionHealthSnapshot {
 
 #[derive(Debug, Clone, Copy)]
 struct Point {
-    at_ms: u64,
     outcome: PerceptionOutcome,
 }
 
@@ -328,7 +327,6 @@ impl PerceptionHealthMonitor {
             tracker.last_accepted_ms = Some(sample.observed_at_ms);
         }
         tracker.points.push_back(Point {
-            at_ms: sample.observed_at_ms,
             outcome: sample.outcome,
         });
         while tracker.points.len() > self.policy.window_capacity {
