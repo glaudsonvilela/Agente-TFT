@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "match001-bench-presence-v1",
+  "parent_profile_id": "match001-board-bench-v1",
+  "parent_blob_sha1": "5e7990522ce90d4e7e3f815fc66ca80423b4422f",
+  "surface_anchors": [
+    {"x":460,"y":820,"width":70,"height":14},
+    {"x":875,"y":820,"width":70,"height":14},
+    {"x":1245,"y":820,"width":70,"height":14}
+  ],
+  "body_top": 712, "body_width": 101, "body_height": 106,
+  "marker_top": 670, "marker_bottom": 738, "marker_center_tolerance": 42,
+  "support_top": 766,
+  "max_color_offset": 40,
+  "surface_min_correlation": 0.90, "surface_max_residual_mae": 6.0,
+  "surface_max_changed_fraction": 0.05,
+  "empty_min_correlation": 0.98, "empty_max_residual_mae": 4.0,
+  "empty_max_changed_fraction": 0.01,
+  "residual_threshold": 32,
+  "min_component_pixels": 120, "min_component_width": 10, "min_component_height": 24,
+  "max_component_fraction": 0.70, "max_components": 512,
+  "note": "B2 visual hypotheses only. Fixed topology and per-arena UI reference; no roster or target unit count. Bounded additive color normalization is not a learned template. No temporal confirmation, ownership, combat phase or board ground-point inference."
+}

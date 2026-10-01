@@ -27,6 +27,9 @@ on:
       - 'training/board_spatial*.py'
       - 'training/tests/test_board_spatial*.py'
       - 'scripts/probe_match001_board_bench.sh'
+      - 'training/bench_presence*.py'
+      - 'training/tests/test_bench_presence*.py'
+      - 'scripts/probe_match001_bench_presence.sh'
       - 'training/player_hp_dense.py'
       - 'training/tests/test_player_hp_dense.py'
       - 'scripts/probe_match001_player_hp_dense.sh'
@@ -124,3 +127,4 @@ jobs:
           cargo test --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe -- --nocapture
           cargo build --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe
           python3 -m unittest training.tests.test_board_spatial training.tests.test_board_spatial_native -v
+          python3 -m unittest training.tests.test_bench_presence training.tests.test_bench_presence_native -v
