@@ -1,4 +1,4 @@
-"""S3 validates controls without treating appearance as permission or a label."""
+"""S3/S5 validates controls without treating appearance as permission or a label."""
 from __future__ import annotations
 
 import argparse
@@ -18,14 +18,19 @@ def number(value: object, low: float, high: float) -> bool:
     return type(value) in (int, float) and math.isfinite(value) and low <= value <= high
 
 
-
 def f32(value: float) -> float:
     """Policy numbers are f32 in Rust; keep comparison boundaries identical."""
     return struct.unpack('!f', struct.pack('!f', float(value)))[0]
 
 
-def validate_controls(report: dict, profile: dict) -> dict:
+def validate_controls(report: dict, profile: dict, numbers_policy: dict | None = None) -> dict:
     """Recompute aggregates and acceptance from native traces; no expected labels."""
+    if numbers_policy is not None:
+        require(report['summary'].get('controls_numeric_mode') == 'isolated_field_v1'
+                and report['summary'].get('control_numbers_policy') == numbers_policy['id'],
+                'isolated numeric mode/identity mismatch')
+    else:
+        require('control_numbers_policy' not in report.get('summary', {}), 'numeric policy required for isolated report')
     specs = profile['controls']
     require([s['id'] for s in specs] == ['lock', 'buy_xp', 'refresh'], 'bad control order')
     status_counts = {s['id']: Counter() for s in specs}
@@ -69,12 +74,21 @@ def validate_controls(report: dict, profile: dict) -> dict:
             for rect_key, suffix in [('price_rect', 'price'), ('free_count_rect', 'free_count')]:
                 if spec[rect_key] is not None:
                     enabled = expected_status == 'observed' and (suffix == 'price' or state == 'free_refresh_appearance')
-                    expected_fields.append((f"{spec['id']}_{suffix}", spec[rect_key], enabled))
+                    field_id = f"{spec['id']}_{suffix}"
+                    rect = spec[rect_key]
+                    if enabled and numbers_policy is not None:
+                        from training.shop_numbers_policy import selected_rect
+                        rect = selected_rect(numbers_policy, field_id, state)
+                    expected_fields.append((field_id, rect, enabled))
         fields = result['numeric_fields']
         require(len(fields) == len(expected_fields), 'missing/extra control numeric field')
-        expected_calls = 2 if any(e[2] for e in expected_fields) else 0
+        expected_calls = (2 * sum(e[2] for e in expected_fields) if numbers_policy is not None
+                          else 2 if any(e[2] for e in expected_fields) else 0)
         require(type(result['ocr_process_calls']) is int and result['ocr_process_calls'] == expected_calls,
                 'unexpected controls OCR budget')
+        if numbers_policy is not None:
+            require([t['scale'] for t in result['routing']] == [s for e in expected_fields if e[2] for s in (3,4)],
+                    'isolated routing calls/order mismatch')
         calls += expected_calls
         for field, (field_id, rect, enabled) in zip(fields, expected_fields):
             require(field['id'] == field_id and field['rect'] == rect, 'numeric field identity mismatch')
