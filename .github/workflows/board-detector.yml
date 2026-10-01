@@ -1,0 +1,55 @@
+name: Board detector pretrained
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/board-detector.yml'
+      - 'training/board_detector*.py'
+      - 'training/tests/test_board_detector*.py'
+      - 'training/requirements-board-detector.txt'
+      - 'configs/vision/board-open-vocabulary-v1.json'
+      - 'scripts/*board_detector.sh'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/board-detector.yml'
+      - 'training/board_detector*.py'
+      - 'training/tests/test_board_detector*.py'
+      - 'training/requirements-board-detector.txt'
+      - 'configs/vision/board-open-vocabulary-v1.json'
+      - 'scripts/*board_detector.sh'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pretrained-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Real decoder
+        run: |
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 install --no-install-recommends -y ffmpeg
+      - name: Isolated CPU dependencies used by the user command
+        run: bash scripts/setup_board_detector.sh
+      - name: Native B1 executable and all spatial tests
+        run: |
+          cargo test --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe
+          cargo build --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe
+      - name: Actual pretrained weights and complete frozen B1 comparison
+        env:
+          TFT_REQUIRE_BOARD3_NATIVE: '1'
+          TFT_BOARD3_B1_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-board-replay-probe
+          TFT_BOARD3_MODEL_CACHE: ${{ github.workspace }}/telemetry/data/board3-models
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          HF_HUB_DISABLE_IMPLICIT_TOKEN: '1'
+          HF_HUB_DISABLE_XET: '1'
+          TOKENIZERS_PARALLELISM: 'false'
+        run: |
+          telemetry/data/board3-runtime/venv/bin/python -m unittest training.tests.test_board_detector training.tests.test_board_detector_native -v
+      - name: Whole-tree structural review
+        run: python -m training.code_health_audit --root . --output /tmp/board3-code-review.json

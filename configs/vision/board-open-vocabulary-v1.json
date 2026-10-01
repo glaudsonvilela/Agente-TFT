@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "board-open-vocabulary-v1",
+  "model_id": "IDEA-Research/grounding-dino-tiny",
+  "model_revision": "c254d1f282bf348ab7f5a27d5cf90531eeba69be",
+  "weights_sha256": "1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3",
+  "prompt": "a video game character. a creature. a game piece.",
+  "box_threshold": 0.30,
+  "text_threshold": 0.25,
+  "nms_iou": 0.50,
+  "max_detections": 128,
+  "max_raw_detections": 900,
+  "shortest_edge": 800,
+  "longest_edge": 1333,
+  "cpu_threads": 4,
+  "device": "cpu",
+  "association_note": "Rectangle overlap is only spatial co-occurrence, never ground position or occupancy truth."
+}
