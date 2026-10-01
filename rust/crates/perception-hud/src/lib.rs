@@ -135,7 +135,7 @@ pub fn parse_candidate(candidate: OcrCandidate) -> Result<HudObservationBatch, H
             ));
         }
         HudField::Xp => {
-            let value = parse_u16_bounded(&candidate.text, 0, 999)?;
+            let value = parse_xp_current(&candidate.text)?;
             batch.xp = Some(observed(
                 value,
                 candidate.confidence,
@@ -204,6 +204,43 @@ pub fn parse_stage(raw: &str) -> Result<String, HudParseError> {
     }
 
     Ok(format!("{stage}-{round}"))
+}
+
+pub fn parse_xp_current(raw: &str) -> Result<u16, HudParseError> {
+    let cleaned = normalize_text(raw)?;
+    let compact: String = cleaned
+        .chars()
+        .filter(|ch| !ch.is_whitespace())
+        .collect();
+
+    if compact.is_empty() {
+        return Err(HudParseError::Empty);
+    }
+
+    if let Some((current, max)) = compact.split_once('/') {
+        if current.is_empty()
+            || max.is_empty()
+            || !current.chars().all(|ch| ch.is_ascii_digit())
+            || !max.chars().all(|ch| ch.is_ascii_digit())
+        {
+            return Err(HudParseError::InvalidCharacters);
+        }
+
+        let current: u16 = current
+            .parse()
+            .map_err(|_| HudParseError::InvalidNumber)?;
+        let max: u16 = max
+            .parse()
+            .map_err(|_| HudParseError::InvalidNumber)?;
+
+        if max == 0 || current > max || max > 999 {
+            return Err(HudParseError::OutOfRange);
+        }
+
+        return Ok(current);
+    }
+
+    parse_u16_bounded(&compact, 0, 999)
 }
 
 pub fn parse_u16_bounded(raw: &str, min: u16, max: u16) -> Result<u16, HudParseError> {
@@ -471,6 +508,22 @@ mod tests {
             parse_candidate(candidate(HudField::Gold, "5O", 0.99)).unwrap_err(),
             HudParseError::InvalidCharacters
         );
+    }
+
+    #[test]
+    fn parses_xp_current_from_fraction_display() {
+        let batch = parse_candidate(candidate(HudField::Xp, "12/40", 0.98)).unwrap();
+        assert_eq!(batch.xp.unwrap().value, 12);
+
+        let zero = parse_candidate(candidate(HudField::Xp, "0/10", 0.98)).unwrap();
+        assert_eq!(zero.xp.unwrap().value, 0);
+    }
+
+    #[test]
+    fn xp_fraction_rejects_impossible_values() {
+        assert_eq!(parse_xp_current("41/40").unwrap_err(), HudParseError::OutOfRange);
+        assert_eq!(parse_xp_current("4/a").unwrap_err(), HudParseError::InvalidCharacters);
+        assert_eq!(parse_xp_current("4/0").unwrap_err(), HudParseError::OutOfRange);
     }
 
     #[test]
