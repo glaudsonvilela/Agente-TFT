@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "name": "match001-v4-stage-recovery",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "candidates": [
+    {
+      "name": "standard",
+      "rect": {
+        "x": 0.3990234375,
+        "y": 0.00474537037037037,
+        "width": 0.018619791666666666,
+        "height": 0.022916666666666665
+      }
+    },
+    {
+      "name": "initial",
+      "rect": {
+        "x": 0.4302734375,
+        "y": 0.00474537037037037,
+        "width": 0.018619791666666666,
+        "height": 0.022916666666666665
+      }
+    }
+  ]
+}
