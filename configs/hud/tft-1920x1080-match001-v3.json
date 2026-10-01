@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "name": "tft-1920x1080-match001-v3",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "regions": [
+    {
+      "field": "stage",
+      "rect": {
+        "x": 0.3990234375,
+        "y": 0.00474537037037037,
+        "width": 0.018619791666666666,
+        "height": 0.022916666666666665
+      }
+    },
+    {
+      "field": "gold",
+      "rect": {
+        "x": 0.5313151041666667,
+        "y": 0.8195601851851851,
+        "width": 0.017057291666666665,
+        "height": 0.022916666666666665
+      },
+      "policy": {
+        "attempts": [
+          {"upscale_factor": 3, "invert": true},
+          {"upscale_factor": 4, "invert": true},
+          {"upscale_factor": 5, "invert": true}
+        ],
+        "min_confidence": 0.7,
+        "ambiguity_margin": 0.03,
+        "image_mode": "neutral_gray_bilinear",
+        "page_segmentation": 7,
+        "require_xp_fraction": false
+      }
+    },
+    {
+      "field": "level",
+      "rect": {
+        "x": 0.20319010416666666,
+        "y": 0.8177083333333334,
+        "width": 0.011328125,
+        "height": 0.02199074074074074
+      },
+      "policy": {
+        "attempts": [
+          {"upscale_factor": 3, "invert": true},
+          {"upscale_factor": 4, "invert": true},
+          {"upscale_factor": 5, "invert": true}
+        ],
+        "min_confidence": 0.7,
+        "ambiguity_margin": 0.03,
+        "image_mode": "gray_bilinear",
+        "page_segmentation": 7,
+        "require_xp_fraction": false
+      }
+    },
+    {
+      "field": "xp",
+      "rect": {
+        "x": 0.2427734375,
+        "y": 0.8186342592592593,
+        "width": 0.025390625,
+        "height": 0.018287037037037036
+      },
+      "policy": {
+        "attempts": [
+          {"upscale_factor": 3, "invert": true},
+          {"upscale_factor": 4, "invert": true},
+          {"upscale_factor": 5, "invert": true}
+        ],
+        "min_confidence": 0.7,
+        "ambiguity_margin": 0.03,
+        "image_mode": "gray_bilinear",
+        "page_segmentation": 7,
+        "require_xp_fraction": true
+      }
+    }
+  ]
+}

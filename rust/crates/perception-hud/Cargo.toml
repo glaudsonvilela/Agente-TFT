@@ -13,3 +13,4 @@ agente-tft-image-preprocess = { path = "../image-preprocess" }
 
 [dev-dependencies]
 agente-tft-perception-core = { path = "../perception-core" }
+serde_json.workspace = true

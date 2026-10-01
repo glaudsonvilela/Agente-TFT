@@ -59,12 +59,25 @@ fn whitelist_for(field: HudField) -> &'static str {
     }
 }
 
+fn page_segmentation_for(field: HudField, override_psm: Option<u8>) -> Result<u8, String> {
+    let psm = override_psm.unwrap_or(if field == HudField::Stage { 7 } else { 8 });
+    if !matches!(psm, 6 | 7 | 8 | 10 | 13) { return Err("unsupported HUD PSM".into()); }
+    Ok(psm)
+}
+
 impl HudOcrEngine for TesseractOcr {
     fn recognize(
         &mut self,
         field: HudField,
         image: &GrayImage,
     ) -> Result<Option<RecognizedText>, String> {
+        self.recognize_with_psm(field, image, None)
+    }
+
+    fn recognize_with_psm(
+        &mut self, field: HudField, image: &GrayImage, override_psm: Option<u8>,
+    ) -> Result<Option<RecognizedText>, String> {
+        let psm = page_segmentation_for(field, override_psm)?;
         image
             .validate()
             .map_err(|e| format!("invalid OCR image: {e}"))?;
@@ -72,16 +85,11 @@ impl HudOcrEngine for TesseractOcr {
         let pgm = encode_pgm(image)?;
         let whitelist = whitelist_for(field);
 
-        let psm = match field {
-            HudField::Stage => "7",
-            HudField::Gold | HudField::Hp | HudField::Level | HudField::Xp => "8",
-        };
-
         let mut child = Command::new(&self.config.binary)
             .arg("stdin")
             .arg("stdout")
             .arg("--psm")
-            .arg(psm)
+            .arg(psm.to_string())
             .arg("-l")
             .arg(&self.config.language)
             .arg("-c")
@@ -248,5 +256,25 @@ mod tests {
     #[test]
     fn default_binary_is_tesseract() {
         assert_eq!(TesseractConfig::default().binary, "tesseract");
+    }
+}
+
+#[cfg(test)]
+mod profile_tests {
+    use super::*;
+    #[test] fn legacy_psm_and_explicit_line_mode_are_distinct() {
+        assert_eq!(page_segmentation_for(HudField::Stage,None).unwrap(),7);
+        assert_eq!(page_segmentation_for(HudField::Xp,None).unwrap(),8);
+        assert_eq!(page_segmentation_for(HudField::Xp,Some(7)).unwrap(),7);
+        assert!(page_segmentation_for(HudField::Gold,Some(255)).is_err());
+    }
+    #[test] fn real_tesseract_blank_line_smoke() {
+        let mut engine=TesseractOcr::default();
+        if !engine.available() {
+            assert!(std::env::var_os("HUD_REQUIRE_MEDIA_TOOLS").is_none(),"required Tesseract missing");
+            eprintln!("SKIP: Tesseract not installed"); return;
+        }
+        let image=GrayImage { width:120,height:70,stride_bytes:120,pixels:vec![255;8400] };
+        assert!(engine.recognize_with_psm(HudField::Xp,&image,Some(7)).unwrap().is_none());
     }
 }

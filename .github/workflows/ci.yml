@@ -12,14 +12,18 @@ concurrency:
 jobs:
   rust-core:
     runs-on: ubuntu-latest
+    env:
+      HUD_REQUIRE_MEDIA_TOOLS: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Report optional media tools
+      - name: Install media tools for real smoke tests
         run: |
-          command -v ffmpeg >/dev/null && ffmpeg -version | head -n 1 || echo "ffmpeg: unavailable (smoke test will skip)"
-          command -v ffprobe >/dev/null && ffprobe -version | head -n 1 || echo "ffprobe: unavailable (smoke test will skip)"
-          command -v tesseract >/dev/null && tesseract --version | head -n 1 || echo "tesseract: unavailable (unit tests do not require binary)"
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg tesseract-ocr tesseract-ocr-eng
+          ffmpeg -version
+          ffprobe -version
+          tesseract --list-langs
       - name: Test Rust workspace
         run: cargo test --manifest-path rust/Cargo.toml
 

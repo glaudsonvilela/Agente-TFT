@@ -77,6 +77,7 @@ impl HudLayout {
                 )));
             }
 
+            region.policy.validate().map_err(HudRuntimeError::InvalidLayout)?;
             if !region.policy.min_confidence.is_finite()
                 || !(0.0..=1.0).contains(&region.policy.min_confidence)
             {
@@ -238,6 +239,7 @@ mod tests {
                     }],
                     min_confidence: 0.7,
                     ambiguity_margin: 0.03,
+                    ..HudReadPolicy::default()
                 },
             }],
         }

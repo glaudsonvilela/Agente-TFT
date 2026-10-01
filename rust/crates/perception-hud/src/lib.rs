@@ -1,3 +1,6 @@
+pub mod small_text;
+pub use small_text::HudImageMode;
+
 use serde::{Deserialize, Serialize};
 use agente_tft_capture_core::RoiFrame;
 use agente_tft_contracts::{Confidence, ObservationSource, Observed};
@@ -65,6 +68,14 @@ pub trait HudOcrEngine {
         field: HudField,
         image: &GrayImage,
     ) -> Result<Option<RecognizedText>, String>;
+
+    /// Backends must explicitly support an override; never silently ignore it.
+    fn recognize_with_psm(
+        &mut self, field: HudField, image: &GrayImage, psm: Option<u8>,
+    ) -> Result<Option<RecognizedText>, String> {
+        if psm.is_some() { return Err("OCR backend does not support explicit PSM".into()); }
+        self.recognize(field, image)
+    }
 }
 
 pub fn read_roi_with_ocr(
@@ -312,6 +323,13 @@ pub struct HudReadPolicy {
     /// If two different valid values have almost the same confidence,
     /// suppress the read instead of choosing arbitrarily.
     pub ambiguity_margin: f32,
+    #[serde(default)]
+    pub image_mode: HudImageMode,
+    #[serde(default)]
+    pub page_segmentation: Option<u8>,
+    /// Fraction HUDs must not turn a lost slash (12/36 -> 1236) into XP.
+    #[serde(default)]
+    pub require_xp_fraction: bool,
 }
 
 impl Default for HudReadPolicy {
@@ -333,7 +351,23 @@ impl Default for HudReadPolicy {
             ],
             min_confidence: 0.70,
             ambiguity_margin: 0.03,
+            image_mode: HudImageMode::LegacyBinary,
+            page_segmentation: None,
+            require_xp_fraction: false,
         }
+    }
+}
+
+impl HudReadPolicy {
+    pub fn validate(&self) -> Result<(), String> {
+        if !self.min_confidence.is_finite() || !(0.0..=1.0).contains(&self.min_confidence)
+            || !self.ambiguity_margin.is_finite() || !(0.0..=1.0).contains(&self.ambiguity_margin)
+            || self.attempts.len() > 8
+            || self.attempts.iter().any(|a| !(1..=8).contains(&a.upscale_factor))
+            || self.page_segmentation.is_some_and(|p| !matches!(p, 6 | 7 | 8 | 10 | 13)) {
+            return Err("invalid or unbounded HUD OCR policy".into());
+        }
+        Ok(())
     }
 }
 
@@ -360,6 +394,7 @@ pub fn read_roi_robust(
     roi: &RoiFrame,
     policy: &HudReadPolicy,
 ) -> Result<Option<RobustHudRead>, HudReadError> {
+    policy.validate().map_err(HudReadError::Preprocess)?;
     let min_confidence = if policy.min_confidence.is_finite() {
         policy.min_confidence.clamp(0.0, 1.0)
     } else {
@@ -381,10 +416,10 @@ pub fn read_roi_robust(
     let mut recognizer_errors = Vec::<String>::new();
 
     for config in attempts.iter().copied() {
-        let image = preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
+        let image = small_text::prepare(roi, config, policy.image_mode)
             .map_err(|e| HudReadError::Preprocess(e.to_string()))?;
 
-        let recognized = match engine.recognize(field, &image) {
+        let recognized = match engine.recognize_with_psm(field, &image, policy.page_segmentation) {
             Ok(value) => value,
             Err(error) => {
                 recognizer_errors.push(error);
@@ -397,6 +432,9 @@ pub fn read_roi_robust(
         };
 
         if recognized.confidence.value() < min_confidence {
+            continue;
+        }
+        if field == HudField::Xp && policy.require_xp_fraction && !recognized.text.contains('/') {
             continue;
         }
 
@@ -435,7 +473,9 @@ pub fn read_roi_robust(
     });
 
     let winner = &valid[0];
-    if let Some(runner_up) = valid.get(1) {
+    // Repeated agreeing attempts must not hide a third conflicting value.
+    if let Some(runner_up) = valid.iter().skip(1).find(|a|
+        semantic_fingerprint(&a.batch) != semantic_fingerprint(&winner.batch)) {
         let confidence_gap = winner.confidence.value() - runner_up.confidence.value();
         if semantic_fingerprint(&winner.batch) != semantic_fingerprint(&runner_up.batch)
             && confidence_gap <= ambiguity_margin

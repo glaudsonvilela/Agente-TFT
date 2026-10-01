@@ -76,6 +76,7 @@ fn policy() -> HudReadPolicy {
         ],
         min_confidence: 0.70,
         ambiguity_margin: 0.03,
+        ..HudReadPolicy::default()
     }
 }
 
