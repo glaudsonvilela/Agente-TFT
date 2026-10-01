@@ -662,6 +662,13 @@ impl RollbackGuard {
         if window.profile_id != self.activation.promoted_profile_id {
             return Err(PromotionError::PromotedProfileMismatch);
         }
+        if window.health.stream.subsystem
+            != self.activation.baseline_health.stream.subsystem
+            || window.health.stream.field
+                != self.activation.baseline_health.stream.field
+        {
+            return Err(PromotionError::StreamMismatch);
+        }
         if !window.anchor_similarity_p50.is_finite()
             || !(-1.0..=1.0).contains(&window.anchor_similarity_p50)
         {
@@ -681,7 +688,8 @@ impl RollbackGuard {
         }
 
         let reasons = rollback_reasons(&self.policy, &self.activation, &window);
-        let not_ready = reasons == [RollbackReason::InsufficientSamples];
+        let not_ready = reasons.len() == 1
+            && reasons[0] == RollbackReason::InsufficientSamples;
         let bad = !reasons.is_empty() && !not_ready;
 
         if bad {
