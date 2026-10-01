@@ -1,0 +1,13 @@
+[package]
+name = "agente-tft-player-hp-probe"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../../crates/capture-core" }
+agente-tft-contracts = { path = "../../crates/contracts" }
+agente-tft-perception-player-list = { path = "../../crates/perception-player-list" }
+agente-tft-perception-health = { path = "../../crates/perception-health" }
+agente-tft-ocr-tesseract = { path = "../../crates/ocr-tesseract" }
+serde_json.workspace = true

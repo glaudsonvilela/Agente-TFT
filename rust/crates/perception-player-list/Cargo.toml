@@ -1,0 +1,15 @@
+[package]
+name = "agente-tft-perception-player-list"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../capture-core" }
+agente-tft-perception-hud = { path = "../perception-hud" }
+serde.workspace = true
+
+[dev-dependencies]
+agente-tft-contracts = { path = "../contracts" }
+agente-tft-image-preprocess = { path = "../image-preprocess" }
+serde_json.workspace = true
