@@ -1,3 +1,6 @@
+pub mod promotion;
+pub use promotion::*;
+
 use agente_tft_capture_core::{extract_roi, FrameEnvelope, NormalizedRect};
 use agente_tft_image_preprocess::to_luma;
 use agente_tft_perception_health::{
