@@ -9,7 +9,7 @@
     {"x":1245,"y":820,"width":70,"height":14}
   ],
   "body_top": 712, "body_width": 101, "body_height": 106,
-  "marker_top": 670, "marker_bottom": 738, "marker_center_tolerance": 42,
+  "marker_top": 670, "marker_bottom": 736, "marker_center_tolerance": 42,
   "support_top": 766,
   "max_color_offset": 40,
   "surface_min_correlation": 0.90, "surface_max_residual_mae": 6.0,
