@@ -1,0 +1,19 @@
+{
+  "schema_version":1,
+  "id":"match001-shop-isolated-numbers-v1",
+  "controls_profile_id":"match001-shop-controls-v2",
+  "fields":[
+    {"id":"buy_xp_price","control_id":"buy_xp","regions":[
+      {"appearance":"active_appearance","rect":{"x":387,"y":967,"width":18,"height":21}},
+      {"appearance":"dimmed_appearance","rect":{"x":387,"y":967,"width":18,"height":21}}
+    ]},
+    {"id":"refresh_price","control_id":"refresh","regions":[
+      {"appearance":"active_appearance","rect":{"x":387,"y":1043,"width":18,"height":23}},
+      {"appearance":"dimmed_appearance","rect":{"x":387,"y":1043,"width":18,"height":23}},
+      {"appearance":"free_refresh_appearance","rect":{"x":379,"y":1040,"width":25,"height":27}}
+    ]},
+    {"id":"refresh_free_count","control_id":"refresh","regions":[
+      {"appearance":"free_refresh_appearance","rect":{"x":465,"y":1012,"width":19,"height":20}}
+    ]}
+  ]
+}
