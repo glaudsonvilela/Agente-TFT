@@ -6,6 +6,9 @@ use std::{
 
 use agente_tft_contracts::{DecisionPacket, GameEvent, GameState, Recommendation};
 use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
+use agente_tft_perception_adaptation::{
+    ActivationRecord, PromotionDecision, RoiSearchReport, RollbackDecision,
+};
 use agente_tft_perception_health::PerceptionHealthSnapshot;
 use agente_tft_opportunity_runtime::{CompleteOpportunityCycle, OpportunityCycle};
 use agente_tft_pattern_engine::EvaluatorFeedbackEngine;
@@ -57,6 +60,18 @@ pub enum TelemetryPayload {
     },
     PerceptionHealthSnapshot {
         snapshot: PerceptionHealthSnapshot,
+    },
+    PerceptionRoiSearch {
+        report: RoiSearchReport,
+    },
+    PerceptionPromotionDecision {
+        decision: PromotionDecision,
+    },
+    PerceptionActivation {
+        activation: ActivationRecord,
+    },
+    PerceptionRollbackDecision {
+        decision: RollbackDecision,
     },
     Decision {
         decision: DecisionPacket,
