@@ -3,9 +3,13 @@ use std::{
     process::{Command, Stdio},
 };
 
+use agente_tft_capture_core::RoiFrame;
 use agente_tft_contracts::Confidence;
-use agente_tft_image_preprocess::GrayImage;
-use agente_tft_perception_hud::{HudField, HudOcrEngine, RecognizedText};
+use agente_tft_image_preprocess::{preprocess_for_numeric_ocr, GrayImage};
+use agente_tft_perception_hud::{
+    parse_xp_current, HudField, HudOcrEngine, HudPreprocessConfig, HudReadError, RecognizedText,
+};
+mod numeric_gray;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TesseractConfig {
@@ -24,11 +28,39 @@ impl Default for TesseractConfig {
 
 pub struct TesseractOcr {
     config: TesseractConfig,
+    numeric_gray: bool,
 }
 
 impl TesseractOcr {
     pub fn new(config: TesseractConfig) -> Self {
-        Self { config }
+        Self { config, numeric_gray: false }
+    }
+
+    /// Diagnostic opt-in. Default/legacy backends and stage/HP stay unchanged.
+    pub fn with_numeric_gray(mut self) -> Self {
+        self.numeric_gray = true;
+        self
+    }
+
+    fn uses_gray(&self, field: HudField) -> bool {
+        self.numeric_gray && matches!(field, HudField::Gold | HudField::Level | HudField::Xp)
+    }
+
+    pub fn profile_for(&self, field: HudField) -> &'static str {
+        if !self.uses_gray(field) { "legacy_binary" }
+        else if field == HudField::Gold { "numeric_gray_gold_v3" }
+        else { "numeric_gray_line_v3" }
+    }
+
+    fn psm_for(&self, field: HudField) -> &'static str {
+        if field == HudField::Stage || self.uses_gray(field) { "7" } else { "8" }
+    }
+
+    fn accept_text(&self, field: HudField, text: &str) -> bool {
+        // This opt-in profile reads the WHOLE XP fraction. A dropped slash must
+        // not turn 0/10 into the plausible but wrong integer 10.
+        !self.uses_gray(field) || field != HudField::Xp
+            || (text.contains('/') && parse_xp_current(text).is_ok())
     }
 
     pub fn available(&self) -> bool {
@@ -60,6 +92,20 @@ fn whitelist_for(field: HudField) -> &'static str {
 }
 
 impl HudOcrEngine for TesseractOcr {
+    fn prepare_roi(
+        &self,
+        field: HudField,
+        roi: &RoiFrame,
+        config: HudPreprocessConfig,
+    ) -> Result<GrayImage, HudReadError> {
+        if self.uses_gray(field) {
+            numeric_gray::prepare(field, roi, config)
+        } else {
+            preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
+                .map_err(|e| HudReadError::Preprocess(e.to_string()))
+        }
+    }
+
     fn recognize(
         &mut self,
         field: HudField,
@@ -71,11 +117,7 @@ impl HudOcrEngine for TesseractOcr {
 
         let pgm = encode_pgm(image)?;
         let whitelist = whitelist_for(field);
-
-        let psm = match field {
-            HudField::Stage => "7",
-            HudField::Gold | HudField::Hp | HudField::Level | HudField::Xp => "8",
-        };
+        let psm = self.psm_for(field);
 
         let mut child = Command::new(&self.config.binary)
             .arg("stdin")
@@ -119,7 +161,8 @@ impl HudOcrEngine for TesseractOcr {
         let tsv = String::from_utf8(output.stdout)
             .map_err(|e| format!("tesseract TSV was not UTF-8: {e}"))?;
 
-        parse_tsv(&tsv)
+        let recognized = parse_tsv(&tsv)?;
+        Ok(recognized.filter(|r| self.accept_text(field, &r.text)))
     }
 }
 
@@ -249,4 +292,37 @@ mod tests {
     fn default_binary_is_tesseract() {
         assert_eq!(TesseractConfig::default().binary, "tesseract");
     }
+
+    #[test]
+    fn gray_profile_is_opt_in_and_stage_hp_stay_legacy() {
+        let old=TesseractOcr::default(); let new=TesseractOcr::default().with_numeric_gray();
+        for field in [HudField::Gold,HudField::Level,HudField::Xp] {
+            assert_eq!(old.psm_for(field),"8"); assert_eq!(old.profile_for(field),"legacy_binary");
+            assert_eq!(new.psm_for(field),"7"); assert!(new.uses_gray(field));
+        }
+        for field in [HudField::Stage,HudField::Hp] {
+            assert_eq!(new.psm_for(field),old.psm_for(field)); assert!(!new.uses_gray(field));
+        }
+    }
+
+    #[test]
+    fn full_fraction_profile_rejects_missing_or_invalid_slash() {
+        let new=TesseractOcr::default().with_numeric_gray();
+        for text in ["010","10","0/0","0/10/20","20/10"] { assert!(!new.accept_text(HudField::Xp,text)); }
+        for text in ["0/10","20/68"," 6 / 10 "] { assert!(new.accept_text(HudField::Xp,text)); }
+        assert!(TesseractOcr::default().accept_text(HudField::Xp,"10"));
+    }
+    #[test]
+    fn real_tesseract_blank_smoke_when_available() {
+        let mut engine=TesseractOcr::default().with_numeric_gray();
+        if !engine.available() {
+            assert!(std::env::var_os("TFT_REQUIRE_OCR_SMOKE").is_none(), "required tesseract missing");
+            eprintln!("SKIP real Tesseract smoke: binary unavailable");
+            return;
+        }
+        let blank=GrayImage { width:80,height:40,stride_bytes:80,pixels:vec![255;3200] };
+        assert!(engine.recognize(HudField::Xp,&blank).unwrap().is_none());
+        eprintln!("REAL_TESSERACT_BLANK_SMOKE=PASS (not numeric accuracy)");
+    }
+
 }
