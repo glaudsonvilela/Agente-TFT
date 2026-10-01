@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "standard-shop-five-v1",
+  "mode": "standard_desktop",
+  "slot_indices": [0, 1, 2, 3, 4],
+  "meaning": "logical slot order, not champion identity or pixel coordinates",
+  "set_specific": false,
+  "unexpected_topology": "unsupported; do not silently reuse"
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "recording_id": "match-001",
+  "layout_id": "match001-desktop-1920x1080-ptbr-v1",
+  "locale": "pt_br",
+  "set_key": null,
+  "tft_patch": null,
+  "knowledge_release": null,
+  "version_basis": "not supplied; never infer replay patch from current date or latest"
+}

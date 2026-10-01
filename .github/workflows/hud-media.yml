@@ -5,6 +5,13 @@ on:
       - 'rust/**'
       - 'configs/hud/**'
       - 'configs/player-list/**'
+      - 'configs/ui/**'
+      - 'configs/topology/**'
+      - 'configs/contexts/**'
+      - 'ingestion/knowledge_release.py'
+      - 'training/shop_replay_observe.py'
+      - 'training/tests/test_shop_replay*.py'
+      - 'scripts/probe_match001_shop.sh'
       - 'training/player_hp_dense.py'
       - 'training/tests/test_player_hp_dense.py'
       - 'scripts/probe_match001_player_hp_dense.sh'
@@ -67,3 +74,11 @@ jobs:
           TFT_A16_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-player-hp-fit-probe
           OMP_THREAD_LIMIT: '1'
         run: python3 -m unittest training.tests.test_perception_worker training.tests.test_perception_worker_process training.tests.test_perception_worker_native -v
+      - name: Shop atlas and empty versus unknown with native OCR
+        env:
+          TFT_REQUIRE_SHOP1_NATIVE: '1'
+          TFT_SHOP1_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-shop-replay-probe
+          OMP_THREAD_LIMIT: '1'
+        run: |
+          cargo build --manifest-path rust/Cargo.toml -p agente-tft-shop-replay-probe
+          python3 -m unittest training.tests.test_shop_replay_native -v

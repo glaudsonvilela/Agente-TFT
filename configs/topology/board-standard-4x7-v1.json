@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "board-standard-4x7-v1",
+  "mode": "standard_desktop",
+  "rows_per_side": 4,
+  "columns": 7,
+  "set_specific": false,
+  "pixel_projection": null,
+  "detector_validated": false,
+  "note": "logical reference only; projection belongs to UI/resolution/arena profile; no champion list or measured Match001 cell centers here"
+}

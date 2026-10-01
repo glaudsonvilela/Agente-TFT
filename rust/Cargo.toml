@@ -1,5 +1,20 @@
 [workspace]
-members = ["crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine", "crates/perception-core", "crates/perception-health", "crates/perception-adaptation", "crates/perception-player-list", "crates/state-fusion", "crates/perception-hud", "crates/hud-runtime", "crates/visual-match", "crates/perception-shop", "crates/shop-runtime", "crates/perception-board", "crates/lobby-analysis", "crates/strategy-analysis", "crates/remote-training-protocol", "crates/shadow-player", "crates/pattern-engine", "crates/knowledge-core", "crates/trait-core", "crates/synergy-core", "crates/board-strength", "crates/item-strength", "crates/sell-core", "crates/pivot-core", "crates/positioning-core", "crates/matchup-positioning", "crates/meta-context", "crates/meta-hints", "crates/opportunity-engine", "crates/opportunity-fact-builder", "crates/opportunity-runtime", "crates/image-preprocess", "crates/ocr-tesseract", "crates/riot-api", "crates/tft-math", "crates/tft-rules", "crates/telemetry-core", "crates/decision-core", "apps/replay-inspect", "apps/roi-replay-inspect", "apps/hud-replay-inspect", "apps/riot-api-inspect", "apps/opportunity-inspect", "apps/calibration-inspect", "apps/weight-replay-diff", "apps/hud-replay-probe", "apps/player-hp-probe", "apps/player-hp-fit-probe"]
+members = [
+  "crates/contracts", "crates/capture-core", "crates/capture-replay", "crates/state-engine",
+  "crates/perception-core", "crates/perception-health", "crates/perception-adaptation",
+  "crates/perception-player-list", "crates/state-fusion", "crates/perception-hud", "crates/hud-runtime",
+  "crates/visual-match", "crates/perception-shop", "crates/shop-runtime", "crates/perception-board",
+  "crates/lobby-analysis", "crates/strategy-analysis", "crates/remote-training-protocol", "crates/shadow-player",
+  "crates/pattern-engine", "crates/knowledge-core", "crates/trait-core", "crates/synergy-core",
+  "crates/board-strength", "crates/item-strength", "crates/sell-core", "crates/pivot-core",
+  "crates/positioning-core", "crates/matchup-positioning", "crates/meta-context", "crates/meta-hints",
+  "crates/opportunity-engine", "crates/opportunity-fact-builder", "crates/opportunity-runtime",
+  "crates/image-preprocess", "crates/ocr-tesseract", "crates/riot-api", "crates/tft-math",
+  "crates/tft-rules", "crates/telemetry-core", "crates/decision-core",
+  "apps/replay-inspect", "apps/roi-replay-inspect", "apps/hud-replay-inspect", "apps/riot-api-inspect",
+  "apps/opportunity-inspect", "apps/calibration-inspect", "apps/weight-replay-diff", "apps/hud-replay-probe",
+  "apps/player-hp-probe", "apps/player-hp-fit-probe", "apps/shop-replay-probe",
+]
 resolver = "2"
 
 [workspace.package]
