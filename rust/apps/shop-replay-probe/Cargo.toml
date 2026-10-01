@@ -10,6 +10,5 @@ agente-tft-image-preprocess = { path = "../../crates/image-preprocess" }
 agente-tft-visual-match = { path = "../../crates/visual-match" }
 agente-tft-perception-hud = { path = "../../crates/perception-hud" }
 agente-tft-ocr-tesseract = { path = "../../crates/ocr-tesseract" }
-agente-tft-knowledge-core = { path = "../../crates/knowledge-core" }
 serde.workspace = true
 serde_json.workspace = true

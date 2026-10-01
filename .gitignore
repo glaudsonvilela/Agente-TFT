@@ -41,6 +41,7 @@ knowledge/database/
 knowledge/raw/
 knowledge/assets/
 knowledge/meta/
+knowledge/releases/
 *.sqlite
 *.sqlite3
 *.db
