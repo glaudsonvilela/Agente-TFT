@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "match001-shop-controls-v2",
+  "parent_id": "match001-shop-controls-v1",
+  "parent_git_blob": "0fab15188bc96ef629c2984f365047f89e93a472",
+  "rectangles": [
+    {"control":"refresh","field":"price_rect","rect":{"x":379,"y":1040,"width":25,"height":27}},
+    {"control":"refresh","field":"free_count_rect","rect":{"x":465,"y":1012,"width":19,"height":20}}
+  ],
+  "additional_templates": [
+    {"control":"refresh","state":"free_refresh_appearance","image":"frames/0006_000250000ms.jpg","sha256":"828336ef0406f9b26bc2934b0a47421f6064de8d9077bc895598ce435db2afbd"},
+    {"control":"refresh","state":"free_refresh_appearance","image":"frames/0007_000300000ms.jpg","sha256":"ff483d8aba3313eaf3a93ecc501e53d11052e7770466d6f6adf86539c55472e5"}
+  ]
+}
