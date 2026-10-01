@@ -52,7 +52,7 @@ pub fn normalize(text: &str) -> String {
     text.split_whitespace().collect::<Vec<_>>().join(" ").to_lowercase()
 }
 
-fn attempt(words: &[TextWord], tile: Tile, scale: u8, threshold: f32, ambiguous: bool) -> Attempt {
+pub(crate) fn attempt(words: &[TextWord], tile: Tile, scale: u8, threshold: f32, ambiguous: bool) -> Attempt {
     if ambiguous {
         return Attempt { scale, text: None, confidence: None, reason: "atlas_assignment_conflict".into() };
     }
@@ -75,7 +75,7 @@ fn attempt(words: &[TextWord], tile: Tile, scale: u8, threshold: f32, ambiguous:
         reason: if !valid { "invalid_text" } else if confidence < threshold { "below_min_confidence" } else { "eligible" }.into() }
 }
 
-fn agree(attempts: &[Attempt]) -> (Option<String>, Option<f32>) {
+pub(crate) fn agree(attempts: &[Attempt]) -> (Option<String>, Option<f32>) {
     if attempts.len() != 2 || attempts.iter().any(|v| v.reason != "eligible") { return (None, None); }
     let (Some(x), Some(y)) = (&attempts[0].text, &attempts[1].text) else { return (None, None); };
     if normalize(x) != normalize(y) { return (None, None); }
