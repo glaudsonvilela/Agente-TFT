@@ -1,5 +1,6 @@
 mod media;
 mod probe;
+mod recovery;
 
 use std::{env, fs, io::Write, path::{Path, PathBuf}, process::ExitCode};
 use agente_tft_hud_runtime::HudLayout;
@@ -7,7 +8,7 @@ use agente_tft_ocr_tesseract::TesseractOcr;
 use serde_json::{json, Value};
 use probe::{LabelKind, Plan};
 
-const USAGE: &str = "Usage: agente-tft-hud-replay-probe <video> <hud-layout.json> <labels.json> [--prelabels] [--numeric-gray] [--image-root <annotation-directory>] [--output <NEW-report.json>]\nOnly labeled timestamps are decoded; no full replay scan. --prelabels reports agreement, NEVER ground-truth accuracy. --image-root reads the existing image paths relative to that directory; video then identifies the source only.";
+const USAGE: &str = "Usage: agente-tft-hud-replay-probe <video> <hud-layout.json> <labels.json> [--prelabels] [--numeric-gray] [--stage-recovery <candidates.json>] [--image-root <annotation-directory>] [--output <NEW-report.json>]\nOnly labeled timestamps are decoded; no full replay scan. --prelabels reports agreement, NEVER ground-truth accuracy. --image-root reads existing images. --stage-recovery requires --numeric-gray and adds bounded stage-only recovery and attempt traces.";
 
 fn main() -> ExitCode {
     match run() {
@@ -33,9 +34,11 @@ fn run() -> Result<bool, String> {
     let mut image_root = None;
     let mut output_path = None;
     let mut numeric_gray = false;
+    let mut recovery_path = None;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--numeric-gray" if !numeric_gray => numeric_gray = true,
+            "--stage-recovery" if recovery_path.is_none() => recovery_path = Some(PathBuf::from(args.next().ok_or("missing --stage-recovery value")?)),
             "--prelabels" if kind == LabelKind::Annotations => kind = LabelKind::Prelabels,
             "--image-root" if image_root.is_none() => image_root = Some(PathBuf::from(args.next().ok_or("missing --image-root value")?)),
             "--output" if output_path.is_none() => output_path = Some(PathBuf::from(args.next().ok_or("missing --output value")?)),
@@ -44,6 +47,8 @@ fn run() -> Result<bool, String> {
     }
     let layout: HudLayout = serde_json::from_value(read_json(&layout_path)?).map_err(|e| e.to_string())?;
     probe::validate_layout(&layout)?;
+    if recovery_path.is_some() && !numeric_gray { return Err("--stage-recovery requires --numeric-gray".into()); }
+    let recovery = recovery_path.as_ref().map(|p| read_json(p).and_then(|v| recovery::Config::parse(v, &layout))).transpose()?;
     let plan = Plan::parse(&read_json(&labels_path)?, kind, &video)?;
     let image_root = image_root.map(|p| p.canonicalize().map_err(|e| format!("image root: {e}"))).transpose()?;
     if image_root.is_none() && !video.is_file() { return Err(format!("video not found: {}", video.display())); }
@@ -54,6 +59,7 @@ fn run() -> Result<bool, String> {
     }
     let mut engine = TesseractOcr::default();
     if numeric_gray { engine = engine.with_numeric_gray(); }
+    let mut gray_recovery = TesseractOcr::default().with_numeric_gray();
     if !engine.available() { return Err("tesseract is unavailable; install it before probing".into()); }
     // Reserve exclusively: never overwrite labels, an earlier report, or another input.
     let mut output = match &output_path {
@@ -74,18 +80,21 @@ fn run() -> Result<bool, String> {
         });
         for expected in &sample.expected {
             let mut record = match &decoded {
-                Ok(frame) => probe::evaluate(&mut engine, &layout, frame, sample.timestamp_ms, expected, kind),
+                Ok(frame) => match &recovery {
+                    Some(config) => recovery::evaluate(&mut engine, &mut gray_recovery, config, &layout, frame, sample.timestamp_ms, expected, kind),
+                    None => probe::evaluate(&mut engine, &layout, frame, sample.timestamp_ms, expected, kind),
+                },
                 Err(error) => probe::failure(sample.timestamp_ms, expected, kind, "decode_error", error),
             };
-            record["ocr_profile"] = json!(engine.profile_for(expected.field));
+            if record.get("ocr_profile").is_none() { record["ocr_profile"] = json!(engine.profile_for(expected.field)); }
             println!("{record}");
             records.push(record);
         }
     }
     let complete = records.iter().all(|r| r["error"].is_null());
-    let summary = json!({
+    let mut summary = json!({
         "type": "summary", "schema_version": 1,
-        "ocr_profile": if numeric_gray { "numeric_gray_v3" } else { "legacy_v2" },
+        "ocr_profile": if recovery.is_some() { "numeric_gray_v3_stage_recovery_v4" } else if numeric_gray { "numeric_gray_v3" } else { "legacy_v2" },
         "label_kind": kind.name(), "metric_kind": kind.metric_name(),
         "promotion_gate": "not_evaluated_diagnostic_only", "execution_complete": complete,
         "source_video": plan.source_video, "video_argument": video,
@@ -98,6 +107,11 @@ fn run() -> Result<bool, String> {
         "frames_skipped_without_hud_labels": plan.frames_in_labels-plan.samples.len(),
         "records": records.len(), "fields": probe::summarize(&records, kind)
     });
+    if let Some(config) = &recovery {
+        summary["stage_recovery"] = config.source.clone();
+        summary["stage_recovery_path"] = json!(recovery_path);
+        summary["stage_recovered"] = json!(records.iter().filter(|r| r["recovery_applied"] == true).count());
+    }
     if let Some(file) = output.as_mut() {
         serde_json::to_writer_pretty(&mut *file, &json!({"summary":summary, "records":records})).map_err(|e| e.to_string())?;
         file.write_all(b"\n").map_err(|e| e.to_string())?;
