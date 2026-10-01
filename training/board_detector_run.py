@@ -74,7 +74,6 @@ def run(args):
     out = args.output.absolute()
     require(not out.exists(), 'B3 output exists; no overwrite')
     out.mkdir(parents=True, exist_ok=False)
-    # Freeze before loading/inference: no candidate output can change the plan or prompts.
     (out/'manifest.json').write_bytes(canonical(manifest))
     (out/'detector-policy.json').write_bytes(canonical(policy))
     try:
@@ -129,16 +128,18 @@ def run(args):
         write_viewer(out/'viewer.html', records, args.image_root.resolve())
         verify_sources(sources)
         (out/'report.json').write_bytes(canonical(report))
-        (out/'COMPLETE.json').write_bytes(canonical({name: sha(out/name) for name in
-            ['report.json', 'events.jsonl', 'manifest.json', 'detector-policy.json', 'model.json', 'regression.json', 'viewer.html']}))
         (out/'comparison.txt').write_text('BOARD3_REGRESSION='+json.dumps(reg)+'\nBOARD3_SUMMARY='+json.dumps(summary, ensure_ascii=False)+'\n', encoding='utf-8')
+        (out/'COMPLETE.json').write_bytes(canonical({name: sha(out/name) for name in
+            ['report.json', 'events.jsonl', 'manifest.json', 'detector-policy.json', 'model.json',
+             'regression.json', 'viewer.html', 'comparison.txt']}))
         print('BOARD3_SUMMARY='+json.dumps(summary, ensure_ascii=False), flush=True)
         print('BOARD3_REPORT='+str(out/'report.json'), flush=True)
         print('BOARD3_VIEWER='+str(out/'viewer.html'), flush=True)
         return report
     except BaseException as exc:
-        (out/'FAILED.json').write_bytes(canonical(dict(execution_complete=False, error=str(exc),
-            exception=type(exc).__name__, game_state_updated=False, profile_promoted=False)))
+        if not (out/'COMPLETE.json').exists():
+            (out/'FAILED.json').write_bytes(canonical(dict(execution_complete=False, error=str(exc),
+                exception=type(exc).__name__, game_state_updated=False, profile_promoted=False)))
         raise
 
 

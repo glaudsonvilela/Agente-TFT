@@ -6,7 +6,7 @@ O usuário solicitou testar o detector visual em conjunto com a referência B1 e
 
 ## Detector real, não outro nome para as heurísticas B1
 
-Grounding DINO tiny, `IDEA-Research/grounding-dino-tiny`, revisão imutável `478dad0f5e1ad32707ddb2216e4a96a821277167`. Pesos Safetensors SHA-256 `1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3`, aproximadamente 689 MB. Fonte do autor, modelo de detecção de vocabulário aberto; a model card indica Apache-2.0. Não é um modelo ajustado/validado para TFT.
+Grounding DINO tiny, `IDEA-Research/grounding-dino-tiny`, revisão imutável `c254d1f282bf348ab7f5a27d5cf90531eeba69be`. Pesos Safetensors SHA-256 `1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3`, aproximadamente 689 MB. Fonte do autor, modelo de detecção de vocabulário aberto; a model card indica Apache-2.0. Não é um modelo ajustado/validado para TFT.
 
 Prompt congelado: `a video game character. a creature. a game piece.`. Um forward por imagem sobre o mesmo `scan_rect` B1; a área inclui banco e tabuleiro. Não depende de B1 encontrar barras ou corresponder à arena. Não consulta prelabels, campeão esperado, item, HP, timestamps ou contagens para escolher respostas. Sem busca retrospectiva de prompts/limiares, sem treinamento e sem substituição automática da referência.
 
@@ -44,6 +44,10 @@ Saída exclusiva `telemetry/data/match-001-board-b3.XXXXXXXX/run/`:
 
 Imagens/pré-labels não saem do computador. O modelo não é retreinado na execução. Tesseract continua no projeto para texto, mas NÃO é executado novamente: o teste atual compara duas fontes de presença, não dois reconhecedores de texto. Loja/HP permanecem inalterados.
 
+## Compatibilidade da configuração do modelo
+
+O primeiro teste com pesos reais encontrou `grounding-dino-text-prenet` na configuração antiga (revisão `478dad0`). A revisão oficial `c254d1f282bf348ab7f5a27d5cf90531eeba69be` corrige a configuração para BERT compatível. O pin foi atualizado para essa revisão do autor, mantendo o mesmo SHA-256 dos pesos. Nenhuma conversão silenciosa de arquitetura, tensor ausente inicializado ao acaso ou relaxamento dos checks de carregamento.
+
 ## Revisão e testes
 
 24 testes de contratos Python rodam sem modelos/downloads: pin, prompt, limiares, caixas inválidas, NMS, orçamento, ausência diferente de vazio, sobreposição diferente de identidade, comparação integral B1, agregados e nenhuma promoção. A revisão semântica cobre os arquivos novos e integrações; a revisão estrutural existente roda na árvore inteira. Os 22 apontamentos históricos não são declarados resolvidos.
@@ -58,7 +62,7 @@ A ideia do usuário foi preservada como etapa futura: projeção do plano do tab
 
 ## Referências técnicas
 
-- Autor/modelo: https://huggingface.co/IDEA-Research/grounding-dino-tiny/tree/478dad0f5e1ad32707ddb2216e4a96a821277167
-- Pesos/checksum: https://huggingface.co/IDEA-Research/grounding-dino-tiny/blob/478dad0f5e1ad32707ddb2216e4a96a821277167/model.safetensors
+- Autor/modelo: https://huggingface.co/IDEA-Research/grounding-dino-tiny/tree/c254d1f282bf348ab7f5a27d5cf90531eeba69be
+- Pesos/checksum: https://huggingface.co/IDEA-Research/grounding-dino-tiny/blob/c254d1f282bf348ab7f5a27d5cf90531eeba69be/model.safetensors
 - API Transformers: https://huggingface.co/docs/transformers/v4.57.1/model_doc/grounding-dino
 - PyTorch CPU: https://pytorch.org/get-started/previous-versions/

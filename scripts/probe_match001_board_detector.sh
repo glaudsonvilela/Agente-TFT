@@ -26,6 +26,10 @@ if p.is_file():
     available=next(int(x.split()[1])*1024 for x in p.read_text().splitlines() if x.startswith('MemAvailable:'))
     if available<3*1024**3: raise SystemExit('B3 precisa de pelo menos 3 GiB de memória disponível; feche outros programas.')
 PY
+# One run holds the environment lock through setup and inference.
+mkdir -p "$ROOT/telemetry/data/board3-runtime"
+exec 8>"$ROOT/telemetry/data/board3-runtime/run.lock"
+flock -n 8 || { echo 'B3 já está em execução; nenhuma segunda inferência foi iniciada.' >&2; exit 2; }
 # Dependency and model downloads have a time bound and remain outside production.
 timeout --signal=TERM --kill-after=10s 1800 bash scripts/setup_board_detector.sh 2>&1 | tee "$OUT/setup.log"
 PYTHON="$ROOT/telemetry/data/board3-runtime/venv/bin/python"
@@ -36,8 +40,6 @@ git rev-parse HEAD >> "$OUT/environment.txt"
 "$PYTHON" -m training.code_health_audit --root "$ROOT" --output "$OUT/code-review.json"
 "$PYTHON" -m unittest training.tests.test_board_detector -v > "$OUT/contracts.log" 2>&1
 export HF_HUB_DISABLE_TELEMETRY=1 HF_HUB_DISABLE_IMPLICIT_TOKEN=1 HF_HUB_DISABLE_XET=1 TOKENIZERS_PARALLELISM=false
-exec 8>"$ROOT/telemetry/data/board3-runtime/run.lock"
-flock -n 8 || { echo 'B3 já está em execução; nenhuma segunda inferência foi iniciada.' >&2; exit 2; }
 set +e
 timeout --signal=TERM --kill-after=15s 3600 "$PYTHON" -u -m training.board_detector_run "${ARGS[@]}" 2>&1 | tee "$OUT/console.log"
 RC=${PIPESTATUS[0]}

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "board-open-vocabulary-v1",
   "model_id": "IDEA-Research/grounding-dino-tiny",
-  "model_revision": "478dad0f5e1ad32707ddb2216e4a96a821277167",
+  "model_revision": "c254d1f282bf348ab7f5a27d5cf90531eeba69be",
   "weights_sha256": "1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3",
   "prompt": "a video game character. a creature. a game piece.",
   "box_threshold": 0.30,

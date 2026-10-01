@@ -112,6 +112,8 @@ class GroundedPresence:
             threshold=p['box_threshold'], text_threshold=p['text_threshold'],
             target_sizes=[(crop.height, crop.width)])[0]
         labels = result.get('text_labels', result.get('labels'))
+        require(labels is not None and len(result['boxes']) == len(result['scores']) == len(labels),
+                'model output has mismatched boxes/scores/phrases')
         raw = [dict(box=b.tolist(), score=s.item(), label=str(label)) for b, s, label in
                zip(result['boxes'], result['scores'], labels)]
         model = detections(raw, roi, p)

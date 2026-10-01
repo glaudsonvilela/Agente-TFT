@@ -3,7 +3,7 @@ from collections import Counter
 import math
 
 MODEL_ID = 'IDEA-Research/grounding-dino-tiny'
-MODEL_REVISION = '478dad0f5e1ad32707ddb2216e4a96a821277167'
+MODEL_REVISION = 'c254d1f282bf348ab7f5a27d5cf90531eeba69be'
 WEIGHTS_SHA256 = '1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3'
 
 
