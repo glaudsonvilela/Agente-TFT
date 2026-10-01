@@ -10,10 +10,12 @@ import fcntl
 import os
 from pathlib import Path
 import shutil
+import sqlite3
 import stat
+import subprocess
 import time
 
-from training.perception_registry import canonical, context_key, digest, profile_key, require
+from training.perception_registry import context_key, digest, profile_key, require
 from training.perception_coordinator import Coordinator, scheduling_signal
 from training.perception_work_source import load, publish, sha256, sync_dir, verify_source
 from training.perception_worker_process import execute_native
@@ -109,21 +111,23 @@ class Worker:
                     and body['state'] in {'completed','failed','interrupted'}, 'corrupt worker result; no retry')
             if body['state']=='completed':
                 require(sha256(folder/'report.json')==body['report_sha256'], 'completed result changed')
-                require(body['registry_evidence_id'] in self.c.registry.inspect()['snapshot']['reviews'],
-                        'result registry receipt missing')
-            return self._finish(key,body,folder)
+                review=self.c.registry.inspect()['snapshot']['reviews'].get(body['registry_evidence_id'])
+                require(review is not None and review['evidence'].get('request_id')==key
+                    and review['evidence'].get('report_sha256')==body['report_sha256'],
+                    'result registry receipt missing/mismatched')
+            return dict(self._finish(key,body,folder),result_reconciled=True)
         # The inherited process lock ensures the old supervisor has released its
         # execution before recovery reaches here. Do not trust an unsealed report.
         body=dict(request_id=key,state='interrupted',reason='unsealed_prior_attempt_no_automatic_retry',
-                  native_probe_executed=None,ocr_executed=None,profile_promoted=False,
-                  game_state_updated=False,model_trained=False)
-        return self._finish(key,body,folder)
+                  native_probe_executed=None,ocr_executed=None,native_dispatch_attempted=False,
+                  profile_promoted=False,game_state_updated=False,model_trained=False)
+        return dict(self._finish(key,body,folder),result_reconciled=True)
 
     def _execute(self,key: str,decision: dict,task: dict) -> dict:
         folder=self.attempts/key
         if folder.exists() or folder.is_symlink(): return self._resume(key,folder)
         folder.mkdir(mode=0o700);sync_dir(self.attempts)
-        launched=False
+        dispatched=False;native_returned=False
         try:
             publish(folder/'CLAIM.json',dict(policy=POLICY,request_id=key,decision_sha256=digest(decision),
                 claimed_at_ms=now_ms(),note='claim precedes spawn; no automatic retry after interruption'))
@@ -143,9 +147,10 @@ class Worker:
             # permission recorded when A15 reserved the work.
             self._permission(decision,task)
             require(self.c.inspect()['intents'][key]['status']=='reserved', 'reservation already acknowledged')
-            launched=True
+            dispatched=True
             execute_native(folder/'probe',folder/'manifest.json',Path(source['image_root']),
                 folder/'profile.json',folder/'report.json',folder,self.fd)
+            native_returned=True
             from training.player_hp_candidate_audit import review_batch
             report=load(folder/'report.json')
             metrics,cases=review_batch(dict(id=key,kind='a16_diagnostic_worker',frames=source['frames']),report)
@@ -169,13 +174,15 @@ class Worker:
             # A concurrent blocker added during execution cannot be cleared by
             # import_review; it is sticky and reported in the durable receipt.
             body=dict(request_id=key,state='completed',reason='validated_native_diagnostic',
-                native_probe_executed=True,ocr_executed=any(r[side]['attempts'] for r in report['records'] for side in ('baseline','candidate')),
+                native_probe_executed=True,native_dispatch_attempted=True,
+                ocr_executed=any(r[side]['attempts'] for r in report['records'] for side in ('baseline','candidate')),
                 report_sha256=sha256(folder/'report.json'),registry_evidence_id=receipt['evidence_id'],
                 registry_receipt=receipt,metrics=metrics,risks=dict(risks),profile_promoted=False,
                 game_state_updated=False,model_trained=False)
-        except (ValueError,OSError,KeyError,TypeError,RuntimeError) as exc:
+        except (ValueError,OSError,KeyError,TypeError,RuntimeError,sqlite3.Error,subprocess.SubprocessError) as exc:
             body=dict(request_id=key,state='failed',reason=str(exc)[:1000],
-                native_probe_executed=launched,ocr_executed=None if launched else False,
+                native_probe_executed=True if native_returned else None if dispatched else False,
+                native_dispatch_attempted=dispatched,ocr_executed=None if dispatched else False,
                 profile_promoted=False,game_state_updated=False,model_trained=False)
         return self._finish(key,body,folder)
 
@@ -188,14 +195,19 @@ class Worker:
         # Deliberately at most one reservation per explicit pump, never a daemon.
         for key,task in pending[:1]: results.append(self._execute(key,state['decisions'][key],task))
         after=self.c.inspect();reg=self.c.registry.inspect()
+        fresh=[r for r in results if not r.get('result_reconciled',False)]
+        def activity(name):
+            if any(r[name] is True for r in fresh):return True
+            return None if any(r[name] is None for r in fresh) else False
         return dict(schema_version=1,policy=POLICY,pending_before=len(pending),jobs_processed=len(results),
             pending_after=sum(t['status']=='reserved' for t in after['intents'].values()),
             outcomes=dict(Counter(r['state'] for r in results)),results=results,
-            native_probe_executed=any(r['native_probe_executed'] is True for r in results),
-            ocr_executed=False if not results else (None if any(r['ocr_executed'] is None for r in results) else any(r['ocr_executed'] for r in results)),
+            results_reconciled=sum(r.get('result_reconciled',False) for r in results),
+            native_dispatch_attempts=sum(r['native_dispatch_attempted'] for r in fresh),
+            native_probe_executed=activity('native_probe_executed'),ocr_executed=activity('ocr_executed'),
             ledger_revision_before=state['revision'],ledger_revision_after=after['revision'],
             registry_revision_before=before['revision'],registry_revision_after=reg['revision'],
             registry_unchanged=before==reg,coordinator_unchanged=state==after,
             blocked_profiles=sum(bool(p['blocks']) for p in reg['snapshot']['profiles'].values()),
             activation_allowed=False,profile_promoted=False,game_state_updated=False,model_trained=False,
-            continuous_capture_connected=False,note='worker connected to A15; empty queue never fabricates work')
+            continuous_capture_connected=False,note='worker connected to A15; execution flags refer to this pump, not reconciled history')
