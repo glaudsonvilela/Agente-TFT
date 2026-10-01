@@ -3,11 +3,13 @@
 mod media;
 mod layout;
 mod screen;
+mod recovery;
 
 use std::{collections::{BTreeMap,HashSet},env,fs,io::Write,path::{Path,PathBuf},process::ExitCode,time::Instant};
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
 use serde_json::{json,Value};
 use layout::ScreenLayout;
+use recovery::RecoveryProfile;
 
 fn load(path:&Path)->Result<Value,String> {
     if fs::metadata(path).map_err(|e|e.to_string())?.len()>16*1024*1024 {return Err("JSON budget exceeded".into());}
@@ -15,7 +17,9 @@ fn load(path:&Path)->Result<Value,String> {
 }
 fn run()->Result<bool,String> {
     let args:Vec<_>=env::args().skip(1).collect();
-    if args.len()!=4 {return Err("Usage: shop-replay-probe <manifest.json> <image-root> <ui-layout.json> <NEW-report.json>".into());}
+    if args.len()!=4 && args.len()!=5 {
+        return Err("Usage: shop-replay-probe <manifest.json> <image-root> <ui-layout.json> <NEW-report.json> [recovery-profile.json]".into());
+    }
     let root=PathBuf::from(&args[1]).canonicalize().map_err(|e|e.to_string())?;
     let manifest=load(Path::new(&args[0]))?;
     let rows=manifest["frames"].as_array().ok_or("manifest frames missing")?;
@@ -30,6 +34,10 @@ fn run()->Result<bool,String> {
     }
     let layout:ScreenLayout=serde_json::from_value(load(Path::new(&args[2]))?).map_err(|e|e.to_string())?;
     layout.validate()?;
+    let recovery: Option<RecoveryProfile> = args.get(4).map(|path| {
+        serde_json::from_value(load(Path::new(path))?).map_err(|e| e.to_string())
+    }).transpose()?;
+    if let Some(profile) = &recovery { profile.validate(&layout)?; }
     let language=env::var("TFT_SHOP_OCR_LANGUAGE").unwrap_or_else(|_|"eng".into());
     if language.is_empty() || language.len()>40 || !language.chars().all(|c|c.is_ascii_alphanumeric()||c=='_'||c=='+') {
         return Err("invalid OCR language".into());
@@ -40,9 +48,9 @@ fn run()->Result<bool,String> {
     let mut records=Vec::new();let mut errors=0;let mut calls=0u64;let mut panels=BTreeMap::<String,usize>::new();
     let mut statuses=BTreeMap::<String,usize>::new();let mut times=Vec::<f64>::new();
     for (i,(at,path)) in plan.iter().enumerate() {
-        eprintln!("SHOP1_FRAME={}/{} timestamp_ms={at}",i+1,plan.len());
+        eprintln!("SHOP_FRAME={}/{} timestamp_ms={at}",i+1,plan.len());
         let start=Instant::now();
-        let result=media::decode(path,None,*at).and_then(|frame|screen::perceive(&frame,&layout,&engine));
+        let result=media::decode(path,None,*at).and_then(|frame|screen::perceive(&frame,&layout,&engine,recovery.as_ref()));
         match result {
             Ok(read)=>{
                 errors+=usize::from(read.error.is_some());calls+=read.ocr_process_calls as u64;
@@ -58,7 +66,8 @@ fn run()->Result<bool,String> {
     times.sort_by(f64::total_cmp);
     let p50=times.get(times.len()/2).copied();
     let p95=times.get(times.len().saturating_sub(1)*95/100).copied();
-    let summary=json!({"schema_version":1,"profile":"shop_text_atlas_v1","frames":plan.len(),
+    let profile = if recovery.is_some() { "shop_text_atlas_v2_local_routing" } else { "shop_text_atlas_v1" };
+    let summary=json!({"schema_version":1,"profile":profile,"frames":plan.len(),
         "slots_per_frame":5,"panel_statuses":panels,"slot_statuses":statuses,"errors":errors,
         "ocr_process_calls":calls,"frame_ms_p50":p50,"frame_ms_p95":p95,"ocr_language":language,
         "layout_id":layout.id,"locale":layout.locale,"set_key":null,"tft_patch":null,
@@ -72,4 +81,4 @@ fn run()->Result<bool,String> {
     file.write_all(b"\n").map_err(|e|e.to_string())?;file.sync_all().map_err(|e|e.to_string())?;
     println!("{summary}");Ok(errors==0)
 }
-fn main()->ExitCode {match run(){Ok(true)=>ExitCode::SUCCESS,Ok(false)=>ExitCode::from(2),Err(e)=>{eprintln!("SHOP1_ERROR={e}");ExitCode::FAILURE}}}
+fn main()->ExitCode {match run(){Ok(true)=>ExitCode::SUCCESS,Ok(false)=>ExitCode::from(2),Err(e)=>{eprintln!("SHOP_ERROR={e}");ExitCode::FAILURE}}}

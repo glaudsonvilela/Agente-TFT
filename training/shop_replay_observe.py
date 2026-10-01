@@ -1,7 +1,7 @@
-"""S1: paired-scale shop observations with independent UI and seasonal bindings.
+"""Shop observations with independent UI and seasonal bindings.
 
 Reads local images. No prelabels, latest catalog, inferred season, GameState,
-worker queue or active profile mutation. The native process has a finite budget.
+worker queue or active profile mutation. S2 is an explicit recovery-profile opt-in.
 """
 from __future__ import annotations
 
@@ -49,17 +49,11 @@ def prepare(manifest: Path, image_root: Path) -> dict:
         result.append(dict(timestamp_ms=at, image=image, sha256=sha(path)))
         paths.add(path)
         last = at
-    # Suggestions, expected values and patch claims never enter the native input.
     return dict(frames=result, labels_used=False)
 
 
 def freeze_binding(context_path: Path, release_dir: Path, layout: dict) -> tuple[dict, str, dict]:
-    """Validate an explicit seasonal binding before any expensive OCR work.
-
-    An optional content pin distinguishes hotfixes with the same public patch.
-    Even without that pin, the supplied release path and bytes are frozen for
-    this invocation. No automatic latest-version selection takes place.
-    """
+    """Validate an explicit seasonal binding before any expensive OCR work."""
     folder = release_dir.resolve(strict=True)
     context_path = context_path.resolve(strict=True)
     context, context_hash = load(context_path)
@@ -67,9 +61,7 @@ def freeze_binding(context_path: Path, release_dir: Path, layout: dict) -> tuple
     release_id = manifest['release_sha256']
     require(context.get('knowledge_release') in (None, release_id),
             'recording release content pin mismatch')
-    # Reuse the same compatibility validator as the final lookup; no predictions.
-    probe = dict(summary=dict(locale=layout['locale'], layout_id=layout['id'], capabilities={}),
-                 records=[])
+    probe = dict(summary=dict(locale=layout['locale'], layout_id=layout['id'], capabilities={}), records=[])
     checked = bind_names(probe, context, folder)
     require(checked['summary']['knowledge_release'] == release_id,
             'release changed during binding preflight')
@@ -88,9 +80,17 @@ def run(args: argparse.Namespace) -> dict:
     manifest = prepare(args.manifest, root)
     require((args.release is None) == (args.context is None),
             'release and recording context must be supplied together')
+    recovery_path = getattr(args, 'recovery_profile', None)
+    prefix = 'SHOP2' if recovery_path is not None else 'SHOP1'
     binding = None
     sources = {str(p.resolve()): sha(p) for p in (args.manifest, args.layout, args.probe)}
     sources.update({str((root / r['image']).resolve()): r['sha256'] for r in manifest['frames']})
+    if recovery_path is not None:
+        recovery_path = recovery_path.resolve(strict=True)
+        recovery, digest = load(recovery_path)
+        require(recovery.get('schema_version') == 1 and recovery.get('parent_layout_id') == layout['id'],
+                'recovery profile parent UI mismatch')
+        sources[str(recovery_path)] = digest
     if args.release is not None:
         context, release_id, fingerprints = freeze_binding(args.context, args.release, layout)
         sources.update(fingerprints)
@@ -102,6 +102,8 @@ def run(args: argparse.Namespace) -> dict:
     (out / 'manifest.json').write_bytes(canonical(manifest))
     command = [str(args.probe.resolve(strict=True)), str(out / 'manifest.json'), str(root),
                str(args.layout.resolve()), str(out / 'native.json')]
+    if recovery_path is not None:
+        command.append(str(recovery_path))
     (out / 'command.json').write_bytes(canonical(command))
     with (out / 'events.jsonl').open('xb') as stdout, (out / 'native.stderr').open('xb') as stderr:
         child = subprocess.Popen(command, stdout=stdout, stderr=stderr, start_new_session=True)
@@ -117,6 +119,8 @@ def run(args: argparse.Namespace) -> dict:
     require(rc == 0, f'native shop probe failed ({rc}); inspect {out}/native.stderr')
     report, _ = load(out / 'native.json')
     require(report['summary'].get('execution_complete') is True, 'incomplete native report')
+    expected_profile = 'shop_text_atlas_v2_local_routing' if recovery_path else 'shop_text_atlas_v1'
+    require(report['summary'].get('profile') == expected_profile, 'native reader profile mismatch')
     records = report['records']
     require(len(records) == len(manifest['frames']), 'native frame count mismatch')
     statuses = Counter()
@@ -125,6 +129,8 @@ def run(args: argparse.Namespace) -> dict:
         require(read.get('timestamp_ms') == frame['timestamp_ms'], 'native timestamp mismatch')
         require([s['slot'] for s in read.get('slots', [])] == list(range(5)),
                 'missing or duplicated shop slot')
+        require((read.get('recovery') is not None) == (recovery_path is not None),
+                'native recovery trace mismatch')
         for slot in read['slots']:
             statuses[slot['status']] += 1
             if slot['status'] == 'empty_observed':
@@ -139,17 +145,20 @@ def run(args: argparse.Namespace) -> dict:
                 'release changed before final binding')
     verify_sources(sources)
     report['provenance'] = dict(input_files_sha256=sources, layout_id=layout['id'],
-        review_kind='same-recording UI seed diagnostics', catalog_binding_requested=binding is not None)
+        review_kind='same-recording UI seed diagnostics', catalog_binding_requested=binding is not None,
+        recovery_profile=str(recovery_path) if recovery_path else None)
     (out / 'report.json').write_bytes(canonical(report))
     (out / 'COMPLETE.json').write_bytes(canonical(dict(
         report_sha256=sha(out / 'report.json'), manifest_sha256=sha(out / 'manifest.json'))))
     for row in records:
         r = row['read']
-        print('SHOP1_FRAME=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'], panel=r['panel_status'],
+        print(prefix + '_FRAME=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'], panel=r['panel_status'],
             slots=[dict(slot=s['slot'], status=s['status'], name=s['observed_name'],
                         cost=s['observed_cost'], unit_id=s['unit_id']) for s in r['slots']]), ensure_ascii=False))
-    print('SHOP1_SUMMARY=' + json.dumps(report['summary'], ensure_ascii=False))
-    print('SHOP1_REPORT=' + str(out / 'report.json'))
+        if r.get('recovery'):
+            print(prefix + '_TRACE=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'], **r['recovery']), ensure_ascii=False))
+    print(prefix + '_SUMMARY=' + json.dumps(report['summary'], ensure_ascii=False))
+    print(prefix + '_REPORT=' + str(out / 'report.json'))
     return report['summary']
 
 
@@ -159,10 +168,11 @@ def main() -> None:
         p.add_argument('--' + key, type=Path, required=True)
     p.add_argument('--release', type=Path)
     p.add_argument('--context', type=Path)
+    p.add_argument('--recovery-profile', type=Path)
     try:
         run(p.parse_args())
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as e:
-        p.exit(2, f'SHOP1_ERROR={e}\n')
+        p.exit(2, f'SHOP_ERROR={e}\n')
 
 
 if __name__ == '__main__':
