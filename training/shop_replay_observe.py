@@ -81,7 +81,9 @@ def run(args: argparse.Namespace) -> dict:
     require((args.release is None) == (args.context is None),
             'release and recording context must be supplied together')
     recovery_path = getattr(args, 'recovery_profile', None)
-    prefix = 'SHOP2' if recovery_path is not None else 'SHOP1'
+    controls_path = getattr(args, 'controls_profile', None)
+    require(controls_path is None or recovery_path is not None, 'controls require S2 recovery')
+    prefix = 'SHOP3' if controls_path is not None else 'SHOP2' if recovery_path is not None else 'SHOP1'
     binding = None
     sources = {str(p.resolve()): sha(p) for p in (args.manifest, args.layout, args.probe)}
     sources.update({str((root / r['image']).resolve()): r['sha256'] for r in manifest['frames']})
@@ -91,6 +93,12 @@ def run(args: argparse.Namespace) -> dict:
         require(recovery.get('schema_version') == 1 and recovery.get('parent_layout_id') == layout['id'],
                 'recovery profile parent UI mismatch')
         sources[str(recovery_path)] = digest
+    if controls_path is not None:
+        controls_path = controls_path.resolve(strict=True)
+        controls, digest = load(controls_path)
+        require(controls.get('schema_version') == 1 and controls.get('parent_layout_id') == layout['id']
+                and controls.get('recovery_profile_id') == recovery['id'], 'controls UI compatibility mismatch')
+        sources[str(controls_path)] = digest
     if args.release is not None:
         context, release_id, fingerprints = freeze_binding(args.context, args.release, layout)
         sources.update(fingerprints)
@@ -104,6 +112,8 @@ def run(args: argparse.Namespace) -> dict:
                str(args.layout.resolve()), str(out / 'native.json')]
     if recovery_path is not None:
         command.append(str(recovery_path))
+    if controls_path is not None:
+        command.append(str(controls_path))
     (out / 'command.json').write_bytes(canonical(command))
     with (out / 'events.jsonl').open('xb') as stdout, (out / 'native.stderr').open('xb') as stderr:
         child = subprocess.Popen(command, stdout=stdout, stderr=stderr, start_new_session=True)
@@ -137,6 +147,15 @@ def run(args: argparse.Namespace) -> dict:
                 require(slot['observed_name'] is None and slot['observed_cost'] is None,
                         'empty slot has content')
     require(dict(statuses) == report['summary']['slot_statuses'], 'native summary mismatch')
+    if controls_path is not None:
+        from training.shop_controls_evidence import validate_controls
+        require(report['summary'].get('controls_profile') == controls['id'], 'missing native controls profile')
+        metrics = validate_controls(report, controls)
+        require(metrics['controls_ocr_process_calls'] == report['summary']['controls_ocr_process_calls'],
+                'controls OCR count mismatch')
+        report['summary']['controls_metrics'] = metrics
+    else:
+        require(all('controls' not in r for r in records), 'unexpected native controls')
     verify_sources(sources)
     if binding is not None:
         context, release_id = binding
@@ -152,6 +171,12 @@ def run(args: argparse.Namespace) -> dict:
         report_sha256=sha(out / 'report.json'), manifest_sha256=sha(out / 'manifest.json'))))
     for row in records:
         r = row['read']
+        if controls_path is not None:
+            c = row['controls']
+            print('SHOP3_CONTROLS=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'],
+                controls=[dict(id=v['id'], status=v['status'], appearance=v['appearance']) for v in c['controls']],
+                numbers=[dict(id=v['id'], status=v['status'], value=v['value']) for v in c['numeric_fields']]), ensure_ascii=False))
+            continue
         print(prefix + '_FRAME=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'], panel=r['panel_status'],
             slots=[dict(slot=s['slot'], status=s['status'], name=s['observed_name'],
                         cost=s['observed_cost'], unit_id=s['unit_id']) for s in r['slots']]), ensure_ascii=False))
@@ -169,6 +194,7 @@ def main() -> None:
     p.add_argument('--release', type=Path)
     p.add_argument('--context', type=Path)
     p.add_argument('--recovery-profile', type=Path)
+    p.add_argument('--controls-profile', type=Path)
     try:
         run(p.parse_args())
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as e:
