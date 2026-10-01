@@ -13,6 +13,7 @@ from .core import require,sha,load_json,write_json,decoded,percentile,statistics
 from .data import prepare,generate,fixed_boxes,image_tensor
 from .export import export
 from .viewer import write_viewer
+from .memory import snapshot
 
 
 def evaluate(prepared, train_dir: Path, output: Path):
@@ -43,6 +44,7 @@ def evaluate(prepared, train_dir: Path, output: Path):
     require(inputs.shape==(8,3,192,320) and expected.shape==(8,10),'parity shape mismatch')
     actual=np.concatenate([infer(x[None]) for x in inputs]);difference=float(np.max(np.abs(actual-expected)))
     require(difference<=2e-5,'ONNX/torch parity failed')
+    ready_memory = snapshot()
     xt,yt=generate(prepared,'test',128,47)
     pt=np.concatenate([infer(x[None]) for x in xt])
     generated=statistics(pt,yt,fixed_boxes(prepared['boxes']))
@@ -82,6 +84,9 @@ def evaluate(prepared, train_dir: Path, output: Path):
         note='Coarse region model, not units/HP or 3D. Generated crop geometry is known; TFT semantics are unverified. Fixed-coordinate baseline is not B1/S4 recognition.',
         versions={k:importlib.metadata.version(k) for k in ('onnxruntime','onnx','numpy','Pillow')})
     write_viewer(output/'viewer.html',records,image_root,prepared['boxes'])
+    summary['memory_after_model_parity'] = ready_memory
+    summary['memory_after_evaluation_and_viewer'] = snapshot()
+    summary['rusage_peak_note'] = 'Legacy max_rss field is raw getrusage, may retain a pre-exec peak; use current-image telemetry, not weight size, for process memory.'
     report=dict(summary=summary,records=records,provenance=plan,
                 training_report_sha256=sha(train_dir/'training-report.json'))
     write_json(output/'report.json',report)

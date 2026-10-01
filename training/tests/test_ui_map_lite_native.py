@@ -23,6 +23,7 @@ class NativeTests(unittest.TestCase):
 import sys,time,json,resource,numpy as np,onnxruntime as ort
 from pathlib import Path
 from training.ui_map_lite.export import export
+from training.ui_map_lite.memory import snapshot
 p=Path(sys.argv[1]);q=p/'model.onnx';info=export(p/'model.npz',q)
 s=ort.SessionOptions();s.intra_op_num_threads=1;s.inter_op_num_threads=1
 r=ort.InferenceSession(str(q),s,providers=['CPUExecutionProvider'])
@@ -36,7 +37,7 @@ times=[]
 for i in range(200):
     start=time.perf_counter();r.run(None,{'image':xs[i%len(xs)][None]});times.append((time.perf_counter()-start)*1000)
 print('UIMAP_NATIVE_PARITY_OK=true')
-print('UIMAP_NATIVE_BENCHMARK='+json.dumps(dict(p50_ms=float(np.percentile(times,50)),p95_ms=float(np.percentile(times,95)),model_bytes=info['model_bytes'],parameters=info['parameters'],max_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,scope='synthetic CI tensors; not user PC; no capture cost')))
+print('UIMAP_NATIVE_BENCHMARK='+json.dumps(dict(p50_ms=float(np.percentile(times,50)),p95_ms=float(np.percentile(times,95)),model_bytes=info['model_bytes'],parameters=info['parameters'],memory=snapshot(),scope='synthetic CI tensors; not user PC; no capture cost')))
 '''
             result=subprocess.run([sys.executable,'-c',code,str(out)],capture_output=True,text=True,timeout=120)
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
@@ -61,6 +62,10 @@ print('UIMAP_NATIVE_BENCHMARK='+json.dumps(dict(p50_ms=float(np.percentile(times
             report=json.loads((root/'evaluation/report.json').read_text())
             self.assertEqual(report['summary']['frames'],3)
             self.assertFalse(report['summary']['inference_imported_torch'])
+            memory=report['summary']['memory_after_model_parity']
+            if sys.platform=='linux':
+                self.assertGreater(memory['current_rss_kib'],0)
+                self.assertGreaterEqual(memory['current_image_hwm_kib'],memory['current_rss_kib'])
             self.assertFalse(report['summary']['profile_promoted'])
             self.assertTrue((root/'evaluation/COMPLETE.json').is_file())
             self.assertTrue((root/'evaluation/viewer.html').is_file())

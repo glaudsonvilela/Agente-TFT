@@ -1,4 +1,4 @@
-"""Offline region-proposal viewer; no scripts/plugins/network/annotation service."""
+"""Offline region-proposal viewer; no external scripts/plugins/network/annotation service."""
 import base64
 import json
 from .core import require, inside
@@ -9,7 +9,7 @@ def write_viewer(path, records, root, boxes):
     for r in records:
         image=inside(root,r['image'])
         rows.append(dict(timestamp_ms=r['timestamp_ms'],proposals=r['regions'],
-            uri='data:image/jpeg;base64,'+base64.b64encode(image.read_bytes()).decode('ascii')))
+            uri=('data:image/png;base64,' if image.suffix.lower()=='.png' else 'data:image/jpeg;base64,')+base64.b64encode(image.read_bytes()).decode('ascii')))
     payload=json.dumps(dict(rows=rows,baseline=boxes),ensure_ascii=True)
     payload=payload.replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
     require(len(payload)<96*1024**2,'viewer budget')
