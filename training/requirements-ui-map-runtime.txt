@@ -1,0 +1,5 @@
+# Inference/export only. No torch, transformers or large pretrained weights.
+onnx==1.20.1
+onnxruntime==1.23.2
+numpy==2.2.6
+Pillow==12.1.0

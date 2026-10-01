@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "uimap-lite-u1-match001",
+  "task": "coarse_region_localization_only",
+  "profiles": [
+    {"path": "configs/ui/match001-board-bench-v1.json", "git_blob": "5e7990522ce90d4e7e3f815fc66ca80423b4422f"},
+    {"path": "configs/ui/match001-desktop-1920x1080-ptbr-v1.json", "git_blob": "7e49f008f869f4902286753630d91be87251f721"}
+  ],
+  "seeds": [
+    {"image":"frames/0004_000150000ms.jpg","sha256":"27569662dcf6c397d018926cfba0ff971ef8473275aabe8893e978a7901a2e65","split":"train"},
+    {"image":"frames/0011_000500000ms.jpg","sha256":"dea88eb7653e0761beceb89e4d52f4a5641b057bb29d2db0e41200f7bd2d929a","split":"train"},
+    {"image":"frames/0020_000950000ms.jpg","sha256":"d43a72c6f9c350d2acc78c595158149b7c52c6dd33b93cfd471009e5f0f67e54","split":"train"},
+    {"image":"frames/0025_001200000ms.jpg","sha256":"39a27a0b4ec050c97eaaaa1b222b40f217a1ec03af1d31898f64b7ae4f687777","split":"validation"},
+    {"image":"frames/0034_001650000ms.jpg","sha256":"1174bb951cb4634c4f808839117866552178dfe3cb89b49e9f7045b6254cfd74","split":"test"},
+    {"image":"frames/0039_001900000ms.jpg","sha256":"975490f747834f87b70da0892a9ba7aaef6b70f2c6af0c9dbd8575395a71d465","split":"test"}
+  ],
+  "supervision": "known_paste_geometry_of_development_crops; not verified game annotations",
+  "warning": "Sources separated before augmentation, all from the same recording. No independent patch/match accuracy. Masks prove generated visibility only. No runtime profile activation."
+}
