@@ -137,6 +137,7 @@ def review_batch(batch: dict, report: dict) -> tuple[dict, list[dict]]:
     require(s.get('baseline_profile') == 'match001-self-badge-v1'
             and s.get('candidate_profile') == 'hp_text_fit_v1', 'unsupported reader pair')
     bc, cc, comp, cases = Counter(), Counter(), Counter(), []
+    previous_readable = {}
     for frame, row in zip(frames, rows):
         at = frame['timestamp_ms']
         require(row.get('timestamp_ms') == at, 'paired record order mismatch')
@@ -161,12 +162,23 @@ def review_batch(batch: dict, report: dict) -> tuple[dict, list[dict]]:
                     reasons.append('opposing_eligible_attempt')
                     if (a['parsed_signed'] < 0) != (accepted['signed_hp'] < 0):
                         reasons.append('sign_disagreement')
+        increases = []
+        for side, read in (('baseline', b), ('candidate', c)):
+            if read['status'] not in READABLE:
+                continue
+            previous = previous_readable.get(side)
+            if previous and read['signed_hp'] > previous['value']:
+                reasons.append('observed_increase_not_proven_error')
+                increases.append(dict(reader=side, from_value=previous['value'],
+                                      from_ms=previous['timestamp_ms'], to_value=read['signed_hp'],
+                                      to_ms=at, gap_ms=at-previous['timestamp_ms']))
+            previous_readable[side] = dict(value=read['signed_hp'], timestamp_ms=at)
         if reasons:
             item = dict(batch=batch['id'], kind=batch['kind'], timestamp_ms=at,
                         image=frame['image'], image_sha256=frame['sha256'],
                         reasons=sorted(set(reasons)), comparison=cls,
                         baseline=b, candidate=c, text_fit=row.get('text_fit', []),
-                        target_hp=None, eligible_for_training=False)
+                        observed_increases=increases, target_hp=None, eligible_for_training=False)
             item['case_id'] = hashlib.sha256(canonical(item)).hexdigest()
             cases.append(item)
     counts = {}
@@ -285,7 +297,7 @@ def audit(source: Path, output: Path) -> dict:
     (output/'COMPLETE').write_text(summary['audit_id']+'\n', encoding='utf-8')
     for case in cases:
         if case['comparison'] == 'baseline_only_readable' or any(x in case['reasons'] for x in
-                ('both_readable_disagree', 'opposing_eligible_attempt', 'sign_disagreement')):
+                ('both_readable_disagree', 'opposing_eligible_attempt', 'sign_disagreement', 'observed_increase_not_proven_error')):
             print('HP4_CASE='+json.dumps(case, ensure_ascii=False))
     print('HP4_SUMMARY='+json.dumps(summary, ensure_ascii=False))
     print('HP4_REPORT='+str(output/'report.json'))
