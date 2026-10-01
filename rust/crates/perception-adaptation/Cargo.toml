@@ -1,0 +1,17 @@
+[package]
+name = "agente-tft-perception-adaptation"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../capture-core" }
+agente-tft-image-preprocess = { path = "../image-preprocess" }
+agente-tft-perception-health = { path = "../perception-health" }
+agente-tft-visual-match = { path = "../visual-match" }
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+agente-tft-contracts = { path = "../contracts" }
+serde_json.workspace = true
