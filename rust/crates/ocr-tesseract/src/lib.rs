@@ -48,6 +48,17 @@ impl Default for TesseractOcr {
     }
 }
 
+fn whitelist_for(field: HudField) -> &'static str {
+    match field {
+        HudField::Stage => "tessedit_char_whitelist=0123456789-",
+        // Keep the separator: 0/10 must not silently become 010.
+        HudField::Xp => "tessedit_char_whitelist=0123456789/",
+        HudField::Gold | HudField::Hp | HudField::Level => {
+            "tessedit_char_whitelist=0123456789"
+        }
+    }
+}
+
 impl HudOcrEngine for TesseractOcr {
     fn recognize(
         &mut self,
@@ -59,12 +70,7 @@ impl HudOcrEngine for TesseractOcr {
             .map_err(|e| format!("invalid OCR image: {e}"))?;
 
         let pgm = encode_pgm(image)?;
-        let whitelist = match field {
-            HudField::Stage => "tessedit_char_whitelist=0123456789-",
-            HudField::Gold | HudField::Hp | HudField::Level | HudField::Xp => {
-                "tessedit_char_whitelist=0123456789"
-            }
-        };
+        let whitelist = whitelist_for(field);
 
         let psm = match field {
             HudField::Stage => "7",
@@ -189,6 +195,16 @@ fn parse_tsv(tsv: &str) -> Result<Option<RecognizedText>, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn xp_whitelist_preserves_fraction_and_other_fields_stay_strict() {
+        assert!(whitelist_for(HudField::Xp).ends_with("0123456789/"));
+        assert!(whitelist_for(HudField::Stage).ends_with("0123456789-"));
+        for field in [HudField::Gold, HudField::Hp, HudField::Level] {
+            assert!(whitelist_for(field).ends_with("0123456789"));
+            assert!(!whitelist_for(field).contains('/'));
+        }
+    }
 
     #[test]
     fn pgm_encoder_strips_gray_stride_padding() {
