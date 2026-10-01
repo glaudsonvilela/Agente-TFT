@@ -42,6 +42,10 @@ class NativeSpatialTests(unittest.TestCase):
             images = []
             for index in range(3):
                 pixels = bytearray(reference) if index < 2 else bytearray(1920*1080*3)
+                if index == 1:
+                    # Make this a clearly changed bench appearance. A bar alone
+                    # may also match the nearly-empty reference and must abstain.
+                    paint(pixels, dict(x=390, y=720, width=30, height=50), [100, 100, 100])
                 paint(pixels, dict(x=385 if index else 600, y=694 if index else 350, width=64, height=4), [20, 220, 20])
                 name = f'frame-{index}.png'
                 png(root/name, 1920, 1080, pixels)

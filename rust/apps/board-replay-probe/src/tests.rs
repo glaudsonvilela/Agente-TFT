@@ -69,9 +69,20 @@ fn bar(f:&mut FrameEnvelope,x:u32,y:u32,color:[u8;3]) {paint(f,Rect{x,y,width:64
 }
 #[test] fn marker_can_be_reported_without_naming_a_champion_or_using_body_center() {
     let p=profile();let r=reference();let reader=SceneReader::new(p,&r).unwrap();let mut f=r;
+    // The positive fixture includes a changed body area, not only a tiny bar
+    // that is still compatible with the mostly-empty reference signature.
+    paint(&mut f,Rect{x:390,y:720,width:30,height:50},[100,100,100]);
     bar(&mut f,385,694,[25,220,25]);let out=reader.read(&f).unwrap();
     assert_eq!(out.bench[0].evidence,"bar_candidate");assert!(out.bench[0].occupancy.is_none());
     assert_eq!(out.markers.len(),1);assert!(out.markers[0].ground_point.is_none());
+}
+#[test] fn tiny_marker_and_empty_reference_match_remain_ambiguous() {
+    let p=profile();let r=reference();let reader=SceneReader::new(p,&r).unwrap();let mut f=r;
+    bar(&mut f,385,694,[25,220,25]);let out=reader.read(&f).unwrap();
+    assert_eq!(out.markers.len(),1);
+    assert_eq!(out.bench[0].evidence,"ambiguous");
+    assert!(out.bench[0].occupancy.is_none());
+    assert!(out.bench[0].unit_id.is_none());
 }
 #[test] fn two_markers_in_one_bench_box_remain_ambiguous() {
     let p=profile();let r=reference();let reader=SceneReader::new(p,&r).unwrap();let mut f=r;
