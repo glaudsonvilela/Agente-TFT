@@ -19,12 +19,14 @@ VIDEO="$ROOT/telemetry/replays/match-001/TFT_MATCH_001.mp4"
 mkdir -p telemetry/data
 OUT="$(mktemp -d "$ROOT/telemetry/data/match-001-player-hp5.XXXXXXXX")"
 printf 'HP5_EVIDENCE=%s\n' "$OUT"
+export OMP_THREAD_LIMIT="${OMP_THREAD_LIMIT:-1}"
 {
   git rev-parse HEAD
   git status --porcelain --untracked-files=no
   command -v tesseract ffmpeg ffprobe
   tesseract --version
   ffmpeg -version
+  printf 'OMP_THREAD_LIMIT=%s\n' "$OMP_THREAD_LIMIT"
   sha256sum "$PROFILE" "$BIN"
 } > "$OUT/environment.txt" 2>&1
 # No Cargo build: equality with the HP3 executable hash is required by the planner.
