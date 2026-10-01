@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+agente-tft-capture-core = { path = "../capture-core" }
 agente-tft-contracts = { path = "../contracts" }
 agente-tft-image-preprocess = { path = "../image-preprocess" }
 agente-tft-perception-hud = { path = "../perception-hud" }
