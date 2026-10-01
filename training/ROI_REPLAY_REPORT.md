@@ -10,24 +10,84 @@ python3 -m training.roi_replay_report \
   --output telemetry/data/match-001-roi-report.json
 ```
 
-O relatório mostra por ROI:
+Parâmetros opcionais:
 
-- quantidade de mudanças;
-- mudanças por minuto;
+```text
+--global-cut-min-rois 6
+--episode-gap-ms 1500
+```
+
+## Schema v2
+
+O relatório separa duas visões:
+
+### `raw`
+
+Tudo que o change detector emitiu.
+
+Útil para depurar sensibilidade pura, mas inclui:
+
+- fade/transição de tela;
+- animações;
+- primeiro frame de baseline;
+- rajadas de vários frames para uma única mudança real.
+
+### `semantic`
+
+Exclui frames em que pelo menos `global_cut_min_rois` mudaram juntos.
+
+Isso trata como provável **global cut / scene transition** eventos como:
+
+```text
+bench + board + gold + items + level_xp + player_list + shop + stage
+```
+
+O relatório também agrupa mudanças repetidas da mesma ROI separadas por até
+`episode_gap_ms` em um único **episode**.
+
+Por ROI são mostrados:
+
+- raw changes;
+- semantic changes;
+- changes/minute;
+- episodes;
+- episodes/minute;
+- mudanças brutas por episódio;
+- duração mediana do episódio;
 - score p50/p95/máximo;
-- gap temporal p50/p95;
-- primeiro/último evento;
-- combinações de ROIs que mudam no mesmo frame.
+- gap temporal p50/p95.
 
-## Interpretação
+## Por que isso importa
 
-Esse relatório mede comportamento do **change detector**, não accuracy.
+Em TFT, uma mudança real pode gerar vários frames consecutivos de alteração por causa de:
 
-Exemplos:
+- animação da shop;
+- partículas do board;
+- transições de combate;
+- HUD piscando/atualizando;
+- fade entre tabuleiros durante scouting.
 
-- `shop` quase nunca muda apesar de várias lojas no replay → ROI/threshold possivelmente errado;
-- `board` dispara dezenas de vezes por segundo → threshold possivelmente sensível demais;
-- `player_list` muda durante scouting/combate → esperado, mas precisa ser comparado ao vídeo;
-- `gold` muda nos momentos de buy/roll/level → bom indício de ROI correta.
+Contar cada frame como um evento estratégico superestima brutalmente a atividade.
 
-Thresholds só devem ser ajustados depois de comparar os eventos com cenas reais do replay.
+Exemplo:
+
+```text
+gold raw changes: 536
+gold semantic episodes: 70
+```
+
+A primeira métrica diz "pixels mudaram".
+A segunda se aproxima mais de "houve um episódio visual distinto".
+
+## Regra
+
+Esse relatório ainda mede comportamento do **change detector**, não accuracy.
+
+Thresholds e coordenadas só devem ser alterados depois de:
+
+1. remover global cuts;
+2. agrupar episódios;
+3. comparar episódios com frames/replay reais;
+4. confrontar com ground truth.
+
+Não ajustar OpportunityWeights para compensar ruído visual.
