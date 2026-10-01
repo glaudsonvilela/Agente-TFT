@@ -2,16 +2,16 @@
 # Isolated CPU laboratory; never installs into the agent's Python environment.
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-VENV="$ROOT/telemetry/data/board3-runtime/venv"
-mkdir -p "$(dirname "$VENV")"
-exec 9>"$ROOT/telemetry/data/board3-runtime/setup.lock"
+source "$ROOT/scripts/board_detector_storage.sh"
+VENV="$BOARD3_RUNTIME/venv"
+exec 9>"$BOARD3_RUNTIME/setup.lock"
 flock -w 1800 9 || { echo 'Outro setup B3 está em execução.' >&2; exit 2; }
 if [[ ! -x "$VENV/bin/python" ]]; then
   python3 -m venv "$VENV" || { echo 'Não foi possível criar venv; verifique python3-venv. Nenhum pacote global foi alterado.' >&2; exit 2; }
 fi
 REQ="$ROOT/training/requirements-board-detector.txt"
 KEY="$( { cat "$REQ"; printf '%s\n' 'torch==2.12.1+cpu'; } | sha256sum | cut -d' ' -f1)"
-STAMP="$(dirname "$VENV")/requirements.sha256"
+STAMP="$BOARD3_RUNTIME/requirements.sha256"
 if [[ ! -f "$STAMP" || "$(cat "$STAMP")" != "$KEY" ]]; then
   echo 'BOARD3_SETUP=isolated_cpu_dependencies'
   "$VENV/bin/python" -m pip --disable-pip-version-check install --retries 2 --timeout 60 --only-binary=:all: \
