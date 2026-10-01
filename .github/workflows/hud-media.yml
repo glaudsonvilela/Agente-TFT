@@ -24,6 +24,9 @@ on:
       - 'scripts/probe_match001_shop_controls.sh'
       - 'scripts/probe_match001_shop_controls_v2.sh'
       - 'scripts/probe_match001_shop_numbers.sh'
+      - 'training/board_spatial*.py'
+      - 'training/tests/test_board_spatial*.py'
+      - 'scripts/probe_match001_board_bench.sh'
       - 'training/player_hp_dense.py'
       - 'training/tests/test_player_hp_dense.py'
       - 'scripts/probe_match001_player_hp_dense.sh'
@@ -113,3 +116,11 @@ jobs:
           TFT_SHOP5_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-shop-replay-probe
           OMP_THREAD_LIMIT: '1'
         run: python3 -m unittest training.tests.test_shop_numbers training.tests.test_shop_numbers_native -v
+      - name: Board and bench spatial evidence without OCR
+        env:
+          TFT_REQUIRE_BOARD1_NATIVE: '1'
+          TFT_BOARD1_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-board-replay-probe
+        run: |
+          cargo test --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe -- --nocapture
+          cargo build --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe
+          python3 -m unittest training.tests.test_board_spatial training.tests.test_board_spatial_native -v
