@@ -1,0 +1,56 @@
+{
+  "profile_version": 1,
+  "name": "tft-1920x1080-match001-v1",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "rois": [
+    {
+      "key": "stage",
+      "rect": {"x": 0.372, "y": 0.0, "width": 0.09, "height": 0.055},
+      "change_threshold": 0.025,
+      "sample_step": 2
+    },
+    {
+      "key": "gold",
+      "rect": {"x": 0.505, "y": 0.795, "width": 0.09, "height": 0.075},
+      "change_threshold": 0.04,
+      "sample_step": 2
+    },
+    {
+      "key": "level_xp",
+      "rect": {"x": 0.17, "y": 0.795, "width": 0.15, "height": 0.075},
+      "change_threshold": 0.035,
+      "sample_step": 2
+    },
+    {
+      "key": "shop",
+      "rect": {"x": 0.285, "y": 0.855, "width": 0.55, "height": 0.145},
+      "change_threshold": 0.055,
+      "sample_step": 4
+    },
+    {
+      "key": "bench",
+      "rect": {"x": 0.27, "y": 0.70, "width": 0.56, "height": 0.11},
+      "change_threshold": 0.06,
+      "sample_step": 4
+    },
+    {
+      "key": "board",
+      "rect": {"x": 0.23, "y": 0.12, "width": 0.62, "height": 0.58},
+      "change_threshold": 0.08,
+      "sample_step": 8
+    },
+    {
+      "key": "items",
+      "rect": {"x": 0.235, "y": 0.18, "width": 0.065, "height": 0.50},
+      "change_threshold": 0.05,
+      "sample_step": 3
+    },
+    {
+      "key": "player_list",
+      "rect": {"x": 0.86, "y": 0.12, "width": 0.14, "height": 0.62},
+      "change_threshold": 0.045,
+      "sample_step": 3
+    }
+  ]
+}
