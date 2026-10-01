@@ -10,6 +10,7 @@ thiserror.workspace = true
 agente-tft-capture-core = { path = "../capture-core" }
 agente-tft-contracts = { path = "../contracts" }
 agente-tft-perception-core = { path = "../perception-core" }
+agente-tft-perception-health = { path = "../perception-health" }
 agente-tft-perception-hud = { path = "../perception-hud" }
 agente-tft-state-fusion = { path = "../state-fusion" }
 
