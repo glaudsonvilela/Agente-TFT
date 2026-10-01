@@ -5,6 +5,7 @@ import argparse
 from collections import Counter
 import json
 import math
+import struct
 from pathlib import Path
 
 
@@ -15,6 +16,12 @@ def require(condition: bool, message: str) -> None:
 
 def number(value: object, low: float, high: float) -> bool:
     return type(value) in (int, float) and math.isfinite(value) and low <= value <= high
+
+
+
+def f32(value: float) -> float:
+    """Policy numbers are f32 in Rust; keep comparison boundaries identical."""
+    return struct.unpack('!f', struct.pack('!f', float(value)))[0]
 
 
 def validate_controls(report: dict, profile: dict) -> dict:
@@ -48,7 +55,7 @@ def validate_controls(report: dict, profile: dict) -> dict:
                     sim, mae = score['similarity'], score['rgb_mae']
                     require(score['state'] == template['state'] and number(mae, 0, 255)
                             and (sim is None or number(sim, -1, 1)), 'invalid visual score')
-                    eligible = sim is not None and sim >= spec['min_similarity'] and mae <= spec['max_rgb_mae']
+                    eligible = sim is not None and sim >= f32(spec['min_similarity']) and mae <= f32(spec['max_rgb_mae'])
                     require(score['eligible'] is eligible, 'false visual eligibility')
                     if eligible:
                         states.add(template['state'])
@@ -87,7 +94,7 @@ def validate_controls(report: dict, profile: dict) -> dict:
                     continue
                 require(isinstance(text, str), 'OCR text must be string')
                 valid = text.isascii() and text.isdigit() and 1 <= len(text) <= 2
-                expected = 'invalid_text' if not valid else 'below_min_confidence' if conf is not None and conf < profile['min_text_confidence'] else 'eligible'
+                expected = 'invalid_text' if not valid else 'below_min_confidence' if conf is not None and conf < f32(profile['min_text_confidence']) else 'eligible'
                 require(conf is not None and reason == expected, 'forged numeric acceptance')
                 values.append(text if reason == 'eligible' else None)
             accepted = values[0] is not None and values[0] == values[1]

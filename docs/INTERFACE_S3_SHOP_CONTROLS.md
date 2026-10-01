@@ -93,7 +93,8 @@ base de dados ou executáveis congelados. O target de build é `rust/target/shop
 
 A validação Python refaz as decisões visuais e numéricas a partir dos traces e
 confere permissões nulas, ausência, limites de chamadas e falta de confirmação
-temporal. Comparação final exige igualdade do bloco completo de leitura S2,
+temporal. Limiares são convertidos para f32, como no Rust, evitando uma falsa
+rejeição exatamente na fronteira causada pela representação numérica do Python. Comparação final exige igualdade do bloco completo de leitura S2,
 incluindo scores e tentativas, excluindo apenas o tempo total externo ao bloco.
 Divergência encerra com erro e mantém o relatório para análise, sem forçar
 igualdade ou atribuir a causa ao novo leitor. Ambientes diferentes podem afetar
@@ -103,12 +104,12 @@ os resultados de OCR; o relatório histórico não é benchmark simultâneo.
 
 Doze testes Rust cobrem compatibilidade, geometria, assinatura, ambiguidade,
 RGB/BGRA/stride, ausência de referência fechada e concordância numérica.
-Doze testes Python cobrem a validação dos traces. Um teste nativo obrigatório
+Treze testes Python cobrem a validação dos traces. Um teste nativo obrigatório
 no HUD media cria PNGs sintéticos, roda S2 e S3 com Rust/FFmpeg/Tesseract e verifica
 cartas inalteradas e aparências distintas. Os campos numéricos em branco não
 podem produzir preços padrão. Esse teste não mede precisão dos números reais.
 
-Os doze testes Python passaram localmente; não há Cargo no ambiente de edição.
+Os treze testes Python passaram localmente; não há Cargo no ambiente de edição.
 Uma tentativa de clone local falhou por DNS. A inspeção visual e análise de
 assinaturas no lote não são execução do binário Rust nem acurácia. CI e teste
 nativo devem passar antes do merge, com os resultados registrados no PR.

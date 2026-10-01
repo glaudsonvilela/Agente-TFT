@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
-from training.shop_controls_evidence import validate_controls
+from training.shop_controls_evidence import f32, validate_controls
 
 ROOT = Path(__file__).resolve().parents[2]
 PROFILE = ROOT / 'configs/ui/match001-shop-controls-v1.json'
@@ -108,3 +108,13 @@ class ControlsTests(unittest.TestCase):
         self.assertNotIn('tft_patch', p)
         self.assertTrue(all(t['source']['role'] == 'visual_seed_not_ground_truth'
                             for s in p['controls'] for t in s['templates']))
+
+    def test_rust_f32_threshold_boundary_is_not_rejected_by_python_f64(self):
+        p, r = fixture()
+        score = r['records'][0]['controls']['controls'][0]['scores'][0]
+        score['similarity'] = f32(p['controls'][0]['min_similarity'])
+        field = r['records'][0]['controls']['numeric_fields'][0]
+        field['confidence'] = f32(p['min_text_confidence'])
+        for a in field['attempts']:
+            a['confidence'] = field['confidence']
+        self.assertEqual(validate_controls(r, p)['numeric_readable']['buy_xp_price'], 1)
