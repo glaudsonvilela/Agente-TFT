@@ -16,7 +16,7 @@ from training.shop_recovery_compare import comparison, read_run
 from training.shop_replay_observe import prepare, run as observe, sha, verify_sources
 
 
-def preflight(args: argparse.Namespace) -> tuple[dict, dict, Path, dict]:
+def preflight(args: argparse.Namespace) -> tuple[dict, dict, Path, dict, str]:
     outer, digest = load(args.baseline)
     complete, _ = load(args.baseline.parent / 'COMPLETE.json')
     require(complete.get('report_sha256') == digest and complete.get('execution_complete') is True,
@@ -40,6 +40,15 @@ def preflight(args: argparse.Namespace) -> tuple[dict, dict, Path, dict]:
     require(frozen == prepare(args.manifest, args.image_root), 'images/timestamps changed since S4')
     sources = dict(outer['frozen_input_files_sha256'])
     prior = before['provenance']['input_files_sha256']
+    command_path = native.parent / 'command.json'
+    require(command_path.stat().st_size < 16_384, 'historical command exceeds budget')
+    command = json.loads(command_path.read_text())
+    require(isinstance(command, list) and len(command) == 7
+            and all(isinstance(v, str) for v in command), 'invalid historical S4 command')
+    old_probe = str(Path(command[0]).resolve(strict=True))
+    old_probe_hash = prior.get(old_probe)
+    require(old_probe_hash is not None and sources.get(old_probe) == old_probe_hash,
+            'historical probe identity is not pinned')
     require(sources.get(str(controls_path.resolve())) == controls_hash
             and prior.get(str(controls_path.resolve())) == controls_hash, 'effective controls not pinned')
     for path in (args.layout, args.recovery_profile):
@@ -49,10 +58,10 @@ def preflight(args: argparse.Namespace) -> tuple[dict, dict, Path, dict]:
     layout, _ = load(args.layout)
     validate_policy(policy, controls, layout)
     for path in (args.baseline, args.baseline.parent/'COMPLETE.json', native,
-                 native.parent/'COMPLETE.json', native.parent/'manifest.json', args.numbers_profile, args.manifest):
+                 native.parent/'COMPLETE.json', native.parent/'manifest.json', args.numbers_profile, args.manifest, command_path):
         sources[str(path.resolve())] = sha(path)
     verify_sources(sources)
-    return before, frozen, controls_path, sources
+    return before, frozen, controls_path, sources, old_probe_hash
 
 
 def compare_reports(before: dict, after: dict) -> dict:
@@ -80,8 +89,11 @@ def compare_reports(before: dict, after: dict) -> dict:
 
 
 def execute(args: argparse.Namespace) -> dict:
-    before, frozen, controls_path, sources = preflight(args)
-    sources[str(args.probe.resolve(strict=True))] = sha(args.probe)
+    before, frozen, controls_path, sources, old_probe_hash = preflight(args)
+    probe_path, probe_hash = str(args.probe.resolve(strict=True)), sha(args.probe)
+    require(probe_path not in sources or sources[probe_path] == probe_hash,
+            'cannot replace a frozen historical input with the candidate executable')
+    sources[probe_path] = probe_hash
     out = args.output.absolute()
     require(not out.exists(), 'S5 output exists; no overwrite')
     out.mkdir(parents=True, exist_ok=False)
@@ -112,7 +124,8 @@ def execute(args: argparse.Namespace) -> dict:
         candidate_controls_ocr_process_calls=after['summary']['controls_ocr_process_calls'],
         baseline_controls_ocr_process_calls=before['summary']['controls_ocr_process_calls'],
         candidate_frame_ms_p50=after['summary']['frame_ms_p50'], candidate_frame_ms_p95=after['summary']['frame_ms_p95'],
-        numbers_profile=policy['id'], native_binary_unchanged=False, backend_versions_frozen=False,
+        numbers_profile=policy['id'], native_binary_unchanged=old_probe_hash == probe_hash,
+        baseline_binary_sha256=old_probe_hash, candidate_binary_sha256=probe_hash, backend_versions_frozen=False,
         exact_accuracy=None, labels_used=False, model_trained=False, profile_promoted=False,
         game_state_updated=False, human_labels_required=False, video_decoded=False,
         execution_complete=result['card_observations_unchanged'] and result['visual_observations_unchanged'],

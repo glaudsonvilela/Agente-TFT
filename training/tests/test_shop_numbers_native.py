@@ -78,6 +78,8 @@ class NativeNumbersTests(unittest.TestCase):
                     recovery_profile=recovery_path,numbers_profile=policy_path,probe=Path(executable),output=root/'s5')
                 result=execute(args)
             self.assertTrue(result['summary']['execution_complete'])
+            self.assertTrue(result['summary']['native_binary_unchanged'])
+            self.assertEqual(result['summary']['baseline_binary_sha256'], sha(Path(executable)))
             self.assertTrue(result['summary']['visual_observations_unchanged'])
             self.assertTrue(result['summary']['card_observations_unchanged'])
             report=json.loads((root/'s5/run/report.json').read_text())
