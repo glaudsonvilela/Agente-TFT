@@ -11,6 +11,9 @@ on:
       - 'training/player_hp_text_fit.py'
       - 'training/tests/test_player_hp_text_fit.py'
       - 'scripts/probe_match001_player_hp_fit.sh'
+      - 'training/player_hp_disjoint_shadow.py'
+      - 'training/tests/test_player_hp_disjoint_shadow.py'
+      - 'scripts/probe_match001_player_hp_disjoint.sh'
       - '.github/workflows/hud-media.yml'
 concurrency:
   group: hud-media-${{ github.ref }}
@@ -48,3 +51,9 @@ jobs:
           cargo test --manifest-path rust/Cargo.toml -p agente-tft-player-hp-fit-probe -- --nocapture
           cargo build --manifest-path rust/Cargo.toml -p agente-tft-player-hp-fit-probe
           python3 -m unittest training.tests.test_player_hp_text_fit -v
+      - name: Disjoint frozen-reader evaluation with inherited quarantine
+        env:
+          TFT_REQUIRE_HP5_NATIVE: '1'
+          TFT_HP5_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-player-hp-fit-probe
+          OMP_THREAD_LIMIT: '1'
+        run: python3 -m unittest training.tests.test_player_hp_disjoint_shadow -v
