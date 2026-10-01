@@ -1,0 +1,23 @@
+name: HUD media
+on:
+  pull_request:
+    paths:
+      - 'rust/**'
+      - 'configs/hud/**'
+      - '.github/workflows/hud-media.yml'
+jobs:
+  native-media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install real media backends
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg tesseract-ocr tesseract-ocr-eng
+          tesseract --list-langs
+      - name: Native preparation, OCR process and sparse seek tests
+        env:
+          TFT_REQUIRE_OCR_SMOKE: '1'
+        run: cargo test --manifest-path rust/Cargo.toml -p agente-tft-perception-hud -p agente-tft-ocr-tesseract -p agente-tft-hud-replay-probe -- --nocapture
