@@ -6,6 +6,7 @@ use std::{
 
 use agente_tft_contracts::{DecisionPacket, GameEvent, GameState, Recommendation};
 use agente_tft_opportunity_fact_builder::OpportunityFactBuild;
+use agente_tft_perception_health::PerceptionHealthSnapshot;
 use agente_tft_opportunity_runtime::{CompleteOpportunityCycle, OpportunityCycle};
 use agente_tft_pattern_engine::EvaluatorFeedbackEngine;
 use serde::{Deserialize, Serialize};
@@ -53,6 +54,9 @@ pub enum TelemetryPayload {
     },
     EvaluatorFeedbackSnapshot {
         feedback: EvaluatorFeedbackEngine,
+    },
+    PerceptionHealthSnapshot {
+        snapshot: PerceptionHealthSnapshot,
     },
     Decision {
         decision: DecisionPacket,
@@ -464,6 +468,47 @@ mod tests {
             other => panic!("unexpected payload: {other:?}"),
         }
 
+        let _ = fs::remove_dir_all(root);
+    }
+
+
+    #[test]
+    fn recorder_round_trips_perception_health_snapshot() {
+        use agente_tft_contracts::Confidence;
+        use agente_tft_perception_health::{
+            PerceptionHealthMonitor, PerceptionHealthPolicy, PerceptionOutcome,
+            PerceptionSample, PerceptionStreamId,
+        };
+
+        let root = temp_dir();
+        let mut recorder = JsonlRecorder::create(&root, "health-fixture").unwrap();
+        let stream = PerceptionStreamId::new("hud", "gold", "fixture").unwrap();
+        let mut monitor = PerceptionHealthMonitor::new(PerceptionHealthPolicy {
+            min_samples: 1,
+            ..PerceptionHealthPolicy::default()
+        }).unwrap();
+        let snapshot = monitor.observe(PerceptionSample {
+            stream,
+            observed_at_ms: 100,
+            outcome: PerceptionOutcome::Accepted {
+                confidence: Confidence::new(0.95).unwrap(),
+            },
+        }).unwrap();
+
+        recorder.append(
+            100,
+            TelemetryPayload::PerceptionHealthSnapshot {
+                snapshot: snapshot.clone(),
+            },
+        ).unwrap();
+        recorder.flush().unwrap();
+
+        let content = fs::read_to_string(recorder.path()).unwrap();
+        let parsed: TelemetryRecord = serde_json::from_str(content.lines().next().unwrap()).unwrap();
+        match parsed.payload {
+            TelemetryPayload::PerceptionHealthSnapshot { snapshot: saved } => assert_eq!(saved, snapshot),
+            other => panic!("unexpected payload: {other:?}"),
+        }
         let _ = fs::remove_dir_all(root);
     }
 

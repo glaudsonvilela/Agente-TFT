@@ -3,6 +3,10 @@ use std::collections::HashSet;
 use agente_tft_capture_core::{extract_roi, CaptureError, FrameEnvelope, NormalizedRect};
 use agente_tft_contracts::{GameEventKind, GameState};
 use agente_tft_perception_core::ConsensusConfig;
+use agente_tft_perception_health::{
+    PerceptionHealthMonitor, PerceptionHealthPolicy, PerceptionHealthSnapshot,
+    PerceptionOutcome, PerceptionSample, PerceptionStreamId,
+};
 use agente_tft_perception_hud::{
     merge_batches, read_roi_robust, HudField, HudOcrEngine, HudReadPolicy,
 };
@@ -108,12 +112,15 @@ pub struct HudFrameResult {
     pub accepted_reads: Vec<HudFieldRead>,
     pub events: Vec<GameEventKind>,
     pub state_revision: u64,
+    pub perception_health: Vec<PerceptionHealthSnapshot>,
 }
 
 pub struct HudPipeline<E> {
     engine: E,
     layout: HudLayout,
     fusion: StateFusion,
+    health: PerceptionHealthMonitor,
+    health_profile_id: String,
 }
 
 impl<E> HudPipeline<E>
@@ -126,11 +133,34 @@ where
         now_ms: u64,
         consensus: ConsensusConfig,
     ) -> Result<Self, HudRuntimeError> {
+        Self::new_with_health_policy(
+            engine,
+            layout,
+            now_ms,
+            consensus,
+            PerceptionHealthPolicy::default(),
+        )
+    }
+
+    pub fn new_with_health_policy(
+        engine: E,
+        layout: HudLayout,
+        now_ms: u64,
+        consensus: ConsensusConfig,
+        health_policy: PerceptionHealthPolicy,
+    ) -> Result<Self, HudRuntimeError> {
         layout.validate()?;
+        let health_profile_id = layout.name.clone();
+        let health = PerceptionHealthMonitor::new(health_policy)
+            .map_err(|error| HudRuntimeError::InvalidLayout(format!(
+                "invalid perception health policy: {error}"
+            )))?;
         Ok(Self {
             engine,
             layout,
             fusion: StateFusion::new(now_ms, consensus),
+            health,
+            health_profile_id,
         })
     }
 
@@ -146,6 +176,10 @@ where
         &mut self.engine
     }
 
+    pub fn perception_health(&self, now_ms: u64) -> Vec<PerceptionHealthSnapshot> {
+        self.health.snapshots(now_ms)
+    }
+
     pub fn process_frame(
         &mut self,
         frame: &FrameEnvelope,
@@ -157,18 +191,37 @@ where
 
         for region in &self.layout.regions {
             let roi = extract_roi(frame, region.rect)?;
-            let robust = read_roi_robust(
+            let stream = hud_health_stream(&self.health_profile_id, region.field);
+            let robust = match read_roi_robust(
                 &mut self.engine,
                 region.field,
                 &roi,
                 &region.policy,
-            )
-            .map_err(|error| HudRuntimeError::Read {
-                field: region.field,
-                detail: format!("{error:?}"),
-            })?;
+            ) {
+                Ok(value) => value,
+                Err(error) => {
+                    // Health is diagnostic-only. Record the operational error,
+                    // then preserve the pre-existing runtime error behavior.
+                    let _ = self.health.observe(PerceptionSample {
+                        stream,
+                        observed_at_ms: frame.captured_at_ms,
+                        outcome: PerceptionOutcome::Error,
+                    });
+                    return Err(HudRuntimeError::Read {
+                        field: region.field,
+                        detail: format!("{error:?}"),
+                    });
+                }
+            };
 
             if let Some(robust) = robust {
+                let _ = self.health.observe(PerceptionSample {
+                    stream,
+                    observed_at_ms: frame.captured_at_ms,
+                    outcome: PerceptionOutcome::Accepted {
+                        confidence: robust.confidence.clone(),
+                    },
+                });
                 reads.push(HudFieldRead {
                     field: region.field,
                     recognized_text: robust.recognized_text,
@@ -178,6 +231,12 @@ where
                     attempts_made: robust.attempts_made,
                 });
                 batches.push(robust.batch);
+            } else {
+                let _ = self.health.observe(PerceptionSample {
+                    stream,
+                    observed_at_ms: frame.captured_at_ms,
+                    outcome: PerceptionOutcome::Unknown,
+                });
             }
         }
 
@@ -191,9 +250,23 @@ where
             accepted_reads: reads,
             events,
             state_revision: self.fusion.state().revision,
+            perception_health: self.health.snapshots(frame.captured_at_ms),
         })
     }
 }
+
+fn hud_health_stream(profile_id: &str, field: HudField) -> PerceptionStreamId {
+    let field = match field {
+        HudField::Stage => "stage",
+        HudField::Gold => "gold",
+        HudField::Hp => "hp",
+        HudField::Level => "level",
+        HudField::Xp => "xp",
+    };
+    PerceptionStreamId::new("hud", field, profile_id)
+        .expect("validated HUD layout names and static field names form valid health stream ids")
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -205,6 +278,7 @@ mod tests {
     use agente_tft_perception_hud::{
         HudPreprocessConfig, RecognizedText,
     };
+    use agente_tft_perception_health::PerceptionHealthState;
 
     use super::*;
 
@@ -261,6 +335,78 @@ mod tests {
             text: value.into(),
             confidence: Confidence::new(confidence).unwrap(),
         })
+    }
+
+    #[test]
+    fn health_unknowns_are_diagnostic_and_do_not_mutate_game_state() {
+        let engine = FakeEngine {
+            outputs: VecDeque::from([None, None]),
+        };
+        let health_policy = PerceptionHealthPolicy {
+            window_capacity: 4,
+            min_samples: 2,
+            max_unknown_rate: 0.25,
+            degrade_after_bad_windows: 1,
+            recover_after_good_windows: 1,
+            ..PerceptionHealthPolicy::default()
+        };
+        let mut pipeline = HudPipeline::new_with_health_policy(
+            engine,
+            layout(),
+            0,
+            ConsensusConfig {
+                min_confidence: 0.8,
+                confirmations: 2,
+                max_gap_ms: 500,
+            },
+            health_policy,
+        )
+        .unwrap();
+
+        pipeline.process_frame(&frame(1, 100)).unwrap();
+        let second = pipeline.process_frame(&frame(2, 150)).unwrap();
+
+        assert_eq!(pipeline.state().revision, 0);
+        assert!(pipeline.state().player.gold.is_none());
+        assert_eq!(second.perception_health.len(), 1);
+        assert_eq!(
+            second.perception_health[0].state,
+            PerceptionHealthState::Degraded
+        );
+        assert_eq!(second.perception_health[0].metrics.unknown, 2);
+    }
+
+    #[test]
+    fn health_accepted_reads_do_not_bypass_temporal_consensus() {
+        let engine = FakeEngine {
+            outputs: VecDeque::from([text("50", 0.95)]),
+        };
+        let health_policy = PerceptionHealthPolicy {
+            min_samples: 1,
+            recover_after_good_windows: 1,
+            ..PerceptionHealthPolicy::default()
+        };
+        let mut pipeline = HudPipeline::new_with_health_policy(
+            engine,
+            layout(),
+            0,
+            ConsensusConfig {
+                min_confidence: 0.8,
+                confirmations: 2,
+                max_gap_ms: 500,
+            },
+            health_policy,
+        )
+        .unwrap();
+
+        let first = pipeline.process_frame(&frame(1, 100)).unwrap();
+        assert_eq!(
+            first.perception_health[0].state,
+            PerceptionHealthState::Healthy
+        );
+        assert_eq!(first.perception_health[0].metrics.accepted, 1);
+        assert!(pipeline.state().player.gold.is_none());
+        assert_eq!(pipeline.state().revision, 0);
     }
 
     #[test]
