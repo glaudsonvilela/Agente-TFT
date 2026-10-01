@@ -45,6 +45,11 @@ textarea { min-height:72px; resize:vertical; }
 .ok { color:#3fb950 !important; }
 .err { color:#f85149 !important; }
 .warn { color:#d29922 !important; }
+.suggest { margin:0 0 14px; padding:10px; border:1px solid #30363d; border-radius:8px; background:#161b22; }
+.suggest h3 { margin:0 0 8px; font-size:14px; }
+.srow { display:flex; justify-content:space-between; gap:8px; padding:4px 0; font-size:12px; border-top:1px solid #21262d; }
+.srow:first-of-type { border-top:0; }
+.conf { color:#8b949e; white-space:nowrap; }
 @media(max-width:980px) {
   main { grid-template-columns:1fr; }
   .panel { border-left:0; border-top:1px solid #30363d; max-height:none; }
@@ -65,6 +70,13 @@ textarea { min-height:72px; resize:vertical; }
   <aside class="panel">
     <h2 id="frameTitle">Frame</h2>
     <div id="frameMeta" class="meta"></div>
+
+    <div id="suggestBox" class="suggest" style="display:none">
+      <h3>Pré-anotação IA</h3>
+      <div id="suggestRows"></div>
+      <button id="applySuggestions" type="button">Aplicar sugestões visíveis</button>
+      <div class="help">Sugestões não são ground truth. Revise antes de salvar.</div>
+    </div>
 
     <label>Cena</label>
     <select id="scene">
@@ -112,6 +124,7 @@ textarea { min-height:72px; resize:vertical; }
 </main>
 <script>
 let data = null;
+let prelabels = null;
 let index = 0;
 let dirty = false;
 
@@ -130,6 +143,63 @@ function setStatus(text, cls="") {
 }
 
 function current() { return data.frames[index]; }
+
+function currentPrelabel() {
+  if (!prelabels || !prelabels.frames) return null;
+  const f = current();
+  return prelabels.frames.find(p =>
+    p.timestamp_ms === f.timestamp_ms && p.image === f.image
+  ) || null;
+}
+
+function suggestionValueText(value) {
+  if (Array.isArray(value)) return value.map(v => v ?? "?").join(", ");
+  return String(value);
+}
+
+function renderSuggestions() {
+  const p = currentPrelabel();
+  const box = $("suggestBox");
+  const rows = $("suggestRows");
+  rows.innerHTML = "";
+  if (!p || !p.suggestions || Object.keys(p.suggestions).length === 0) {
+    box.style.display = "none";
+    return;
+  }
+  box.style.display = "block";
+  for (const [field, item] of Object.entries(p.suggestions)) {
+    if (!item || item.value === undefined) continue;
+    const row = document.createElement("div");
+    row.className = "srow";
+    const value = document.createElement("span");
+    value.textContent = field + ": " + suggestionValueText(item.value);
+    const confidence = document.createElement("span");
+    confidence.className = "conf";
+    confidence.textContent = Math.round(Number(item.confidence || 0) * 100) + "%";
+    row.append(value, confidence);
+    rows.appendChild(row);
+  }
+}
+
+function applySuggestions() {
+  const p = currentPrelabel();
+  if (!p || !p.suggestions) return;
+  const s = p.suggestions;
+  if (s.scene) $("scene").value = s.scene.value ?? "";
+  for (const key of ["hp","gold","level","xp","stage"]) {
+    if (s[key]) $(key).value = s[key].value ?? "";
+  }
+  if (s.shop && Array.isArray(s.shop.value)) {
+    document.querySelectorAll(".shop").forEach((el,i) => el.value = s.shop.value[i] ?? "");
+  }
+  if (s.board_unit_ids && Array.isArray(s.board_unit_ids.value)) {
+    $("board").value = s.board_unit_ids.value.join(", ");
+  }
+  if (s.lobby_player_ids && Array.isArray(s.lobby_player_ids.value)) {
+    $("lobby").value = s.lobby_player_ids.value.join(", ");
+  }
+  collect();
+}
 
 function writeField(frame, key, value) {
   if (value === null || value === "" || (Array.isArray(value) && value.length === 0)) {
@@ -170,6 +240,7 @@ function fill() {
   document.querySelectorAll(".shop").forEach((el,i) => el.value = shops[i] ?? "");
   $("board").value = (f.board_unit_ids || []).join(", ");
   $("lobby").value = (f.lobby_player_ids || []).join(", ");
+  renderSuggestions();
 }
 
 async function save() {
@@ -198,14 +269,18 @@ function move(delta) {
 }
 
 async function init() {
-  const response = await fetch("/api/annotations");
-  data = await response.json();
+  const [annotationResponse, prelabelResponse] = await Promise.all([
+    fetch("/api/annotations"),
+    fetch("/api/prelabels")
+  ]);
+  data = await annotationResponse.json();
+  prelabels = prelabelResponse.ok ? await prelabelResponse.json() : null;
   if (!data.frames || !data.frames.length) {
     setStatus("nenhum frame", "err");
     return;
   }
   fill();
-  setStatus("pronto", "ok");
+  setStatus(prelabels ? "pronto • IA carregada" : "pronto", "ok");
 }
 
 ["scene","hp","gold","level","xp","stage","board","lobby"].forEach(id => {
@@ -215,6 +290,7 @@ document.querySelectorAll(".shop").forEach(el => el.addEventListener("input", co
 $("prev").onclick = () => move(-1);
 $("next").onclick = () => move(1);
 $("save").onclick = save;
+$("applySuggestions").onclick = applySuggestions;
 document.addEventListener("keydown", ev => {
   if (ev.ctrlKey && ev.key.toLowerCase() === "s") { ev.preventDefault(); save(); return; }
   if (["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
@@ -312,6 +388,18 @@ def make_handler(annotation_path: Path):
             if parsed.path == "/api/annotations":
                 try:
                     self.send_json(load_annotations(annotation_path))
+                except Exception as error:
+                    self.send_json({"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR)
+                return
+
+            if parsed.path == "/api/prelabels":
+                prelabels_path = annotation_dir / "prelabels.json"
+                if not prelabels_path.is_file():
+                    self.send_json({"schema_version": 1, "frames": []}, HTTPStatus.OK)
+                    return
+                try:
+                    value = json.loads(prelabels_path.read_text(encoding="utf-8"))
+                    self.send_json(value)
                 except Exception as error:
                     self.send_json({"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR)
                 return
