@@ -12,12 +12,15 @@ on:
       - 'training/shop_replay_observe.py'
       - 'training/shop_recovery_compare.py'
       - 'training/shop_controls_evidence.py'
+      - 'training/shop_controls_profile.py'
+      - 'training/shop_controls_patch_run.py'
       - 'training/tests/test_shop_controls*.py'
       - 'training/tests/test_shop_recovery.py'
       - 'training/tests/test_shop_replay*.py'
       - 'scripts/probe_match001_shop.sh'
       - 'scripts/probe_match001_shop_v2.sh'
       - 'scripts/probe_match001_shop_controls.sh'
+      - 'scripts/probe_match001_shop_controls_v2.sh'
       - 'training/player_hp_dense.py'
       - 'training/tests/test_player_hp_dense.py'
       - 'scripts/probe_match001_player_hp_dense.sh'
@@ -95,3 +98,9 @@ jobs:
           TFT_SHOP3_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-shop-replay-probe
           OMP_THREAD_LIMIT: '1'
         run: python3 -m unittest training.tests.test_shop_controls training.tests.test_shop_controls_native -v
+      - name: Shop UI data patches with frozen native reader
+        env:
+          TFT_REQUIRE_SHOP4_NATIVE: '1'
+          TFT_SHOP4_PROBE: ${{ github.workspace }}/rust/target/debug/agente-tft-shop-replay-probe
+          OMP_THREAD_LIMIT: '1'
+        run: python3 -m unittest training.tests.test_shop_controls_profile training.tests.test_shop_controls_patch_native -v
