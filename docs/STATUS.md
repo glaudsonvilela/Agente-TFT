@@ -69,6 +69,11 @@ Implementado:
 - EvaluatorFeedbackSnapshot persistível na telemetria;
 - `calibration-inspect` lê JSON puro ou último snapshot de um JSONL;
 - Replay Calibration para coverage/latência/NO_CONFIDENT_CANDIDATE;
+- primeiro replay real `TFT_MATCH_001.mp4` validado em 1920x1080/60 FPS (~32m39s);
+- 40 frames estratégicos extraídos e pipeline de pré-anotação assistida por IA + revisão humana;
+- baseline de layout `tft-1920x1080-match001-v1` para ROI detector e HUD OCR;
+- HP removido do HUD estático: a linha local muda de posição na `player_list` e requer leitura dinâmica;
+- relatório compacto de comportamento do ROI change detector.
 - ground-truth replay accuracy para HUD/shop/board/lobby;
 - ferramenta FFmpeg para extrair frames e criar template de anotações;
 - Replay Intake Gate para validar vídeo + ground truth antes da calibração;
@@ -114,11 +119,11 @@ Regra: novas mudanças não invalidam este checkpoint; a branch acima permanece 
 
 ## Próximos passos — ordem
 
-1. **Primeiro replay real**
-   - obter uma gravação completa de TFT;
-   - extrair 20–50 frames estratégicos;
-   - preencher ground truth;
-   - executar `python -m training.replay_intake` até zerar blockers estruturais.
+1. **Validar baseline 1920x1080 no replay inteiro**
+   - executar `roi-replay-inspect` com `configs/roi/tft-1920x1080-match001-v1.json`;
+   - resumir eventos com `training.roi_replay_report`;
+   - ajustar thresholds/ROIs somente contra evidência do replay real;
+   - validar `stage/gold/level/xp` com HUD OCR.
 
 2. **Replay accuracy / perception calibration**
    - medir HUD/shop/board/lobby;
