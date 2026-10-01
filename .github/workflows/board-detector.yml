@@ -7,7 +7,7 @@ on:
       - 'training/tests/test_board_detector*.py'
       - 'training/requirements-board-detector.txt'
       - 'configs/vision/board-open-vocabulary-v1.json'
-      - 'scripts/*board_detector.sh'
+      - 'scripts/*board_detector*.sh'
   push:
     branches: [main]
     paths:
@@ -16,11 +16,55 @@ on:
       - 'training/tests/test_board_detector*.py'
       - 'training/requirements-board-detector.txt'
       - 'configs/vision/board-open-vocabulary-v1.json'
-      - 'scripts/*board_detector.sh'
+      - 'scripts/*board_detector*.sh'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
+  storage-mounted:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Storage contracts
+        run: python -B -m unittest training.tests.test_board_detector_storage -v
+      - name: Dedicated disposable ext4 mount, not a user disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          TESTDIR="$(mktemp -d "$RUNNER_TEMP/board3-storage.XXXXXXXX")"
+          IMAGE="$TESTDIR/disposable.img"
+          MOUNT="$TESTDIR/ssd"
+          truncate -s 6G "$IMAGE"
+          mkfs.ext4 -q -F "$IMAGE"
+          mkdir "$MOUNT"
+          sudo mount -o loop "$IMAGE" "$MOUNT"
+          trap 'sudo umount "$MOUNT" 2>/dev/null || true' EXIT
+          sudo chown "$(id -u):$(id -g)" "$MOUNT"
+          export TFT_BOARD3_STORAGE_ROOT="$MOUNT/Agente-TFT/board3"
+          export TFT_BOARD3_STORAGE_MOUNT="$MOUNT"
+          export TFT_BOARD3_STORAGE_UUID=00000000-0000-0000-0000-000000000000
+          if python -B training/board_detector_storage.py --project "$PWD"; then
+            echo 'wrong UUID was accepted'; exit 1
+          fi
+          test ! -e "$TFT_BOARD3_STORAGE_ROOT"
+          export TFT_BOARD3_STORAGE_UUID="$(blkid -s UUID -o value "$IMAGE")"
+          ROOT="$PWD"
+          source scripts/board_detector_storage.sh
+          test "$(python -m pip cache dir)" = "$TFT_BOARD3_STORAGE_ROOT/cache/pip"
+          test "$(python -c 'import tempfile; print(tempfile.gettempdir())')" = "$TFT_BOARD3_STORAGE_ROOT/tmp"
+          python -m venv "$BOARD3_RUNTIME/venv"
+          "$BOARD3_RUNTIME/venv/bin/python" -c 'import sys; print(sys.prefix)'
+          test ! -e telemetry/data/board3-runtime
+          sudo umount "$MOUNT"
+          if python -B training/board_detector_storage.py --project "$PWD"; then
+            echo 'missing SSD was accepted'; exit 1
+          fi
+          test ! -e "$MOUNT/Agente-TFT"
+          echo BOARD3_STORAGE_MOUNT_TEST_OK=true
   pretrained-cpu:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
