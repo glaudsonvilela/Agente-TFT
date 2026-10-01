@@ -1,0 +1,16 @@
+[package]
+name = "agente-tft-hud-replay-probe"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../../crates/capture-core" }
+agente-tft-hud-runtime = { path = "../../crates/hud-runtime" }
+agente-tft-ocr-tesseract = { path = "../../crates/ocr-tesseract" }
+agente-tft-perception-hud = { path = "../../crates/perception-hud" }
+serde_json.workspace = true
+
+[dev-dependencies]
+agente-tft-contracts = { path = "../../crates/contracts" }
+agente-tft-image-preprocess = { path = "../../crates/image-preprocess" }
