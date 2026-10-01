@@ -7,7 +7,7 @@ use agente_tft_ocr_tesseract::TesseractOcr;
 use serde_json::{json, Value};
 use probe::{LabelKind, Plan};
 
-const USAGE: &str = "Usage: agente-tft-hud-replay-probe <video> <hud-layout.json> <labels.json> [--prelabels] [--image-root <annotation-directory>] [--output <NEW-report.json>]\nOnly labeled timestamps are decoded; no full replay scan. --prelabels reports agreement, NEVER ground-truth accuracy. --image-root reads the existing image paths relative to that directory; video then identifies the source only.";
+const USAGE: &str = "Usage: agente-tft-hud-replay-probe <video> <hud-layout.json> <labels.json> [--prelabels] [--numeric-gray] [--image-root <annotation-directory>] [--output <NEW-report.json>]\nOnly labeled timestamps are decoded; no full replay scan. --prelabels reports agreement, NEVER ground-truth accuracy. --image-root reads the existing image paths relative to that directory; video then identifies the source only.";
 
 fn main() -> ExitCode {
     match run() {
@@ -32,8 +32,10 @@ fn run() -> Result<bool, String> {
     let mut kind = LabelKind::Annotations;
     let mut image_root = None;
     let mut output_path = None;
+    let mut numeric_gray = false;
     while let Some(arg) = args.next() {
         match arg.as_str() {
+            "--numeric-gray" if !numeric_gray => numeric_gray = true,
             "--prelabels" if kind == LabelKind::Annotations => kind = LabelKind::Prelabels,
             "--image-root" if image_root.is_none() => image_root = Some(PathBuf::from(args.next().ok_or("missing --image-root value")?)),
             "--output" if output_path.is_none() => output_path = Some(PathBuf::from(args.next().ok_or("missing --output value")?)),
@@ -51,6 +53,7 @@ fn run() -> Result<bool, String> {
         for sample in &plan.samples { media::relative_image_path(root, sample.image.as_deref())?; }
     }
     let mut engine = TesseractOcr::default();
+    if numeric_gray { engine = engine.with_numeric_gray(); }
     if !engine.available() { return Err("tesseract is unavailable; install it before probing".into()); }
     // Reserve exclusively: never overwrite labels, an earlier report, or another input.
     let mut output = match &output_path {
@@ -70,10 +73,11 @@ fn run() -> Result<bool, String> {
             } else { Ok(frame) }
         });
         for expected in &sample.expected {
-            let record = match &decoded {
+            let mut record = match &decoded {
                 Ok(frame) => probe::evaluate(&mut engine, &layout, frame, sample.timestamp_ms, expected, kind),
                 Err(error) => probe::failure(sample.timestamp_ms, expected, kind, "decode_error", error),
             };
+            record["ocr_profile"] = json!(engine.profile_for(expected.field));
             println!("{record}");
             records.push(record);
         }
@@ -81,6 +85,7 @@ fn run() -> Result<bool, String> {
     let complete = records.iter().all(|r| r["error"].is_null());
     let summary = json!({
         "type": "summary", "schema_version": 1,
+        "ocr_profile": if numeric_gray { "numeric_gray_v3" } else { "legacy_v2" },
         "label_kind": kind.name(), "metric_kind": kind.metric_name(),
         "promotion_gate": "not_evaluated_diagnostic_only", "execution_complete": complete,
         "source_video": plan.source_video, "video_argument": video,

@@ -60,6 +60,18 @@ pub enum HudReadError {
 }
 
 pub trait HudOcrEngine {
+    /// Backends may opt into another image preparation path. The default is
+    /// byte-for-byte the legacy numeric preprocessing; labels are never passed.
+    fn prepare_roi(
+        &self,
+        _field: HudField,
+        roi: &RoiFrame,
+        config: HudPreprocessConfig,
+    ) -> Result<GrayImage, HudReadError> {
+        preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
+            .map_err(|e| HudReadError::Preprocess(e.to_string()))
+    }
+
     fn recognize(
         &mut self,
         field: HudField,
@@ -73,8 +85,7 @@ pub fn read_roi_with_ocr(
     roi: &RoiFrame,
     config: HudPreprocessConfig,
 ) -> Result<Option<HudObservationBatch>, HudReadError> {
-    let image = preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
-        .map_err(|e| HudReadError::Preprocess(e.to_string()))?;
+    let image = engine.prepare_roi(field, roi, config)?;
 
     let Some(recognized) = engine
         .recognize(field, &image)
@@ -381,8 +392,7 @@ pub fn read_roi_robust(
     let mut recognizer_errors = Vec::<String>::new();
 
     for config in attempts.iter().copied() {
-        let image = preprocess_for_numeric_ocr(roi, config.upscale_factor, config.invert)
-            .map_err(|e| HudReadError::Preprocess(e.to_string()))?;
+        let image = engine.prepare_roi(field, roi, config)?;
 
         let recognized = match engine.recognize(field, &image) {
             Ok(value) => value,
