@@ -20,7 +20,7 @@ O arquivo `0027_001300000ms.jpg` mostra a grade durante uma interação. Os cent
 
 `0005_000200000ms.jpg` fornece a aparência inicial do banco vazio e duas referências decorativas da arena. Ambos os JPEGs são identificados por SHA-256 e verificados antes/depois da execução. Nenhum nome, item, contagem de campeões ou prelabel alimenta a inferência.
 
-A gravação mostra arenas diferentes. A estrutura lógica não vira outra temporada só porque o piso mudou. Entretanto, uma assinatura do banco em uma arena não pode estabelecer vazio em outra. Por isso duas regiões independentes precisam corresponder à referência antes da comparação dos espaços do banco. A correspondência NÃO determina quem é o dono do tabuleiro e NÃO identifica fase.
+A gravação mostra arenas diferentes. A estrutura lógica não vira outra temporada só porque o piso mudou. Entretanto, uma assinatura do banco em uma arena não pode estabelecer vazio em outra. Por isso duas regiões separadas precisam corresponder à referência antes da comparação dos espaços do banco. A correspondência NÃO determina quem é o dono do tabuleiro e NÃO identifica fase.
 
 Os frames usados como sementes podem estar também no lote de 40 imagens; a avaliação é diagnóstico de desenvolvimento, não teste independente.
 
@@ -60,7 +60,9 @@ A saída exclusiva `telemetry/data/match-001-board-b1.XXXXXXXX/run/` inclui rela
 
 ## Testes e revisão
 
-16 testes Rust novos cobrem geometria, formatos/stride, referência plana, limites, barras azuis ignoradas, corpo verde não tratado como barra, bordas, ticks, ambiguidades e ausência de identidades/ocupação inventadas. O aplicativo inclui os seis testes compartilhados do decoder.
+17 testes Rust novos cobrem geometria, formatos/stride, referência plana, limites, barras azuis ignoradas, corpo verde não tratado como barra, bordas, ticks, ambiguidades e ausência de identidades/ocupação inventadas. O aplicativo inclui os seis testes compartilhados do decoder.
+
+O primeiro CI encontrou uma expectativa incorreta na fixture positiva: uma barra fina sobre fundo vazio ainda satisfazia a semelhança da referência e devia produzir ambiguidade. A fixture positiva passou a incluir uma região neutra de corpo, e o caso original foi mantido como teste explícito de abstenção. Nenhum limite ou regra de produção foi relaxado.
 
 15 testes Python locais cobrem integridade do relatório, status derivados dos scores, geometria, ausência de afirmações semânticas, caminhos e visor autocontido. A integração nativa obrigatória no HUD media usa PNGs sintéticos e Rust/FFmpeg, verifica arena desconhecida, candidatos, relatórios, hashes e recusa de sobrescrita. Um executável-sentinela `tesseract` confirma que o fluxo não chama OCR.
 
