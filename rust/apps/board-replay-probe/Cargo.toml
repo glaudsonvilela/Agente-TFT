@@ -1,0 +1,12 @@
+[package]
+name = "agente-tft-board-replay-probe"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agente-tft-capture-core = { path = "../../crates/capture-core" }
+agente-tft-contracts = { path = "../../crates/contracts" }
+agente-tft-perception-board = { path = "../../crates/perception-board" }
+serde.workspace = true
+serde_json.workspace = true
