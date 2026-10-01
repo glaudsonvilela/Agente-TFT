@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "name": "tft-1920x1080-match001-v1",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "regions": [
+    {
+      "field": "stage",
+      "rect": {"x": 0.382, "y": 0.0, "width": 0.055, "height": 0.045}
+    },
+    {
+      "field": "gold",
+      "rect": {"x": 0.522, "y": 0.81, "width": 0.035, "height": 0.05}
+    },
+    {
+      "field": "level",
+      "rect": {"x": 0.18, "y": 0.805, "width": 0.065, "height": 0.055}
+    },
+    {
+      "field": "xp",
+      "rect": {"x": 0.245, "y": 0.805, "width": 0.035, "height": 0.055}
+    }
+  ]
+}
