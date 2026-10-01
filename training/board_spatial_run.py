@@ -36,6 +36,12 @@ def preflight(args, with_probe=True):
     manifest = prepare(args.manifest, root)
     sources = {str(path.resolve(strict=True)): sha(path) for path in
                (args.manifest, args.profile, args.board_topology, args.bench_topology)}
+    presence_path = getattr(args, 'presence_profile', None)
+    if presence_path is not None:
+        from training.bench_presence_evidence import validate_policy
+        extension, digest = load(presence_path)
+        validate_policy(extension, p, args.profile.read_bytes())
+        sources[str(presence_path.resolve(strict=True))] = digest
     for row in manifest['frames']:
         path = source_path(root, row['image'])
         sources[str(path)] = row['sha256']
@@ -64,6 +70,9 @@ def run(args):
     (out/'manifest.json').write_bytes(canonical(manifest))
     command = [str(args.probe.resolve()), str(out/'manifest.json'), str(args.image_root.resolve()),
                str(args.profile.resolve()), str(out/'native.json')]
+    presence_path = getattr(args, 'presence_profile', None)
+    if presence_path is not None:
+        command.append(str(presence_path.resolve(strict=True)))
     (out/'command.json').write_bytes(canonical(command))
     with (out/'events.jsonl').open('xb') as log, (out/'native.stderr').open('xb') as err:
         child = subprocess.Popen(command, stdout=log, stderr=err, start_new_session=True)
@@ -79,6 +88,10 @@ def run(args):
     require(rc == 0, f'native spatial probe failed ({rc}); inspect {out}/native.stderr')
     report, _ = load(out/'native.json')
     validate(report, manifest, p)
+    if presence_path is not None:
+        from training.bench_presence_evidence import validate as validate_presence
+        extension, _ = load(presence_path)
+        validate_presence(report, p, extension)
     verify_sources(sources)
     write_viewer(out/'viewer.html', p, manifest, report['records'], args.image_root.resolve())
     verify_sources(sources)

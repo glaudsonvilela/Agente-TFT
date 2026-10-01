@@ -4,10 +4,13 @@ mod media;
 mod profile;
 mod bars;
 mod scene;
+mod foreground;
+mod presence;
 use std::{collections::{BTreeMap,HashSet},env,fs,io::Write,path::{Path,PathBuf},process::ExitCode,time::Instant};
 use serde_json::{json,Value};
 use profile::Profile;
 use scene::SceneReader;
+use presence::{PresenceProfile,PresenceReader};
 
 fn load(path:&Path)->Result<Value,String> {
     if fs::metadata(path).map_err(|e|e.to_string())?.len()>16*1024*1024 {return Err("JSON byte budget exceeded".into());}
@@ -33,7 +36,7 @@ fn quantile(values:&[f64],q:f64)->f64 {
 }
 fn run()->Result<(),String> {
     let a:Vec<_>=env::args().skip(1).collect();
-    if a.len()!=4 {return Err("Usage: board-replay-probe <manifest> <image-root> <UI-profile> <NEW-report>".into());}
+    if a.len()!=4 && a.len()!=5 {return Err("Usage: board-replay-probe <manifest> <image-root> <UI-profile> <NEW-report> [bench-presence-profile]".into());}
     let root=PathBuf::from(&a[1]).canonicalize().map_err(|e|e.to_string())?;
     let p:Profile=serde_json::from_value(load(Path::new(&a[2]))?).map_err(|e|e.to_string())?;
     p.validate()?;
@@ -41,7 +44,10 @@ fn run()->Result<(),String> {
     let reference_path=media::relative_image_path(&root,Some(&p.reference_image))?;
     let reference=media::decode(&reference_path,None,0)?;
     let reader=SceneReader::new(p.clone(),&reference)?;
-    // Refuse overwrite before scanning any evaluation frame.
+    let extra=if a.len()==5 {
+        let policy:PresenceProfile=serde_json::from_value(load(Path::new(&a[4]))?).map_err(|e|e.to_string())?;
+        Some(PresenceReader::new(p.clone(),policy,&reference)?)
+    }else{None};
     let mut output=fs::OpenOptions::new().write(true).create_new(true).open(&a[3]).map_err(|e|e.to_string())?;
     let mut records=Vec::new();let mut projections=BTreeMap::<String,usize>::new();
     let mut bench_states=BTreeMap::<String,usize>::new();let mut colors=BTreeMap::<String,usize>::new();
@@ -56,7 +62,18 @@ fn run()->Result<(),String> {
         for b in &read.bench {*bench_states.entry(b.evidence.clone()).or_default()+=1;}
         for m in &read.markers {*colors.entry(m.color.clone()).or_default()+=1;}
         scan_ms.push(elapsed);total_ms.push(total);
-        let record=json!({"type":"spatial_frame","read":read,"scan_ms":elapsed,"decode_and_scan_ms":total});
+        // The B2 observer receives the same decoded frame and immutable B1 read.
+        // B1 timing ends before B2; the extra and combined durations are explicit.
+        let additional=if let Some(observer)=&extra {
+            let t=Instant::now();let observation=observer.read(&frame,&read)?;
+            Some((observation,t.elapsed().as_secs_f64()*1000.0,started.elapsed().as_secs_f64()*1000.0))
+        }else{None};
+        let mut record=json!({"type":"spatial_frame","read":read,"scan_ms":elapsed,"decode_and_scan_ms":total});
+        if let Some((observation,ms,combined))=additional {
+            record["bench_presence"]=json!(observation);
+            record["bench_presence_scan_ms"]=json!(ms);
+            record["decode_and_both_scans_ms"]=json!(combined);
+        }
         println!("{record}");records.push(record);
     }
     let summary=json!({"schema_version":1,"policy":"board_bench_spatial_v1","profile":p.id,"frames":frames.len(),
