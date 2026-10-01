@@ -82,9 +82,12 @@ def run(args: argparse.Namespace) -> dict:
             'release and recording context must be supplied together')
     recovery_path = getattr(args, 'recovery_profile', None)
     controls_path = getattr(args, 'controls_profile', None)
+    numbers_path = getattr(args, 'numbers_profile', None)
     require(controls_path is None or recovery_path is not None, 'controls require S2 recovery')
-    prefix = 'SHOP3' if controls_path is not None else 'SHOP2' if recovery_path is not None else 'SHOP1'
+    require(numbers_path is None or controls_path is not None, 'isolated numbers require controls')
+    prefix = 'SHOP5' if numbers_path is not None else 'SHOP3' if controls_path is not None else 'SHOP2' if recovery_path is not None else 'SHOP1'
     binding = None
+    numbers_policy = None
     sources = {str(p.resolve()): sha(p) for p in (args.manifest, args.layout, args.probe)}
     sources.update({str((root / r['image']).resolve()): r['sha256'] for r in manifest['frames']})
     if recovery_path is not None:
@@ -99,6 +102,12 @@ def run(args: argparse.Namespace) -> dict:
         require(controls.get('schema_version') == 1 and controls.get('parent_layout_id') == layout['id']
                 and controls.get('recovery_profile_id') == recovery['id'], 'controls UI compatibility mismatch')
         sources[str(controls_path)] = digest
+    if numbers_path is not None:
+        from training.shop_numbers_policy import validate_policy
+        numbers_path = numbers_path.resolve(strict=True)
+        numbers_policy, digest = load(numbers_path)
+        validate_policy(numbers_policy, controls, layout)
+        sources[str(numbers_path)] = digest
     if args.release is not None:
         context, release_id, fingerprints = freeze_binding(args.context, args.release, layout)
         sources.update(fingerprints)
@@ -114,6 +123,8 @@ def run(args: argparse.Namespace) -> dict:
         command.append(str(recovery_path))
     if controls_path is not None:
         command.append(str(controls_path))
+    if numbers_path is not None:
+        command.append(str(numbers_path))
     (out / 'command.json').write_bytes(canonical(command))
     with (out / 'events.jsonl').open('xb') as stdout, (out / 'native.stderr').open('xb') as stderr:
         child = subprocess.Popen(command, stdout=stdout, stderr=stderr, start_new_session=True)
@@ -150,7 +161,7 @@ def run(args: argparse.Namespace) -> dict:
     if controls_path is not None:
         from training.shop_controls_evidence import validate_controls
         require(report['summary'].get('controls_profile') == controls['id'], 'missing native controls profile')
-        metrics = validate_controls(report, controls)
+        metrics = validate_controls(report, controls, numbers_policy)
         require(metrics['controls_ocr_process_calls'] == report['summary']['controls_ocr_process_calls'],
                 'controls OCR count mismatch')
         report['summary']['controls_metrics'] = metrics
@@ -173,7 +184,7 @@ def run(args: argparse.Namespace) -> dict:
         r = row['read']
         if controls_path is not None:
             c = row['controls']
-            print('SHOP3_CONTROLS=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'],
+            print(prefix + '_CONTROLS=' + json.dumps(dict(timestamp_ms=r['timestamp_ms'],
                 controls=[dict(id=v['id'], status=v['status'], appearance=v['appearance']) for v in c['controls']],
                 numbers=[dict(id=v['id'], status=v['status'], value=v['value']) for v in c['numeric_fields']]), ensure_ascii=False))
             continue
@@ -195,6 +206,7 @@ def main() -> None:
     p.add_argument('--context', type=Path)
     p.add_argument('--recovery-profile', type=Path)
     p.add_argument('--controls-profile', type=Path)
+    p.add_argument('--numbers-profile', type=Path)
     try:
         run(p.parse_args())
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as e:

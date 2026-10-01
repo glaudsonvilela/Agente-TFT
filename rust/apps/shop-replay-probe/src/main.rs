@@ -6,6 +6,7 @@ mod screen;
 mod recovery;
 mod controls;
 mod control_text;
+mod control_numbers;
 
 use std::{collections::{BTreeMap,HashSet},env,fs,io::Write,path::{Path,PathBuf},process::ExitCode,time::Instant};
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
@@ -19,8 +20,8 @@ fn load(path:&Path)->Result<Value,String> {
 }
 fn run()->Result<bool,String> {
     let args:Vec<_>=env::args().skip(1).collect();
-    if !(4..=6).contains(&args.len()) {
-        return Err("Usage: shop-replay-probe <manifest.json> <image-root> <ui-layout.json> <NEW-report.json> [recovery-profile.json [controls-profile.json]]".into());
+    if !(4..=7).contains(&args.len()) {
+        return Err("Usage: shop-replay-probe <manifest.json> <image-root> <ui-layout.json> <NEW-report.json> [recovery-profile.json [controls-profile.json [numbers-profile.json]]]".into());
     }
     let root=PathBuf::from(&args[1]).canonicalize().map_err(|e|e.to_string())?;
     let manifest=load(Path::new(&args[0]))?;
@@ -44,6 +45,12 @@ fn run()->Result<bool,String> {
         let profile = serde_json::from_value(load(Path::new(path))?).map_err(|e| e.to_string())?;
         controls::ControlsReader::new(profile, &layout, recovery.as_ref().ok_or("controls require recovery profile")?)
     }).transpose()?;
+    let numbers: Option<control_numbers::NumbersProfile> = args.get(6).map(|path| {
+        serde_json::from_value(load(Path::new(path))?).map_err(|e|e.to_string())
+    }).transpose()?;
+    if let Some(policy) = &numbers {
+        policy.validate(&controls.as_ref().ok_or("numbers require controls")?.profile, &layout)?;
+    }
     let mut control_calls = 0u64;
     let language=env::var("TFT_SHOP_OCR_LANGUAGE").unwrap_or_else(|_|"eng".into());
     if language.is_empty() || language.len()>40 || !language.chars().all(|c|c.is_ascii_alphanumeric()||c=='_'||c=='+') {
@@ -61,7 +68,11 @@ fn run()->Result<bool,String> {
             let read = screen::perceive(&frame, &layout, &engine, recovery.as_ref())?;
             let control_read = if let Some(reader) = &controls {
                 let mut value = reader.read_visual(&frame, read.panel_status == "located")?;
-                control_text::read_numbers(&frame, &reader.profile, &mut value, &engine)?;
+                if let Some(policy) = &numbers {
+                    control_numbers::read_numbers(&frame, &reader.profile, policy, &mut value, &engine)?;
+                } else {
+                    control_text::read_numbers(&frame, &reader.profile, &mut value, &engine)?;
+                }
                 Some(value)
             } else { None };
             Ok((read, control_read))
@@ -106,6 +117,10 @@ fn run()->Result<bool,String> {
         summary["capabilities"]["button_prices"] = json!(true);
         summary["capabilities"]["free_refresh_counter"] = json!(true);
         summary["controls_note"] = json!("visual appearances only; not click authorization or temporal confirmation; closed-lock template not present in seeded profile");
+    }
+    if let Some(policy) = &numbers {
+        summary["control_numbers_policy"] = json!(policy.id);
+        summary["controls_numeric_mode"] = json!("isolated_field_v1");
     }
     serde_json::to_writer_pretty(&mut file,&json!({"summary":summary,"records":records})).map_err(|e|e.to_string())?;
     file.write_all(b"\n").map_err(|e|e.to_string())?;file.sync_all().map_err(|e|e.to_string())?;
