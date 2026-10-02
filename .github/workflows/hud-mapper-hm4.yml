@@ -81,7 +81,7 @@ jobs:
       - name: HM4 exact-cache benchmark
         shell: pwsh
         run: |
-          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --configs configs --output hm4-cache-benchmark.json
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm4-cache-benchmark.json
           if ($LASTEXITCODE -ne 0) { throw 'HM4 cache benchmark failed' }
 
       - name: Package HM4 Auto
