@@ -12,6 +12,14 @@ def stats(values):
     if not values:return dict(n=0,p50_ms=None,p95_ms=None)
     return dict(n=len(values),p50_ms=float(np.quantile(values,.5)),p95_ms=float(np.quantile(values,.95)),max_ms=max(values))
 
+def neural_provenance(model_present):
+    return dict(
+        neural_mode='shadow_diagnostic' if model_present else 'disabled',
+        neural_training_label_allowed=False,
+        neural_game_state_write_allowed=False,
+        neural_reader_input_allowed=False,
+    )
+
 @dataclass
 class Options:
     video: str
@@ -223,6 +231,7 @@ class Session:
                         readers_queue=stats([x['queue_ms'] for x in reading]),
                         stages={k:stats(v) for k,v in stages.items()}),
            observations_are_ground_truth=False,neural_scope=['bench','shop'] if self.model else [],
+           **neural_provenance(self.model is not None),
            full_hud_neural_mapping=False,board_cells_validated=False,model_trained=False,torch_loaded_in_mapper='torch' in __import__('sys').modules,
            profile_promoted=False,game_state_updated=False,continuous_learning_connected=False,
            official_game_connected=False,physical_display_measured=False,

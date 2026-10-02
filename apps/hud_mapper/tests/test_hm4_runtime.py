@@ -5,7 +5,7 @@ from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
     HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source
 )
-from hm.session import Options
+from hm.session import Options, neural_provenance
 from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 
@@ -37,6 +37,16 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertEqual(HM4RuntimeSession.shop_interval_ms,2000.0)
         self.assertEqual(HM4RuntimeSession.__mro__[1].shop_interval_ms,0.0)
         self.assertIn("automatic", HM4RuntimeSession.primary_objective)
+
+    def test_summary_neural_provenance_is_shadow_or_disabled(self):
+        enabled=neural_provenance(True)
+        disabled=neural_provenance(False)
+        self.assertEqual(enabled["neural_mode"],"shadow_diagnostic")
+        self.assertEqual(disabled["neural_mode"],"disabled")
+        for row in (enabled,disabled):
+            self.assertFalse(row["neural_training_label_allowed"])
+            self.assertFalse(row["neural_game_state_write_allowed"])
+            self.assertFalse(row["neural_reader_input_allowed"])
 
     def test_neural_regions_are_explicit_shadow_only(self):
         raw=[[[0.10,0.20,0.40,0.30,3.0],[0.20,0.50,0.80,0.70,3.0]]]
