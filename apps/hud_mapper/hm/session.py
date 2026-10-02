@@ -198,7 +198,8 @@ class Session:
         stages={}
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
-        result=dict(schema_version=1,policy='hud_mapper_hm2' if self.source_info.get('source_kind')=='native_capture' else 'hud_mapper_hm1',primary_objective='HUD_mapping_and_natural_training_material',
+        default_policy='hud_mapper_hm2' if self.source_info.get('source_kind')=='native_capture' else 'hud_mapper_hm1'
+        result=dict(schema_version=1,policy=getattr(self,'policy_name',default_policy),primary_objective=getattr(self,'primary_objective','HUD_mapping_and_natural_training_material'),
            session_id=self.id,source=self.source_info,versions=self.versions,
            execution_complete=self.error is None and not self.cancel.is_set(),error=self.error,
            cancelled=self.cancel.is_set(),counts=dict(self.counts),
