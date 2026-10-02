@@ -16,7 +16,7 @@ def main():
     target=next(r for r in list_targets(runtime_paths()["configs"]) if r["kind"]=="window" and r["label"]=="HM4 automatic live smoke")
     cmd=([a.app] if a.app else [sys.executable,"apps/hud_mapper/AgenteTFT_HUD_HM4.py"])+[
         "--capture",f'capture://window/{target["id"]}',"--capture-consent","--output",str(out),"--seconds","5",
-        "--map-hz","6","--reader-hz","1","--sample-hz","1",("--ui-smoke" if a.ui else "--headless")]
+        "--map-hz","6","--sample-hz","1",("--ui-smoke" if a.ui else "--headless")]
     log=out.with_name(out.name+"-launcher.log");proc=None
     try:
         with log.open("xb") as f:
@@ -42,6 +42,10 @@ def main():
         assert report["policy"]=="hud_mapper_hm4_auto"
         assert report["counts"]["source_frames"]>0
         assert report["counts"].get("mapped_frames",0)==0
+        # Do not pass --reader-hz: prove the packaged HM4 default is 2 Hz.
+        submitted=report["counts"].get("native_submitted",0)
+        effective_hz=submitted/max(float(report.get("elapsed_seconds") or 0.001),0.001)
+        assert effective_hz>=1.5, ("hm4_default_reader_hz",submitted,effective_hz,report.get("elapsed_seconds"))
         # Packaged smoke proves WGC/UI/session sealing only. The owned Tk window
         # is intentionally non-canonical; reader normalization/parallelism are
         # covered by deterministic contracts and Rust tests.
