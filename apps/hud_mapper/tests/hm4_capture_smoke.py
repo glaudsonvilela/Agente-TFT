@@ -15,7 +15,7 @@ def main():
     root.update();time.sleep(.2);root.update()
     target=next(r for r in list_targets(runtime_paths()["configs"]) if r["kind"]=="window" and r["label"]=="HM4 automatic live smoke")
     cmd=([a.app] if a.app else [sys.executable,"apps/hud_mapper/AgenteTFT_HUD_HM4.py"])+[
-        "--capture",f'capture://window/{target["id"]}',"--capture-consent","--output",str(out),"--seconds","3",
+        "--capture",f'capture://window/{target["id"]}',"--capture-consent","--output",str(out),"--seconds","5",
         "--map-hz","6","--reader-hz","1","--sample-hz","1",("--ui-smoke" if a.ui else "--headless")]
     log=out.with_name(out.name+"-launcher.log");proc=None
     try:
@@ -36,6 +36,12 @@ def main():
         assert report["counts"].get("reader_resolution_skipped",0)==0
         assert report["counts"].get("reader_normalized_runs",0)>0
         assert report["counts"].get("reader_native_runs",0)>0
+        stages=report["timings"]["stages"]
+        hud_keys=["hud_stage","hud_gold","hud_level","hud_xp"]
+        assert "hud_parallel_wall" in stages and stages["hud_parallel_wall"]["n"]>0
+        serial=sum(stages[k]["p50_ms"] for k in hud_keys if stages.get(k,{}).get("p50_ms") is not None)
+        wall=stages["hud_parallel_wall"]["p50_ms"]
+        assert wall is not None and serial>0 and wall<serial, (wall,serial,stages)
         assert report["neural_scope"]==[]
         assert manifest["samples"] and all(x["targets"] is None for x in manifest["samples"])
         assert not report["torch_loaded_in_mapper"] and not report["profile_promoted"]
