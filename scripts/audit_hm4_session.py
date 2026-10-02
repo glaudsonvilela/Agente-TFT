@@ -78,6 +78,19 @@ def field_metrics(counter):
     )
 
 
+def neural_metrics(summary):
+    enabled=bool((summary.get("versions") or {}).get("neural_enabled"))
+    mode=summary.get("neural_mode") or ("shadow_diagnostic" if enabled else "disabled")
+    return dict(
+        enabled=enabled,
+        mode=mode,
+        training_label_allowed=bool(summary.get("neural_training_label_allowed",False)),
+        game_state_write_allowed=bool(summary.get("neural_game_state_write_allowed",False)),
+        reader_input_allowed=bool(summary.get("neural_reader_input_allowed",False)),
+        scope=summary.get("neural_scope") or [],
+    )
+
+
 def pipeline_metrics(summary):
     counts=summary.get("counts") or {}
     queues=summary.get("queues") or {}
@@ -181,6 +194,7 @@ def audit_session(src,summary_name,names):
         versions=dict(neural_enabled=versions.get("neural_enabled"),
                       model_sha256=versions.get("model_sha256"),
                       hud=versions.get("hud"),hp=versions.get("hp")),
+        neural=neural_metrics(summary),
         pipeline=pipeline_metrics(summary),
         counts=counts,queues=summary.get("queues"),timings=summary.get("timings"),
         coverage=summary.get("coverage"),collection=summary.get("collection"),
@@ -208,6 +222,15 @@ def self_test():
         counts=dict(native_submitted=1585,reader_native_runs=300,read_frames=299),
         queues=dict(native_replaced=1284),timings={}))
     assert abs(pipe["latest_frame_replacement_rate"]-(1284/1585))<1e-12
+    neural=neural_metrics(dict(
+        versions=dict(neural_enabled=True),neural_mode="shadow_diagnostic",
+        neural_training_label_allowed=False,neural_game_state_write_allowed=False,
+        neural_reader_input_allowed=False,neural_scope=["bench","shop"]))
+    assert neural["enabled"] and neural["mode"]=="shadow_diagnostic"
+    assert neural["scope"]==["bench","shop"]
+    assert not neural["training_label_allowed"]
+    assert not neural["game_state_write_allowed"]
+    assert not neural["reader_input_allowed"]
     print("HM4_AUDIT_SELF_TEST_OK")
 
 
