@@ -1,6 +1,7 @@
 """HM3/HM4 capture runtime. HM4 can normalize verified 16:9 pixels for frozen 1920x1080 readers."""
 from __future__ import annotations
 from dataclasses import replace
+from concurrent.futures import ThreadPoolExecutor
 import copy, queue, time
 from PIL import Image
 from .core import native_regions, valid_box
@@ -155,12 +156,15 @@ class RuntimeSession(Session):
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
                                    bytes=len(reader_frame.rgb))
-                    answer = self.worker.request(request, reader_frame.rgb, timeout=12)
+                    # Independent processes: overlap HP with the main HUD/shop worker.
+                    hp_start = time.perf_counter_ns()
+                    with ThreadPoolExecutor(max_workers=1, thread_name_prefix='hm4-hp') as pool:
+                        hp_future = pool.submit(self.hp_worker.request, request, reader_frame.rgb, 12)
+                        answer = self.worker.request(request, reader_frame.rgb, timeout=12)
+                        hp = hp_future.result(timeout=13)
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
-                    hp_start = time.perf_counter_ns()
-                    hp = self.hp_worker.request(request, reader_frame.rgb, timeout=12)
                     if answer.get('id') != frame.id or hp.get('id') != frame.id:
                         raise ValueError('Resposta pertence a outro frame')
                     answer['hp'] = hp['hp']
