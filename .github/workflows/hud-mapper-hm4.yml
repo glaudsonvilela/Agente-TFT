@@ -1,5 +1,7 @@
 name: HUD Mapper HM4 Auto
 
+# [full] on a push enables packaging + packaged WGC smoke; normal pushes use the fast validation path.
+
 on:
   push:
     branches:
