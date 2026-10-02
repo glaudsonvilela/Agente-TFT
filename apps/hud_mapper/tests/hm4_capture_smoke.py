@@ -30,6 +30,10 @@ def main():
             detail=log.read_text(errors="replace")[-12000:]
             print("HM4_LAUNCHER_FAILURE_BEGIN")
             print(detail)
+            for evidence in ("summary.json","PARTIAL.json","COMPLETE.json"):
+                path=out/evidence
+                if path.exists():
+                    print("HM4_EVIDENCE_"+evidence.replace(".","_").upper()+"="+path.read_text(errors="replace")[-12000:])
             print("HM4_LAUNCHER_FAILURE_END")
             raise AssertionError(f"packaged HM4 exited {proc.returncode}")
         report=json.loads((out/"summary.json").read_text())
