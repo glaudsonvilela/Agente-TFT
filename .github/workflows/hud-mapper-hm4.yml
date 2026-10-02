@@ -74,6 +74,12 @@ jobs:
           cargo build --release --manifest-path tools/e1-native/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'e1-native build failed' }
 
+      - name: HM4 exact-cache benchmark
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --configs configs --output hm4-cache-benchmark.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 cache benchmark failed' }
+
       - name: Package HM4 Auto
         run: python scripts/build_hud_mapper_hm4_windows.py
 
@@ -98,6 +104,7 @@ jobs:
         with:
           name: HUD-HM4-Evidence
           path: |
+            hm4-cache-benchmark.json
             hm4-portable/*.json
             hm4-portable-launcher.log
             dist/HM4_COMPACTION_REPORT.json
