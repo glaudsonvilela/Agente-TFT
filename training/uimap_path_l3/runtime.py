@@ -3,7 +3,7 @@ import argparse,json,platform,resource,time
 from pathlib import Path
 import numpy as np
 from . import legacy
-from uimap_lite_l2.common import load,save,sha,require,quantile
+from uimap_lite_l2.common import load,save,sha,require,quantile,contained
 from uimap_lite_l2.runtime import LiteRuntime
 from uimap_lite_l2.evaluate import benchmark
 from .pixels import decode
@@ -19,13 +19,14 @@ def run(bundle,image_root,output):
     seal=load(bundle/'COMPLETE.json')
     for n in ('plan.json','manifest.json','deployment-candidate.json','candidate-model.onnx'):
         require(seal.get(n)==sha(bundle/n),'runtime input seal: '+n)
+    require(plan['base_plan_sha256']==sha(legacy.L2/'configs/plan.json'),'runtime base plan changed')
     base=load(legacy.L2/'configs/plan.json');rows=load(bundle/'manifest.json')
     require(len(rows)==40,'complete frame batch required')
     started=time.perf_counter_ns();engine=LiteRuntime(bundle/'candidate-model.onnx',meta['sha256'])
     loading=(time.perf_counter_ns()-started)/1e6
     records=[];inputs=[]
     for row in rows:
-        p=image_root/row['image'];require(sha(p)==row['sha256'],'image changed')
+        p=contained(image_root,row['image']);require(sha(p)==row['sha256'],'image changed')
         tic=time.perf_counter_ns();frame=decode(p,row['timestamp_ms'])
         t=time.perf_counter_ns();raw=engine.infer(frame.tensor[None])[0];forward=(time.perf_counter_ns()-t)/1e6
         t=time.perf_counter_ns();d=panel_decisions(raw,base['evaluation_policy'],frame.frame_id)
@@ -38,6 +39,9 @@ def run(bundle,image_root,output):
             panels=d,board=board_status(),edge_diagnostic=trace))
         inputs.append(frame.tensor)
     timing=benchmark(engine.infer,np.stack(inputs))
+    for row in rows:
+        require(sha(contained(image_root,row['image']))==row['sha256'],'image changed during runtime')
+    require(sha(bundle/'candidate-model.onnx')==meta['sha256'],'ONNX changed during runtime')
     require('torch' not in sys.modules,'trainer leaked into runtime')
     summary=dict(policy='uimap-path-l3-runtime',frames=40,torch_loaded=False,model_load_ms=loading,
         resident_inference=timing,refinement_applied=False,process_max_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,

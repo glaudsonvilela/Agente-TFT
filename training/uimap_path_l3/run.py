@@ -26,6 +26,7 @@ def run(args):
     plan=load(args.plan);base_file=legacy.L2/'configs/plan.json';base=validate_plan(plan,base_file)
     rows,sources=source_manifest(args.image_root,base,args.manifest)
     bp,receipt=baseline(args.baseline)
+    require(load(bp/'plan.json')['plan']==base,'L2 baseline used a different seed/processing plan')
     require(load(bp/'manifest.json')==rows,'L3 must use exactly the same 40 L2 images/timestamps')
     for p in [args.plan,base_file,bp/'weights.npz',bp/'COMPLETE.json']:
         sources[str(p.resolve())]=sha(p)
