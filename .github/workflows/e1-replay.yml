@@ -1,0 +1,88 @@
+name: E1 Replay Lab
+on:
+  pull_request:
+    paths: ['apps/e1_replay/**', 'tools/e1-native/**', 'scripts/build_e1_windows.py', '.github/workflows/e1-replay.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: e1-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: dtolnay/rust-toolchain@stable
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg tesseract-ocr xvfb python3-tk
+      - run: python -m pip install -r apps/e1_replay/requirements.txt
+      - run: cargo test --manifest-path tools/e1-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/e1-native/Cargo.toml
+      - name: Python contracts and native-media integration
+        env: {PYTHONPATH: 'apps/e1_replay', OMP_THREAD_LIMIT: '1'}
+        run: |
+          python -B -m unittest discover -s apps/e1_replay/tests -v
+          python -B apps/e1_replay/tests/native_smoke.py --output /tmp/e1-native-check
+          xvfb-run -a python apps/e1_replay/AgenteTFT_E1.py --ui-smoke --output /tmp/e1-ui-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: E1-Linux-test-evidence
+          path: |
+            /tmp/e1-native-check/**/*.json
+            /tmp/e1-native-check/**/*.txt
+            /tmp/e1-ui-check/*
+  windows-portable:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Recorder dependencies in build runner only
+        shell: pwsh
+        run: |
+          choco install ffmpeg tesseract -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Chocolatey dependency install failed' }
+          $ff = Get-ChildItem C:\ProgramData\chocolatey\lib\ffmpeg -Filter ffmpeg.exe -Recurse | Select-Object -First 1
+          $ff.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - run: python -m pip install -r apps/e1_replay/requirements.txt pyinstaller==6.13.0
+      - run: cargo test --manifest-path tools/e1-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/e1-native/Cargo.toml
+      - name: Native and scheduling checks
+        env: {PYTHONPATH: 'apps/e1_replay', OMP_THREAD_LIMIT: '1'}
+        run: |
+          python -B -m unittest discover -s apps/e1_replay/tests -v
+          if ($LASTEXITCODE -ne 0) { throw 'Unit tests failed' }
+          python -B apps/e1_replay/tests/native_smoke.py --output native-check
+          if ($LASTEXITCODE -ne 0) { throw 'Native integration failed' }
+      - run: python scripts/build_e1_windows.py
+      - name: Run compiled portable app and actual UI
+        shell: pwsh
+        run: |
+          & .\dist\AgenteTFT-E1\AgenteTFT-E1.exe --headless --mode fixtures --seconds 2 --output packaged-check
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged process test failed' }
+          & .\dist\AgenteTFT-E1\AgenteTFT-E1.exe --headless --mode replay --video native-check/input.mkv --seconds 1 --reader-hz 10 --output packaged-pixels-check
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged media test failed' }
+          & .\dist\AgenteTFT-E1\AgenteTFT-E1.exe --ui-smoke --output packaged-ui-check
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged UI test failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AgenteTFT-E1-Windows-x64
+          path: dist/AgenteTFT-E1-Windows-x64.zip
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: E1-Windows-test-evidence
+          path: |
+            native-check/**/*.json
+            native-check/**/*.txt
+            packaged-check/*
+            packaged-pixels-check/*
+            packaged-ui-check/*

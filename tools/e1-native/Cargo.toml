@@ -1,0 +1,21 @@
+[workspace]
+
+[package]
+name = "agente-tft-e1-worker"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[dependencies]
+agente-tft-capture-core = { path = "../../rust/crates/capture-core" }
+agente-tft-contracts = { path = "../../rust/crates/contracts" }
+agente-tft-image-preprocess = { path = "../../rust/crates/image-preprocess" }
+agente-tft-visual-match = { path = "../../rust/crates/visual-match" }
+agente-tft-perception-hud = { path = "../../rust/crates/perception-hud" }
+agente-tft-hud-runtime = { path = "../../rust/crates/hud-runtime" }
+agente-tft-perception-board = { path = "../../rust/crates/perception-board" }
+agente-tft-ocr-tesseract = { path = "../../rust/crates/ocr-tesseract" }
+agente-tft-opportunity-engine = { path = "../../rust/crates/opportunity-engine" }
+agente-tft-decision-core = { path = "../../rust/crates/decision-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
