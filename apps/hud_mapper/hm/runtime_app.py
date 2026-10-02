@@ -87,7 +87,7 @@ class App:
         style.configure("TButton",padding=5)
         self.model=tk.StringVar();self.dest=tk.StringVar();self.ref=tk.StringVar();self.controls=tk.StringVar()
         self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-auto" if self.hm4 else "hud-live-01")
-        self.map_hz=tk.StringVar(value="8");self.reader_hz=tk.StringVar(value="1");self.sample_hz=tk.StringVar(value="1")
+        self.map_hz=tk.StringVar(value="8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
         ttk.Label(outer,text="AGENTE TFT  /  "+("HUD MAPPER HM4 AUTO" if self.hm4 else "HUD MAPPER HM3"),font=("Segoe UI",18,"bold")).pack(anchor="w")
@@ -322,7 +322,7 @@ def main(mode="hm3"):
     p=argparse.ArgumentParser(description="Agente TFT "+("HM4 Auto" if hm4 else "HM3 — HUD-first, captura nativa somente"))
     p.add_argument("--capture");p.add_argument("--capture-consent",action="store_true");p.add_argument("--headless",action="store_true")
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
-    p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=1);p.add_argument("--sample-hz",type=float,default=1)
+    p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=2 if mode=="hm4" else 1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
     if a.headless or a.ui_smoke:
         required=all((a.capture,a.capture_consent,a.output)) and (hm4 or bool(a.model))
