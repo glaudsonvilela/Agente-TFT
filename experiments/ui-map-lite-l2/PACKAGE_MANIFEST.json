@@ -1,0 +1,27 @@
+{
+  "files": {
+    "README.md": "202b53ceb86ac667b339cba0369559be8d9fdc74677aa63c7bdb74ba9172d5d0",
+    "configs/plan.json": "3c2d934332937c053c7940b17c6d2c11dacec4d693889f4c8163b4353e1e5133",
+    "docs/CONTINUIDADE.md": "9ea0a01fa05bfcc365808516de3ddb38a7d80d59aa9ace963781c5d9d9d981ec",
+    "scripts/run_lite2.sh": "741501a15b60581abb30445e2a645872aea128adf2137e0ccfd230b8f2de4e80",
+    "tests/test_l2.py": "9c0e2ffa83f2390c78481f9ed254044b567058f4960b9c27bfc904ccd4acc42b",
+    "training/legacy_l1/__init__.py": "ef49e5653ed69840d32874e199089c78e2c8f71be9808bd8ea763c20a68eacb9",
+    "training/legacy_l1/common.py": "155fddb0e706c59e73284da13b4837bbb4043c3aec096e8de991e5e00eee09a1",
+    "training/legacy_l1/data.py": "36b04cabd03594f8ea5cdfb4ff61197a028c1765d05e7b67e87a2d5885af779c",
+    "training/legacy_l1/evaluate.py": "3a3e45a11d6c98d2802d5fb9b0611e5e167232d6e698f1905588f296a3783b74",
+    "training/legacy_l1/model.py": "74fe4baad1c076c231317a46118cba16afc912a1e831ac055a9dbe4dafea6ac3",
+    "training/uimap_lite_l2/__init__.py": "38c62545e2a317809cd0d3ff5735fa5ea56d241ed5a7a4cbcbd652ed15bdcbab",
+    "training/uimap_lite_l2/baseline.py": "bde6eed8cf3077c53cf748b018d0d610a8f7c3eff7026bd98f0a052fb3da6da2",
+    "training/uimap_lite_l2/common.py": "69f8557efccd3df92901c5820aae9e6c98503ba4c5df216795fe809e4a7ae81f",
+    "training/uimap_lite_l2/data.py": "ab4021e4fed930b0e8c3a779a5228461b57338afd50ee3f541e5ba34560aef24",
+    "training/uimap_lite_l2/evaluate.py": "3ed94fc7501a1b34fa8f3cd19c18c948c9c9fa18d0e7820208d5e4debc955b4c",
+    "training/uimap_lite_l2/export.py": "3bca90c8d23ceeed1e039f85ebab3725ec51fd521da59dd15be631cc59be572f",
+    "training/uimap_lite_l2/model.py": "eacce94ad6fc5b691702e7cdb79fad08efcfd35b49f887c10ff36bf6e9fb902a",
+    "training/uimap_lite_l2/refine.py": "3c6b54d4dd6bc489c20d68873db53064bea0b5db398e58dc87a5f89dcdf26934",
+    "training/uimap_lite_l2/runtime.py": "cbf08a06cc0fb157d1aeaa5a73490c71c56b3fa521a9b67e08ce82f26ea257aa",
+    "training/uimap_lite_l2/train.py": "4cad7c7fe6d937d6682272b72ca620c36f861289e8d2951fd0c94ad6d76d8f5d",
+    "training/uimap_lite_l2/viewer.py": "1f359bf17c47d3643fc634880282da73348f5bf3223f097d62bd16565e9825e7"
+  },
+  "name": "UI_MAP_LITE_L2",
+  "schema_version": 1
+}
