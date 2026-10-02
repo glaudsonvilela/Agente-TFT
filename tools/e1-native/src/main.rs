@@ -153,43 +153,6 @@ impl Readers{
                         "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len(),
                         "exact_roi_cache_hits":hud_cache_hits}));
       let started=ms(&t);
-            let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
-            // Same frozen v3 robust policy/thresholds; only scheduling is parallel.
-            let result=read_roi_robust(&mut ocr,region.field,&roi,&region.policy);
-            let duration=ms(&t)-started;
-            Ok((index,region.field,result,started,duration))
-          }));
-        }
-        let mut out=Vec::with_capacity(handles.len());
-        for handle in handles {
-          out.push(handle.join().map_err(|_|"parallel HUD worker panicked".to_string())??);
-        }
-        Ok(out)
-      })?;
-      parallel.sort_by_key(|x|x.0);
-      for (_,field,result,started,duration) in parallel {
-        let mut row=json!({"field":field,"value":null,"source_ms":f.captured_at_ms,"status":"unknown"});
-        match result {
-          Ok(Some(read))=>{
-            attempted+=read.attempts_made;
-            row["text"]=json!(read.recognized_text);row["confidence"]=json!(read.confidence.value());
-            row["status"]=json!("single_frame_observation");
-            match field {
-             HudField::Gold=>{row["value"]=json!(read.batch.gold.as_ref().map(|x|x.value));state.player.gold=read.batch.gold;}
-             HudField::Level=>{row["value"]=json!(read.batch.level.as_ref().map(|x|x.value));state.player.level=read.batch.level;}
-             HudField::Xp=>{row["value"]=json!(read.batch.xp.as_ref().map(|x|x.value));state.player.xp=read.batch.xp;}
-             HudField::Stage=>{row["value"]=json!(read.batch.stage.as_ref().map(|x|x.value.clone()));state.player.stage=read.batch.stage;}
-             _=>{}
-            }
-          },Ok(None)=>{},Err(e)=>{row["status"]=json!("failed");row["error"]=json!(format!("{e:?}"));}
-        }
-        obs.push(row);
-        spans.push(json!({"stage":format!("hud_{field:?}").to_lowercase(),"start_ms":started,
-                         "duration_ms":duration,"parallel_group":"hud_numeric_v1"}));
-      }
-      spans.push(json!({"stage":"hud_parallel_wall","start_ms":hud_wall_started,
-                        "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len()}));
-      let started=ms(&t);
       match screen::perceive(f,&self.shop,&self.ocr,Some(&self.recovery)) {
        Ok(read)=>{
         let located=read.panel_status=="located";shop=serde_json::to_value(read).map_err(|e|e.to_string())?;
