@@ -7,6 +7,7 @@ from hm.runtime_session import (
 )
 from hm.session import Options
 from hm.capture_source import CapturedFrame
+from hm.core import neural_regions
 
 
 class HM4RuntimeTests(unittest.TestCase):
@@ -36,6 +37,20 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertEqual(HM4RuntimeSession.shop_interval_ms,2000.0)
         self.assertEqual(HM4RuntimeSession.__mro__[1].shop_interval_ms,0.0)
         self.assertIn("automatic", HM4RuntimeSession.primary_objective)
+
+    def test_neural_regions_are_explicit_shadow_only(self):
+        raw=[[[0.10,0.20,0.40,0.30,3.0],[0.20,0.50,0.80,0.70,3.0]]]
+        regions=neural_regions(raw,1920,1080)
+        self.assertEqual([r["id"] for r in regions],["neural.bench","neural.shop"])
+        for reg in regions:
+            self.assertTrue(reg["shadow_only"])
+            self.assertEqual(reg["shadow_mode"],"diagnostic_only")
+            self.assertFalse(reg["ground_truth"])
+            self.assertFalse(reg["training_label_allowed"])
+            self.assertFalse(reg["game_state_write_allowed"])
+            self.assertFalse(reg["reader_input_allowed"])
+            self.assertFalse(reg["map_usable_by_readers"])
+
 
     def frame(self,w,h):
         return CapturedFrame(id=7,pts_ms=1000.0,due_ns=10,ready_ns=11,width=w,height=h,
