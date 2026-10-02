@@ -26,7 +26,12 @@ def main():
                 root.update();c.itemconfigure("moving",fill="#00ff00" if int(time.monotonic()*5)%2 else "#ff0000")
                 if time.monotonic()-start>90:raise TimeoutError("HM4 smoke timeout")
                 time.sleep(.02)
-        assert proc.returncode==0,log.read_text(errors="replace")[-8000:]
+        if proc.returncode!=0:
+            detail=log.read_text(errors="replace")[-12000:]
+            print("HM4_LAUNCHER_FAILURE_BEGIN")
+            print(detail)
+            print("HM4_LAUNCHER_FAILURE_END")
+            raise AssertionError(f"packaged HM4 exited {proc.returncode}")
         report=json.loads((out/"summary.json").read_text())
         manifest=json.loads((out/"training-manifest.json").read_text())
         assert report["execution_complete"] and report["screen_capture_active"]
