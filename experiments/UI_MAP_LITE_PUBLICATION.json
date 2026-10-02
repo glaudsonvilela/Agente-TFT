@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "purpose": "source_checkpoint_of_previously_delivered_packages",
+  "repository": "glaudsonvilela/Agente-TFT",
+  "base_commit": "97225bb5343fcb84096050689e73bf89efbaf9f3",
+  "base_contains_distinct_u1_pr": 31,
+  "branch": "checkpoint/ui-map-lite-l1-l2-packages",
+  "existing_repository_files_changed": false,
+  "packages": [
+    {
+      "identity": "L1",
+      "source_archive": "AGENTE_TFT_UI_MAP_LITE_L1_CODIGO.zip",
+      "archive_sha256": "519ffd769ccaa6af6219f659a7995dba989fb1578882405d16b3315457ef7591",
+      "directory": "experiments/ui_map_lite_l1",
+      "files_including_manifest": 16,
+      "manifest_entries_verified": 15,
+      "git_tree_sha": "5c8453c5176509a5db4a60f858639774d0afa5cf",
+      "source_bytes_unchanged": true,
+      "tests_passed": 33,
+      "tests_skipped": 1
+    },
+    {
+      "identity": "L2",
+      "source_archive": "AGENTE_TFT_UI_MAP_LITE_L2_CODIGO.zip",
+      "archive_sha256": "03fc007f41539f53b013776ea49587b8116673866a5ef0b10f6b416238653541",
+      "directory": "experiments/ui-map-lite-l2",
+      "files_including_manifest": 22,
+      "manifest_entries_verified": 21,
+      "git_tree_sha": "fe4743f10fa7e617a1ad151e238c54aa90286c30",
+      "source_bytes_unchanged": true,
+      "tests_passed": 43,
+      "tests_skipped": 1
+    }
+  ],
+  "related_conversation_artifact_hashes_not_uploaded_here": {
+    "AGENTE_TFT_UI_MAP_LITE_L1_INSTALAR.sh": "2fd438c25a5378a8fc22a9e3416464e9f9122bec358fc394cc3e924091b5512f",
+    "AGENTE_TFT_UI_MAP_LITE_L2_INSTALAR.sh": "06cb8e56c339d7662e850e97e93e9de03f79cea7f9dd5dc31a2b0bfeb82a9691",
+    "AUDITORIA_UI_MAP_LITE_L1_RESULTADO.json": "3010e3fe4591535bf5c89bb3cd39c434e1e2cfb70a99a33b0c0146702bc9f2e0",
+    "VALIDACAO_LOCAL_UI_MAP_LITE_L1.json": "e2ffbc3dc87119c815fa9db60e726e8ea9d2750103c42e18e721d2a86d32d474",
+    "VALIDACAO_LOCAL_UI_MAP_LITE_L2.json": "bc860a65f23b8cd784b371b27ff5a2518e486a61a73382e2de16ee685a80304d"
+  },
+  "local_test_environment": {
+    "python": "3.13.5",
+    "torch": "2.10.0+cpu",
+    "numpy": "2.3.5",
+    "Pillow": "12.3.0",
+    "onnx_available": false,
+    "onnxruntime_available": false
+  },
+  "skipped_reason": "one actual ONNX integration test per package; dependencies absent locally",
+  "full_training_executed_this_publication": false,
+  "user_ssd_accessed": false,
+  "profile_promoted": false,
+  "game_state_updated": false,
+  "rust_connected": false,
+  "continuous_learning_connected": false,
+  "model_weights_uploaded": false,
+  "user_images_uploaded": false,
+  "merge_status": "consult_pull_request_not_this_immutable_record"
+}

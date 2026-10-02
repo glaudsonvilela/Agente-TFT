@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "uimap-lite-l1-seed-compositing-v1",
+  "source_size": [1920, 1080],
+  "input_size": [320, 192],
+  "panels": {
+    "bench": {"rect": [358, 682, 1038, 146], "basis": "B1 union of bench crop envelopes, not floor contact or independent ground truth"},
+    "shop": {"rect": [345, 915, 1220, 160], "basis": "coarse union including S1 controls/cards; not a narrow OCR crop"}
+  },
+  "train_images": ["frames/0004_000150000ms.jpg", "frames/0005_000200000ms.jpg"],
+  "validation_images": ["frames/0006_000250000ms.jpg"],
+  "test_images": ["frames/0007_000300000ms.jpg"],
+  "seed_sha256": {
+    "frames/0004_000150000ms.jpg": "27569662dcf6c397d018926cfba0ff971ef8473275aabe8893e978a7901a2e65",
+    "frames/0005_000200000ms.jpg": "6baae0d1f78b4a23f1044b2662f98a6a3e292735e839483a566d5fedb4b61021"
+  },
+  "training_seed": 701,
+  "validation_seed": 1901,
+  "test_seed": 2901,
+  "training_steps": 600,
+  "batch_size": 16,
+  "validation_samples": 96,
+  "test_samples": 192,
+  "thread_count": 2,
+  "note": "Known synthetic transformations of seed panel crops. Source files separated before augmentation. Same recording: no independent-match claim; current references may be wrong. All 40 originals get diagnostic predictions without semantic labels."
+}

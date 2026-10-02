@@ -1,0 +1,22 @@
+{
+  "version": "ui-map-lite-l1-v1",
+  "repository_base": "b8d3abb5ed6703857577fa666a4351a3bdc7e438",
+  "remote_published": false,
+  "files": {
+    "README.md": "399ee0746fa9f13b1d59e8453a061c388f13ac5cb127a1d31d764fa2250003e3",
+    "configs/requirements-export.txt": "f858c90e3ca454402964162b9392efe4cec30431dc36d1995b8b35a70b21e3d0",
+    "configs/seed_plan.json": "914d160e164f517d5eca17183d90c8623aa0cdd2a3af7b6c69ef324e61a57aba",
+    "docs/CONTINUIDADE.md": "a78cbe66cde95c70ffd30ce343c5210d6558b1261615404b6ed345b6738d5b08",
+    "scripts/run_lite.sh": "aae920d41d6504f8f6eff9c08acdd029707377b9ce2fe0118a0de1bc87aa2349",
+    "tests/test_lite.py": "01a2367a97ab28049a7d2847e407dae1dab174602cf7a646e943165b9797f22b",
+    "training/uimap_lite/__init__.py": "ef49e5653ed69840d32874e199089c78e2c8f71be9808bd8ea763c20a68eacb9",
+    "training/uimap_lite/common.py": "155fddb0e706c59e73284da13b4837bbb4043c3aec096e8de991e5e00eee09a1",
+    "training/uimap_lite/data.py": "36b04cabd03594f8ea5cdfb4ff61197a028c1765d05e7b67e87a2d5885af779c",
+    "training/uimap_lite/evaluate.py": "3a3e45a11d6c98d2802d5fb9b0611e5e167232d6e698f1905588f296a3783b74",
+    "training/uimap_lite/export.py": "210cd8ca941f6a331f292310ff2d5827257d6732d75c57f27517f9d28e0570a9",
+    "training/uimap_lite/model.py": "74fe4baad1c076c231317a46118cba16afc912a1e831ac055a9dbe4dafea6ac3",
+    "training/uimap_lite/runtime.py": "926dcaa0addbaf00b41b7611e15e2402fde255143b30f39bad5c1d517d932483",
+    "training/uimap_lite/train.py": "014a624eb6929aa74252a2cbfe30a72c3b65116535d7d2c7885f26e14bc12001",
+    "training/uimap_lite/viewer.py": "fbacef8b50937b19bf02aabd59da55ac0bb64f9eb26079f734a2dc6568dc1088"
+  }
+}
