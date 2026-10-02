@@ -13,7 +13,7 @@
 #[path="../../../rust/apps/board-replay-probe/src/scene.rs"] mod scene;
 mod engine;
 
-use std::{io::{self,BufRead,Read,Write},path::{Path,PathBuf},time::Instant};
+use std::{io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
@@ -67,17 +67,35 @@ impl Readers{
     let mut shop=Value::Null;let mut controls=Value::Null;let mut board=Value::Null;
     let valid_size=(f.width,f.height)==(self.hud.reference_width,self.hud.reference_height);
     if valid_size && self.available {
-      for region in &self.hud.regions {
-        let started=ms(&t);let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
-        // This uses the existing v3 generic robust reader. Stage recovery v4 is NOT claimed.
-        let result=read_roi_robust(&mut self.ocr,region.field,&roi,&region.policy);
-        let mut row=json!({"field":region.field,"value":null,"source_ms":f.captured_at_ms,"status":"unknown"});
+      let hud_wall_started=ms(&t);
+      let mut parallel=thread::scope(|scope|->Result<Vec<_>,String>{
+        let mut handles=Vec::with_capacity(self.hud.regions.len());
+        for (index,region) in self.hud.regions.iter().enumerate() {
+          let mut ocr=self.ocr.clone();
+          handles.push(scope.spawn(move ||->Result<_,String>{
+            let started=ms(&t);
+            let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
+            // Same frozen v3 robust policy/thresholds; only scheduling is parallel.
+            let result=read_roi_robust(&mut ocr,region.field,&roi,&region.policy);
+            let duration=ms(&t)-started;
+            Ok((index,region.field,result,started,duration))
+          }));
+        }
+        let mut out=Vec::with_capacity(handles.len());
+        for handle in handles {
+          out.push(handle.join().map_err(|_|"parallel HUD worker panicked".to_string())??);
+        }
+        Ok(out)
+      })?;
+      parallel.sort_by_key(|x|x.0);
+      for (_,field,result,started,duration) in parallel {
+        let mut row=json!({"field":field,"value":null,"source_ms":f.captured_at_ms,"status":"unknown"});
         match result {
           Ok(Some(read))=>{
             attempted+=read.attempts_made;
             row["text"]=json!(read.recognized_text);row["confidence"]=json!(read.confidence.value());
             row["status"]=json!("single_frame_observation");
-            match region.field {
+            match field {
              HudField::Gold=>{row["value"]=json!(read.batch.gold.as_ref().map(|x|x.value));state.player.gold=read.batch.gold;}
              HudField::Level=>{row["value"]=json!(read.batch.level.as_ref().map(|x|x.value));state.player.level=read.batch.level;}
              HudField::Xp=>{row["value"]=json!(read.batch.xp.as_ref().map(|x|x.value));state.player.xp=read.batch.xp;}
@@ -86,8 +104,12 @@ impl Readers{
             }
           },Ok(None)=>{},Err(e)=>{row["status"]=json!("failed");row["error"]=json!(format!("{e:?}"));}
         }
-        obs.push(row);spans.push(span(&t,&format!("hud_{:?}",region.field).to_lowercase(),started));
+        obs.push(row);
+        spans.push(json!({"stage":format!("hud_{field:?}").to_lowercase(),"start_ms":started,
+                         "duration_ms":duration,"parallel_group":"hud_numeric_v1"}));
       }
+      spans.push(json!({"stage":"hud_parallel_wall","start_ms":hud_wall_started,
+                        "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len()}));
       let started=ms(&t);
       match screen::perceive(f,&self.shop,&self.ocr,Some(&self.recovery)) {
        Ok(read)=>{
