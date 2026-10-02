@@ -107,9 +107,9 @@ jobs:
             packaged-ui/*.json
             packaged-train/*.json
             capture-check/*.json
-            capture-integrated/*.json
+            capture-integrated/*.json*
             capture-integrated-launcher.log
-            packaged-capture/*.json
-            packaged-capture-ui/*.json
+            packaged-capture/*.json*
+            packaged-capture-ui/*.json*
             packaged-capture-launcher.log
             packaged-capture-ui-launcher.log

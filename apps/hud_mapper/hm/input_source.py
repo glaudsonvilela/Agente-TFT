@@ -19,6 +19,7 @@ class InputPlan:
                 split_unit='capture_session_id_not_independent_match',
                 selected_kind=kind, selected_id=identity, scenario=options.scenario,
                 closed_local_file=False, consented=True, source_hashed_before_measurement=False,
+                latency_basis='native_QPC_acquisition_before_readback_not_compositor_or_scanout',
                 identity_basis='explicit_target_selection_not_TFT_account_identity')
         else:
             from e1.source import local_video
@@ -50,6 +51,8 @@ class InputPlan:
         if self.capture:
             if self.source:
                 self.info['source_queue_replaced'] = self.source.source_replaced
+                self.info['compositor_clock_anomalies'] = self.source.clock_anomalies
+                self.info['latency_basis'] = 'native_QPC_acquisition_before_readback_not_compositor_or_scanout'
                 self.info['geometry_events'] = list(self.source.control_events)
                 self.info['native_end'] = self.source.end
                 if self.source.error and not cancelled:

@@ -172,7 +172,7 @@ pub fn stream(args: &Args) -> Result<()> {
             let outgoing=json!({"type":"frame","bytes":rgb.len(),"frame_id":frame_id,
                 "width":content.Width,"height":content.Height,"stride_bytes":content.Width*3,
                 "capture_ns":capture_ns,"clock":"WGC_SystemRelativeTime_QPC_nanoseconds",
-                "qpc_sent_ticks":after_rgb,"qpc_frequency":frequency,"geometry_segment":size_changes,
+                "qpc_acquired_ticks":begin,"qpc_sent_ticks":after_rgb,"qpc_frequency":frequency,"geometry_segment":size_changes,
                 "frames_received":seen,"rate_skipped":rate_skipped,"pixel_format":"RGB8",
                 "gpu_copy_and_map_ms":ticks_to_ms(after_map-begin),"bgra_rgb_ms":ticks_to_ms(after_rgb-after_map),
                 "previous_ipc_write_ms":previous_write_ms,"capture_space":args.kind,

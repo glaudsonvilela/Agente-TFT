@@ -39,6 +39,8 @@ def main():
         assert report['screen_capture_active'] and report['source']['native']['backend']=='own_rust_wgc_d3d11_v1'
         assert report['counts']['mapped_frames']>0 and report['counts']['read_frames']>0
         assert m['samples'] and all(r['capture']['capture_ns']>0 for r in m['samples'])
+        assert report['source']['latency_basis']=='native_QPC_acquisition_before_readback_not_compositor_or_scanout'
+        assert all(r['capture']['timing']['original_timestamp_modified'] is False for r in m['samples'])
         assert all(r['targets'] is None for r in m['samples'])
         assert not report['torch_loaded_in_mapper'] and not report['profile_promoted']
         assert report['source']['sha256'] is None and not report['source']['closed_local_file']

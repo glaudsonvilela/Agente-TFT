@@ -114,6 +114,41 @@ class ClockBridge:
                     uncertainty_ns=self.uncertainty_ns, method='bracketed_QPC_to_perf_counter_v1')
 
 
+def frame_clock(header, bridge, ready_ns, previous_compositor_ns=None):
+    """Do not treat compositor timestamps as the application's receive clock.
+
+    WGC time is retained verbatim, including anomalies. Scheduling uses the QPC
+    acquired by our Rust worker before GPU readback, not a repaired WGC value.
+    Application latencies therefore start at acquisition, NOT monitor scanout.
+    """
+    frequency = header.get('qpc_frequency')
+    acquired, sent = header.get('qpc_acquired_ticks'), header.get('qpc_sent_ticks')
+    if type(frequency) is not int or frequency != bridge.frequency:
+        raise ValueError('Frequência nativa QPC incompatível.')
+    if type(acquired) is not int or type(sent) is not int or not 0 < acquired <= sent:
+        raise ValueError('Ordem dos timestamps de aquisição inválida.')
+    acquired_ns = acquired * 1_000_000_000 // frequency
+    sent_ns = sent * 1_000_000_000 // frequency
+    acquire_due = bridge.convert(acquired_ns)
+    if bridge.convert(sent_ns) > ready_ns + bridge.uncertainty_ns + 1_000_000:
+        raise ValueError('Ponte QPC/recepção incompatível; não fabricar horários.')
+    compositor_ns = header['capture_ns']
+    compositor_due = bridge.convert(compositor_ns)
+    regressed = previous_compositor_ns is not None and compositor_ns < previous_compositor_ns
+    status = ('compositor_time_regressed' if regressed else
+              'compositor_after_native_send' if compositor_ns > sent_ns + 100 else
+              'ordering_consistent_not_physical_display_verified')
+    consistent = status == 'ordering_consistent_not_physical_display_verified'
+    return acquire_due, dict(
+        source_time_basis='native_QPC_acquisition_before_readback',
+        native_acquired_ns=acquired_ns, compositor_ns=compositor_ns,
+        compositor_time_status=status, compositor_timestamp_regressed=regressed,
+        compositor_to_rgb_ready_raw_ms=(ready_ns-compositor_due)/1e6,
+        compositor_to_rgb_ready_ms=(ready_ns-compositor_due)/1e6 if consistent else None,
+        native_acquire_to_rgb_ready_ms=(ready_ns-acquire_due)/1e6,
+        original_timestamp_modified=False, physical_display_time_verified=False)
+
+
 @dataclass(frozen=True)
 class CapturedFrame:
     id: int
@@ -145,6 +180,7 @@ class CaptureSource:
         self.stop = threading.Event(); self.lock = threading.Lock(); self.closed = False
         self.pending = queue.Queue(maxsize=1); self.ready = None; self.end = None; self.error = None
         self.source_replaced = 0; self.control_events = []; self.log_tail = []
+        self.clock_anomalies = 0
         self.binary = native_path(configs)
         self.proc = spawn([self.binary, 'stream', '--kind', kind, '--id', identity,
                            '--seconds', str(seconds), '--hz', str(hz), '--consent'],
@@ -175,7 +211,7 @@ class CaptureSource:
 
     def _read(self):
         try:
-            last_id = last_time = None
+            last_id = None
             while not self.stop.is_set():
                 header, pixels = read_packet(self.proc.stdout)
                 kind = header.get('type')
@@ -186,9 +222,9 @@ class CaptureSource:
                     raise RuntimeError(header.get('error', 'Erro nativo.'))
                 elif kind == 'frame':
                     if self.ready is None:raise ValueError('Frame anterior ao ready.')
-                    if last_id is not None and (header['frame_id'] <= last_id or header['capture_ns'] < last_time):
-                        raise ValueError('Identidade/tempo da captura retrocedeu.')
-                    last_id, last_time = header['frame_id'], header['capture_ns']
+                    if type(header.get('frame_id')) is not int or (last_id is not None and header['frame_id'] <= last_id):
+                        raise ValueError('Identidade da captura retrocedeu.')
+                    last_id = header['frame_id']
                     ready_ns = time.perf_counter_ns()
                     try:self.pending.get_nowait(); self.source_replaced += 1
                     except queue.Empty:pass
@@ -205,20 +241,23 @@ class CaptureSource:
             self.ready_event.set(); self.reader_done.set()
 
     def frames(self, cancelled, max_seconds=300):
-        first = None
+        first_acquired = last_acquired = last_compositor = None
         while not cancelled.is_set():
             try:header, pixels, ready_ns = self.pending.get(timeout=.1)
             except queue.Empty:
                 if self.error:raise RuntimeError(self.error)
                 if self.reader_done.is_set():break
                 continue
-            if first is None:first = header['capture_ns']
-            due = self.bridge.convert(header['capture_ns'])
-            if due > ready_ns + self.bridge.uncertainty_ns + 1_000_000:
-                raise ValueError('Frame com horário futuro incompatível com QPC.')
+            due, timing = frame_clock(header, self.bridge, ready_ns, last_compositor)
+            acquired_ns = timing['native_acquired_ns']
+            if last_acquired is not None and acquired_ns < last_acquired:
+                raise ValueError('Relógio de aquisição retrocedeu.')
+            if first_acquired is None:first_acquired = acquired_ns
+            last_acquired = acquired_ns; last_compositor = header['capture_ns']
+            if timing['compositor_to_rgb_ready_ms'] is None:self.clock_anomalies += 1
             record = dict(header, bridge=self.bridge.metadata(), source_queue_replaced=self.source_replaced,
-                          rgb_received_ns=ready_ns, capture_to_rgb_ready_ms=(ready_ns-due)/1e6)
-            yield CapturedFrame(header['frame_id'], (header['capture_ns']-first)/1e6, due, ready_ns,
+                          rgb_received_ns=ready_ns, timing=timing)
+            yield CapturedFrame(header['frame_id'], (acquired_ns-first_acquired)/1e6, due, ready_ns,
                                 header['width'], header['height'], pixels, header['geometry_segment'], record)
         if self.error and not cancelled.is_set():raise RuntimeError(self.error)
         if not cancelled.is_set() and (not self.end or not self.end.get('execution_complete')):
