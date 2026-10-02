@@ -33,6 +33,8 @@ class HM4RuntimeTests(unittest.TestCase):
     def test_hm4_policy_is_distinct(self):
         self.assertEqual(HM4RuntimeSession.policy_name,"hud_mapper_hm4_auto")
         self.assertTrue(HM4RuntimeSession.normalize_reader_input)
+        self.assertEqual(HM4RuntimeSession.shop_interval_ms,2000.0)
+        self.assertEqual(HM4RuntimeSession.__mro__[1].shop_interval_ms,0.0)
         self.assertIn("automatic", HM4RuntimeSession.primary_objective)
 
     def frame(self,w,h):

@@ -74,6 +74,21 @@ fn restamp_json(value:&mut Value,at:u64,source_frame_id:u64,source_ms:u64,delive
             "delivered_frame_id":delivered_frame_id}));
     }
 }
+fn cadence_json(value:&Value,source_frame_id:u64,source_ms:u64,delivered_frame_id:u64,delivered_ms:u64)->Value{
+    let mut out=value.clone();
+    if let Some(obj)=out.as_object_mut(){
+        obj.insert("cadence_delivery".into(),json!({
+            "fresh":false,
+            "source_frame_id":source_frame_id,
+            "source_ms":source_ms,
+            "delivered_frame_id":delivered_frame_id,
+            "delivered_source_ms":delivered_ms,
+            "age_ms":delivered_ms.saturating_sub(source_ms),
+            "policy":"hm4_shop_2s_v1"
+        }));
+    }
+    out
+}
 struct Readers{
     hud:HudLayout,ocr:TesseractOcr,shop:layout::ScreenLayout,recovery:recovery::RecoveryProfile,
     controls:controls::ControlsReader,board_profile:profile::Profile,board:Option<scene::SceneReader>,available:bool,
@@ -108,7 +123,7 @@ impl Readers{
     }
     exact_rect_signature(f,&rects)
  }
- fn observe(&mut self,f:&FrameEnvelope)->Result<Value,String>{
+ fn observe(&mut self,f:&FrameEnvelope,include_shop:bool)->Result<Value,String>{
     let t=Instant::now();let mut spans=vec![];let mut obs=vec![];let mut state=GameState::empty(f.captured_at_ms);
     state.revision=f.frame_id;let mut attempted=0;
     let mut shop=Value::Null;let mut controls=Value::Null;let mut board=Value::Null;
@@ -189,8 +204,25 @@ impl Readers{
                         "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len(),
                         "exact_roi_cache_hits":hud_cache_hits}));
       let started=ms(&t);
-      let shop_pixels=self.shop_signature(f)?;
       let mut located=false;
+      if !include_shop {
+        shop=match self.shop_cache.as_ref() {
+          Some(entry)=>{
+            located=entry.panel_located==Some(true);
+            cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms)
+          },
+          None=>json!({"timestamp_ms":f.captured_at_ms,"panel_status":"cadence_deferred_no_prior_observation",
+                       "slots":[],"cadence_delivery":{"fresh":false,"policy":"hm4_shop_2s_v1"}}),
+        };
+        controls=match self.controls_cache.as_ref() {
+          Some(entry)=>cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms),
+          None=>json!({"timestamp_ms":f.captured_at_ms,"status":"cadence_deferred_no_prior_observation",
+                       "cadence_delivery":{"fresh":false,"policy":"hm4_shop_2s_v1"}}),
+        };
+        spans.push(json!({"stage":"shop_cadence_reuse","start_ms":started,"duration_ms":ms(&t)-started,
+                          "shop_executed":false,"policy":"hm4_shop_2s_v1"}));
+      } else {
+      let shop_pixels=self.shop_signature(f)?;
       let shop_hit=self.shop_cache.as_ref().is_some_and(|entry|entry.pixels==shop_pixels);
       if shop_hit {
         let entry=self.shop_cache.as_ref().expect("shop cache checked");
@@ -241,6 +273,7 @@ impl Readers{
       }
       spans.push(json!({"stage":"shop_controls","start_ms":started,"duration_ms":ms(&t)-started,
                         "cache_exact_hit":controls_hit,"cache_basis":"all_controls_reader_pixels_v1"}));
+      }
     }
     if valid_size {if let Some(reader)=&self.board {let started=ms(&t);
       board=match reader.read(f){Ok(b)=>serde_json::to_value(b).map_err(|e|e.to_string())?,Err(e)=>json!({"error":e})};
@@ -253,7 +286,8 @@ impl Readers{
     Ok(json!({"id":f.frame_id,"source_ms":f.captured_at_ms,"origin":"observed_pixels",
       "hud":obs,"shop":shop,"controls":controls,"board":board,"state":state,"report":report,"decision":decision,
       "spans":spans,"native_ms":ms(&t),"hud_accepted_attempts_lower_bound":attempted,
-      "hud_cache_policy":"exact_roi_rgb_bytes_v1","hud_process_calls_exact":null,"resolution_compatible":valid_size,"ocr_available":self.available,
+      "hud_cache_policy":"exact_roi_rgb_bytes_v1","hud_process_calls_exact":null,
+      "shop_requested":include_shop,"resolution_compatible":valid_size,"ocr_available":self.available,
       "blockers":["planning_phase_not_observed","unit_identity_not_bound","board_and_hp_unvalidated"],
       "canonical_game_state_updated":false,"temporal_consensus":false,"profile_promoted":false}))
  }
@@ -269,7 +303,7 @@ fn run()->Result<(),String>{
     while let Some(h)=header(&mut input)?{
       let id=number(&h,"id")?;
       let out=match h["op"].as_str(){
-       Some("frame")=>readers.observe(&frame(&h,&mut input)?)?,
+       Some("frame")=>readers.observe(&frame(&h,&mut input)?,h["include_shop"].as_bool().unwrap_or(true))?,
        Some("fixture")=>engine::fixture(id,number(&h,"source_ms")?,number(&h,"case")? as usize)?,
        Some("reference")=>{
         let f=frame(&h,&mut input)?;readers.board=Some(scene::SceneReader::new(readers.board_profile.clone(),&f)?);
@@ -285,6 +319,15 @@ fn run()->Result<(),String>{
  #[test] fn protocol_eof(){assert!(header(&mut io::Cursor::new(Vec::<u8>::new())).unwrap().is_none())}
  #[test] fn payload_size_not_guessed(){let h=json!({"id":1,"source_ms":0,"width":2,"height":2,"bytes":16});assert!(frame(&h,&mut io::empty()).is_err())}
  #[test] fn payload_timestamp_preserved(){let h=json!({"id":2,"source_ms":1234,"width":1,"height":1,"bytes":3});let f=frame(&h,&mut io::Cursor::new([1,2,3])).unwrap();assert_eq!(f.captured_at_ms,1234);assert_eq!(f.pixels,vec![1,2,3]);}
+ #[test] fn cadence_delivery_preserves_original_timestamp(){
+   let original=json!({"timestamp_ms":1000,"panel_status":"located"});
+   let out=cadence_json(&original,10,1000,11,1750);
+   assert_eq!(out["timestamp_ms"],1000);
+   assert_eq!(out["cadence_delivery"]["source_frame_id"],10);
+   assert_eq!(out["cadence_delivery"]["delivered_frame_id"],11);
+   assert_eq!(out["cadence_delivery"]["age_ms"],750);
+   assert_eq!(out["cadence_delivery"]["fresh"],false);
+ }
  #[test] fn exact_signature_ignores_pixels_outside_registered_rects(){
    let make=|pixels:Vec<u8>|FrameEnvelope{frame_id:1,captured_at_ms:1,width:3,height:2,stride_bytes:9,
       pixel_format:PixelFormat::Rgb8,source_id:"test".into(),pixels};

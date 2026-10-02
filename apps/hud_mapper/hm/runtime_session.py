@@ -97,12 +97,14 @@ class RuntimeSession(Session):
     policy_name = 'hud_mapper_hm3_runtime'
     primary_objective = 'live_HUD_mapping_geometry_telemetry_and_training_material'
     normalize_reader_input = False
+    shop_interval_ms = 0.0
 
     def __init__(self, options):
         if not str(options.video).startswith('capture://'):
             raise ValueError('HM3 Runtime aceita somente monitor/janela; não vídeo.')
         super().__init__(options)
         self._last_native = None
+        self._next_shop_ms = 0.0
 
     def _native_loop(self):
         next_save = -1
@@ -153,15 +155,18 @@ class RuntimeSession(Session):
                         self.counts['reader_normalized_runs'] += 1
                     executed = True
                     self.counts['reader_native_runs'] += 1
+                    include_shop = (self.shop_interval_ms <= 0 or frame.pts_ms >= self._next_shop_ms)
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
-                                   bytes=len(reader_frame.rgb))
+                                   bytes=len(reader_frame.rgb), include_shop=include_shop)
                     # Independent processes: overlap HP with the main HUD/shop worker.
                     hp_start = time.perf_counter_ns()
                     with ThreadPoolExecutor(max_workers=1, thread_name_prefix='hm4-hp') as pool:
                         hp_future = pool.submit(self.hp_worker.request, request, reader_frame.rgb, 12)
                         answer = self.worker.request(request, reader_frame.rgb, timeout=12)
                         hp = hp_future.result(timeout=13)
+                    if include_shop and self.shop_interval_ms > 0:
+                        self._next_shop_ms = frame.pts_ms + self.shop_interval_ms
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
@@ -219,3 +224,4 @@ class HM4RuntimeSession(RuntimeSession):
     policy_name = 'hud_mapper_hm4_auto'
     primary_objective = 'live_HUD_capture_geometry_telemetry_with_automatic_model_discovery'
     normalize_reader_input = True
+    shop_interval_ms = 2000.0
