@@ -1,0 +1,42 @@
+{
+  "schema_version": 3,
+  "id": "uimap-path-l3-v2",
+  "model_schema": "l3_edge_nodes_bilinear_targets_v1",
+  "base_plan_sha256": "3c2d934332937c053c7940b17c6d2c11dacec4d693889f4c8163b4353e1e5133",
+  "seed": 803,
+  "training_steps": 1400,
+  "batch_size": 12,
+  "training_samples": 768,
+  "validation_samples": 96,
+  "test_samples": 192,
+  "training_threads": 2,
+  "negative_sources": {
+    "train": {
+      "image": "frames/0001_000000000ms.jpg",
+      "sha256": "55df8028a6028ee890b0938ad3de711df4b65d261c0c38d68d5696e7ab8e2902",
+      "basis": "desktop/client before match",
+      "annotation": "assistant_visual_development_seed"
+    },
+    "validation": {
+      "image": "frames/0002_000050000ms.jpg",
+      "sha256": "41174de893239975a42f85f41889141ba838830c82c30e799790ffa5a14d6116",
+      "basis": "black screen; no bank/shop visible",
+      "annotation": "assistant_visual_development_seed"
+    },
+    "test": {
+      "image": "frames/0003_000100000ms.jpg",
+      "sha256": "289e164afeb3aad6a5fd18594bd2765515939456acb94de12bb08b4a8d400299",
+      "basis": "selection scene; no bank/shop panels",
+      "annotation": "assistant_visual_development_seed"
+    }
+  },
+  "coordinate_contract": "normalized_pixel_edges_not_heatmap_centers",
+  "render_contract": "native_RGB_then_one_shared_resize",
+  "reference_envelopes_are_physical_edges": false,
+  "automatic_refinement": false,
+  "activation_allowed": false,
+  "test_used_for_selection": false,
+  "initialization": "frozen_L2_weights",
+  "test_seed": 80330000,
+  "prior_trial": "scratch initialization rejected locally; historical trial retained, no profile activated"
+}
