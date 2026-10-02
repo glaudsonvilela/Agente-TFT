@@ -7,6 +7,7 @@ on:
     paths:
       - 'apps/hud_mapper/**'
       - 'scripts/build_hud_mapper_hm4_windows.py'
+      - 'scripts/audit_hm4_session.py'
       - 'scripts/compact_hm3_payload.py'
       - 'tools/hm-capture-native/**'
       - 'tools/hm-hp-native/**'
@@ -53,6 +54,9 @@ jobs:
 
       - name: HM4 contracts
         run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
+
+      - name: Compile audit utility
+        run: python -m py_compile scripts/audit_hm4_session.py
 
       - name: Build native capture/readers
         shell: pwsh
