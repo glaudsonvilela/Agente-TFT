@@ -14,7 +14,7 @@
 mod engine;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
-use agente_tft_capture_core::{FrameEnvelope,PixelFormat,extract_roi};
+use agente_tft_capture_core::{FrameEnvelope,PixelFormat,PixelRect,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
 use agente_tft_perception_hud::{HudField,RobustHudRead,read_roi_robust};
@@ -47,6 +47,8 @@ fn span(t:&Instant,name:&str,start:f64)->Value{json!({"stage":name,"start_ms":st
 fn ms(t:&Instant)->f64{t.elapsed().as_secs_f64()*1000.}
 #[derive(Clone)]
 struct HudCacheEntry{pixels:Vec<u8>,read:Option<RobustHudRead>,source_frame_id:u64,source_ms:u64}
+#[derive(Clone)]
+struct JsonCacheEntry{pixels:Vec<u8>,value:Value,source_frame_id:u64,source_ms:u64,panel_located:Option<bool>}
 fn restamp(read:&mut RobustHudRead,at:u64){
     read.batch.observed_at_ms=at;
     if let Some(v)=read.batch.gold.as_mut(){v.observed_at_ms=at;}
@@ -55,10 +57,27 @@ fn restamp(read:&mut RobustHudRead,at:u64){
     if let Some(v)=read.batch.stage.as_mut(){v.observed_at_ms=at;}
     if let Some(v)=read.batch.hp.as_mut(){v.observed_at_ms=at;}
 }
+
+fn exact_rect_signature(frame:&FrameEnvelope,rects:&[PixelRect])->Result<Vec<u8>,String>{
+    let mut out=Vec::new();
+    for rect in rects {
+        let roi=layout::crop(frame,*rect)?;
+        out.extend_from_slice(&roi.pixels);
+    }
+    Ok(out)
+}
+fn restamp_json(value:&mut Value,at:u64,source_frame_id:u64,source_ms:u64,delivered_frame_id:u64){
+    if let Some(obj)=value.as_object_mut(){
+        if obj.contains_key("timestamp_ms"){obj.insert("timestamp_ms".into(),json!(at));}
+        obj.insert("cache_delivery".into(),json!({"exact_reader_pixels":true,
+            "source_frame_id":source_frame_id,"source_ms":source_ms,
+            "delivered_frame_id":delivered_frame_id}));
+    }
+}
 struct Readers{
     hud:HudLayout,ocr:TesseractOcr,shop:layout::ScreenLayout,recovery:recovery::RecoveryProfile,
     controls:controls::ControlsReader,board_profile:profile::Profile,board:Option<scene::SceneReader>,available:bool,
-    hud_cache:HashMap<HudField,HudCacheEntry>,
+    hud_cache:HashMap<HudField,HudCacheEntry>,shop_cache:Option<JsonCacheEntry>,controls_cache:Option<JsonCacheEntry>,
 }
 impl Readers{
  fn new(root:&Path,tess:String,controls_path:Option<PathBuf>)->Result<Self,String>{
@@ -70,7 +89,24 @@ impl Readers{
     let board_profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;board_profile.validate()?;
     let ocr=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()}).with_numeric_gray();
     let available=ocr.available();
-    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,hud_cache:HashMap::new()})
+    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,
+        hud_cache:HashMap::new(),shop_cache:None,controls_cache:None})
+ }
+ fn shop_signature(&self,f:&FrameEnvelope)->Result<Vec<u8>,String>{
+    let mut rects=Vec::new();
+    rects.extend(self.shop.panel_anchors.iter().map(|a|a.rect));
+    rects.extend(self.recovery.anchors.iter().map(|a|a.rect));
+    rects.extend(self.shop.slots.iter().map(|slot|slot.card));
+    exact_rect_signature(f,&rects)
+ }
+ fn controls_signature(&self,f:&FrameEnvelope)->Result<Vec<u8>,String>{
+    let mut rects=Vec::new();
+    for spec in &self.controls.profile.controls {
+        rects.push(spec.rect);
+        if let Some(rect)=spec.price_rect{rects.push(rect);}
+        if let Some(rect)=spec.free_count_rect{rects.push(rect);}
+    }
+    exact_rect_signature(f,&rects)
  }
  fn observe(&mut self,f:&FrameEnvelope)->Result<Value,String>{
     let t=Instant::now();let mut spans=vec![];let mut obs=vec![];let mut state=GameState::empty(f.captured_at_ms);
@@ -153,21 +189,58 @@ impl Readers{
                         "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len(),
                         "exact_roi_cache_hits":hud_cache_hits}));
       let started=ms(&t);
-      match screen::perceive(f,&self.shop,&self.ocr,Some(&self.recovery)) {
-       Ok(read)=>{
-        let located=read.panel_status=="located";shop=serde_json::to_value(read).map_err(|e|e.to_string())?;
-        spans.push(span(&t,"shop_cards",started));let started=ms(&t);
+      let shop_pixels=self.shop_signature(f)?;
+      let mut located=false;
+      let shop_hit=self.shop_cache.as_ref().is_some_and(|entry|entry.pixels==shop_pixels);
+      if shop_hit {
+        let entry=self.shop_cache.as_ref().expect("shop cache checked");
+        shop=entry.value.clone();
+        located=entry.panel_located==Some(true);
+        restamp_json(&mut shop,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
+      } else {
+        match screen::perceive(f,&self.shop,&self.ocr,Some(&self.recovery)) {
+         Ok(read)=>{
+          located=read.panel_status=="located";
+          let cacheable=read.error.is_none();
+          shop=serde_json::to_value(read).map_err(|e|e.to_string())?;
+          if cacheable {
+            self.shop_cache=Some(JsonCacheEntry{pixels:shop_pixels,value:shop.clone(),
+                source_frame_id:f.frame_id,source_ms:f.captured_at_ms,panel_located:Some(located)});
+          }
+         },Err(e)=>{shop=json!({"error":e,"status":"failed"});self.shop_cache=None;}
+        }
+      }
+      spans.push(json!({"stage":"shop_cards","start_ms":started,"duration_ms":ms(&t)-started,
+                        "cache_exact_hit":shop_hit,"cache_basis":"all_shop_reader_pixels_v1"}));
+
+      let started=ms(&t);
+      let control_pixels=self.controls_signature(f)?;
+      let controls_hit=self.controls_cache.as_ref().is_some_and(|entry|
+          entry.pixels==control_pixels && entry.panel_located==Some(located));
+      if controls_hit {
+        let entry=self.controls_cache.as_ref().expect("controls cache checked");
+        controls=entry.value.clone();
+        restamp_json(&mut controls,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
+      } else {
         match self.controls.read_visual(f,located){
           Ok(mut c)=>{
-            match control_text::read_numbers(f,&self.controls.profile,&mut c,&self.ocr){
-             Ok(())=>controls=serde_json::to_value(c).map_err(|e|e.to_string())?,
-             Err(e)=>controls=json!({"error":e,"status":"failed"}),
+            let result=control_text::read_numbers(f,&self.controls.profile,&mut c,&self.ocr);
+            let cacheable=result.is_ok() && c.error.is_none();
+            match result {
+             Ok(())=>{
+              controls=serde_json::to_value(c).map_err(|e|e.to_string())?;
+              if cacheable {
+                self.controls_cache=Some(JsonCacheEntry{pixels:control_pixels,value:controls.clone(),
+                    source_frame_id:f.frame_id,source_ms:f.captured_at_ms,panel_located:Some(located)});
+              }
+             },
+             Err(e)=>{controls=json!({"error":e,"status":"failed"});self.controls_cache=None;},
             }
-          },Err(e)=>controls=json!({"error":e,"status":"failed"}),
+          },Err(e)=>{controls=json!({"error":e,"status":"failed"});self.controls_cache=None;},
         }
-        spans.push(span(&t,"shop_controls",started));
-       },Err(e)=>{shop=json!({"error":e,"status":"failed"});spans.push(span(&t,"shop_cards",started));}
       }
+      spans.push(json!({"stage":"shop_controls","start_ms":started,"duration_ms":ms(&t)-started,
+                        "cache_exact_hit":controls_hit,"cache_basis":"all_controls_reader_pixels_v1"}));
     }
     if valid_size {if let Some(reader)=&self.board {let started=ms(&t);
       board=match reader.read(f){Ok(b)=>serde_json::to_value(b).map_err(|e|e.to_string())?,Err(e)=>json!({"error":e})};
@@ -212,4 +285,14 @@ fn run()->Result<(),String>{
  #[test] fn protocol_eof(){assert!(header(&mut io::Cursor::new(Vec::<u8>::new())).unwrap().is_none())}
  #[test] fn payload_size_not_guessed(){let h=json!({"id":1,"source_ms":0,"width":2,"height":2,"bytes":16});assert!(frame(&h,&mut io::empty()).is_err())}
  #[test] fn payload_timestamp_preserved(){let h=json!({"id":2,"source_ms":1234,"width":1,"height":1,"bytes":3});let f=frame(&h,&mut io::Cursor::new([1,2,3])).unwrap();assert_eq!(f.captured_at_ms,1234);assert_eq!(f.pixels,vec![1,2,3]);}
+ #[test] fn exact_signature_ignores_pixels_outside_registered_rects(){
+   let make=|pixels:Vec<u8>|FrameEnvelope{frame_id:1,captured_at_ms:1,width:3,height:2,stride_bytes:9,
+      pixel_format:PixelFormat::Rgb8,source_id:"test".into(),pixels};
+   let rect=PixelRect{x:1,y:0,width:1,height:1};
+   let a=make(vec![1,1,1, 10,11,12, 2,2,2, 3,3,3, 4,4,4, 5,5,5]);
+   let outside=make(vec![9,9,9, 10,11,12, 8,8,8, 7,7,7, 6,6,6, 5,5,5]);
+   let inside=make(vec![1,1,1, 10,99,12, 2,2,2, 3,3,3, 4,4,4, 5,5,5]);
+   assert_eq!(exact_rect_signature(&a,&[rect]).unwrap(),exact_rect_signature(&outside,&[rect]).unwrap());
+   assert_ne!(exact_rect_signature(&a,&[rect]).unwrap(),exact_rect_signature(&inside,&[rect]).unwrap());
+ }
 }
