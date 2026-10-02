@@ -103,29 +103,6 @@ O **LLM não é a calculadora do sistema**. Probabilidades, economia, disponibil
 
 ---
 
-## O que já existe no software
-
-| Área | Estado | Implementação atual |
-|---|---:|---|
-| **Fundação e contratos** | ✅ | `GameState`, `GameEvent`, `DecisionPacket` e `Recommendation` versionados em Rust/Pydantic, confiança validada e telemetria estruturada |
-| **Captura e replay** | 🟡 | `CaptureSource`, `FrameEnvelope`, fixtures, replay via FFmpeg, ROIs normalizadas, detector de mudança, ROI router e replay inspector |
-| **HUD / OCR** | 🟡 | grayscale, contraste, threshold, upscale, Tesseract, leitura de stage/gold/HP/level/XP, multi-pass, gates de domínio e consenso temporal |
-| **Shop** | 🟡 | percepção por slots, matcher visual, snapshot completo, consenso temporal e experimentos com campos numéricos isolados por aparência |
-| **Board / Bench** | 🟡 | geometria, probes espaciais, evidência visual de presença, hipóteses locais e viewers de inspeção sem promover inferência incerta ao estado |
-| **Scouting** | 🟡 | memória estabilizada de adversários, contestação por player/unidade e eventos `OpponentObserved` / `ContestationChanged` |
-| **TFT Math** | 🟡 | economia/interest, odds configuráveis, pool snapshot, probabilidade de hit, budgets de roll e janelas estratégicas de 10/20/30g |
-| **Opportunity Engine** | 🟡 | arquitetura para avaliar todas as oportunidades, manter `all` para auditoria e produzir shortlist por utility explícita |
-| **Decision Core** | 🟡 | filtros de confiança, alternativas, evidence e fallback determinístico sem depender de LLM |
-| **PydanticAI-slim** | 🟡 | agente tipado, tools somente leitura/contexto, explicação estruturada e ação/confiança preservadas |
-| **Visão treinável** | 🧪 | UI-Map Lite U1 com caminho ONNX isolado para localização grosseira de regiões de shop/bench; ainda sem alegação de precisão semântica de TFT |
-| **Detectores pré-treinados** | 🧪 | comparação isolada com detector visual pré-treinado, sem substituir automaticamente os baselines congelados |
-| **Policy Model / self-play** | ⏳ | ambiente de treino, imitation learning, PPO/self-play e export ONNX fazem parte do próximo estágio |
-| **UI lateral** | ⏳ | Tauri/Svelte planejado para ação dominante, motivo, condição de parada, confiança e painel detalhado opcional |
-
-**Legenda:** ✅ base consolidada · 🟡 implementado parcialmente / em validação · 🧪 experimental isolado · ⏳ próximo estágio.
-
----
-
 ## Visão computacional: abordagem atual
 
 A percepção é construída em camadas para evitar que um detector impreciso contamine o estado da partida:
