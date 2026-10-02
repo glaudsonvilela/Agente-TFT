@@ -35,6 +35,8 @@ def reader_signature(frame, registry):
 
 class RuntimeSession(Session):
     """Same neural/data pipeline, with reader work gated only by exact-pixel equality."""
+    policy_name="hud_mapper_hm3_runtime"
+    primary_objective="live_HUD_mapping_geometry_telemetry_and_training_material"
     def __init__(self, options):
         super().__init__(options)
         self._last_native=None
