@@ -1,10 +1,10 @@
-"""HM3 HUD-first runtime: native capture only, live pixels, geometry and performance."""
+"""HUD runtime shared by HM3 and the simplified HM4 automatic shell."""
 from __future__ import annotations
 from pathlib import Path
 from datetime import datetime
 import argparse, json, os, queue, statistics, sys, threading, time
 from .core import crop_box, valid_box
-from .runtime_session import RuntimeSession
+from .runtime_session import RuntimeSession, HM4RuntimeSession
 from .session import Options
 from .capture_source import list_targets
 
@@ -24,6 +24,44 @@ def runtime_paths():
     return dict(worker=str(worker),configs=str(root/"configs"),tesseract=tess_cmd,
                 ffmpeg="HM3_RUNTIME_DISABLED",ffprobe="HM3_RUNTIME_DISABLED")
 
+def _valid_candidate_model(meta):
+    try:
+        p=Path(meta);m=json.loads(p.read_text(encoding="utf-8-sig"))
+        model=p.parent/"candidate-model.onnx"
+        return (p.is_file() and model.is_file() and model.stat().st_size<=8*1024**2 and
+                m.get("schema_version")==2 and m.get("coordinate_format")=="normalized_tlbr" and
+                m.get("panels")==["bench","shop"])
+    except (OSError,ValueError,TypeError,json.JSONDecodeError):
+        return False
+
+def discover_model():
+    home=Path(os.environ.get("USERPROFILE") or Path.home())
+    local=Path(os.environ.get("LOCALAPPDATA") or home)
+    frozen=Path(sys.executable).resolve().parent if getattr(sys,"frozen",False) else Path(__file__).resolve().parents[3]
+    candidates=[]
+    override=os.environ.get("AGENTE_TFT_MODEL")
+    if override:candidates.append(Path(override))
+    candidates += [
+        frozen/"models"/"deployment-candidate.json",
+        local/"AgenteTFT-HUD-HM4"/"models"/"deployment-candidate.json",
+        local/"AgenteTFT-HUD-HM3"/"models"/"deployment-candidate.json",
+        local/"AgenteTFT"/"models"/"deployment-candidate.json",
+        home/"Documents"/"AgenteTFT"/"models"/"deployment-candidate.json",
+    ]
+    seen=set()
+    for p in candidates:
+        try:key=str(p.resolve())
+        except OSError:key=str(p)
+        if key in seen:continue
+        seen.add(key)
+        if _valid_candidate_model(p):return str(p)
+    return ""
+
+def default_hm4_output_root():
+    base=Path(os.environ.get("LOCALAPPDATA") or Path.home())/"AgenteTFT-HUD-HM4"/"sessions"
+    base.mkdir(parents=True,exist_ok=True)
+    return str(base)
+
 def target_label(t):
     b=t["bounds"];size=f'{b[2]-b[0]}×{b[3]-b[1]}'
     if t["kind"]=="monitor":
@@ -37,38 +75,44 @@ def pct(values,q):
     return a[lo]*(1-f)+a[hi]*f
 
 class App:
-    def __init__(self,root):
+    def __init__(self,root,mode="hm3"):
         import tkinter as tk
         from tkinter import ttk
-        self.root=root;self.session=None;self.selection=None;self.last={};self.current=None
+        self.root=root;self.mode=mode;self.hm4=mode=="hm4";self.session=None;self.selection=None;self.last={};self.current=None
         self.photo=self.zoom_photo=None;self.freeze=False;self.finalizing=False;self.final_result=None
         self.last_finished=None;self.closing=False;self.displayed=0;self.smoke=False;self.smoke_output=None
-        root.title("Agente TFT — HUD Mapper HM3 Runtime");root.geometry("1440x900");root.minsize(1120,760);root.configure(bg="#101820")
+        root.title("Agente TFT — HUD Mapper "+("HM4 Auto" if self.hm4 else "HM3 Runtime"));root.geometry("1440x900");root.minsize(1120,760);root.configure(bg="#101820")
         style=ttk.Style(root);style.theme_use("clam")
         for name in ("TFrame","TLabel","TLabelframe","TLabelframe.Label"):style.configure(name,background="#101820",foreground="#dce7ef")
         style.configure("TButton",padding=5)
         self.model=tk.StringVar();self.dest=tk.StringVar();self.ref=tk.StringVar();self.controls=tk.StringVar()
-        self.seconds=tk.StringVar(value="300");self.scenario=tk.StringVar(value="hud-live-01")
+        self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-auto" if self.hm4 else "hud-live-01")
         self.map_hz=tk.StringVar(value="8");self.reader_hz=tk.StringVar(value="1");self.sample_hz=tk.StringVar(value="1")
-        self.which=tk.StringVar(value="map");self.overlays=tk.BooleanVar(value=True)
+        self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
-        ttk.Label(outer,text="AGENTE TFT  /  HUD MAPPER HM3",font=("Segoe UI",18,"bold")).pack(anchor="w")
-        ttk.Label(outer,text="Objetivo principal: mapear a HUD ao vivo. Captura Rust → rede ONNX → leitores → telemetria; performance sempre visível.").pack(anchor="w",pady=(2,8))
+        ttk.Label(outer,text="AGENTE TFT  /  "+("HUD MAPPER HM4 AUTO" if self.hm4 else "HUD MAPPER HM3"),font=("Segoe UI",18,"bold")).pack(anchor="w")
+        ttk.Label(outer,text=("Selecione monitor/janela e inicie. Resolução, saída e modelo compatível são tratados automaticamente." if self.hm4 else "Objetivo principal: mapear a HUD ao vivo. Captura Rust → rede ONNX → leitores → telemetria; performance sempre visível.")).pack(anchor="w",pady=(2,8))
         source=ttk.Frame(outer);source.pack(fill="x",pady=2)
         ttk.Label(source,text="Fonte de pixels",width=35).pack(side="left")
         self.source_label=ttk.Label(source,text="Nenhum monitor/janela selecionado",anchor="w");self.source_label.pack(side="left",fill="x",expand=True)
         ttk.Button(source,text="Detectar TFT",command=lambda:self.choose_source(True)).pack(side="right",padx=3)
         ttk.Button(source,text="Escolher monitor/janela",command=self.choose_source).pack(side="right")
-        self.file_row(outer,"Modelo L2/L3 (deployment-candidate.json)",self.model)
-        self.file_row(outer,"Pasta dos resultados",self.dest,True)
-        self.file_row(outer,"Referência B1 do banco (opcional)",self.ref)
-        self.file_row(outer,"Perfil S4 efetivo (opcional)",self.controls)
         line=ttk.Frame(outer);line.pack(fill="x",pady=4)
-        for label,var,width in (("Cenário",self.scenario,22),("Duração s",self.seconds,6),("Mapa Hz",self.map_hz,5),("OCR Hz",self.reader_hz,5),("Amostra Hz",self.sample_hz,5)):
-            ttk.Label(line,text=label).pack(side="left");ttk.Entry(line,textvariable=var,width=width).pack(side="left",padx=4)
-        ttk.Button(line,text="INICIAR MAPEAMENTO",command=self.start).pack(side="left",padx=8)
-        ttk.Button(line,text="Encerrar e salvar",command=self.stop).pack(side="left")
-        self.status=ttk.Label(outer,text="A seleção não inicia captura. Escolha a fonte, modelo e destino.");self.status.pack(anchor="w",pady=5)
+        if self.hm4:
+            auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
+            ttk.Label(line,text=("Modelo automático: "+Path(auto).parent.name if auto else "Modelo neural não encontrado: captura + leitores nativos continuam ativos.")).pack(side="left")
+            ttk.Button(line,text="INICIAR",command=self.start).pack(side="right",padx=8)
+            ttk.Button(line,text="ENCERRAR",command=self.stop).pack(side="right")
+        else:
+            self.file_row(outer,"Modelo L2/L3 (deployment-candidate.json)",self.model)
+            self.file_row(outer,"Pasta dos resultados",self.dest,True)
+            self.file_row(outer,"Referência B1 do banco (opcional)",self.ref)
+            self.file_row(outer,"Perfil S4 efetivo (opcional)",self.controls)
+            for label,var,width in (("Cenário",self.scenario,22),("Duração s",self.seconds,6),("Mapa Hz",self.map_hz,5),("OCR Hz",self.reader_hz,5),("Amostra Hz",self.sample_hz,5)):
+                ttk.Label(line,text=label).pack(side="left");ttk.Entry(line,textvariable=var,width=width).pack(side="left",padx=4)
+            ttk.Button(line,text="INICIAR MAPEAMENTO",command=self.start).pack(side="left",padx=8)
+            ttk.Button(line,text="Encerrar e salvar",command=self.stop).pack(side="left")
+        self.status=ttk.Label(outer,text=("Escolha um monitor/janela. A seleção ainda não inicia captura." if self.hm4 else "A seleção não inicia captura. Escolha a fonte, modelo e destino."));self.status.pack(anchor="w",pady=5)
         tabs=ttk.Notebook(outer);tabs.pack(fill="both",expand=True)
         mapping=ttk.Frame(tabs);performance=ttk.Frame(tabs);data=ttk.Frame(tabs)
         tabs.add(mapping,text="HUD ao vivo / geometria");tabs.add(performance,text="Performance");tabs.add(data,text="Dados coletados")
@@ -142,20 +186,24 @@ class App:
         if self.active() or self.finalizing:return
         try:
             if not self.selection:raise ValueError("Escolha monitor ou janela.")
-            if not self.model.get():raise ValueError("Selecione deployment-candidate.json.")
+            if not self.hm4 and not self.model.get():raise ValueError("Selecione deployment-candidate.json.")
             if not self.dest.get():raise ValueError("Escolha pasta de resultados.")
+            if self.hm4 and not self.model.get():self.model.set(discover_model())
             if not messagebox.askyesno("Confirmar captura",
                 target_label(self.selection)+"\n\nAutoriza registrar imagens desta fonte para mapear a HUD?\n"
                 "Nenhum áudio, tecla, input automation ou dica estratégica é executado."):return
-            output=self.smoke_output or str(Path(self.dest.get())/("hm3-"+datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
+            prefix="hm4" if self.hm4 else "hm3"
+            output=self.smoke_output or str(Path(self.dest.get())/(prefix+"-"+datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
             uri=f'capture://{self.selection["kind"]}/{self.selection["id"]}'
             p=runtime_paths()
-            self.session=RuntimeSession(Options(**p,video=uri,model=self.model.get(),output=output,
+            cls=HM4RuntimeSession if self.hm4 else RuntimeSession
+            self.session=cls(Options(**p,video=uri,model=self.model.get(),output=output,
                 seconds=float(self.seconds.get()),map_hz=float(self.map_hz.get()),reader_hz=float(self.reader_hz.get()),
                 sample_hz=float(self.sample_hz.get()),scenario=self.scenario.get(),controls=self.controls.get() or None,
-                board_reference=self.ref.get() or None,capture_consent=True,capture_expected=self.selection)).start()
+                board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(self.model.get()),
+                capture_consent=True,capture_expected=self.selection)).start()
             self.last={};self.current=None;self.freeze=False
-        except Exception as exc:messagebox.showerror("HM3",str(exc))
+        except Exception as exc:messagebox.showerror("HM4" if self.hm4 else "HM3",str(exc))
 
     def stop(self):
         if self.session and not self.session.done.is_set():self.session.stop()
@@ -269,34 +317,38 @@ class App:
         if not self.last_finished:return
         if os.name=="nt":os.startfile(self.last_finished)
 
-def main():
-    p=argparse.ArgumentParser(description="Agente TFT HM3 — HUD-first, captura nativa somente")
+def main(mode="hm3"):
+    hm4=mode=="hm4"
+    p=argparse.ArgumentParser(description="Agente TFT "+("HM4 Auto" if hm4 else "HM3 — HUD-first, captura nativa somente"))
     p.add_argument("--capture");p.add_argument("--capture-consent",action="store_true");p.add_argument("--headless",action="store_true")
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
     p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
     if a.headless or a.ui_smoke:
-        if not all((a.capture,a.capture_consent,a.model,a.output)):p.error("capture, consent, model e output são obrigatórios")
+        required=all((a.capture,a.capture_consent,a.output)) and (hm4 or bool(a.model))
+        if not required:p.error("capture, consent, output"+("" if hm4 else ", model")+" são obrigatórios")
         kind,identity=__import__("hm.capture_source",fromlist=["capture_target"]).capture_target(a.capture)
         selected=next((r for r in list_targets(runtime_paths()["configs"]) if r["kind"]==kind and r["id"]==identity),None)
         if selected is None:p.error("Fonte não disponível")
         if a.headless:
-            o=Options(**runtime_paths(),video=a.capture,model=a.model,output=a.output,seconds=a.seconds,map_hz=a.map_hz,
-                      reader_hz=a.reader_hz,sample_hz=a.sample_hz,capture_consent=True,capture_expected=selected,scenario="hm3-ci")
-            s=RuntimeSession(o).start()
-            while not s.done.is_set():
-                for q in (s.map_results,s.native_results):
+            cls=HM4RuntimeSession if hm4 else RuntimeSession
+            o=Options(**runtime_paths(),video=a.capture,model=a.model or "",output=a.output,seconds=a.seconds,map_hz=a.map_hz,
+                      reader_hz=a.reader_hz,sample_hz=a.sample_hz,capture_consent=True,capture_expected=selected,
+                      dataset_only=hm4 and not bool(a.model),scenario="hm4-ci" if hm4 else "hm3-ci")
+            sess=cls(o).start()
+            while not sess.done.is_set():
+                for q in (sess.map_results,sess.native_results):
                     try:q.get(.005)
                     except queue.Empty:pass
                 time.sleep(.01)
-            result=s.finish();print("HM3_SUMMARY="+json.dumps(result,ensure_ascii=False));return 0 if result["execution_complete"] else 2
+            result=sess.finish();print(("HM4_SUMMARY=" if hm4 else "HM3_SUMMARY=")+json.dumps(result,ensure_ascii=False));return 0 if result["execution_complete"] else 2
         import tkinter as tk
-        root=tk.Tk();app=App(root);app.selection=selected;app.source_label.configure(text=target_label(selected))
-        app.model.set(a.model);app.dest.set(str(Path(a.output).parent));app.seconds.set(str(a.seconds));app.smoke_output=a.output;app.smoke=True
-        # CI already supplied explicit consent; no interactive prompt.
+        root=tk.Tk();app=App(root,mode);app.selection=selected;app.source_label.configure(text=target_label(selected))
+        if a.model:app.model.set(a.model)
+        app.dest.set(str(Path(a.output).parent));app.seconds.set(str(a.seconds));app.smoke_output=a.output;app.smoke=True
         from tkinter import messagebox
         old=messagebox.askyesno;messagebox.askyesno=lambda *x,**k: True
         root.after(100,app.start);root.mainloop();messagebox.askyesno=old
         return 0 if app.session and app.session.finished and not app.session.error and app.displayed else 2
     import tkinter as tk
-    root=tk.Tk();App(root);root.mainloop();return 0
+    root=tk.Tk();App(root,mode);root.mainloop();return 0
