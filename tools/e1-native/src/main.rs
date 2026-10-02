@@ -132,7 +132,7 @@ impl Readers{
         }
         match result {
           Ok(Some(read))=>{
-            attempted+=read.attempts_made;
+            if !cache_hit { attempted+=read.attempts_made; }
             row["text"]=json!(read.recognized_text);row["confidence"]=json!(read.confidence.value());
             row["status"]=json!("single_frame_observation");
             match field {
@@ -180,7 +180,7 @@ impl Readers{
     Ok(json!({"id":f.frame_id,"source_ms":f.captured_at_ms,"origin":"observed_pixels",
       "hud":obs,"shop":shop,"controls":controls,"board":board,"state":state,"report":report,"decision":decision,
       "spans":spans,"native_ms":ms(&t),"hud_accepted_attempts_lower_bound":attempted,
-      "hud_process_calls_exact":null,"resolution_compatible":valid_size,"ocr_available":self.available,
+      "hud_cache_policy":"exact_roi_rgb_bytes_v1","hud_process_calls_exact":null,"resolution_compatible":valid_size,"ocr_available":self.available,
       "blockers":["planning_phase_not_observed","unit_identity_not_bound","board_and_hp_unvalidated"],
       "canonical_game_state_updated":false,"temporal_consensus":false,"profile_promoted":false}))
  }
