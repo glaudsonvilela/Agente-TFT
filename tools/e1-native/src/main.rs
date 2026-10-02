@@ -13,11 +13,11 @@
 #[path="../../../rust/apps/board-replay-probe/src/scene.rs"] mod scene;
 mod engine;
 
-use std::{io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
+use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
-use agente_tft_perception_hud::{HudField,read_roi_robust};
+use agente_tft_perception_hud::{HudField,RobustHudRead,read_roi_robust};
 use agente_tft_contracts::GameState;
 use serde_json::{Value,json};
 
@@ -45,9 +45,20 @@ fn frame(h:&Value,r:&mut impl Read)->Result<FrameEnvelope,String>{
 }
 fn span(t:&Instant,name:&str,start:f64)->Value{json!({"stage":name,"start_ms":start,"duration_ms":t.elapsed().as_secs_f64()*1000.-start})}
 fn ms(t:&Instant)->f64{t.elapsed().as_secs_f64()*1000.}
+#[derive(Clone)]
+struct HudCacheEntry{pixels:Vec<u8>,read:Option<RobustHudRead>,source_frame_id:u64,source_ms:u64}
+fn restamp(read:&mut RobustHudRead,at:u64){
+    read.batch.observed_at_ms=at;
+    if let Some(v)=read.batch.gold.as_mut(){v.observed_at_ms=at;}
+    if let Some(v)=read.batch.level.as_mut(){v.observed_at_ms=at;}
+    if let Some(v)=read.batch.xp.as_mut(){v.observed_at_ms=at;}
+    if let Some(v)=read.batch.stage.as_mut(){v.observed_at_ms=at;}
+    if let Some(v)=read.batch.hp.as_mut(){v.observed_at_ms=at;}
+}
 struct Readers{
     hud:HudLayout,ocr:TesseractOcr,shop:layout::ScreenLayout,recovery:recovery::RecoveryProfile,
     controls:controls::ControlsReader,board_profile:profile::Profile,board:Option<scene::SceneReader>,available:bool,
+    hud_cache:HashMap<HudField,HudCacheEntry>,
 }
 impl Readers{
  fn new(root:&Path,tess:String,controls_path:Option<PathBuf>)->Result<Self,String>{
@@ -59,7 +70,7 @@ impl Readers{
     let board_profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;board_profile.validate()?;
     let ocr=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()}).with_numeric_gray();
     let available=ocr.available();
-    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available})
+    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,hud_cache:HashMap::new()})
  }
  fn observe(&mut self,f:&FrameEnvelope)->Result<Value,String>{
     let t=Instant::now();let mut spans=vec![];let mut obs=vec![];let mut state=GameState::empty(f.captured_at_ms);
@@ -68,12 +79,80 @@ impl Readers{
     let valid_size=(f.width,f.height)==(self.hud.reference_width,self.hud.reference_height);
     if valid_size && self.available {
       let hud_wall_started=ms(&t);
-      let mut parallel=thread::scope(|scope|->Result<Vec<_>,String>{
-        let mut handles=Vec::with_capacity(self.hud.regions.len());
-        for (index,region) in self.hud.regions.iter().enumerate() {
+      let mut parallel=Vec::with_capacity(self.hud.regions.len());
+      let mut pending=Vec::new();
+      for (index,region) in self.hud.regions.iter().enumerate() {
+        let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
+        if let Some(entry)=self.hud_cache.get(&region.field) {
+          if entry.pixels==roi.pixels {
+            let mut read=entry.read.clone();
+            if let Some(value)=read.as_mut(){restamp(value,f.captured_at_ms);}
+            parallel.push((index,region.field,Ok(read),ms(&t),0.0,true,
+                           Some((entry.source_frame_id,entry.source_ms))));
+            continue;
+          }
+        }
+        pending.push((index,region.field,region.policy.clone(),roi));
+      }
+      let fresh=thread::scope(|scope|->Result<Vec<_>,String>{
+        let mut handles=Vec::with_capacity(pending.len());
+        for (index,field,policy,roi) in pending {
           let mut ocr=self.ocr.clone();
           handles.push(scope.spawn(move ||->Result<_,String>{
             let started=ms(&t);
+            // Same frozen v3 robust policy/thresholds; only scheduling/cache are different.
+            let result=read_roi_robust(&mut ocr,field,&roi,&policy);
+            let duration=ms(&t)-started;
+            Ok((index,field,result,started,duration,roi.pixels))
+          }));
+        }
+        let mut out=Vec::with_capacity(handles.len());
+        for handle in handles {
+          out.push(handle.join().map_err(|_|"parallel HUD worker panicked".to_string())??);
+        }
+        Ok(out)
+      })?;
+      for (index,field,result,started,duration,pixels) in fresh {
+        if let Ok(read)=&result {
+          self.hud_cache.insert(field,HudCacheEntry{pixels,read:read.clone(),
+              source_frame_id:f.frame_id,source_ms:f.captured_at_ms});
+        }
+        parallel.push((index,field,result,started,duration,false,None));
+      }
+      parallel.sort_by_key(|x|x.0);
+      let mut hud_cache_hits=0usize;
+      for (_,field,result,started,duration,cache_hit,cached_from) in parallel {
+        let mut row=json!({"field":field,"value":null,"source_ms":f.captured_at_ms,"status":"unknown"});
+        if cache_hit {
+          hud_cache_hits+=1;
+          if let Some((frame_id,source_ms))=cached_from {
+            row["cache_delivery"]=json!({"exact_roi_rgb":true,"source_frame_id":frame_id,
+                                          "source_ms":source_ms,"delivered_frame_id":f.frame_id});
+          }
+        }
+        match result {
+          Ok(Some(read))=>{
+            attempted+=read.attempts_made;
+            row["text"]=json!(read.recognized_text);row["confidence"]=json!(read.confidence.value());
+            row["status"]=json!("single_frame_observation");
+            match field {
+             HudField::Gold=>{row["value"]=json!(read.batch.gold.as_ref().map(|x|x.value));state.player.gold=read.batch.gold;}
+             HudField::Level=>{row["value"]=json!(read.batch.level.as_ref().map(|x|x.value));state.player.level=read.batch.level;}
+             HudField::Xp=>{row["value"]=json!(read.batch.xp.as_ref().map(|x|x.value));state.player.xp=read.batch.xp;}
+             HudField::Stage=>{row["value"]=json!(read.batch.stage.as_ref().map(|x|x.value.clone()));state.player.stage=read.batch.stage;}
+             _=>{}
+            }
+          },Ok(None)=>{},Err(e)=>{row["status"]=json!("failed");row["error"]=json!(format!("{e:?}"));}
+        }
+        obs.push(row);
+        spans.push(json!({"stage":format!("hud_{field:?}").to_lowercase(),"start_ms":started,
+                         "duration_ms":duration,"parallel_group":"hud_numeric_v1",
+                         "cache_exact_hit":cache_hit,"cache_basis":"exact_roi_rgb_bytes_v1"}));
+      }
+      spans.push(json!({"stage":"hud_parallel_wall","start_ms":hud_wall_started,
+                        "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len(),
+                        "exact_roi_cache_hits":hud_cache_hits}));
+      let started=ms(&t);
             let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
             // Same frozen v3 robust policy/thresholds; only scheduling is parallel.
             let result=read_roi_robust(&mut ocr,region.field,&roi,&region.policy);
