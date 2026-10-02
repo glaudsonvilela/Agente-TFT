@@ -5,11 +5,23 @@ No neural prediction is promoted to a target, and no candidate is activated.
 """
 from __future__ import annotations
 from pathlib import Path
-import copy, json, time, hashlib
+import copy, json, time, os
 import numpy as np
 from PIL import Image,ImageDraw
 from .core import load_json, dump, sha, valid_box, Observer, neural_regions
 from .seeds import verify_session
+
+
+# Tesseract's inherited OpenMP budget is one. Do not ask Torch for a larger
+# intra-op pool after runtime initialization: this combination hung in backward.
+TRAINING_THREADS = 1
+
+def configure_training_runtime(torch):
+    """A single-thread CPU trainer independent of inference/OCR worker pools."""
+    torch.set_num_threads(TRAINING_THREADS)
+    return dict(intra_op_threads=torch.get_num_threads(),
+                inherited_omp_thread_limit=os.environ.get('OMP_THREAD_LIMIT'),
+                policy='single_thread_bounded_training_v1')
 
 
 def read_examples(folders, allow_weak):
@@ -121,7 +133,7 @@ def train(folders,metadata,output,steps=400,allow_weak=False):
     examples,receipts=read_examples(folders,allow_weak);parts,split_kind=partition(examples)
     observer=Observer(metadata);npz=Path(metadata).with_name('weights.npz')
     if not npz.is_file():raise ValueError('weights.npz da mesma execução é necessário para treinar')
-    parent_hash=sha(npz);torch.set_num_threads(2);torch.manual_seed(9201);torch.use_deterministic_algorithms(True)
+    parent_hash=sha(npz);thread_policy=configure_training_runtime(torch);torch.manual_seed(9201);torch.use_deterministic_algorithms(True)
     parent=load_weights(npz);model=copy.deepcopy(parent)
     # Verify the NPZ is the SAME network as the selected ONNX before changing grids.
     from types import SimpleNamespace
@@ -186,7 +198,7 @@ def train(folders,metadata,output,steps=400,allow_weak=False):
     report=dict(policy='hm1_after_session_training',parameters=sum(p.numel() for p in model.parameters()),
         selected_step=best_step,training_steps=steps,optimization_steps_executed=steps,model_trained=delta>0,parameter_l1_delta=delta,
         history=history,paired=results,export=exported,split=split_kind,
-        training_seconds=time.perf_counter()-start,activation_allowed=False,profile_promoted=False,
+        training_seconds=time.perf_counter()-start,training_runtime=thread_policy,activation_allowed=False,profile_promoted=False,
         readers_modified=False,natural_accuracy=None,supervision='explicit_weak_templates_plus_known_transforms')
     if sha(npz)!=parent_hash:raise ValueError('Modelo pai alterado durante o treino')
     observer.verify()
