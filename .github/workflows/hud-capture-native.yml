@@ -1,0 +1,18 @@
+name: HUD Capture Native
+on:
+  pull_request:
+    paths:
+      - 'tools/hm-capture-native/**'
+      - '.github/workflows/hud-capture-native.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path tools/hm-capture-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/hm-capture-native/Cargo.toml
