@@ -9,7 +9,7 @@ from e1.protocol import terminate
 def main():
     p=argparse.ArgumentParser();p.add_argument("--output",required=True);p.add_argument("--app");p.add_argument("--ui",action="store_true")
     a=p.parse_args();out=Path(a.output)
-    root=tk.Tk();root.title("HM4 automatic live smoke");root.geometry("1280x720+20+20")
+    root=tk.Tk();root.title("HM4 automatic live smoke");root.overrideredirect(True);root.geometry("1280x720+20+20")
     c=tk.Canvas(root,bg="#203040");c.pack(fill="both",expand=True)
     c.create_rectangle(80,80,760,460,fill="#ff0000",tags="moving")
     root.update();time.sleep(.2);root.update()
