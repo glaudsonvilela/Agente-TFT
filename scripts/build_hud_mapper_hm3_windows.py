@@ -48,6 +48,9 @@ for module in ('torch', 'torchvision', 'torchaudio', 'hm.train', 'hm.seeds',
     args += ['--exclude-module', module]
 args += [str(root / 'apps/hud_mapper/AgenteTFT_HUD_Runtime.py')]
 subprocess.run(args, check=True)
+from compact_hm3_payload import compact_payload
+compaction = compact_payload(folder)
+(dist / 'HM3_COMPACTION_REPORT.json').write_text(json.dumps(compaction, indent=2), encoding='utf-8')
 shutil.copy2(root / 'docs/HUD_MAPPER_HM3_RUNTIME.md', folder / 'LEIA-ME.md')
 licenses = folder / 'THIRD_PARTY'
 licenses.mkdir()
@@ -71,7 +74,7 @@ files = {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdig
 manifest = dict(schema_version=1, commit=os.environ.get('GITHUB_SHA'), primary_objective='live_HUD_mapping',
                 runtime_only=True, replay_in_runtime=False, ffmpeg_bundled=False, pytorch_bundled=False,
                 trainer_bundled=False, capture='resident_Rust_WGC_D3D11', neural='ONNX_CPU_L2_L3',
-                ocr='Tesseract_private', model_weights_included=False, signed=False, files=files,
+                ocr='Tesseract_private', model_weights_included=False, signed=False, files=files, payload_compaction=compaction,
                 build_dependencies=subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'], text=True))
 (folder / 'BUILD_MANIFEST.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
 zip_path = dist / 'AgenteTFT-HUD-HM3-Runtime-Windows-x64.zip'
@@ -112,6 +115,7 @@ report = dict(runtime_uncompressed_bytes=sum(p.stat().st_size for p in folder.rg
               zip_sha256=hashlib.sha256(zip_path.read_bytes()).hexdigest(),
               installer_sha256=hashlib.sha256(setup.read_bytes()).hexdigest(),
               exe_sha256=hashlib.sha256((folder / 'AgenteTFT-HUD-HM3.exe').read_bytes()).hexdigest(),
-              forbidden_payloads=bad, font_files=fonts, ffmpeg_bundled=False, pytorch_bundled=False, trainer_bundled=False)
+              forbidden_payloads=bad, font_files=fonts, ffmpeg_bundled=False, pytorch_bundled=False, trainer_bundled=False,
+              compaction_removed_bytes=compaction['removed_bytes'], compaction_removed_files=len(compaction['removed_files']))
 (dist / 'HM3_PACKAGE_REPORT.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 print('HM3_PACKAGE=' + json.dumps(report), flush=True)

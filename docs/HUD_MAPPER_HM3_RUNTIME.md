@@ -12,7 +12,9 @@ A aba HUD ao vivo / geometria alterna entre captura bruta, mapa neural com geome
 
 O hot path trabalha em memória: captura Rust residente -> RGB -> filas latest -> ONNX/leitores -> UI. PNGs e recortes são persistência assíncrona, amostrada e limitada.
 
-A rede e os leitores têm filas de capacidade 1; a captura não espera OCR. Resolução diferente de 1920x1080 é recusada pelos leitores Match001 antes de chamar OCR. Em 1920x1080, HM3 calcula uma assinatura exata das áreas de HUD, loja, controles e lista de jogadores. Se os pixels forem idênticos e a observação anterior tiver no máximo 750 ms, a leitura é reutilizada com origem e idade explícitas. Qualquer byte diferente força nova leitura. O cache é desativado quando B1 está ativo.
+A rede e os leitores têm filas de capacidade 1; a captura não espera OCR. Resolução diferente de 1920x1080 é recusada pelos leitores Match001 antes de chamar OCR. Em 1920x1080, uma leitura pode ser reutilizada somente quando o frame RGB completo é byte a byte idêntico, a geometria não mudou e o dado original tem no máximo 750 ms. Não se usam recortes aproximados como prova de que todos os leitores receberiam os mesmos pixels. A origem e a idade do resultado ficam explícitas. B1 permanece fora desse cache. No padrão de leitura de 1 Hz, a janela de 750 ms normalmente já expirou; isso não promete eliminar o custo do OCR.
+
+O empacotamento preserva as DLLs privadas junto do Tesseract, remove apenas cópias idênticas sem outro importador PE e exclui dados de teste do ONNX. A cópia compactada é novamente executada nos testes Windows, inclusive OCR com PATH restrito, instalação e prévia.
 
 A aba Performance mostra frames, substituições de fila, inferência ONNX, leitores, cache exato, métricas da captura e amostras salvas.
 

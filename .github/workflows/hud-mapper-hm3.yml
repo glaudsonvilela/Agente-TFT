@@ -4,6 +4,8 @@ on:
     paths:
       - 'apps/hud_mapper/**'
       - 'scripts/build_hud_mapper_hm3_windows.py'
+      - 'scripts/compact_hm3_payload.py'
+      - 'scripts/test_compact_hm3_payload.py'
       - 'tools/hm-capture-native/**'
       - 'tools/hm-hp-native/**'
       - 'tools/e1-native/**'
@@ -40,6 +42,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
       - run: python -m pip install -r apps/hud_mapper/requirements.txt
+      - run: python -m unittest discover -s scripts -p 'test_compact_hm3_payload.py' -v
       - run: cargo test --manifest-path tools/hm-capture-native/Cargo.toml
       - run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_*.py' -v
       - run: python -m unittest discover -s apps/e1_replay/tests -v
@@ -64,6 +67,7 @@ jobs:
           'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
       - run: python -m pip install -r apps/hud_mapper/requirements.txt pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
+      - run: python -m unittest discover -s scripts -p 'test_compact_hm3_payload.py' -v
       - run: cargo test --manifest-path tools/hm-capture-native/Cargo.toml
       - run: cargo build --release --manifest-path tools/hm-capture-native/Cargo.toml
       - run: cargo test --manifest-path tools/hm-hp-native/Cargo.toml
@@ -81,6 +85,7 @@ jobs:
       - run: python apps/hud_mapper/tests/hm3_capture_smoke.py --model hm3-model/deployment-candidate.json --output hm3-source-capture
       - run: python apps/hud_mapper/tests/hm3_capture_smoke.py --model hm3-model/deployment-candidate.json --output hm3-source-ui --ui
       - run: python scripts/build_hud_mapper_hm3_windows.py
+      - run: python apps/hud_mapper/tests/hm3_reader_smoke.py --runtime-root dist/AgenteTFT-HUD-HM3/_internal --output hm3-private-ocr
       - name: Verify portable HM3 runtime
         shell: pwsh
         run: |
@@ -120,6 +125,8 @@ jobs:
           path: |
             capture-native/*.json
             reader-compatible/*.json
+            hm3-private-ocr/*.json
+            dist/HM3_COMPACTION_REPORT.json
             hm3-source-capture/*.json
             hm3-source-ui/*.json
             hm3-portable/*.json
