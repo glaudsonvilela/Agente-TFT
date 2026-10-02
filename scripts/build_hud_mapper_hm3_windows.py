@@ -3,6 +3,8 @@ from pathlib import Path
 import hashlib,json,os,shutil,subprocess,sys,zipfile
 root=Path(__file__).resolve().parents[1]
 if os.name!="nt":raise SystemExit("Windows build host required")
+import importlib.util
+if importlib.util.find_spec("jaraco.text") is None:raise SystemExit("jaraco.text build dependency missing")
 stage=root/"build/hm3-tools";stage.mkdir(parents=True,exist_ok=False)
 tess=Path("C:/Program Files/Tesseract-OCR")
 if not (tess/"tesseract.exe").is_file():raise SystemExit("Tesseract unavailable")
@@ -25,7 +27,7 @@ args=[sys.executable,"-m","PyInstaller","--noconfirm","--clean","--onedir","--wi
  "--add-data",f'{root/"configs"};configs',
  "--add-binary",f'{workers["e1"]};bin',"--add-binary",f'{workers["hp"]};bin',"--add-binary",f'{workers["capture"]};bin',
  "--add-data",f"{td};tesseract",
- "--collect-binaries","onnxruntime","--collect-data","onnxruntime","--collect-binaries","onnx","--collect-data","onnx",
+ "--collect-binaries","onnxruntime","--collect-data","onnxruntime","--collect-binaries","onnx","--collect-data","onnx","--collect-all","jaraco",
  "--exclude-module","torch","--exclude-module","torchvision","--exclude-module","torchaudio",
  "--exclude-module","hm.train","--exclude-module","hm.seeds",
  str(root/"apps/hud_mapper/AgenteTFT_HUD_Runtime.py")]
