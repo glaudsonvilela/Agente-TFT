@@ -58,13 +58,17 @@ jobs:
         env: {PYTHONPATH: 'apps/e1_replay', OMP_THREAD_LIMIT: '1'}
         run: |
           python -B -m unittest discover -s apps/e1_replay/tests -v
+          if ($LASTEXITCODE -ne 0) { throw 'Unit tests failed' }
           python -B apps/e1_replay/tests/native_smoke.py --output native-check
+          if ($LASTEXITCODE -ne 0) { throw 'Native integration failed' }
       - run: python scripts/build_e1_windows.py
       - name: Run compiled portable app and actual UI
         shell: pwsh
         run: |
           & .\dist\AgenteTFT-E1\AgenteTFT-E1.exe --headless --mode fixtures --seconds 2 --output packaged-check
           if ($LASTEXITCODE -ne 0) { throw 'Packaged process test failed' }
+          & .\dist\AgenteTFT-E1\AgenteTFT-E1.exe --headless --mode replay --video native-check/input.mkv --seconds 1 --reader-hz 10 --output packaged-pixels-check
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged media test failed' }
           & .\dist\AgenteTFT-E1\AgenteTFT-E1.exe --ui-smoke --output packaged-ui-check
           if ($LASTEXITCODE -ne 0) { throw 'Packaged UI test failed' }
       - uses: actions/upload-artifact@v4
@@ -80,4 +84,5 @@ jobs:
             native-check/**/*.json
             native-check/**/*.txt
             packaged-check/*
+            packaged-pixels-check/*
             packaged-ui-check/*

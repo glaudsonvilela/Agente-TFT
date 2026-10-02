@@ -33,6 +33,8 @@ def terminate(proc):
 
 class NativeWorker:
     def __init__(self, binary, configs, tesseract='tesseract', controls=None, log=None):
+        self._close_lock = threading.Lock()
+        self.closed = False
         args = [binary, '--configs', configs, tesseract]
         if controls:
             args.append(controls)
@@ -111,12 +113,16 @@ class NativeWorker:
         return value
 
     def close(self):
-        terminate(self.proc)
-        for f in (self.proc.stdin, self.proc.stdout):
-            if f:
-                try:
-                    f.close()
-                except OSError:
-                    pass
-        if hasattr(self.stderr, 'close'):
-            self.stderr.close()
+        with self._close_lock:
+            if self.closed:
+                return
+            self.closed = True
+            terminate(self.proc)
+            for f in (self.proc.stdin, self.proc.stdout):
+                if f:
+                    try:
+                        f.close()
+                    except (OSError, ValueError):
+                        pass
+            if hasattr(self.stderr, 'close'):
+                self.stderr.close()

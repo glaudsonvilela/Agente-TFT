@@ -5,11 +5,11 @@ import hashlib,json,os,shutil,subprocess,sys
 root=Path(__file__).resolve().parents[1]
 if os.name!='nt':raise SystemExit('Windows build host required')
 worker=root/'tools/e1-native/target/release/agente-tft-e1-worker.exe'
-ff=Path(shutil.which('ffmpeg') or '')
-if not ff.is_file():
-    candidates=list(Path('C:/ProgramData/chocolatey/lib/ffmpeg').rglob('ffmpeg.exe'))
-    if not candidates:raise SystemExit('FFmpeg unavailable')
-    ff=candidates[0]
+# Use the actual tool files, not a Chocolatey shim pointing into the build host.
+candidates=sorted(Path('C:/ProgramData/chocolatey/lib/ffmpeg').rglob('ffmpeg.exe'))
+candidates=[p for p in candidates if p.with_name('ffprobe.exe').is_file()]
+if not candidates:raise SystemExit('FFmpeg/ffprobe installation files unavailable')
+ff=candidates[0]
 tess=Path('C:/Program Files/Tesseract-OCR')
 if not (tess/'tesseract.exe').is_file():raise SystemExit('Tesseract install not found')
 args=[sys.executable,'-m','PyInstaller','--noconfirm','--clean','--onedir','--name','AgenteTFT-E1',

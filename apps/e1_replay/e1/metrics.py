@@ -2,7 +2,7 @@
 from __future__ import annotations
 from collections import Counter
 from pathlib import Path
-import hashlib, json, math, os, queue, shutil, threading, time
+import copy, hashlib, json, math, os, queue, shutil, threading, time
 
 
 def quantiles(values):
@@ -46,7 +46,7 @@ class Journal:
         if self.error:
             raise OSError(self.error)
         try:
-            self.q.put_nowait(dict(event))
+            self.q.put_nowait(copy.deepcopy(event))
         except queue.Full:
             self.dropped += 1
             self.error = 'telemetry queue overflow; run cannot be complete'

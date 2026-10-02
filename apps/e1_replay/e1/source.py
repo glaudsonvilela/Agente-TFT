@@ -44,13 +44,15 @@ def probe(path, ffprobe):
 
 class VideoSource:
     def __init__(self, path, ffmpeg='ffmpeg', ffprobe='ffprobe'):
+        self._close_lock = threading.Lock()
+        self.closed = False
         self.path = local_video(path)
         self.w, self.h = probe(self.path, ffprobe)
         self.identity = (self.path.stat().st_size, self.path.stat().st_mtime_ns)
         self.proc = spawn([ffmpeg, '-nostdin', '-v', 'info', '-threads', '2',
                            '-filter_threads', '1', '-protocol_whitelist', 'file', '-noautorotate', '-i', self.path,
                            '-map', '0:v:0', '-an', '-sn', '-dn', '-vf', 'format=rgb24,showinfo',
-                           '-vsync', '0', '-f', 'rawvideo', '-pix_fmt', 'rgb24', 'pipe:1'],
+                           '-fps_mode', 'passthrough', '-f', 'rawvideo', '-pix_fmt', 'rgb24', 'pipe:1'],
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
         self.pts = queue.Queue(maxsize=64)
         self.stop = threading.Event()
@@ -113,18 +115,26 @@ class VideoSource:
             due = origin + int(relative * 1_000_000)
             if cancelled.wait(max(0, (due - now) / 1e9)):
                 break
-            yield Frame(i, pts, due, time.perf_counter_ns(), self.w, self.h, bytes(chunks))
+            pixels = bytes(chunks)
+            yield Frame(i, pts, due, time.perf_counter_ns(), self.w, self.h, pixels)
             last = pts
             i += 1
         if self.identity != (self.path.stat().st_size, self.path.stat().st_mtime_ns):
             raise ValueError('Arquivo de origem alterado durante a sessão')
 
     def close(self):
-        self.stop.set()
-        terminate(self.proc)
-        for stream in (self.proc.stdout, self.proc.stderr):
-            if stream:
-                stream.close()
+        with self._close_lock:
+            if self.closed:
+                return
+            self.closed = True
+            self.stop.set()
+            terminate(self.proc)
+            for stream in (self.proc.stdout, self.proc.stderr):
+                if stream:
+                    try:
+                        stream.close()
+                    except (OSError, ValueError):
+                        pass
 
 
 def fixture_frames(cancelled, max_seconds=12, fps=4):

@@ -86,6 +86,7 @@ class Session:
         self.lock = threading.RLock()
         self.capabilities = {}
         self.finished = False
+        self._stop_started = False
         self.journal.emit(dict(event='session', session_id=self.id, options=options.__dict__,
                                 clock='perf_counter_ns_same_python_process', source_mode=options.mode,
                                 physical_display_latency_measured=False, official_game_connected=False))
@@ -99,11 +100,12 @@ class Session:
         self.journal.emit(dict(event=kind, session_id=self.id, at_ns=time.perf_counter_ns(), **data))
 
     def _launch(self):
+        consumer = None
         try:
             t = time.perf_counter_ns()
             self.worker = self.factory(self.options.worker, self.options.configs, self.options.tesseract,
                                        self.options.controls, Path(self.options.output)/'native-stderr.log')
-            self.capabilities = dict(native_engine='real', native_pid=self.worker.ready.get('pid'),
+            self.capabilities = dict(native_engine='real' if self.factory is NativeWorker else 'test_double', native_pid=self.worker.ready.get('pid'),
                                      native_startup_ms=(time.perf_counter_ns()-t)/1e6,
                                      hud_and_shop='real' if self.options.mode=='replay' and self.worker.ready['ocr_available'] else 'not_executed',
                                      controls_profile='explicit_custom' if self.options.controls else 'S3_frozen_not_S4',
@@ -141,11 +143,11 @@ class Session:
             consumer.start()
             self._produce()
             self.source_done.set()
-            consumer.join(20)
+            consumer.join(28)
             if consumer.is_alive():
                 raise TimeoutError('consumer did not finish within native deadline')
         except Exception as exc:
-            self.error = str(exc)
+            self.error = self.error or str(exc)
             try:
                 self.emit('failed', detail=self.error)
             except OSError:
@@ -157,6 +159,10 @@ class Session:
                 self.source.close()
             if self.worker:
                 self.worker.close()
+            if consumer and consumer is not threading.current_thread():
+                consumer.join(3)
+                if consumer.is_alive():
+                    self.error = self.error or 'consumer shutdown incomplete'
             self.done.set()
 
     def _produce(self):
@@ -175,8 +181,10 @@ class Session:
                 self.counts['reader_rate_skipped'] += 1
                 continue
             next_due = f.due_ns + int(1e9 / self.options.reader_hz)
-            if self.pending.put(f) is not None:
+            previous = self.pending.put(f)
+            if previous is not None:
                 self.counts['reader_pending_superseded'] += 1
+                self.emit('reader_superseded', old_frame_id=previous.id, replacement_frame_id=f.id)
             self.counts['reader_submitted'] += 1
 
     def _consume(self):
@@ -212,6 +220,8 @@ class Session:
                 age = (ready-f.due_ns)/1e6
                 trace.update(origin=answer['origin'], result_kind=kind, native_roundtrip_ms=native_roundtrip,
                              explanation_ms=explanation_ms, model=model, native_spans=answer['spans'],
+                             payload_bytes=len(f.rgb), native_ms=answer.get('native_ms'),
+                             ipc_residual_ms=native_roundtrip-answer['native_ms'] if 'native_ms' in answer else None,
                              decision_ready_ns=ready, source_to_ready_ms=age, state_revision=answer['state']['revision'],
                              oldest_required_field_age_ms=age if kind=='fixture_action' else None,
                              injected_wait_ms=wait, injection_kind='explicit_sleep_not_inference' if wait else None,
@@ -221,12 +231,12 @@ class Session:
                     self.traces.append(trace)
                 self.counts['processed'] += 1
                 self.counts[kind] += 1
-                self.emit('decision_ready', trace=trace, observations=answer, text=text)
+                self.emit('decision_ready', trace=trace.copy(), observations=answer, text=text)
                 result = dict(trace=trace, text=text, answer=answer)
                 if self.results.put(result) is not None:
                     self.counts['ui_pending_superseded'] += 1
         except Exception as exc:
-            self.error = str(exc)
+            self.error = self.error or str(exc)
             self.cancelled.set()
             try:
                 self.emit('consumer_failed', error=str(exc))
@@ -244,7 +254,7 @@ class Session:
             trace['ui_queue_ms'] = (now-trace['decision_ready_ns'])/1e6
             trace['expired_at_ui'] = trace['ui_applied_latency_ms'] > self.options.max_age_ms
             trace['ui_confirmation'] = ui_kind
-        self.counts['ui_applied'] += 1
+        self.counts['ui_applied' if ui_kind.startswith('tk') else 'headless_sink_applied'] += 1
         if trace['expired_at_ui']:
             self.counts['ui_expired'] += 1
         self.emit('ui_applied_estimate' if ui_kind.startswith('tk') else 'headless_sink', trace=trace.copy())
@@ -252,10 +262,18 @@ class Session:
 
     def stop(self):
         self.cancelled.set()
-        if self.source:
-            self.source.close()
-        if self.worker:
-            self.worker.close()
+        with self.lock:
+            if self._stop_started:
+                return
+            self._stop_started = True
+        def close_owned():
+            for obj in (self.source, self.worker):
+                if obj:
+                    try:
+                        obj.close()
+                    except Exception as exc:
+                        self.error = self.error or str(exc)
+        threading.Thread(target=close_owned, daemon=True).start()
 
     def finish(self):
         if not self.done.is_set():
@@ -281,6 +299,11 @@ class Session:
                        timings={k:quantiles([r.get(k) for r in traces]) for k in
                                 ('source_late_ms','queue_ms','native_roundtrip_ms','source_to_ready_ms','explanation_ms')},
                        source_to_tk_apply=quantiles([r['ui_applied_latency_ms'] for r in real_ui]),
+                       latency_by_result={kind: quantiles([r['source_to_ready_ms'] for r in traces if r['result_kind']==kind])
+                                          for kind in sorted({r['result_kind'] for r in traces})},
+                       ipc_residual=quantiles([r.get('ipc_residual_ms') for r in traces]),
+                       model_resize=quantiles([r['model']['resize_ms'] for r in traces if r.get('model')]),
+                       model_inference=quantiles([r['model']['inference_ms'] for r in traces if r.get('model')]),
                        stage_processing_rank_not_causal_attribution=ranked,
                        actionable_visual_tips=0, game_state_updated=False, profile_promoted=False,
                        physical_display_latency_measured=False, full_product_latency_established=False,
