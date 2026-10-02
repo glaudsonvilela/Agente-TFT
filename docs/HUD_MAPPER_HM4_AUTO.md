@@ -57,3 +57,26 @@ python scripts/audit_hm4_session.py "C:\caminho\teste.zip" --output hm4-session-
 ```
 
 O relatório agrega resolução capturada, ativação neural, execuções nativas, normalizações, status por região, valores observados, campos stage/gold/level/xp/HP e quantidade de amostras ainda sem rótulo.
+
+
+## HM4.2 — caminho rápido e L2 shadow
+
+Estado validado no Windows CI antes deste pacote:
+
+- HUD numérico (stage/gold/level/xp) executa em paralelo, preservando políticas/thresholds existentes.
+- HP roda em processo independente e em paralelo ao caminho principal.
+- Cache exato por bytes de ROI para HUD; cache exato dos pixels realmente consumidos por loja/controles.
+- HM4 usa 2 Hz como cadência padrão dos leitores.
+- Loja/controles têm cadência separada de 2 s; entre leituras, o último resultado é reapresentado com idade e provenance explícitas, sem ser marcado como fresco.
+- O L2 espacial é somente shadow diagnóstico: não escreve GameState, não alimenta leitores, não é ground truth e não pode virar training label.
+- summary.json e audit_hm4_session.py registram explicitamente o modo neural e as permissões bloqueadas.
+
+Benchmark determinístico do runtime em GitHub Actions, 1920x1080 (run 37079664767):
+
+- primeiro frame completo/fresco: 468.12 ms native; 474.34 ms wall;
+- segundo frame byte-idêntico/cacheado: 0.57 ms native; 6.86 ms wall;
+- frame alterado com HUD rápido e loja fora da cadência: 477.30 ms native; 483.38 ms wall;
+- frame alterado com HUD + HP em paralelo: 503.28 ms wall;
+- reapresentação da loja fora da cadência: aproximadamente 0.03 ms no benchmark.
+
+Esses números são benchmark do runner CI, não promessa de latência do PC real. A comparação de campo deve ser feita numa nova captura natural usando o mesmo formato de relatório da sessão anterior.
