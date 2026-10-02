@@ -88,7 +88,7 @@ class App:
         left=ttk.Frame(split);right=ttk.Frame(split);split.add(left,weight=3);split.add(right,weight=2)
         self.canvas=tk.Canvas(left,bg='#070d12',highlightthickness=0,width=900,height=520);self.canvas.pack(fill='both',expand=True)
         self.canvas.bind('<Configure>',lambda _:self.repaint())
-        columns=('region','status','value');self.table=ttk.Treeview(right,columns=columns,show='headings',height=16)
+        columns=('region','status','value');self.table=ttk.Treeview(right,columns=columns,show='headings',height=8)
         for c,w in [('region',155),('status',180),('value',80)]:self.table.heading(c,text=c);self.table.column(c,width=w,minwidth=50)
         self.table.pack(fill='both',expand=True);self.table.bind('<<TreeviewSelect>>',self.selected)
         ttk.Label(right,text='Clique numa região para ver o recorte original e a origem.').pack(anchor='w')

@@ -30,6 +30,7 @@ jobs:
       - run: python -m unittest discover -s apps/hud_mapper/tests -v
       - run: python -m unittest discover -s apps/e1_replay/tests -v
       - run: python apps/hud_mapper/tests/integration.py --output hm-check
+      - run: xvfb-run -a python apps/hud_mapper/tests/layout_smoke.py
       - run: xvfb-run -a python apps/hud_mapper/AgenteTFT_HUD.py --ui-smoke --video hm-check/input.mkv --model hm-check/model/deployment-candidate.json --output hm-ui-check
       - uses: actions/upload-artifact@v4
         with:
@@ -67,6 +68,7 @@ jobs:
       - run: python -m unittest discover -s apps/hud_mapper/tests -v
       - run: python -m unittest discover -s apps/e1_replay/tests -v
       - run: python apps/hud_mapper/tests/integration.py --output hm-check
+      - run: python apps/hud_mapper/tests/layout_smoke.py
       - run: python scripts/build_hud_mapper_windows.py
       - name: Executable mapping and UI with real ONNX + OCR + PNG collection
         shell: pwsh
