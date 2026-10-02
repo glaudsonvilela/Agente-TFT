@@ -25,6 +25,7 @@ def main():
         assert r['origin']=='observed_pixels' and r['resolution_compatible']
         assert len(r['hud'])==4 and r['decision']['action']['type']=='wait'
         assert all(x['value'] is None for x in r['hud'])
+        assert all(x['status']=='unknown' for x in r['hud']), 'OCR failures must not masquerade as valid blank readings'
         assert any(s['stage']=='shop_cards' for s in r['spans'])
         # A fixture at an unsupported size is rejected for reader use, not implicitly resized.
         r2=worker.request(dict(op='frame',id=101,source_ms=1500,width=2,height=2,bytes=12),bytes(12))
