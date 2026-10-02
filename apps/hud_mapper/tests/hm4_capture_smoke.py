@@ -39,8 +39,8 @@ def main():
         stages=report["timings"]["stages"]
         hud_keys=["hud_stage","hud_gold","hud_level","hud_xp"]
         assert "hud_parallel_wall" in stages and stages["hud_parallel_wall"]["n"]>0
-        serial=sum(stages[k]["p50_ms"] for k in hud_keys if stages.get(k,{}).get("p50_ms") is not None)
-        wall=stages["hud_parallel_wall"]["p50_ms"]
+        serial=sum(stages[k]["max_ms"] for k in hud_keys if stages.get(k,{}).get("max_ms") is not None)
+        wall=stages["hud_parallel_wall"]["max_ms"]
         assert wall is not None and serial>0 and wall<serial, (wall,serial,stages)
         assert report["neural_scope"]==[]
         assert manifest["samples"] and all(x["targets"] is None for x in manifest["samples"])
