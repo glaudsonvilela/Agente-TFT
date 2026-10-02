@@ -5,7 +5,7 @@ if not getattr(sys,'frozen',False):
     root=Path(__file__).resolve().parents[2]
     sys.path.insert(0,str(root/'apps/e1_replay'))
     sys.path.insert(0,str(root/'experiments/ui-map-lite-l2/training'))
-from hm.app import main
+from hm.capture_app import main
 if __name__=='__main__':
     try:raise SystemExit(main())
     except Exception as exc:

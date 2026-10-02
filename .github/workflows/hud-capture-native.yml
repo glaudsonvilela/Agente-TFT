@@ -1,0 +1,35 @@
+name: HUD Capture Native
+on:
+  pull_request:
+    paths:
+      - 'tools/hm-capture-native/**'
+      - '.github/workflows/hud-capture-native.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path tools/hm-capture-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/hm-capture-native/Cargo.toml
+      - name: Real selected-window and monitor capture
+        run: python tools/hm-capture-native/tests/windows_capture_smoke.py --binary tools/hm-capture-native/target/release/agente-tft-hm-capture.exe --output capture-check
+      - name: Record reproducible source snapshot
+        if: always()
+        run: git archive --format=zip --output=hm2-source.zip HEAD
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HM2-Capture-Source-and-Evidence
+          path: |
+            hm2-source.zip
+            capture-check/*.json
+          retention-days: 30
+          if-no-files-found: error

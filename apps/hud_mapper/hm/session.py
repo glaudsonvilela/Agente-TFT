@@ -32,6 +32,8 @@ class Options:
     max_bytes: int=1024**3
     scenario: str='natural-replay'
     dataset_only: bool=False
+    capture_consent: bool=False
+    capture_expected: dict|None=None
     def validate(self):
         if not self.model:raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
         if not 1<=self.seconds<=7200 or not .2<=self.map_hz<=15 or not .1<=self.reader_hz<=5 or not .1<=self.sample_hz<=2:
@@ -62,15 +64,13 @@ class Session:
     def _run(self):
         threads=[]
         try:
-            from e1.source import VideoSource, local_video
             from e1.protocol import NativeWorker
+            from .input_source import InputPlan
             o=self.options
-            p=local_video(o.video);identity=(p.stat().st_size,p.stat().st_mtime_ns)
-            self.phase='Verificando a origem do vídeo…';self.source_hash=sha(p)
-            if identity!=(p.stat().st_size,p.stat().st_mtime_ns):raise ValueError('Vídeo mudou durante a verificação')
-            self.source_info=dict(path=str(p),sha256=self.source_hash,bytes=identity[0],scenario=o.scenario,
-                                  closed_local_file=True,split_group=self.source_hash,
-                                  source_hashed_before_measurement=True,cold_disk_benchmark=False)
+            self.phase='Verificando a fonte selecionada…'
+            input_plan=InputPlan(o,self.id)
+            self.source_info=input_plan.info
+            self.source_hash=self.source_info.get('sha256')
             self.registry=Registry(o.configs,o.controls)
             self.model=Observer(o.model)
             self.versions=dict(model_sha256=self.model.hash,model_load_ms=self.model.load_ms,
@@ -91,7 +91,7 @@ class Session:
                     im=im.convert('RGB');w,h=im.size;b=im.tobytes()
                 self.worker.request(dict(op='reference',id=0,source_ms=0,width=w,height=h,bytes=len(b)),b)
                 self.versions['board_reference_sha256']=sha(o.board_reference)
-            self.source=VideoSource(o.video,o.ffmpeg,o.ffprobe)
+            self.source=input_plan.start()
             for target in (self._map_loop,self._native_loop):
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
@@ -102,7 +102,8 @@ class Session:
                 if self.store.error:raise OSError(self.store.error)
                 self.counts['source_frames']+=1;self.preview.put(f)
                 self.store.emit('telemetry',dict(event='source',frame_id=f.id,source_ms=f.pts_ms,
-                   due_ns=f.due_ns,ready_ns=f.ready_ns,source_late_ms=(f.ready_ns-f.due_ns)/1e6))
+                   due_ns=f.due_ns,ready_ns=f.ready_ns,source_late_ms=(f.ready_ns-f.due_ns)/1e6,
+                   geometry_segment=f.epoch,capture=getattr(f,'capture',None)))
                 if f.due_ns>=next_sample:
                     next_sample=f.due_ns+int(1e9*neutral_interval)
                     # Neutral periodic selection independent of model confidence.
@@ -115,7 +116,7 @@ class Session:
             for t in threads:t.join(30)
             if any(t.is_alive() for t in threads):raise TimeoutError('Trabalhador não encerrou dentro do prazo')
             self.model.verify()
-            if identity!=(p.stat().st_size,p.stat().st_mtime_ns):raise ValueError('Vídeo alterado durante a sessão')
+            input_plan.verify(self.cancel.is_set())
         except Exception as exc:
             self.error=str(exc);self.stop()
         finally:
@@ -197,7 +198,7 @@ class Session:
         stages={}
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
-        result=dict(schema_version=1,policy='hud_mapper_hm1',primary_objective='HUD_mapping_and_natural_training_material',
+        result=dict(schema_version=1,policy='hud_mapper_hm2' if self.source_info.get('source_kind')=='native_capture' else 'hud_mapper_hm1',primary_objective='HUD_mapping_and_natural_training_material',
            session_id=self.id,source=self.source_info,versions=self.versions,
            execution_complete=self.error is None and not self.cancel.is_set(),error=self.error,
            cancelled=self.cancel.is_set(),counts=dict(self.counts),
@@ -216,6 +217,8 @@ class Session:
            full_hud_neural_mapping=False,board_cells_validated=False,model_trained=False,torch_loaded_in_mapper='torch' in __import__('sys').modules,
            profile_promoted=False,game_state_updated=False,continuous_learning_connected=False,
            official_game_connected=False,physical_display_measured=False,
+           screen_capture_active=self.source_info.get('source_kind')=='native_capture',
+           capture_is_not_game_memory_access=True,live_strategy_enabled=False,
            next_step='inspect saved native pixels and observation provenance; train only explicit supervision',
            elapsed_seconds=(time.perf_counter_ns()-self.started)/1e9)
         return self.store.close(result)
