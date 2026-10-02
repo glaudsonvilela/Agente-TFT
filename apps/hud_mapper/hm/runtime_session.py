@@ -114,3 +114,9 @@ class RuntimeSession(Session):
         except Exception as exc:
             self.error = str(exc)
             self.stop()
+
+
+class HM4RuntimeSession(RuntimeSession):
+    """HM4 automatic shell: same capture/readers, optional auto-discovered neural model."""
+    policy_name = 'hud_mapper_hm4_auto'
+    primary_objective = 'live_HUD_capture_geometry_telemetry_with_automatic_model_discovery'
