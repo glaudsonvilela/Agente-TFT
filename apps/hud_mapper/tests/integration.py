@@ -1,5 +1,5 @@
 """Actual ONNX/native/PNG/trainer integration on generated fixtures; not TFT accuracy."""
-import argparse,json,queue,subprocess,time
+import argparse,json,queue,subprocess,time,faulthandler
 from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
@@ -42,9 +42,13 @@ def fixture_training(folder):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--output',required=True);a=p.parse_args();out=Path(a.output)
-    out.mkdir(parents=True,exist_ok=False);fixture_model(out/'model');fixture_training(out/'training-session')
+    faulthandler.enable();faulthandler.dump_traceback_later(180,exit=True)
+    out.mkdir(parents=True,exist_ok=False)
+    print('HM_CHECK=model_export',flush=True);fixture_model(out/'model')
+    print('HM_CHECK=fixture_pixels',flush=True);fixture_training(out/'training-session')
     media=out/'input.mkv';cfg=paths()
     subprocess.run([cfg['ffmpeg'],'-v','error','-f','lavfi','-i','color=black:s=1920x1080:r=10:d=2','-c:v','ffv1',str(media)],check=True,timeout=30)
+    print('HM_CHECK=integrated_mapping',flush=True)
     s=Session(Options(**cfg,video=str(media),model=str(out/'model/deployment-candidate.json'),output=str(out/'mapping'),seconds=2)).start()
     timeout=time.monotonic()+60
     while not s.done.is_set():
@@ -52,15 +56,18 @@ def main():
         for q in (s.map_results,s.native_results):
             try:q.get(.01)
             except queue.Empty:pass
+    print('HM_CHECK=seal_mapping',flush=True)
     report=s.finish()
     assert report['execution_complete'],report.get('error')
     assert report['counts']['mapped_frames']>0 and report['counts']['read_frames']>0
     m=load_json(out/'mapping/training-manifest.json');assert m['samples'] and all(x['targets'] is None for x in m['samples'])
     assert any(r['region']=='player.hp' for r in report['coverage'])
     assert not report['profile_promoted'] and not report['full_hud_neural_mapping']
+    print('HM_CHECK=offline_training_export',flush=True)
     trained=train([str(out/'training-session')],str(out/'model/deployment-candidate.json'),str(out/'trained'),8,True)
     assert trained['export']['validated'] and trained['optimization_steps_executed']==8
     dump(out/'INTEGRATION.json',dict(real_neural_inference=True,real_native_and_tesseract=True,
           real_optimizer_steps=8,real_onnx_export=True,pixels_collected=True,tft_accuracy_tested=False))
-    print('HUD_MAPPER_INTEGRATION_OK')
+    faulthandler.cancel_dump_traceback_later()
+    print('HUD_MAPPER_INTEGRATION_OK',flush=True)
 if __name__=='__main__':main()
