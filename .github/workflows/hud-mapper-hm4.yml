@@ -32,6 +32,7 @@ jobs:
     env:
       PYTHONPATH: apps/hud_mapper;apps/e1_replay;experiments/ui-map-lite-l2/training
       OMP_THREAD_LIMIT: '1'
+      FULL_PACKAGE: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full]') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,18 +42,27 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install build dependencies
+      - name: Install test dependency
         shell: pwsh
         run: |
-          choco install tesseract innosetup -y --no-progress
-          if ($LASTEXITCODE -ne 0) { throw 'Build dependency install failed' }
+          choco install tesseract -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Test dependency install failed' }
           'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Install Python runtime/build packages
+      - name: Install Python runtime packages
         shell: pwsh
         run: |
-          python -m pip install -r apps/hud_mapper/requirements.txt pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
-          if ($LASTEXITCODE -ne 0) { throw 'Python dependencies failed' }
+          python -m pip install -r apps/hud_mapper/requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Python runtime dependencies failed' }
+
+      - name: Install packaging dependencies
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
+          python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging Python dependencies failed' }
 
       - name: HM4 contracts
         run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
@@ -85,15 +95,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'HM4 cache benchmark failed' }
 
       - name: Package HM4 Auto
+        if: env.FULL_PACKAGE == 'true'
         run: python scripts/build_hud_mapper_hm4_windows.py
 
       - name: One packaged capture/UI verification
+        if: env.FULL_PACKAGE == 'true'
         shell: pwsh
         run: |
           python apps/hud_mapper/tests/hm4_capture_smoke.py --app dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe --output hm4-portable --ui
           if ($LASTEXITCODE -ne 0) { throw 'HM4 packaged smoke failed' }
 
       - uses: actions/upload-artifact@v4
+        if: env.FULL_PACKAGE == 'true'
         with:
           name: AgenteTFT-HUD-HM4-Auto-Windows-x64
           path: |
