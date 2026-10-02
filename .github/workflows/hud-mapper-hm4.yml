@@ -12,6 +12,8 @@ on:
       - 'tools/hm-capture-native/**'
       - 'tools/hm-hp-native/**'
       - 'tools/e1-native/**'
+      - 'rust/crates/ocr-tesseract/**'
+      - 'rust/crates/perception-hud/**'
       - 'docs/HUD_MAPPER_HM4_AUTO.md'
       - '.github/workflows/hud-mapper-hm4.yml'
   workflow_dispatch:
@@ -65,6 +67,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'hm-capture-native build failed' }
           cargo build --release --manifest-path tools/hm-hp-native/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'hm-hp-native build failed' }
+          cargo test --manifest-path rust/Cargo.toml -p agente-tft-ocr-tesseract -p agente-tft-perception-hud
+          if ($LASTEXITCODE -ne 0) { throw 'OCR/perception tests failed' }
+          cargo test --manifest-path tools/e1-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'e1-native tests failed' }
           cargo build --release --manifest-path tools/e1-native/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'e1-native build failed' }
 
