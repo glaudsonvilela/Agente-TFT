@@ -4,6 +4,14 @@ import argparse, collections, json, zipfile
 from pathlib import Path
 
 INTEREST = ("hud.stage","hud.gold","hud.level","hud.xp","player.hp")
+NON_ELIGIBLE = {
+    "unavailable","not_connected","not_established","registered_not_verified",
+    "resolution_incompatible","development_seed_not_verified","badge_not_found",
+}
+FULLY_USABLE = {
+    "single_frame_observation","accepted","observed","offer_text_readable","empty_observed",
+}
+PARTIAL_USABLE = {"partially_readable"}
 
 
 class Source:
@@ -43,6 +51,58 @@ def compact_values(values,limit=25):
     return vals,len(seen)
 
 
+def rate(n,d):
+    return n/d if d else None
+
+
+def field_metrics(counter):
+    """Separate actual uncertainty from a reader that was not eligible/present."""
+    total=sum(counter.values())
+    non_eligible=sum(n for status,n in counter.items() if status in NON_ELIGIBLE)
+    eligible=max(0,total-non_eligible)
+    full=sum(n for status,n in counter.items() if status in FULLY_USABLE)
+    partial=sum(n for status,n in counter.items() if status in PARTIAL_USABLE)
+    usable=full+partial
+    unresolved=max(0,eligible-usable)
+    return dict(
+        total=total,
+        non_eligible=non_eligible,
+        eligible=eligible,
+        fully_observed=full,
+        partially_readable=partial,
+        usable=usable,
+        unresolved_when_eligible=unresolved,
+        fully_observed_rate_when_eligible=rate(full,eligible),
+        usable_rate_when_eligible=rate(usable,eligible),
+        unresolved_rate_when_eligible=rate(unresolved,eligible),
+    )
+
+
+def pipeline_metrics(summary):
+    counts=summary.get("counts") or {}
+    queues=summary.get("queues") or {}
+    submitted=counts.get("native_submitted") or 0
+    read=counts.get("read_frames") or 0
+    runs=counts.get("reader_native_runs") or 0
+    replaced=queues.get("native_replaced") or 0
+    timings=summary.get("timings") or {}
+    reader=timings.get("readers_source_to_result") or {}
+    reader_queue=timings.get("readers_queue") or {}
+    return dict(
+        native_submitted=submitted,
+        read_frames=read,
+        reader_native_runs=runs,
+        latest_frame_replaced=replaced,
+        latest_frame_replacement_rate=rate(replaced,submitted),
+        read_completion_rate_per_submission=rate(read,submitted),
+        read_completion_rate_per_native_run=rate(read,runs),
+        reader_source_to_result_p50_ms=reader.get("p50_ms"),
+        reader_source_to_result_p95_ms=reader.get("p95_ms"),
+        reader_queue_p50_ms=reader_queue.get("p50_ms"),
+        reader_queue_p95_ms=reader_queue.get("p95_ms"),
+    )
+
+
 def audit_session(src,summary_name,names):
     root=summary_name[:-len("summary.json")]
     summary=json.loads(src.text(summary_name))
@@ -77,16 +137,15 @@ def audit_session(src,summary_name,names):
                 if reg.get("value") is not None:values[rid].append(reg.get("value"))
 
     fields={}
-    all_regions=sorted(statuses)
-    for rid in all_regions:
+    for rid in sorted(statuses):
         v,distinct=compact_values(values[rid])
-        total=sum(statuses[rid].values())
-        unknown=sum(n for status,n in statuses[rid].items()
-                    if status in ("unknown","unavailable","not_connected","not_established",
-                                  "registered_not_verified","resolution_incompatible"))
-        fields[rid]=dict(total=total,statuses=dict(statuses[rid]),unknown_like=unknown,
-                         unknown_like_rate=(unknown/total if total else None),
-                         observed_values=v,distinct_values_at_least=distinct)
+        metrics=field_metrics(statuses[rid])
+        fields[rid]=dict(
+            statuses=dict(statuses[rid]),
+            observed_values=v,
+            distinct_values_at_least=distinct,
+            **metrics,
+        )
 
     samples=manifest.get("samples") or []
     sample_sizes=collections.Counter((x.get("width"),x.get("height")) for x in samples)
@@ -101,11 +160,15 @@ def audit_session(src,summary_name,names):
         recommendations.append("no_native_reader_execution")
     if samples and targets_missing==len(samples):
         recommendations.append("natural_samples_are_unlabelled")
-    interest={}
-    for rid in INTEREST:
-        interest[rid]=fields.get(rid,dict(total=0,statuses={},unknown_like=0,
-                                          unknown_like_rate=None,observed_values=[],
-                                          distinct_values_at_least=0))
+
+    empty_field=dict(
+        statuses={},observed_values=[],distinct_values_at_least=0,
+        total=0,non_eligible=0,eligible=0,fully_observed=0,partially_readable=0,
+        usable=0,unresolved_when_eligible=0,
+        fully_observed_rate_when_eligible=None,usable_rate_when_eligible=None,
+        unresolved_rate_when_eligible=None,
+    )
+    interest={rid:fields.get(rid,dict(empty_field)) for rid in INTEREST}
 
     native=(summary.get("source") or {}).get("native") or {}
     target=native.get("target") or {}
@@ -118,6 +181,7 @@ def audit_session(src,summary_name,names):
         versions=dict(neural_enabled=versions.get("neural_enabled"),
                       model_sha256=versions.get("model_sha256"),
                       hud=versions.get("hud"),hp=versions.get("hp")),
+        pipeline=pipeline_metrics(summary),
         counts=counts,queues=summary.get("queues"),timings=summary.get("timings"),
         coverage=summary.get("coverage"),collection=summary.get("collection"),
         roi=dict(records=roi_frames,native_executed=native_executed,
@@ -130,17 +194,39 @@ def audit_session(src,summary_name,names):
         interest=interest,fields=fields,recommendations=recommendations)
 
 
+def self_test():
+    shop=field_metrics(collections.Counter(
+        offer_text_readable=10,partially_readable=2,unknown=3,unavailable=5))
+    assert shop["total"]==20 and shop["eligible"]==15
+    assert shop["fully_observed"]==10 and shop["usable"]==12
+    assert abs(shop["usable_rate_when_eligible"]-0.8)<1e-12
+    hp=field_metrics(collections.Counter(
+        accepted=224,badge_not_found=43,ocr_uncertain=30,badge_ambiguous=2))
+    assert hp["total"]==299 and hp["eligible"]==256 and hp["fully_observed"]==224
+    assert abs(hp["fully_observed_rate_when_eligible"]-0.875)<1e-12
+    pipe=pipeline_metrics(dict(
+        counts=dict(native_submitted=1585,reader_native_runs=300,read_frames=299),
+        queues=dict(native_replaced=1284),timings={}))
+    assert abs(pipe["latest_frame_replacement_rate"]-(1284/1585))<1e-12
+    print("HM4_AUDIT_SELF_TEST_OK")
+
+
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("source",help="HM4 session directory or ZIP")
+    p.add_argument("source",nargs="?",help="HM4 session directory or ZIP")
     p.add_argument("--output",default="hm4-session-audit.json")
+    p.add_argument("--self-test",action="store_true")
     a=p.parse_args()
+    if a.self_test:
+        self_test();return
+    if not a.source:
+        p.error("source is required unless --self-test is used")
     src=Source(a.source)
     try:
         names=set(src.names())
         summaries=sorted(n for n in names if n.endswith("summary.json"))
         if not summaries:raise SystemExit("No summary.json found")
-        result=dict(schema_version=1,source=str(a.source),
+        result=dict(schema_version=2,source=str(a.source),
                     sessions=[audit_session(src,n,names) for n in summaries])
     finally:
         src.close()

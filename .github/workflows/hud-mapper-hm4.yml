@@ -57,8 +57,12 @@ jobs:
       - name: HM4 contracts
         run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
 
-      - name: Compile audit utility
-        run: python -m py_compile scripts/audit_hm4_session.py
+      - name: Audit utility contracts
+        shell: pwsh
+        run: |
+          python -m py_compile scripts/audit_hm4_session.py
+          python scripts/audit_hm4_session.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 audit contracts failed' }
 
       - name: Build native capture/readers
         shell: pwsh
