@@ -1,0 +1,10 @@
+[workspace]
+[package]
+name = "agente-tft-hm-hp"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+agente-tft-capture-core = { path = "../../rust/crates/capture-core" }
+agente-tft-ocr-tesseract = { path = "../../rust/crates/ocr-tesseract" }
+agente-tft-perception-player-list = { path = "../../rust/crates/perception-player-list" }
+serde_json = "1"
