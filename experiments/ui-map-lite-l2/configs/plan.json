@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "id": "uimap-lite-l2-spatial-v1",
+  "source_size": [
+    1920,
+    1080
+  ],
+  "input_size": [
+    320,
+    192
+  ],
+  "panels": {
+    "bench": {
+      "rect": [
+        358,
+        682,
+        1038,
+        146
+      ],
+      "basis": "L1/B1 coarse envelope seed, not floor anchors"
+    },
+    "shop": {
+      "rect": [
+        345,
+        915,
+        1220,
+        160
+      ],
+      "basis": "L1 coarse envelope seed, not narrow text region"
+    }
+  },
+  "train_images": [
+    "frames/0004_000150000ms.jpg",
+    "frames/0005_000200000ms.jpg",
+    "frames/0008_000350000ms.jpg",
+    "frames/0011_000500000ms.jpg",
+    "frames/0012_000550000ms.jpg",
+    "frames/0014_000650000ms.jpg",
+    "frames/0015_000700000ms.jpg",
+    "frames/0018_000850000ms.jpg",
+    "frames/0020_000950000ms.jpg",
+    "frames/0023_001100000ms.jpg"
+  ],
+  "validation_images": [
+    "frames/0006_000250000ms.jpg",
+    "frames/0026_001250000ms.jpg"
+  ],
+  "test_images": [
+    "frames/0007_000300000ms.jpg",
+    "frames/0032_001550000ms.jpg",
+    "frames/0034_001650000ms.jpg",
+    "frames/0039_001900000ms.jpg"
+  ],
+  "seed_sha256": {
+    "frames/0004_000150000ms.jpg": "27569662dcf6c397d018926cfba0ff971ef8473275aabe8893e978a7901a2e65",
+    "frames/0005_000200000ms.jpg": "6baae0d1f78b4a23f1044b2662f98a6a3e292735e839483a566d5fedb4b61021",
+    "frames/0008_000350000ms.jpg": "acbb254282c9e611d1e8fd84df7ce836e304f88dadff846ec3e0f2eabe336cdf",
+    "frames/0011_000500000ms.jpg": "dea88eb7653e0761beceb89e4d52f4a5641b057bb29d2db0e41200f7bd2d929a",
+    "frames/0012_000550000ms.jpg": "991ef5f12ce9c29d0ff3436ce2db7dfa2709a912f87ec6da60923ec3944ef6cd",
+    "frames/0014_000650000ms.jpg": "a86ff7ca5510e0c2fdfd5b679f9535b4650a4069ad2f82f9b22ec8bce7885ae8",
+    "frames/0015_000700000ms.jpg": "f914d60574a530e633d9ef7db14117abfbceb6052faaf675db9d6e9aa9b4a0e8",
+    "frames/0018_000850000ms.jpg": "72087dcf69dcd11168777a7fd1da68d6ef5447abe765c58630f4ec82a73063cf",
+    "frames/0020_000950000ms.jpg": "d43a72c6f9c350d2acc78c595158149b7c52c6dd33b93cfd471009e5f0f67e54",
+    "frames/0023_001100000ms.jpg": "c06941ea218bacd86984bf441d8815adf070e763539b5625d2f1e577b34888d3",
+    "frames/0006_000250000ms.jpg": "828336ef0406f9b26bc2934b0a47421f6064de8d9077bc895598ce435db2afbd",
+    "frames/0026_001250000ms.jpg": "d3ff235bd987eae3dba3384b8af27be1e01c665db99ab918e6839795f9bbf99e",
+    "frames/0007_000300000ms.jpg": "ff483d8aba3313eaf3a93ecc501e53d11052e7770466d6f6adf86539c55472e5",
+    "frames/0032_001550000ms.jpg": "78212f47cd567153de9bf4f54de72c01765e4450280252d0600b0be5c6152f7f",
+    "frames/0034_001650000ms.jpg": "1174bb951cb4634c4f808839117866552178dfe3cb89b49e9f7045b6254cfd74",
+    "frames/0039_001900000ms.jpg": "975490f747834f87b70da0892a9ba7aaef6b70f2c6af0c9dbd8575395a71d465"
+  },
+  "training_seed": 702,
+  "validation_seed": 1902,
+  "test_seed": 2902,
+  "training_steps": 1400,
+  "batch_size": 12,
+  "validation_samples": 96,
+  "test_samples": 192,
+  "thread_count": 2,
+  "evaluation_policy": {
+    "visibility_logit_min": 2.1972245773362196,
+    "min_width_fraction": 0.08,
+    "min_height_fraction": 0.015,
+    "max_coordinate_error_px": 20,
+    "max_p95_coordinate_error_px": 40,
+    "minimum_visible_acceptance_fraction": 0.5,
+    "maximum_hidden_accepted": 0
+  },
+  "refinement": {
+    "radius_original_px": 12,
+    "minimum_edge_mean": 12.0,
+    "minimum_edge_support": 0.35,
+    "minimum_peak_gap": 1.5,
+    "maximum_relative_size_change": 0.08
+  },
+  "composition_modes": {
+    "whole_scene": 0.65,
+    "context_paste": 0.35
+  },
+  "note": "Source-separated SAME-MATCH development seeds. Synthetic known transformations are labels, not natural UI ground truth. 300000ms L1 test remains excluded from L2 training. Frozen rules; no tuning on test. No automatic promotion."
+}
