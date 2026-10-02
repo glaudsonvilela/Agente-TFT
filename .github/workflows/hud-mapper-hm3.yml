@@ -1,0 +1,108 @@
+name: HUD Mapper HM3 Runtime
+on:
+  pull_request:
+    paths:
+      - 'apps/hud_mapper/hm/runtime_*.py'
+      - 'apps/hud_mapper/AgenteTFT_HUD_Runtime.py'
+      - 'apps/hud_mapper/tests/hm3_*.py'
+      - 'apps/hud_mapper/tests/test_hm3_runtime.py'
+      - 'scripts/build_hud_mapper_hm3_windows.py'
+      - 'tools/hm-capture-native/**'
+      - 'tools/hm-hp-native/**'
+      - 'tools/e1-native/**'
+      - 'docs/HUD_MAPPER_HM3_RUNTIME.md'
+      - '.github/workflows/hud-mapper-hm3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: apps/hud_mapper:apps/e1_replay:experiments/ui-map-lite-l2/training
+      OMP_THREAD_LIMIT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -r apps/hud_mapper/requirements.txt
+      - run: cargo test --manifest-path tools/hm-capture-native/Cargo.toml
+      - run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_*.py' -v
+      - run: python -m unittest discover -s apps/e1_replay/tests -v
+  windows-runtime:
+    needs: contracts
+    runs-on: windows-latest
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: apps/hud_mapper;apps/e1_replay;experiments/ui-map-lite-l2/training
+      OMP_THREAD_LIMIT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install build-only dependencies
+        shell: pwsh
+        run: |
+          choco install tesseract innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Build dependency install failed' }
+          'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -r apps/hud_mapper/requirements.txt pyinstaller==6.13.0
+      - run: cargo test --manifest-path tools/hm-capture-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/hm-capture-native/Cargo.toml
+      - run: cargo test --manifest-path tools/hm-hp-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/hm-hp-native/Cargo.toml
+      - run: cargo test --manifest-path tools/e1-native/Cargo.toml
+      - run: cargo build --release --manifest-path tools/e1-native/Cargo.toml
+      - run: python tools/hm-capture-native/tests/windows_capture_smoke.py --binary tools/hm-capture-native/target/release/agente-tft-hm-capture.exe --output capture-native
+      - run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_*.py' -v
+      - name: Build a synthetic ONNX only for runtime wiring tests
+        shell: pwsh
+        run: |
+          python -c "import sys; from pathlib import Path; sys.path.insert(0,'apps/hud_mapper/tests'); from integration import fixture_model; fixture_model(Path('hm3-model'))"
+      - run: python apps/hud_mapper/tests/hm3_reader_smoke.py --output reader-compatible
+      - run: python apps/hud_mapper/tests/hm3_capture_smoke.py --model hm3-model/deployment-candidate.json --output hm3-source-capture
+      - run: python apps/hud_mapper/tests/hm3_capture_smoke.py --model hm3-model/deployment-candidate.json --output hm3-source-ui --ui
+      - run: python scripts/build_hud_mapper_hm3_windows.py
+      - name: Verify portable HM3 runtime
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/hm3_capture_smoke.py --app dist/AgenteTFT-HUD-HM3/AgenteTFT-HUD-HM3.exe --model hm3-model/deployment-candidate.json --output hm3-portable --ui
+          $r = Get-Content dist/HM3_PACKAGE_REPORT.json | ConvertFrom-Json
+          if ($r.ffmpeg_bundled -or $r.pytorch_bundled -or $r.trainer_bundled) { throw 'Heavy/dev payload in runtime' }
+          if ($r.forbidden_payloads.Count -ne 0) { throw 'Forbidden files in runtime' }
+      - name: Install silently and execute installed runtime
+        shell: pwsh
+        run: |
+          $dest = Join-Path $env:RUNNER_TEMP 'AgenteTFT-HM3-installed'
+          & .\dist\AgenteTFT-HUD-HM3-Setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR="$dest"
+          if ($LASTEXITCODE -ne 0) { throw 'HM3 installer failed' }
+          if (-not (Test-Path "$dest\AgenteTFT-HUD-HM3.exe")) { throw 'Installed executable missing' }
+          python apps/hud_mapper/tests/hm3_capture_smoke.py --app "$dest\AgenteTFT-HUD-HM3.exe" --model hm3-model/deployment-candidate.json --output hm3-installed --ui
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AgenteTFT-HUD-HM3-Runtime-Windows-x64
+          path: |
+            dist/AgenteTFT-HUD-HM3-Runtime-Windows-x64.zip
+            dist/AgenteTFT-HUD-HM3-Setup.exe
+            dist/HM3_PACKAGE_REPORT.json
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HUD-HM3-Evidence
+          path: |
+            capture-native/*.json
+            reader-compatible/*.json
+            hm3-source-capture/*.json
+            hm3-source-ui/*.json
+            hm3-portable/*.json
+            hm3-installed/*.json
+            *-launcher.log
