@@ -12,10 +12,16 @@ def runtime_paths():
     root=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[3]))
     exe=".exe" if os.name=="nt" else ""
     tess=root/"tesseract"/("tesseract"+exe)
-    if tess.is_file():os.environ["TESSDATA_PREFIX"]=str(tess.parent/"tessdata")
+    if tess.is_file():
+        os.environ["TESSDATA_PREFIX"]=str(tess.parent/"tessdata")
+        tess_cmd=str(tess)
+    else:
+        tess_cmd="tesseract"
+    bundled=root/"bin"/("agente-tft-e1-worker"+exe)
+    native=root/"tools/e1-native/target/release"/("agente-tft-e1-worker"+exe)
+    worker=bundled if bundled.is_file() else native
     os.environ.setdefault("OMP_THREAD_LIMIT","1")
-    return dict(worker=str(root/"bin"/("agente-tft-e1-worker"+exe)),
-                configs=str(root/"configs"),tesseract=str(tess),
+    return dict(worker=str(worker),configs=str(root/"configs"),tesseract=tess_cmd,
                 ffmpeg="HM3_RUNTIME_DISABLED",ffprobe="HM3_RUNTIME_DISABLED")
 
 def target_label(t):
