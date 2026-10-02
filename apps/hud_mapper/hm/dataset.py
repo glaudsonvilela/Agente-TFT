@@ -90,6 +90,7 @@ class Store:
         row=dict(sample_id=key,frame_id=frame.id,source_ms=frame.pts_ms,width=frame.width,height=frame.height,
                  image=name,image_sha256=hashlib.sha256(png).hexdigest(),decoded_rgb_sha256=h,
                  pixel_format='rgb24',coordinate_space='source_pixel_edges',event_streams=[stream],
+                 geometry_segment=getattr(frame,'epoch',0),capture=getattr(frame,'capture',None),
                  sampling_reasons=flags,visual_change_mae=change,targets=None,
                  neural_predictions_are_labels=False,supervision='unlabelled_natural_frame',crops=[])
         self._crops(im,row,data,frame)
@@ -124,7 +125,7 @@ class Store:
         manifest=dict(schema_version=1,policy='hm1_natural_mapping_dataset',session_id=session['session_id'],
                       source=session['source'],samples=self.records,reader_versions=session.get('versions'),
                       training_executed=False,ground_truth_available=False,
-                      split_unit='source_video_sha256',coordinate_space='source_pixel_edges',
+                      split_unit=session['source'].get('split_unit','source_video_sha256'),coordinate_space='source_pixel_edges',
                       weights_updated=False,raw_and_derived_separate=True,
                       warning='Unknown does not mean absent; temporal agreement is not correctness.')
         dump(self.root/'training-manifest.json',manifest)
@@ -132,7 +133,7 @@ class Store:
         dump(self.root/'collection-metrics.json',dict(counts=dict(self.counts),bytes=self.bytes,write_ms=self.io_ms))
         # This text includes mapping coverage first; performance is secondary.
         with (self.root/'comparison.txt').open('x',encoding='utf-8') as f:
-            f.write('HUD MAPPER HM1 — MAPEAMENTO / DADOS NATURAIS\n')
+            f.write('HUD MAPPER — MAPEAMENTO / DADOS NATURAIS\n')
             f.write(json.dumps(session,ensure_ascii=False,indent=2,allow_nan=False))
         hashes={str(p.relative_to(self.root)):sha(p) for p in self.root.rglob('*') if p.is_file()}
         dump(self.root/('COMPLETE.json' if session.get('execution_complete') else 'PARTIAL.json'),hashes)

@@ -10,6 +10,7 @@ import numpy as np
 from PIL import Image,ImageDraw
 from .core import load_json, dump, sha, valid_box, Observer, neural_regions
 from .seeds import verify_session
+from .input_source import source_group
 
 
 # Tesseract's inherited OpenMP budget is one. Do not ask Torch for a larger
@@ -47,7 +48,7 @@ def read_examples(folders, allow_weak):
                     target=a['targets'][name]
                     if target.get('visible') is not True or not valid_box(target['box'],1920,1080):raise ValueError('Semente inválida')
                     targets[i]=np.asarray(target['box'])/[1920,1080,1920,1080];known[i]=1
-            examples.append(dict(path=p,targets=targets,known=known,group=m['source']['sha256'],
+            examples.append(dict(path=p,targets=targets,known=known,group=source_group(m['source']),source_kind=m['source'].get('source_kind','closed_video'),
                                  timestamp=r['source_ms'],hash=r['image_sha256']))
         receipts.append(dict(session_seal=seal,supervision_sha256=sha(root/'supervision/weak-seeds.json')))
     if len(examples)<24 or any(sum(x['known'][i] for x in examples)<12 for i in range(2)):
@@ -61,13 +62,15 @@ def partition(examples):
         ng=len(groups);a=max(1,int(ng*.6));b=max(a+1,int(ng*.8));b=min(ng-1,b)
         sets=[set(groups[:a]),set(groups[a:b]),set(groups[b:])]
         parts=[[x for x in examples if x['group'] in s] for s in sets]
-        kind='video_hash_disjoint_but_weak_labels'
+        kind=('video_hash_disjoint_but_weak_labels' if all(x.get('source_kind','closed_video')=='closed_video' for x in examples)
+              else 'source_groups_disjoint_not_independent_matches')
     else:
         ordered=sorted(examples,key=lambda x:(x['group'],x['timestamp']))
         n=len(ordered);a=int(n*.6);b=int(n*.8)
         # Discard a boundary example on each side; still SAME-VIDEO development, not independent accuracy.
         parts=[ordered[:a-1],ordered[a+1:b-1],ordered[b+1:]]
-        kind='same_video_chronological_development_not_independent'
+        kind=('same_video_chronological_development_not_independent' if all(x.get('source_kind','closed_video')=='closed_video' for x in examples)
+              else 'few_source_groups_chronological_development_not_independent')
     if any(len(x)<2 for x in parts):raise ValueError('Partição insuficiente')
     return parts,kind
 

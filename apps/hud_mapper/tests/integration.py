@@ -33,7 +33,7 @@ def fixture_training(folder):
         labels.append(dict(sample_id=str(i),image_sha256=rows[-1]['image_sha256'],
                     targets={n:dict(box=xyxy(b),visible=True,basis='synthetic_test_fixture') for n,b in ENVELOPES.items()},
                     supervision='profile_template_weak',neural_used_as_label=False,corners_independently_observed=False))
-    dump(folder/'training-manifest.json',dict(policy='hm1_natural_mapping_dataset',samples=rows,source={'sha256':'synthetic-fixture-not-video'},
+    dump(folder/'training-manifest.json',dict(policy='hm1_natural_mapping_dataset',samples=rows,source={'sha256':'synthetic-fixture-not-video','source_kind':'synthetic_fixture'},
                                              synthetic_fixture=True,session_id='training-fixture'))
     dump(folder/'COMPLETE.json',{str(p.relative_to(folder)):sha(p) for p in folder.rglob('*') if p.is_file()})
     (folder/'supervision').mkdir()

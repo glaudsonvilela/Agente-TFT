@@ -19,17 +19,19 @@ for name in ('configs','tessconfigs'):
     if (tess/'tessdata'/name).is_dir():shutil.copytree(tess/'tessdata'/name,stage/'tesseract/tessdata'/name)
 worker=root/'tools/e1-native/target/release/agente-tft-e1-worker.exe'
 hp=root/'tools/hm-hp-native/target/release/agente-tft-hm-hp.exe'
+capture=root/'tools/hm-capture-native/target/release/agente-tft-hm-capture.exe'
+if not capture.is_file():raise SystemExit('Native capture binary missing')
 args=[sys.executable,'-m','PyInstaller','--noconfirm','--clean','--onedir','--name','AgenteTFT-HUD',
  '--paths',str(root/'apps/e1_replay'),'--paths',str(root/'apps/hud_mapper'),
  '--paths',str(root/'experiments/ui-map-lite-l2/training'),
  '--distpath',str(root/'dist'),'--workpath',str(root/'build/hud-mapper'),'--specpath',str(root/'build'),
- '--add-data',f'{root/"configs"};configs','--add-binary',f'{worker};bin','--add-binary',f'{hp};bin',
+ '--add-data',f'{root/"configs"};configs','--add-binary',f'{worker};bin','--add-binary',f'{hp};bin','--add-binary',f'{capture};bin',
  '--add-data',f'{stage/"ffmpeg"};ffmpeg','--add-data',f'{stage/"tesseract"};tesseract',
  '--collect-binaries','onnxruntime','--collect-data','onnxruntime','--collect-binaries','onnx','--collect-data','onnx',
  str(root/'apps/hud_mapper/AgenteTFT_HUD.py')]
 subprocess.run(args,check=True)
 folder=root/'dist/AgenteTFT-HUD'
-shutil.copy(root/'docs/HUD_MAPPER_HM1.md',folder/'LEIA-ME.md')
+shutil.copy(root/'docs/HUD_MAPPER_HM2.md',folder/'LEIA-ME.md')
 license_dir=folder/'THIRD_PARTY';license_dir.mkdir()
 for source in (ff.parent.parent,tess):
     for p in source.rglob('*'):
@@ -40,7 +42,7 @@ fonts=[p for p in folder.rglob('*') if p.suffix.lower() in {'.ttf','.otf','.woff
 if fonts:raise SystemExit('Font assets found; refuse publication')
 files={str(p.relative_to(folder)).replace('\\','/'):hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.rglob('*') if p.is_file()}
 (folder/'BUILD_MANIFEST.json').write_text(json.dumps(dict(commit=os.environ.get('GITHUB_SHA'),files=files,signed=False,
- primary_objective='HUD_mapping_and_natural_training',mode='closed_local_replay',user_weights_included=False,
+ primary_objective='HUD_mapping_and_natural_training',mode='explicit_native_capture_or_closed_local_replay',user_weights_included=False,
  training_is_separate_process=True,torch_imported_on_mapping_path=False,font_files_bundled=False,
  dependency_freeze=subprocess.check_output([sys.executable,'-m','pip','freeze'],text=True)),indent=2),encoding='utf-8')
-shutil.make_archive(str(root/'dist/AgenteTFT-HUD-Mapper-Windows-x64'),'zip',folder.parent,folder.name)
+shutil.make_archive(str(root/'dist/AgenteTFT-HUD-Mapper-HM2-Windows-x64'),'zip',folder.parent,folder.name)
