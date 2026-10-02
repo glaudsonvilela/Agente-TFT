@@ -35,3 +35,25 @@ O build Windows produz:
 - `HM4_PACKAGE_REPORT.json`
 
 O pacote não inclui pesos pessoais, PyTorch, FFmpeg, replay ou treinador.
+
+
+## HM4.1 — normalização conservadora dos leitores
+
+HM4 pode derivar uma cópia temporária 1920×1080 para os leitores congelados quando a captura tem proporção 16:9. O frame capturado original continua sendo a evidência salva. A derivação usa RGB + Lanczos, registra tamanho de origem, tamanho canônico, fatores de escala e método, e projeta as caixas lidas de volta para as coordenadas do frame original.
+
+Fontes que não são compatíveis com 16:9 continuam recusadas; não há stretching silencioso nem tentativa de adivinhar letterbox.
+
+Contadores novos:
+- `reader_normalized_runs`
+- `reader_resolution_skipped`
+- `reader_input_transform` em cada observação de ROI.
+
+## Auditor de sessão
+
+Para resumir uma sessão ou ZIP sem executar OCR/modelo:
+
+```powershell
+python scripts/audit_hm4_session.py "C:\caminho\teste.zip" --output hm4-session-audit.json
+```
+
+O relatório agrega resolução capturada, ativação neural, execuções nativas, normalizações, status por região, valores observados, campos stage/gold/level/xp/HP e quantidade de amostras ainda sem rótulo.
