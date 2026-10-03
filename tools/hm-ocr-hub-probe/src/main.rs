@@ -90,11 +90,39 @@ fn main(){
             "resident_words":words_json(&b),"parity":equal}));
     }
     all_equal &= block_equal;
-    let report=json!({"schema_version":2,"policy":"hm44_cli_resident_text_parity_v2",
+
+    let expected_shop="ALPHA 1 BETA 2 GAMMA 3 DELTA 4 OMEGA 5";
+    let mut shop_atlas=Vec::new();
+    let mut shop_all_equal=true;
+    for scale in [3u8,4u8] {
+        let image=read_pgm(&fixtures.join(format!("shop_atlas_scale{scale}.pgm"))).expect("shop atlas fixture");
+        let mut cli_times=Vec::new();let mut resident_times=Vec::new();let mut parity=true;
+        let mut samples=Vec::new();
+        for repeat in 0..repeats {
+            let (a,cli_ms)=one_block(&mut cli,&image).expect("cli shop atlas");
+            let (b,resident_ms)=one_block(&mut resident,&image).expect("resident shop atlas");
+            let a_join=a.iter().map(|w|w.text.as_str()).collect::<Vec<_>>().join(" ");
+            let b_join=b.iter().map(|w|w.text.as_str()).collect::<Vec<_>>().join(" ");
+            let equal=a_join==expected_shop && b_join==expected_shop && text_block_equal(&a,&b);
+            parity&=equal;cli_times.push(cli_ms);resident_times.push(resident_ms);
+            samples.push(json!({"repeat":repeat,"cli_ms":cli_ms,"resident_ms":resident_ms,
+                "cli_joined":a_join,"resident_joined":b_join,"parity":equal}));
+        }
+        cli_times.sort_by(|a,b|a.total_cmp(b));resident_times.sort_by(|a,b|a.total_cmp(b));
+        let cli_p50=cli_times[cli_times.len()/2];let resident_p50=resident_times[resident_times.len()/2];
+        let performance=resident_p50<cli_p50*0.50;
+        shop_all_equal &= parity && performance;
+        shop_atlas.push(json!({"scale":scale,"width":image.width,"height":image.height,
+            "parity":parity,"performance_gate":performance,"cli_p50_ms":cli_p50,
+            "resident_p50_ms":resident_p50,"speedup":cli_p50/resident_p50,"samples":samples}));
+    }
+    all_equal &= shop_all_equal;
+    let report=json!({"schema_version":3,"policy":"hm44_cli_resident_text_parity_v3",
         "production_enabled":false,"fixtures_generated_on_runner":true,"all_equal":all_equal,
         "numeric_all_equal":rows.iter().all(|r|r["parity"]==true),
-        "spatial_text_all_equal":block_equal,
+        "spatial_text_all_equal":block_equal,"shop_atlas_all_equal_and_fast":shop_all_equal,
         "confidence_abs_tolerance":0.01,"rows":rows,"spatial_text_rows":block_rows,
+        "shop_atlas_rows":shop_atlas,
         "resident_dll":resident.dll_path(),"resident_tessdata":resident.tessdata_path(),"language":resident.language()});
     fs::write(&output,serde_json::to_vec_pretty(&report).unwrap()).unwrap();
     println!("HM44_OCR_PARITY={}",serde_json::to_string(&report).unwrap());
