@@ -40,8 +40,6 @@ class SetupWindow:
         self.root.protocol("WM_DELETE_WINDOW", self._close)
         self._layout()
         if resume:
-            self.installer = CoreInstaller(app_exe.parent / "core",
-                                           Path(os.environ["LOCALAPPDATA"]) / "AgenteTFT-Core", app_exe)
             self._show(3)
             self.root.after(150, lambda: self._start("install", self._install))
         else:
@@ -184,13 +182,16 @@ class SetupWindow:
             file.write(f"{datetime.now().isoformat(timespec='seconds')} {message}\n")
 
     def _preflight(self):
-        base = self.app_exe.parent
-        self.installer = CoreInstaller(base / "core", Path(os.environ["LOCALAPPDATA"]) / "AgenteTFT-Core",
-                                       self.app_exe)
+        self.installer = self._make_installer()
         return self.installer.preflight(self._report).wsl_ready
 
+    def _make_installer(self) -> CoreInstaller:
+        return CoreInstaller(self.app_exe.parent / "core",
+                             Path(os.environ["LOCALAPPDATA"]) / "AgenteTFT-Core", self.app_exe)
+
     def _install(self):
-        assert self.installer is not None
+        if self.installer is None:
+            self.installer = self._make_installer()
         self.installer.preflight(self._report)  # Recheck disk, hash and WSL immediately before mutation.
         if self.installer._call(["wsl.exe", "--status"], 30).returncode != 0:
             if not self.installer.enable_wsl(self._report):

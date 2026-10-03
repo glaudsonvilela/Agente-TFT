@@ -20,6 +20,7 @@ class FakeWindows:
         self.distros = set()
         self.import_fails = False
         self.health_ok = True
+        self.enable_code = 0
 
     def __call__(self, args, timeout=60):
         self.calls.append(args)
@@ -36,7 +37,8 @@ class FakeWindows:
             return subprocess.CompletedProcess(args, 0 if self.health_ok else 1,
                                                "AGENTETFT_CORE_HEALTH_OK" if self.health_ok else "", "")
         if args[0] == "powershell.exe":
-            return subprocess.CompletedProcess(args, 0, "True", "")
+            return subprocess.CompletedProcess(args, self.enable_code if "-ExecutionPolicy" in args else 0,
+                                               "True", "")
         raise AssertionError(args)
 
 
@@ -102,6 +104,7 @@ class SetupContracts(unittest.TestCase):
 
     def test_reboot_registers_resume_without_import(self):
         self.fake.wsl_ready = False
+        self.fake.enable_code = 3010
         resumed = []
         self.installer.register_resume = lambda: resumed.append(True)
         self.assertFalse(self.installer.enable_wsl(lambda _: None))

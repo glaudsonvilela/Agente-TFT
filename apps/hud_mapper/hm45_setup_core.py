@@ -174,9 +174,9 @@ class CoreInstaller:
                    "if ($null -eq $p) { exit 1 }; exit $p.ExitCode } catch { exit 1 }")
         result = self._call(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass",
                              "-Command", command], 600)
-        if result.returncode != 0:
+        if result.returncode not in (0, 3010, 1641):
             raise SetupError("O WSL 2 não foi habilitado. Confira a janela de permissão do Windows.")
-        if self._call(["wsl.exe", "--status"], 30).returncode == 0:
+        if result.returncode == 0 and self._call(["wsl.exe", "--status"], 30).returncode == 0:
             report("WSL 2 habilitado sem necessidade de reinício.")
             return True
         self.register_resume()
