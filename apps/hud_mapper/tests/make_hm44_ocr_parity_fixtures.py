@@ -25,3 +25,11 @@ for name,text in cases.items():
     raw=im.tobytes()
     (OUT/f"{name}.pgm").write_bytes(f"P5\n{im.width} {im.height}\n255\n".encode("ascii")+raw)
 print("HM44_PARITY_FIXTURES="+str(OUT))
+
+block_font=ImageFont.truetype(str(font_path),52)
+block=Image.new("L",(720,220),255)
+draw=ImageDraw.Draw(block)
+draw.text((40,25),"ALPHA 1",font=block_font,fill=0)
+draw.text((40,120),"BETA 2",font=block_font,fill=0)
+raw=block.tobytes()
+(OUT/"textblock.pgm").write_bytes(f"P5\n{block.width} {block.height}\n255\n".encode("ascii")+raw)
