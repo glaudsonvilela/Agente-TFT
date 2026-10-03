@@ -11,7 +11,7 @@ has_voices = (voice_assets / 'VOICE_REPORT.json').is_file()
 asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
 if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
     raise SystemExit('Replay-screen assets were not verified')
-live_plan = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
+live_plan = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
 reference = root / live_plan['reference']
 
 stage = root / 'build/hm4-tools'

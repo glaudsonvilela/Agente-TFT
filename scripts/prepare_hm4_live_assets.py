@@ -13,7 +13,7 @@ from training.board_hub_item_candidates import fetch_icon, load_reference, selec
 
 
 def prepare() -> dict:
-    plan = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
+    plan = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
     asset_root = root / 'build/hm4-live-assets'
     model_dir = asset_root / 'models'
     metadata_path = model_dir / 'deployment-candidate.json'

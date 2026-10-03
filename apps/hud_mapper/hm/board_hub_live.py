@@ -14,22 +14,23 @@ class BoardHubLive:
     def __init__(self, configs: str):
         root = Path(configs).absolute().parent
         profile = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
+        catalog = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
         if (profile.get('schema_version'), profile.get('id'), profile.get('semantic_mode'),
                 profile.get('game_state_write_allowed')) != (1, 'board-hub-live-v1', 'candidate_only', False):
             raise ValueError('Invalid live board hub policy')
-        reference = root / profile['reference']
+        reference = root / catalog['reference']
         self.manifest, self.entries = load_reference(reference)
-        if self.manifest['set_key'] != profile['set_key']:
+        if self.manifest['set_key'] != catalog['set_key']:
             raise ValueError('Live set and reference mismatch')
-        self.icons = root / profile['icon_dir']
-        selected = select_entries(self.entries, self.manifest['set_key'], profile['match_scope'])
+        self.icons = root / catalog['icon_dir']
+        selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
         missing = [entry['icon'] for entry in selected if not (self.icons / entry['icon']).is_file()]
         if missing:
             raise ValueError(f'Live icon bank incomplete: {len(missing)} assets missing')
         self.interval_ms = profile['sample_interval_ms']
         if type(self.interval_ms) is not int or not 1000 <= self.interval_ms <= 30000:
             raise ValueError('Invalid live board hub interval')
-        self.scope = profile['match_scope']
+        self.scope = catalog['match_scope']
         def config(name):
             return json.loads((root / 'configs/ui' / name).read_text(encoding='utf-8'))
         self.board = config('match001-board-bench-v1.json')

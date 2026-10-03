@@ -30,19 +30,19 @@ def _gold(answer: dict) -> int | None:
 class ReplayDecisionEngine:
     def __init__(self, configs: str):
         root = Path(configs).resolve().parent
-        profile = json.loads((root / "configs/ui/board-hub-live-v1.json").read_text(encoding="utf-8"))
+        catalog = json.loads((root / "configs/catalog/active-visual-reference-v1.json").read_text(encoding="utf-8"))
         context = json.loads((root / "configs/contexts/match001-interface.json").read_text(encoding="utf-8"))
-        if profile["set_key"] != context["set_key"]:
+        if catalog["set_key"] != context["set_key"]:
             raise ValueError("Patch and visual catalog refer to different sets")
-        reference = root / profile["reference"]
+        reference = root / catalog["reference"]
         manifest = json.loads((reference / "reference.json").read_text(encoding="utf-8"))
         champions = json.loads((reference / "champions.json").read_text(encoding="utf-8"))
-        if (manifest["set_key"] != profile["set_key"] or
-                champions["set_key"] != profile["set_key"] or
+        if (manifest["set_key"] != catalog["set_key"] or
+                champions["set_key"] != catalog["set_key"] or
                 champions["version"] != manifest["version"]):
             raise ValueError("Champion catalog and patch reference differ")
         self.patch = context["tft_patch"]
-        self.set_key = profile["set_key"]
+        self.set_key = catalog["set_key"]
         self.catalog_version = manifest["version"]
         names = {}
         for entry in champions["entries"]:

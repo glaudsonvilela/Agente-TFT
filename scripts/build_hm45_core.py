@@ -37,7 +37,7 @@ def main() -> None:
     report = json.loads((assets / "ASSET_REPORT.json").read_text(encoding="utf-8"))
     if report.get("model_mode") != "shadow_diagnostic" or report.get("matching_item_entries", 0) < 100:
         raise SystemExit("Pinned model and icon bank were not verified")
-    profile = json.loads((ROOT / "configs/ui/board-hub-live-v1.json").read_text(encoding="utf-8"))
+    catalog = json.loads((ROOT / "configs/catalog/active-visual-reference-v1.json").read_text(encoding="utf-8"))
     if CONTEXT.exists():
         shutil.rmtree(CONTEXT)
     APP.mkdir(parents=True)
@@ -53,8 +53,8 @@ def main() -> None:
     copy(ROOT / "ingestion", APP / "ingestion")
     copy(ROOT / "configs", APP / "configs")
     copy(assets / "models", APP / "models")
-    copy(assets / profile["icon_dir"], APP / profile["icon_dir"])
-    copy(ROOT / profile["reference"], APP / profile["reference"])
+    copy(assets / catalog["icon_dir"], APP / catalog["icon_dir"])
+    copy(ROOT / catalog["reference"], APP / catalog["reference"])
     copy(ROOT / "scripts/hm45_core/health-check", APP / "bin/health-check")
 
     run(["docker", "build", "--pull", "--tag", IMAGE, str(CONTEXT)])

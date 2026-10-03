@@ -15,6 +15,24 @@ from hm.voice import VoiceCoach, available_voices
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_fixed_geometry_and_hud_are_independent_of_patch_catalog(self):
+        root=Path(__file__).resolve().parents[3]
+        static=(root/'configs/ui/board-hub-live-v1.json',
+                root/'configs/ui/match001-board-bench-v1.json',
+                root/'configs/roi/tft-1920x1080-match001-v1.json')
+        for path in static:
+            data=json.loads(path.read_text(encoding='utf-8'))
+            self.assertNotIn('reference',data)
+            self.assertNotIn('set_key',data)
+            self.assertNotIn('tft_patch',data)
+        catalog=json.loads((root/'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
+        context=json.loads((root/'configs/contexts/match001-interface.json').read_text(encoding='utf-8'))
+        manifest=json.loads((root/catalog['reference']/'reference.json').read_text(encoding='utf-8'))
+        self.assertEqual(catalog['set_key'],context['set_key'])
+        self.assertEqual(catalog['set_key'],manifest['set_key'])
+        self.assertNotIn('tft_patch',catalog)
+        self.assertTrue(context['tft_patch'])
+
     def test_voice_queue_is_latest_only_and_rejects_stale_readouts(self):
         voice=VoiceCoach();voice.enabled=True;voice.voice_id='cadu'
         self.assertTrue(voice.say('12 ouro',100))
