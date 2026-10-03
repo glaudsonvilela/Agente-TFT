@@ -35,6 +35,31 @@ Essas observações não sustentam ordens de equipar, comprar ou rolar.
 
 ## Arquitetura proposta
 
+```text
+PC Windows
+├── Player de vídeo (partida encerrada)
+├── AgenteTFT Host
+│   ├── Capturador Rust WGC/D3D11 ── frame nativo 1920×1080 (ou fonte real)
+│   │   ├── Prévia 1280×720 ──────────> Interface Windows (24–30 FPS)
+│   │   └── ROIs sem perda + entrada L3 -> TCP local com frame_id/timestamp
+│   ├── Interface Windows ────────────> vídeo fluido, estado e uma dica válida
+│   └── Supervisor ───────────────────> inicia/para VM, saúde, reconexão
+└── VM WSL 2: AgenteTFT-Core (Debian minimal, sem desktop)
+    ├── Gateway TCP autenticado <───── ROIs/entrada L3 vindas do host
+    ├── Percepção
+    │   ├── L3/ONNX CPU ───────────────> banco e loja aproximados
+    │   ├── OCR nativo ────────────────> ouro, estágio, nível, HP, loja
+    │   └── HUB B4 ────────────────────> posições e ícones candidatos
+    ├── Fusão de estado ───────────────> fatos confirmados + confiança + TTL
+    ├── Opportunity Runtime ──────────> compra/rolagem/item/posição válidos
+    └── Emissor de dicas ──────────────> TCP local -> Interface Windows
+```
+
+A seta host→VM carrega **dados de análise**, não um segundo vídeo de prévia.
+O player e a UI permanecem no Windows; a VM não tem interface gráfica nem
+acesso direto à tela. Se a VM falhar, o supervisor indica o erro e o modo local
+separado pode assumir sem alterar a fonte de captura.
+
 ```mermaid
 flowchart LR
     V[Vídeo no player Windows] --> C[Serviço Rust WGC/D3D11 no host]
