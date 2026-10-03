@@ -162,7 +162,8 @@ class CoreInstaller:
         report("Integridade SHA-256: OK")
         status = self._call(["wsl.exe", "--status"], 30)
         ready = status.returncode == 0
-        report("WSL 2: pronto" if ready else "WSL 2: precisa ser habilitado")
+        report("WSL: responde; WSL 2 será validado na importação" if ready else
+               "WSL 2: precisa ser habilitado")
         return Preflight(build, _gib(free), _gib(mem), virt, ready, True)
 
     def enable_wsl(self, report: Callable[[str], None]) -> bool:
