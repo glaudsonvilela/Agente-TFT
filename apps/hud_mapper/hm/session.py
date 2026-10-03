@@ -7,6 +7,13 @@ import json, queue, threading, time, uuid
 from .core import Registry, Observer, native_regions, sha, dump
 from .dataset import Latest, Store
 
+def completion_state(error, cancelled, stopped_by_user=False):
+    """A user-requested graceful stop seals valid evidence; errors remain partial."""
+    complete = error is None and (not cancelled or stopped_by_user)
+    return dict(execution_complete=complete,
+                cancelled=bool(cancelled and not stopped_by_user),
+                stopped_by_user=bool(stopped_by_user))
+
 def stats(values):
     import numpy as np
     if not values:return dict(n=0,p50_ms=None,p95_ms=None)
@@ -57,10 +64,10 @@ class Session:
     def __init__(self, options):
         options.validate();self.options=options
         self.id=uuid.uuid4().hex;self.cancel=threading.Event();self.producer_done=threading.Event();self.done=threading.Event()
-        self.map_pending=Latest();self.native_pending=Latest();self.preview=Latest();self.map_results=Latest();self.native_results=Latest()
+        self.map_pending=Latest();self.native_pending=Latest();self.hp_pending=Latest();self.preview=Latest();self.map_results=Latest();self.native_results=Latest()
         self.counts=Counter();self.coverage=Counter();self.traces=[];self.lock=threading.Lock()
         self.store=Store(options.output,options.max_samples,options.max_bytes)
-        self.source=self.worker=self.hp_worker=self.model=None;self.error=None;self.phase='preflight';self.finished=False
+        self.source=self.worker=self.hp_worker=self.model=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False
         self.source_info={};self.versions={};self.source_hash=None;self.registry=None
         self.started=time.perf_counter_ns();self.thread=threading.Thread(target=self._run,daemon=True)
     def start(self):self.thread.start();return self
@@ -72,6 +79,10 @@ class Session:
                     try:obj.close()
                     except Exception:pass
         threading.Thread(target=close,daemon=True).start()
+    def request_stop(self):
+        # Graceful UI stop: stop producing new work, but let in-flight readers finish.
+        self.stopped_by_user=True
+        self.cancel.set()
     def _run(self):
         threads=[]
         try:
@@ -107,11 +118,12 @@ class Session:
                 self.versions['board_reference_sha256']=sha(o.board_reference)
             self.source=input_plan.start()
             targets=[self._native_loop]
+            if getattr(self,'separate_hp_loop',False):targets.append(self._hp_loop)
             if self.model is not None:targets.insert(0,self._map_loop)
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
-            next_map=next_native=next_sample=-1
+            next_map=next_native=next_hp=next_sample=-1
             neutral_interval=max(1/o.sample_hz,o.seconds/max(1,o.max_samples//2))
             for f in self.source.frames(self.cancel,o.seconds):
                 if self.cancel.is_set():break
@@ -128,6 +140,9 @@ class Session:
                     next_map=f.due_ns+int(1e9/o.map_hz);self.map_pending.put(f);self.counts['mapper_submitted']+=1
                 if f.due_ns>=next_native:
                     next_native=f.due_ns+int(1e9/o.reader_hz);self.native_pending.put(f);self.counts['native_submitted']+=1
+                    if getattr(self,'separate_hp_loop',False) and f.due_ns>=next_hp:
+                        hp_hz=float(getattr(self,'hp_hz',1.0));next_hp=f.due_ns+int(1e9/hp_hz)
+                        self.hp_pending.put(f);self.counts['hp_submitted']+=1
             self.producer_done.set()
             for t in threads:t.join(30)
             if any(t.is_alive() for t in threads):raise TimeoutError('Trabalhador não encerrou dentro do prazo')
@@ -210,16 +225,16 @@ class Session:
         if self.finished:raise RuntimeError('Sessão já selada')
         self.finished=True
         with self.lock:traces=list(self.traces);cov=list(self.coverage.items())
-        mapping=[x for x in traces if x['kind']=='map'];reading=[x for x in traces if x['kind']=='reader']
+        mapping=[x for x in traces if x['kind']=='map'];reading=[x for x in traces if x['kind']=='reader'];hp_reading=[x for x in traces if x['kind']=='hp']
         stages={}
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
         default_policy='hud_mapper_hm2' if self.source_info.get('source_kind')=='native_capture' else 'hud_mapper_hm1'
+        stop_state=completion_state(self.error,self.cancel.is_set(),self.stopped_by_user)
         result=dict(schema_version=1,policy=getattr(self,'policy_name',default_policy),primary_objective=getattr(self,'primary_objective','HUD_mapping_and_natural_training_material'),
-           session_id=self.id,source=self.source_info,versions=self.versions,
-           execution_complete=self.error is None and not self.cancel.is_set(),error=self.error,
-           cancelled=self.cancel.is_set(),counts=dict(self.counts),
-           queues=dict(mapper_replaced=self.map_pending.replaced,native_replaced=self.native_pending.replaced,
+           session_id=self.id,source=self.source_info,versions=self.versions,error=self.error,
+           **stop_state,counts=dict(self.counts),
+           queues=dict(mapper_replaced=self.map_pending.replaced,native_replaced=self.native_pending.replaced,hp_replaced=self.hp_pending.replaced,
                        preview_replaced=self.preview.replaced,map_ui_replaced=self.map_results.replaced,
                        reader_ui_replaced=self.native_results.replaced),
            coverage=[dict(region=k[0],status=k[1],frames=v) for k,v in sorted(cov)],
@@ -229,7 +244,10 @@ class Session:
                         mapper_queue=stats([x['queue_ms'] for x in mapping]),
                         readers_source_to_result=stats([x['total_ms'] for x in reading]),
                         readers_queue=stats([x['queue_ms'] for x in reading]),
-                        stages={k:stats(v) for k,v in stages.items()}),
+                         hp_source_to_result=stats([x['total_ms'] for x in hp_reading]),
+                         hp_queue=stats([x['queue_ms'] for x in hp_reading]),
+                         hp_native=stats([x['native_ms'] for x in hp_reading]),
+                         stages={k:stats(v) for k,v in stages.items()}),
            observations_are_ground_truth=False,neural_scope=['bench','shop'] if self.model else [],
            **neural_provenance(self.model is not None),
            full_hud_neural_mapping=False,board_cells_validated=False,model_trained=False,torch_loaded_in_mapper='torch' in __import__('sys').modules,

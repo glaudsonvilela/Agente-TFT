@@ -92,3 +92,34 @@ Antes deste pacote final, o fast path também validou:
 - L2 permanece shadow diagnóstico somente.
 
 Este commit existe apenas para executar o full package gate sobre o mesmo código já aprovado no fast path.
+
+
+## HM4.3 — HP assíncrono e encerramento gracioso
+
+O teste natural HM4.2 de 2026-10-02 confirmou queda relevante de latência do caminho de leitores (p50 ~6241 ms → ~2104 ms; p95 ~9108 ms → ~4930 ms), mas mostrou que o HP1 síncrono ainda bloqueava a publicação de cada ciclo: p50 próprio ~1074 ms e p95 ~2436 ms. O relatório agregado está em `docs/HM4_2_FIELD_TEST_20261002.md`.
+
+HM4.3 mantém os leitores e thresholds congelados e muda apenas o agendamento/proveniência:
+
+- HP1 passa a uma fila independente latest-only de 1 Hz.
+- O HUD/loja não espera mais o OCR de HP para publicar seu próprio resultado.
+- Um resultado de HP só pode acompanhar um frame se for causal (nunca de um frame futuro) e pertencer ao mesmo segmento geométrico.
+- HP com mais de 2 s é `async_stale`: o último diagnóstico é preservado na proveniência, mas o valor numérico não é apresentado como atual.
+- Métricas de HP (fila, source→result e tempo nativo) são reportadas separadamente.
+- O caminho HM3 preserva o comportamento same-frame anterior.
+- Clicar **ENCERRAR** agora é parada graciosa: se não houve erro, a sessão é selada como completa com `stopped_by_user=true`; erros e timeouts continuam parciais.
+
+Não há mudança de threshold, ground truth, GameState, permissão de training label, promoção de perfil ou ativação silenciosa do L2.
+
+
+## HM4.3 — gate de pacote final
+
+Antes do pacote final, o head `e3306679a0bbd2bc011436f7a1594c058c720205` foi validado pelos quatro gates relevantes:
+
+- CI #562: success;
+- HUD Mapper HM2 #22: success, incluindo Windows portátil e WGC;
+- HUD Mapper HM3 Runtime #15: success após retry isolado do smoke WGC do runner, incluindo portátil e instalado;
+- HUD Mapper HM4 Auto #44: success, incluindo contratos, auditor, comparador, Rust readers e benchmark rápido.
+
+O retry HM3 foi necessário porque a primeira tentativa do runner Windows retornou `invalid ContentSize or unexpected pixel format`; a repetição isolada passou sem alteração de produção. Este registro não converte instabilidade do runner em correção de código.
+
+O commit deste trecho existe somente para acionar o full-package gate do HM4.3 sobre o mesmo código já aprovado.

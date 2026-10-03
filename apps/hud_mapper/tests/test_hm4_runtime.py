@@ -3,9 +3,10 @@ from pathlib import Path
 
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
-    HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source
+    HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source,
+    async_hp_delivery
 )
-from hm.session import Options, neural_provenance
+from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 
@@ -36,6 +37,9 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertTrue(HM4RuntimeSession.normalize_reader_input)
         self.assertEqual(HM4RuntimeSession.shop_interval_ms,2000.0)
         self.assertEqual(HM4RuntimeSession.__mro__[1].shop_interval_ms,0.0)
+        self.assertTrue(HM4RuntimeSession.separate_hp_loop)
+        self.assertEqual(HM4RuntimeSession.hp_hz,1.0)
+        self.assertEqual(HM4RuntimeSession.hp_max_delivery_ms,2000.0)
         self.assertIn("automatic", HM4RuntimeSession.primary_objective)
 
     def test_summary_neural_provenance_is_shadow_or_disabled(self):
@@ -97,6 +101,41 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertEqual(out[0]["reader_box_1920x1080"],[960,540,1920,1080])
         self.assertEqual(out[0]["box"],[640.0,360.0,1280.0,720.0])
         self.assertEqual(regions[0]["box"],[960,540,1920,1080])
+
+    def test_async_hp_delivery_is_causal_and_bounded(self):
+        f=self.frame(1920,1080)
+        f=CapturedFrame(id=10,pts_ms=3000.0,due_ns=3_000_000_000,ready_ns=3_000_000_100,
+                        width=1920,height=1080,rgb=f.rgb,epoch=2,capture={"test":True})
+        latest=dict(frame_id=8,source_ms=2000.0,due_ns=2_000_000_000,ready_ns=2_900_000_000,epoch=2,
+                    response={"hp":{"status":"accepted","signed_hp":72,"hp":72}})
+        hp,meta=async_hp_delivery(f,latest,2000.0)
+        self.assertEqual(hp["status"],"accepted")
+        self.assertEqual(hp["hp"],72)
+        self.assertEqual(meta["source_frame_id"],8)
+        self.assertEqual(meta["age_ms"],1000.0)
+        self.assertTrue(meta["fresh"])
+
+        future=dict(latest,frame_id=11,due_ns=3_100_000_000)
+        hp,meta=async_hp_delivery(f,future,2000.0)
+        self.assertEqual(hp["status"],"async_pending")
+        self.assertFalse(meta["fresh"])
+
+        stale=dict(latest,due_ns=500_000_000)
+        hp,meta=async_hp_delivery(f,stale,2000.0)
+        self.assertEqual(hp["status"],"async_stale")
+        self.assertIsNone(hp["hp"])
+        self.assertEqual(hp["last_observation"]["hp"],72)
+        self.assertFalse(meta["fresh"])
+
+    def test_graceful_stop_is_complete_but_errors_are_partial(self):
+        graceful=completion_state(None,True,True)
+        self.assertTrue(graceful["execution_complete"])
+        self.assertFalse(graceful["cancelled"])
+        self.assertTrue(graceful["stopped_by_user"])
+        natural=completion_state(None,False,False)
+        self.assertTrue(natural["execution_complete"])
+        failed=completion_state("boom",True,True)
+        self.assertFalse(failed["execution_complete"])
 
 if __name__=="__main__":
     unittest.main()

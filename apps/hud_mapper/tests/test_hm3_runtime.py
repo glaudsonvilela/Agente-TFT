@@ -17,7 +17,7 @@ class HM3RuntimeContracts(unittest.TestCase):
 
     def test_no_fuzzy_or_partial_pixel_comparison(self):
         pixels = bytes(1920*1080*3)
-        last = dict(signature=pixels, epoch=0, due_ns=0)
+        last = dict(signature=pixels, epoch=0, due_ns=0, size=(1920,1080))
         for index in (0, 2, (1000*1920+1900)*3, len(pixels)-1):
             changed = bytearray(pixels)
             changed[index] = 1
@@ -26,7 +26,7 @@ class HM3RuntimeContracts(unittest.TestCase):
 
     def test_identical_frame_reuse_is_not_renewed_forever(self):
         pixels = bytes(1920*1080*3)
-        last = dict(signature=pixels, epoch=1, due_ns=10_000_000)
+        last = dict(signature=pixels, epoch=1, due_ns=10_000_000, size=(1920,1080))
         frame = self.frame(pixels, epoch=1, ns=500_000_000)
         self.assertTrue(reusable(last, pixels, frame))
         frame.due_ns = 800_000_000
@@ -34,7 +34,7 @@ class HM3RuntimeContracts(unittest.TestCase):
 
     def test_geometry_or_clock_regression_refuses_reuse(self):
         pixels = bytes(1920*1080*3)
-        last = dict(signature=pixels, epoch=1, due_ns=10)
+        last = dict(signature=pixels, epoch=1, due_ns=10, size=(1920,1080))
         self.assertFalse(reusable(last, pixels, self.frame(pixels, epoch=2, ns=100)))
         self.assertFalse(reusable(last, pixels, self.frame(pixels, epoch=1, ns=5)))
 

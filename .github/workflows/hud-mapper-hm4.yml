@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - work/hud-mapper-hm4-auto
+      - work/hud-mapper-hm43-async-hp-graceful-stop
     paths:
       - 'apps/hud_mapper/**'
       - 'scripts/build_hud_mapper_hm4_windows.py'
