@@ -7,6 +7,7 @@ on:
     branches:
       - work/hud-mapper-hm4-auto
       - work/hud-mapper-hm43-async-hp-graceful-stop
+      - work/hud-mapper-hm44-ocr-hub
     paths:
       - 'apps/hud_mapper/**'
       - 'scripts/build_hud_mapper_hm4_windows.py'
@@ -16,6 +17,7 @@ on:
       - 'tools/hm-capture-native/**'
       - 'tools/hm-hp-native/**'
       - 'tools/e1-native/**'
+      - 'tools/hm-ocr-cost/**'
       - 'rust/crates/ocr-tesseract/**'
       - 'rust/crates/perception-hud/**'
       - 'docs/HUD_MAPPER_HM4_AUTO.md'
@@ -70,6 +72,12 @@ jobs:
 
       - name: HM4 contracts
         run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
+
+      - name: HM4.4 OCR cost probe
+        shell: pwsh
+        run: |
+          cargo run --release --manifest-path tools/hm-ocr-cost/Cargo.toml -- tesseract --iterations 8 --output hm4-ocr-cost.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 OCR cost probe failed' }
 
       - name: Audit utility contracts
         shell: pwsh
@@ -133,6 +141,7 @@ jobs:
           name: HUD-HM4-Evidence
           path: |
             hm4-cache-benchmark.json
+            hm4-ocr-cost.json
             hm4-portable/*.json
             hm4-portable-launcher.log
             dist/HM4_COMPACTION_REPORT.json
