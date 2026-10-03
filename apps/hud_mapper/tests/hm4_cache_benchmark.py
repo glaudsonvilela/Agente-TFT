@@ -5,6 +5,9 @@ from pathlib import Path
 from e1.protocol import NativeWorker
 
 HUD_STAGES={"hud_stage","hud_gold","hud_level","hud_xp"}
+CACHED_WALL_BUDGET_MS=100.0
+HUD_ONLY_WALL_BUDGET_MS=1500.0
+HUD_PLUS_HP_WALL_BUDGET_MS=1800.0
 
 def stage_rows(result):
     return [x for x in result.get("spans",[]) if isinstance(x,dict)]
@@ -92,6 +95,11 @@ def main():
             "main_frame_id":fourth.get("id"),
             "hp_frame_id":fourth_hp.get("id"),
         },
+        "performance_budgets_ms":{
+            "cached_wall":CACHED_WALL_BUDGET_MS,
+            "changed_hud_only_wall":HUD_ONLY_WALL_BUDGET_MS,
+            "changed_hud_plus_hp_wall":HUD_PLUS_HP_WALL_BUDGET_MS,
+        },
         "speedup_ratio_identical_over_first":ratio,
         "second_hud_cache_hits":hud_hits,
         "second_shop_cache_hit":shop_hit,
@@ -112,17 +120,20 @@ def main():
     assert set(hud_hits)==HUD_STAGES and all(hud_hits.values()), hud_hits
     assert shop_hit and controls_hit, report
     assert ratio is not None and ratio < 0.75, report
+    assert second_wall < CACHED_WALL_BUDGET_MS, report
 
     assert set(third_hud)==HUD_STAGES and not any(third_hud.values()), third_hud
     assert third.get("shop_requested") is False, report
     assert cadence_span is not None and cadence_span.get("shop_executed") is False, report
     assert "shop_cards" not in third_stage_names and "shop_controls" not in third_stage_names, report
+    assert third_wall < HUD_ONLY_WALL_BUDGET_MS, report
 
     assert set(fourth_hud)==HUD_STAGES and not any(fourth_hud.values()), fourth_hud
     assert fourth.get("shop_requested") is False, report
     assert "shop_cards" not in fourth_stage_names and "shop_controls" not in fourth_stage_names, report
     assert fourth.get("id")==4 and fourth_hp.get("id")==4, report
     assert fourth_hp_native >= 0.0 and fourth_wall > 0.0, report
+    assert fourth_wall < HUD_PLUS_HP_WALL_BUDGET_MS, report
 
     print("HM4_CACHE_BENCHMARK="+json.dumps(report,separators=(",",":")))
 
