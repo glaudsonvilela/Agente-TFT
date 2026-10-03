@@ -219,12 +219,15 @@ class CoreInstaller:
             raise SetupError("São necessários pelo menos 4 GiB de RAM para este laboratório.")
         if mem < 8 * 1024**3:
             report("Abaixo de 8 GiB: o perfil leve será recomendado.")
-        cpu = self._call(["powershell.exe", "-NoProfile", "-Command",
-                          "(Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty VirtualizationFirmwareEnabled)"], 30)
-        virtualization = cpu.stdout.strip().lower()
-        if cpu.returncode == 0 and virtualization == "false":
-            raise SetupError("A virtualização de hardware está desativada no firmware do PC.")
-        virt = "ativa" if virtualization == "true" else "não confirmada; o WSL fará a verificação final"
+        # CIM is a diagnostic hint. It may report False even when this PC can
+        # run WSL 2, so only the actual distro import/health check can reject it.
+        try:
+            cpu = self._call(["powershell.exe", "-NoProfile", "-Command",
+                              "(Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty VirtualizationFirmwareEnabled)"], 30)
+            virtualization = cpu.stdout.strip().lower() if cpu.returncode == 0 else ""
+        except SetupError:
+            virtualization = ""
+        virt = "confirmada pelo Windows" if virtualization == "true" else "não confirmada; será testada pelo WSL 2"
         report(f"Virtualização: {virt}")
         report("Conferindo integridade da VM incluída no instalador…")
         verify_package(self.package)

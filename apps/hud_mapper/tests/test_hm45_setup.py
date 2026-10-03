@@ -23,6 +23,7 @@ class FakeWindows:
         self.health_ok = True
         self.enable_code = 0
         self.empty_list_is_error = False
+        self.virtualization = "True"
 
     def __call__(self, args, timeout=60):
         self.calls.append(args)
@@ -45,7 +46,7 @@ class FakeWindows:
                                                "AGENTETFT_CORE_HEALTH_OK" if self.health_ok else "", "")
         if args[0] == "powershell.exe":
             return subprocess.CompletedProcess(args, self.enable_code if "-ExecutionPolicy" in args else 0,
-                                               "True", "")
+                                               self.virtualization, "")
         if args[0] == "shutdown.exe":
             return subprocess.CompletedProcess(args, 0, "", "")
         raise AssertionError(args)
@@ -82,6 +83,16 @@ class SetupContracts(unittest.TestCase):
             with self.assertRaisesRegex(SetupError, "SHA-256"):
                 self.installer.preflight(lambda _: None)
         self.assertFalse(any(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls))
+
+    def test_cim_false_does_not_block_wsl_import(self):
+        self.fake.virtualization = "False"
+        messages = []
+        with patch("hm45_setup_core.sys.platform", "win32"), patch("hm45_setup_core.platform.machine", return_value="AMD64"):
+            preflight = self.installer.preflight(messages.append)
+        self.assertTrue(preflight.package_verified)
+        self.assertIn("será testada pelo WSL 2", preflight.virtualization)
+        self.assertEqual(self.installer.install(messages.append), "ready")
+        self.assertTrue(any(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls))
 
     def test_manifest_rejects_other_distro_and_missing_contract(self):
         self.manifest["distro_name"] = "Ubuntu"
