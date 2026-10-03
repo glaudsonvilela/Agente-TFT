@@ -44,6 +44,24 @@ teste usam somente bytes RGB. A saída é uma observação diagnóstica JSON.
 
 ## Próximos gates
 
+O catálogo visual oficial pode ser atualizado sem editar coordenadas:
+
+```bash
+python3 -m ingestion.riot_ddragon_reference \
+  --version 16.19.1 --locale pt_BR --set TFTSet18
+```
+
+O comando busca os JSONs oficiais de campeões e itens do Data Dragon, registra
+hashes dos bytes de origem e cria uma referência imutável em
+`knowledge/riot-ddragon/`. Campeões são filtrados pelo set explícito; itens
+preservam o escopo amplo do provedor. A versão Data Dragon **não prova** o patch
+TFT da gravação; por isso `tft_patch=null` e `replay_binding=false`. O Match001
+continua com set/patch desconhecidos. A release CommunityDragon existente pode
+ser usada como segunda fonte quando seu set/patch for comprovado, sem misturar
+IDs de provedores por nome.
+
+Fonte oficial: https://developer.riotgames.com/docs/tft#data--assets
+
 1. Criar anotações verificadas de espaços/itens de um replay distinto.
 2. Reconhecer o ícone pelo catálogo do set/patch, preservando `unknown` quando
    houver ambiguidade, contador ou item fora do catálogo.
