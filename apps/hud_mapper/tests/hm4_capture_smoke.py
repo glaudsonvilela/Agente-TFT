@@ -54,7 +54,7 @@ def main():
         # HM4.3 HP is scheduled independently even when the owned smoke window
         # is non-canonical; the HP worker returns resolution_incompatible quickly.
         assert report["counts"].get("hp_submitted",0)>0
-        assert report["counts"].get("hp_native_runs",0)>0
+        assert report["counts"].get("hp_results",0)>0
         assert report["timings"]["hp_source_to_result"]["n"]>0
         assert report["neural_scope"]==[]
         assert manifest["samples"] and all(x["targets"] is None for x in manifest["samples"])
