@@ -33,6 +33,13 @@ var
   OverviewPage: TWizardPage;
   PrivacyPage: TWizardPage;
 
+function InitializeSetup: Boolean;
+begin
+  Result := not WizardSilent;
+  if not Result then
+    MsgBox('Este pacote requer a instalação guiada para verificar o WSL 2 e a VM.', mbError, MB_OK);
+end;
+
 procedure AddParagraph(Page: TWizardPage; TopValue: Integer; TextValue: String);
 var
   LabelControl: TNewStaticText;

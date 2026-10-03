@@ -29,6 +29,8 @@ verificação rodam no contexto do usuário; somente `wsl --install
 --no-distribution` pede elevação. As demais distribuições WSL e `.wslconfig`
 ficam intactas. Uma VM existente com o mesmo nome precisa passar no teste de
 saúde; se falhar, ela é preservada para diagnóstico em vez de ser apagada.
+O modo silencioso é recusado nesta fase, pois ele não conseguiria explicar a
+permissão do Windows, o reinício e o resultado do teste de saúde.
 
 ## Contrato para empacotar
 

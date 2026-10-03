@@ -75,6 +75,7 @@ class SetupWindow:
         self.details = tk.Text(body, height=12, fg=INK, bg=WHITE, font=("Segoe UI", 10),
                                bd=0, padx=18, pady=15, wrap="word", state="disabled")
         self.details.pack(fill="both", expand=True, padx=38, pady=(0, 20))
+        self.progress = ttk.Progressbar(body, mode="indeterminate")
         buttons = tk.Frame(body, bg=PALE)
         buttons.pack(fill="x", padx=38, pady=(0, 28))
         self.back = ttk.Button(buttons, text="Voltar", command=self._previous)
@@ -162,6 +163,8 @@ class SetupWindow:
         self.busy = True
         self.next.configure(state="disabled")
         self.back.configure(state="disabled")
+        self.progress.pack(fill="x", padx=38, pady=(0, 15))
+        self.progress.start(12)
 
         def work():
             try:
@@ -202,12 +205,16 @@ class SetupWindow:
                     self._text(value, append=True)
                 elif kind == "preflight:ok":
                     self.busy = False
+                    self.progress.stop()
+                    self.progress.pack_forget()
                     self.preflight_ready = True
                     self.next.configure(state="normal", text="Continuar")
                     self.back.configure(state="normal")
                     self._text("Verificação concluída. Continue para entender a conexão local.", append=True)
                 elif kind == "install:ok":
                     self.busy = False
+                    self.progress.stop()
+                    self.progress.pack_forget()
                     if value == "restart":
                         self.heading.configure(text="Reinício necessário")
                         self.description.configure(text="O Windows precisa reiniciar para concluir o WSL 2. "
@@ -220,6 +227,8 @@ class SetupWindow:
                         self._show(4)
                 elif kind.endswith(":error"):
                     self.busy = False
+                    self.progress.stop()
+                    self.progress.pack_forget()
                     self._log("ERRO: " + value)
                     self.heading.configure(text="Precisamos corrigir uma etapa")
                     self.description.configure(text=value)
