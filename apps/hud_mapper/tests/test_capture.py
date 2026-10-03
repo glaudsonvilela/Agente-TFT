@@ -1,5 +1,5 @@
 """Capture contracts use synthetic packets; actual WGC is separately required in Windows CI."""
-import io, json, struct, tempfile, unittest
+import io, json, struct, tempfile, time, unittest
 from pathlib import Path
 from types import SimpleNamespace as N
 from unittest.mock import patch
@@ -68,5 +68,33 @@ class CaptureContracts(unittest.TestCase):
             self.assertEqual(m['samples'][0]['capture']['capture_ns'],90)
             self.assertEqual(m['samples'][0]['geometry_segment'],3)
             self.assertIsNone(m['samples'][0]['targets'])
+
+    def test_long_capture_keeps_early_and_late_samples_without_exceeding_budget(self):
+        with tempfile.TemporaryDirectory() as d:
+            store=Store(Path(d)/'session',max_samples=4,max_bytes=1024**2,reserve_bytes=0)
+            for i in range(24):
+                f=CapturedFrame(i,i*10000.,i+1,i+2,2,1,bytes([i,0,0,i,0,0]),0,{})
+                while not store.emit('periodic',dict(frame_id=i,source_ms=f.pts_ms),f,True):
+                    time.sleep(.001)
+            result=store.close(dict(session_id='test',source=dict(source_kind='native_capture'),execution_complete=True))
+            rows=json.loads((Path(d)/'session/training-manifest.json').read_text())['samples']
+            self.assertTrue(result['execution_complete'])
+            self.assertEqual(rows[0]['frame_id'],0)
+            self.assertGreaterEqual(rows[-1]['frame_id'],16)
+            self.assertLessEqual(len(rows),4)
+            self.assertGreater(result['collection']['sample_evicted'],0)
+            self.assertTrue(all((Path(d)/'session'/row['image']).is_file() for row in rows))
+
+    def test_log_budget_drops_telemetry_without_ending_capture(self):
+        with tempfile.TemporaryDirectory() as d:
+            store=Store(Path(d)/'session',max_samples=2,max_bytes=1024**2,
+                        reserve_bytes=0,max_log_bytes=180)
+            for i in range(15):
+                while not store.emit('telemetry',dict(frame_id=i,note='x'*40)):
+                    time.sleep(.001)
+            result=store.close(dict(session_id='test',source={},execution_complete=True))
+            self.assertTrue(result['execution_complete'])
+            self.assertGreater(result['collection']['log_budget_dropped'],0)
+            self.assertLessEqual(result['collection']['log_bytes'],180)
 
 if __name__=='__main__':unittest.main()

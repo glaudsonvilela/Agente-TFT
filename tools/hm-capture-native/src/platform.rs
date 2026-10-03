@@ -115,7 +115,8 @@ pub fn stream(args: &Args) -> Result<()> {
         packet(&json!({"type":"ready","bytes":0,"backend":"own_rust_wgc_d3d11_v1",
             "target":target,"device_kind":device_kind,"qpc_frequency":frequency,
             "pixel_format":"RGB8","capture_border_disabled":false,
-            "preview_mode":if args.preview_hz.is_some() {"native_scaled_720p_separate_from_analysis_v1"} else {"analysis_frames"},
+            "preview_mode":if args.preview_hz.is_some() {"native_scaled_to_viewport_separate_from_analysis_v2"} else {"analysis_frames"},
+            "preview_limit":[args.preview_width,args.preview_height],
             "color_policy":"BGRA8_SDR_contract_HDR_not_certified","cursor_policy":"OS_default",
             "screen_capture_active":true,"input_automation":false}), &[])?;
         session.StartCapture()?;
@@ -179,7 +180,8 @@ pub fn stream(args: &Args) -> Result<()> {
             if mapped.pData.is_null() || count>256*1024*1024 {context.Unmap(cpu,0);return Err(bad("invalid mapped buffer"));}
             let source=std::slice::from_raw_parts(mapped.pData as *const u8,count);
             let preview=preview_due.then(||preview_rgb_from_bgra(source,
-                content.Width as usize,content.Height as usize,mapped.RowPitch as usize));
+                content.Width as usize,content.Height as usize,mapped.RowPitch as usize,
+                args.preview_width,args.preview_height));
             let analysis=analysis_due.then(||rgb_from_bgra(source,
                 content.Width as usize,content.Height as usize,mapped.RowPitch as usize));
             context.Unmap(cpu,0);

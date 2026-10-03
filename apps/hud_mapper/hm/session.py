@@ -57,6 +57,8 @@ class Options:
     board_hub_enabled: bool=False
     vm_core: bool=False
     preview_hz: float=20
+    preview_width: int=1280
+    preview_height: int=720
     def validate(self):
         if not self.model and not self.dataset_only:
             raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
@@ -68,6 +70,8 @@ class Options:
             raise ValueError('Duração/frequência fora dos limites.')
         if not 5<=self.preview_hz<=30:
             raise ValueError('Frequência de prévia fora dos limites.')
+        if not 160<=self.preview_width<=1280 or not 90<=self.preview_height<=720:
+            raise ValueError('Dimensões da prévia fora dos limites.')
         if not self.scenario.strip() or len(self.scenario)>100:raise ValueError('Nome do cenário inválido.')
         required=[self.worker]
         if self.model:required.append(self.model)
@@ -163,7 +167,9 @@ class Session:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
             next_map=next_native=next_hp=next_sample=next_source_telemetry=-1
-            neutral_interval=max(1/o.sample_hz,o.seconds/max(1,o.max_samples//2))
+            # A two-hour capture must still save useful evidence during its first
+            # minutes. Store thins older samples as the bounded budget fills.
+            neutral_interval=max(10.0,1/o.sample_hz) if o.vm_core else max(1/o.sample_hz,o.seconds/max(1,o.max_samples//2))
             for f in self.source.frames(self.cancel,o.seconds):
                 if self.cancel.is_set():break
                 if self.store.error:raise OSError(self.store.error)
@@ -203,8 +209,8 @@ class Session:
             if any(t.is_alive() for t in threads):self.error=self.error or 'Trabalhador ainda ativo; saída parcial'
             self.done.set();self.phase='Concluindo pacote de HUD'
     def _map_loop(self):
-        next_save=-1
-        interval=max(2000,self.options.seconds*1000/max(1,self.options.max_samples//4))
+        next_save=next_log=-1
+        interval=30000 if self.options.vm_core else max(2000,self.options.seconds*1000/max(1,self.options.max_samples//4))
         try:
             while not self.cancel.is_set():
                 try:f=self.map_pending.get()
@@ -224,7 +230,9 @@ class Session:
                            vm_transport=obs.get('vm_transport')))
                 take=f.pts_ms>=next_save
                 if take:next_save=f.pts_ms+interval
-                self.store.emit('mapping-events',r,f,take)
+                if take or f.pts_ms>=next_log:
+                    next_log=f.pts_ms+(5000 if self.options.vm_core else 0)
+                    self.store.emit('mapping-events',r,f,take)
                 self.map_results.put(dict(frame=f,record=r,ready_ns=end));self.counts['mapped_frames']+=1
         except Exception as exc:self.error=str(exc);self.stop()
     def _native_loop(self):
@@ -272,6 +280,7 @@ class Session:
         mapping=[x for x in traces if x['kind']=='map'];reading=[x for x in traces if x['kind']=='reader'];hp_reading=[x for x in traces if x['kind']=='hp']
         hub_reading=[x for x in traces if x['kind']=='hub']
         tip_ui=[x for x in traces if x['kind']=='tip_ui']
+        coach_ui=[x for x in traces if x['kind']=='coach_ui']
         stages={}
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
@@ -297,6 +306,7 @@ class Session:
                          hub_source_to_result=stats([x['total_ms'] for x in hub_reading]),
                          hub_processing=stats([x['processing_ms'] for x in hub_reading]),
                          tip_source_to_ui_estimate=stats([x['total_ms'] for x in tip_ui]),
+                         coach_source_to_ui_estimate=stats([x['total_ms'] for x in coach_ui]),
                          stages={k:stats(v) for k,v in stages.items()}),
            observations_are_ground_truth=False,neural_scope=['bench','shop'] if self.model else [],
            **neural_provenance(self.model is not None),

@@ -170,6 +170,10 @@ class CoreHandler(socketserver.BaseRequestHandler):
                     str(hello.get("token", "")), server.token):
                 return
             send_packet(self.request, {"ok": True, "op": "hello", "ready": server.core.ready})
+            # Worker connections are persistent and may legitimately remain idle
+            # while a replay is paused. The 20 s deadline applies to handshake
+            # only; closing an idle authenticated socket killed the next request.
+            self.request.settimeout(None)
             while True:
                 try:
                     header, payload = recv_packet(self.request)

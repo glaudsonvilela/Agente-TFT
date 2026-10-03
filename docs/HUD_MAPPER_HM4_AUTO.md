@@ -52,10 +52,25 @@ O pacote de revisão inclui os pesos L3 e 156 ícones oficiais do escopo visual
 de replay ou treinador. A rede L3 localiza aproximadamente banco e loja; não
 identifica campeões nem itens e não aprende durante a sessão. O B4 registra
 células e ícones **candidatos**, com identidades nulas. Dicas de revisão são
-prompts de economia baseados nos números lidos e prompts sobre ícones candidatos
-no inventário; não afirmam a melhor jogada ou recomendam item/posição específica.
-Sem ouro observado, a dica se abstém. O modo de dicas só é habilitado quando o
+leituras de economia baseadas nos números observados. Ações de compra/equipamento
+exigem identidade verificada, evidência fresca e confiança explícita do motor;
+ícones candidatos sozinhos não geram dicas de equipar. Sem ouro observado, a
+leitura se abstém. O modo de dicas só é habilitado quando o
 usuário declara que a fonte é um vídeo de partida encerrada.
+
+## HM4.5 — narração local opcional
+
+No instalador HM4.5, marque **Narrar orientações**, escolha **Cadu** ou **Faber** em
+**Voz** e use **Testar voz** antes de iniciar o replay. As duas vozes em
+português brasileiro são empacotadas com o aplicativo. A síntese ocorre em uma
+thread separada, com um núcleo de CPU, sem serviço de nuvem nem voz do sistema.
+Mensagens antigas são descartadas; a dica escrita aparece mesmo se a fala
+estiver desligada ou demorar. A aba **Performance** mostra o tempo de geração
+e um eventual erro de voz.
+
+Os modelos de voz vêm dos pacotes `vits-piper-pt_BR-{cadu,faber}-medium-int8`
+da release `tts-models` do projeto `k2-fsa/sherpa-onnx`, verificados por SHA-256
+no build. A licença do motor e os cartões dos modelos acompanham o instalador.
 
 
 ## HM4.1 — normalização conservadora dos leitores

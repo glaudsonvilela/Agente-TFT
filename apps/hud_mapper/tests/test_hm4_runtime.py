@@ -9,10 +9,46 @@ from hm.runtime_session import (
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
-from hm.replay_coach import economy_prompt, inventory_prompt
+from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
+from hm.voice import VoiceCoach, available_voices
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_voice_queue_is_latest_only_and_rejects_stale_readouts(self):
+        voice=VoiceCoach();voice.enabled=True;voice.voice_id='cadu'
+        self.assertTrue(voice.say('12 ouro',100))
+        self.assertFalse(voice.say('13 ouro',2500))
+        self.assertFalse(voice.say('12 ouro',100))
+        self.assertEqual(voice.pending.get_nowait()[0],'12 ouro')
+
+    def test_voice_choice_uses_bundled_models(self):
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td)
+            (base/'espeak-ng-data').mkdir()
+            for name in ('cadu','faber'):
+                (base/name).mkdir()
+                (base/name/'model.onnx').touch()
+                (base/name/'tokens.txt').touch()
+            voice=VoiceCoach(base)
+            self.assertEqual(set(available_voices(base)),{'cadu','faber'})
+            voice.set_voice('faber')
+            self.assertEqual(voice.voice_id,'faber')
+            with self.assertRaises(ValueError):voice.set_voice('system')
+
+    @unittest.skipUnless(os.name=='nt','Windows Tk desktop required')
+    def test_coach_banner_remains_outside_mapping_tab(self):
+        import tkinter as tk
+        from hm.runtime_app import App
+        root=tk.Tk()
+        try:
+            app=App(root,'hm4')
+            root.update_idletasks()
+            self.assertEqual(app.tip_label.winfo_manager(),'pack')
+            self.assertEqual(app.tip_label.master.winfo_manager(),'pack')
+            self.assertEqual(app.tip_log.winfo_manager(),'pack')
+        finally:
+            root.destroy()
+
     def test_replay_hub_requires_explicit_review_mode(self):
         with tempfile.TemporaryDirectory() as td:
             worker=Path(td)/("worker.exe" if os.name=="nt" else "worker")
@@ -24,15 +60,31 @@ class HM4RuntimeTests(unittest.TestCase):
     def test_replay_coach_uses_observed_values_and_abstains(self):
         missing=economy_prompt({"hud":[{"field":"gold","status":"unknown","value":50}]})
         self.assertEqual(missing["status"],"abstain_missing_gold")
-        observed=economy_prompt({"hud":[{"field":"gold","status":"single_frame_observation","value":42},
-                                        {"field":"stage","status":"single_frame_observation","value":"4-3"},
-                                        {"field":"level","status":"single_frame_observation","value":8}]})
-        self.assertEqual(observed["basis"],["hud.gold","hud.stage","hud.level"])
+        observed=economy_prompt({"hud":[{"field":"gold","status":"single_frame_observation","value":42,"confidence":.95},
+                                        {"field":"stage","status":"single_frame_observation","value":"4-3","confidence":.95},
+                                        {"field":"level","status":"single_frame_observation","value":8,"confidence":.95}]})
+        self.assertEqual(observed["basis"],["hud.gold","hud.level","hud.stage"])
         self.assertFalse(observed["actionable"])
         self.assertIn("42",observed["text"])
         self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[]}}))
-        item=inventory_prompt({"inventory":{"candidate_slots":[{"slot":1}]}})
-        self.assertFalse(item["item_identity_established"])
+        self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[{"slot":1}]}}))
+        item=inventory_prompt({"verified_action":{"type":"equip","confidence":.95,
+             "item_name":"Item","unit_name":"Unidade","item_id":"item1","unit_id":"unit1"}})
+        self.assertTrue(item["item_identity_established"])
+
+    def test_buy_requires_bound_fresh_offer_and_engine_evidence(self):
+        answer={"origin":"observed_pixels","hud":[{"field":"gold","status":"single_frame_observation",
+                "value":50,"confidence":.95}],"decision":{"action":{"type":"buy","shop_slot":1,
+                "unit_id":"TFTSet18_Unit"},"confidence":.9,"evidence":[{"code":"UPGRADE"}]},
+                "shop":{"cadence_delivery":{"fresh":True},"slots":[{"slot":1,
+                "status":"offer_text_readable","unit_id":"TFTSet18_Unit","observed_name":"Unidade",
+                "name_confidence":.97,"observed_cost":3}]}}
+        self.assertTrue(coach_prompt(answer)["actionable"])
+        answer["shop"]["slots"][0]["unit_id"]=None
+        self.assertFalse(coach_prompt(answer)["actionable"])
+        answer["shop"]["slots"][0]["unit_id"]="TFTSet18_Unit"
+        answer["shop"]["cadence_delivery"]["fresh"]=False
+        self.assertFalse(coach_prompt(answer)["actionable"])
 
     def test_reader_only_is_allowed_only_when_explicit(self):
         with tempfile.TemporaryDirectory() as td:

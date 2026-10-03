@@ -65,10 +65,11 @@ def main():
         if a.replay_review:
             assert report["counts"].get("mapped_frames",0)>0
             assert report["counts"].get("hub_results",0)>0
-            assert report["counts"].get("replay_tips",0)>0
+            assert report["counts"].get("coach_updates",0)>0
+            assert report["counts"].get("replay_tips",0)==0  # Blank fixture has no verified action.
             assert report["versions"].get("board_hub_mode")=="replay_screen_candidate_only"
             assert report["neural_scope"]==["bench","shop"]
-            assert report["timings"]["tip_source_to_ui_estimate"]["n"]>0
+            assert report["timings"]["coach_source_to_ui_estimate"]["n"]>0
             assert (out/"board-hub-observations.jsonl").is_file()
             assert (out/"replay-tips.jsonl").is_file()
         else:

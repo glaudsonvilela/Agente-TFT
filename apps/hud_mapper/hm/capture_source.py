@@ -169,7 +169,8 @@ class CapturedFrame:
 
 
 class CaptureSource:
-    def __init__(self, uri, configs, seconds, hz, *, consent=False, expected=None, log=None, preview_hz=None):
+    def __init__(self, uri, configs, seconds, hz, *, consent=False, expected=None, log=None,
+                 preview_hz=None, preview_size=None):
         if consent is not True:
             raise ValueError('Captura requer confirmação explícita da fonte.')
         if os.name != 'nt':
@@ -194,6 +195,8 @@ class CaptureSource:
                    '--seconds', str(seconds), '--hz', str(hz), '--consent']
         if preview_hz is not None:
             command += ['--preview-hz', str(preview_hz)]
+            if preview_size is not None:
+                command += ['--preview-width', str(preview_size[0]), '--preview-height', str(preview_size[1])]
         self.proc = spawn(command,
                           stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
         self.target = current; self.log = Path(log) if log else None

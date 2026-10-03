@@ -75,6 +75,8 @@ jobs:
           'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           python -m pip install -r apps/hud_mapper/requirements.txt
           if ($LASTEXITCODE -ne 0) { throw 'Runtime dependencies failed' }
+          python -m pip install sherpa-onnx==1.13.8
+          if ($LASTEXITCODE -ne 0) { throw 'Offline voice dependency failed' }
           python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
           if ($LASTEXITCODE -ne 0) { throw 'Packaging dependencies failed' }
       - name: Verify HM4.5 protocol and setup
@@ -105,6 +107,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Pinned model download failed' }
           python scripts/prepare_hm4_live_assets.py
           if ($LASTEXITCODE -ne 0) { throw 'Asset verification failed' }
+      - name: Verify and stage two offline Brazilian Portuguese voices
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force -Path build/hm45-voice-downloads | Out-Null
+          gh release download tts-models --repo k2-fsa/sherpa-onnx --dir build/hm45-voice-downloads --pattern 'vits-piper-pt_BR-cadu-medium-int8.tar.bz2' --pattern 'vits-piper-pt_BR-faber-medium-int8.tar.bz2'
+          if ($LASTEXITCODE -ne 0) { throw 'Offline voice download failed' }
+          python scripts/prepare_hm45_voices.py
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned voice verification failed' }
       - name: Build Windows app and guided VM installer
         shell: pwsh
         run: |
@@ -112,11 +124,19 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows app build failed' }
           python scripts/build_hm45_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
+      - name: Run both voices from the packaged Windows app
+        shell: pwsh
+        run: |
+          & .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe --voice-smoke-output build\hm45-voice-smoke.json
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged offline voice failed' }
+          $result = Get-Content build\hm45-voice-smoke.json -Raw | ConvertFrom-Json
+          if ($result.cadu.frames -le 0 -or $result.faber.frames -le 0) { throw 'Packaged voice produced empty audio' }
       - uses: actions/upload-artifact@v4
         with:
           name: AgenteTFT-HM45-Setup-LAB-Windows-x64
           path: |
             dist/AgenteTFT-HM45-Setup.exe
             dist/HM45_INSTALLER_REPORT.json
+            build/hm45-voice-smoke.json
           retention-days: 14
           if-no-files-found: error
