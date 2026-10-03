@@ -51,6 +51,11 @@ def main():
         # covered by deterministic contracts and Rust tests.
         assert report["counts"].get("reader_resolution_skipped",0)>0
         assert report["counts"].get("reader_native_runs",0)==0
+        # HM4.3 HP is scheduled independently even when the owned smoke window
+        # is non-canonical; the HP worker returns resolution_incompatible quickly.
+        assert report["counts"].get("hp_submitted",0)>0
+        assert report["counts"].get("hp_native_runs",0)>0
+        assert report["timings"]["hp_source_to_result"]["n"]>0
         assert report["neural_scope"]==[]
         assert manifest["samples"] and all(x["targets"] is None for x in manifest["samples"])
         assert not report["torch_loaded_in_mapper"] and not report["profile_promoted"]
