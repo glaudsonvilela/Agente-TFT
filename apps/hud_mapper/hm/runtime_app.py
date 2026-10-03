@@ -280,7 +280,7 @@ class App:
                       source_to_map_p95_ms=pct([x["total_ms"] for x in maps],.95)),
           readers=dict(source_to_reader_p50_ms=pct([x["total_ms"] for x in reads],.5),source_to_reader_p95_ms=pct([x["total_ms"] for x in reads],.95),
                        stages={k:dict(p50_ms=pct(v,.5),p95_ms=pct(v,.95),n=len(v)) for k,v in stages.items()}),
-          hp=dict(results=s.counts["hp_native_runs"],source_to_hp_p50_ms=pct([x["total_ms"] for x in hps],.5),
+          hp=dict(results=s.counts["hp_results"],native_runs=s.counts["hp_native_runs"],source_to_hp_p50_ms=pct([x["total_ms"] for x in hps],.5),
                   source_to_hp_p95_ms=pct([x["total_ms"] for x in hps],.95),native_p50_ms=pct([x["native_ms"] for x in hps],.5),
                   native_p95_ms=pct([x["native_ms"] for x in hps],.95)),
           capture=cap,samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"])
@@ -301,7 +301,7 @@ class App:
             self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
               sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
               note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
-            self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HP assíncrono {s.counts["hp_native_runs"]} · cache exato {s.counts["reader_exact_cache_hits"]} · PNG {s.store.counts["samples_saved"]}')
+            self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HP assíncrono {s.counts["hp_results"]} · cache exato {s.counts["reader_exact_cache_hits"]} · PNG {s.store.counts["samples_saved"]}')
             if s.done.is_set() and s.map_results.empty() and s.native_results.empty():
                 self.finalizing=True;self.status.configure(text="Selando telemetria e amostras…")
                 def finish():
