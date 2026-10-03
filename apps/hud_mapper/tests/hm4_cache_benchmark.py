@@ -18,6 +18,7 @@ def main():
     p.add_argument("--hp-worker",required=True)
     p.add_argument("--configs",required=True)
     p.add_argument("--output",default="hm4-cache-benchmark.json")
+    p.add_argument("--tesseract",default="tesseract")
     p.add_argument("--worker-log")
     p.add_argument("--hp-log")
     a=p.parse_args()
@@ -25,8 +26,8 @@ def main():
     stable=bytes([24])*(1920*1080*3)
     changed=bytes([25])*(1920*1080*3)
     changed2=bytes([26])*(1920*1080*3)
-    worker=NativeWorker(a.worker,a.configs,"tesseract",log=a.worker_log)
-    hp_worker=NativeWorker(a.hp_worker,a.configs,"tesseract",log=a.hp_log)
+    worker=NativeWorker(a.worker,a.configs,a.tesseract,log=a.worker_log)
+    hp_worker=NativeWorker(a.hp_worker,a.configs,a.tesseract,log=a.hp_log)
     try:
         def header(frame_id,source_ms,payload,include_shop):
             return {"op":"frame","id":frame_id,"source_ms":source_ms,
@@ -109,11 +110,13 @@ def main():
         "third_hud_cache_hits":third_hud,
         "third_shop_requested":third.get("shop_requested"),
         "third_numeric_hud_ocr_backend":third.get("numeric_hud_ocr_backend"),
+        "third_spatial_text_ocr_backend":third.get("spatial_text_ocr_backend"),
         "third_shop_cadence_reuse":cadence_span,
         "third_stages":third_stage_names,
         "fourth_hud_cache_hits":fourth_hud,
         "fourth_shop_requested":fourth.get("shop_requested"),
         "fourth_numeric_hud_ocr_backend":fourth.get("numeric_hud_ocr_backend"),
+        "fourth_spatial_text_ocr_backend":fourth.get("spatial_text_ocr_backend"),
         "fourth_stages":fourth_stage_names,
         "same_rgb_payload_second":True,
         "changed_rgb_payload_third":True,
