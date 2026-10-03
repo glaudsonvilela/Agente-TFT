@@ -61,7 +61,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: HM45-Linux-Core
-          path: build/hm45-core
+          path: .
+      - name: Verify artifact layout before Windows compilation
+        shell: pwsh
+        run: |
+          if (-not (Test-Path build/hm45-core/AgenteTFT-Core-v1.tar)) { throw 'Linux rootfs missing at expected path' }
+          if (-not (Test-Path build/hm45-core/core-package.json)) { throw 'Linux manifest missing at expected path' }
       - name: Install Windows build dependencies
         shell: pwsh
         run: |
