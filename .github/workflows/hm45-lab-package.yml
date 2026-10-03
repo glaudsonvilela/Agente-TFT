@@ -127,12 +127,15 @@ jobs:
       - name: Run voices from the packaged Windows app
         shell: pwsh
         run: |
-          & .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe --voice-smoke-output build\hm45-voice-smoke.json
-          if ($LASTEXITCODE -ne 0) {
+          $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
+          $smoke = Join-Path (Get-Location).Path 'build\hm45-voice-smoke.json'
+          $process = Start-Process -FilePath $app -ArgumentList @('--voice-smoke-output', $smoke) -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
             Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 80 }
-            throw 'Packaged offline voice failed'
+            throw "Packaged offline voice failed with exit code $($process.ExitCode)"
           }
-          $result = Get-Content build\hm45-voice-smoke.json -Raw | ConvertFrom-Json
+          if (!(Test-Path $smoke)) { throw 'Packaged voice smoke did not write its result' }
+          $result = Get-Content $smoke -Raw | ConvertFrom-Json
           if ($result.dii.frames -le 0 -or $result.cadu.frames -le 0 -or $result.faber.frames -le 0) { throw 'Packaged voice produced empty audio' }
       - uses: actions/upload-artifact@v4
         with:
