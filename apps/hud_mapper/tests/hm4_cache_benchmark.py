@@ -18,13 +18,15 @@ def main():
     p.add_argument("--hp-worker",required=True)
     p.add_argument("--configs",required=True)
     p.add_argument("--output",default="hm4-cache-benchmark.json")
+    p.add_argument("--worker-log")
+    p.add_argument("--hp-log")
     a=p.parse_args()
 
     stable=bytes([24])*(1920*1080*3)
     changed=bytes([25])*(1920*1080*3)
     changed2=bytes([26])*(1920*1080*3)
-    worker=NativeWorker(a.worker,a.configs,"tesseract")
-    hp_worker=NativeWorker(a.hp_worker,a.configs,"tesseract")
+    worker=NativeWorker(a.worker,a.configs,"tesseract",log=a.worker_log)
+    hp_worker=NativeWorker(a.hp_worker,a.configs,"tesseract",log=a.hp_log)
     try:
         def header(frame_id,source_ms,payload,include_shop):
             return {"op":"frame","id":frame_id,"source_ms":source_ms,
