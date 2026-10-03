@@ -6,7 +6,7 @@ from pathlib import Path
 INTEREST = ("hud.stage","hud.gold","hud.level","hud.xp","player.hp")
 NON_ELIGIBLE = {
     "unavailable","not_connected","not_established","registered_not_verified",
-    "resolution_incompatible","development_seed_not_verified","badge_not_found",
+    "resolution_incompatible","development_seed_not_verified","badge_not_found","async_pending","async_stale",
 }
 FULLY_USABLE = {
     "single_frame_observation","accepted","observed","offer_text_readable","empty_observed",
@@ -101,10 +101,19 @@ def pipeline_metrics(summary):
     timings=summary.get("timings") or {}
     reader=timings.get("readers_source_to_result") or {}
     reader_queue=timings.get("readers_queue") or {}
+    hp=timings.get("hp_source_to_result") or {}
+    hp_queue=timings.get("hp_queue") or {}
+    hp_submitted=counts.get("hp_submitted") or 0
+    hp_runs=counts.get("hp_native_runs") or 0
+    hp_replaced=queues.get("hp_replaced") or 0
     return dict(
         native_submitted=submitted,
         read_frames=read,
         reader_native_runs=runs,
+        hp_submitted=hp_submitted,
+        hp_native_runs=hp_runs,
+        hp_replaced=hp_replaced,
+        hp_replacement_rate=rate(hp_replaced,hp_submitted),
         latest_frame_replaced=replaced,
         latest_frame_replacement_rate=rate(replaced,submitted),
         read_completion_rate_per_submission=rate(read,submitted),
@@ -113,6 +122,10 @@ def pipeline_metrics(summary):
         reader_source_to_result_p95_ms=reader.get("p95_ms"),
         reader_queue_p50_ms=reader_queue.get("p50_ms"),
         reader_queue_p95_ms=reader_queue.get("p95_ms"),
+        hp_source_to_result_p50_ms=hp.get("p50_ms"),
+        hp_source_to_result_p95_ms=hp.get("p95_ms"),
+        hp_queue_p50_ms=hp_queue.get("p50_ms"),
+        hp_queue_p95_ms=hp_queue.get("p95_ms"),
     )
 
 
