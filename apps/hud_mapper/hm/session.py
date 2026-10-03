@@ -49,9 +49,15 @@ class Options:
     dataset_only: bool=False
     capture_consent: bool=False
     capture_expected: dict|None=None
+    replay_review: bool=False
+    board_hub_enabled: bool=False
     def validate(self):
         if not self.model and not self.dataset_only:
             raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
+        if self.board_hub_enabled and not self.replay_review:
+            raise ValueError('O HUB de revisão exige um replay previamente encerrado na tela.')
+        if self.replay_review and not self.model:
+            raise ValueError('A revisão de replay exige o modelo neural L3 incluído no instalador.')
         if not 1<=self.seconds<=7200 or not .2<=self.map_hz<=15 or not .1<=self.reader_hz<=5 or not .1<=self.sample_hz<=2:
             raise ValueError('Duração/frequência fora dos limites.')
         if not self.scenario.strip() or len(self.scenario)>100:raise ValueError('Nome do cenário inválido.')
@@ -64,7 +70,8 @@ class Session:
     def __init__(self, options):
         options.validate();self.options=options
         self.id=uuid.uuid4().hex;self.cancel=threading.Event();self.producer_done=threading.Event();self.done=threading.Event()
-        self.map_pending=Latest();self.native_pending=Latest();self.hp_pending=Latest();self.preview=Latest();self.map_results=Latest();self.native_results=Latest()
+        self.map_pending=Latest();self.native_pending=Latest();self.hp_pending=Latest();self.hub_pending=Latest()
+        self.preview=Latest();self.map_results=Latest();self.native_results=Latest();self.hub_results=Latest()
         self.counts=Counter();self.coverage=Counter();self.traces=[];self.lock=threading.Lock()
         self.store=Store(options.output,options.max_samples,options.max_bytes)
         self.source=self.worker=self.hp_worker=self.model=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False
@@ -127,6 +134,10 @@ class Session:
             targets=[self._native_loop]
             if getattr(self,'separate_hp_loop',False):targets.append(self._hp_loop)
             if self.model is not None:targets.insert(0,self._map_loop)
+            if o.board_hub_enabled:
+                if not hasattr(self, '_hub_loop'):
+                    raise ValueError('HUB de revisão indisponível neste runtime')
+                targets.append(self._hub_loop)
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
@@ -233,6 +244,8 @@ class Session:
         self.finished=True
         with self.lock:traces=list(self.traces);cov=list(self.coverage.items())
         mapping=[x for x in traces if x['kind']=='map'];reading=[x for x in traces if x['kind']=='reader'];hp_reading=[x for x in traces if x['kind']=='hp']
+        hub_reading=[x for x in traces if x['kind']=='hub']
+        tip_ui=[x for x in traces if x['kind']=='tip_ui']
         stages={}
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
@@ -242,6 +255,7 @@ class Session:
            session_id=self.id,source=self.source_info,versions=self.versions,error=self.error,
            **stop_state,counts=dict(self.counts),
            queues=dict(mapper_replaced=self.map_pending.replaced,native_replaced=self.native_pending.replaced,hp_replaced=self.hp_pending.replaced,
+                       hub_replaced=self.hub_pending.replaced,hub_ui_replaced=self.hub_results.replaced,
                        preview_replaced=self.preview.replaced,map_ui_replaced=self.map_results.replaced,
                        reader_ui_replaced=self.native_results.replaced),
            coverage=[dict(region=k[0],status=k[1],frames=v) for k,v in sorted(cov)],
@@ -254,6 +268,9 @@ class Session:
                          hp_source_to_result=stats([x['total_ms'] for x in hp_reading]),
                          hp_queue=stats([x['queue_ms'] for x in hp_reading]),
                          hp_native=stats([x['native_ms'] for x in hp_reading]),
+                         hub_source_to_result=stats([x['total_ms'] for x in hub_reading]),
+                         hub_processing=stats([x['processing_ms'] for x in hub_reading]),
+                         tip_source_to_ui_estimate=stats([x['total_ms'] for x in tip_ui]),
                          stages={k:stats(v) for k,v in stages.items()}),
            observations_are_ground_truth=False,neural_scope=['bench','shop'] if self.model else [],
            **neural_provenance(self.model is not None),
@@ -262,6 +279,7 @@ class Session:
            official_game_connected=False,physical_display_measured=False,
            screen_capture_active=self.source_info.get('source_kind')=='native_capture',
            capture_is_not_game_memory_access=True,live_strategy_enabled=False,
+           replay_review_mode=bool(self.options.replay_review),
            next_step='inspect saved native pixels and observation provenance; train only explicit supervision',
            elapsed_seconds=(time.perf_counter_ns()-self.started)/1e9)
         return self.store.close(result)

@@ -38,10 +38,12 @@ def discover_model():
     home=Path(os.environ.get("USERPROFILE") or Path.home())
     local=Path(os.environ.get("LOCALAPPDATA") or home)
     frozen=Path(sys.executable).resolve().parent if getattr(sys,"frozen",False) else Path(__file__).resolve().parents[3]
+    bundle=Path(getattr(sys,"_MEIPASS",frozen))
     candidates=[]
     override=os.environ.get("AGENTE_TFT_MODEL")
     if override:candidates.append(Path(override))
     candidates += [
+        bundle/"models"/"deployment-candidate.json",
         frozen/"models"/"deployment-candidate.json",
         local/"AgenteTFT-HUD-HM4"/"models"/"deployment-candidate.json",
         local/"AgenteTFT-HUD-HM3"/"models"/"deployment-candidate.json",
@@ -81,17 +83,40 @@ class App:
         self.root=root;self.mode=mode;self.hm4=mode=="hm4";self.session=None;self.selection=None;self.last={};self.current=None
         self.photo=self.zoom_photo=None;self.freeze=False;self.finalizing=False;self.final_result=None
         self.last_finished=None;self.closing=False;self.displayed=0;self.smoke=False;self.smoke_output=None
-        root.title("Agente TFT — HUD Mapper "+("HM4 Auto" if self.hm4 else "HM3 Runtime"));root.geometry("1440x900");root.minsize(1120,760);root.configure(bg="#101820")
+        root.title("Agente TFT — "+("Revisão de replay" if self.hm4 else "HM3 Runtime"));root.geometry("1500x950" if self.hm4 else "1440x900");root.minsize(1120,760);root.configure(bg="#f6f3ff" if self.hm4 else "#101820")
         style=ttk.Style(root);style.theme_use("clam")
-        for name in ("TFrame","TLabel","TLabelframe","TLabelframe.Label"):style.configure(name,background="#101820",foreground="#dce7ef")
-        style.configure("TButton",padding=5)
+        if self.hm4:
+            for name in ("TFrame","TLabel","TLabelframe","TLabelframe.Label"):
+                style.configure(name,background="#f6f3ff",foreground="#252045")
+            style.configure("TButton",padding=7,background="#6b50b8",foreground="#ffffff",bordercolor="#6b50b8")
+            style.map("TButton",background=[("active","#8b6bd4")])
+            style.configure("TCheckbutton",background="#f6f3ff",foreground="#252045")
+            style.configure("TRadiobutton",background="#f6f3ff",foreground="#252045")
+            style.configure("TNotebook",background="#ebe5fc",borderwidth=0)
+            style.configure("TNotebook.Tab",padding=(16,9),background="#e9e2fa",foreground="#352b60")
+            style.map("TNotebook.Tab",background=[("selected","#ffffff")],foreground=[("selected","#6545b4")])
+            style.configure("Treeview",background="#ffffff",fieldbackground="#ffffff",foreground="#252045",rowheight=27)
+            style.configure("Treeview.Heading",background="#e9e2fa",foreground="#352b60")
+        else:
+            for name in ("TFrame","TLabel","TLabelframe","TLabelframe.Label"):
+                style.configure(name,background="#101820",foreground="#dce7ef")
+            style.configure("TButton",padding=5)
         self.model=tk.StringVar();self.dest=tk.StringVar();self.ref=tk.StringVar();self.controls=tk.StringVar()
-        self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-auto" if self.hm4 else "hud-live-01")
+        self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-replay-screen" if self.hm4 else "hud-live-01")
         self.map_hz=tk.StringVar(value="8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
+        self.replay_review=tk.BooleanVar(value=False)
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
-        ttk.Label(outer,text="AGENTE TFT  /  "+("HUD MAPPER HM4 AUTO" if self.hm4 else "HUD MAPPER HM3"),font=("Segoe UI",18,"bold")).pack(anchor="w")
-        ttk.Label(outer,text=("Selecione monitor/janela e inicie. Resolução, saída e modelo compatível são tratados automaticamente." if self.hm4 else "Objetivo principal: mapear a HUD ao vivo. Captura Rust → rede ONNX → leitores → telemetria; performance sempre visível.")).pack(anchor="w",pady=(2,8))
+        if self.hm4:
+            from PIL import Image
+            hero_path=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[1]))/"assets/hm4-replay-hero-v1.png"
+            self.hero_source=Image.open(hero_path).convert("RGB") if hero_path.is_file() else None
+            self.hero=tk.Canvas(outer,height=185,bg="#eee8ff",highlightthickness=0)
+            self.hero.pack(fill="x",pady=(0,10))
+            self.hero.bind("<Configure>",self.render_hero)
+        else:
+            ttk.Label(outer,text="AGENTE TFT  /  HUD MAPPER HM3",font=("Segoe UI",18,"bold")).pack(anchor="w")
+            ttk.Label(outer,text="Objetivo principal: mapear a HUD ao vivo. Captura Rust → rede ONNX → leitores → telemetria; performance sempre visível.").pack(anchor="w",pady=(2,8))
         source=ttk.Frame(outer);source.pack(fill="x",pady=2)
         ttk.Label(source,text="Fonte de pixels",width=35).pack(side="left")
         self.source_label=ttk.Label(source,text="Nenhum monitor/janela selecionado",anchor="w");self.source_label.pack(side="left",fill="x",expand=True)
@@ -100,7 +125,9 @@ class App:
         line=ttk.Frame(outer);line.pack(fill="x",pady=4)
         if self.hm4:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
-            ttk.Label(line,text=("Modelo automático: "+Path(auto).parent.name if auto else "Modelo neural não encontrado: captura + leitores nativos continuam ativos.")).pack(side="left")
+            ttk.Label(line,text=("Modelo para revisão: "+Path(auto).parent.name if auto else "Modelo neural não encontrado: captura + leitores nativos continuam ativos.")).pack(side="left")
+            ttk.Checkbutton(line,text="Revisar vídeo encerrado (HUB + dicas)",variable=self.replay_review).pack(side="left",padx=8)
+            ttk.Button(line,text="Calibrar tabuleiro",command=self.calibrate_board).pack(side="right",padx=4)
             ttk.Button(line,text="INICIAR",command=self.start).pack(side="right",padx=8)
             ttk.Button(line,text="ENCERRAR",command=self.stop).pack(side="right")
         else:
@@ -117,14 +144,16 @@ class App:
         mapping=ttk.Frame(tabs);performance=ttk.Frame(tabs);data=ttk.Frame(tabs)
         tabs.add(mapping,text="HUD ao vivo / geometria");tabs.add(performance,text="Performance");tabs.add(data,text="Dados coletados")
         bar=ttk.Frame(mapping);bar.pack(fill="x")
-        for label,value in (("Captura bruta","capture"),("Mapa neural + geometria","map"),("Leituras / OCR","reader")):
+        for label,value in (("Captura bruta","capture"),("Mapa neural + geometria","map"),("Leituras / OCR","reader"),("Tabuleiro / itens","hub")):
             ttk.Radiobutton(bar,text=label,variable=self.which,value=value,command=self.repaint).pack(side="left",padx=3)
         ttk.Checkbutton(bar,text="Overlays",variable=self.overlays,command=self.repaint).pack(side="left",padx=8)
         ttk.Button(bar,text="Congelar inspeção",command=self.toggle_freeze).pack(side="right")
         self.caption=ttk.Label(mapping,text="A imagem, os recortes e as caixas exibidos pertencem ao mesmo frame_id.");self.caption.pack(anchor="w")
+        self.tip_label=ttk.Label(mapping,text="Dicas de revisão: aguardando vídeo e leituras.",wraplength=1200)
+        if self.hm4:self.tip_label.pack(anchor="w",pady=3)
         split=ttk.Panedwindow(mapping,orient="horizontal");split.pack(fill="both",expand=True)
         left=ttk.Frame(split);right=ttk.Frame(split);split.add(left,weight=3);split.add(right,weight=2)
-        self.canvas=tk.Canvas(left,bg="#060c10",highlightthickness=0,width=900,height=520);self.canvas.pack(fill="both",expand=True)
+        self.canvas=tk.Canvas(left,bg="#e6def9" if self.hm4 else "#060c10",highlightthickness=0,width=900,height=520);self.canvas.pack(fill="both",expand=True)
         self.canvas.bind("<Configure>",lambda _ : self.repaint())
         right.columnconfigure(0,weight=1);right.rowconfigure(0,weight=1)
         self.table=ttk.Treeview(right,columns=("region","status","value"),show="headings",height=5)
@@ -133,12 +162,26 @@ class App:
         scroll=ttk.Scrollbar(right,orient="vertical",command=self.table.yview);scroll.grid(row=0,column=1,sticky="ns");self.table.configure(yscrollcommand=scroll.set)
         ttk.Label(right,text="Clique numa região para ver o recorte original e toda a proveniência.",wraplength=430).grid(row=1,column=0,columnspan=2,sticky="ew")
         self.crop_label=ttk.Label(right,anchor="center");self.crop_label.grid(row=2,column=0,columnspan=2,sticky="ew")
-        self.details=tk.Text(right,height=6,bg="#172934",fg="#dce7ef",wrap="word");self.details.grid(row=3,column=0,columnspan=2,sticky="ew")
-        self.perf=tk.Text(performance,bg="#172934",fg="#dce7ef",wrap="word");self.perf.pack(fill="both",expand=True)
+        self.details=tk.Text(right,height=6,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.details.grid(row=3,column=0,columnspan=2,sticky="ew")
+        self.perf=tk.Text(performance,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.perf.pack(fill="both",expand=True)
         ttk.Label(data,text="O hot path trabalha em memória. PNGs/recortes são amostras assíncronas e limitadas; previsões não viram ground truth.",justify="left").pack(anchor="w",pady=10)
-        self.data_text=tk.Text(data,height=18,bg="#172934",fg="#dce7ef",wrap="word");self.data_text.pack(fill="both",expand=True)
+        self.data_text=tk.Text(data,height=18,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.data_text.pack(fill="both",expand=True)
         ttk.Button(data,text="Abrir última sessão",command=self.open_output).pack(anchor="w",pady=5)
         root.protocol("WM_DELETE_WINDOW",self.close);root.after(30,self.tick)
+
+    def render_hero(self,_=None):
+        if not self.hm4:return
+        from PIL import Image, ImageTk, ImageOps
+        width=max(1,self.hero.winfo_width());height=max(1,self.hero.winfo_height())
+        self.hero.delete("all")
+        if self.hero_source:
+            art=ImageOps.fit(self.hero_source,(width,height),Image.Resampling.LANCZOS,centering=(0.5,0.46))
+            self.hero_photo=ImageTk.PhotoImage(art)
+            self.hero.create_image(0,0,image=self.hero_photo,anchor="nw")
+        self.hero.create_text(34,48,text="A G E N T E   T F T",anchor="w",font=("Segoe UI",27,"bold"),fill="#262047")
+        self.hero.create_text(36,89,text="R E V I S Ã O   D E   R E P L A Y",anchor="w",font=("Segoe UI",11,"bold"),fill="#6545b4")
+        self.hero.create_text(36,118,text="Assista ao vídeo, confira as evidências e meça o atraso das dicas.",anchor="w",font=("Segoe UI",10),fill="#40375e")
+        self.hero.create_line(36,145,280,145,fill="#896bd0",width=2)
 
     def file_row(self,parent,label,var,directory=False):
         from tkinter import ttk,filedialog
@@ -189,24 +232,38 @@ class App:
             if not self.hm4 and not self.model.get():raise ValueError("Selecione deployment-candidate.json.")
             if not self.dest.get():raise ValueError("Escolha pasta de resultados.")
             if self.hm4 and not self.model.get():self.model.set(discover_model())
-            if not messagebox.askyesno("Confirmar captura",
-                target_label(self.selection)+"\n\nAutoriza registrar imagens desta fonte para mapear a HUD?\n"
-                "Nenhum áudio, tecla, input automation ou dica estratégica é executado."):return
+            message=target_label(self.selection)+"\n\nAutoriza registrar imagens desta fonte para mapear a HUD?\n"
+            if self.hm4 and self.replay_review.get():
+                message += "Confirme que a fonte exibirá um vídeo de partida já encerrada. As dicas de revisão usam apenas leituras observadas."
+            else:
+                message += "Nenhum áudio, tecla, input automation ou dica estratégica é executado."
+            if not messagebox.askyesno("Confirmar captura",message):return
             prefix="hm4" if self.hm4 else "hm3"
             output=self.smoke_output or str(Path(self.dest.get())/(prefix+"-"+datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
             uri=f'capture://{self.selection["kind"]}/{self.selection["id"]}'
             p=runtime_paths()
             cls=HM4RuntimeSession if self.hm4 else RuntimeSession
-            self.session=cls(Options(**p,video=uri,model=self.model.get(),output=output,
+            selected_model=self.model.get() if (not self.hm4 or self.replay_review.get()) else ""
+            self.session=cls(Options(**p,video=uri,model=selected_model,output=output,
                 seconds=float(self.seconds.get()),map_hz=float(self.map_hz.get()),reader_hz=float(self.reader_hz.get()),
                 sample_hz=float(self.sample_hz.get()),scenario=self.scenario.get(),controls=self.controls.get() or None,
-                board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(self.model.get()),
+                board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
+                replay_review=self.hm4 and self.replay_review.get(),
+                board_hub_enabled=self.hm4 and self.replay_review.get(),
                 capture_consent=True,capture_expected=self.selection)).start()
             self.last={};self.current=None;self.freeze=False
         except Exception as exc:messagebox.showerror("HM4" if self.hm4 else "HM3",str(exc))
 
     def stop(self):
         if self.session and not self.session.done.is_set():self.session.request_stop()
+    def calibrate_board(self):
+        from tkinter import messagebox
+        try:
+            if not self.session or not isinstance(self.session,HM4RuntimeSession):
+                raise ValueError("Inicie uma revisão de replay antes de calibrar.")
+            self.session.request_board_reference()
+            self.status.configure(text="Calibração B1 solicitada. Deixe o tabuleiro do próprio jogador visível no vídeo.")
+        except Exception as exc:messagebox.showerror("Calibrar tabuleiro",str(exc))
     def close(self):
         self.closing=True;self.stop()
         if (not self.session or self.session.finished) and not self.finalizing:self.root.destroy()
@@ -265,6 +322,7 @@ class App:
     def _performance(self,s):
         with s.lock:traces=list(s.traces[-240:])
         maps=[x for x in traces if x["kind"]=="map"];reads=[x for x in traces if x["kind"]=="reader"];hps=[x for x in traces if x["kind"]=="hp"]
+        hubs=[x for x in traces if x["kind"]=="hub"]
         stages={}
         for r in reads:
             for st in r.get("spans",[]):stages.setdefault(st["stage"],[]).append(st["duration_ms"])
@@ -283,6 +341,12 @@ class App:
           hp=dict(results=s.counts["hp_results"],native_runs=s.counts["hp_native_runs"],source_to_hp_p50_ms=pct([x["total_ms"] for x in hps],.5),
                   source_to_hp_p95_ms=pct([x["total_ms"] for x in hps],.95),native_p50_ms=pct([x["native_ms"] for x in hps],.5),
                   native_p95_ms=pct([x["native_ms"] for x in hps],.95)),
+          hub=dict(results=s.counts["hub_results"],queue_replaced=s.hub_pending.replaced,
+                   source_to_result_p50_ms=pct([x["total_ms"] for x in hubs],.5),
+                   source_to_result_p95_ms=pct([x["total_ms"] for x in hubs],.95),
+                   processing_p95_ms=pct([x["processing_ms"] for x in hubs],.95),
+                   board_reference_status=s.versions.get("board_reference_status")),
+          tips=dict(emitted=s.counts["replay_tips"],mode="replay_review_only" if s.options.replay_review else "disabled"),
           capture=cap,samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"])
 
     def tick(self):
@@ -292,17 +356,30 @@ class App:
                 f=s.preview.get(.001);self.last["capture"]=dict(frame=f,record=dict(regions=[]),ready_ns=f.ready_ns,view_kind="capture")
                 if not self.freeze and self.which.get()=="capture":self.repaint()
             except queue.Empty:pass
-            for name,q in (("map",s.map_results),("reader",s.native_results)):
+            for name,q in (("map",s.map_results),("reader",s.native_results),("hub",s.hub_results)):
                 try:
                     item=q.get(.001);item["view_kind"]=name;self.last[name]=item
                     if not self.freeze and self.which.get()==name:self.repaint();s.acknowledge(item,name)
                 except queue.Empty:pass
+            tip=getattr(s,"latest_replay_tip",None)
+            if tip:
+                key=(tip.get("frame_id"),tip.get("text"))
+                if key!=getattr(self,"_shown_tip_key",None):
+                    self._shown_tip_key=key
+                    age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
+                    self.tip_label.configure(text=f'Dica de revisão · frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms: {tip["text"]}')
+                    s.store.emit('telemetry',dict(event='replay_tip_ui_applied',frame_id=tip['frame_id'],
+                        source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
+                        physical_display_measured=False,tip_status=tip['status']))
+                    with s.lock:
+                        s.traces.append(dict(kind='tip_ui',frame_id=tip['frame_id'],total_ms=age,
+                                             physical_display_measured=False))
             perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
             self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
               sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
               note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
-            self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HP assíncrono {s.counts["hp_results"]} · cache exato {s.counts["reader_exact_cache_hits"]} · PNG {s.store.counts["samples_saved"]}')
-            if s.done.is_set() and s.map_results.empty() and s.native_results.empty():
+            self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HUB {s.counts["hub_results"]} · dicas {s.counts["replay_tips"]} · HP {s.counts["hp_results"]} · PNG {s.store.counts["samples_saved"]}')
+            if s.done.is_set() and s.map_results.empty() and s.native_results.empty() and s.hub_results.empty():
                 self.finalizing=True;self.status.configure(text="Selando telemetria e amostras…")
                 def finish():
                     try:self.final_result=s.finish()
@@ -326,6 +403,7 @@ def main(mode="hm3"):
     p=argparse.ArgumentParser(description="Agente TFT "+("HM4 Auto" if hm4 else "HM3 — HUD-first, captura nativa somente"))
     p.add_argument("--capture");p.add_argument("--capture-consent",action="store_true");p.add_argument("--headless",action="store_true")
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
+    p.add_argument("--replay-review",action="store_true")
     p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=2 if mode=="hm4" else 1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
     if a.headless or a.ui_smoke:
@@ -338,10 +416,11 @@ def main(mode="hm3"):
             cls=HM4RuntimeSession if hm4 else RuntimeSession
             o=Options(**runtime_paths(),video=a.capture,model=a.model or "",output=a.output,seconds=a.seconds,map_hz=a.map_hz,
                       reader_hz=a.reader_hz,sample_hz=a.sample_hz,capture_consent=True,capture_expected=selected,
+                      replay_review=hm4 and a.replay_review,board_hub_enabled=hm4 and a.replay_review,
                       dataset_only=hm4 and not bool(a.model),scenario="hm4-ci" if hm4 else "hm3-ci")
             sess=cls(o).start()
             while not sess.done.is_set():
-                for q in (sess.map_results,sess.native_results):
+                for q in (sess.map_results,sess.native_results,sess.hub_results):
                     try:q.get(.005)
                     except queue.Empty:pass
                 time.sleep(.01)
@@ -349,6 +428,7 @@ def main(mode="hm3"):
         import tkinter as tk
         root=tk.Tk();app=App(root,mode);app.selection=selected;app.source_label.configure(text=target_label(selected))
         if a.model:app.model.set(a.model)
+        if a.replay_review:app.replay_review.set(True)
         app.dest.set(str(Path(a.output).parent));app.seconds.set(str(a.seconds));app.smoke_output=a.output;app.smoke=True
         from tkinter import messagebox
         old=messagebox.askyesno;messagebox.askyesno=lambda *x,**k: True

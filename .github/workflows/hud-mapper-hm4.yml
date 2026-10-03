@@ -8,8 +8,14 @@ on:
       - work/hud-mapper-hm4-auto
       - work/hud-mapper-hm43-async-hp-graceful-stop
       - work/hud-mapper-hm44-ocr-hub
+      - work/live-hub-hm4-test
     paths:
       - 'apps/hud_mapper/**'
+      - 'configs/ui/board-hub-live-v1.json'
+      - 'knowledge/riot-ddragon/**'
+      - '.gitattributes'
+      - 'training/board_hub_*.py'
+      - 'scripts/prepare_hm4_live_assets.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - 'scripts/audit_hm4_session.py'
       - 'scripts/compare_hm4_audits.py'
@@ -143,6 +149,18 @@ jobs:
           python -c "import json; a=json.load(open('hm4-cache-benchmark.json')); b=json.load(open('hm44-resident-cache-benchmark.json')); old=a['third_changed_hud_only']['wall_ms']; new=b['third_changed_hud_only']['wall_ms']; assert b['third_numeric_hud_ocr_backend']=='resident_tesseract_c_api_v1', b; assert a['third_numeric_hud_ocr_backend']=='cli_process_v1', a; assert new < old*0.50, (old,new); print('HM44_RESIDENT_AB='+json.dumps({'cli_hud_only_wall_ms':old,'resident_hud_only_wall_ms':new,'ratio':new/old,'speedup':old/new}))"
           if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident A/B gate failed' }
 
+      - name: Prepare pinned replay-screen model and item art
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force -Path build/hm4-live-assets/models | Out-Null
+          gh release download hub-l3-shadow-20261003 --dir build/hm4-live-assets/models --pattern candidate-model.onnx --pattern deployment-candidate.json
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned L3 model download failed' }
+          python scripts/prepare_hm4_live_assets.py
+          if ($LASTEXITCODE -ne 0) { throw 'Replay-screen assets failed verification' }
+
       - name: Package HM4 Auto
         if: env.FULL_PACKAGE == 'true'
         run: python scripts/build_hud_mapper_hm4_windows.py
@@ -176,6 +194,13 @@ jobs:
           python apps/hud_mapper/tests/hm4_capture_smoke.py --app dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe --output hm4-portable --ui
           if ($LASTEXITCODE -ne 0) { throw 'HM4 packaged smoke failed' }
 
+      - name: Packaged replay screen with L3 and board hub
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/hm4_capture_smoke.py --app dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe --output hm4-replay-screen --ui --replay-review
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 replay-screen smoke failed' }
+
       - uses: actions/upload-artifact@v4
         if: env.FULL_PACKAGE == 'true'
         with:
@@ -184,6 +209,7 @@ jobs:
             dist/AgenteTFT-HUD-HM4-Auto-Windows-x64.zip
             dist/AgenteTFT-HUD-HM4-Auto-Setup.exe
             dist/HM4_PACKAGE_REPORT.json
+            build/hm4-live-assets/ASSET_REPORT.json
           retention-days: 30
           if-no-files-found: error
 
@@ -208,7 +234,10 @@ jobs:
             hm44-ocr-hub-parity.json
             hm4-portable/*.json
             hm4-portable-launcher.log
+            hm4-replay-screen/*.json
+            hm4-replay-screen-launcher.log
             dist/HM4_COMPACTION_REPORT.json
             dist/HM4_PACKAGE_REPORT.json
+            build/hm4-live-assets/ASSET_REPORT.json
             dist/AgenteTFT-HUD-HM4-Auto/BUILD_MANIFEST.json
           retention-days: 30

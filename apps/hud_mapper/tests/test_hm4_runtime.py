@@ -9,9 +9,31 @@ from hm.runtime_session import (
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
+from hm.replay_coach import economy_prompt, inventory_prompt
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_replay_hub_requires_explicit_review_mode(self):
+        with tempfile.TemporaryDirectory() as td:
+            worker=Path(td)/("worker.exe" if os.name=="nt" else "worker")
+            worker.write_bytes(b"x")
+            with self.assertRaisesRegex(ValueError,"replay"):
+                Options(video="capture://window/1", output=td, model="", worker=str(worker),
+                        configs=td, dataset_only=True,board_hub_enabled=True).validate()
+
+    def test_replay_coach_uses_observed_values_and_abstains(self):
+        missing=economy_prompt({"hud":[{"field":"gold","status":"unknown","value":50}]})
+        self.assertEqual(missing["status"],"abstain_missing_gold")
+        observed=economy_prompt({"hud":[{"field":"gold","status":"single_frame_observation","value":42},
+                                        {"field":"stage","status":"single_frame_observation","value":"4-3"},
+                                        {"field":"level","status":"single_frame_observation","value":8}]})
+        self.assertEqual(observed["basis"],["hud.gold","hud.stage","hud.level"])
+        self.assertFalse(observed["actionable"])
+        self.assertIn("42",observed["text"])
+        self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[]}}))
+        item=inventory_prompt({"inventory":{"candidate_slots":[{"slot":1}]}})
+        self.assertFalse(item["item_identity_established"])
+
     def test_reader_only_is_allowed_only_when_explicit(self):
         with tempfile.TemporaryDirectory() as td:
             worker=Path(td)/("worker.exe" if os.name=="nt" else "worker")

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "board-hub-live-v1",
+  "set_key": "TFTSet18",
+  "reference": "knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18/5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+  "icon_dir": "board-hub-icons",
+  "match_scope": "set_path",
+  "sample_interval_ms": 5000,
+  "semantic_mode": "candidate_only",
+  "game_state_write_allowed": false
+}

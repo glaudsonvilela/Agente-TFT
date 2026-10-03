@@ -1,15 +1,24 @@
-# HUD Mapper HM4 Auto
+# Agente TFT — revisão de replay na tela (HM4 Auto)
 
 HM4 mantém o motor de captura/leitura do HM3 e simplifica a experiência para o teste no Windows.
 
 ## Fluxo
 
 1. Abra o HM4.
-2. Clique em **Escolher monitor/janela** (ou **Detectar TFT**).
-3. Selecione explicitamente a fonte.
-4. Clique em **INICIAR**.
-5. Acompanhe a captura, geometria, leituras e métricas.
-6. Clique em **ENCERRAR** para selar a sessão.
+2. Abra no Windows um vídeo de uma partida **já encerrada**, em tela cheia
+   16:9, sem barras ou controles do player sobre a HUD. Não é necessário
+   fornecer o caminho do vídeo ao HM4.
+3. Clique em **Escolher monitor/janela**, selecione a janela do player ou o
+   monitor que exibe o vídeo e marque **Revisar vídeo encerrado (HUB + dicas)**.
+4. Clique em **INICIAR**. Quando o tabuleiro do próprio jogador aparecer no
+   vídeo, clique em **Calibrar tabuleiro**. Uma cena errada pode ser substituída
+   por nova calibração manual.
+5. Consulte **Mapa neural + geometria**, **Tabuleiro / itens**, **Performance**
+   e as dicas de revisão. Cada resultado mostra o frame de origem. A dica exibe
+   uma estimativa do tempo da captura até a atualização da UI, sem alegar medir
+   o atraso físico do monitor ou do player de vídeo.
+6. Clique em **ENCERRAR** para selar a sessão. O diretório da sessão contém
+   `board-hub-observations.jsonl`, `replay-tips.jsonl` e `summary.json`.
 
 Não há seleção manual de JSON/ONNX nem pasta de saída no fluxo HM4.
 
@@ -17,10 +26,14 @@ Não há seleção manual de JSON/ONNX nem pasta de saída no fluxo HM4.
 
 - A resolução vem diretamente da fonte capturada.
 - A pasta de sessão é criada automaticamente em `%LOCALAPPDATA%\AgenteTFT-HUD-HM4\sessions`.
-- O HM4 procura um par válido `deployment-candidate.json` + `candidate-model.onnx` em locais padrão do aplicativo/usuário.
-- Se encontrar um modelo L2/L3 compatível, ativa o observador neural automaticamente.
+- O instalador de revisão inclui o par L3 `deployment-candidate.json` +
+  `candidate-model.onnx`; o HM4 também procura modelos compatíveis em locais
+  padrão do aplicativo/usuário.
+- Se encontrar um modelo L2/L3 compatível, ativa o observador neural em modo
+  diagnóstico, independente do leitor do tabuleiro.
 - Se não encontrar, o aplicativo **não bloqueia**: captura, telemetria, geometria registrada e leitores nativos continuam ativos. A parte neural fica explicitamente desativada.
-- Os leitores Match001 continuam conservadores: em resolução diferente de 1920×1080 eles registram incompatibilidade em vez de inventar escala/OCR.
+- A entrada 16:9 pode ser normalizada para os leitores 1920×1080 como descrito
+  em HM4.1. Outra proporção é recusada.
 
 ## Segurança do escopo
 
@@ -34,7 +47,15 @@ O build Windows produz:
 - `AgenteTFT-HUD-HM4-Auto-Setup.exe`
 - `HM4_PACKAGE_REPORT.json`
 
-O pacote não inclui pesos pessoais, PyTorch, FFmpeg, replay ou treinador.
+O pacote de revisão inclui os pesos L3 e 156 ícones oficiais do escopo visual
+`TFTSet18/` para o catálogo B4 versionado. Não inclui PyTorch, FFmpeg, arquivo
+de replay ou treinador. A rede L3 localiza aproximadamente banco e loja; não
+identifica campeões nem itens e não aprende durante a sessão. O B4 registra
+células e ícones **candidatos**, com identidades nulas. Dicas de revisão são
+prompts de economia baseados nos números lidos e prompts sobre ícones candidatos
+no inventário; não afirmam a melhor jogada ou recomendam item/posição específica.
+Sem ouro observado, a dica se abstém. O modo de dicas só é habilitado quando o
+usuário declara que a fonte é um vídeo de partida encerrada.
 
 
 ## HM4.1 — normalização conservadora dos leitores
