@@ -5,8 +5,9 @@ HM4 mantém o motor de captura/leitura do HM3 e simplifica a experiência para o
 ## Fluxo
 
 1. Abra o HM4.
-2. Abra no Windows um vídeo de uma partida **já encerrada**, em 16:9. Não é
-   necessário fornecer o caminho do vídeo ao HM4.
+2. Abra no Windows um vídeo de uma partida **já encerrada**, em tela cheia
+   16:9, sem barras ou controles do player sobre a HUD. Não é necessário
+   fornecer o caminho do vídeo ao HM4.
 3. Clique em **Escolher monitor/janela**, selecione a janela do player ou o
    monitor que exibe o vídeo e marque **Revisar vídeo encerrado (HUB + dicas)**.
 4. Clique em **INICIAR**. Quando o tabuleiro do próprio jogador aparecer no
