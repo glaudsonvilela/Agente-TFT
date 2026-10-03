@@ -80,6 +80,16 @@ def default_run(args: list[str], timeout: int = 60) -> subprocess.CompletedProce
                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
 
+def probe_host_core(package: Package, log: Path) -> bool:
+    """Prove that the Windows application can reach the WSL service over local IP."""
+    from hm45_vm_client import VMCore
+    core = VMCore(package.distro, log)
+    try:
+        return core.ready.get("version") == package.version
+    finally:
+        core.close()
+
+
 def _gib(value: int) -> float:
     return round(value / 1024**3, 1)
 
@@ -113,13 +123,16 @@ def distro_names(run: Callable = default_run) -> set[str]:
 class CoreInstaller:
     def __init__(self, package_dir: Path, install_dir: Path, app_exe: Path,
                  run: Callable = default_run, memory: Callable = memory_bytes,
-                 build: Callable = lambda: sys.getwindowsversion().build):
+                 build: Callable = lambda: sys.getwindowsversion().build,
+                 host_probe: Callable[[Package, Path], bool] = probe_host_core):
         self.package_dir = package_dir
         self.install_dir = install_dir
         self.app_exe = app_exe
         self.run = run
         self.memory = memory
         self.build = build
+        self.host_probe = host_probe
+        self.last_health_error = None
         self.package = load_package(package_dir)
 
     def _call(self, args: list[str], timeout: int = 60) -> subprocess.CompletedProcess[str]:
@@ -204,7 +217,18 @@ class CoreInstaller:
     def health(self) -> bool:
         result = self._call(["wsl.exe", "--distribution", self.package.distro,
                              "--exec", HEALTH_EXEC, "--version", self.package.version], 120)
-        return result.returncode == 0 and "AGENTETFT_CORE_HEALTH_OK" in result.stdout
+        if result.returncode != 0 or "AGENTETFT_CORE_HEALTH_OK" not in result.stdout:
+            self.last_health_error = "O teste L3/OCR/HP/B4 na VM falhou."
+            return False
+        try:
+            if not self.host_probe(self.package, self.install_dir / "vm-host-probe.log"):
+                self.last_health_error = "A conexão IP local entre Windows e VM não respondeu."
+                return False
+        except Exception as exc:
+            self.last_health_error = f"A conexão IP local entre Windows e VM falhou: {exc}"
+            return False
+        self.last_health_error = None
+        return True
 
     def install(self, report: Callable[[str], None]) -> str:
         package = self.package
@@ -213,7 +237,8 @@ class CoreInstaller:
         if package.distro in names:
             report(f"VM {package.distro} já existe; verificando saúde.")
             if not self.health():
-                raise SetupError("A VM existente falhou no teste de saúde. Ela foi preservada para diagnóstico.")
+                raise SetupError("A VM existente falhou no teste de saúde. Ela foi preservada para diagnóstico. " +
+                                 str(self.last_health_error or ""))
             self.clear_resume()
             return "ready"
         target = self.install_dir / "distros" / package.distro
@@ -225,9 +250,10 @@ class CoreInstaller:
                                str(package.rootfs), "--version", "2"], 1200)
         if imported.returncode != 0:
             raise SetupError("A importação da VM falhou. Consulte o log; nenhum outro WSL foi alterado.")
-        report("Testando versão, modelo, catálogo e recorte pela conexão local…")
+        report("Testando versão, modelo, catálogo e conexão IP Windows–VM…")
         if not self.health():
-            raise SetupError("A VM foi importada, mas falhou no teste completo de análise. Ela foi preservada.")
+            raise SetupError("A VM foi importada, mas falhou no teste completo de análise. Ela foi preservada. " +
+                             str(self.last_health_error or ""))
         self.clear_resume()
         report("VM validada e pronta para o Agente TFT.")
         return "ready"

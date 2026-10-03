@@ -101,14 +101,14 @@ class SetupWindow:
             ("PASSO 1 DE 5", "Vamos preparar o Agente TFT",
              "O instalador já copiou o aplicativo. Agora vamos conferir seu PC e preparar a VM leve que processará a análise.",
              "Windows: captura de tela Rust e prévia de vídeo.\n"
-             "VM WSL 2: análise de recortes, modelos e dicas.\n\n"
+             "VM WSL 2: mapa neural, OCR e candidatos do tabuleiro.\n\n"
              "Se o Windows precisar habilitar o WSL 2, você verá a janela de permissão do sistema. "
              "Pode ser necessário reiniciar o computador; o assistente continuará no próximo login."),
             ("PASSO 2 DE 5", "Verificação do computador",
              "Vamos verificar Windows, memória, espaço, virtualização, WSL 2 e a integridade do pacote da VM.",
              "Clique em “Verificar meu PC”. Nenhuma configuração será alterada nesta etapa."),
             ("PASSO 3 DE 5", "Como os dados circulam",
-             "A captura permanece no Windows. Só os recortes necessários seguem pela conexão IP local para a VM.",
+             "A captura permanece no Windows. Quadros RGB sem perda seguem pela conexão IP local para a VM somente nas frequências de análise.",
              "A prévia 720p fica no Windows para evitar atraso.\n"
              "O instalador não envia a gravação para a internet.\n"
              "A VM não altera outras distribuições WSL nem a configuração global do WSL.\n\n"
@@ -117,7 +117,7 @@ class SetupWindow:
              "Aguarde a importação. O Agente TFT só será marcado como pronto depois do teste completo de saúde.",
              "Preparando a instalação…"),
             ("PASSO 5 DE 5", "Tudo pronto",
-             "A VM passou nos testes de versão, modelos, catálogo e processamento de recortes.",
+             "A VM passou nos testes de versão, modelos, catálogo e processamento de quadros.",
              "Você pode abrir o Agente TFT e escolher o monitor ou a janela do vídeo."),
         )
         kicker, heading, description, details = pages[step]

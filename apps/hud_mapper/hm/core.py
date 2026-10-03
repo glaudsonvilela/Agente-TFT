@@ -2,7 +2,6 @@
 from __future__ import annotations
 import hashlib, json, math, time
 from pathlib import Path
-import numpy as np
 from PIL import Image
 
 PANELS = ('bench', 'shop')
@@ -94,6 +93,7 @@ class Registry:
         return out
 
 def neural_regions(raw, width, height):
+    import numpy as np
     a = np.asarray(raw, dtype=np.float64)
     if a.shape != (1,2,5) or not np.isfinite(a).all():
         raise ValueError('Saída neural incompatível')

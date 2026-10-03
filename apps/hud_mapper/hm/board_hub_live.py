@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from PIL import Image
 
-from training.board_hub_item_candidates import load_reference, select_entries
+from training.board_hub_item_candidates import load_reference, load_templates, select_entries
 from training.board_hub_snapshot import build_snapshot
 from .core import region, xyxy
 
@@ -36,6 +36,11 @@ class BoardHubLive:
         self.position = config('match001-bar-to-cell-candidates-v1.json')
         self.equipped = config('match001-equipped-icons-v1.json')
         self.inventory = config('match001-inventory-v1.json')
+        # Pinned icon art is immutable during a session. Decode it once, not on
+        # every B4 frame; a new catalog/session builds a new cache.
+        self.inventory_templates = load_templates(selected, self.icons)
+        self.equipped_templates = load_templates(selected, self.icons,
+                                                 size=self.equipped['icon_size'])
 
     def observe(self, canonical_frame, board_read: dict | None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
@@ -46,7 +51,8 @@ class BoardHubLive:
         with Image.frombytes('RGB', (canonical_frame.width, canonical_frame.height), canonical_frame.rgb) as image:
             snapshot = build_snapshot(image, read, self.board, self.position, self.equipped,
                                       self.inventory, self.manifest, self.entries, self.icons,
-                                      self.scope)
+                                      self.scope, inventory_templates=self.inventory_templates,
+                                      equipped_templates=self.equipped_templates)
         # A live recording has no verified patch binding or semantic labels.
         snapshot['live_diagnostic_only'] = True
         snapshot['board_reference_status'] = 'manual_reference_active' if board_read else 'not_calibrated'

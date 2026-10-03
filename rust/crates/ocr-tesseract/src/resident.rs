@@ -1,5 +1,4 @@
-//! Experimental Windows-only resident Tesseract backend.
-//! Not wired into production readers until CLI parity gates pass.
+//! Resident Tesseract C API backend for Windows and Linux.
 use std::{env,ffi::{CStr,CString,c_char,c_int,c_void},path::{Path,PathBuf}};
 
 use agente_tft_capture_core::RoiFrame;
@@ -66,10 +65,26 @@ fn resolve_cli(binary:&Path)->Result<PathBuf,String>{
 impl ResidentTesseractOcr {
     pub fn from_cli_path(binary:impl AsRef<Path>,language:impl Into<String>)->Result<Self,String>{
         let binary=resolve_cli(binary.as_ref())?;
+        #[cfg(windows)]
+        let (dll,tessdata)={
         let root=binary.parent().ok_or_else(||"tesseract binary has no parent directory".to_string())?;
         let dll=["libtesseract-5.dll","libtesseract.dll"].into_iter().map(|n|root.join(n))
             .find(|p|p.is_file()).ok_or_else(||format!("libtesseract DLL not found beside {}",binary.display()))?;
         let tessdata=root.join("tessdata");
+        (dll,tessdata)
+        };
+        #[cfg(target_os="linux")]
+        let (dll,tessdata)={
+            let dll=env::var_os("AGENTE_TFT_TESSERACT_LIB").map(PathBuf::from).unwrap_or_else(||{
+                ["/usr/lib/x86_64-linux-gnu/libtesseract.so.5",
+                 "/usr/lib64/libtesseract.so.5",
+                 "/usr/lib/libtesseract.so.5"].into_iter().map(PathBuf::from)
+                    .find(|p|p.is_file()).unwrap_or_else(||PathBuf::from("libtesseract.so.5"))
+            });
+            let tessdata=env::var_os("TESSDATA_PREFIX").map(PathBuf::from)
+                .unwrap_or_else(||PathBuf::from("/usr/share/tesseract-ocr/5/tessdata"));
+            (dll,tessdata)
+        };
         if !tessdata.is_dir(){return Err(format!("tessdata directory missing: {}",tessdata.display()))}
         Self::new(dll,tessdata,TesseractConfig{binary:binary.to_string_lossy().into_owned(),language:language.into()})
     }
@@ -77,7 +92,7 @@ impl ResidentTesseractOcr {
     pub fn new(dll:impl AsRef<Path>,tessdata:impl AsRef<Path>,config:TesseractConfig)->Result<Self,String>{
         let dll=dll.as_ref().to_path_buf();
         let tessdata=tessdata.as_ref().to_path_buf();
-        if !dll.is_file(){return Err(format!("resident OCR DLL missing: {}",dll.display()))}
+        if dll.components().count()>1 && !dll.is_file(){return Err(format!("resident OCR library missing: {}",dll.display()))}
         if !tessdata.is_dir(){return Err(format!("resident OCR tessdata missing: {}",tessdata.display()))}
         unsafe {
             let lib=Library::new(&dll).map_err(|e|format!("failed to load {}: {e}",dll.display()))?;

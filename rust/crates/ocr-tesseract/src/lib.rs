@@ -8,11 +8,11 @@ use agente_tft_perception_hud::{
 };
 mod numeric_gray;
 mod text_block;
-#[cfg(windows)]
-mod resident_windows;
+#[cfg(any(windows,target_os="linux"))]
+mod resident;
 pub use text_block::{TextBlockOcrEngine,TextWord};
-#[cfg(windows)]
-pub use resident_windows::ResidentTesseractOcr;
+#[cfg(any(windows,target_os="linux"))]
+pub use resident::ResidentTesseractOcr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TesseractConfig {

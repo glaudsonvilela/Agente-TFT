@@ -22,10 +22,14 @@ manifest_path = core / "core-package.json"
 if not app.is_file() or not manifest_path.is_file():
     raise SystemExit("HM4 app or HM4.5 core package missing")
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+assets = json.loads((ROOT / "build/hm4-live-assets/ASSET_REPORT.json").read_text(encoding="utf-8"))
 if (manifest.get("schema_version") != 1 or
         manifest.get("distro_name") != "AgenteTFT-Core-v1" or
         manifest.get("rootfs_file") != "AgenteTFT-Core-v1.tar" or
-        manifest.get("analysis_health_contract") != "l3_ocr_b4_roi_v1"):
+        manifest.get("analysis_health_contract") != "l3_ocr_b4_roi_v1" or
+        manifest.get("linux_container_self_test") is not True or
+        manifest.get("model_sha256") != assets.get("model_sha256") or
+        manifest.get("board_reference_sha256") != assets.get("reference_sha256")):
     raise SystemExit("Refusing unverified HM4.5 core manifest")
 rootfs = core / manifest["rootfs_file"]
 if not rootfs.is_file():

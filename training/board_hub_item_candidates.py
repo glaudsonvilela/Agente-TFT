@@ -99,13 +99,13 @@ def rank_slot(frame, rect: dict, templates: list[dict]) -> list[dict]:
 
 
 def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path,
-        match_scope: str = "all") -> dict:
+        match_scope: str = "all", preloaded_templates: tuple[list[dict], int] | None = None) -> dict:
     import numpy as np
 
     rgb = image.convert("RGB")
     inventory = observe(rgb.tobytes(), rgb.width, rgb.height, profile)
     selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
-    templates, available = load_templates(selected, icon_dir)
+    templates, available = preloaded_templates if preloaded_templates is not None else load_templates(selected, icon_dir)
     frame = np.asarray(rgb, dtype=np.float32)
     rows = []
     for slot in inventory["slots"]:

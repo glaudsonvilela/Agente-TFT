@@ -168,7 +168,8 @@ class RuntimeSession(Session):
                                             queue_ms=(start-frame.ready_ns)/1e6,
                                             total_ms=(end-frame.due_ns)/1e6,
                                             native_ms=float(response.get('native_ms') or 0.0),
-                                            native_executed=executed,input_transform=plan))
+                                            native_executed=executed,input_transform=plan,
+                                            vm_transport=response.get('vm_transport')))
                 self.counts['hp_results'] += 1
                 if executed:
                     self.counts['hp_native_runs'] += 1
@@ -309,14 +310,14 @@ class RuntimeSession(Session):
                                             signature_ms=compare_ms, normalize_ms=normalize_ms,
                                             input_transform=plan,
                                             cache_exact_hit=hit, native_executed=executed,
-                                            spans=spans))
+                                            spans=spans,vm_transport=answer.get('vm_transport')))
                 save = frame.pts_ms >= next_save
                 if save:
                     next_save = frame.pts_ms + interval
                 self.store.emit('roi-observations', record, frame, save)
                 self.native_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['read_frames'] += 1
-                if self.options.replay_review:
+                if self.options.replay_review and not self.options.vm_core:
                     from .replay_coach import economy_prompt
                     tip = economy_prompt(answer)
                     tip.update(frame_id=frame.id, source_ms=frame.pts_ms,
@@ -362,9 +363,13 @@ class HM4RuntimeSession(RuntimeSession):
 
     def _hub_loop(self):
         try:
-            from .board_hub_live import BoardHubLive
             from .replay_coach import inventory_prompt
-            observer = BoardHubLive(self.options.configs)
+            if self.core:
+                from hm45_vm_client import RemoteBoardHub
+                observer = RemoteBoardHub(self.core)
+            else:
+                from .board_hub_live import BoardHubLive
+                observer = BoardHubLive(self.options.configs)
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
             self.versions['board_hub_set_key'] = observer.manifest['set_key']
             self.versions['board_hub_mode'] = 'replay_screen_candidate_only'
@@ -393,11 +398,12 @@ class HM4RuntimeSession(RuntimeSession):
                     self.traces.append(dict(kind='hub', frame_id=frame.id,
                         source_due_ns=frame.due_ns, ready_ns=end,
                         total_ms=record['source_to_hub_ms'],
-                        processing_ms=record['hub_processing_ms']))
+                        processing_ms=record['hub_processing_ms'],
+                        vm_transport=observed.get('vm_transport')))
                 self.store.emit('board-hub-observations', record)
                 self.hub_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['hub_results'] += 1
-                tip = inventory_prompt(observed['snapshot'])
+                tip = inventory_prompt(observed['snapshot']) if not self.options.vm_core else None
                 if tip is not None:
                     tip.update(frame_id=frame.id, source_ms=frame.pts_ms,
                                source_due_ns=frame.due_ns, ready_ns=end,

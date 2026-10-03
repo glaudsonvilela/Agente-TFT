@@ -14,16 +14,20 @@ from training.board_hub_position_candidates import project
 def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    equipped_profile: dict, inventory_profile: dict, manifest: dict,
                    entries: list[dict], icon_dir: Path, match_scope: str,
-                   recording_context: dict | None = None) -> dict:
+                   recording_context: dict | None = None,
+                   inventory_templates: tuple[list[dict], int] | None = None,
+                   equipped_templates: tuple[list[dict], int] | None = None) -> dict:
     if recording_context is not None:
         if (recording_context.get("schema_version") != 1 or
                 recording_context.get("set_key") != manifest["set_key"] or
                 not recording_context.get("tft_patch")):
             raise ValueError("recording set/patch context does not match visual reference")
     positions = project(read, position_profile, board)
-    inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope)
+    inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope,
+                              preloaded_templates=inventory_templates)
     equipped = equipped_run(image, read, board, position_profile, equipped_profile,
-                            manifest, entries, icon_dir, match_scope)
+                            manifest, entries, icon_dir, match_scope,
+                            preloaded_templates=equipped_templates)
     grouped = {}
     for row in positions["candidates"]:
         grouped.setdefault((row["zone"], row["row"], row["cell_or_slot"]), []).append(row["marker_id"])

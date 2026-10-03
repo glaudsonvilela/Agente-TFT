@@ -15,9 +15,13 @@ def completion_state(error, cancelled, stopped_by_user=False):
                 stopped_by_user=bool(stopped_by_user))
 
 def stats(values):
-    import numpy as np
     if not values:return dict(n=0,p50_ms=None,p95_ms=None)
-    return dict(n=len(values),p50_ms=float(np.quantile(values,.5)),p95_ms=float(np.quantile(values,.95)),max_ms=max(values))
+    ordered=sorted(values)
+    def quantile(q):
+        position=(len(ordered)-1)*q
+        lower=int(position);upper=min(lower+1,len(ordered)-1)
+        return float(ordered[lower]*(1-(position-lower))+ordered[upper]*(position-lower))
+    return dict(n=len(values),p50_ms=quantile(.5),p95_ms=quantile(.95),max_ms=ordered[-1])
 
 def neural_provenance(model_present):
     return dict(
@@ -51,6 +55,8 @@ class Options:
     capture_expected: dict|None=None
     replay_review: bool=False
     board_hub_enabled: bool=False
+    vm_core: bool=False
+    preview_hz: float=20
     def validate(self):
         if not self.model and not self.dataset_only:
             raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
@@ -60,6 +66,8 @@ class Options:
             raise ValueError('A revisão de replay exige o modelo neural L3 incluído no instalador.')
         if not 1<=self.seconds<=7200 or not .2<=self.map_hz<=15 or not .1<=self.reader_hz<=5 or not .1<=self.sample_hz<=2:
             raise ValueError('Duração/frequência fora dos limites.')
+        if not 5<=self.preview_hz<=30:
+            raise ValueError('Frequência de prévia fora dos limites.')
         if not self.scenario.strip() or len(self.scenario)>100:raise ValueError('Nome do cenário inválido.')
         required=[self.worker]
         if self.model:required.append(self.model)
@@ -74,14 +82,14 @@ class Session:
         self.preview=Latest();self.map_results=Latest();self.native_results=Latest();self.hub_results=Latest()
         self.counts=Counter();self.coverage=Counter();self.traces=[];self.lock=threading.Lock()
         self.store=Store(options.output,options.max_samples,options.max_bytes)
-        self.source=self.worker=self.hp_worker=self.model=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False
+        self.source=self.worker=self.hp_worker=self.model=self.core=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False
         self.source_info={};self.versions={};self.source_hash=None;self.registry=None
         self.started=time.perf_counter_ns();self.thread=threading.Thread(target=self._run,daemon=True)
     def start(self):self.thread.start();return self
     def stop(self):
         self.cancel.set()
         def close():
-            for obj in (self.source,self.worker,self.hp_worker):
+            for obj in (self.source,self.worker,self.hp_worker,self.core):
                 if obj:
                     try:obj.close()
                     except Exception:pass
@@ -101,28 +109,39 @@ class Session:
             self.source_info=input_plan.info
             self.source_hash=self.source_info.get('sha256')
             self.registry=Registry(o.configs,o.controls)
-            self.model=Observer(o.model) if o.model else None
+            if o.vm_core:
+                from . import vm_bridge
+                self.core, self.model, self.worker, self.hp_worker = vm_bridge.start(o, self.id)
+            else:
+                self.model=Observer(o.model) if o.model else None
             self.versions=dict(model_sha256=self.model.hash if self.model else None,
                                model_load_ms=self.model.load_ms if self.model else None,
                                neural_enabled=self.model is not None,
-                               configs=self.registry.hashes,native_binary_sha256=sha(o.worker),
+                               configs=self.registry.hashes,
+                               native_binary_sha256=self.core.ready['reader_binary_sha256'] if self.core else sha(o.worker),
                                hud='numeric_gray_v3',controls='explicit_S4_or_custom' if o.controls else 'S3_frozen',
                                hp='HP1_baseline_diagnostic',board='B1_optional',
                                trained_regions=['bench','shop'] if self.model else [],
                                other_HUD_regions='registered_readers_not_neural_classes')
-            worker_env=None
-            extra_env=getattr(self,'native_worker_env',None)
-            if extra_env:
-                worker_env=os.environ.copy();worker_env.update(extra_env)
-            self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log',env=worker_env)
+            if not o.vm_core:
+                worker_env=None
+                extra_env=getattr(self,'native_worker_env',None)
+                if extra_env:
+                    worker_env=os.environ.copy();worker_env.update(extra_env)
+                self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log',env=worker_env)
             self.versions['numeric_hud_ocr_backend']=self.worker.ready.get('numeric_hud_ocr_backend')
             self.versions['spatial_text_ocr_backend']=self.worker.ready.get('spatial_text_ocr_backend')
             self.versions['numeric_hud_ocr_fallback_error']=self.worker.ready.get('numeric_hud_ocr_fallback_error')
-            hp_binary=Path(o.worker).with_name('agente-tft-hm-hp'+('.exe' if os.name=='nt' else ''))
-            if not hp_binary.is_file():
-                hp_binary=Path(o.configs).parent/'tools/hm-hp-native/target/release'/hp_binary.name
-            self.hp_worker=NativeWorker(str(hp_binary),o.configs,o.tesseract,log=Path(o.output)/'hp-stderr.log')
-            self.versions['hp_binary_sha256']=sha(hp_binary)
+            if o.vm_core:
+                self.versions.update(vm_core=True,vm_core_version=self.core.ready['version'],
+                                     vm_transport='authenticated_local_tcp_lossless_rgb_v1',
+                                     hp_binary_sha256=self.core.ready['hp_binary_sha256'])
+            else:
+                hp_binary=Path(o.worker).with_name('agente-tft-hm-hp'+('.exe' if os.name=='nt' else ''))
+                if not hp_binary.is_file():
+                    hp_binary=Path(o.configs).parent/'tools/hm-hp-native/target/release'/hp_binary.name
+                self.hp_worker=NativeWorker(str(hp_binary),o.configs,o.tesseract,log=Path(o.output)/'hp-stderr.log')
+                self.versions['hp_binary_sha256']=sha(hp_binary)
             if not self.worker.ready.get('ocr_available') or not self.hp_worker.ready.get('ocr_available'):raise ValueError('Tesseract indisponível; não simular leituras.')
             if o.board_reference:
                 from PIL import Image
@@ -141,15 +160,18 @@ class Session:
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
-            next_map=next_native=next_hp=next_sample=-1
+            next_map=next_native=next_hp=next_sample=next_source_telemetry=-1
             neutral_interval=max(1/o.sample_hz,o.seconds/max(1,o.max_samples//2))
             for f in self.source.frames(self.cancel,o.seconds):
                 if self.cancel.is_set():break
                 if self.store.error:raise OSError(self.store.error)
                 self.counts['source_frames']+=1;self.preview.put(f)
-                self.store.emit('telemetry',dict(event='source',frame_id=f.id,source_ms=f.pts_ms,
-                   due_ns=f.due_ns,ready_ns=f.ready_ns,source_late_ms=(f.ready_ns-f.due_ns)/1e6,
-                   geometry_segment=f.epoch,capture=getattr(f,'capture',None)))
+                if not o.vm_core or f.due_ns>=next_source_telemetry:
+                    next_source_telemetry=f.due_ns+1_000_000_000
+                    self.store.emit('telemetry',dict(event='source',frame_id=f.id,source_ms=f.pts_ms,
+                       due_ns=f.due_ns,ready_ns=f.ready_ns,source_late_ms=(f.ready_ns-f.due_ns)/1e6,
+                       geometry_segment=f.epoch,capture=getattr(f,'capture',None),
+                       frames_seen=self.counts['source_frames']))
                 if f.due_ns>=next_sample:
                     next_sample=f.due_ns+int(1e9*neutral_interval)
                     # Neutral periodic selection independent of model confidence.
@@ -170,7 +192,7 @@ class Session:
             self.error=str(exc);self.stop()
         finally:
             self.producer_done.set()
-            for obj in (self.source,self.worker,self.hp_worker):
+            for obj in (self.source,self.worker,self.hp_worker,self.core):
                 if obj:
                     try:obj.close()
                     except Exception as exc:self.error=self.error or str(exc)
@@ -195,7 +217,8 @@ class Session:
                     for reg in r['regions']:self.coverage[(reg['id'],reg['status'])]+=1
                     self.traces.append(dict(kind='map',frame_id=f.id,source_due_ns=f.due_ns,
                            ready_ns=end,queue_ms=r['queue_ms'],total_ms=r['source_to_map_ms'],
-                           inference_ms=obs['inference_ms'],resize_ms=obs['resize_ms']))
+                           inference_ms=obs['inference_ms'],resize_ms=obs['resize_ms'],
+                           vm_transport=obs.get('vm_transport')))
                 take=f.pts_ms>=next_save
                 if take:next_save=f.pts_ms+interval
                 self.store.emit('mapping-events',r,f,take)

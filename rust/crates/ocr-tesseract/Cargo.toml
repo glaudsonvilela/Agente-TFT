@@ -11,5 +11,5 @@ agente-tft-image-preprocess = { path = "../image-preprocess" }
 agente-tft-perception-hud = { path = "../perception-hud" }
 
 
-[target.'cfg(windows)'.dependencies]
+[target.'cfg(any(windows, target_os = "linux"))'.dependencies]
 libloading = "0.8"

@@ -2,6 +2,7 @@
 from __future__ import annotations
 from pathlib import Path
 from datetime import datetime
+from collections import deque
 import argparse, json, os, queue, statistics, sys, threading, time
 from .core import crop_box, valid_box
 from .runtime_session import RuntimeSession, HM4RuntimeSession
@@ -81,8 +82,12 @@ class App:
         import tkinter as tk
         from tkinter import ttk
         self.root=root;self.mode=mode;self.hm4=mode=="hm4";self.session=None;self.selection=None;self.last={};self.current=None
+        self.vm_core=self.hm4 and (Path(sys.executable).resolve().parent/"core/core-package.json").is_file()
         self.photo=self.zoom_photo=None;self.freeze=False;self.finalizing=False;self.final_result=None
         self.last_finished=None;self.closing=False;self.displayed=0;self.smoke=False;self.smoke_output=None
+        self.canvas_image=None;self._table_key=None;self._next_metrics_ns=0
+        self._next_preview_ns=0
+        self.render_ms=deque(maxlen=120);self.preview_times=deque(maxlen=120)
         root.title("Agente TFT — "+("Revisão de replay" if self.hm4 else "HM3 Runtime"));root.geometry("1500x950" if self.hm4 else "1440x900");root.minsize(1120,760);root.configure(bg="#f6f3ff" if self.hm4 else "#101820")
         style=ttk.Style(root);style.theme_use("clam")
         if self.hm4:
@@ -149,7 +154,8 @@ class App:
         ttk.Checkbutton(bar,text="Overlays",variable=self.overlays,command=self.repaint).pack(side="left",padx=8)
         ttk.Button(bar,text="Congelar inspeção",command=self.toggle_freeze).pack(side="right")
         self.caption=ttk.Label(mapping,text="A imagem, os recortes e as caixas exibidos pertencem ao mesmo frame_id.");self.caption.pack(anchor="w")
-        self.tip_label=ttk.Label(mapping,text="Dicas de revisão: aguardando vídeo e leituras.",wraplength=1200)
+        self.tip_label=ttk.Label(mapping,text=("Dicas: aguardando fatos confirmados para uma ação segura."
+                 if self.vm_core else "Dicas de revisão: aguardando vídeo e leituras."),wraplength=1200)
         if self.hm4:self.tip_label.pack(anchor="w",pady=3)
         split=ttk.Panedwindow(mapping,orient="horizontal");split.pack(fill="both",expand=True)
         left=ttk.Frame(split);right=ttk.Frame(split);split.add(left,weight=3);split.add(right,weight=2)
@@ -246,12 +252,16 @@ class App:
             selected_model=self.model.get() if (not self.hm4 or self.replay_review.get()) else ""
             self.session=cls(Options(**p,video=uri,model=selected_model,output=output,
                 seconds=float(self.seconds.get()),map_hz=float(self.map_hz.get()),reader_hz=float(self.reader_hz.get()),
-                sample_hz=float(self.sample_hz.get()),scenario=self.scenario.get(),controls=self.controls.get() or None,
+                sample_hz=0.2 if self.vm_core else float(self.sample_hz.get()),
+                scenario=self.scenario.get(),controls=self.controls.get() or None,
                 board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
                 replay_review=self.hm4 and self.replay_review.get(),
                 board_hub_enabled=self.hm4 and self.replay_review.get(),
+                vm_core=self.vm_core,preview_hz=20,max_samples=90 if self.vm_core else 600,
+                max_bytes=384*1024**2 if self.vm_core else 1024**3,
                 capture_consent=True,capture_expected=self.selection)).start()
-            self.last={};self.current=None;self.freeze=False
+            self.last={};self.current=None;self.freeze=False;self._table_key=None
+            self.render_ms.clear();self.preview_times.clear();self._next_metrics_ns=0;self._next_preview_ns=0
         except Exception as exc:messagebox.showerror("HM4" if self.hm4 else "HM3",str(exc))
 
     def stop(self):
@@ -280,15 +290,25 @@ class App:
         item=self.current if self.freeze and self.current else self.last.get(self.which.get())
         if not item:return
         from PIL import Image,ImageTk,ImageDraw
+        started=time.perf_counter_ns()
         previous=self.current;self.current=item;f=item["frame"];view=item.get("view_kind");regions=self._shown_regions(item)
-        if previous is None or previous["frame"].id!=f.id:
+        if (previous is None or previous.get("view_kind")!=view or
+                (view!="capture" and previous["frame"].id!=f.id)):
             self.crop_label.configure(image="",text="Selecione uma região.");self.details.delete("1.0","end")
         im=Image.frombytes("RGB",(f.width,f.height),f.rgb)
+        w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8)
+        if self.vm_core:
+            w=min(w,1280);h=min(h,720)
+            im.thumbnail((w,h),Image.Resampling.BILINEAR)
+            scale_x=im.width/f.width;scale_y=im.height/f.height
+        else:
+            scale_x=scale_y=1.0
         if self.overlays.get() and view!="capture":
             draw=ImageDraw.Draw(im)
             for reg in regions:
                 for cell in reg.get("guide_points",[]):
-                    x,y=cell["screen"];draw.ellipse((x-4,y-4,x+4,y+4),outline="#bb91ff",width=2)
+                    x,y=cell["screen"];x*=scale_x;y*=scale_y
+                    draw.ellipse((x-4,y-4,x+4,y+4),outline="#bb91ff",width=2)
                 b=reg.get("box")
                 if not b or not valid_box(b,f.width,f.height):continue
                 status=str(reg.get("status"))
@@ -296,17 +316,37 @@ class App:
                 elif status in ("observed","accepted","coarse_candidate","offer_text_readable"):color="#57df93"
                 elif "incompatible" in status or status in ("unknown","unavailable"):color="#ff6868"
                 else:color="#5ad7dc"
-                draw.rectangle(b,outline=color,width=2);draw.text((b[0]+2,max(0,b[1]-13)),reg["id"],fill=color)
-        w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8);im.thumbnail((w,h),Image.Resampling.BILINEAR)
-        self.photo=ImageTk.PhotoImage(im);self.canvas.delete("all");self.canvas.create_image(w//2,h//2,image=self.photo,anchor="center")
+                box=(b[0]*scale_x,b[1]*scale_y,b[2]*scale_x,b[3]*scale_y)
+                draw.rectangle(box,outline=color,width=2)
+                draw.text((box[0]+2,max(0,box[1]-13)),reg["id"],fill=color)
+        if not self.vm_core:im.thumbnail((w,h),Image.Resampling.BILINEAR)
+        self.photo=ImageTk.PhotoImage(im)
+        center=(self.canvas.winfo_width()//2,self.canvas.winfo_height()//2)
+        if self.canvas_image is None:
+            self.canvas_image=self.canvas.create_image(*center,image=self.photo,anchor="center")
+        else:
+            self.canvas.itemconfigure(self.canvas_image,image=self.photo)
+            self.canvas.coords(self.canvas_image,*center)
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
         self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {f.width}×{f.height} · idade {age:.1f} ms · geometria {f.epoch}')
-        self.table.delete(*self.table.get_children());self.row_data={}
-        for i,reg in enumerate(regions):
-            rid=str(i);self.row_data[rid]=reg;value=reg.get("value")
-            self.table.insert("","end",iid=rid,values=(reg["id"],reg.get("status"),"" if value is None else str(value)[:90]))
+        table_key=(view,None if view=="capture" else f.id)
+        if table_key!=self._table_key:
+            self._table_key=table_key
+            self.table.delete(*self.table.get_children());self.row_data={}
+            for i,reg in enumerate(regions):
+                rid=str(i);self.row_data[rid]=reg;value=reg.get("value")
+                self.table.insert("","end",iid=rid,values=(reg["id"],reg.get("status"),"" if value is None else str(value)[:90]))
         self.displayed+=1
+        if self.vm_core:
+            elapsed=(time.perf_counter_ns()-started)/1e6
+            self.render_ms.append(elapsed)
+            if view=="capture":
+                self.preview_times.append(time.perf_counter_ns())
+                if self.session and (self.displayed%20)==0:
+                    self.session.store.emit('telemetry',dict(event='preview_render',frame_id=f.id,
+                        render_ms=elapsed,source_age_ms=(time.perf_counter_ns()-f.due_ns)/1e6,
+                        preview_size=[im.width,im.height],source_size=[f.width,f.height]))
 
     def selected(self,_=None):
         if not self.current or not self.table.selection():return
@@ -329,6 +369,18 @@ class App:
         cap=None
         raw=self.last.get("capture")
         if raw:cap=getattr(raw["frame"],"capture",None)
+        preview_fps=None
+        if len(self.preview_times)>1:
+            span=(self.preview_times[-1]-self.preview_times[0])/1e9
+            if span>0:preview_fps=round((len(self.preview_times)-1)/span,1)
+        transports={}
+        for name,group in (("map",maps),("reader",reads),("hp",hps),("hub",hubs)):
+            rows=[x["vm_transport"] for x in group if x.get("vm_transport")]
+            if rows:
+                transports[name]=dict(n=len(rows),encode_p95_ms=pct([x.get("encode_ms",0) for x in rows],.95),
+                    roundtrip_p95_ms=pct([x["roundtrip_ms"] for x in rows],.95),
+                    core_p95_ms=pct([x["core_ms"] for x in rows],.95),
+                    wire_p95_bytes=pct([x["wire_bytes"] for x in rows],.95))
         return dict(
           source_frames=s.counts["source_frames"],mapped=s.counts["mapped_frames"],reader_results=s.counts["read_frames"],
           reader_native_runs=s.counts["reader_native_runs"],reader_exact_cache_hits=s.counts["reader_exact_cache_hits"],
@@ -347,14 +399,18 @@ class App:
                    processing_p95_ms=pct([x["processing_ms"] for x in hubs],.95),
                    board_reference_status=s.versions.get("board_reference_status")),
           tips=dict(emitted=s.counts["replay_tips"],mode="replay_review_only" if s.options.replay_review else "disabled"),
-          capture=cap,samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"])
+          capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,render_p50_ms=pct(self.render_ms,.5),
+                                   render_p95_ms=pct(self.render_ms,.95),max_size=[1280,720] if self.vm_core else None),
+          samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"])
 
     def tick(self):
         s=self.session
         if s and not s.finished and not self.finalizing:
             try:
                 f=s.preview.get(.001);self.last["capture"]=dict(frame=f,record=dict(regions=[]),ready_ns=f.ready_ns,view_kind="capture")
-                if not self.freeze and self.which.get()=="capture":self.repaint()
+                now=time.perf_counter_ns()
+                if not self.freeze and self.which.get()=="capture" and now>=self._next_preview_ns:
+                    self.repaint();self._next_preview_ns=now+int(1e9/(s.options.preview_hz if self.vm_core else 30))
             except queue.Empty:pass
             for name,q in (("map",s.map_results),("reader",s.native_results),("hub",s.hub_results)):
                 try:
@@ -374,11 +430,14 @@ class App:
                     with s.lock:
                         s.traces.append(dict(kind='tip_ui',frame_id=tip['frame_id'],total_ms=age,
                                              physical_display_measured=False))
-            perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
-            self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
-              sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
-              note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
-            self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HUB {s.counts["hub_results"]} · dicas {s.counts["replay_tips"]} · HP {s.counts["hp_results"]} · PNG {s.store.counts["samples_saved"]}')
+            now=time.perf_counter_ns()
+            if not self.vm_core or now>=self._next_metrics_ns:
+                self._next_metrics_ns=now+250_000_000
+                perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
+                self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
+                  sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
+                  note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
+                self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HUB {s.counts["hub_results"]} · dicas {s.counts["replay_tips"]} · HP {s.counts["hp_results"]} · PNG {s.store.counts["samples_saved"]}')
             if s.done.is_set() and s.map_results.empty() and s.native_results.empty() and s.hub_results.empty():
                 self.finalizing=True;self.status.configure(text="Selando telemetria e amostras…")
                 def finish():

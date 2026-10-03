@@ -64,6 +64,9 @@ args = [
     '--hidden-import', 'hm.replay_coach',
     '--hidden-import', 'hm45_setup',
     '--hidden-import', 'hm45_setup_core',
+    '--hidden-import', 'hm45_vm_client',
+    '--hidden-import', 'hm45_protocol',
+    '--hidden-import', 'hm.vm_bridge',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']

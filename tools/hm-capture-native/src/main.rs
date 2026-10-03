@@ -58,7 +58,7 @@ fn parse(args: &[String]) -> Result<Args> {
     if !["monitor", "window"].contains(&a.kind.as_str()) || a.id.is_empty() || a.id.len()>32
         || !a.id.chars().all(|c| c.is_ascii_hexdigit()) || usize::from_str_radix(&a.id,16)? == 0
         || !a.seconds.is_finite() || !(1.0..=7200.0).contains(&a.seconds)
-        || !a.hz.is_finite() || !(0.2..=15.0).contains(&a.hz) {
+        || !a.hz.is_finite() || !(0.2..=30.0).contains(&a.hz) {
         return Err(bad("invalid target/time/rate"));
     }
     Ok(a)

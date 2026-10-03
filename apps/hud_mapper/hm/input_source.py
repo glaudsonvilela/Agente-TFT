@@ -37,7 +37,9 @@ class InputPlan:
         o = self.options
         if self.capture:
             from .capture_source import CaptureSource, native_path
-            self.source = CaptureSource(o.video, o.configs, o.seconds, max(o.map_hz,o.reader_hz,o.sample_hz),
+            capture_hz=max(o.map_hz,o.reader_hz,o.sample_hz,
+                           o.preview_hz if o.vm_core else 0)
+            self.source = CaptureSource(o.video, o.configs, o.seconds, capture_hz,
                 consent=o.capture_consent, expected=o.capture_expected,
                 log=Path(o.output)/'capture-stderr.log')
             self.info.update(native=self.source.ready, clock_bridge=self.source.bridge.metadata(),

@@ -62,7 +62,7 @@ begin
   AddParagraph(OverviewPage, 18,
     '1. O aplicativo Windows captura a janela ou o monitor pelo módulo Rust. A prévia fica no Windows em até 720p.');
   AddParagraph(OverviewPage, 102,
-    '2. O assistente verifica o PC e instala uma distribuição WSL 2 própria do Agente TFT. Ela executa a análise dos recortes de imagem.');
+    '2. O assistente verifica o PC e instala uma distribuição WSL 2 própria do Agente TFT. Ela executa a análise dos quadros de imagem.');
   AddParagraph(OverviewPage, 200,
     '3. Ao final, o assistente testa a VM. Se o Windows precisar habilitar o WSL 2, mostrará a solicitação de administrador e poderá exigir um reinício.');
 
@@ -71,7 +71,7 @@ begin
   AddParagraph(PrivacyPage, 18,
     'O vídeo continua aberto no seu player. O Agente TFT lê a tela escolhida; não é necessário enviar o arquivo da partida.');
   AddParagraph(PrivacyPage, 102,
-    'Somente os recortes necessários para análise cruzam a conexão IP local entre o Windows e a VM. A prévia não passa pela VM.');
+    'A análise envia quadros RGB da tela escolhida pela conexão IP local entre o Windows e a VM, sem perda de resolução. A prévia de até 720p permanece no Windows e não passa pela VM.');
   AddParagraph(PrivacyPage, 200,
     'O instalador não altera outras distribuições WSL nem o arquivo global .wslconfig. O assistente explica cada etapa e só anuncia conclusão após o teste de saúde.');
 end;

@@ -62,7 +62,8 @@ class SetupContracts(unittest.TestCase):
         (self.core / "core-package.json").write_text(json.dumps(self.manifest), encoding="utf-8")
         self.fake = FakeWindows()
         self.installer = CoreInstaller(self.core, self.base / "installed", self.base / "App.exe",
-                                       run=self.fake, memory=lambda: 8 * 1024**3, build=lambda: 26100)
+                                       run=self.fake, memory=lambda: 8 * 1024**3, build=lambda: 26100,
+                                       host_probe=lambda package, log: True)
         self.installer.clear_resume = lambda: None
         self.installer.register_resume = lambda: None
 
@@ -101,6 +102,13 @@ class SetupContracts(unittest.TestCase):
             self.installer.install(lambda _: None)
         self.assertFalse(any(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls))
         self.assertFalse(any("--unregister" in call for call in self.fake.calls))
+
+    def test_windows_to_wsl_ip_must_pass_before_ready(self):
+        self.fake.distros.add("AgenteTFT-Core-v1")
+        self.installer.host_probe = lambda package, log: False
+        with self.assertRaisesRegex(SetupError, "preservada"):
+            self.installer.install(lambda _: None)
+        self.assertIn("conexão IP local", self.installer.last_health_error)
 
     def test_reboot_registers_resume_without_import(self):
         self.fake.wsl_ready = False

@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 import hashlib, io, json, os, queue, shutil, threading, time
-import numpy as np
 from PIL import Image
 from .core import dump, sha, crop_box, valid_box, ENVELOPES, xyxy
 
@@ -74,9 +73,9 @@ class Store:
             self.counts['disk_reserve_skipped']+=1;return
         h=hashlib.sha256(frame.rgb).hexdigest()
         im=Image.frombytes('RGB',(frame.width,frame.height),frame.rgb)
-        small=np.asarray(im.resize((80,45),Image.Resampling.BILINEAR),dtype=np.int16)
+        small=im.resize((80,45),Image.Resampling.BILINEAR).tobytes()
         prev=self.previous.get('global'); self.previous['global']=small
-        change=None if prev is None else float(np.abs(small-prev).mean())
+        change=None if prev is None else sum(abs(a-b) for a,b in zip(small,prev))/len(small)
         flags=['periodic_neutral'] if stream=='periodic' else ['reader_evidence']
         if change is not None and change>8:flags.append('visual_change_candidate')
         if any(r.get('status')=='unknown' for r in data.get('regions',[])):flags.append('uncertain_proposal')

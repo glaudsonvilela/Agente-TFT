@@ -1,0 +1,112 @@
+name: HM4.5 VM laboratory package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download the pinned diagnostic model
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p build/hm4-live-assets/models
+          gh release download hub-l3-shadow-20261003 --dir build/hm4-live-assets/models --pattern candidate-model.onnx --pattern deployment-candidate.json
+      - name: Verify model and official item artwork
+        run: python3 scripts/prepare_hm4_live_assets.py
+      - name: Build and self-test the WSL root filesystem
+        run: python3 scripts/build_hm45_core.py
+      - name: Verify on a two-core, 768 MiB VM budget
+        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.0 self-test --version 0.6.0
+      - name: Exercise the host client through local IP
+        run: |
+          python3 -m pip install Pillow==12.1.0
+          PYTHONPATH=apps/hud_mapper:apps/e1_replay:. python3 apps/hud_mapper/tests/hm45_vm_e2e.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HM45-Linux-Core
+          path: |
+            build/hm45-core/AgenteTFT-Core-v1.tar
+            build/hm45-core/core-package.json
+            hm45-vm-e2e.json
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+
+  windows-installer:
+    needs: linux-core
+    runs-on: windows-latest
+    timeout-minutes: 55
+    env:
+      PYTHONPATH: apps/hud_mapper;apps/e1_replay;experiments/ui-map-lite-l2/training
+      OMP_THREAD_LIMIT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v4
+        with:
+          name: HM45-Linux-Core
+          path: build/hm45-core
+      - name: Install Windows build dependencies
+        shell: pwsh
+        run: |
+          choco install tesseract innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Windows build dependencies failed' }
+          'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          python -m pip install -r apps/hud_mapper/requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime dependencies failed' }
+          python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging dependencies failed' }
+      - name: Verify HM4.5 protocol and setup
+        shell: pwsh
+        run: |
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_*.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 contracts failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 runtime contracts failed' }
+      - name: Build native Rust capture and readers
+        shell: pwsh
+        run: |
+          cargo build --locked --release --manifest-path tools/hm-capture-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Rust capture failed' }
+          cargo build --locked --release --manifest-path tools/e1-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Rust reader failed' }
+          cargo build --locked --release --manifest-path tools/hm-hp-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Rust HP failed' }
+      - name: Prepare the matching Windows model and official artwork
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force -Path build/hm4-live-assets/models | Out-Null
+          gh release download hub-l3-shadow-20261003 --dir build/hm4-live-assets/models --pattern candidate-model.onnx --pattern deployment-candidate.json
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned model download failed' }
+          python scripts/prepare_hm4_live_assets.py
+          if ($LASTEXITCODE -ne 0) { throw 'Asset verification failed' }
+      - name: Build Windows app and guided VM installer
+        shell: pwsh
+        run: |
+          python scripts/build_hud_mapper_hm4_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'Windows app build failed' }
+          python scripts/build_hm45_installer_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AgenteTFT-HM45-Setup-LAB-Windows-x64
+          path: |
+            dist/AgenteTFT-HM45-Setup.exe
+            dist/HM45_INSTALLER_REPORT.json
+          retention-days: 14
+          if-no-files-found: error

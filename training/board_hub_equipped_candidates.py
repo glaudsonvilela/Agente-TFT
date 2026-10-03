@@ -55,7 +55,8 @@ def rank_equipped(frame, marker: dict, slot: int, templates: list[dict], profile
 
 
 def run(image, read: dict, board: dict, position_profile: dict, equipped_profile: dict,
-        manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all") -> dict:
+        manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all",
+        preloaded_templates: tuple[list[dict], int] | None = None) -> dict:
     import numpy as np
 
     validate(equipped_profile, board)
@@ -68,7 +69,8 @@ def run(image, read: dict, board: dict, position_profile: dict, equipped_profile
                 "unit_identity_established": False, "game_state_updated": False}
     locations = {row["marker_id"]: row for row in positions["candidates"]}
     selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
-    templates, available = load_templates(selected, icon_dir, size=equipped_profile["icon_size"])
+    templates, available = (preloaded_templates if preloaded_templates is not None else
+                            load_templates(selected, icon_dir, size=equipped_profile["icon_size"]))
     frame = np.asarray(rgb, dtype=np.float32)
     rows = []
     for marker in read["markers"]:
