@@ -80,3 +80,15 @@ Benchmark determinístico do runtime em GitHub Actions, 1920x1080 (run 370796647
 - reapresentação da loja fora da cadência: aproximadamente 0.03 ms no benchmark.
 
 Esses números são benchmark do runner CI, não promessa de latência do PC real. A comparação de campo deve ser feita numa nova captura natural usando o mesmo formato de relatório da sessão anterior.
+
+
+## HM4.2 — selo final de regressão
+
+Antes deste pacote final, o fast path também validou:
+
+- comparação automática old-vs-new de auditorias HM4, preservando a sessão anterior como baseline;
+- guard automático contra regressão da rota rápida dos leitores;
+- nenhuma alteração de threshold, ground truth, treino ou promoção do L2;
+- L2 permanece shadow diagnóstico somente.
+
+Este commit existe apenas para executar o full package gate sobre o mesmo código já aprovado no fast path.
