@@ -1,6 +1,9 @@
 name: HM4.5 VM laboratory package
 
 on:
+  push:
+    branches:
+      - work/hm45-vm-performance
   workflow_dispatch:
 
 permissions:
