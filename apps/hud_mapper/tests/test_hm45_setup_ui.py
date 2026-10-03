@@ -16,10 +16,10 @@ class SetupWindowSmoke(unittest.TestCase):
             window = SetupWindow(Path("C:/AgenteTFT-HUD-HM4-Auto.exe"))
             try:
                 window.root.update_idletasks()
-                self.assertTrue(window.headless_option.winfo_ismapped())
+                self.assertEqual(window.headless_option.winfo_manager(), "pack")
                 window._show(1)
                 window.root.update_idletasks()
-                self.assertFalse(window.headless_option.winfo_ismapped())
+                self.assertEqual(window.headless_option.winfo_manager(), "")
                 window.vm_ready = True
                 window._show(2)
                 window.root.update_idletasks()
