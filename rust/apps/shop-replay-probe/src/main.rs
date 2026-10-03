@@ -56,7 +56,7 @@ fn run()->Result<bool,String> {
     if language.is_empty() || language.len()>40 || !language.chars().all(|c|c.is_ascii_alphanumeric()||c=='_'||c=='+') {
         return Err("invalid OCR language".into());
     }
-    let engine=TesseractOcr::new(TesseractConfig{language:language.clone(),..TesseractConfig::default()}).with_numeric_gray();
+    let mut engine=TesseractOcr::new(TesseractConfig{language:language.clone(),..TesseractConfig::default()}).with_numeric_gray();
     if !engine.available() {return Err("tesseract unavailable".into());}
     let mut file=fs::OpenOptions::new().create_new(true).write(true).open(&args[3]).map_err(|e|e.to_string())?;
     let mut records=Vec::new();let mut errors=0;let mut calls=0u64;let mut panels=BTreeMap::<String,usize>::new();
@@ -65,13 +65,13 @@ fn run()->Result<bool,String> {
         eprintln!("SHOP_FRAME={}/{} timestamp_ms={at}",i+1,plan.len());
         let start=Instant::now();
         let result=media::decode(path,None,*at).and_then(|frame| {
-            let read = screen::perceive(&frame, &layout, &engine, recovery.as_ref())?;
+            let read = screen::perceive(&frame, &layout, &mut engine, recovery.as_ref())?;
             let control_read = if let Some(reader) = &controls {
                 let mut value = reader.read_visual(&frame, read.panel_status == "located")?;
                 if let Some(policy) = &numbers {
                     control_numbers::read_numbers(&frame, &reader.profile, policy, &mut value, &engine)?;
                 } else {
-                    control_text::read_numbers(&frame, &reader.profile, &mut value, &engine)?;
+                    control_text::read_numbers(&frame, &reader.profile, &mut value, &mut engine)?;
                 }
                 Some(value)
             } else { None };
