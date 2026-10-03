@@ -8,5 +8,4 @@ rust-version = "1.80"
 agente-tft-image-preprocess = { path = "../../rust/crates/image-preprocess" }
 agente-tft-ocr-tesseract = { path = "../../rust/crates/ocr-tesseract" }
 agente-tft-perception-hud = { path = "../../rust/crates/perception-hud" }
-libloading = "0.8"
 serde_json = "1"
