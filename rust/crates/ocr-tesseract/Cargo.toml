@@ -9,3 +9,7 @@ agente-tft-capture-core = { path = "../capture-core" }
 agente-tft-contracts = { path = "../contracts" }
 agente-tft-image-preprocess = { path = "../image-preprocess" }
 agente-tft-perception-hud = { path = "../perception-hud" }
+
+
+[target.'cfg(windows)'.dependencies]
+libloading = "0.8"
