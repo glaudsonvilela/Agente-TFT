@@ -13,6 +13,9 @@ def main():
         if sys.stdout is None:
             sys.stdout = log
     try:
+        if '--setup-assistant' in sys.argv:
+            from hm45_setup import main as setup_main
+            return setup_main()
         from hm.runtime_app import main as run
         return run("hm4")
     except Exception:
