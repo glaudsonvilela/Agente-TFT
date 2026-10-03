@@ -38,6 +38,7 @@ jobs:
       - name: Test resumable setup and package gates
         run: |
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_setup.py' -v
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_setup_ui.py' -v
           python -m py_compile apps/hud_mapper/hm45_setup.py apps/hud_mapper/hm45_setup_core.py scripts/build_hm45_installer_windows.py
       - name: Check Inno Setup wizard syntax with nonrelease fixtures
         shell: pwsh
