@@ -105,6 +105,37 @@ python3 -m training.board_hub_position_candidates \
   --projection-profile configs/ui/match001-bar-to-cell-candidates-v1.json
 ```
 
+## Itens equipados abaixo das barras
+
+`training.board_hub_equipped_candidates` examina três espaços abaixo de cada
+barra verde aceita pelo B1. A saída liga os recortes ao `marker_id` e à célula
+candidata; `unit_id` e `item_id` continuam nulos. O parâmetro
+`--match-scope set_path` usa apenas as entradas cujo caminho oficial começa
+com `TFTSet18/`: são 156 imagens neste snapshot, enquanto o banco original
+preserva as 1.188 entradas. Essa seleção por caminho é uma hipótese explícita
+para o set, não prova de patch nem garantia de que todos os itens jogáveis
+estejam nesse prefixo.
+
+No mesmo lote Match001, nas 17 imagens com arena localizada, houve 48 recortes
+`icon_candidate`, 150 `empty_appearance` e 87 `unknown`. No frame 27, seis
+recortes aparecem sob três barras e os seis foram marcados como candidatos;
+os nomes mais próximos incluem Placa Gargolítica, Capa de Fogo Solar, Bastão
+Desnecessariamente Grande, Morellonomicon, Lâmina Mortal e Fúria do Cráquem
+no catálogo selecionado. A
+similaridade foi ajustada e conferida neste replay, sem medição independente
+de acurácia, e ainda não identifica qual campeão carrega o item.
+
+```bash
+python3 -m training.board_hub_equipped_candidates \
+  --reference knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18/5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f \
+  --icon-dir /caminho/para/cache-de-icones \
+  --image /caminho/para/frame-27.jpg --report /caminho/para/board-b1/report.json \
+  --frame-index 27 --board-profile configs/ui/match001-board-bench-v1.json \
+  --position-profile configs/ui/match001-bar-to-cell-candidates-v1.json \
+  --equipped-profile configs/ui/match001-equipped-icons-v1.json \
+  --match-scope set_path
+```
+
 Fonte oficial: https://developer.riotgames.com/docs/tft#data--assets
 
 1. Criar anotações verificadas de espaços/itens de um replay distinto.

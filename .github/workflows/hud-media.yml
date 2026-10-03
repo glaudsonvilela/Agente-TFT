@@ -32,6 +32,8 @@ on:
       - 'training/tests/test_board_hub_item_candidates.py'
       - 'training/board_hub_position_candidates.py'
       - 'training/tests/test_board_hub_position_candidates.py'
+      - 'training/board_hub_equipped_candidates.py'
+      - 'training/tests/test_board_hub_equipped_candidates.py'
       - 'training/requirements-board-hub.txt'
       - 'scripts/probe_match001_board_bench.sh'
       - 'training/bench_presence*.py'
@@ -141,3 +143,4 @@ jobs:
         run: |
           python3 -m pip install -r training/requirements-board-hub.txt
           python3 -m unittest training.tests.test_board_hub_item_candidates -v
+          python3 -m unittest training.tests.test_board_hub_equipped_candidates -v

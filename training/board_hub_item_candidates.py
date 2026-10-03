@@ -29,6 +29,17 @@ def load_reference(folder: Path) -> tuple[dict, list[dict]]:
     return manifest, catalog["entries"]
 
 
+def select_entries(entries: list[dict], set_key: str, scope: str) -> list[dict]:
+    if scope == "all":
+        return entries
+    if scope != "set_path":
+        raise ValueError("invalid item matching scope")
+    selected = [entry for entry in entries if entry.get("key", "").startswith(set_key + "/")]
+    if not selected:
+        raise ValueError("no provider items under selected set path")
+    return selected
+
+
 def fetch_icon(entry: dict, icon_dir: Path) -> bool:
     """Fetch only the versioned Riot CDN URL written by the pinned reference."""
     icon = entry["icon"]
@@ -46,7 +57,7 @@ def fetch_icon(entry: dict, icon_dir: Path) -> bool:
     return True
 
 
-def load_templates(entries: list[dict], icon_dir: Path) -> tuple[list[dict], int]:
+def load_templates(entries: list[dict], icon_dir: Path, size: int = 28) -> tuple[list[dict], int]:
     import numpy as np
     from PIL import Image
 
@@ -57,7 +68,7 @@ def load_templates(entries: list[dict], icon_dir: Path) -> tuple[list[dict], int
         if not path.is_file():
             continue
         with Image.open(path) as source:
-            resized = source.convert("RGB").resize((28, 28), Image.Resampling.BILINEAR)
+            resized = source.convert("RGB").resize((size, size), Image.Resampling.BILINEAR)
         pixels = np.asarray(resized, dtype=np.float32)
         template_hash = hashlib.sha256(pixels.tobytes()).hexdigest()
         group = grouped.setdefault(template_hash, {"template_hash": template_hash, "pixels": pixels, "ids": []})
@@ -87,26 +98,29 @@ def rank_slot(frame, rect: dict, templates: list[dict]) -> list[dict]:
              "rms": round(float(scores[index]), 3)} for index in ranked]
 
 
-def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path) -> dict:
+def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path,
+        match_scope: str = "all") -> dict:
     import numpy as np
 
     rgb = image.convert("RGB")
     inventory = observe(rgb.tobytes(), rgb.width, rgb.height, profile)
-    templates, available = load_templates(entries, icon_dir)
+    selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
+    templates, available = load_templates(selected, icon_dir)
     frame = np.asarray(rgb, dtype=np.float32)
     rows = []
     for slot in inventory["slots"]:
         if slot["status"] != "icon_candidate":
             continue
         candidates = rank_slot(frame, slot["rect"], templates)
-        rows.append({"slot": slot["slot"], "status": "candidate_only" if available == len(entries)
+        rows.append({"slot": slot["slot"], "status": "candidate_only" if available == len(selected)
                      else "incomplete_catalog", "candidates": candidates,
                      "margin_to_second": round(candidates[1]["rms"] - candidates[0]["rms"], 3)
                      if len(candidates) > 1 else None, "item_id": None})
     return {"schema_version": 1, "policy": "board_hub_item_candidates_v1",
             "reference_sha256": manifest["reference_sha256"], "data_dragon_version": manifest["version"],
             "tft_patch": None, "icon_assets_available": available,
-            "catalog_entries": len(entries), "unique_artworks": len(templates),
+            "catalog_entries": len(entries), "matching_entries": len(selected),
+            "matching_scope": match_scope, "unique_artworks": len(templates),
             "inventory": inventory, "candidate_slots": rows,
             "item_identity_established": False, "game_state_updated": False}
 
@@ -119,11 +133,13 @@ def main() -> None:
     parser.add_argument("--profile", type=Path, required=True)
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--icon-dir", type=Path, required=True)
+    parser.add_argument("--match-scope", choices=("all", "set_path"), default="all")
     parser.add_argument("--fetch-missing", action="store_true")
     args = parser.parse_args()
     manifest, entries = load_reference(args.reference)
     args.icon_dir.mkdir(parents=True, exist_ok=True)
     fetch_errors = []
+    selected = select_entries(entries, manifest["set_key"], args.match_scope)
     if args.fetch_missing:
         def attempt(entry):
             for _ in range(2):
@@ -134,10 +150,10 @@ def main() -> None:
             return entry["icon"]
 
         with ThreadPoolExecutor(max_workers=8) as pool:
-            fetch_errors = [value for value in pool.map(attempt, entries) if isinstance(value, str)]
+            fetch_errors = [value for value in pool.map(attempt, selected) if isinstance(value, str)]
     profile = json.loads(args.profile.read_text(encoding="utf-8"))
     with Image.open(args.image) as image:
-        result = run(image, profile, manifest, entries, args.icon_dir)
+        result = run(image, profile, manifest, entries, args.icon_dir, args.match_scope)
     result["icon_fetch_errors"] = fetch_errors
     print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
 
