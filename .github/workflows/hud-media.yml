@@ -26,6 +26,8 @@ on:
       - 'scripts/probe_match001_shop_numbers.sh'
       - 'training/board_spatial*.py'
       - 'training/tests/test_board_spatial*.py'
+      - 'training/board_hub_inventory.py'
+      - 'training/tests/test_board_hub_inventory.py'
       - 'scripts/probe_match001_board_bench.sh'
       - 'training/bench_presence*.py'
       - 'training/tests/test_bench_presence*.py'
@@ -128,3 +130,4 @@ jobs:
           cargo build --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe
           python3 -m unittest training.tests.test_board_spatial training.tests.test_board_spatial_native -v
           python3 -m unittest training.tests.test_bench_presence training.tests.test_bench_presence_native -v
+          python3 -m unittest training.tests.test_board_hub_inventory -v
