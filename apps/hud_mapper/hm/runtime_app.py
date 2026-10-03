@@ -125,7 +125,7 @@ class App:
         line=ttk.Frame(outer);line.pack(fill="x",pady=4)
         if self.hm4:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
-            ttk.Label(line,text=("Modelo automático: "+Path(auto).parent.name if auto else "Modelo neural não encontrado: captura + leitores nativos continuam ativos.")).pack(side="left")
+            ttk.Label(line,text=("Modelo para revisão: "+Path(auto).parent.name if auto else "Modelo neural não encontrado: captura + leitores nativos continuam ativos.")).pack(side="left")
             ttk.Checkbutton(line,text="Revisar vídeo encerrado (HUB + dicas)",variable=self.replay_review).pack(side="left",padx=8)
             ttk.Button(line,text="Calibrar tabuleiro",command=self.calibrate_board).pack(side="right",padx=4)
             ttk.Button(line,text="INICIAR",command=self.start).pack(side="right",padx=8)
@@ -243,10 +243,11 @@ class App:
             uri=f'capture://{self.selection["kind"]}/{self.selection["id"]}'
             p=runtime_paths()
             cls=HM4RuntimeSession if self.hm4 else RuntimeSession
-            self.session=cls(Options(**p,video=uri,model=self.model.get(),output=output,
+            selected_model=self.model.get() if (not self.hm4 or self.replay_review.get()) else ""
+            self.session=cls(Options(**p,video=uri,model=selected_model,output=output,
                 seconds=float(self.seconds.get()),map_hz=float(self.map_hz.get()),reader_hz=float(self.reader_hz.get()),
                 sample_hz=float(self.sample_hz.get()),scenario=self.scenario.get(),controls=self.controls.get() or None,
-                board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(self.model.get()),
+                board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
                 replay_review=self.hm4 and self.replay_review.get(),
                 board_hub_enabled=self.hm4 and self.replay_review.get(),
                 capture_consent=True,capture_expected=self.selection)).start()
