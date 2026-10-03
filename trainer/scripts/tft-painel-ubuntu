@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# SSH provides access control; the trainer dashboard stays bound to loopback.
+dashboard_url='http://127.0.0.1:8801/dashboard'
+health_url='http://127.0.0.1:8801/v1/training/health'
+ssh_target='glaudsonvilela@10.0.0.174'
+
+if ! curl --silent --show-error --fail --max-time 2 "$health_url" 2>/dev/null | grep -q '"service":"agente-tft-remote-trainer"'; then
+  ssh -o BatchMode=yes -o ExitOnForwardFailure=yes -fN \
+    -L 127.0.0.1:8801:127.0.0.1:8801 "$ssh_target"
+fi
+printf 'Painel Agente TFT: %s\n' "$dashboard_url"
+if [[ "\${1:-}" != '--no-open' ]]; then
+  xdg-open "$dashboard_url" >/dev/null 2>&1 &
+fi

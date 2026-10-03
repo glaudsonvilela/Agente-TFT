@@ -4,6 +4,7 @@ import asyncio
 from dataclasses import dataclass, field
 from pathlib import Path
 import sqlite3
+from collections import Counter
 from typing import Protocol
 from uuid import uuid4
 
@@ -199,6 +200,49 @@ class TrainerStore:
     async def get_job(self, job_id: str) -> TrainingJobRecord | None:
         async with self.lock:
             return self.jobs.get(job_id)
+
+    async def dashboard_metrics(self) -> dict:
+        """Return measured progress only; requested work is never counted as learning."""
+        async with self.lock:
+            jobs = list(self.jobs.values())
+            statuses = Counter(record.status.value for record in jobs)
+            completed = sorted(
+                (record for record in jobs
+                 if record.status == TrainingJobStatus.COMPLETED
+                 and record.result is not None),
+                key=lambda record: record.updated_at_ms,
+                reverse=True,
+            )
+            paths_completed = sum(outcome.samples for record in completed
+                                  for outcome in record.result.outcomes)
+            durations = [record.updated_at_ms - record.accepted_at_ms
+                         for record in completed
+                         if record.updated_at_ms >= record.accepted_at_ms]
+            recent = sorted(jobs, key=lambda record: record.updated_at_ms, reverse=True)[:6]
+            snapshot = {
+                "sessions": len(self.sessions),
+                "episodes": len({record.request.episode_id for record in jobs}),
+                "jobs": len(jobs),
+                "jobs_by_status": {key: statuses.get(key, 0)
+                                   for key in ("accepted", "running", "completed", "failed", "cancelled")},
+                "paths_requested": sum(record.request.rollout_count for record in jobs),
+                "paths_completed": paths_completed,
+                "mean_completed_job_ms": round(sum(durations) / len(durations), 1) if durations else None,
+                "last_activity_ms": max((record.updated_at_ms for record in jobs), default=None),
+                "latest_simulator_version": completed[0].result.simulator_version if completed else None,
+                "latest_policy_version": completed[0].result.policy_version if completed else None,
+                "recent_jobs": [{"job_id": record.request.job_id, "status": record.status.value,
+                                 "requested_paths": record.request.rollout_count,
+                                 "completed_paths": sum(outcome.samples for outcome in record.result.outcomes)
+                                 if record.result else 0,
+                                 "error": record.error, "updated_at_ms": record.updated_at_ms}
+                                for record in recent],
+            }
+        imports = self.db_path.parent / "imports" if self.db_path else None
+        files = list(imports.glob("*.rar")) if imports and imports.is_dir() else []
+        snapshot["evidence_files"] = len(files)
+        snapshot["evidence_bytes"] = sum(path.stat().st_size for path in files)
+        return snapshot
 
     async def cancel_job(self, job_id: str, now_ms: int) -> TrainingJobRecord | None:
         async with self.lock:

@@ -155,6 +155,38 @@ def test_health_remains_public_when_token_is_enabled():
     assert response.status_code == 200
 
 
+def test_dashboard_shows_storage_without_claiming_learning(tmp_path: Path):
+    database = tmp_path / "trainer.sqlite3"
+    imports = tmp_path / "imports"
+    imports.mkdir()
+    (imports / "sample.rar").write_bytes(b"diagnostic")
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=database),
+        clock_ms=lambda: 1000, api_token="secret-token",
+    ))
+    before = client.get("/v1/training/dashboard-metrics").json()
+    assert before["evidence_files"] == 1
+    assert before["paths_completed"] == 0
+    assert before["neural_training_status"] == "not_started"
+    assert before["simulator_ready"] is False
+
+    session = client.post("/v1/training/sessions", json=session_payload(),
+                          headers={"Authorization": "Bearer secret-token"}).json()
+    payload = job_payload(session["session_id"])
+    payload["rollout_count"] = 50
+    assert client.post("/v1/training/jobs", json=payload,
+                       headers={"Authorization": "Bearer secret-token"}).status_code == 202
+    after = client.get("/v1/training/dashboard-metrics").json()
+    assert after["sessions"] == 1
+    assert after["paths_requested"] == 50
+    assert after["paths_completed"] == 0
+    assert after["jobs_by_status"]["failed"] == 1
+    assert after["recent_jobs"][0]["error"] == "simulator_not_configured"
+    page = client.get("/dashboard")
+    assert page.status_code == 200
+    assert "Caminhos simulados" in page.text
+
+
 
 class FakeShadowBackend:
     def __init__(self):

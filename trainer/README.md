@@ -13,6 +13,29 @@ mas falha explicitamente com `simulator_not_configured` em vez de inventar
 500 resultados. Consulte `docs/HM45_SIMULATION_STORAGE.md` para o caminho de
 integração e os critérios das dicas.
 
+## Painel e comando no BigBANANA
+
+O quarto contêiner serve um painel leve em /dashboard. Ele mostra arquivos
+guardados, sessões, caminhos solicitados e realmente concluídos, tempo por
+lote e versões de simulador/política. O estado da rede neural permanece
+"treinamento não iniciado" até existir um processo real de aprendizagem.
+O painel atualiza a cada cinco segundos, sem bibliotecas externas.
+
+No servidor, o comando tft mostra um resumo; tft acompanhar atualiza
+o terminal a cada cinco segundos; tft painel mostra o endereço da página.
+O executável está em trainer/scripts/tft e pode ser ligado a
+~/.local/bin/tft. O nome visual "!TFT" pode ser usado na interface, mas
+no Bash o ponto de exclamação aciona a expansão do histórico; o comando
+digitável é tft.
+
+Como a porta só escuta no próprio servidor, abra um túnel SSH no computador
+de onde verá o painel e depois visite http://localhost:8801/dashboard.
+A autenticação é a do SSH; a API que recebe sessões e jobs continua
+exigindo o token privado.
+No Ubuntu de teste, trainer/scripts/tft-painel-ubuntu abre o túnel e a
+página em um só comando; quando ligado a ~/.local/bin/tft-painel, basta
+digitar tft-painel.
+
 ## Endpoints planejados
 
 ```text

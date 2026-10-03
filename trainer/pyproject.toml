@@ -24,3 +24,6 @@ testpaths = ["tests"]
 
 [tool.setuptools]
 packages = ["remote_trainer"]
+
+[tool.setuptools.package-data]
+remote_trainer = ["dashboard.html"]

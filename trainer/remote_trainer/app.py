@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import os
+from pathlib import Path
 import secrets
 import time
 from typing import Callable
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, status
+from fastapi.responses import HTMLResponse
 
 from .schemas import (
     CancelResponse,
@@ -79,6 +81,20 @@ def create_app(
             "storage": "sqlite" if app.state.store.db_path else "memory",
             "simulator_ready": not isinstance(app.state.store.backend, NullTrainerBackend),
         }
+
+    @app.get("/v1/training/dashboard-metrics")
+    async def dashboard_metrics() -> dict[str, object]:
+        snapshot = await app.state.store.dashboard_metrics()
+        snapshot["simulator_ready"] = not isinstance(app.state.store.backend, NullTrainerBackend)
+        snapshot["neural_training_status"] = "not_started"
+        snapshot["generated_at_ms"] = app.state.clock_ms()
+        return snapshot
+
+    @app.get("/dashboard", response_class=HTMLResponse)
+    async def dashboard() -> HTMLResponse:
+        page = Path(__file__).with_name("dashboard.html").read_text(encoding="utf-8")
+        return HTMLResponse(page, headers={"Cache-Control": "no-store",
+                                           "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'none'; object-src 'none'"})
 
     @app.post(
         "/v1/training/sessions",
