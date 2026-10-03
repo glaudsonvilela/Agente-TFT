@@ -206,7 +206,7 @@ class App:
         except Exception as exc:messagebox.showerror("HM4" if self.hm4 else "HM3",str(exc))
 
     def stop(self):
-        if self.session and not self.session.done.is_set():self.session.stop()
+        if self.session and not self.session.done.is_set():self.session.request_stop()
     def close(self):
         self.closing=True;self.stop()
         if (not self.session or self.session.finished) and not self.finalizing:self.root.destroy()
@@ -308,7 +308,8 @@ class App:
         if self.finalizing and self.final_result is not None:
             result=self.final_result;self.final_result=None;self.finalizing=False;self.last_finished=s.options.output
             self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(result,ensure_ascii=False,indent=2))
-            self.status.configure(text=("Concluído" if result.get("execution_complete") else "Parcial: "+str(result.get("error")))+" · "+self.last_finished)
+            label=("Concluído (encerrado pelo usuário)" if result.get("stopped_by_user") else "Concluído") if result.get("execution_complete") else "Parcial: "+str(result.get("error"))
+            self.status.configure(text=label+" · "+self.last_finished)
             if self.smoke or self.closing:self.root.destroy();return
         elif self.closing and (not s or s.finished) and not self.finalizing:self.root.destroy();return
         self.root.after(30,self.tick)
