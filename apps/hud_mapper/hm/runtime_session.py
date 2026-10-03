@@ -312,3 +312,4 @@ class HM4RuntimeSession(RuntimeSession):
     separate_hp_loop = True
     hp_hz = 1.0
     hp_max_delivery_ms = 2000.0
+    native_worker_env = {"AGENTE_TFT_RESIDENT_OCR":"auto"}
