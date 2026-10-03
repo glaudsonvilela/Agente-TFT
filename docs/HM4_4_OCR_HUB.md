@@ -4,7 +4,9 @@
 
 O teste natural HM4.2 mostrou que, mesmo após cache/paralelismo, o caminho fresco ainda era caro. A inspeção do backend confirmou que cada chamada de OCR usa `Command::new(tesseract.exe)`: um novo processo por reconhecimento.
 
-HM4.4 começa como laboratório isolado. Nenhum backend de produção foi trocado nesta etapa.
+HM4.4 começou como laboratório isolado. O estado atual ativa o backend residente no
+HM4 Auto para Windows com `AGENTE_TFT_RESIDENT_OCR=auto`; HM2/HM3 continuam com os
+contratos anteriores. O CLI permanece disponível quando a inicialização residente falha.
 
 ## Probe 1 — onde o tempo está
 
@@ -30,15 +32,17 @@ Windows CI, input sintético, 10 iterações:
 
 O input é sintético e produziu leitura vazia nos dois caminhos. Portanto estes números provam custo/latência do mecanismo de chamada, **não equivalência semântica, precisão TFT ou speedup final da partida**.
 
-## Próximo gate antes de produção
+## Estado validado
 
-Não ativar o residente ainda.
+O gate Windows do head `d97ea3bf387bdc5aa88d2743427a416c0caeb99d` passou:
+paridade de texto, caixas e confiança nos fixtures numéricos e espaciais; atlas
+de loja; e 32/32 frames residentes em quatro inicializações. No A/B do workflow
+final, o HUD fresco caiu de 517,639 ms no CLI para 33,719 ms no residente. O
+pacote existente também passou no smoke de captura/UI, com 28,150 ms no HUD
+fresco residente. Estes números são do CI e não substituem medição de uma partida
+real no PC do usuário.
 
-1. Implementar backend residente separado no crate OCR.
-2. Preservar o backend CLI atual como referência/fallback.
-3. Executar paridade CLI-vs-residente sobre imagens com texto e material natural revisado.
-4. Exigir igualdade de texto/status/confiança dentro do contrato escolhido, ou registrar divergências sem promover.
-5. Só então medir HUD numérico completo e loja.
-6. Não alterar thresholds, perfis, ground truth, GameState, training labels ou L2.
-
-Objetivo técnico: eliminar criação repetida de processos Tesseract sem misturar ganho de latência com mudança de política de leitura.
+O fallback automático cobre falha **na inicialização** do residente. Uma falha
+posterior durante o OCR é registrada como erro de leitura; não é ocultada por uma
+troca de backend no mesmo frame. Thresholds, perfis, ground truth, GameState,
+training labels e L2 não foram alterados.

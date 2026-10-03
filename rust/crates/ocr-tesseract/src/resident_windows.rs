@@ -92,10 +92,10 @@ impl ResidentTesseractOcr {
             let recognize_api:ApiRecognize=*lib.get::<ApiRecognize>(b"TessBaseAPIRecognize\0").map_err(|e|e.to_string())?;
             let get_tsv:ApiGetTsv=*lib.get::<ApiGetTsv>(b"TessBaseAPIGetTsvText\0").map_err(|e|e.to_string())?;
             let delete_text:DeleteText=*lib.get::<DeleteText>(b"TessDeleteText\0").map_err(|e|e.to_string())?;
-            let api=create();
-            if api.is_null(){return Err("TessBaseAPICreate returned null".into())}
             let data=CString::new(tessdata.to_string_lossy().as_bytes()).map_err(|_|"tessdata path contains NUL".to_string())?;
             let lang=CString::new(config.language.as_bytes()).map_err(|_|"language contains NUL".to_string())?;
+            let api=create();
+            if api.is_null(){return Err("TessBaseAPICreate returned null".into())}
             if init3(api,data.as_ptr(),lang.as_ptr())!=0{
                 delete(api);return Err("TessBaseAPIInit3 failed".into())
             }

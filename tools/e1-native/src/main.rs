@@ -166,6 +166,10 @@ impl Readers{
     #[cfg(not(windows))]
     let text_ocr_backend="cli_process_v1";
     let ocr=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()}).with_numeric_gray();
+    // A resident suite can read frames even when the companion CLI cannot start.
+    #[cfg(windows)]
+    let available=resident_hud.is_some() || ocr.available();
+    #[cfg(not(windows))]
     let available=ocr.available();
     Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
         #[cfg(windows)] resident_hud,
@@ -286,7 +290,6 @@ impl Readers{
       if !include_shop {
         shop=match self.shop_cache.as_ref() {
           Some(entry)=>{
-            located=entry.panel_located==Some(true);
             cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms)
           },
           None=>json!({"timestamp_ms":f.captured_at_ms,"panel_status":"cadence_deferred_no_prior_observation",
