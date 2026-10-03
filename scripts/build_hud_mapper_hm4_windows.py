@@ -5,6 +5,12 @@ import hashlib, importlib.metadata, json, os, shutil, subprocess, sys, zipfile
 root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
     raise SystemExit('Windows build host required')
+live_assets = root / 'build/hm4-live-assets'
+asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
+if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
+    raise SystemExit('Replay-screen assets were not verified')
+live_plan = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
+reference = root / live_plan['reference']
 
 stage = root / 'build/hm4-tools'
 stage.mkdir(parents=True, exist_ok=False)
@@ -39,16 +45,23 @@ args = [
     '--name', 'AgenteTFT-HUD-HM4-Auto',
     '--paths', str(root / 'apps/e1_replay'),
     '--paths', str(root / 'apps/hud_mapper'),
+    '--paths', str(root),
     '--distpath', str(dist),
     '--workpath', str(root / 'build/hm4-runtime'),
     '--specpath', str(root / 'build'),
     '--add-data', f'{root / "configs"};configs',
+    '--add-data', f'{root / "apps/hud_mapper/assets"};assets',
+    '--add-data', f'{reference};{live_plan["reference"]}',
+    '--add-data', f'{live_assets / "models"};models',
+    '--add-data', f'{live_assets / live_plan["icon_dir"]};{live_plan["icon_dir"]}',
     '--add-data', f'{td};tesseract',
     '--collect-binaries', 'onnxruntime', '--collect-data', 'onnxruntime',
     '--collect-binaries', 'onnx', '--collect-data', 'onnx',
     '--collect-submodules', 'jaraco', '--collect-data', 'jaraco.text',
     '--hidden-import', 'jaraco.context', '--hidden-import', 'jaraco.functools',
     '--hidden-import', 'more_itertools',
+    '--hidden-import', 'hm.board_hub_live',
+    '--hidden-import', 'hm.replay_coach',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -63,6 +76,7 @@ compaction = compact_payload(folder)
 compaction['policy'] = 'hm4_auto_private_payload_compaction_v1'
 (dist / 'HM4_COMPACTION_REPORT.json').write_text(json.dumps(compaction, indent=2), encoding='utf-8')
 shutil.copy2(root / 'docs/HUD_MAPPER_HM4_AUTO.md', folder / 'LEIA-ME.md')
+shutil.copy2(live_assets / 'ASSET_REPORT.json', folder / 'ASSET_REPORT.json')
 
 licenses = folder / 'THIRD_PARTY'
 licenses.mkdir()
@@ -88,7 +102,7 @@ files = {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdig
 manifest = dict(
     schema_version=1,
     commit=os.environ.get('GITHUB_SHA'),
-    primary_objective='simple_live_HUD_capture_geometry_telemetry',
+    primary_objective='replay_screen_capture_neural_board_hub_and_review_prompts',
     runtime_only=True,
     automatic_model_discovery=True,
     reader_only_fallback=True,
@@ -98,9 +112,14 @@ manifest = dict(
     pytorch_bundled=False,
     trainer_bundled=False,
     capture='resident_Rust_WGC_D3D11',
-    neural='optional_auto_discovered_ONNX_CPU_L2_L3',
+    neural='bundled_L3_ONNX_CPU_shadow_diagnostic',
     ocr='Tesseract_private',
-    model_weights_included=False,
+    model_weights_included=True,
+    model_sha256=asset_report['model_sha256'],
+    board_hub_reference_sha256=asset_report['reference_sha256'],
+    board_hub_candidate_only=True,
+    replay_screen_review_prompts=True,
+    live_strategy_enabled=False,
     signed=False,
     files=files,
     payload_compaction=compaction,
@@ -116,8 +135,8 @@ with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as ar
 
 iss = root / 'build/HM4.iss'
 iss.write_text(r'''[Setup]
-AppName=Agente TFT HUD Mapper HM4 Auto
-AppVersion=0.4
+AppName=Agente TFT Replay Screen Lab
+AppVersion=0.5
 DefaultDirName={localappdata}\AgenteTFT-HUD-HM4
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest
@@ -133,7 +152,7 @@ WizardStyle=modern
 [Files]
 Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]
-Name: "{autoprograms}\Agente TFT HUD Mapper HM4 Auto"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
+Name: "{autoprograms}\Agente TFT Replay Screen Lab"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
 [Run]
 Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Description: "Abrir HUD Mapper HM4 Auto"; Flags: nowait postinstall skipifsilent
 ''', encoding='utf-8')
@@ -162,7 +181,10 @@ report = dict(
     trainer_bundled=False,
     automatic_model_discovery=True,
     reader_only_fallback=True,
-    model_weights_included=False,
+    model_weights_included=True,
+    model_sha256=asset_report['model_sha256'],
+    board_hub_reference_sha256=asset_report['reference_sha256'],
+    replay_screen_review_prompts=True,
     compaction_removed_bytes=compaction['removed_bytes'],
     compaction_removed_files=len(compaction['removed_files']),
 )

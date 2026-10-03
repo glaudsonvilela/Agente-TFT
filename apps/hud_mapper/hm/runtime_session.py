@@ -2,7 +2,7 @@
 from __future__ import annotations
 from dataclasses import replace
 from concurrent.futures import ThreadPoolExecutor
-import copy, queue, time
+import copy, hashlib, queue, threading, time
 from PIL import Image
 from .core import native_regions, valid_box
 from .session import Session
@@ -191,7 +191,9 @@ class RuntimeSession(Session):
                 plan = reader_plan(frame, allow_normalize=self.normalize_reader_input)
                 pixels = reader_signature(frame, allow_any_resolution=bool(plan.get('supported') and self.normalize_reader_input))
                 hit = bool(plan.get('supported') and not self.options.board_reference and
-                           not self.separate_hp_loop and reusable(self._last_native, pixels, frame))
+                           not self.separate_hp_loop and
+                           not (getattr(self, 'board_reference_requested', None) and self.board_reference_requested.is_set()) and
+                           reusable(self._last_native, pixels, frame))
                 compare_ms = (time.perf_counter_ns() - start) / 1e6
                 executed = False
                 normalize_ms = 0.0
@@ -223,6 +225,22 @@ class RuntimeSession(Session):
                         raise ValueError('Reader plan marked supported but produced no input frame')
                     if plan.get('normalized'):
                         self.counts['reader_normalized_runs'] += 1
+                    if (self.options.board_hub_enabled and self.board_reference_requested.is_set()):
+                        try:
+                            reply = self.worker.request(dict(op='reference', id=frame.id,
+                                source_ms=round(frame.pts_ms), width=reader_frame.width,
+                                height=reader_frame.height, bytes=len(reader_frame.rgb)),
+                                reader_frame.rgb, timeout=12)
+                            if not reply.get('reference_ready'):
+                                raise ValueError('B1 reference was not accepted')
+                            self.versions['board_reference_sha256'] = hashlib.sha256(reader_frame.rgb).hexdigest()
+                            self.versions['board_reference_frame_id'] = frame.id
+                            self.versions['board_reference_status'] = 'manual_replay_frame'
+                        except Exception as exc:
+                            self.versions['board_reference_status'] = 'failed'
+                            self.versions['board_reference_error'] = str(exc)
+                        finally:
+                            self.board_reference_requested.clear()
                     executed = True
                     self.counts['reader_native_runs'] += 1
                     include_shop = (self.shop_interval_ms <= 0 or frame.pts_ms >= self._next_shop_ms)
@@ -298,6 +316,24 @@ class RuntimeSession(Session):
                 self.store.emit('roi-observations', record, frame, save)
                 self.native_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['read_frames'] += 1
+                if self.options.replay_review:
+                    from .replay_coach import economy_prompt
+                    tip = economy_prompt(answer)
+                    tip.update(frame_id=frame.id, source_ms=frame.pts_ms,
+                               source_due_ns=frame.due_ns, ready_ns=end,
+                               input_kind='previously_recorded_video_on_screen',
+                               ground_truth=False, game_state_updated=False)
+                    if tip['text'] != getattr(self, '_last_replay_tip', None) or frame.pts_ms >= getattr(self, '_next_tip_ms', 0):
+                        self._last_replay_tip = tip['text']
+                        self._next_tip_ms = frame.pts_ms + 5000
+                        self.store.emit('replay-tips', tip)
+                        self.latest_replay_tip = tip
+                        self.counts['replay_tips'] += 1
+                if self.options.board_hub_enabled and plan.get('supported') and not hit:
+                    next_hub = getattr(self, '_next_hub_ms', -1)
+                    if frame.pts_ms >= next_hub:
+                        self._next_hub_ms = frame.pts_ms + 5000
+                        self.hub_pending.put((frame, reader_frame, answer.get('board'), plan))
         except Exception as exc:
             self.error = str(exc)
             self.stop()
@@ -313,3 +349,63 @@ class HM4RuntimeSession(RuntimeSession):
     hp_hz = 1.0
     hp_max_delivery_ms = 2000.0
     native_worker_env = {"AGENTE_TFT_RESIDENT_OCR":"auto"}
+
+    def __init__(self, options):
+        super().__init__(options)
+        self.board_reference_requested = threading.Event()
+        self.latest_replay_tip = None
+
+    def request_board_reference(self):
+        if not self.options.board_hub_enabled or self.done.is_set():
+            raise ValueError('Inicie a revisão de replay antes de calibrar o tabuleiro')
+        self.board_reference_requested.set()
+
+    def _hub_loop(self):
+        try:
+            from .board_hub_live import BoardHubLive
+            from .replay_coach import inventory_prompt
+            observer = BoardHubLive(self.options.configs)
+            self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
+            self.versions['board_hub_set_key'] = observer.manifest['set_key']
+            self.versions['board_hub_mode'] = 'replay_screen_candidate_only'
+            self.versions['board_reference_status'] = 'not_calibrated'
+            while not self.cancel.is_set():
+                try:
+                    frame, reader_frame, board_read, plan = self.hub_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                started = time.perf_counter_ns()
+                observed = observer.observe(reader_frame, board_read)
+                end = time.perf_counter_ns()
+                regions = regions_to_source(observed['regions'], frame, plan)
+                record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions,
+                              snapshot=observed['snapshot'], image_size=[frame.width, frame.height],
+                              reader_input_transform=plan, ground_truth=False,
+                              source_to_hub_ms=(end-frame.due_ns)/1e6,
+                              hub_processing_ms=(end-start)/1e6,
+                              board_reference_status=self.versions.get('board_reference_status'),
+                              game_state_updated=False)
+                with self.lock:
+                    for reg in regions:
+                        self.coverage[(reg['id'], reg['status'])] += 1
+                    self.traces.append(dict(kind='hub', frame_id=frame.id,
+                        source_due_ns=frame.due_ns, ready_ns=end,
+                        total_ms=record['source_to_hub_ms'],
+                        processing_ms=record['hub_processing_ms']))
+                self.store.emit('board-hub-observations', record)
+                self.hub_results.put(dict(frame=frame, record=record, ready_ns=end))
+                self.counts['hub_results'] += 1
+                tip = inventory_prompt(observed['snapshot'])
+                if tip is not None:
+                    tip.update(frame_id=frame.id, source_ms=frame.pts_ms,
+                               source_due_ns=frame.due_ns, ready_ns=end,
+                               input_kind='previously_recorded_video_on_screen',
+                               ground_truth=False, game_state_updated=False)
+                    self.store.emit('replay-tips', tip)
+                    self.latest_replay_tip = tip
+                    self.counts['replay_tips'] += 1
+        except Exception as exc:
+            self.error = str(exc)
+            self.stop()
