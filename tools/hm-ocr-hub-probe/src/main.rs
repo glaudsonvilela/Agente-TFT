@@ -1,6 +1,6 @@
 use std::{env,fs,path::{Path,PathBuf},time::Instant};
 use agente_tft_image_preprocess::GrayImage;
-use agente_tft_ocr_tesseract::{ResidentTesseractOcr,TesseractConfig,TesseractOcr};
+use agente_tft_ocr_tesseract::{ResidentTesseractOcr,TesseractConfig,TesseractOcr,TextBlockOcrEngine,TextWord};
 use agente_tft_perception_hud::{HudField,HudOcrEngine,RecognizedText};
 use serde_json::json;
 
@@ -26,6 +26,19 @@ fn field(name:&str)->Result<HudField,String>{match name{
 }}
 fn one(engine:&mut impl HudOcrEngine,field:HudField,image:&GrayImage)->Result<(Option<RecognizedText>,f64),String>{
     let at=Instant::now();let out=engine.recognize(field,image)?;Ok((out,at.elapsed().as_secs_f64()*1000.0))
+}
+
+fn one_block(engine:&mut impl TextBlockOcrEngine,image:&GrayImage)->Result<(Vec<TextWord>,f64),String>{
+    let at=Instant::now();let out=engine.recognize_text_block(image)?;Ok((out,at.elapsed().as_secs_f64()*1000.0))
+}
+fn words_json(words:&[TextWord])->serde_json::Value{
+    json!(words.iter().map(|w|json!({"text":w.text,"confidence":w.confidence,
+        "x":w.x,"y":w.y,"width":w.width,"height":w.height})).collect::<Vec<_>>())
+}
+fn text_block_equal(a:&[TextWord],b:&[TextWord])->bool{
+    a.len()==b.len() && !a.is_empty() && a.iter().zip(b).all(|(x,y)|
+        x.text==y.text && x.x==y.x && x.y==y.y && x.width==y.width && x.height==y.height
+        && (x.confidence-y.confidence).abs()<=0.01)
 }
 fn main(){
     let args:Vec<String>=env::args().skip(1).collect();
@@ -62,9 +75,26 @@ fn main(){
                 "confidence_abs_delta":conf_delta,"cli_ms":cli_ms,"resident_ms":resident_ms,"parity":equal}));
         }
     }
-    let report=json!({"schema_version":1,"policy":"hm44_cli_resident_text_parity_v1",
+    let block_image=read_pgm(&fixtures.join("textblock.pgm")).expect("textblock fixture");
+    let mut block_rows=Vec::new();
+    let mut block_equal=true;
+    for repeat in 0..repeats {
+        let (a,cli_ms)=one_block(&mut cli,&block_image).expect("cli text block");
+        let (b,resident_ms)=one_block(&mut resident,&block_image).expect("resident text block");
+        let a_join=a.iter().map(|w|w.text.as_str()).collect::<Vec<_>>().join(" ");
+        let b_join=b.iter().map(|w|w.text.as_str()).collect::<Vec<_>>().join(" ");
+        let equal=a_join=="ALPHA 1 BETA 2" && b_join=="ALPHA 1 BETA 2" && text_block_equal(&a,&b);
+        block_equal&=equal;
+        block_rows.push(json!({"repeat":repeat,"cli_ms":cli_ms,"resident_ms":resident_ms,
+            "cli_joined":a_join,"resident_joined":b_join,"cli_words":words_json(&a),
+            "resident_words":words_json(&b),"parity":equal}));
+    }
+    all_equal &= block_equal;
+    let report=json!({"schema_version":2,"policy":"hm44_cli_resident_text_parity_v2",
         "production_enabled":false,"fixtures_generated_on_runner":true,"all_equal":all_equal,
-        "confidence_abs_tolerance":0.01,"rows":rows,
+        "numeric_all_equal":rows.iter().all(|r|r["parity"]==true),
+        "spatial_text_all_equal":block_equal,
+        "confidence_abs_tolerance":0.01,"rows":rows,"spatial_text_rows":block_rows,
         "resident_dll":resident.dll_path(),"resident_tessdata":resident.tessdata_path(),"language":resident.language()});
     fs::write(&output,serde_json::to_vec_pretty(&report).unwrap()).unwrap();
     println!("HM44_OCR_PARITY={}",serde_json::to_string(&report).unwrap());
