@@ -126,16 +126,17 @@ impl ResidentTesseractOcr {
         !self.uses_gray(field) || field!=HudField::Xp || (text.contains('/') && parse_xp_current(text).is_ok())
     }
 
-    fn run_tsv(&mut self,field:HudField,image:&GrayImage)->Result<String,String>{
+    pub(crate) fn run_tsv_custom(&mut self,image:&GrayImage,psm:c_int,whitelist:Option<&str>)->Result<String,String>{
         image.validate().map_err(|e|format!("invalid grayscale image: {e}"))?;
         let key=CString::new("tessedit_char_whitelist").unwrap();
-        let value=CString::new(Self::whitelist_for(field)).unwrap();
+        // Empty whitelist restores unrestricted text for the dedicated spatial-text instance.
+        let value=CString::new(whitelist.unwrap_or("")).map_err(|_|"whitelist contains NUL".to_string())?;
         unsafe {
             (self.clear)(self.api);
             if (self.set_variable)(self.api,key.as_ptr(),value.as_ptr())==0{
                 return Err("TessBaseAPISetVariable failed".into())
             }
-            (self.set_psm)(self.api,self.psm_for(field));
+            (self.set_psm)(self.api,psm);
             (self.set_image)(self.api,image.pixels.as_ptr(),image.width as c_int,image.height as c_int,1,image.stride_bytes as c_int);
             if (self.recognize_api)(self.api,std::ptr::null_mut())!=0{
                 return Err("TessBaseAPIRecognize failed".into())
@@ -146,6 +147,10 @@ impl ResidentTesseractOcr {
             (self.delete_text)(ptr);
             Ok(text)
         }
+    }
+
+    fn run_tsv(&mut self,field:HudField,image:&GrayImage)->Result<String,String>{
+        self.run_tsv_custom(image,self.psm_for(field),Some(Self::whitelist_for(field)))
     }
 }
 
