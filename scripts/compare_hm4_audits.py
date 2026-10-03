@@ -70,6 +70,23 @@ def compare(old_doc,new_doc):
                 "delta":pct_delta(np.get("read_completion_rate_per_submission"),
                                   op.get("read_completion_rate_per_submission")),
             },
+            "hp_source_to_result_p50_ms":{
+                "old":op.get("hp_source_to_result_p50_ms"),
+                "new":np.get("hp_source_to_result_p50_ms"),
+                "ratio_new_over_old":ratio(np.get("hp_source_to_result_p50_ms"),
+                                           op.get("hp_source_to_result_p50_ms")),
+            },
+            "hp_source_to_result_p95_ms":{
+                "old":op.get("hp_source_to_result_p95_ms"),
+                "new":np.get("hp_source_to_result_p95_ms"),
+                "ratio_new_over_old":ratio(np.get("hp_source_to_result_p95_ms"),
+                                           op.get("hp_source_to_result_p95_ms")),
+            },
+            "hp_replacement_rate":{
+                "old":op.get("hp_replacement_rate"),
+                "new":np.get("hp_replacement_rate"),
+                "delta":pct_delta(np.get("hp_replacement_rate"),op.get("hp_replacement_rate")),
+            },
         },
         "fields":fields,
         "neural":{
