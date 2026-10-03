@@ -4,6 +4,8 @@
 
 # Agente TFT
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 **Agente de inteligência artificial para análise estratégica de Teamfight Tactics em tempo real, replay e laboratório.**
 
 > **Estado confiável → cálculo → alternativas → decisão → explicação curta.**
@@ -360,6 +362,12 @@ O foco é **análise, simulação, recomendação e pesquisa reproduzível**.
 - [Roadmap](docs/ROADMAP.md)
 - [ADRs](docs/adr/)
 - [Contribuidores](CONTRIBUTORS.md)
+
+---
+
+## Licença
+
+Este projeto é distribuído sob a **MIT License**. Consulte [LICENSE](LICENSE) para os termos completos.
 
 ---
 
