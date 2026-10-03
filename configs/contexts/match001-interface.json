@@ -3,8 +3,9 @@
   "recording_id": "match-001",
   "layout_id": "match001-desktop-1920x1080-ptbr-v1",
   "locale": "pt_br",
-  "set_key": null,
-  "tft_patch": null,
+  "set_key": "TFTSet18",
+  "tft_patch": "18.3",
   "knowledge_release": null,
-  "version_basis": "not supplied; never infer replay patch from current date or latest"
+  "played_at_approx": "2026-09-30",
+  "version_basis": "User reported Match001 played about three days before 2026-10-03 on the then-current patch; Riot's 2026 schedule places TFT 18.3 on 2026-09-23 and 18.4 on 2026-10-07. Official 18.3 notes include 2026-09-24 B and 2026-09-28 mid-patch updates. Date/patch are reported and schedule-inferred, not read from the replay client."
 }

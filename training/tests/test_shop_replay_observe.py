@@ -38,7 +38,8 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual([s['slot'] for s in layout['slots']],list(range(5)))
         self.assertNotIn('champions',layout);self.assertNotIn('tft_patch',layout)
         ctx=json.loads((root/'configs/contexts/match001-interface.json').read_text())
-        self.assertIsNone(ctx['set_key']);self.assertIsNone(ctx['tft_patch'])
+        self.assertEqual(ctx['set_key'],'TFTSet18');self.assertEqual(ctx['tft_patch'],'18.3')
+        self.assertIsNone(ctx['knowledge_release'])
     def test_topology_and_projection_separate(self):
         root=Path(__file__).resolve().parents[2]
         board=json.loads((root/'configs/topology/board-standard-4x7-v1.json').read_text())

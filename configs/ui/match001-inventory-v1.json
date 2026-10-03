@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "match001-inventory-v1",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "anchor": {"x": 27, "y": 273, "width": 21, "height": 21},
+  "anchor_orange_min_fraction": 0.45,
+  "slot_count": 10,
+  "slot_origin": {"x": 10, "y": 260},
+  "slot_step_y": 53,
+  "slot_size": {"width": 45, "height": 46},
+  "icon_inner_offset": {"x": 8, "y": 10},
+  "icon_inner_size": {"width": 30, "height": 29},
+  "bright_min_channel": 45,
+  "occupied_min_bright_fraction": 0.20,
+  "empty_max_bright_fraction": 0.10,
+  "slot_zero_role": "unclassified_stack_not_item_id",
+  "provenance": "Match001 1920x1080 visual development seed; no item identities or independent accuracy claim"
+}

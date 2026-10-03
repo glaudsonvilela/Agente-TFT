@@ -26,6 +26,17 @@ on:
       - 'scripts/probe_match001_shop_numbers.sh'
       - 'training/board_spatial*.py'
       - 'training/tests/test_board_spatial*.py'
+      - 'training/board_hub_inventory.py'
+      - 'training/tests/test_board_hub_inventory.py'
+      - 'training/board_hub_item_candidates.py'
+      - 'training/tests/test_board_hub_item_candidates.py'
+      - 'training/board_hub_position_candidates.py'
+      - 'training/tests/test_board_hub_position_candidates.py'
+      - 'training/board_hub_equipped_candidates.py'
+      - 'training/tests/test_board_hub_equipped_candidates.py'
+      - 'training/board_hub_snapshot.py'
+      - 'training/tests/test_board_hub_snapshot.py'
+      - 'training/requirements-board-hub.txt'
       - 'scripts/probe_match001_board_bench.sh'
       - 'training/bench_presence*.py'
       - 'training/tests/test_bench_presence*.py'
@@ -128,3 +139,11 @@ jobs:
           cargo build --manifest-path rust/Cargo.toml -p agente-tft-board-replay-probe
           python3 -m unittest training.tests.test_board_spatial training.tests.test_board_spatial_native -v
           python3 -m unittest training.tests.test_bench_presence training.tests.test_bench_presence_native -v
+          python3 -m unittest training.tests.test_board_hub_inventory -v
+          python3 -m unittest training.tests.test_board_hub_position_candidates -v
+      - name: Board hub icon candidate contracts
+        run: |
+          python3 -m pip install -r training/requirements-board-hub.txt
+          python3 -m unittest training.tests.test_board_hub_item_candidates -v
+          python3 -m unittest training.tests.test_board_hub_equipped_candidates -v
+          python3 -m unittest training.tests.test_board_hub_snapshot -v

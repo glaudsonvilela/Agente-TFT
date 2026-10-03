@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "match001-equipped-icons-v1",
+  "board_profile_id": "match001-board-bench-v1",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "slots_per_bar": 3,
+  "icon_size": 23,
+  "slot_step_x": 26,
+  "min_offset_x": -8,
+  "max_offset_x": -3,
+  "min_offset_y": 8,
+  "max_offset_y": 14,
+  "icon_candidate_max_rms": 35,
+  "empty_appearance_min_rms": 45,
+  "provenance": "Match001 health-bar artwork development seed; same-replay thresholds are not independent accuracy"
+}
