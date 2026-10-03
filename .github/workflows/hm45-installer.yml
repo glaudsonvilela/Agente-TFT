@@ -1,0 +1,57 @@
+name: HM4.5 guided installer contracts
+
+on:
+  push:
+    branches:
+      - work/hm45-interactive-installer
+    paths:
+      - 'apps/hud_mapper/AgenteTFT_HUD_HM4.py'
+      - 'apps/hud_mapper/hm45_setup*.py'
+      - 'apps/hud_mapper/tests/test_hm45_setup.py'
+      - 'scripts/hm45_installer/**'
+      - 'scripts/build_hm45_installer_windows.py'
+      - 'scripts/build_hud_mapper_hm4_windows.py'
+      - '.github/workflows/hm45-installer.yml'
+  pull_request:
+    paths:
+      - 'apps/hud_mapper/AgenteTFT_HUD_HM4.py'
+      - 'apps/hud_mapper/hm45_setup*.py'
+      - 'apps/hud_mapper/tests/test_hm45_setup.py'
+      - 'scripts/hm45_installer/**'
+      - 'scripts/build_hm45_installer_windows.py'
+      - 'scripts/build_hud_mapper_hm4_windows.py'
+      - '.github/workflows/hm45-installer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-contracts:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test resumable setup and package gates
+        run: |
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_setup.py' -v
+          python -m py_compile apps/hud_mapper/hm45_setup.py apps/hud_mapper/hm45_setup_core.py scripts/build_hm45_installer_windows.py
+      - name: Check Inno Setup wizard syntax with nonrelease fixtures
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
+          New-Item -ItemType Directory -Force -Path dist/AgenteTFT-HUD-HM4-Auto, build/hm45-core | Out-Null
+          Copy-Item C:/Windows/System32/notepad.exe dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe
+          Set-Content -Path build/hm45-core/core-package.json -Value '{}' -Encoding utf8
+          Set-Content -Path build/hm45-core/fixture.txt -Value 'syntax fixture' -Encoding utf8
+          tar -cf build/hm45-core/AgenteTFT-Core-v1.tar -C build/hm45-core fixture.txt
+          Copy-Item scripts/hm45_installer/AgenteTFT_HM45.iss build/HM45.iss
+          $iscc = @('C:/Program Files (x86)/Inno Setup 6/ISCC.exe', 'C:/Program Files/Inno Setup 6/ISCC.exe') | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { throw 'ISCC.exe missing' }
+          & $iscc build/HM45.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Inno wizard compilation failed' }
+          Remove-Item dist/AgenteTFT-HM45-Setup.exe
