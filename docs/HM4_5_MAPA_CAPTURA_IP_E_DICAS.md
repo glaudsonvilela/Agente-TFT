@@ -17,6 +17,7 @@ evidência de execução, não instruções para o projeto nem rótulos verdadei
 | Leitores nativos | 510 resultados; 627 pedidos substituídos | p95 captura→resultado: 5,24 s |
 | HUB B4 | 106 resultados | p50 captura→resultado: 4,21 s; p95: 8,47 s |
 | Dicas até a UI | 173 | p50: 3,53 s; p95: 7,81 s; não mede scanout físico |
+| Amostras PNG gravadas | 56; 204,5 MB | 69 pedidos de escrita descartados por fila cheia |
 
 O painel de desempenho mostra tempos altos no OCR e no B4; a inferência L3 em
 si teve p50 de 1,78 ms. O `repaint()` atual reconstrói uma imagem RGB grande,
@@ -38,40 +39,89 @@ Essas observações não sustentam ordens de equipar, comprar ou rolar.
 flowchart LR
     V[Vídeo no player Windows] --> C[Serviço Rust WGC/D3D11 no host]
     C --> P[Prévia 1280×720, fila latest-only, 24–30 FPS]
-    P -->|loopback IP, frames comprimidos e timestamps| U[Interface HM4]
-    C --> A[Frames nativos e ROIs sem perda]
-    A -->|cadências independentes| W[Processo de análise: L3, OCR, B4]
+    P -->|entrega direta no Windows| U[Interface HM4]
+    C --> A[ROIs nativas sem perda e entradas L3 pequenas]
+    A -->|TCP local, frame_id e timestamps| W[VM WSL 2: L3, OCR, B4]
     W --> E[Estado observado com confiança e validade]
     E --> D[Opportunity Runtime Rust + regras de emissão]
-    D -->|eventos curtos, frame_id e TTL| U
+    D -->|mesma conexão local: eventos e TTL| U
 ```
 
-1. **Isolamento por processo primeiro.** O capturador Rust fica em um processo
-   Windows independente, supervisionado por watchdog. A UI não espera OCR, B4
-   ou inferência para desenhar o próximo quadro. O processo de análise tem
-   orçamento de CPU/memória e filas de tamanho 1 que descartam trabalho velho.
-   Isso oferece isolamento de falhas semelhante ao buscado com VM e permite
-   medir o ganho antes de reservar GPU/RAM para uma VM.
-2. **IP local para a prévia.** O serviço publica somente em `127.0.0.1`, com
-   porta efêmera, token por sessão e protocolo versionado. Envia metadados
-   (`frame_id`, tamanho, instante WGC, sequência, idade) e a imagem 720p
-   comprimida. Primeiro protótipo: JPEG de baixa latência; medir CPU, bytes e
-   qualidade. H.264 por hardware é opção posterior se o encoder disponível e
-   sua latência forem melhores no PC de teste. IP local não reduz sozinho o
-   custo de copiar/decodificar quadros.
+1. **VM leve como execução padrão.** Usar WSL 2, que executa Linux numa VM
+   utilitária gerenciada pelo Windows, com uma distribuição `AgenteTFT-Core`
+   importada de rootfs Debian minimal (glibc), sem desktop, navegador, Docker,
+   servidor gráfico ou serviços de inicialização desnecessários. Ela contém
+   o worker Rust, um Python mínimo para o L3/ONNX Runtime CPU, OCR, modelos e
+   catálogo versionado. Portar a inferência para Rust é uma otimização futura,
+   condicionada a medir o custo real do Python na VM.
+   O processo inicia sob demanda e é encerrado com a sessão. A captura WGC
+   permanece nativa no Windows, pois a VM não captura a tela do host.
+2. **IP local para a análise.** O worker na VM escuta numa porta efêmera; o
+   capturador Windows abre uma conexão TCP bidirecional com autenticação por
+   token de sessão. No WSL 2 padrão, Windows alcança o serviço Linux por
+   `localhost`; não depender de a VM alcançar `127.0.0.1` do host. Mandar
+   `frame_id`, tamanho, instante WGC, sequência, validade e somente os recortes
+   necessários. A prévia 720p vai direto do Rust à UI Windows: atravessar a VM
+   para voltar à mesma tela acrescentaria cópia/codec sem beneficiar a análise.
 3. **Análise preserva resolução.** O WGC recebe a resolução nativa. OCR e B4
-   usam ROIs nativas ou cópias sem perda em geometria canônica; nunca leem o
-   JPEG da prévia. A rede L3 recebe sua entrada normalizada própria. Os Hz de
-   cada consumidor deixam de limitar os FPS da captura e da prévia.
+   recebem ROIs nativas sem perda em geometria canônica; nunca leem a prévia
+   720p. A rede L3 recebe uma entrada pequena com transformação de coordenadas
+   registrada. Os Hz de cada consumidor deixam de limitar os FPS da captura e
+   da prévia. Um frame inteiro, quando indispensável ao B4, é raro e tem limite
+   explícito de bytes e frequência.
 4. **UI leve.** Desenhar apenas o último quadro disponível, sem fila acumulada;
    limitar overlays/tabela/performance a 2–4 atualizações por segundo ou a uma
    mudança material. Evitar reconstruir o RGB 1920×1080 e a Treeview em cada
    atualização. Se Tk não sustentar 720p/24 FPS no A/B, trocar só o renderizador
    da prévia, mantendo os painéis de evidência.
-5. **VM opcional.** Se ainda houver necessidade de fronteira mais rígida, o
-   Rust WGC continua no host e a análise vai para uma VM em rede host-only.
-   Comparar FPS do player, idade dos quadros e custo da cópia/encoder com a
-   opção de processos no mesmo host. `127.0.0.1` na VM não aponta para o host.
+5. **Instalação e fallback.** O instalador verifica WSL 2, virtualização e
+   espaço antes de importar o rootfs versionado; avisa quando Windows exigir
+   privilégio administrativo ou reinicialização. Não instala Docker ou uma VM
+   com desktop. A distribuição é um artefato separado do app Windows, com hash
+   e rollback. Se WSL 2 estiver indisponível, o runtime local de processo
+   separado permanece como fallback explícito para não bloquear o usuário.
+   Comparar ambos no mesmo PC: VM dá isolamento, mas não cria CPU/GPU extra e
+   a transferência por IP pode custar tempo.
+
+O WSL 2 e a importação de distribuições próprias são recursos documentados
+pela Microsoft: [arquitetura WSL 2](https://learn.microsoft.com/en-us/windows/wsl/wsl2-about),
+[importação de rootfs](https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro),
+[rede localhost](https://learn.microsoft.com/en-us/windows/wsl/networking).
+`.wslconfig` limita RAM/CPUs de **todas** as distribuições WSL 2 do usuário;
+o instalador não deve sobrescrevê-lo. Ele mede o uso do worker e sugere um
+limite inicial de 2 GB/2 vCPUs apenas quando a configuração global puder ser
+alterada com segurança; caso contrário, respeita a configuração existente.
+[Configuração oficial](https://learn.microsoft.com/en-us/windows/wsl/wsl-config).
+
+## Perfil leve para PCs medianos
+
+Tratar **4 núcleos lógicos, 8 GB de RAM e GPU D3D11** como a primeira classe
+de teste de aceitação, não como afirmação sobre o PC médio do mercado. Medir
+também na GTX 1060 3 GB da sessão enviada e em uma iGPU disponível. O produto
+deve iniciar no perfil leve; perfis mais caros são opt-in e só permanecem
+ativos enquanto cumprem o orçamento.
+
+| Caminho | Perfil leve inicial | Degradação quando sobrecarregado |
+| --- | --- | --- |
+| Vídeo no player | nativo, sem intervenção do HM4 | nunca reduzir a taxa do player para salvar a prévia |
+| Prévia HM4 | 1280×720 a 24–30 FPS, produzida no Rust | reduzir primeiro a taxa para 20/15 FPS; opção sem prévia, mantendo dicas e estado |
+| L3 | até 6–8 Hz, entrada pequena | reduzir Hz e descartar quadros antigos |
+| OCR HUD/loja | 1–2 Hz e em eventos de mudança | priorizar ouro/loja; manter resultado anterior com idade explícita |
+| B4 | até 0,2 Hz ou mudança do tabuleiro | pausar comparação de ícones sem necessidade |
+| Persistência | resumo, eventos e amostras pontuais com limite baixo | desligar PNG periódico; modo laboratório libera coleta extensa |
+
+O limite atual de 8 Hz não pode continuar sendo o teto de toda a captura.
+O capturador deve reduzir em GPU antes de copiar a prévia para CPU/UI;
+OCR recebe apenas os recortes necessários do frame nativo. Não duplicar
+quadros 1080p completos em cada processo. Manter telemetria agregada em
+memória e gravá-la em lotes, sem reserializar o painel inteiro a cada 30 ms.
+
+Orçamentos provisórios para a classe de teste: HM4 no Windows e worker na VM
+com RAM conjunta estável abaixo de 2,5 GB, sem desktop Linux, e uso sustentado
+de CPU do HM4 abaixo de dois núcleos lógicos, sem
+prejudicar o FPS do player em mais de 5% frente à mesma reprodução sem HM4.
+Se um orçamento não for atingido, registrar a causa por etapa e ajustar o
+perfil; esses números ainda não foram alcançados ou medidos no hardware alvo.
 
 ## Dicas: de observação para ação
 
@@ -100,17 +150,19 @@ frases repetidas a cada frame e as mensagens com vários segundos de atraso.
 
 1. **HM4.5a — correção curta:** separar FPS da prévia dos Hz de análise;
    renderizar imagem 720p e atualizar tabelas/telemetria em cadência menor;
-   remover prompt por mera presença de item; registrar FPS de captura, prévia,
+   reduzir a coleta de PNG no perfil leve; remover prompt por mera presença de item; registrar FPS de captura, prévia,
    player (quando disponível), tempo de pintura, CPU/GPU/memória e quedas por
    etapa. Não publicar novas ordens nesta fase.
-2. **HM4.5b — serviço IP local:** extrair captura Rust para processo separado;
-   protocolo versionado, fila latest-only, reconexão, desligamento limpo e
-   tela de estado quando o serviço cai. Manter análise em resolução nativa.
+2. **HM4.5b — VM + serviço IP local:** extrair captura Rust para processo
+   Windows separado, criar rootfs WSL 2 headless, protocolo versionado,
+   fila latest-only, reconexão, desligamento limpo e estado visível quando a
+   VM cai. Manter análise por ROIs nativas, sem o vídeo inteiro em 30 FPS.
 3. **HM4.5c — decisões:** integrar fatos confirmados ao motor Rust existente;
    IDs de campeões/itens exigem dataset rotulado, teste por patch e calibração
    de confiança. Liberar cada verbo separadamente após validação natural.
-4. **HM4.5d — VM, se necessária:** executar o mesmo protocolo por rede host-only
-   e comparar objetivamente com processos locais antes de adotar a VM.
+4. **HM4.5d — ajuste da VM:** medir WSL 2 contra o fallback local e calibrar
+   recursos por classe de PC; publicar uma imagem pequena versionada e uma
+   atualização separada de catálogo/modelo para cada patch.
 
 **Aceite de fluidez:** na mesma máquina e no mesmo vídeo, comparar captura
 desligada, HM4 atual e HM4.5. Alvo inicial: prévia 720p >=24 FPS, p95 de idade
