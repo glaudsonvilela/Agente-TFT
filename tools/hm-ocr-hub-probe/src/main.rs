@@ -1,114 +1,72 @@
-use std::{env, ffi::{CStr,CString,c_char,c_int,c_void}, fs, path::{Path,PathBuf}, time::Instant};
+use std::{env,fs,path::{Path,PathBuf},time::Instant};
 use agente_tft_image_preprocess::GrayImage;
-use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
-use agente_tft_perception_hud::{HudField,HudOcrEngine};
-use libloading::{Library,Symbol};
+use agente_tft_ocr_tesseract::{ResidentTesseractOcr,TesseractConfig,TesseractOcr};
+use agente_tft_perception_hud::{HudField,HudOcrEngine,RecognizedText};
 use serde_json::json;
 
-type ApiCreate=unsafe extern "C" fn()->*mut c_void;
-type ApiDelete=unsafe extern "C" fn(*mut c_void);
-type ApiEnd=unsafe extern "C" fn(*mut c_void);
-type ApiInit3=unsafe extern "C" fn(*mut c_void,*const c_char,*const c_char)->c_int;
-type ApiSetVariable=unsafe extern "C" fn(*mut c_void,*const c_char,*const c_char)->c_int;
-type ApiSetPsm=unsafe extern "C" fn(*mut c_void,c_int);
-type ApiSetImage=unsafe extern "C" fn(*mut c_void,*const u8,c_int,c_int,c_int,c_int);
-type ApiRecognize=unsafe extern "C" fn(*mut c_void,*mut c_void)->c_int;
-type ApiGetTsv=unsafe extern "C" fn(*mut c_void,c_int)->*mut c_char;
-type DeleteText=unsafe extern "C" fn(*const c_char);
-
-fn pct(values:&[f64],q:f64)->Option<f64>{
-    if values.is_empty(){return None}
-    let mut a=values.to_vec();a.sort_by(|x,y|x.total_cmp(y));
-    let at=(a.len()-1) as f64*q;let lo=at.floor() as usize;let hi=(lo+1).min(a.len()-1);let f=at-lo as f64;
-    Some(a[lo]*(1.0-f)+a[hi]*f)
+fn read_pgm(path:&Path)->Result<GrayImage,String>{
+    let data=fs::read(path).map_err(|e|format!("{}: {e}",path.display()))?;
+    if !data.starts_with(b"P5\n"){return Err(format!("{}: expected P5 PGM",path.display()))}
+    let mut cuts=Vec::new();
+    for (i,b) in data.iter().enumerate(){if *b==b'\n'{cuts.push(i);if cuts.len()==3{break}}}
+    if cuts.len()!=3{return Err(format!("{}: truncated PGM header",path.display()))}
+    let dims=std::str::from_utf8(&data[cuts[0]+1..cuts[1]]).map_err(|e|e.to_string())?;
+    let mut it=dims.split_whitespace();
+    let width:u32=it.next().ok_or("missing width")?.parse().map_err(|_|"bad width")?;
+    let height:u32=it.next().ok_or("missing height")?.parse().map_err(|_|"bad height")?;
+    if it.next().is_some(){return Err("extra dimensions".into())}
+    if &data[cuts[1]+1..cuts[2]]!=b"255"{return Err("PGM max value must be 255".into())}
+    let pixels=data[cuts[2]+1..].to_vec();
+    if pixels.len()!=width as usize*height as usize{return Err(format!("{}: pixel length mismatch",path.display()))}
+    Ok(GrayImage{width,height,stride_bytes:width,pixels})
 }
-fn stats(v:&[f64])->serde_json::Value{
-    json!({"n":v.len(),"p50_ms":pct(v,0.5),"p95_ms":pct(v,0.95),"max_ms":v.iter().copied().fold(0.0,f64::max)})
-}
-fn image()->GrayImage{
-    let w=132u32;let h=75u32;let mut pixels=vec![0u8;(w*h) as usize];
-    for y in 12..63 {
-        for x in [24u32,25,60,61,96,97] {
-            pixels[(y*w+x) as usize]=255;
-        }
-    }
-    GrayImage{width:w,height:h,stride_bytes:w,pixels}
-}
-fn find_dll(binary:&Path)->PathBuf{
-    let root=binary.parent().unwrap_or(Path::new("."));
-    for name in ["libtesseract-5.dll","libtesseract.dll"] {
-        let p=root.join(name);if p.is_file(){return p}
-    }
-    panic!("libtesseract DLL not found beside {}",binary.display())
+fn field(name:&str)->Result<HudField,String>{match name{
+    "gold"=>Ok(HudField::Gold),"level"=>Ok(HudField::Level),"stage"=>Ok(HudField::Stage),"xp"=>Ok(HudField::Xp),
+    _=>Err(format!("unknown field {name}"))
+}}
+fn one(engine:&mut impl HudOcrEngine,field:HudField,image:&GrayImage)->Result<(Option<RecognizedText>,f64),String>{
+    let at=Instant::now();let out=engine.recognize(field,image)?;Ok((out,at.elapsed().as_secs_f64()*1000.0))
 }
 fn main(){
     let args:Vec<String>=env::args().skip(1).collect();
-    let binary=PathBuf::from(args.first().cloned().unwrap_or_else(||"C:\\Program Files\\Tesseract-OCR\\tesseract.exe".into()));
-    let mut iterations=10usize;let mut output="hm44-ocr-hub-probe.json".to_string();
-    let mut i=1usize;while i<args.len(){match args[i].as_str(){
-        "--iterations"=>{i+=1;iterations=args.get(i).and_then(|x|x.parse().ok()).unwrap_or(10)},
-        "--output"=>{i+=1;output=args.get(i).cloned().unwrap_or(output)},_=>{} } i+=1;}
-    if !(4..=32).contains(&iterations){panic!("iterations must be in 4..=32")}
-    if !binary.is_file(){panic!("tesseract binary missing: {}",binary.display())}
-    let dll=find_dll(&binary);let tessdata=binary.parent().unwrap().join("tessdata");
-    if !tessdata.join("eng.traineddata").is_file(){panic!("eng.traineddata missing")}
-    let gray=image();
-
+    if args.len()<2{panic!("usage: <tesseract.exe> <fixture-dir> [--output file] [--repeats N]")}
+    let binary=PathBuf::from(&args[0]);let fixtures=PathBuf::from(&args[1]);
+    let mut output="hm44-ocr-hub-parity.json".to_string();let mut repeats=3usize;let mut i=2usize;
+    while i<args.len(){match args[i].as_str(){
+        "--output"=>{i+=1;output=args.get(i).cloned().unwrap_or(output)},
+        "--repeats"=>{i+=1;repeats=args.get(i).and_then(|x|x.parse().ok()).unwrap_or(3)},
+        _=>{}
+    } i+=1;}
+    if !(1..=5).contains(&repeats){panic!("repeats must be 1..=5")}
     let mut cli=TesseractOcr::new(TesseractConfig{binary:binary.to_string_lossy().into_owned(),language:"eng".into()}).with_numeric_gray();
     if !cli.available(){panic!("CLI tesseract unavailable")}
-    let _=cli.recognize(HudField::Gold,&gray).expect("CLI warmup");
+    let mut resident=ResidentTesseractOcr::from_cli_path(&binary,"eng").expect("resident init").with_numeric_gray();
 
-    let lib=unsafe{Library::new(&dll)}.unwrap_or_else(|e|panic!("load {}: {e}",dll.display()));
-    unsafe {
-        let create:Symbol<ApiCreate>=lib.get(b"TessBaseAPICreate\0").unwrap();
-        let delete:Symbol<ApiDelete>=lib.get(b"TessBaseAPIDelete\0").unwrap();
-        let end:Symbol<ApiEnd>=lib.get(b"TessBaseAPIEnd\0").unwrap();
-        let init3:Symbol<ApiInit3>=lib.get(b"TessBaseAPIInit3\0").unwrap();
-        let set_var:Symbol<ApiSetVariable>=lib.get(b"TessBaseAPISetVariable\0").unwrap();
-        let set_psm:Symbol<ApiSetPsm>=lib.get(b"TessBaseAPISetPageSegMode\0").unwrap();
-        let set_image:Symbol<ApiSetImage>=lib.get(b"TessBaseAPISetImage\0").unwrap();
-        let recognize:Symbol<ApiRecognize>=lib.get(b"TessBaseAPIRecognize\0").unwrap();
-        let get_tsv:Symbol<ApiGetTsv>=lib.get(b"TessBaseAPIGetTsvText\0").unwrap();
-        let delete_text:Symbol<DeleteText>=lib.get(b"TessDeleteText\0").unwrap();
-
-        let init_started=Instant::now();let api=create();if api.is_null(){panic!("TessBaseAPICreate returned null")}
-        let data=CString::new(tessdata.to_string_lossy().as_bytes()).unwrap();let lang=CString::new("eng").unwrap();
-        if init3(api,data.as_ptr(),lang.as_ptr())!=0{delete(api);panic!("TessBaseAPIInit3 failed")}
-        let key=CString::new("tessedit_char_whitelist").unwrap();let value=CString::new("0123456789").unwrap();
-        if set_var(api,key.as_ptr(),value.as_ptr())==0{end(api);delete(api);panic!("TessBaseAPISetVariable failed")}
-        set_psm(api,7);let init_ms=init_started.elapsed().as_secs_f64()*1000.0;
-
-        let mut hub_once=||->String{
-            set_image(api,gray.pixels.as_ptr(),gray.width as c_int,gray.height as c_int,1,gray.stride_bytes as c_int);
-            if recognize(api,std::ptr::null_mut())!=0{panic!("TessBaseAPIRecognize failed")}
-            let ptr=get_tsv(api,0);if ptr.is_null(){panic!("TessBaseAPIGetTsvText returned null")}
-            let out=CStr::from_ptr(ptr).to_string_lossy().into_owned();delete_text(ptr);out
-        };
-        let _=hub_once(); // warm caches; initialization remains reported separately.
-
-        let mut cli_ms=Vec::new();let mut hub_ms=Vec::new();let mut cli_nonempty=0usize;let mut hub_nonempty=0usize;
-        for _ in 0..iterations {
-            let a=Instant::now();let c=cli.recognize(HudField::Gold,&gray).expect("CLI recognize");
-            cli_ms.push(a.elapsed().as_secs_f64()*1000.0);cli_nonempty+=usize::from(c.is_some());
-
-            let b=Instant::now();let tsv=hub_once();
-            hub_ms.push(b.elapsed().as_secs_f64()*1000.0);
-            hub_nonempty+=usize::from(tsv.lines().skip(1).any(|line|line.split('\t').nth(11).is_some_and(|x|!x.trim().is_empty())));
+    let cases=[("gold","50"),("level","8"),("stage","4-2"),("xp","20/68")];
+    let mut rows=Vec::new();let mut all_equal=true;
+    for (name,expected) in cases {
+        let image=read_pgm(&fixtures.join(format!("{name}.pgm"))).expect("fixture");
+        for repeat in 0..repeats {
+            let (a,cli_ms)=one(&mut cli,field(name).unwrap(),&image).expect("cli");
+            let (b,resident_ms)=one(&mut resident,field(name).unwrap(),&image).expect("resident");
+            let a_text=a.as_ref().map(|x|x.text.clone());
+            let b_text=b.as_ref().map(|x|x.text.clone());
+            let a_conf=a.as_ref().map(|x|x.confidence.value());
+            let b_conf=b.as_ref().map(|x|x.confidence.value());
+            let conf_delta=match (a_conf,b_conf){(Some(x),Some(y))=>Some((x-y).abs()),(None,None)=>Some(0.0),_=>None};
+            let equal=a_text.as_deref()==Some(expected) && b_text.as_deref()==Some(expected)
+                && a_text==b_text && conf_delta.is_some_and(|d|d<=0.01);
+            all_equal&=equal;
+            rows.push(json!({"field":name,"expected":expected,"repeat":repeat,
+                "cli_text":a_text,"resident_text":b_text,"cli_confidence":a_conf,"resident_confidence":b_conf,
+                "confidence_abs_delta":conf_delta,"cli_ms":cli_ms,"resident_ms":resident_ms,"parity":equal}));
         }
-        end(api);delete(api);
-        let cli_p50=pct(&cli_ms,0.5).unwrap();let hub_p50=pct(&hub_ms,0.5).unwrap();
-        let report=json!({
-            "schema_version":1,"policy":"hm44_resident_tesseract_c_api_probe_v1",
-            "synthetic_input":true,"accuracy_claim":false,
-            "binary":binary,"dll":dll,"tessdata":tessdata,"iterations":iterations,
-            "resident_init_ms":init_ms,
-            "cli_process_adapter":stats(&cli_ms),
-            "resident_c_api":stats(&hub_ms),
-            "p50_speedup_cli_over_resident":if hub_p50>0.0{cli_p50/hub_p50}else{0.0},
-            "cli_nonempty":cli_nonempty,"resident_nonempty":hub_nonempty,
-            "production_enabled":false
-        });
-        fs::write(&output,serde_json::to_vec_pretty(&report).unwrap()).unwrap();
-        println!("HM44_OCR_HUB_PROBE={}",serde_json::to_string(&report).unwrap());
     }
+    let report=json!({"schema_version":1,"policy":"hm44_cli_resident_text_parity_v1",
+        "production_enabled":false,"fixtures_generated_on_runner":true,"all_equal":all_equal,
+        "confidence_abs_tolerance":0.01,"rows":rows,
+        "resident_dll":resident.dll_path(),"resident_tessdata":resident.tessdata_path(),"language":resident.language()});
+    fs::write(&output,serde_json::to_vec_pretty(&report).unwrap()).unwrap();
+    println!("HM44_OCR_PARITY={}",serde_json::to_string(&report).unwrap());
+    assert!(all_equal,"CLI/resident OCR parity gate failed");
 }
