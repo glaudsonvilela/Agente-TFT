@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "match001-bar-to-cell-candidates-v1",
+  "board_profile_id": "match001-board-bench-v1",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "bands": [
+    {"zone": "board", "row": 0, "min_bar_y": 300, "max_bar_y": 365},
+    {"zone": "board", "row": 1, "min_bar_y": 375, "max_bar_y": 445},
+    {"zone": "board", "row": 2, "min_bar_y": 460, "max_bar_y": 540},
+    {"zone": "board", "row": 3, "min_bar_y": 550, "max_bar_y": 640},
+    {"zone": "bench", "row": null, "min_bar_y": 665, "max_bar_y": 730}
+  ],
+  "max_horizontal_residual_px": 75,
+  "provenance": "Match001 visual development bands, not confirmed unit ground points, own-board perspective, or accuracy"
+}

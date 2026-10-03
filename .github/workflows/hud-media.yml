@@ -30,6 +30,8 @@ on:
       - 'training/tests/test_board_hub_inventory.py'
       - 'training/board_hub_item_candidates.py'
       - 'training/tests/test_board_hub_item_candidates.py'
+      - 'training/board_hub_position_candidates.py'
+      - 'training/tests/test_board_hub_position_candidates.py'
       - 'training/requirements-board-hub.txt'
       - 'scripts/probe_match001_board_bench.sh'
       - 'training/bench_presence*.py'
@@ -134,6 +136,7 @@ jobs:
           python3 -m unittest training.tests.test_board_spatial training.tests.test_board_spatial_native -v
           python3 -m unittest training.tests.test_bench_presence training.tests.test_bench_presence_native -v
           python3 -m unittest training.tests.test_board_hub_inventory -v
+          python3 -m unittest training.tests.test_board_hub_position_candidates -v
       - name: Board hub icon candidate contracts
         run: |
           python3 -m pip install -r training/requirements-board-hub.txt

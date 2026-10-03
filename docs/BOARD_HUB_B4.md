@@ -81,6 +81,30 @@ calibradas. Um teste nos 40 frames não mede cobertura de itens que não aparece
 na gravação. A versão visual do Data Dragon ainda precisa ser vinculada ao
 patch TFT comprovado antes de alimentar `GameState`.
 
+## Posições candidatas no tabuleiro
+
+`training.board_hub_position_candidates` usa as barras verdes do relatório B1
+e o perfil visual `match001-bar-to-cell-candidates-v1` para sugerir linha e
+coluna da grade 4×7 ou espaço do banco. As faixas verticais e o limite de
+distância horizontal são dados do layout, fora do catálogo de patch. A saída
+mantém `ground_point`, `occupancy` e `unit_id` nulos; não afirma que a arena
+vista é a do próprio jogador.
+
+No desenvolvimento com os 40 frames Match001, 17 projeções de arena foram
+aceitas pelo B1 e 23 permaneceram indisponíveis. Nas 17, o mapeamento produziu
+76 posições candidatas no tabuleiro e 12 no banco; nove barras vermelhas e
+sete marcadores fora das faixas ficaram sem atribuição. No frame 27, os oito
+marcadores do tabuleiro caíram em cinco células da linha 0, uma da linha 1 e
+duas da linha 3; o nono caiu no primeiro espaço do banco. São contagens do
+mesmo replay usado para ajustar as faixas, não precisão validada.
+
+```bash
+python3 -m training.board_hub_position_candidates \
+  --report /caminho/para/board-b1/report.json \
+  --board-profile configs/ui/match001-board-bench-v1.json \
+  --projection-profile configs/ui/match001-bar-to-cell-candidates-v1.json
+```
+
 Fonte oficial: https://developer.riotgames.com/docs/tft#data--assets
 
 1. Criar anotações verificadas de espaços/itens de um replay distinto.
