@@ -11,6 +11,7 @@ READER_CACHE_MAX_MS = 750.0
 CANONICAL_READER_SIZE = (1920, 1080)
 ASPECT_16_9 = 16 / 9
 ASPECT_TOLERANCE = 0.005
+ASYNC_HP_MAX_AGE_MS = 2000.0
 
 
 def reader_plan(frame, allow_normalize=False):
@@ -93,11 +94,33 @@ def reusable(last, pixels, frame):
                 last['signature'] == pixels)
 
 
+def async_hp_delivery(frame, latest, max_age_ms=ASYNC_HP_MAX_AGE_MS):
+    """Choose only causal, same-geometry HP evidence; never relabel stale output as fresh."""
+    pending = dict(status='async_pending', signed_hp=None, hp=None)
+    if not latest:
+        return pending, dict(mode='async_pending', fresh=False, age_ms=None)
+    if latest.get('epoch') != frame.epoch or latest.get('due_ns', frame.due_ns + 1) > frame.due_ns:
+        return pending, dict(mode='async_pending', fresh=False, age_ms=None,
+                             source_frame_id=latest.get('frame_id'))
+    age = max(0.0, (frame.due_ns - latest['due_ns']) / 1e6)
+    meta = dict(mode='async_latest_causal', fresh=age <= max_age_ms, age_ms=age,
+                source_frame_id=latest.get('frame_id'), source_ms=latest.get('source_ms'),
+                ready_ns=latest.get('ready_ns'))
+    source_hp = copy.deepcopy((latest.get('response') or {}).get('hp') or pending)
+    if age > max_age_ms:
+        return dict(status='async_stale', signed_hp=None, hp=None,
+                    last_observation=source_hp), {**meta, 'mode':'async_stale', 'fresh':False}
+    return source_hp, meta
+
+
 class RuntimeSession(Session):
     policy_name = 'hud_mapper_hm3_runtime'
     primary_objective = 'live_HUD_mapping_geometry_telemetry_and_training_material'
     normalize_reader_input = False
     shop_interval_ms = 0.0
+    separate_hp_loop = False
+    hp_hz = 1.0
+    hp_max_delivery_ms = ASYNC_HP_MAX_AGE_MS
 
     def __init__(self, options):
         if not str(options.video).startswith('capture://'):
@@ -105,6 +128,49 @@ class RuntimeSession(Session):
         super().__init__(options)
         self._last_native = None
         self._next_shop_ms = 0.0
+        self._latest_hp = None
+
+
+    def _hp_loop(self):
+        try:
+            while not self.cancel.is_set():
+                try:
+                    frame = self.hp_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                start = time.perf_counter_ns()
+                plan = reader_plan(frame, allow_normalize=self.normalize_reader_input)
+                if not plan.get('supported'):
+                    response = dict(id=frame.id, source_ms=round(frame.pts_ms),
+                                    hp=dict(status='resolution_incompatible', signed_hp=None, hp=None),
+                                    native_ms=0.0)
+                else:
+                    reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
+                    request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
+                                   width=reader_frame.width, height=reader_frame.height,
+                                   bytes=len(reader_frame.rgb), include_shop=False)
+                    response = self.hp_worker.request(request, reader_frame.rgb, timeout=12)
+                    response['reader_normalize_ms'] = normalize_ms
+                    if response.get('id') != frame.id:
+                        raise ValueError('Resposta HP pertence a outro frame')
+                end = time.perf_counter_ns()
+                latest = dict(frame_id=frame.id, source_ms=frame.pts_ms, due_ns=frame.due_ns,
+                              epoch=frame.epoch, ready_ns=end, response=response,
+                              input_transform=plan)
+                with self.lock:
+                    self._latest_hp = latest
+                    self.traces.append(dict(kind='hp', frame_id=frame.id,
+                                            source_due_ns=frame.due_ns, ready_ns=end,
+                                            queue_ms=(start-frame.ready_ns)/1e6,
+                                            total_ms=(end-frame.due_ns)/1e6,
+                                            native_ms=float(response.get('native_ms') or 0.0),
+                                            input_transform=plan))
+                self.counts['hp_native_runs'] += 1
+        except Exception as exc:
+            self.error = str(exc)
+            self.stop()
 
     def _native_loop(self):
         next_save = -1
@@ -121,7 +187,7 @@ class RuntimeSession(Session):
                 plan = reader_plan(frame, allow_normalize=self.normalize_reader_input)
                 pixels = reader_signature(frame, allow_any_resolution=bool(plan.get('supported') and self.normalize_reader_input))
                 hit = bool(plan.get('supported') and not self.options.board_reference and
-                           reusable(self._last_native, pixels, frame))
+                           not self.separate_hp_loop and reusable(self._last_native, pixels, frame))
                 compare_ms = (time.perf_counter_ns() - start) / 1e6
                 executed = False
                 normalize_ms = 0.0
@@ -159,23 +225,37 @@ class RuntimeSession(Session):
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
                                    bytes=len(reader_frame.rgb), include_shop=include_shop)
-                    # Independent processes: overlap HP with the main HUD/shop worker.
-                    hp_start = time.perf_counter_ns()
-                    with ThreadPoolExecutor(max_workers=1, thread_name_prefix='hm4-hp') as pool:
-                        hp_future = pool.submit(self.hp_worker.request, request, reader_frame.rgb, 12)
+                    if self.separate_hp_loop:
                         answer = self.worker.request(request, reader_frame.rgb, timeout=12)
-                        hp = hp_future.result(timeout=13)
+                        if answer.get('id') != frame.id:
+                            raise ValueError('Resposta pertence a outro frame')
+                        with self.lock:
+                            latest_hp = copy.deepcopy(self._latest_hp)
+                        hp_value, hp_meta = async_hp_delivery(frame, latest_hp, self.hp_max_delivery_ms)
+                        answer['hp'] = hp_value
+                        answer['hp_delivery'] = hp_meta
+                        answer['spans'].append(dict(stage='hp_async_delivery',
+                            start_ms=(time.perf_counter_ns()-start)/1e6, duration_ms=0.0,
+                            source_frame_id=hp_meta.get('source_frame_id'), age_ms=hp_meta.get('age_ms'),
+                            fresh=hp_meta.get('fresh',False)))
+                    else:
+                        # HM3 compatibility: preserve same-frame HP by overlapping independent workers.
+                        hp_start = time.perf_counter_ns()
+                        with ThreadPoolExecutor(max_workers=1, thread_name_prefix='hm3-hp') as pool:
+                            hp_future = pool.submit(self.hp_worker.request, request, reader_frame.rgb, 12)
+                            answer = self.worker.request(request, reader_frame.rgb, timeout=12)
+                            hp = hp_future.result(timeout=13)
+                        if answer.get('id') != frame.id or hp.get('id') != frame.id:
+                            raise ValueError('Resposta pertence a outro frame')
+                        answer['hp'] = hp['hp']
+                        answer['spans'].append(dict(stage='hp_baseline',
+                            start_ms=(hp_start - start) / 1e6, duration_ms=hp['native_ms']))
                     if include_shop and self.shop_interval_ms > 0:
                         self._next_shop_ms = frame.pts_ms + self.shop_interval_ms
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
-                    if answer.get('id') != frame.id or hp.get('id') != frame.id:
-                        raise ValueError('Resposta pertence a outro frame')
-                    answer['hp'] = hp['hp']
                     answer['reader_input_transform'] = plan
-                    answer['spans'].append(dict(stage='hp_baseline',
-                        start_ms=(hp_start - start) / 1e6, duration_ms=hp['native_ms']))
                     canonical_regions = native_regions(answer, self.registry,
                                                        reader_frame.width, reader_frame.height)
                     regions = regions_to_source(canonical_regions, frame, plan)
@@ -225,3 +305,6 @@ class HM4RuntimeSession(RuntimeSession):
     primary_objective = 'live_HUD_capture_geometry_telemetry_with_automatic_model_discovery'
     normalize_reader_input = True
     shop_interval_ms = 2000.0
+    separate_hp_loop = True
+    hp_hz = 1.0
+    hp_max_delivery_ms = 2000.0
