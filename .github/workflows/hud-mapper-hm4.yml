@@ -18,6 +18,7 @@ on:
       - 'tools/hm-hp-native/**'
       - 'tools/e1-native/**'
       - 'tools/hm-ocr-cost/**'
+      - 'tools/hm-ocr-hub-probe/**'
       - 'rust/crates/ocr-tesseract/**'
       - 'rust/crates/perception-hud/**'
       - 'docs/HUD_MAPPER_HM4_AUTO.md'
@@ -78,6 +79,12 @@ jobs:
         run: |
           cargo run --release --manifest-path tools/hm-ocr-cost/Cargo.toml -- tesseract --iterations 8 --output hm4-ocr-cost.json
           if ($LASTEXITCODE -ne 0) { throw 'HM4.4 OCR cost probe failed' }
+
+      - name: HM4.4 resident OCR hub probe
+        shell: pwsh
+        run: |
+          cargo run --release --manifest-path tools/hm-ocr-hub-probe/Cargo.toml -- "C:\Program Files\Tesseract-OCR\tesseract.exe" --iterations 10 --output hm44-ocr-hub-probe.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident OCR hub probe failed' }
 
       - name: Audit utility contracts
         shell: pwsh
@@ -142,6 +149,7 @@ jobs:
           path: |
             hm4-cache-benchmark.json
             hm4-ocr-cost.json
+            hm44-ocr-hub-probe.json
             hm4-portable/*.json
             hm4-portable-launcher.log
             dist/HM4_COMPACTION_REPORT.json
