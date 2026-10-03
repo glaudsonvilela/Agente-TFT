@@ -8,7 +8,11 @@ use agente_tft_perception_hud::{
 };
 mod numeric_gray;
 mod text_block;
-pub use text_block::TextWord;
+#[cfg(windows)]
+mod resident_windows;
+pub use text_block::{TextBlockOcrEngine,TextWord};
+#[cfg(windows)]
+pub use resident_windows::ResidentTesseractOcr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TesseractConfig {
@@ -141,8 +145,8 @@ fn parse_tsv(tsv: &str) -> Result<Option<RecognizedText>, String> {
         if index == 0 || line.trim().is_empty() { continue; }
         let columns: Vec<_> = line.splitn(12, '\t').collect();
         if columns.len() < 12 { continue; }
-        let confidence: f32 = match columns[10].parse() {
-            Ok(value) if value >= 0.0 => value,
+        let confidence: f32 = match columns[10].parse::<f32>() {
+            Ok(value) if value.is_finite() && (0.0..=100.0).contains(&value) => value,
             _ => continue,
         };
         let word = columns[11].trim();
@@ -191,6 +195,13 @@ mod tests {
         let tsv = concat!("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n",
             "5\t1\t1\t1\t1\t1\t0\t0\t10\t10\t-1\tgarbage\n");
         assert!(parse_tsv(tsv).unwrap().is_none());
+    }
+    #[test]
+    fn ignores_invalid_numeric_confidence_rows() {
+        for confidence in ["NaN", "inf", "101"] {
+            let tsv = format!("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n5\t1\t1\t1\t1\t1\t0\t0\t10\t10\t{confidence}\t50\n");
+            assert!(parse_tsv(&tsv).unwrap().is_none(), "{confidence}");
+        }
     }
     #[test]
     fn default_binary_is_tesseract() { assert_eq!(TesseractConfig::default().binary,"tesseract"); }

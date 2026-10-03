@@ -1,7 +1,7 @@
 //! Button prices/counts use pixels, not template labels, roster costs or defaults.
 use agente_tft_capture_core::{FrameEnvelope, PixelRect};
 use agente_tft_image_preprocess::GrayImage;
-use agente_tft_ocr_tesseract::TesseractOcr;
+use agente_tft_ocr_tesseract::TextBlockOcrEngine;
 use agente_tft_perception_hud::{HudField, HudOcrEngine, HudPreprocessConfig};
 
 use crate::controls::{ControlsProfile, ControlsRead, NumericRead};
@@ -9,8 +9,8 @@ use crate::layout::crop;
 use crate::recovery::{route, Tile};
 use crate::screen::{agree, attempt};
 
-pub fn read_numbers(frame: &FrameEnvelope, profile: &ControlsProfile, out: &mut ControlsRead,
-    engine: &TesseractOcr) -> Result<(), String> {
+pub fn read_numbers<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, profile: &ControlsProfile, out: &mut ControlsRead,
+    engine: &mut E) -> Result<(), String> {
     let mut enabled = Vec::new();
     for (spec, observed) in profile.controls.iter().zip(&out.controls) {
         let present = observed.status == "observed";

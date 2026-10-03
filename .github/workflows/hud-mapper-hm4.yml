@@ -7,6 +7,7 @@ on:
     branches:
       - work/hud-mapper-hm4-auto
       - work/hud-mapper-hm43-async-hp-graceful-stop
+      - work/hud-mapper-hm44-ocr-hub
     paths:
       - 'apps/hud_mapper/**'
       - 'scripts/build_hud_mapper_hm4_windows.py'
@@ -16,6 +17,8 @@ on:
       - 'tools/hm-capture-native/**'
       - 'tools/hm-hp-native/**'
       - 'tools/e1-native/**'
+      - 'tools/hm-ocr-cost/**'
+      - 'tools/hm-ocr-hub-probe/**'
       - 'rust/crates/ocr-tesseract/**'
       - 'rust/crates/perception-hud/**'
       - 'docs/HUD_MAPPER_HM4_AUTO.md'
@@ -71,6 +74,20 @@ jobs:
       - name: HM4 contracts
         run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
 
+      - name: HM4.4 OCR cost probe
+        shell: pwsh
+        run: |
+          cargo run --release --manifest-path tools/hm-ocr-cost/Cargo.toml -- tesseract --iterations 8 --output hm4-ocr-cost.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 OCR cost probe failed' }
+
+      - name: HM4.4 resident OCR hub parity
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/make_hm44_ocr_parity_fixtures.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 parity fixture generation failed' }
+          cargo run --release --manifest-path tools/hm-ocr-hub-probe/Cargo.toml -- "C:\Program Files\Tesseract-OCR\tesseract.exe" hm44-parity-fixtures --repeats 3 --output hm44-ocr-hub-parity.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident OCR parity failed' }
+
       - name: Audit utility contracts
         shell: pwsh
         run: |
@@ -99,15 +116,58 @@ jobs:
           cargo build --release --manifest-path tools/e1-native/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'e1-native build failed' }
 
+      - name: HM4.4 resident worker reliability
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/hm44_resident_stress.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --configs configs --startups 4 --frames 8 --output hm44-resident-stress.json
+          if ($LASTEXITCODE -ne 0) {
+            Get-ChildItem hm44-resident-stress-*.stderr.log -ErrorAction SilentlyContinue | ForEach-Object { Write-Host ('STDERR '+$_.Name); Get-Content $_ }
+            throw 'HM4.4 resident reliability gate failed'
+          }
+
       - name: HM4 exact-cache benchmark
         shell: pwsh
         run: |
-          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm4-cache-benchmark.json
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm4-cache-benchmark.json --worker-log hm4-cli-worker-stderr.log --hp-log hm4-cli-hp-stderr.log
           if ($LASTEXITCODE -ne 0) { throw 'HM4 cache benchmark failed' }
+
+      - name: HM4.4 resident HUD A/B benchmark
+        shell: pwsh
+        run: |
+          $env:AGENTE_TFT_RESIDENT_OCR='1'
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm44-resident-cache-benchmark.json --worker-log hm44-resident-worker-stderr.log --hp-log hm44-resident-hp-stderr.log
+          $code=$LASTEXITCODE
+          Remove-Item Env:AGENTE_TFT_RESIDENT_OCR -ErrorAction SilentlyContinue
+          if (Test-Path hm44-resident-worker-stderr.log) { Write-Host 'HM44_RESIDENT_WORKER_STDERR_BEGIN'; Get-Content hm44-resident-worker-stderr.log; Write-Host 'HM44_RESIDENT_WORKER_STDERR_END' }
+          if ($code -ne 0) { throw 'HM4.4 resident benchmark failed' }
+          python -c "import json; a=json.load(open('hm4-cache-benchmark.json')); b=json.load(open('hm44-resident-cache-benchmark.json')); old=a['third_changed_hud_only']['wall_ms']; new=b['third_changed_hud_only']['wall_ms']; assert b['third_numeric_hud_ocr_backend']=='resident_tesseract_c_api_v1', b; assert a['third_numeric_hud_ocr_backend']=='cli_process_v1', a; assert new < old*0.50, (old,new); print('HM44_RESIDENT_AB='+json.dumps({'cli_hud_only_wall_ms':old,'resident_hud_only_wall_ms':new,'ratio':new/old,'speedup':old/new}))"
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident A/B gate failed' }
 
       - name: Package HM4 Auto
         if: env.FULL_PACKAGE == 'true'
         run: python scripts/build_hud_mapper_hm4_windows.py
+
+      - name: HM4.4 packaged resident OCR verification
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        run: |
+          $root = "dist/AgenteTFT-HUD-HM4-Auto/_internal"
+          $worker = Join-Path $root "bin/agente-tft-e1-worker.exe"
+          $hp = Join-Path $root "bin/agente-tft-hm-hp.exe"
+          $configs = Join-Path $root "configs"
+          $tess = Join-Path $root "tesseract/tesseract.exe"
+          $env:AGENTE_TFT_RESIDENT_OCR='required'
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker $worker --hp-worker $hp --configs $configs --tesseract $tess --output hm44-packaged-resident-benchmark.json --worker-log hm44-packaged-worker-stderr.log --hp-log hm44-packaged-hp-stderr.log
+          $code=$LASTEXITCODE
+          Remove-Item Env:AGENTE_TFT_RESIDENT_OCR -ErrorAction SilentlyContinue
+          if ($code -ne 0) {
+            if (Test-Path hm44-packaged-worker-stderr.log) { Get-Content hm44-packaged-worker-stderr.log }
+            throw 'HM4.4 packaged resident worker failed'
+          }
+          python -c "import json; r=json.load(open('hm44-packaged-resident-benchmark.json')); assert r['third_numeric_hud_ocr_backend']=='resident_tesseract_c_api_v1', r; assert r['third_spatial_text_ocr_backend']=='resident_tesseract_c_api_text_v1', r; assert r['third_changed_hud_only']['wall_ms'] < 100.0, r; print('HM44_PACKAGED_RESIDENT_OK='+json.dumps({'hud_only_wall_ms':r['third_changed_hud_only']['wall_ms'],'numeric':r['third_numeric_hud_ocr_backend'],'text':r['third_spatial_text_ocr_backend']}))"
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 packaged resident performance/provenance gate failed' }
+          cargo run --release --manifest-path tools/hm-ocr-hub-probe/Cargo.toml -- $tess hm44-parity-fixtures --repeats 2 --output hm44-packaged-ocr-parity.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 packaged private OCR parity failed' }
 
       - name: One packaged capture/UI verification
         if: env.FULL_PACKAGE == 'true'
@@ -133,6 +193,19 @@ jobs:
           name: HUD-HM4-Evidence
           path: |
             hm4-cache-benchmark.json
+            hm44-resident-cache-benchmark.json
+            hm44-resident-stress.json
+            hm44-packaged-resident-benchmark.json
+            hm44-packaged-ocr-parity.json
+            hm44-packaged-worker-stderr.log
+            hm44-packaged-hp-stderr.log
+            hm44-resident-stress-*.stderr.log
+            hm4-cli-worker-stderr.log
+            hm4-cli-hp-stderr.log
+            hm44-resident-worker-stderr.log
+            hm44-resident-hp-stderr.log
+            hm4-ocr-cost.json
+            hm44-ocr-hub-parity.json
             hm4-portable/*.json
             hm4-portable-launcher.log
             dist/HM4_COMPACTION_REPORT.json

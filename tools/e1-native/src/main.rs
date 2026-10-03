@@ -14,9 +14,11 @@
 mod engine;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
+#[cfg(windows)] use std::sync::Mutex;
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat,PixelRect,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
+#[cfg(windows)] use agente_tft_ocr_tesseract::ResidentTesseractOcr;
 use agente_tft_perception_hud::{HudField,RobustHudRead,read_roi_robust};
 use agente_tft_contracts::GameState;
 use serde_json::{Value,json};
@@ -89,9 +91,33 @@ fn cadence_json(value:&Value,source_frame_id:u64,source_ms:u64,delivered_frame_i
     }
     out
 }
+#[cfg(windows)]
+struct ResidentHudPool{
+    stage:Mutex<ResidentTesseractOcr>,gold:Mutex<ResidentTesseractOcr>,
+    level:Mutex<ResidentTesseractOcr>,xp:Mutex<ResidentTesseractOcr>,
+}
+#[cfg(windows)]
+impl ResidentHudPool{
+    fn new(binary:&str)->Result<Self,String>{
+        let make=||ResidentTesseractOcr::from_cli_path(binary,"eng").map(|x|x.with_numeric_gray());
+        Ok(Self{stage:Mutex::new(make()?),gold:Mutex::new(make()?),
+                level:Mutex::new(make()?),xp:Mutex::new(make()?)})
+    }
+    fn engine(&self,field:HudField)->Result<&Mutex<ResidentTesseractOcr>,String>{
+        match field{
+            HudField::Stage=>Ok(&self.stage),HudField::Gold=>Ok(&self.gold),
+            HudField::Level=>Ok(&self.level),HudField::Xp=>Ok(&self.xp),
+            _=>Err("resident numeric HUD pool received unsupported field".into()),
+        }
+    }
+}
+
 struct Readers{
     hud:HudLayout,ocr:TesseractOcr,shop:layout::ScreenLayout,recovery:recovery::RecoveryProfile,
     controls:controls::ControlsReader,board_profile:profile::Profile,board:Option<scene::SceneReader>,available:bool,
+    ocr_backend:&'static str,text_ocr_backend:&'static str,ocr_fallback_error:Option<String>,
+    #[cfg(windows)] resident_hud:Option<ResidentHudPool>,
+    #[cfg(windows)] resident_text:Option<ResidentTesseractOcr>,
     hud_cache:HashMap<HudField,HudCacheEntry>,shop_cache:Option<JsonCacheEntry>,controls_cache:Option<JsonCacheEntry>,
 }
 impl Readers{
@@ -102,9 +128,52 @@ impl Readers{
     let c=load(&controls_path.unwrap_or_else(||root.join("ui/match001-shop-controls-v1.json")))?;
     let controls=controls::ControlsReader::new(c,&shop,&recovery)?;
     let board_profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;board_profile.validate()?;
+    let resident_mode=std::env::var("AGENTE_TFT_RESIDENT_OCR").unwrap_or_else(|_|"0".into());
+    #[cfg(windows)]
+    let make_resident_suite=||->Result<(ResidentHudPool,ResidentTesseractOcr),String>{
+        let hud=ResidentHudPool::new(&tess)?;
+        let text=ResidentTesseractOcr::from_cli_path(&tess,"eng")?.with_numeric_gray();
+        Ok((hud,text))
+    };
+    #[cfg(windows)]
+    let (resident_hud,resident_text,ocr_fallback_error)=match resident_mode.as_str(){
+        ""|"0"=>(None,None,None),
+        "1"|"required"=>{
+            let (hud,text)=make_resident_suite()?;
+            (Some(hud),Some(text),None)
+        },
+        "auto"=>match make_resident_suite(){
+            Ok((hud,text))=>(Some(hud),Some(text),None),
+            Err(error)=>(None,None,Some(error)),
+        },
+        other=>return Err(format!("invalid AGENTE_TFT_RESIDENT_OCR mode: {other}")),
+    };
+    #[cfg(not(windows))]
+    let (resident_hud_unused,ocr_fallback_error)=match resident_mode.as_str(){
+        ""|"0"=>(None::<()>,None),
+        other=>return Err(format!("AGENTE_TFT_RESIDENT_OCR={other} is Windows-only in HM4.4")),
+    };
+    #[cfg(not(windows))]
+    let _=resident_hud_unused;
+    #[cfg(windows)]
+    let ocr_backend=if resident_hud.is_some(){"resident_tesseract_c_api_v1"}
+        else if ocr_fallback_error.is_some(){"cli_process_fallback_v1"}else{"cli_process_v1"};
+    #[cfg(windows)]
+    let text_ocr_backend=if resident_text.is_some(){"resident_tesseract_c_api_text_v1"}
+        else if ocr_fallback_error.is_some(){"cli_process_fallback_v1"}else{"cli_process_v1"};
+    #[cfg(not(windows))]
+    let ocr_backend="cli_process_v1";
+    #[cfg(not(windows))]
+    let text_ocr_backend="cli_process_v1";
     let ocr=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()}).with_numeric_gray();
+    // A resident suite can read frames even when the companion CLI cannot start.
+    #[cfg(windows)]
+    let available=resident_hud.is_some() || ocr.available();
+    #[cfg(not(windows))]
     let available=ocr.available();
-    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,
+    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
+        #[cfg(windows)] resident_hud,
+        #[cfg(windows)] resident_text,
         hud_cache:HashMap::new(),shop_cache:None,controls_cache:None})
  }
  fn shop_signature(&self,f:&FrameEnvelope)->Result<Vec<u8>,String>{
@@ -148,6 +217,19 @@ impl Readers{
       let fresh=thread::scope(|scope|->Result<Vec<_>,String>{
         let mut handles=Vec::with_capacity(pending.len());
         for (index,field,policy,roi) in pending {
+          #[cfg(windows)]
+          if let Some(pool)=self.resident_hud.as_ref(){
+            let engine=pool.engine(field)?;
+            handles.push(scope.spawn(move ||->Result<_,String>{
+              let started=ms(&t);
+              let mut ocr=engine.lock().map_err(|_|"resident OCR mutex poisoned".to_string())?;
+              // Frozen v3 policy/thresholds; only backend residency changes under explicit opt-in.
+              let result=read_roi_robust(&mut *ocr,field,&roi,&policy);
+              let duration=ms(&t)-started;
+              Ok((index,field,result,started,duration,roi.pixels))
+            }));
+            continue;
+          }
           let mut ocr=self.ocr.clone();
           handles.push(scope.spawn(move ||->Result<_,String>{
             let started=ms(&t);
@@ -208,7 +290,6 @@ impl Readers{
       if !include_shop {
         shop=match self.shop_cache.as_ref() {
           Some(entry)=>{
-            located=entry.panel_located==Some(true);
             cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms)
           },
           None=>json!({"timestamp_ms":f.captured_at_ms,"panel_status":"cadence_deferred_no_prior_observation",
@@ -230,7 +311,15 @@ impl Readers{
         located=entry.panel_located==Some(true);
         restamp_json(&mut shop,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
       } else {
-        match screen::perceive(f,&self.shop,&self.ocr,Some(&self.recovery)) {
+        #[cfg(windows)]
+        let shop_read=if let Some(engine)=self.resident_text.as_mut(){
+            screen::perceive(f,&self.shop,engine,Some(&self.recovery))
+        }else{
+            screen::perceive(f,&self.shop,&mut self.ocr,Some(&self.recovery))
+        };
+        #[cfg(not(windows))]
+        let shop_read=screen::perceive(f,&self.shop,&mut self.ocr,Some(&self.recovery));
+        match shop_read {
          Ok(read)=>{
           located=read.panel_status=="located";
           let cacheable=read.error.is_none();
@@ -256,7 +345,14 @@ impl Readers{
       } else {
         match self.controls.read_visual(f,located){
           Ok(mut c)=>{
-            let result=control_text::read_numbers(f,&self.controls.profile,&mut c,&self.ocr);
+            #[cfg(windows)]
+            let result=if let Some(engine)=self.resident_text.as_mut(){
+                control_text::read_numbers(f,&self.controls.profile,&mut c,engine)
+            }else{
+                control_text::read_numbers(f,&self.controls.profile,&mut c,&mut self.ocr)
+            };
+            #[cfg(not(windows))]
+            let result=control_text::read_numbers(f,&self.controls.profile,&mut c,&mut self.ocr);
             let cacheable=result.is_ok() && c.error.is_none();
             match result {
              Ok(())=>{
@@ -288,6 +384,8 @@ impl Readers{
       "spans":spans,"native_ms":ms(&t),"hud_accepted_attempts_lower_bound":attempted,
       "hud_cache_policy":"exact_roi_rgb_bytes_v1","hud_process_calls_exact":null,
       "shop_requested":include_shop,"resolution_compatible":valid_size,"ocr_available":self.available,
+       "numeric_hud_ocr_backend":self.ocr_backend,"spatial_text_ocr_backend":self.text_ocr_backend,
+        "numeric_hud_ocr_fallback_error":self.ocr_fallback_error,
       "blockers":["planning_phase_not_observed","unit_identity_not_bound","board_and_hp_unvalidated"],
       "canonical_game_state_updated":false,"temporal_consensus":false,"profile_promoted":false}))
  }
@@ -298,7 +396,8 @@ fn run()->Result<(),String>{
     if args.len()<2 || args[0]!="--configs"{return Err("usage: e1-worker --configs <dir> [tesseract] [controls.json]".into())}
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
-    writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"pid":std::process::id()})).map_err(|e|e.to_string())?;
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
+        "spatial_text_ocr_backend":readers.text_ocr_backend,"numeric_hud_ocr_fallback_error":readers.ocr_fallback_error,"pid":std::process::id()})).map_err(|e|e.to_string())?;
     output.flush().map_err(|e|e.to_string())?;
     while let Some(h)=header(&mut input)?{
       let id=number(&h,"id")?;

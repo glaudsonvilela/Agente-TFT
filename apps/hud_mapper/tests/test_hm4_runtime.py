@@ -40,6 +40,8 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertTrue(HM4RuntimeSession.separate_hp_loop)
         self.assertEqual(HM4RuntimeSession.hp_hz,1.0)
         self.assertEqual(HM4RuntimeSession.hp_max_delivery_ms,2000.0)
+        self.assertEqual(HM4RuntimeSession.native_worker_env,{"AGENTE_TFT_RESIDENT_OCR":"auto"})
+        self.assertIsNone(getattr(HM4RuntimeSession.__mro__[1],"native_worker_env",None))
         self.assertIn("automatic", HM4RuntimeSession.primary_objective)
 
     def test_summary_neural_provenance_is_shadow_or_disabled(self):

@@ -32,7 +32,7 @@ def terminate(proc):
 
 
 class NativeWorker:
-    def __init__(self, binary, configs, tesseract='tesseract', controls=None, log=None):
+    def __init__(self, binary, configs, tesseract='tesseract', controls=None, log=None, env=None):
         self._close_lock = threading.Lock()
         self.closed = False
         args = [binary, '--configs', configs, tesseract]
@@ -40,7 +40,7 @@ class NativeWorker:
             args.append(controls)
         self.stderr = open(log, 'xb') if log else subprocess.DEVNULL
         self.proc = spawn(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                          stderr=self.stderr, bufsize=0)
+                          stderr=self.stderr, bufsize=0, env=env)
         self.answers = queue.Queue(maxsize=2)
         self.thread = threading.Thread(target=self._read, daemon=True)
         self.thread.start()

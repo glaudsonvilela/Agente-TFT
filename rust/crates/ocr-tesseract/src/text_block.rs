@@ -1,6 +1,8 @@
 //! Spatial text uses the same process/backend as numeric HUD; no season vocabulary.
 use agente_tft_image_preprocess::GrayImage;
 use super::TesseractOcr;
+#[cfg(windows)]
+use super::ResidentTesseractOcr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextWord {
@@ -22,7 +24,27 @@ impl TesseractOcr {
     }
 }
 
-fn parse_words(tsv: &str, width: u32, height: u32) -> Result<Vec<TextWord>, String> {
+pub trait TextBlockOcrEngine {
+    fn recognize_text_block(&mut self, image:&GrayImage)->Result<Vec<TextWord>,String>;
+}
+
+impl TextBlockOcrEngine for TesseractOcr {
+    fn recognize_text_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>{
+        TesseractOcr::recognize_text_block(self,image)
+    }
+}
+
+#[cfg(windows)]
+impl TextBlockOcrEngine for ResidentTesseractOcr {
+    fn recognize_text_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>{
+        if image.width as u64 * image.height as u64 > 4_000_000 {
+            return Err("text atlas pixel budget exceeded".into());
+        }
+        parse_words(&self.run_tsv_custom(image,6,None)?,image.width,image.height)
+    }
+}
+
+pub(crate) fn parse_words(tsv: &str, width: u32, height: u32) -> Result<Vec<TextWord>, String> {
     if tsv.len() > 2 * 1024 * 1024 { return Err("TSV byte budget exceeded".into()); }
     let mut words = Vec::new();
     for line in tsv.lines().skip(1).filter(|line| !line.is_empty()) {
