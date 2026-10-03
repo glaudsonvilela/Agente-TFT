@@ -136,6 +136,28 @@ python3 -m training.board_hub_equipped_candidates \
   --match-scope set_path
 ```
 
+## Visão única por frame
+
+`training.board_hub_snapshot` reúne as 28 células fixas, nove espaços do banco,
+marcadores de unidade, candidatos de itens equipados e inventário em um JSON.
+Ele exige que o timestamp no nome do JPEG corresponda ao frame do relatório
+B1 para impedir associações entre imagens diferentes. No frame 27, a saída
+contém nove marcadores (oito de tabuleiro e um de banco), seis ícones equipados
+candidatos e um ícone candidato no inventário. `champion_id`, `item_id` e
+ocupação confirmada ficam nulos; o JSON relata essas capacidades ausentes.
+
+```bash
+python3 -m training.board_hub_snapshot \
+  --image /caminho/para/0027_001300000ms.jpg \
+  --report /caminho/para/board-b1/report.json --frame-index 27 \
+  --board-profile configs/ui/match001-board-bench-v1.json \
+  --position-profile configs/ui/match001-bar-to-cell-candidates-v1.json \
+  --equipped-profile configs/ui/match001-equipped-icons-v1.json \
+  --inventory-profile configs/ui/match001-inventory-v1.json \
+  --reference knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18/5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f \
+  --icon-dir /caminho/para/cache-de-icones
+```
+
 Fonte oficial: https://developer.riotgames.com/docs/tft#data--assets
 
 1. Criar anotações verificadas de espaços/itens de um replay distinto.

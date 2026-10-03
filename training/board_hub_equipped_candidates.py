@@ -46,7 +46,9 @@ def rank_equipped(frame, marker: dict, slot: int, templates: list[dict], profile
             if patch.shape != (size, size, 3):
                 continue
             scores = np.minimum(scores, np.sqrt(np.mean((stack - patch) ** 2, axis=(1, 2, 3))))
-    ranked = np.argsort(scores)[:3]
+    ranked = np.argsort(scores[np.isfinite(scores)])[:3]
+    finite_indices = np.flatnonzero(np.isfinite(scores))
+    ranked = finite_indices[ranked]
     return [{"ids_with_same_template": sorted(set(templates[index]["ids"])),
              "template_sha256": templates[index]["template_hash"],
              "rms": round(float(scores[index]), 3)} for index in ranked]
