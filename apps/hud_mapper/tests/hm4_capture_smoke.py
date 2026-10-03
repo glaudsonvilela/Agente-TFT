@@ -53,6 +53,7 @@ def main():
             assert report["counts"].get("replay_tips",0)>0
             assert report["versions"].get("board_hub_mode")=="replay_screen_candidate_only"
             assert report["neural_scope"]==["bench","shop"]
+            assert report["timings"]["tip_source_to_ui_estimate"]["n"]>0
             assert (out/"board-hub-observations.jsonl").is_file()
             assert (out/"replay-tips.jsonl").is_file()
         else:

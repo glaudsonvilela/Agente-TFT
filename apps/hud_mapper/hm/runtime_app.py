@@ -370,6 +370,9 @@ class App:
                     s.store.emit('telemetry',dict(event='replay_tip_ui_applied',frame_id=tip['frame_id'],
                         source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
                         physical_display_measured=False,tip_status=tip['status']))
+                    with s.lock:
+                        s.traces.append(dict(kind='tip_ui',frame_id=tip['frame_id'],total_ms=age,
+                                             physical_display_measured=False))
             perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
             self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
               sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],

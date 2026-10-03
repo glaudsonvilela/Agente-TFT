@@ -245,6 +245,7 @@ class Session:
         with self.lock:traces=list(self.traces);cov=list(self.coverage.items())
         mapping=[x for x in traces if x['kind']=='map'];reading=[x for x in traces if x['kind']=='reader'];hp_reading=[x for x in traces if x['kind']=='hp']
         hub_reading=[x for x in traces if x['kind']=='hub']
+        tip_ui=[x for x in traces if x['kind']=='tip_ui']
         stages={}
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
@@ -269,6 +270,7 @@ class Session:
                          hp_native=stats([x['native_ms'] for x in hp_reading]),
                          hub_source_to_result=stats([x['total_ms'] for x in hub_reading]),
                          hub_processing=stats([x['processing_ms'] for x in hub_reading]),
+                         tip_source_to_ui_estimate=stats([x['total_ms'] for x in tip_ui]),
                          stages={k:stats(v) for k,v in stages.items()}),
            observations_are_ground_truth=False,neural_scope=['bench','shop'] if self.model else [],
            **neural_provenance(self.model is not None),
