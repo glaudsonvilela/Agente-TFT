@@ -123,3 +123,29 @@ Antes do pacote final, o head `e3306679a0bbd2bc011436f7a1594c058c720205` foi val
 O retry HM3 foi necessário porque a primeira tentativa do runner Windows retornou `invalid ContentSize or unexpected pixel format`; a repetição isolada passou sem alteração de produção. Este registro não converte instabilidade do runner em correção de código.
 
 O commit deste trecho existe somente para acionar o full-package gate do HM4.3 sobre o mesmo código já aprovado.
+
+
+## HM4.4 — gate final do OCR Hub
+
+Head técnico validado antes do pacote final: `a8c955b05670eb6bcaa4ec9cd5bfec814666bdd1`.
+
+Gates verdes:
+- CI #597;
+- HUD Mapper HM2 #52, incluindo Linux, Windows portátil, WGC, integração e executável real;
+- HUD Mapper HM3 Runtime #45, incluindo portátil e runtime instalado;
+- HUD media #61;
+- E1 Replay Lab #29;
+- HUD Mapper HM4 Auto #78.
+
+Resultados do OCR Hub no Windows CI:
+- CLI HUD-only: ~292.60 ms;
+- residente HUD-only: ~16.84 ms;
+- speedup A/B: ~17.37×;
+- 4 startups × 8 frames = 32 frames do worker residente concluídos;
+- paridade numérica: stage/gold/level/xp com texto e confiança iguais no gate sintético;
+- paridade de texto espacial: igualdade de palavras/caixas/confiança;
+- atlas de loja: speedup ~7.2×–7.3× no gate sintético com paridade.
+
+HM4 Auto usa `AGENTE_TFT_RESIDENT_OCR=auto`: tenta OCR residente no Windows e mantém fallback explícito para o backend CLI se a inicialização falhar. HM2/HM3 preservam seus contratos anteriores.
+
+O commit deste trecho contém `[full]` somente para acionar o empacotamento e os smokes finais sobre o mesmo código já aprovado.
