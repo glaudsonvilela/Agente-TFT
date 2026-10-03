@@ -109,7 +109,7 @@ class App:
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
         if self.hm4:
             from PIL import Image
-            hero_path=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[3]))/"assets/hm4-replay-hero-v1.png"
+            hero_path=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[1]))/"assets/hm4-replay-hero-v1.png"
             self.hero_source=Image.open(hero_path).convert("RGB") if hero_path.is_file() else None
             self.hero=tk.Canvas(outer,height=185,bg="#eee8ff",highlightthickness=0)
             self.hero.pack(fill="x",pady=(0,10))
