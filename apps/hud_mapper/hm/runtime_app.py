@@ -85,7 +85,7 @@ class App:
         self.vm_core=self.hm4 and (Path(sys.executable).resolve().parent/"core/core-package.json").is_file()
         self.photo=self.zoom_photo=None;self.photo_size=None;self.freeze=False;self.finalizing=False;self.final_result=None
         self.last_finished=None;self.closing=False;self.displayed=0;self.smoke=False;self.smoke_output=None
-        self.canvas_image=None;self._table_key=None;self._next_metrics_ns=0
+        self.canvas_image=None;self._table_key=None;self._next_metrics_ns=0;self._next_perf_log_ns=0
         self.tip_history=deque(maxlen=100);self.tip_label=None
         self._next_preview_ns=0
         self.render_ms=deque(maxlen=120);self.preview_times=deque(maxlen=120)
@@ -303,7 +303,7 @@ class App:
                 capture_consent=True,capture_expected=self.selection)).start()
             self.last={};self.current=None;self.freeze=False;self._table_key=None
             self._last_voice_state=None
-            self.render_ms.clear();self.preview_times.clear();self._next_metrics_ns=0;self._next_preview_ns=0
+            self.render_ms.clear();self.preview_times.clear();self._next_metrics_ns=0;self._next_preview_ns=0;self._next_perf_log_ns=0
         except Exception as exc:messagebox.showerror("HM4" if self.hm4 else "HM3",str(exc))
 
     def stop(self):
@@ -518,6 +518,11 @@ class App:
             if not self.vm_core or now>=self._next_metrics_ns:
                 self._next_metrics_ns=now+250_000_000
                 perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
+                if now>=self._next_perf_log_ns:
+                    self._next_perf_log_ns=now+5_000_000_000
+                    s.store.emit("telemetry",dict(event="ui_performance",preview=perf["preview"],
+                        voice=perf["voice"],coach_updates=s.counts["coach_updates"],
+                        actionable_tips=s.counts["replay_tips"]))
                 if self.voice:
                     voice_state=(self.voice.enabled,self.voice.ready,self.voice.error,self.voice.queued_count,
                                  self.voice.played_count,self.voice.stale_dropped_count)
