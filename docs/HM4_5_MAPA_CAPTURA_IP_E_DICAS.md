@@ -87,6 +87,9 @@ O WSL 2 e a importação de distribuições próprias são recursos documentados
 pela Microsoft: [arquitetura WSL 2](https://learn.microsoft.com/en-us/windows/wsl/wsl2-about),
 [importação de rootfs](https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro),
 [rede localhost](https://learn.microsoft.com/en-us/windows/wsl/networking).
+Há suporte também nas edições Windows Home; ainda é necessário verificar
+versão do Windows e virtualização disponível.
+[FAQ oficial](https://learn.microsoft.com/en-us/windows/wsl/faq).
 `.wslconfig` limita RAM/CPUs de **todas** as distribuições WSL 2 do usuário;
 o instalador não deve sobrescrevê-lo. Ele mede o uso do worker e sugere um
 limite inicial de 2 GB/2 vCPUs apenas quando a configuração global puder ser
