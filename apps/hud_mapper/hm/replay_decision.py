@@ -80,10 +80,15 @@ class ReplayDecisionEngine:
             "bound_offers": bound}
         # The present B4 observer is candidate-only. Its rows cannot establish
         # a roster; a future validated observer must pass this explicit shape.
-        verified = (owned or {}).get("verified") is True
+        verified = ((owned or {}).get("verified") is True and
+                    (owned or {}).get("perspective") == "self")
         units = (owned or {}).get("units") or []
         if not verified or not units:
             output["decision"] = self._wait("OWNED_UNITS_UNVERIFIED")
+            return output
+        age_ms = owned.get("age_ms")
+        if type(age_ms) not in (int, float) or not 0 <= age_ms <= 2000:
+            output["decision"] = self._wait("OWNED_UNITS_STALE")
             return output
         copies = Counter()
         for unit in units:
@@ -95,11 +100,12 @@ class ReplayDecisionEngine:
         if gold is None:
             output["decision"] = self._wait("GOLD_UNVERIFIED")
             return output
-        if (shop.get("cadence_delivery") or {}).get("fresh") is False:
+        if (shop.get("cadence_delivery") or {}).get("fresh") is not True:
             output["decision"] = self._wait("SHOP_STALE")
             return output
         candidates = [slot for slot in shop.get("slots") or []
                       if slot.get("catalog_status") == "unique_name_bound" and
+                      float(slot.get("cost_confidence") or 0) >= .9 and
                       copies[slot["unit_id"]] >= 2 and
                       gold >= slot["observed_cost"]]
         if not candidates:

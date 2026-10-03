@@ -101,20 +101,23 @@ class HM4RuntimeTests(unittest.TestCase):
                 "shop":{"cadence_delivery":{"fresh":True},
                         "slots":[{"slot":0,"status":"offer_text_readable",
                                   "observed_name":"Kobuko","name_confidence":.96,
-                                  "observed_cost":1,"unit_id":None}]}}
+                                  "observed_cost":1,"cost_confidence":.95,"unit_id":None}]}}
         bound=engine.evaluate(answer)
         unit_id=bound["shop"]["slots"][0]["unit_id"]
         self.assertTrue(unit_id)
         self.assertEqual(bound["catalog_binding"]["bound_offers"],1)
         self.assertEqual(bound["decision"]["evidence"][0]["code"],"OWNED_UNITS_UNVERIFIED")
         self.assertIsNone(answer["shop"]["slots"][0]["unit_id"])
-        owned={"verified":True,"units":[{"unit_id":unit_id,"stars":1,"identity_verified":True},
-                                        {"unit_id":unit_id,"stars":1,"identity_verified":True}]}
+        owned={"verified":True,"perspective":"self","age_ms":100,
+               "units":[{"unit_id":unit_id,"stars":1,"identity_verified":True},
+                        {"unit_id":unit_id,"stars":1,"identity_verified":True}]}
         decided=engine.evaluate(answer,owned)
         self.assertEqual(decided["decision"]["action"]["type"],"buy")
         self.assertTrue(coach_prompt(decided)["actionable"])
         decided=engine.evaluate({**answer,"hud":[]},owned)
         self.assertEqual(decided["decision"]["evidence"][0]["code"],"GOLD_UNVERIFIED")
+        decided=engine.evaluate(answer,{**owned,"age_ms":3000})
+        self.assertEqual(decided["decision"]["evidence"][0]["code"],"OWNED_UNITS_STALE")
 
     def test_reader_only_is_allowed_only_when_explicit(self):
         with tempfile.TemporaryDirectory() as td:

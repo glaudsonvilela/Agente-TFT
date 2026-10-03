@@ -539,6 +539,7 @@ class App:
                               ("voz carregando" if self.voice and self.voice.enabled else "voz desligada")))
                 decision_reason=getattr(s,"latest_decision_reason",None)
                 pending={"OWNED_UNITS_UNVERIFIED":"campeões do tabuleiro ainda não confirmados",
+                         "OWNED_UNITS_STALE":"leitura do tabuleiro antiga",
                          "GOLD_UNVERIFIED":"ouro ainda não confirmado",
                          "SHOP_STALE":"loja desatualizada",
                          "NO_VERIFIED_UPGRADE":"nenhuma melhoria de unidade confirmada"}.get(decision_reason)
