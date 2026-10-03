@@ -80,11 +80,13 @@ jobs:
           cargo run --release --manifest-path tools/hm-ocr-cost/Cargo.toml -- tesseract --iterations 8 --output hm4-ocr-cost.json
           if ($LASTEXITCODE -ne 0) { throw 'HM4.4 OCR cost probe failed' }
 
-      - name: HM4.4 resident OCR hub probe
+      - name: HM4.4 resident OCR hub parity
         shell: pwsh
         run: |
-          cargo run --release --manifest-path tools/hm-ocr-hub-probe/Cargo.toml -- "C:\Program Files\Tesseract-OCR\tesseract.exe" --iterations 10 --output hm44-ocr-hub-probe.json
-          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident OCR hub probe failed' }
+          python apps/hud_mapper/tests/make_hm44_ocr_parity_fixtures.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 parity fixture generation failed' }
+          cargo run --release --manifest-path tools/hm-ocr-hub-probe/Cargo.toml -- "C:\Program Files\Tesseract-OCR\tesseract.exe" hm44-parity-fixtures --repeats 3 --output hm44-ocr-hub-parity.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident OCR parity failed' }
 
       - name: Audit utility contracts
         shell: pwsh
@@ -149,7 +151,7 @@ jobs:
           path: |
             hm4-cache-benchmark.json
             hm4-ocr-cost.json
-            hm44-ocr-hub-probe.json
+            hm44-ocr-hub-parity.json
             hm4-portable/*.json
             hm4-portable-launcher.log
             dist/HM4_COMPACTION_REPORT.json
