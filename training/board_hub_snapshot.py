@@ -13,7 +13,13 @@ from training.board_hub_position_candidates import project
 
 def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    equipped_profile: dict, inventory_profile: dict, manifest: dict,
-                   entries: list[dict], icon_dir: Path, match_scope: str) -> dict:
+                   entries: list[dict], icon_dir: Path, match_scope: str,
+                   recording_context: dict | None = None) -> dict:
+    if recording_context is not None:
+        if (recording_context.get("schema_version") != 1 or
+                recording_context.get("set_key") != manifest["set_key"] or
+                not recording_context.get("tft_patch")):
+            raise ValueError("recording set/patch context does not match visual reference")
     positions = project(read, position_profile, board)
     inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope)
     equipped = equipped_run(image, read, board, position_profile, equipped_profile,
@@ -39,8 +45,13 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
             "timestamp_ms": read["timestamp_ms"], "geometry_profile": board["id"],
             "reference_sha256": manifest["reference_sha256"],
             "data_dragon_version": manifest["version"], "set_key": manifest["set_key"],
-            "set_binding": "unverified_for_recording", "tft_patch": None,
-            "matching_scope": match_scope, "projection_status": positions["status"],
+            "set_binding": "recording_context_set_match" if recording_context else "unverified_for_recording",
+            "tft_patch": recording_context["tft_patch"] if recording_context else None,
+            "patch_basis": recording_context.get("version_basis") if recording_context else None,
+            "visual_reference_patch_compatibility": "unverified",
+            "matching_scope": match_scope,
+            "arena_projection_status": read["projection_status"],
+            "position_status": positions["status"],
             "board_cells": board_cells, "bench_slots": bench_slots,
             "observed_markers": units, "unassigned_markers": positions["unassigned"],
             "inventory": inventory, "item_catalog_entries": len(entries),
@@ -64,6 +75,7 @@ def main() -> None:
     parser.add_argument("--equipped-profile", type=Path, required=True)
     parser.add_argument("--inventory-profile", type=Path, required=True)
     parser.add_argument("--reference", type=Path, required=True)
+    parser.add_argument("--recording-context", type=Path, required=True)
     parser.add_argument("--icon-dir", type=Path, required=True)
     parser.add_argument("--match-scope", choices=("all", "set_path"), default="set_path")
     args = parser.parse_args()
@@ -78,10 +90,11 @@ def main() -> None:
     position = json.loads(args.position_profile.read_text())
     equipped = json.loads(args.equipped_profile.read_text())
     inventory = json.loads(args.inventory_profile.read_text())
+    context = json.loads(args.recording_context.read_text())
     manifest, entries = load_reference(args.reference)
     with Image.open(args.image) as image:
         result = build_snapshot(image, read, board, position, equipped, inventory,
-                                manifest, entries, args.icon_dir, args.match_scope)
+                                manifest, entries, args.icon_dir, args.match_scope, context)
     print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
 
 

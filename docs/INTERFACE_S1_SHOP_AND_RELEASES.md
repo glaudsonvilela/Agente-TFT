@@ -79,8 +79,9 @@ Estados: `unavailable`, `empty_observed`, `unknown`, `partially_readable`,
 campeões: a gravação inclui cartas não convencionais. Não há lookup por timestamp.
 
 Sem contexto de set/patch conhecido, nome e preço podem ser observados, mas
-`unit_id` fica null e `catalog_status=not_bound`. O contexto Match001 não contém
-versões comprovadas: elas não são preenchidas com o patch atual. A opção de
+`unit_id` fica null e `catalog_status=not_bound`. O contexto Match001 recebeu
+set e patch em B4 com base no relato de data do usuário e calendário oficial;
+ainda não recebeu uma release de conhecimento vinculada. A opção de
 binding exige release verificada e correspondência explícita de set/patch/locale/UI.
 Lookup é por nome exato único, sem correção fuzzy, sem desempate pelo preço.
 Preço observado e custo base do catálogo permanecem separados.

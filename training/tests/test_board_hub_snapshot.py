@@ -37,8 +37,14 @@ class SnapshotTests(unittest.TestCase):
                                  "rect": {"x": 631, "y": 320, "width": 64, "height": 4}}]}
             manifest = {"reference_sha256": "test", "version": "16.19.1", "set_key": "TFTSet18"}
             entries = [{"key": "TFTSet18/items/a", "id": "a", "icon": "a.png"}]
+            context = {"schema_version": 1, "set_key": "TFTSet18", "tft_patch": "18.3",
+                       "version_basis": "user date and Riot schedule"}
             result = build_snapshot(frame, read, BOARD, POSITION, EQUIPPED, INVENTORY,
-                                    manifest, entries, icon_dir, "set_path")
+                                    manifest, entries, icon_dir, "set_path", context)
+            self.assertEqual(result["arena_projection_status"], "reference_arena_match")
+            self.assertEqual(result["position_status"], "candidate_only")
+            self.assertEqual(result["tft_patch"], "18.3")
+            self.assertEqual(result["visual_reference_patch_compatibility"], "unverified")
             self.assertEqual((len(result["board_cells"]), len(result["bench_slots"])), (28, 9))
             self.assertEqual(result["board_cells"][1]["marker_candidates"], [0])
             self.assertIsNone(result["board_cells"][1]["occupancy"])
@@ -47,6 +53,10 @@ class SnapshotTests(unittest.TestCase):
             self.assertEqual(result["inventory"]["candidate_slots"][0]["slot"], 1)
             self.assertIsNone(result["observed_markers"][0]["champion_id"])
             self.assertFalse(any(result["capabilities"].values()))
+            context["set_key"] = "TFTSet17"
+            with self.assertRaisesRegex(ValueError, "context"):
+                build_snapshot(frame, read, BOARD, POSITION, EQUIPPED, INVENTORY,
+                               manifest, entries, icon_dir, "set_path", context)
 
 
 if __name__ == "__main__":

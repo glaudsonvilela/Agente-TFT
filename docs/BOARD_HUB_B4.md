@@ -1,9 +1,10 @@
-# B4 — primeiro sinal visual do inventário
+# B4 — evidência integrada do tabuleiro e dos itens
 
 O objetivo completo do hub é observar unidades, posição nas células, itens
-equipados e itens no inventário. O B4 inicia pela faixa visual do inventário no
-layout Match001 de 1920×1080. Ele registra presença de ícones, vazio aparente e
-desconhecido, sem atribuir nomes nem atualizar `GameState`.
+equipados e itens no inventário. O B4 reúne geometria fixa, catálogo visual
+versionado e observações do layout Match001 de 1920×1080. Registra posições e
+ícones candidatos, vazio aparente e desconhecido, sem atribuir identidades nem
+atualizar `GameState`.
 
 ## Evidência disponível
 
@@ -42,7 +43,7 @@ python3 -m training.board_hub_inventory \
 O comando exige Pillow para abrir JPEG; a função `observe` e os contratos de
 teste usam somente bytes RGB. A saída é uma observação diagnóstica JSON.
 
-## Próximos gates
+## Catálogo versionado
 
 O catálogo visual oficial pode ser atualizado sem editar coordenadas:
 
@@ -55,9 +56,13 @@ O comando busca os JSONs oficiais de campeões e itens do Data Dragon, registra
 hashes dos bytes de origem e cria uma referência imutável em
 `knowledge/riot-ddragon/`. Campeões são filtrados pelo set explícito; itens
 preservam o escopo amplo do provedor. A versão Data Dragon **não prova** o patch
-TFT da gravação; por isso `tft_patch=null` e `replay_binding=false`. O Match001
-continua com set/patch desconhecidos. A release CommunityDragon existente pode
-ser usada como segunda fonte quando seu set/patch for comprovado, sem misturar
+TFT da gravação; por isso `tft_patch=null` e `replay_binding=false` na referência.
+O contexto Match001 agora indica TFT 18.3 por relato de data e calendário
+oficial, com o subpatch de 24/09 e a atualização de 28/09 registrados nas
+notas da Riot. Essa inferência não atesta o build do cliente nem a equivalência
+do snapshot Data Dragon aos dados internos daquela partida. A release
+CommunityDragon existente pode ser usada como segunda fonte quando seu
+set/patch for comprovado, sem misturar
 IDs de provedores por nome.
 
 O snapshot versionado `16.19.1/pt_BR/TFTSet18` contém 74 retratos de campeões
@@ -155,10 +160,32 @@ python3 -m training.board_hub_snapshot \
   --equipped-profile configs/ui/match001-equipped-icons-v1.json \
   --inventory-profile configs/ui/match001-inventory-v1.json \
   --reference knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18/5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f \
-  --icon-dir /caminho/para/cache-de-icones
+  --icon-dir /caminho/para/cache-de-icones \
+  --recording-context configs/contexts/match001-interface.json
 ```
 
 Fonte oficial: https://developer.riotgames.com/docs/tft#data--assets
+Calendário oficial: https://support.riotgames.com/en-us/tft/events/patch-schedule-teamfight-tactics/
+Notas 18.3: https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/
+
+## Andamento da rede neural
+
+Os relatórios locais L1, L2 e L3 registram treino real de uma rede pequena para
+**localizar aproximadamente o banco e a loja**. O L3 parte dos pesos do L2 e
+melhora ligeiramente o erro de coordenadas em uma avaliação sintética comum:
+banco de 6,51 para 6,33 px; loja de 5,37 para 4,74 px. A perda de validação do
+L3 caiu de 2,55 para 1,58. Essa medição usa colagens de recortes da mesma
+gravação; não mede acerto em partidas naturais independentes.
+
+O L3 ainda aceitou regiões ocultas indevidamente (uma no banco e duas na loja)
+e teve caudas p95 de erro de canto de cerca de 101 px no banco e 69 px na loja
+no grupo de colagens contextuais. Por isso, o relatório registra `profile_promoted=false`,
+`native_rust_connected=false`, `natural_accuracy=null` e
+`continuous_learning_connected=false`. Não há treino automático a partir dos
+resultados dos testes passados. O B3 usa Grounding DINO pré-treinado sem ajuste
+nos 40 frames. Nenhuma dessas redes identifica campeão, célula ou item no B4.
+
+## Próximas validações para completar o hub semântico
 
 1. Criar anotações verificadas de espaços/itens de um replay distinto.
 2. Reconhecer o ícone pelo catálogo do set/patch, preservando `unknown` quando
