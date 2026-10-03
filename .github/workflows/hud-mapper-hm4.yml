@@ -1,0 +1,140 @@
+name: HUD Mapper HM4 Auto
+
+# [full] on a push enables packaging + packaged WGC smoke; normal pushes use the fast validation path.
+
+on:
+  push:
+    branches:
+      - work/hud-mapper-hm4-auto
+    paths:
+      - 'apps/hud_mapper/**'
+      - 'scripts/build_hud_mapper_hm4_windows.py'
+      - 'scripts/audit_hm4_session.py'
+      - 'scripts/compare_hm4_audits.py'
+      - 'scripts/compact_hm3_payload.py'
+      - 'tools/hm-capture-native/**'
+      - 'tools/hm-hp-native/**'
+      - 'tools/e1-native/**'
+      - 'rust/crates/ocr-tesseract/**'
+      - 'rust/crates/perception-hud/**'
+      - 'docs/HUD_MAPPER_HM4_AUTO.md'
+      - '.github/workflows/hud-mapper-hm4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hm4-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: apps/hud_mapper;apps/e1_replay;experiments/ui-map-lite-l2/training
+      OMP_THREAD_LIMIT: '1'
+      FULL_PACKAGE: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full]') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install test dependency
+        shell: pwsh
+        run: |
+          choco install tesseract -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Test dependency install failed' }
+          'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install Python runtime packages
+        shell: pwsh
+        run: |
+          python -m pip install -r apps/hud_mapper/requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Python runtime dependencies failed' }
+
+      - name: Install packaging dependencies
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
+          python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging Python dependencies failed' }
+
+      - name: HM4 contracts
+        run: python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
+
+      - name: Audit utility contracts
+        shell: pwsh
+        run: |
+          python -m py_compile scripts/audit_hm4_session.py
+          python scripts/audit_hm4_session.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 audit contracts failed' }
+
+      - name: Comparison utility contracts
+        shell: pwsh
+        run: |
+          python -m py_compile scripts/compare_hm4_audits.py
+          python scripts/compare_hm4_audits.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 comparison contracts failed' }
+
+      - name: Build native capture/readers
+        shell: pwsh
+        run: |
+          cargo build --release --manifest-path tools/hm-capture-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'hm-capture-native build failed' }
+          cargo build --release --manifest-path tools/hm-hp-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'hm-hp-native build failed' }
+          cargo test --manifest-path rust/Cargo.toml -p agente-tft-ocr-tesseract -p agente-tft-perception-hud
+          if ($LASTEXITCODE -ne 0) { throw 'OCR/perception tests failed' }
+          cargo test --manifest-path tools/e1-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'e1-native tests failed' }
+          cargo build --release --manifest-path tools/e1-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'e1-native build failed' }
+
+      - name: HM4 exact-cache benchmark
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm4-cache-benchmark.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 cache benchmark failed' }
+
+      - name: Package HM4 Auto
+        if: env.FULL_PACKAGE == 'true'
+        run: python scripts/build_hud_mapper_hm4_windows.py
+
+      - name: One packaged capture/UI verification
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        run: |
+          python apps/hud_mapper/tests/hm4_capture_smoke.py --app dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe --output hm4-portable --ui
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 packaged smoke failed' }
+
+      - uses: actions/upload-artifact@v4
+        if: env.FULL_PACKAGE == 'true'
+        with:
+          name: AgenteTFT-HUD-HM4-Auto-Windows-x64
+          path: |
+            dist/AgenteTFT-HUD-HM4-Auto-Windows-x64.zip
+            dist/AgenteTFT-HUD-HM4-Auto-Setup.exe
+            dist/HM4_PACKAGE_REPORT.json
+          retention-days: 30
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HUD-HM4-Evidence
+          path: |
+            hm4-cache-benchmark.json
+            hm4-portable/*.json
+            hm4-portable-launcher.log
+            dist/HM4_COMPACTION_REPORT.json
+            dist/HM4_PACKAGE_REPORT.json
+            dist/AgenteTFT-HUD-HM4-Auto/BUILD_MANIFEST.json
+          retention-days: 30

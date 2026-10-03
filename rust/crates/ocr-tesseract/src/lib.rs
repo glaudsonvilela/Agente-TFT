@@ -22,6 +22,7 @@ impl Default for TesseractConfig {
     }
 }
 
+#[derive(Clone)]
 pub struct TesseractOcr {
     config: TesseractConfig,
     numeric_gray: bool,

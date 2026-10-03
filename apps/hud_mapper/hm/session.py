@@ -12,6 +12,14 @@ def stats(values):
     if not values:return dict(n=0,p50_ms=None,p95_ms=None)
     return dict(n=len(values),p50_ms=float(np.quantile(values,.5)),p95_ms=float(np.quantile(values,.95)),max_ms=max(values))
 
+def neural_provenance(model_present):
+    return dict(
+        neural_mode='shadow_diagnostic' if model_present else 'disabled',
+        neural_training_label_allowed=False,
+        neural_game_state_write_allowed=False,
+        neural_reader_input_allowed=False,
+    )
+
 @dataclass
 class Options:
     video: str
@@ -35,11 +43,14 @@ class Options:
     capture_consent: bool=False
     capture_expected: dict|None=None
     def validate(self):
-        if not self.model:raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
+        if not self.model and not self.dataset_only:
+            raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
         if not 1<=self.seconds<=7200 or not .2<=self.map_hz<=15 or not .1<=self.reader_hz<=5 or not .1<=self.sample_hz<=2:
             raise ValueError('Duração/frequência fora dos limites.')
         if not self.scenario.strip() or len(self.scenario)>100:raise ValueError('Nome do cenário inválido.')
-        for p in (self.model,self.worker):
+        required=[self.worker]
+        if self.model:required.append(self.model)
+        for p in required:
             if not Path(p).is_file():raise ValueError('Arquivo não encontrado: '+str(p))
 
 class Session:
@@ -72,12 +83,15 @@ class Session:
             self.source_info=input_plan.info
             self.source_hash=self.source_info.get('sha256')
             self.registry=Registry(o.configs,o.controls)
-            self.model=Observer(o.model)
-            self.versions=dict(model_sha256=self.model.hash,model_load_ms=self.model.load_ms,
+            self.model=Observer(o.model) if o.model else None
+            self.versions=dict(model_sha256=self.model.hash if self.model else None,
+                               model_load_ms=self.model.load_ms if self.model else None,
+                               neural_enabled=self.model is not None,
                                configs=self.registry.hashes,native_binary_sha256=sha(o.worker),
                                hud='numeric_gray_v3',controls='explicit_S4_or_custom' if o.controls else 'S3_frozen',
                                hp='HP1_baseline_diagnostic',board='B1_optional',
-                               trained_regions=['bench','shop'],other_HUD_regions='registered_readers_not_neural_classes')
+                               trained_regions=['bench','shop'] if self.model else [],
+                               other_HUD_regions='registered_readers_not_neural_classes')
             self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log')
             hp_binary=Path(o.worker).with_name('agente-tft-hm-hp'+('.exe' if __import__('os').name=='nt' else ''))
             if not hp_binary.is_file():
@@ -92,7 +106,9 @@ class Session:
                 self.worker.request(dict(op='reference',id=0,source_ms=0,width=w,height=h,bytes=len(b)),b)
                 self.versions['board_reference_sha256']=sha(o.board_reference)
             self.source=input_plan.start()
-            for target in (self._map_loop,self._native_loop):
+            targets=[self._native_loop]
+            if self.model is not None:targets.insert(0,self._map_loop)
+            for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
             next_map=next_native=next_sample=-1
@@ -108,14 +124,14 @@ class Session:
                     next_sample=f.due_ns+int(1e9*neutral_interval)
                     # Neutral periodic selection independent of model confidence.
                     self.store.emit('periodic',dict(frame_id=f.id,source_ms=f.pts_ms,reason='periodic_neutral'),f,True)
-                if f.due_ns>=next_map:
+                if self.model is not None and f.due_ns>=next_map:
                     next_map=f.due_ns+int(1e9/o.map_hz);self.map_pending.put(f);self.counts['mapper_submitted']+=1
                 if f.due_ns>=next_native:
                     next_native=f.due_ns+int(1e9/o.reader_hz);self.native_pending.put(f);self.counts['native_submitted']+=1
             self.producer_done.set()
             for t in threads:t.join(30)
             if any(t.is_alive() for t in threads):raise TimeoutError('Trabalhador não encerrou dentro do prazo')
-            self.model.verify()
+            if self.model is not None:self.model.verify()
             input_plan.verify(self.cancel.is_set())
         except Exception as exc:
             self.error=str(exc);self.stop()
@@ -214,7 +230,8 @@ class Session:
                         readers_source_to_result=stats([x['total_ms'] for x in reading]),
                         readers_queue=stats([x['queue_ms'] for x in reading]),
                         stages={k:stats(v) for k,v in stages.items()}),
-           observations_are_ground_truth=False,neural_scope=['bench','shop'],
+           observations_are_ground_truth=False,neural_scope=['bench','shop'] if self.model else [],
+           **neural_provenance(self.model is not None),
            full_hud_neural_mapping=False,board_cells_validated=False,model_trained=False,torch_loaded_in_mapper='torch' in __import__('sys').modules,
            profile_promoted=False,game_state_updated=False,continuous_learning_connected=False,
            official_game_connected=False,physical_display_measured=False,

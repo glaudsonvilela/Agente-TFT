@@ -108,8 +108,9 @@ def neural_regions(raw, width, height):
         if (width,height)==(1920,1080):
             delta = (np.asarray(box)-xyxy(ENVELOPES[name])).tolist()
         out.append(region('neural.'+name,box,'coarse_candidate' if accepted else 'unknown',
-            basis='neural_proposal_not_label', visibility_logit=float(row[4]),
-            geometry_valid=geometry, visibility_pass=visible,
+            basis='neural_proposal_not_label', shadow_mode='diagnostic_only', shadow_only=True,
+            training_label_allowed=False, game_state_write_allowed=False, reader_input_allowed=False,
+            visibility_logit=float(row[4]), geometry_valid=geometry, visibility_pass=visible,
             map_usable_by_readers=False, delta_from_seed_px=delta,
             delta_is_error=False, unsupported_resolution=(width,height)!=(1920,1080)))
     return out
@@ -184,6 +185,11 @@ class Observer:
         result=self.inner.observe(frame)
         result['regions']=neural_regions(result['raw'],frame.width,frame.height)
         result['model_scope']=['bench_envelope','shop_envelope']
+        result['shadow_mode']='diagnostic_only'
+        result['ground_truth']=False
+        result['training_label_allowed']=False
+        result['game_state_write_allowed']=False
+        result['reader_input_allowed']=False
         return result
     def verify(self):
         if sha(self.path)!=self.meta_hash or sha(self.path.parent/'candidate-model.onnx')!=self.hash:
