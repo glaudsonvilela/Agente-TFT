@@ -122,6 +122,16 @@ jobs:
           python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm4-cache-benchmark.json
           if ($LASTEXITCODE -ne 0) { throw 'HM4 cache benchmark failed' }
 
+      - name: HM4.4 resident HUD A/B benchmark
+        shell: pwsh
+        run: |
+          $env:AGENTE_TFT_RESIDENT_OCR='1'
+          python apps/hud_mapper/tests/hm4_cache_benchmark.py --worker tools/e1-native/target/release/agente-tft-e1-worker.exe --hp-worker tools/hm-hp-native/target/release/agente-tft-hm-hp.exe --configs configs --output hm44-resident-cache-benchmark.json
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident benchmark failed' }
+          Remove-Item Env:AGENTE_TFT_RESIDENT_OCR
+          python -c "import json; a=json.load(open('hm4-cache-benchmark.json')); b=json.load(open('hm44-resident-cache-benchmark.json')); old=a['third_changed_hud_only']['wall_ms']; new=b['third_changed_hud_only']['wall_ms']; assert b['third_numeric_hud_ocr_backend']=='resident_tesseract_c_api_v1', b; assert a['third_numeric_hud_ocr_backend']=='cli_process_v1', a; assert new < old*0.50, (old,new); print('HM44_RESIDENT_AB='+json.dumps({'cli_hud_only_wall_ms':old,'resident_hud_only_wall_ms':new,'ratio':new/old,'speedup':old/new}))"
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.4 resident A/B gate failed' }
+
       - name: Package HM4 Auto
         if: env.FULL_PACKAGE == 'true'
         run: python scripts/build_hud_mapper_hm4_windows.py
@@ -150,6 +160,7 @@ jobs:
           name: HUD-HM4-Evidence
           path: |
             hm4-cache-benchmark.json
+            hm44-resident-cache-benchmark.json
             hm4-ocr-cost.json
             hm44-ocr-hub-parity.json
             hm4-portable/*.json
