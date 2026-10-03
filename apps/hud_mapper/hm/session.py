@@ -109,6 +109,7 @@ class Session:
                 worker_env=os.environ.copy();worker_env.update(extra_env)
             self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log',env=worker_env)
             self.versions['numeric_hud_ocr_backend']=self.worker.ready.get('numeric_hud_ocr_backend')
+            self.versions['spatial_text_ocr_backend']=self.worker.ready.get('spatial_text_ocr_backend')
             self.versions['numeric_hud_ocr_fallback_error']=self.worker.ready.get('numeric_hud_ocr_fallback_error')
             hp_binary=Path(o.worker).with_name('agente-tft-hm-hp'+('.exe' if os.name=='nt' else ''))
             if not hp_binary.is_file():
