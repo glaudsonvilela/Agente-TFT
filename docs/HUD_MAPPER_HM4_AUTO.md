@@ -109,3 +109,17 @@ HM4.3 mantém os leitores e thresholds congelados e muda apenas o agendamento/pr
 - Clicar **ENCERRAR** agora é parada graciosa: se não houve erro, a sessão é selada como completa com `stopped_by_user=true`; erros e timeouts continuam parciais.
 
 Não há mudança de threshold, ground truth, GameState, permissão de training label, promoção de perfil ou ativação silenciosa do L2.
+
+
+## HM4.3 — gate de pacote final
+
+Antes do pacote final, o head `e3306679a0bbd2bc011436f7a1594c058c720205` foi validado pelos quatro gates relevantes:
+
+- CI #562: success;
+- HUD Mapper HM2 #22: success, incluindo Windows portátil e WGC;
+- HUD Mapper HM3 Runtime #15: success após retry isolado do smoke WGC do runner, incluindo portátil e instalado;
+- HUD Mapper HM4 Auto #44: success, incluindo contratos, auditor, comparador, Rust readers e benchmark rápido.
+
+O retry HM3 foi necessário porque a primeira tentativa do runner Windows retornou `invalid ContentSize or unexpected pixel format`; a repetição isolada passou sem alteração de produção. Este registro não converte instabilidade do runner em correção de código.
+
+O commit deste trecho existe somente para acionar o full-package gate do HM4.3 sobre o mesmo código já aprovado.
