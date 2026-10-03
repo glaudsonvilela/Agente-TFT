@@ -115,7 +115,7 @@ class VoiceCoach:
         engine = None
         loaded_voice = None
         while not self.closed:
-            if self.enabled and loaded_voice != self.voice_id:
+            if self.enabled and (loaded_voice != self.voice_id or not self.ready):
                 try:
                     engine = _load_engine(self.voice_id, self.base)
                     # Warm the synthesizer before the first time-sensitive readout.
