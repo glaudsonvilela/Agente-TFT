@@ -1,7 +1,7 @@
 //! Observations only. Empty, unknown and an unresolved seasonal offer are distinct.
 use agente_tft_capture_core::{FrameEnvelope, PixelRect};
 use agente_tft_image_preprocess::GrayImage;
-use agente_tft_ocr_tesseract::{TesseractOcr, TextWord};
+use agente_tft_ocr_tesseract::{TextBlockOcrEngine, TextWord};
 use agente_tft_perception_hud::{HudField, HudOcrEngine, HudPreprocessConfig};
 use serde::Serialize;
 use crate::layout::{contains, crop, score, ScreenLayout};
@@ -82,7 +82,7 @@ pub(crate) fn agree(attempts: &[Attempt]) -> (Option<String>, Option<f32>) {
     (Some(x.clone()), Some(attempts[0].confidence.unwrap().min(attempts[1].confidence.unwrap())))
 }
 
-fn atlas(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &TesseractOcr, skip: &[bool], scale: u8)
+fn atlas<E: HudOcrEngine>(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &E, skip: &[bool], scale: u8)
     -> Result<(GrayImage, Vec<Tile>), String> {
     let mut pieces = Vec::new();
     let (mut name_w, mut cost_w, mut row_h) = (0u32, 0u32, 0u32);
@@ -117,7 +117,7 @@ fn atlas(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &TesseractOcr, sk
     Ok((image, tiles))
 }
 
-pub fn perceive(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &TesseractOcr,
+pub fn perceive<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &mut E,
     recovery: Option<&RecoveryProfile>) -> Result<ScreenRead, String> {
     frame.validate().map_err(|e| e.to_string())?;
     if (frame.width, frame.height) != (layout.reference_width, layout.reference_height) {
