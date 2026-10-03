@@ -115,7 +115,7 @@ impl ResidentHudPool{
 struct Readers{
     hud:HudLayout,ocr:TesseractOcr,shop:layout::ScreenLayout,recovery:recovery::RecoveryProfile,
     controls:controls::ControlsReader,board_profile:profile::Profile,board:Option<scene::SceneReader>,available:bool,
-    ocr_backend:&'static str,
+    ocr_backend:&'static str,ocr_fallback_error:Option<String>,
     #[cfg(windows)] resident_hud:Option<ResidentHudPool>,
     hud_cache:HashMap<HudField,HudCacheEntry>,shop_cache:Option<JsonCacheEntry>,controls_cache:Option<JsonCacheEntry>,
 }
@@ -127,18 +127,32 @@ impl Readers{
     let c=load(&controls_path.unwrap_or_else(||root.join("ui/match001-shop-controls-v1.json")))?;
     let controls=controls::ControlsReader::new(c,&shop,&recovery)?;
     let board_profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;board_profile.validate()?;
-    let resident_requested=std::env::var("AGENTE_TFT_RESIDENT_OCR").ok().as_deref()==Some("1");
+    let resident_mode=std::env::var("AGENTE_TFT_RESIDENT_OCR").unwrap_or_else(|_|"0".into());
     #[cfg(windows)]
-    let resident_hud=if resident_requested{Some(ResidentHudPool::new(&tess)?)}else{None};
+    let (resident_hud,ocr_fallback_error)=match resident_mode.as_str(){
+        ""|"0"=>(None,None),
+        "1"|"required"=>(Some(ResidentHudPool::new(&tess)?),None),
+        "auto"=>match ResidentHudPool::new(&tess){
+            Ok(pool)=>(Some(pool),None),
+            Err(error)=>(None,Some(error)),
+        },
+        other=>return Err(format!("invalid AGENTE_TFT_RESIDENT_OCR mode: {other}")),
+    };
     #[cfg(not(windows))]
-    if resident_requested{return Err("AGENTE_TFT_RESIDENT_OCR is Windows-only in HM4.4".into())}
+    let (resident_hud_unused,ocr_fallback_error)=match resident_mode.as_str(){
+        ""|"0"=>(None::<()>,None),
+        other=>return Err(format!("AGENTE_TFT_RESIDENT_OCR={other} is Windows-only in HM4.4")),
+    };
+    #[cfg(not(windows))]
+    let _=resident_hud_unused;
     #[cfg(windows)]
-    let ocr_backend=if resident_hud.is_some(){"resident_tesseract_c_api_v1"}else{"cli_process_v1"};
+    let ocr_backend=if resident_hud.is_some(){"resident_tesseract_c_api_v1"}
+        else if ocr_fallback_error.is_some(){"cli_process_fallback_v1"}else{"cli_process_v1"};
     #[cfg(not(windows))]
     let ocr_backend="cli_process_v1";
     let ocr=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()}).with_numeric_gray();
     let available=ocr.available();
-    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,ocr_backend,
+    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,ocr_backend,ocr_fallback_error,
         #[cfg(windows)] resident_hud,
         hud_cache:HashMap::new(),shop_cache:None,controls_cache:None})
  }
@@ -336,7 +350,7 @@ impl Readers{
       "spans":spans,"native_ms":ms(&t),"hud_accepted_attempts_lower_bound":attempted,
       "hud_cache_policy":"exact_roi_rgb_bytes_v1","hud_process_calls_exact":null,
       "shop_requested":include_shop,"resolution_compatible":valid_size,"ocr_available":self.available,
-       "numeric_hud_ocr_backend":self.ocr_backend,
+       "numeric_hud_ocr_backend":self.ocr_backend,"numeric_hud_ocr_fallback_error":self.ocr_fallback_error,
       "blockers":["planning_phase_not_observed","unit_identity_not_bound","board_and_hp_unvalidated"],
       "canonical_game_state_updated":false,"temporal_consensus":false,"profile_promoted":false}))
  }
@@ -347,7 +361,7 @@ fn run()->Result<(),String>{
     if args.len()<2 || args[0]!="--configs"{return Err("usage: e1-worker --configs <dir> [tesseract] [controls.json]".into())}
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
-    writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,"pid":std::process::id()})).map_err(|e|e.to_string())?;
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,"numeric_hud_ocr_fallback_error":readers.ocr_fallback_error,"pid":std::process::id()})).map_err(|e|e.to_string())?;
     output.flush().map_err(|e|e.to_string())?;
     while let Some(h)=header(&mut input)?{
       let id=number(&h,"id")?;
