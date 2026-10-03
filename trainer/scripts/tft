@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import time
+from datetime import datetime
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -15,15 +16,26 @@ def render(data: dict) -> str:
     jobs = data["jobs_by_status"]
     simulator = "ativo" if data["simulator_ready"] else "ainda não ativo"
     neural = "não iniciado" if data["neural_training_status"] == "not_started" else data["neural_training_status"]
-    return "\n".join((
+    lines = [
         "✦ AGENTE TFT · BigBANANA",
+        f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
+        "────────────────────────────────────────",
         f"Simulador: {simulator}  |  Rede neural: {neural}",
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
         f"Lotes: {jobs['completed']} concluídos, {jobs['running']} em execução, {jobs['failed']} falharam",
+        f"Tempo médio por lote: {data['mean_completed_job_ms'] / 1000:.2f} s"
+        if data["mean_completed_job_ms"] is not None else "Tempo médio por lote: sem medição",
         "Primeira medição planejada: 50 caminhos; depois, 500 por decisão confiável.",
         "Os arquivos guardados não são contados como aprendizagem.",
-    ))
+    ]
+    if data["recent_jobs"]:
+        lines.extend(("", "Últimos lotes:"))
+        for job in data["recent_jobs"][:3]:
+            lines.append(f"  {job['job_id']}: {job['status']} · "
+                         f"{job['completed_paths']}/{job['requested_paths']} caminhos"
+                         + (f" · {job['error']}" if job["error"] else ""))
+    return "\n".join(lines)
 
 
 def fetch() -> dict:
@@ -33,17 +45,15 @@ def fetch() -> dict:
 
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "status"
-    if command in ("painel", "panel"):
-        print("Painel: http://localhost:8801/dashboard")
-        print("No seu computador, abra um túnel SSH para a porta 8801 do BigBANANA.")
-        print("Exemplo: ssh -N -L 8801:127.0.0.1:8801 glaudsonvilela@10.0.0.174")
+    if command in ("web", "navegador"):
+        print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
         return 0
-    if command not in ("status", "acompanhar", "watch"):
-        print("Uso: tft [status|acompanhar|painel]", file=sys.stderr)
+    if command not in ("status", "acompanhar", "watch", "painel", "panel"):
+        print("Uso: tft [status|painel|web]", file=sys.stderr)
         return 2
     try:
         while True:
-            if command in ("acompanhar", "watch") and sys.stdout.isatty():
+            if command != "status" and sys.stdout.isatty():
                 print("\033[2J\033[H", end="")
             print(render(fetch()), flush=True)
             if command == "status":
