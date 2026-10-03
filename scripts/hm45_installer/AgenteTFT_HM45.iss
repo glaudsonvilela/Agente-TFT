@@ -12,6 +12,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\AgenteTFT-HUD-HM4-Auto.exe
 DisableProgramGroupPage=yes
+DisableDirPage=yes
+DisableReadyPage=yes
 WizardStyle=modern
 WizardSizePercent=115
 SetupLogging=yes
@@ -23,6 +25,7 @@ Source: "hm45-core\AgenteTFT-Core-v1.tar"; DestDir: "{app}\core"; Flags: ignorev
 
 [Icons]
 Name: "{autoprograms}\Agente TFT HM4.5"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
+Name: "{autodesktop}\Agente TFT HM4.5"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
 Name: "{autoprograms}\Configurar VM do Agente TFT"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Parameters: "--setup-assistant"
 
 [Run]
@@ -31,7 +34,6 @@ Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Parameters: "--setup-assistant"; D
 [Code]
 var
   OverviewPage: TWizardPage;
-  PrivacyPage: TWizardPage;
 
 function InitializeSetup: Boolean;
 begin
@@ -58,20 +60,11 @@ end;
 procedure InitializeWizard;
 begin
   OverviewPage := CreateCustomPage(wpWelcome, 'O que será instalado',
-    'O aplicativo Windows e uma VM leve são configurados no mesmo processo.');
+    'O aplicativo Windows e a VM leve são configurados pelo assistente.');
   AddParagraph(OverviewPage, 18,
-    '1. O aplicativo Windows captura a janela ou o monitor pelo módulo Rust. A prévia fica no Windows em até 720p.');
+    'O Agente TFT usa captura Rust no Windows. A prévia fica no Windows em até 720p; os quadros para análise seguem por IP local à VM WSL 2. O arquivo do vídeo não é importado.');
   AddParagraph(OverviewPage, 102,
-    '2. O assistente verifica o PC e instala uma distribuição WSL 2 própria do Agente TFT. Ela executa a análise dos quadros de imagem.');
+    'O assistente verifica o PC, instala somente a distribuição AgenteTFT-Core-v1 e testa a análise. As outras distribuições WSL e o arquivo global .wslconfig não são alterados.');
   AddParagraph(OverviewPage, 200,
-    '3. Ao final, o assistente testa a VM. Se o Windows precisar habilitar o WSL 2, mostrará a solicitação de administrador e poderá exigir um reinício.');
-
-  PrivacyPage := CreateCustomPage(OverviewPage.ID, 'Conexão local e seus dados',
-    'Entenda como o vídeo é usado antes de prosseguir.');
-  AddParagraph(PrivacyPage, 18,
-    'O vídeo continua aberto no seu player. O Agente TFT lê a tela escolhida; não é necessário enviar o arquivo da partida.');
-  AddParagraph(PrivacyPage, 102,
-    'A análise envia quadros RGB da tela escolhida pela conexão IP local entre o Windows e a VM, sem perda de resolução. A prévia de até 720p permanece no Windows e não passa pela VM.');
-  AddParagraph(PrivacyPage, 200,
-    'O instalador não altera outras distribuições WSL nem o arquivo global .wslconfig. O assistente explica cada etapa e só anuncia conclusão após o teste de saúde.');
+    'Se o Windows precisar habilitar o WSL 2, pedirá permissão de administrador. Caso exija reinício, o assistente mostrará o botão Reiniciar agora e continuará no próximo login.');
 end;

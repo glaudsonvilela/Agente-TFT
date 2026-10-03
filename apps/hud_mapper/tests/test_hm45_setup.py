@@ -10,23 +10,30 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from hm45_setup_core import CoreInstaller, SetupError, load_package, verify_package
+from hm45_setup_core import CoreInstaller, SetupError, load_package, restart_windows, verify_package, wait_wsl_after_restart, wsl_available, wsl_names
 
 
 class FakeWindows:
     def __init__(self):
         self.calls = []
         self.wsl_ready = True
+        self.status_failures = 0
         self.distros = set()
         self.import_fails = False
         self.health_ok = True
         self.enable_code = 0
+        self.empty_list_is_error = False
 
     def __call__(self, args, timeout=60):
         self.calls.append(args)
         if args[:2] == ["wsl.exe", "--status"]:
+            if self.status_failures:
+                self.status_failures -= 1
+                return subprocess.CompletedProcess(args, 1, "", "WSL is starting")
             return subprocess.CompletedProcess(args, 0 if self.wsl_ready else 1, "", "")
         if args[:3] == ["wsl.exe", "--list", "--quiet"]:
+            if self.empty_list_is_error and not self.distros:
+                return subprocess.CompletedProcess(args, 1, "", "There are no installed distributions.")
             return subprocess.CompletedProcess(args, 0, "\n".join(sorted(self.distros)), "")
         if args[:2] == ["wsl.exe", "--import"]:
             if self.import_fails:
@@ -39,6 +46,8 @@ class FakeWindows:
         if args[0] == "powershell.exe":
             return subprocess.CompletedProcess(args, self.enable_code if "-ExecutionPolicy" in args else 0,
                                                "True", "")
+        if args[0] == "shutdown.exe":
+            return subprocess.CompletedProcess(args, 0, "", "")
         raise AssertionError(args)
 
 
@@ -95,6 +104,27 @@ class SetupContracts(unittest.TestCase):
         self.assertEqual(imports[0][-2:], ["--version", "2"])
         self.assertFalse(any("--unregister" in call for call in self.fake.calls))
 
+    def test_first_import_after_reboot_with_no_wsl_distribution(self):
+        self.fake.empty_list_is_error = True
+        self.assertEqual(self.installer.install(lambda _: None), "ready")
+        self.assertIn("AgenteTFT-Core-v1", self.fake.distros)
+        self.assertEqual(sum(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls), 1)
+
+    def test_no_distribution_message_is_not_missing_wsl(self):
+        self.fake.wsl_ready = False
+        self.fake.empty_list_is_error = True
+        self.assertTrue(wsl_available(self.fake))
+        self.assertEqual(self.installer.install(lambda _: None), "ready")
+
+    def test_resume_waits_for_wsl_startup(self):
+        self.fake.status_failures = 2
+        wait_wsl_after_restart(self.fake, attempts=3, pause=lambda _: None)
+        self.assertEqual(self.fake.status_failures, 0)
+
+    def test_utf16_wsl_listing_is_normalized(self):
+        self.assertEqual(wsl_names("ÿþA\x00g\x00e\x00n\x00t\x00e\x00T\x00F\x00T\x00-\x00C\x00o\x00r\x00e\x00-\x00v\x001\x00\r\x00\n\x00"),
+                         {"AgenteTFT-Core-v1"})
+
     def test_existing_unhealthy_vm_is_preserved(self):
         self.fake.distros.add("AgenteTFT-Core-v1")
         self.fake.health_ok = False
@@ -118,6 +148,10 @@ class SetupContracts(unittest.TestCase):
         self.assertFalse(self.installer.enable_wsl(lambda _: None))
         self.assertEqual(resumed, [True])
         self.assertFalse(any(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls))
+
+    def test_restart_button_uses_normal_windows_restart_without_forcing_apps(self):
+        restart_windows(self.fake)
+        self.assertIn(["shutdown.exe", "/r", "/t", "0"], self.fake.calls)
 
 
 if __name__ == "__main__":

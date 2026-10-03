@@ -7,27 +7,28 @@ instalação, sem comandos manuais para o usuário.
 
 ## O que o usuário verá
 
-1. **O que será instalado:** captura Rust no Windows, prévia 720p e VM WSL 2
-   leve para análise. O assistente avisa sobre a permissão do Windows e a
-   possível reinicialização.
-2. **Seu computador:** versão Windows x64, memória, espaço, virtualização,
-   disponibilidade do WSL 2 e hash SHA-256 do rootfs. O resultado aparece
-   antes de qualquer mudança no sistema.
-3. **Privacidade:** explica que o player continua no Windows. O aplicativo
-   envia quadros RGB completos somente nas frequências de análise pela conexão
-   IP local. O arquivo do vídeo não é importado pelo Agente TFT.
-4. **Instalação:** habilita WSL 2 com uma janela UAC quando necessário,
+1. **Verificação automática:** mostra captura Rust, prévia 720p e VM WSL 2,
+   além da privacidade do replay. Confere Windows x64, memória, espaço,
+   virtualização, WSL 2 e SHA-256 do rootfs antes de qualquer mudança.
+2. **Instalação:** habilita WSL 2 com uma janela UAC quando necessário,
    importa `AgenteTFT-Core-v1` na conta original do usuário e testa a VM.
    Se houver reinicialização, registra uma retomada única em `HKCU\RunOnce`
-   e orienta o usuário a salvar o trabalho antes de reiniciar.
-5. **Concluir:** o botão para abrir o Agente TFT só aparece depois que os
+   e oferece **Reiniciar agora**, após pedir que o usuário salve seu trabalho.
+3. **Concluir:** o botão para abrir o Agente TFT só aparece depois que os
    testes internos e a conexão IP Windows–VM passam. Um erro mantém o diagnóstico visível e grava
    `%LOCALAPPDATA%\AgenteTFT-HM45\setup.log`.
+
+O Inno Setup mostra uma única página explicativa antes da cópia e cria atalhos
+no menu Iniciar e na área de trabalho. O assistente abre automaticamente,
+verifica o PC e requer apenas o clique **Instalar VM** antes das etapas de
+sistema. Ao voltar de um reinício, ele retoma sem repetir a introdução.
 
 O instalador não reinicia o Windows automaticamente. A importação e a
 verificação rodam no contexto do usuário; somente `wsl --install
 --no-distribution` pede elevação. As demais distribuições WSL e `.wslconfig`
-ficam intactas. Uma VM existente com o mesmo nome precisa passar no teste de
+ficam intactas. Um WSL sem nenhuma distribuição é um estado válido: o instalador
+importa a VM nesse caso, inclusive se `wsl --list --quiet` devolver um código
+diferente de zero. Uma VM existente com o mesmo nome precisa passar no teste de
 saúde; se falhar, ela é preservada para diagnóstico em vez de ser apagada.
 O modo silencioso é recusado nesta fase, pois ele não conseguiria explicar a
 permissão do Windows, o reinício e o resultado do teste de saúde.

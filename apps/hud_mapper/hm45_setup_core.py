@@ -17,6 +17,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from typing import Callable
 
 
@@ -80,6 +81,54 @@ def default_run(args: list[str], timeout: int = 60) -> subprocess.CompletedProce
                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
 
+def command_detail(result: subprocess.CompletedProcess[str]) -> str:
+    """Keep the useful WSL error visible without flooding the wizard or log."""
+    detail = (result.stderr or result.stdout or "").replace("\x00", "").strip()
+    return detail[:500] if detail else f"código {result.returncode}"
+
+
+def wsl_names(output: str) -> set[str]:
+    # wsl.exe may write UTF-16LE to a redirected pipe. The Windows code page
+    # then leaves NULs and a BOM in the decoded text.
+    clean = output.replace("\x00", "").lstrip("\ufeff\ufffeÿþï»¿")
+    return {line.strip() for line in clean.splitlines()
+            if re.fullmatch(r"[A-Za-z0-9._-]+", line.strip())}
+
+
+def empty_wsl_listing(result: subprocess.CompletedProcess[str]) -> bool:
+    message = command_detail(result).lower()
+    return any(phrase in message for phrase in (
+        "no installed distributions", "no distributions are installed",
+        "nenhuma distribuição instalada", "nenhuma distribuição foi instalada",
+        "não há distribuições instaladas", "nao ha distribuicoes instaladas",
+        "não tem distribuições instaladas"))
+
+
+def wsl_available(run: Callable = default_run) -> bool:
+    if run(["wsl.exe", "--status"]).returncode == 0:
+        return True
+    return empty_wsl_listing(run(["wsl.exe", "--list", "--quiet"]))
+
+
+def wait_wsl_after_restart(run: Callable = default_run, report: Callable[[str], None] = lambda _: None,
+                           attempts: int = 12, pause: Callable[[float], None] = time.sleep) -> None:
+    for index in range(attempts):
+        if wsl_available(run):
+            return
+        if index == 0:
+            report("Aguardando o WSL 2 iniciar após o reinício…")
+        if index + 1 < attempts:
+            pause(5)
+    status = run(["wsl.exe", "--status"])
+    raise SetupError("O WSL 2 não ficou pronto após o reinício: " + command_detail(status))
+
+
+def restart_windows(run: Callable = default_run) -> None:
+    result = run(["shutdown.exe", "/r", "/t", "0"], timeout=15)
+    if result.returncode != 0:
+        raise SetupError("O Windows não aceitou o reinício: " + command_detail(result))
+
+
 def probe_host_core(package: Package, log: Path) -> bool:
     """Prove that the Windows application can reach the WSL service over local IP."""
     from hm45_vm_client import VMCore
@@ -116,8 +165,15 @@ def memory_bytes() -> int:
 def distro_names(run: Callable = default_run) -> set[str]:
     result = run(["wsl.exe", "--list", "--quiet"])
     if result.returncode != 0:
-        raise SetupError("Não foi possível consultar as distribuições WSL.")
-    return {line.strip().replace("\x00", "") for line in result.stdout.splitlines() if line.strip()}
+        if empty_wsl_listing(result):
+            return set()
+        # A fresh WSL installation can report "no installed distributions"
+        # with a nonzero exit code. This is the state in which --import is needed.
+        status = run(["wsl.exe", "--status"])
+        if status.returncode == 0:
+            return set()
+        raise SetupError("O WSL 2 ainda não está disponível: " + command_detail(status))
+    return wsl_names(result.stdout)
 
 
 class CoreInstaller:
@@ -173,9 +229,8 @@ class CoreInstaller:
         report("Conferindo integridade da VM incluída no instalador…")
         verify_package(self.package)
         report("Integridade SHA-256: OK")
-        status = self._call(["wsl.exe", "--status"], 30)
-        ready = status.returncode == 0
-        report("WSL: responde; WSL 2 será validado na importação" if ready else
+        ready = wsl_available(self.run)
+        report("WSL: disponível; WSL 2 será validado na importação" if ready else
                "WSL 2: precisa ser habilitado")
         return Preflight(build, _gib(free), _gib(mem), virt, ready, True)
 
@@ -189,8 +244,8 @@ class CoreInstaller:
         result = self._call(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass",
                              "-Command", command], 600)
         if result.returncode not in (0, 3010, 1641):
-            raise SetupError("O WSL 2 não foi habilitado. Confira a janela de permissão do Windows.")
-        if result.returncode == 0 and self._call(["wsl.exe", "--status"], 30).returncode == 0:
+            raise SetupError("O WSL 2 não foi habilitado: " + command_detail(result))
+        if result.returncode == 0 and wsl_available(self.run):
             report("WSL 2 habilitado sem necessidade de reinício.")
             return True
         self.register_resume()
@@ -218,7 +273,7 @@ class CoreInstaller:
         result = self._call(["wsl.exe", "--distribution", self.package.distro,
                              "--exec", HEALTH_EXEC, "--version", self.package.version], 120)
         if result.returncode != 0 or "AGENTETFT_CORE_HEALTH_OK" not in result.stdout:
-            self.last_health_error = "O teste L3/OCR/HP/B4 na VM falhou."
+            self.last_health_error = "O teste L3/OCR/HP/B4 na VM falhou: " + command_detail(result)
             return False
         try:
             if not self.host_probe(self.package, self.install_dir / "vm-host-probe.log"):
@@ -232,7 +287,6 @@ class CoreInstaller:
 
     def install(self, report: Callable[[str], None]) -> str:
         package = self.package
-        verify_package(package)
         names = distro_names(self.run)
         if package.distro in names:
             report(f"VM {package.distro} já existe; verificando saúde.")
@@ -241,6 +295,7 @@ class CoreInstaller:
                                  str(self.last_health_error or ""))
             self.clear_resume()
             return "ready"
+        verify_package(package)
         target = self.install_dir / "distros" / package.distro
         if target.exists() and any(target.iterdir()):
             raise SetupError("Pasta de VM existente sem registro no WSL; preservada para diagnóstico.")
@@ -249,7 +304,12 @@ class CoreInstaller:
         imported = self._call(["wsl.exe", "--import", package.distro, str(target),
                                str(package.rootfs), "--version", "2"], 1200)
         if imported.returncode != 0:
-            raise SetupError("A importação da VM falhou. Consulte o log; nenhum outro WSL foi alterado.")
+            # The distro may have been imported by a prior interrupted attempt.
+            if package.distro in distro_names(self.run) and self.health():
+                self.clear_resume()
+                report("VM já importada; verificação concluída.")
+                return "ready"
+            raise SetupError("A importação da VM falhou: " + command_detail(imported))
         report("Testando versão, modelo, catálogo e conexão IP Windows–VM…")
         if not self.health():
             raise SetupError("A VM foi importada, mas falhou no teste completo de análise. Ela foi preservada. " +
