@@ -384,7 +384,7 @@ class HM4RuntimeSession(RuntimeSession):
                               snapshot=observed['snapshot'], image_size=[frame.width, frame.height],
                               reader_input_transform=plan, ground_truth=False,
                               source_to_hub_ms=(end-frame.due_ns)/1e6,
-                              hub_processing_ms=(end-start)/1e6,
+                              hub_processing_ms=(end-started)/1e6,
                               board_reference_status=self.versions.get('board_reference_status'),
                               game_state_updated=False)
                 with self.lock:
