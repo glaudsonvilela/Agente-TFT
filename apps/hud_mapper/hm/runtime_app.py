@@ -108,7 +108,7 @@ class App:
             style.configure("TButton",padding=5)
         self.model=tk.StringVar();self.dest=tk.StringVar();self.ref=tk.StringVar();self.controls=tk.StringVar()
         self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-replay-screen" if self.hm4 else "hud-live-01")
-        self.map_hz=tk.StringVar(value="8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
+        self.map_hz=tk.StringVar(value="4" if self.hm4 else "8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
         self.replay_review=tk.BooleanVar(value=False)
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
@@ -257,7 +257,7 @@ class App:
                 board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
                 replay_review=self.hm4 and self.replay_review.get(),
                 board_hub_enabled=self.hm4 and self.replay_review.get(),
-                vm_core=self.vm_core,preview_hz=20,max_samples=90 if self.vm_core else 600,
+                vm_core=self.vm_core,preview_hz=30,max_samples=90 if self.vm_core else 600,
                 max_bytes=384*1024**2 if self.vm_core else 1024**3,
                 capture_consent=True,capture_expected=self.selection)).start()
             self.last={};self.current=None;self.freeze=False;self._table_key=None
@@ -329,7 +329,8 @@ class App:
             self.canvas.coords(self.canvas_image,*center)
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
-        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {f.width}×{f.height} · idade {age:.1f} ms · geometria {f.epoch}')
+        physical = f'{cap["source_width"]}×{cap["source_height"]} original · ' if cap and cap.get('type')=='preview' else ''
+        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} · idade {age:.1f} ms · geometria {f.epoch}')
         table_key=(view,None if view=="capture" else f.id)
         if table_key!=self._table_key:
             self._table_key=table_key
@@ -399,7 +400,11 @@ class App:
                    processing_p95_ms=pct([x["processing_ms"] for x in hubs],.95),
                    board_reference_status=s.versions.get("board_reference_status")),
           tips=dict(emitted=s.counts["replay_tips"],mode="replay_review_only" if s.options.replay_review else "disabled"),
-          capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,render_p50_ms=pct(self.render_ms,.5),
+          capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,
+                                   capture_device_kind=(getattr(s.source,'ready',None) or {}).get('device_kind'),
+                                   native_received=getattr(s.source,'preview_received',0),
+                                   native_queue_replaced=getattr(getattr(s.source,'preview_frames',None),'replaced',0),
+                                   render_p50_ms=pct(self.render_ms,.5),
                                    render_p95_ms=pct(self.render_ms,.95),max_size=[1280,720] if self.vm_core else None),
           samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"])
 
@@ -451,7 +456,7 @@ class App:
             self.status.configure(text=label+" · "+self.last_finished)
             if self.smoke or self.closing:self.root.destroy();return
         elif self.closing and (not s or s.finished) and not self.finalizing:self.root.destroy();return
-        self.root.after(30,self.tick)
+        self.root.after(10 if self.vm_core else 30,self.tick)
 
     def open_output(self):
         if not self.last_finished:return

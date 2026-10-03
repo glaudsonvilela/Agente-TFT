@@ -1,5 +1,5 @@
 //! Documented WGC + D3D11 only. Selection uses public desktop metadata, never game memory.
-use crate::{bad, packet, rgb_from_bgra, Args, Result};
+use crate::{bad, packet, preview_rgb_from_bgra, rgb_from_bgra, Args, Result};
 use serde::Serialize;
 use serde_json::json;
 use std::{io::BufRead, sync::{Arc, atomic::{AtomicBool, Ordering}, mpsc}, time::{Duration, Instant}};
@@ -115,10 +115,12 @@ pub fn stream(args: &Args) -> Result<()> {
         packet(&json!({"type":"ready","bytes":0,"backend":"own_rust_wgc_d3d11_v1",
             "target":target,"device_kind":device_kind,"qpc_frequency":frequency,
             "pixel_format":"RGB8","capture_border_disabled":false,
+            "preview_mode":if args.preview_hz.is_some() {"native_scaled_720p_separate_from_analysis_v1"} else {"analysis_frames"},
             "color_policy":"BGRA8_SDR_contract_HDR_not_certified","cursor_policy":"OS_default",
             "screen_capture_active":true,"input_automation":false}), &[])?;
         session.StartCapture()?;
-        let start=Instant::now();let mut last_sent=None;let mut frame_id=0u64;let mut seen=0u64;
+        let start=Instant::now();let mut last_analysis=None;let mut last_preview=None;
+        let mut frame_id=0u64;let mut analysis_frames=0u64;let mut preview_frames=0u64;let mut seen=0u64;
         let mut rate_skipped=0u64;let mut size_changes=0u64;
         let mut staging:Option<ID3D11Texture2D>=None;let mut staging_dims=(0,0);
         let mut last_frame_at=start;
@@ -130,7 +132,8 @@ pub fn stream(args: &Args) -> Result<()> {
                 continue;
             }
             let frame=match pool.TryGetNextFrame() {Ok(f)=>f,Err(_)=>continue};
-            seen+=1;last_frame_at=Instant::now();
+            let arrived_at=Instant::now();
+            seen+=1;last_frame_at=arrived_at;
             let content=frame.ContentSize()?;
             if content.Width<=0 || content.Height<=0 {frame.Close()?;continue;}
             if content.Width!=size.Width || content.Height!=size.Height {
@@ -140,7 +143,10 @@ pub fn stream(args: &Args) -> Result<()> {
                     "segment":size_changes,"coordinates_reused":false}),&[])?;
                 continue;
             }
-            if last_sent.is_some_and(|at:Instant|at.elapsed().as_secs_f64()<1.0/args.hz) {
+            let analysis_due=last_analysis.is_none_or(|at:Instant|arrived_at.duration_since(at).as_secs_f64()>=1.0/args.hz);
+            let preview_due=args.preview_hz.is_some_and(|hz|
+                last_preview.is_none_or(|at:Instant|arrived_at.duration_since(at).as_secs_f64()>=1.0/hz));
+            if !analysis_due && !preview_due {
                 rate_skipped+=1;frame.Close()?;continue;
             }
             let capture_ns=frame.SystemRelativeTime()?.Duration.checked_mul(100).ok_or_else(||bad("time overflow"))?;
@@ -164,25 +170,35 @@ pub fn stream(args: &Args) -> Result<()> {
             let after_map=qpc()?;
             let count=(mapped.RowPitch as usize).checked_mul(content.Height as usize).ok_or_else(||bad("mapped length overflow"))?;
             if mapped.pData.is_null() || count>256*1024*1024 {context.Unmap(cpu,0);return Err(bad("invalid mapped buffer"));}
-            let rgb=rgb_from_bgra(std::slice::from_raw_parts(mapped.pData as *const u8,count),
-                content.Width as usize,content.Height as usize,mapped.RowPitch as usize);
-            context.Unmap(cpu,0);let rgb=rgb?;let after_rgb=qpc()?;
+            let source=std::slice::from_raw_parts(mapped.pData as *const u8,count);
+            let preview=preview_due.then(||preview_rgb_from_bgra(source,
+                content.Width as usize,content.Height as usize,mapped.RowPitch as usize));
+            let analysis=analysis_due.then(||rgb_from_bgra(source,
+                content.Width as usize,content.Height as usize,mapped.RowPitch as usize));
+            context.Unmap(cpu,0);
+            let preview=preview.transpose()?;let analysis=analysis.transpose()?;let after_rgb=qpc()?;
             frame.Close()?;
             let ticks_to_ms=|n:i64|n as f64*1000.0/frequency as f64;
-            let outgoing=json!({"type":"frame","bytes":rgb.len(),"frame_id":frame_id,
-                "width":content.Width,"height":content.Height,"stride_bytes":content.Width*3,
-                "capture_ns":capture_ns,"clock":"WGC_SystemRelativeTime_QPC_nanoseconds",
-                "qpc_acquired_ticks":begin,"qpc_sent_ticks":after_rgb,"qpc_frequency":frequency,"geometry_segment":size_changes,
-                "frames_received":seen,"rate_skipped":rate_skipped,"pixel_format":"RGB8",
-                "gpu_copy_and_map_ms":ticks_to_ms(after_map-begin),"bgra_rgb_ms":ticks_to_ms(after_rgb-after_map),
-                "previous_ipc_write_ms":previous_write_ms,"capture_space":args.kind,
-                "capture_age_before_ipc_ms":after_rgb as f64*1000.0/frequency as f64-capture_ns as f64/1e6});
-            let write=Instant::now();packet(&outgoing,&rgb)?;previous_write_ms=write.elapsed().as_secs_f64()*1000.0;
-            frame_id+=1;last_sent=Some(Instant::now());
+            for (kind,width,height,rgb) in
+                preview.map(|(w,h,rgb)|("preview",w,h,rgb)).into_iter()
+                .chain(analysis.map(|rgb|("frame",content.Width as usize,content.Height as usize,rgb))) {
+                let outgoing=json!({"type":kind,"bytes":rgb.len(),"frame_id":frame_id,
+                    "width":width,"height":height,"source_width":content.Width,"source_height":content.Height,
+                    "stride_bytes":width*3,"capture_ns":capture_ns,"clock":"WGC_SystemRelativeTime_QPC_nanoseconds",
+                    "qpc_acquired_ticks":begin,"qpc_sent_ticks":after_rgb,"qpc_frequency":frequency,"geometry_segment":size_changes,
+                    "frames_received":seen,"rate_skipped":rate_skipped,"pixel_format":"RGB8",
+                    "gpu_copy_and_map_ms":ticks_to_ms(after_map-begin),"bgra_rgb_ms":ticks_to_ms(after_rgb-after_map),
+                    "previous_ipc_write_ms":previous_write_ms,"capture_space":args.kind,
+                    "capture_age_before_ipc_ms":after_rgb as f64*1000.0/frequency as f64-capture_ns as f64/1e6});
+                let write=Instant::now();packet(&outgoing,&rgb)?;previous_write_ms=write.elapsed().as_secs_f64()*1000.0;
+                if kind=="preview" {preview_frames+=1;last_preview=Some(arrived_at);}
+                else {analysis_frames+=1;last_analysis=Some(arrived_at);}
+            }
+            frame_id+=1;
         }
         session.Close()?;pool.RemoveFrameArrived(token)?;pool.Close()?;item.RemoveClosed(close_token)?;
-        if frame_id==0 {return Err(bad("no captured frame"));}
-        packet(&json!({"type":"end","bytes":0,"frames":frame_id,"received":seen,
+        if analysis_frames==0 {return Err(bad("no captured analysis frame"));}
+        packet(&json!({"type":"end","bytes":0,"frames":analysis_frames,"preview_frames":preview_frames,"received":seen,
             "rate_skipped":rate_skipped,"size_changes":size_changes,"stop_requested":stop.load(Ordering::Relaxed),
             "last_ipc_write_ms":previous_write_ms,"execution_complete":!closed.load(Ordering::Relaxed)}),&[])?;
         Ok(())

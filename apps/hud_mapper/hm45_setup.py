@@ -22,9 +22,10 @@ WHITE = "#ffffff"
 
 
 class SetupWindow:
-    def __init__(self, app_exe: Path, resume: bool = False):
+    def __init__(self, app_exe: Path, resume: bool = False, resume_headless: bool = False):
         self.app_exe = app_exe
         self.resume = resume
+        self.resume_headless = resume_headless
         self.log_path = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "AgenteTFT-HM45" / "setup.log"
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self.events: queue.Queue[tuple[str, str]] = queue.Queue()
@@ -32,9 +33,11 @@ class SetupWindow:
         self.preflight_ready = False
         self.vm_ready = False
         self.restart_pending = False
+        self.headless_selected = False
         self.busy = False
         self.step = 0
         self.root = tk.Tk()
+        self.headless_wsl = tk.BooleanVar(master=self.root, value=False)
         self.root.title("Agente TFT · Instalação guiada")
         self.root.geometry("860x600")
         self.root.minsize(760, 540)
@@ -76,6 +79,13 @@ class SetupWindow:
         self.details = tk.Text(body, height=12, fg=INK, bg=WHITE, font=("Segoe UI", 10),
                                bd=0, padx=18, pady=15, wrap="word", state="disabled")
         self.details.pack(fill="both", expand=True, padx=38, pady=(0, 20))
+        self.headless_slot = tk.Frame(body, bg=PALE)
+        self.headless_slot.pack(fill="x", padx=38, pady=(0, 10))
+        self.headless_option = tk.Checkbutton(
+            self.headless_slot, variable=self.headless_wsl, bg=PALE, fg=INK, activebackground=PALE,
+            anchor="w", justify="left", wraplength=530,
+            text="VM sem WSLg: evita as janelas Remote Desktop/RemoteApp. Desativa aplicativos gráficos em todas as distribuições WSL após reiniciar.")
+        self.headless_option.pack(fill="x")
         self.progress = ttk.Progressbar(body, mode="indeterminate")
         buttons = tk.Frame(body, bg=PALE)
         buttons.pack(fill="x", padx=38, pady=(0, 28))
@@ -97,6 +107,10 @@ class SetupWindow:
         for i, label in enumerate(self.step_labels):
             label.configure(bg=PURPLE if i == step else INK, fg=WHITE if i == step else "#beb5d9")
         self.secondary.pack_forget()
+        if step == 0:
+            self.headless_option.pack(fill="x")
+        else:
+            self.headless_option.pack_forget()
         pages = (
             ("PASSO 1 DE 3", "Verificando o computador",
              "Vamos conferir o Windows, o WSL 2 e o pacote da VM automaticamente.",
@@ -125,6 +139,13 @@ class SetupWindow:
         if self.busy:
             return
         if self.step == 0 and self.preflight_ready:
+            self.headless_selected = self.headless_wsl.get()
+            if self.headless_selected and not messagebox.askyesno(
+                "WSL sem interface gráfica",
+                "O Agente TFT usa apenas IP local, mas o WSLg abre um cliente Remote Desktop em segundo plano. "
+                "Desativar WSLg em todas as distribuições WSL deste usuário? Aplicativos Linux com janela deixarão de abrir "
+                "até você restaurar .wslconfig. O assistente guardará uma cópia e pedirá reinício.", parent=self.root):
+                return
             self._show(1)
             self._start("install", self._install)
         elif self.step == 2 and self.vm_ready:
@@ -186,9 +207,11 @@ class SetupWindow:
             # A resumed session must recheck the package; the fresh session
             # already did this before the user pressed Install.
             self.installer.preflight(self._report)
-        if self.resume:
+        if self.resume and not self.resume_headless:
             wait_wsl_after_restart(self.installer.run, self._report)
-        elif not wsl_available(self.installer.run):
+        if not self.resume and self.headless_selected and not self.installer.use_headless_wsl(self._report):
+            return "restart"
+        if not wsl_available(self.installer.run):
             if not self.installer.enable_wsl(self._report):
                 return "restart"
         return self.installer.install(self._report)
@@ -253,4 +276,5 @@ def main() -> int:
     app_exe = Path(sys.executable if getattr(sys, "frozen", False) else __file__).resolve()
     if sys.platform != "win32":
         raise SetupError("O assistente de instalação requer Windows.")
-    return SetupWindow(app_exe, resume="--resume-core" in sys.argv).run()
+    return SetupWindow(app_exe, resume="--resume-core" in sys.argv,
+                       resume_headless="--resume-headless" in sys.argv).run()

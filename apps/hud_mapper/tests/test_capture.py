@@ -30,6 +30,11 @@ class CaptureContracts(unittest.TestCase):
     def test_truncated_packet(self):
         with self.assertRaises(EOFError):read_packet(packet(self.frame(),b'123'))
     def test_valid_pixels_preserved(self):self.assertEqual(read_packet(packet(self.frame(),b'\x00\x01\x02\x03\x04\x05'))[1],bytes(range(6)))
+    def test_preview_pixels_have_the_same_strict_rgb_contract(self):
+        h=self.frame();h.update(type='preview',source_width=4,source_height=2)
+        self.assertEqual(read_packet(packet(h,b'\x00\x01\x02\x03\x04\x05'))[1],bytes(range(6)))
+        h['stride_bytes']=8
+        with self.assertRaises(ValueError):read_packet(packet(h,b'123456'))
     def test_control_packet_has_no_pixels(self):
         with self.assertRaises(ValueError):read_packet(packet(dict(type='ready',bytes=1),b'x'))
     def test_header_budget(self):

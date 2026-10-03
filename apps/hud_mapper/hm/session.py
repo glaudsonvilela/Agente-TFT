@@ -150,6 +150,8 @@ class Session:
                 self.worker.request(dict(op='reference',id=0,source_ms=0,width=w,height=h,bytes=len(b)),b)
                 self.versions['board_reference_sha256']=sha(o.board_reference)
             self.source=input_plan.start()
+            if getattr(self.source, 'preview_frames', None) is not None:
+                self.preview = self.source.preview_frames
             targets=[self._native_loop]
             if getattr(self,'separate_hp_loop',False):targets.append(self._hp_loop)
             if self.model is not None:targets.insert(0,self._map_loop)
@@ -165,7 +167,8 @@ class Session:
             for f in self.source.frames(self.cancel,o.seconds):
                 if self.cancel.is_set():break
                 if self.store.error:raise OSError(self.store.error)
-                self.counts['source_frames']+=1;self.preview.put(f)
+                self.counts['source_frames']+=1
+                if getattr(self.source, 'preview_frames', None) is None:self.preview.put(f)
                 if not o.vm_core or f.due_ns>=next_source_telemetry:
                     next_source_telemetry=f.due_ns+1_000_000_000
                     self.store.emit('telemetry',dict(event='source',frame_id=f.id,source_ms=f.pts_ms,

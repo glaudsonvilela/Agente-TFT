@@ -37,11 +37,11 @@ class InputPlan:
         o = self.options
         if self.capture:
             from .capture_source import CaptureSource, native_path
-            capture_hz=max(o.map_hz,o.reader_hz,o.sample_hz,
-                           o.preview_hz if o.vm_core else 0)
+            capture_hz=max(o.map_hz,o.reader_hz,o.sample_hz)
             self.source = CaptureSource(o.video, o.configs, o.seconds, capture_hz,
                 consent=o.capture_consent, expected=o.capture_expected,
-                log=Path(o.output)/'capture-stderr.log')
+                log=Path(o.output)/'capture-stderr.log',
+                preview_hz=o.preview_hz if o.vm_core else None)
             self.info.update(native=self.source.ready, clock_bridge=self.source.bridge.metadata(),
                              native_binary_sha256=sha(native_path(o.configs)))
         else:
@@ -53,6 +53,8 @@ class InputPlan:
         if self.capture:
             if self.source:
                 self.info['source_queue_replaced'] = self.source.source_replaced
+                self.info['preview_frames_received'] = self.source.preview_received
+                self.info['preview_queue_replaced'] = self.source.preview_frames.replaced if self.source.preview_frames else 0
                 self.info['compositor_clock_anomalies'] = self.source.clock_anomalies
                 self.info['latency_basis'] = 'native_QPC_acquisition_before_readback_not_compositor_or_scanout'
                 self.info['geometry_events'] = list(self.source.control_events)

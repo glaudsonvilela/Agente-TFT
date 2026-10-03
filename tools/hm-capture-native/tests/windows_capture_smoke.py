@@ -17,7 +17,7 @@ def exact(stream, count):
 
 def exercise(binary, target, root, canvas, resize=False):
     proc=subprocess.Popen([str(binary),'stream','--kind',target['kind'],'--id',target['id'],
-          '--seconds','3','--hz','4','--consent'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+          '--seconds','3','--hz','4','--preview-hz','12','--consent'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     events=queue.Queue();records=[];failures=[];done=threading.Event()
     def read():
         try:
@@ -28,10 +28,13 @@ def exercise(binary, target, root, canvas, resize=False):
                 assert 0<=size<=128*1024**2
                 pixels=exact(proc.stdout,size)
                 if h['type']=='error':raise RuntimeError(h['error'])
-                if h['type']=='frame':
+                if h['type'] in ('frame','preview'):
                     assert size==h['width']*h['height']*3
                     assert h['stride_bytes']==h['width']*3 and h['pixel_format']=='RGB8'
                     assert h['capture_ns']>0 and h['qpc_frequency']>0
+                    if h['type']=='preview':
+                        assert h['width']<=1280 and h['height']<=720
+                        assert h['source_width']>=h['width'] and h['source_height']>=h['height']
                     h['fixture_color_pixels']=sum(1 for i in range(0,len(pixels),39)
                         if i+2<len(pixels) and ((pixels[i]>210 and pixels[i+1]<60 and pixels[i+2]<60)
                          or (pixels[i+1]>210 and pixels[i]<60 and pixels[i+2]<60)))
@@ -55,10 +58,14 @@ def exercise(binary, target, root, canvas, resize=False):
         assert not failures,(failures,errors)
         assert proc.returncode==0,errors
         frames=[x for x in records if x['type']=='frame']
+        previews=[x for x in records if x['type']=='preview']
         assert len(frames)>=2,records
+        assert len(previews)>=2,records
         assert all(b['capture_ns']>=a['capture_ns'] for a,b in zip(frames,frames[1:]))
         assert len({x['frame_id'] for x in frames})==len(frames)
+        assert len({x['frame_id'] for x in previews})==len(previews)
         assert any(x['fixture_color_pixels']>10 for x in frames),'Owned colored window absent from capture'
+        assert any(x['fixture_color_pixels']>10 for x in previews),'Owned colored window absent from preview'
         assert any(x['type']=='ready' and x['target']['id']==target['id'] for x in records)
         if resize:assert any(x['type']=='geometry_changed' for x in records),'Resize not registered'
         if target['kind']=='window':assert max(x['width'] for x in frames)<1000,'Captured desktop instead of selected window'

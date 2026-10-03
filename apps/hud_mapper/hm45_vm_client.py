@@ -53,7 +53,9 @@ class VMCore:
             self.proc.stdin.flush()
             line = lines.get(timeout=120)
             if len(line) > 65536 or not line:
-                raise RuntimeError("O serviço da VM não iniciou; veja o log do núcleo.")
+                raise RuntimeError("O serviço da VM não iniciou. Se surgiram janelas Remote Desktop/RemoteApp, "
+                                   "abra 'Configurar VM do Agente TFT' e escolha 'VM sem WSLg'. "
+                                   f"Log do núcleo: {self.log}")
             ready = json.loads(line)
             if not ready.get("ready") or ready.get("host") != "127.0.0.1" or not 0 < ready.get("port", 0) < 65536:
                 raise RuntimeError("Handshake da VM incompatível.")

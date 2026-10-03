@@ -3,6 +3,7 @@
 from pathlib import Path
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -10,7 +11,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from hm45_setup_core import CoreInstaller, SetupError, load_package, restart_windows, verify_package, wait_wsl_after_restart, wsl_available, wsl_names
+from hm45_setup_core import CoreInstaller, SetupError, configure_headless_wslg, load_package, restart_windows, verify_package, wait_wsl_after_restart, wsl_available, wsl_names
 
 
 class FakeWindows:
@@ -93,6 +94,50 @@ class SetupContracts(unittest.TestCase):
         self.assertIn("será testada pelo WSL 2", preflight.virtualization)
         self.assertEqual(self.installer.install(messages.append), "ready")
         self.assertTrue(any(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls))
+
+    def test_headless_wslg_preserves_other_global_settings_and_backup(self):
+        config = self.base / ".wslconfig"
+        original = b"[wsl2]\r\nmemory=4GB\r\nguiApplications=true ; previous value\r\n[experimental]\r\nsparseVhd=true\r\n"
+        config.write_bytes(original)
+        backup = configure_headless_wslg(config)
+        self.assertEqual(backup.read_bytes(), original)
+        self.assertIn(b"guiApplications=false ; previous value", config.read_bytes())
+        self.assertIn(b"sparseVhd=true", config.read_bytes())
+        self.assertIsNone(configure_headless_wslg(config))
+
+    def test_headless_wslg_rejects_ambiguous_config_without_change(self):
+        config = self.base / ".wslconfig"
+        original = b"[wsl2]\nguiApplications=true\nguiApplications=false\n"
+        config.write_bytes(original)
+        with self.assertRaisesRegex(SetupError, "duplicado"):
+            configure_headless_wslg(config)
+        self.assertEqual(config.read_bytes(), original)
+        self.assertFalse(list(self.base.glob(".wslconfig.AgenteTFT-*")))
+
+    def test_headless_wslg_preserves_windows_powershell_utf16_config(self):
+        config = self.base / ".wslconfig"
+        original = b"\xff\xfe" + "[wsl2]\r\nmemory=3GB\r\n".encode("utf-16-le")
+        config.write_bytes(original)
+        backup = configure_headless_wslg(config)
+        self.assertEqual(backup.read_bytes(), original)
+        self.assertEqual(config.read_bytes()[:2], b"\xff\xfe")
+        self.assertIn("guiApplications=false", config.read_bytes()[2:].decode("utf-16-le"))
+
+    def test_headless_wslg_resumes_after_restart_and_rolls_back_on_registration_failure(self):
+        config = self.base / ".wslconfig"
+        original = b"[wsl2]\nmemory=4GB\n"
+        config.write_bytes(original)
+        self.installer.register_resume = lambda extra_args=(): (_ for _ in ()).throw(OSError("registry failed"))
+        with patch.dict(os.environ, {"USERPROFILE": str(self.base)}):
+            with self.assertRaisesRegex(OSError, "registry failed"):
+                self.installer.use_headless_wsl(lambda _: None)
+        self.assertEqual(config.read_bytes(), original)
+        resumed = []
+        self.installer.register_resume = lambda extra_args=(): resumed.append(extra_args)
+        with patch.dict(os.environ, {"USERPROFILE": str(self.base)}):
+            self.assertFalse(self.installer.use_headless_wsl(lambda _: None))
+        self.assertEqual(resumed, [("--resume-headless",)])
+        self.assertIn(b"guiApplications=false", config.read_bytes())
 
     def test_manifest_rejects_other_distro_and_missing_contract(self):
         self.manifest["distro_name"] = "Ubuntu"

@@ -18,12 +18,15 @@ import shutil
 import subprocess
 import sys
 import time
+import uuid
 from typing import Callable
 
 
 DISTRO_PATTERN = re.compile(r"^AgenteTFT-Core-v[0-9]+$")
 HEALTH_EXEC = "/opt/agente-tft/bin/health-check"
 RUNONCE_NAME = "AgenteTFTCoreSetup"
+WSL2_SECTION = re.compile(r"^\s*\[wsl2\]\s*(?:[;#].*)?$", re.IGNORECASE)
+WSL_GUI_KEY = re.compile(r"^(\s*guiApplications\s*=\s*)([^;#\r\n]*)(.*)$", re.IGNORECASE)
 
 
 class SetupError(RuntimeError):
@@ -127,6 +130,77 @@ def restart_windows(run: Callable = default_run) -> None:
     result = run(["shutdown.exe", "/r", "/t", "0"], timeout=15)
     if result.returncode != 0:
         raise SetupError("O Windows não aceitou o reinício: " + command_detail(result))
+
+
+def configure_headless_wslg(config_path: Path) -> Path | None:
+    """Opt-in WSLg workaround; preserve every unrelated global WSL setting.
+
+    A Windows restart applies it without terminating another running distro.
+    Return the byte-for-byte backup, or None when already configured.
+    """
+    try:
+        existed = config_path.exists()
+        original = config_path.read_bytes() if existed else b""
+        if original.startswith(b"\xff\xfe"):
+            codec, bom, text = "utf-16-le", b"\xff\xfe", original[2:].decode("utf-16-le")
+        elif original.startswith(b"\xfe\xff"):
+            codec, bom, text = "utf-16-be", b"\xfe\xff", original[2:].decode("utf-16-be")
+        elif original.startswith(b"\xef\xbb\xbf"):
+            codec, bom, text = "utf-8", b"\xef\xbb\xbf", original[3:].decode("utf-8")
+        else:
+            codec, bom, text = "utf-8", b"", original.decode("utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise SetupError("Não foi possível ler .wslconfig; nenhuma configuração foi alterada.") from exc
+    newline = "\r\n" if "\r\n" in text else "\n"
+    lines = text.splitlines(keepends=True)
+    section = False
+    seen_wsl2 = False
+    matches = []
+    for index, line in enumerate(lines):
+        if re.match(r"^\s*\[[^\]]+\]", line):
+            section = bool(WSL2_SECTION.match(line.strip()))
+            if section and seen_wsl2:
+                raise SetupError(".wslconfig tem mais de uma seção [wsl2]; corrija antes de continuar.")
+            seen_wsl2 |= section
+        elif section:
+            match = WSL_GUI_KEY.match(line.rstrip("\r\n"))
+            if match:
+                matches.append((index, match))
+    if len(matches) > 1:
+        raise SetupError(".wslconfig tem guiApplications duplicado; nenhuma configuração foi alterada.")
+    if matches and matches[0][1].group(2).strip().lower() == "false":
+        return None
+    if matches:
+        index, match = matches[0]
+        value_spacing = match.group(2)[len(match.group(2).rstrip()):]
+        ending = lines[index][len(lines[index].rstrip("\r\n")):]
+        lines[index] = match.group(1) + "false" + value_spacing + match.group(3) + ending
+    else:
+        insertion = next((index + 1 for index, line in enumerate(lines) if WSL2_SECTION.match(line.strip())), None)
+        if insertion is None:
+            if lines and not lines[-1].endswith(("\n", "\r")):
+                lines[-1] += newline
+            lines.extend(["[wsl2]" + newline, "guiApplications=false" + newline])
+        else:
+            if not lines[insertion - 1].endswith(("\n", "\r")):
+                lines[insertion - 1] += newline
+            lines.insert(insertion, "guiApplications=false" + newline)
+    updated = bom + "".join(lines).encode(codec)
+    suffix = f".AgenteTFT-{os.getpid()}-{uuid.uuid4().hex[:8]}"
+    backup = config_path.with_name(config_path.name + suffix + ".backup")
+    temporary = config_path.with_name(config_path.name + suffix + ".new")
+    try:
+        if existed:
+            with backup.open("xb") as file:
+                file.write(original)
+        with temporary.open("xb") as file:
+            file.write(updated)
+        temporary.replace(config_path)
+    except OSError as exc:
+        temporary.unlink(missing_ok=True)
+        backup.unlink(missing_ok=True)
+        raise SetupError("Não foi possível configurar o WSL sem interface gráfica; consulte .wslconfig.") from exc
+    return backup if existed else config_path
 
 
 def probe_host_core(package: Package, log: Path) -> bool:
@@ -255,9 +329,9 @@ class CoreInstaller:
         report("O Windows precisa reiniciar. O assistente continuará após o próximo login.")
         return False
 
-    def register_resume(self) -> None:
+    def register_resume(self, extra_args: tuple[str, ...] = ()) -> None:
         import winreg
-        command = subprocess.list2cmdline([str(self.app_exe), "--setup-assistant", "--resume-core"])
+        command = subprocess.list2cmdline([str(self.app_exe), "--setup-assistant", "--resume-core", *extra_args])
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER,
                               r"Software\Microsoft\Windows\CurrentVersion\RunOnce") as key:
             winreg.SetValueEx(key, RUNONCE_NAME, 0, winreg.REG_SZ, command)
@@ -271,6 +345,25 @@ class CoreInstaller:
                 winreg.DeleteValue(key, RUNONCE_NAME)
         except FileNotFoundError:
             pass
+
+    def use_headless_wsl(self, report: Callable[[str], None]) -> bool:
+        """Apply the explicitly selected WSLg workaround before starting the VM."""
+        config = Path(os.environ.get("USERPROFILE", str(Path.home()))) / ".wslconfig"
+        marker = configure_headless_wslg(config)
+        if marker is None:
+            report("WSLg já está desativado; continuando com a VM por IP local.")
+            return True
+        try:
+            self.register_resume(("--resume-headless",))
+        except Exception:
+            if marker == config:
+                config.unlink(missing_ok=True)
+            else:
+                marker.replace(config)
+            raise
+        report("WSLg desativado em .wslconfig. Um reinício aplicará a configuração global do WSL; o assistente continuará no próximo login.")
+        report(f"Cópia da configuração anterior: {marker}")
+        return False
 
     def health(self) -> bool:
         result = self._call(["wsl.exe", "--distribution", self.package.distro,
