@@ -154,8 +154,15 @@ pub fn stream(args: &Args) -> Result<()> {
             let access:IDirect3DDxgiInterfaceAccess=frame.Surface()?.cast()?;
             let texture:ID3D11Texture2D=access.GetInterface()?;
             let mut desc=D3D11_TEXTURE2D_DESC::default();texture.GetDesc(&mut desc);
-            if content.Width as u32>desc.Width || content.Height as u32>desc.Height || desc.Format!=DXGI_FORMAT_B8G8R8A8_UNORM {
-                return Err(bad("invalid ContentSize or unexpected pixel format"));
+            if desc.Format!=DXGI_FORMAT_B8G8R8A8_UNORM {
+                return Err(bad("unexpected capture pixel format"));
+            }
+            if content.Width as u32>desc.Width || content.Height as u32>desc.Height {
+                frame.Close()?;size=content;
+                pool.Recreate(&runtime_device,format,2,size)?;staging=None;size_changes+=1;
+                packet(&json!({"type":"geometry_changed","bytes":0,"width":size.Width,"height":size.Height,
+                    "segment":size_changes,"coordinates_reused":false,"reason":"texture_resize_lag"}),&[])?;
+                continue;
             }
             if staging.is_none() || staging_dims!=(desc.Width,desc.Height) {
                 let mut cpu_desc=desc;cpu_desc.Usage=D3D11_USAGE_STAGING;cpu_desc.BindFlags=0;
