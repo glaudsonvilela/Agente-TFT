@@ -40,6 +40,14 @@ pub struct ResidentTesseractOcr {
     tessdata_path:PathBuf,
 }
 
+
+/*
+Each TessBaseAPI instance has unique ownership and is never shared concurrently.
+Moving that owned instance between threads is valid; callers that share it must
+provide synchronization (the HM4.4 opt-in pool uses one Mutex per field).
+*/
+unsafe impl Send for ResidentTesseractOcr {}
+
 impl ResidentTesseractOcr {
     pub fn from_cli_path(binary:impl AsRef<Path>,language:impl Into<String>)->Result<Self,String>{
         let binary=binary.as_ref();
