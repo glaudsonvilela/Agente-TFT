@@ -14,6 +14,25 @@ gravação HM4.5. A UI mostra leituras verificáveis; uma instrução de compra
 ou equipamento só aparece quando houver identificação e decisão com evidência.
 O pacote não deve anunciar 500 partidas simuladas nem aprendizagem online.
 
+## Diagnóstico da sessão de 03/10/2026 às 22:11
+
+O arquivo de diagnóstico `hm4-20261003-221101-505635.rar` registrou
+aproximadamente 12 minutos de captura, 1457 frames de origem e 1453 leituras
+nativas. A sessão terminou sem erro fatal. O campo
+`replay_review_mode=false` desativou o HUB e as orientações; por consequência,
+o modelo L3 não foi selecionado (`neural_mode=disabled`,
+`model_sha256=null`). A voz também iniciava desligada e só era acionada
+quando existia uma orientação. Esses fatos explicam a ausência de leituras
+no painel de orientação, de áudio e de inferência neural nessa sessão.
+
+O aplicativo agora inicia a análise de replay e a voz Dii quando o pacote de
+voz está disponível no Windows. A voz é aquecida fora da interface antes das
+leituras, e a telemetria distingue orientações exibidas, áudio enfileirado,
+áudio reproduzido e mensagens descartadas por atraso. O rodapé exibe o modo
+de replay, a disponibilidade do modelo e o estado da voz. Isso reativa a
+visão neural diagnóstica e as leituras do replay; não cria decisões
+estratégicas nem treina pesos automaticamente.
+
 ## O que significa 500 caminhos
 
 Uma partida gravada pode fornecer vários **estados observados**. Em cada

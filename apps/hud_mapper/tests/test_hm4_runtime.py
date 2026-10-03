@@ -17,6 +17,7 @@ class HM4RuntimeTests(unittest.TestCase):
     def test_voice_queue_is_latest_only_and_rejects_stale_readouts(self):
         voice=VoiceCoach();voice.enabled=True;voice.voice_id='cadu'
         self.assertTrue(voice.say('12 ouro',100))
+        self.assertEqual(voice.queued_count,1)
         self.assertFalse(voice.say('13 ouro',2500))
         self.assertFalse(voice.say('12 ouro',100))
         self.assertEqual(voice.pending.get_nowait()[0],'12 ouro')
@@ -44,10 +45,13 @@ class HM4RuntimeTests(unittest.TestCase):
         try:
             app=App(root,'hm4')
             root.update_idletasks()
+            self.assertTrue(app.replay_review.get())
+            self.assertEqual(app.voice_enabled.get(),bool(app.voice.voices))
             self.assertEqual(app.tip_label.winfo_manager(),'pack')
             self.assertEqual(app.tip_label.master.winfo_manager(),'pack')
             self.assertEqual(app.tip_log.winfo_manager(),'pack')
         finally:
+            if 'app' in locals():app.voice.close()
             root.destroy()
 
     def test_replay_hub_requires_explicit_review_mode(self):

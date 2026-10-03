@@ -75,12 +75,17 @@ class VoiceCoach:
         self.thread = None
         self.error = None
         self.last_generation_ms = None
+        self.queued_count = 0
+        self.played_count = 0
+        self.stale_dropped_count = 0
+        self.ready = False
 
     def set_voice(self, voice_id: str):
         if voice_id not in self.voices:
             raise ValueError("Voz local indisponível no instalador.")
         self.voice_id = voice_id
         self.last_text = None
+        self.ready = False
 
     def set_enabled(self, enabled: bool):
         self.enabled = bool(enabled and os.name == "nt" and self.voice_id and not self.closed)
@@ -103,6 +108,7 @@ class VoiceCoach:
         except queue.Empty:
             pass
         self.pending.put_nowait((text, now, self.voice_id, force, source_age_ms))
+        self.queued_count += 1
         return True
 
     def _run(self):
@@ -112,10 +118,14 @@ class VoiceCoach:
             if self.enabled and loaded_voice != self.voice_id:
                 try:
                     engine = _load_engine(self.voice_id, self.base)
+                    # Warm the synthesizer before the first time-sensitive readout.
+                    _synthesize("Pronto.", self.voice_id, self.base, engine)
                     loaded_voice = self.voice_id
+                    self.ready = True
                     self.error = None
                 except Exception as exc:
                     self.error = f"Voz local: {exc}"
+                    self.ready = False
                     self.enabled = False
                     continue
             try:
@@ -125,6 +135,7 @@ class VoiceCoach:
             if not self.enabled or voice_id != self.voice_id:
                 continue
             if (time.monotonic_ns()-queued_ns)/1e6 + source_age_ms > 3000 and not force:
+                self.stale_dropped_count += 1
                 if self.last_text == text:
                     self.last_text = None
                 continue
@@ -135,16 +146,20 @@ class VoiceCoach:
                 if not self.enabled or voice_id != self.voice_id or self.closed:
                     continue
                 if not force and (time.monotonic_ns()-queued_ns)/1e6 + source_age_ms > 3000:
+                    self.stale_dropped_count += 1
                     if self.last_text == text:
                         self.last_text = None
                     continue
                 import winsound
                 winsound.PlaySound(wav, winsound.SND_MEMORY | winsound.SND_SYNC | winsound.SND_NODEFAULT)
+                self.played_count += 1
                 self.error = None
             except Exception as exc:
                 self.error = f"Voz local: {exc}"
+                self.ready = False
                 self.enabled = False
 
     def close(self):
         self.closed = True
         self.enabled = False
+        self.ready = False
