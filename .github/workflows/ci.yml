@@ -31,7 +31,9 @@ jobs:
         with:
           python-version: "3.13"
       - name: Install agent and test dependencies
-        run: python -m pip install -e "./agent[dev]"
+        run: |
+          python -m pip install -e "./agent[dev]"
+          python -m pip install -r training/requirements-board-hub.txt
       - name: Test Python agent/contracts
         working-directory: agent
         run: python -m pytest -q

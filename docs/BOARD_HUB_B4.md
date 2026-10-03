@@ -60,6 +60,27 @@ continua com set/patch desconhecidos. A release CommunityDragon existente pode
 ser usada como segunda fonte quando seu set/patch for comprovado, sem misturar
 IDs de provedores por nome.
 
+O snapshot versionado `16.19.1/pt_BR/TFTSet18` contém 74 retratos de campeões
+do set selecionado e 1.188 entradas de itens de escopo amplo. É um **banco de
+referência**, não uma lista inferida dos 40 frames. O replay serve para ensaiar
+o leitor e revisar candidatos dos poucos ícones visíveis nele.
+
+```bash
+python3 -m training.board_hub_item_candidates \
+  --reference knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18/5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f \
+  --profile configs/ui/match001-inventory-v1.json \
+  --image /caminho/para/um/frame.jpg \
+  --icon-dir /caminho/para/cache-de-icones --fetch-missing
+```
+
+O cache de PNGs é local. O leitor relata sua cobertura e os downloads que
+falharam; `item_id` permanece nulo em todos os casos nesta etapa. Cada
+candidato traz a distância visual e a margem
+para o segundo desenho. São pontuações de similaridade, não probabilidades
+calibradas. Um teste nos 40 frames não mede cobertura de itens que não aparecem
+na gravação. A versão visual do Data Dragon ainda precisa ser vinculada ao
+patch TFT comprovado antes de alimentar `GameState`.
+
 Fonte oficial: https://developer.riotgames.com/docs/tft#data--assets
 
 1. Criar anotações verificadas de espaços/itens de um replay distinto.
