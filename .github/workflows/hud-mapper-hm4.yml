@@ -13,6 +13,7 @@ on:
       - 'apps/hud_mapper/**'
       - 'configs/ui/board-hub-live-v1.json'
       - 'knowledge/riot-ddragon/**'
+      - '.gitattributes'
       - 'training/board_hub_*.py'
       - 'scripts/prepare_hm4_live_assets.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
