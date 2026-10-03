@@ -108,6 +108,48 @@ flowchart LR
    Comparar ambos no mesmo PC: VM dá isolamento, mas não cria CPU/GPU extra e
    a transferência por IP pode custar tempo.
 
+### Um instalador para app + VM
+
+O pacote HM4.5 final deve ser **um único `AgenteTFT-Setup.exe`**. Ele inclui o
+aplicativo Windows, o rootfs `AgenteTFT-Core` já preparado e um manifesto de
+versão/hashes; não baixa uma distribuição Linux genérica no meio da partida.
+O helper de instalação segue uma transação idempotente:
+
+```text
+início
+  ├─ conferir Windows, virtualização, espaço e hashes do pacote
+  ├─ instalar/atualizar o aplicativo Windows por usuário
+  ├─ WSL 2 disponível?
+  │   ├─ sim: continuar
+  │   └─ não: elevar via UAC → wsl --install --no-distribution
+  │            └─ se Windows pedir reinício: salvar etapa e retomar no login
+  ├─ importar AgenteTFT-Core-vN pelo wsl --import --version 2
+  ├─ verificar versão do worker, modelos, catálogos e porta local
+  ├─ executar teste de ida e volta de um recorte com frame_id
+  └─ abrir HM4 somente com estado "VM pronta" ou erro/fallback visível
+```
+
+O usuário inicia **um instalador uma vez**. UAC e eventual reinício são etapas
+do Windows que o software não pode suprimir; o instalador deve orientar e
+retomar automaticamente, sem pedir comandos de PowerShell nem instalação
+manual de Debian. Não reiniciar o PC sem uma ação explícita do usuário. Se o
+WSL 2 já estiver pronto, não tocar nas outras distribuições nem em
+`%USERPROFILE%\.wslconfig`, que é global. A VM do Agente TFT usa nome e pasta
+próprios; upgrade instala nova versão lado a lado, verifica saúde, troca o
+ponteiro ativo e só então oferece limpeza da versão antiga. A desinstalação
+não chama `wsl --unregister` sem uma escolha explícita para apagar os dados.
+
+Não publicar esse instalador como "VM pronta" enquanto ele só importa o
+rootfs. O teste de saúde precisa provar que L3/OCR/B4 recebem recortes pela
+conexão local e devolvem resultados válidos. O runner Windows do GitHub pode
+não oferecer virtualização aninhada; portanto o gate final também exige um
+teste natural em Windows com WSL 2 real, além dos testes automatizados de
+empacotamento, hash, idempotência, retomada e rollback.
+
+Os comandos `--no-distribution`, `--import` e a possibilidade de reinício
+constam na [referência oficial do WSL](https://learn.microsoft.com/en-us/windows/wsl/basic-commands)
+e no [guia de instalação da Microsoft](https://learn.microsoft.com/en-us/windows/wsl/install).
+
 O WSL 2 e a importação de distribuições próprias são recursos documentados
 pela Microsoft: [arquitetura WSL 2](https://learn.microsoft.com/en-us/windows/wsl/wsl2-about),
 [importação de rootfs](https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro),
