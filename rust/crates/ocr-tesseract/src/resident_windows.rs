@@ -1,6 +1,6 @@
 //! Experimental Windows-only resident Tesseract backend.
 //! Not wired into production readers until CLI parity gates pass.
-use std::{ffi::{CStr,CString,c_char,c_int,c_void},path::{Path,PathBuf}};
+use std::{env,ffi::{CStr,CString,c_char,c_int,c_void},path::{Path,PathBuf}};
 
 use agente_tft_capture_core::RoiFrame;
 use agente_tft_image_preprocess::{preprocess_for_numeric_ocr,GrayImage};
@@ -48,9 +48,24 @@ provide synchronization (the HM4.4 opt-in pool uses one Mutex per field).
 */
 unsafe impl Send for ResidentTesseractOcr {}
 
+fn resolve_cli(binary:&Path)->Result<PathBuf,String>{
+    if binary.is_file(){return Ok(binary.to_path_buf())}
+    let plain=binary.components().count()==1;
+    if plain {
+        if let Some(paths)=env::var_os("PATH"){
+            for dir in env::split_paths(&paths){
+                for candidate in [dir.join(binary),dir.join(binary).with_extension("exe")]{
+                    if candidate.is_file(){return Ok(candidate)}
+                }
+            }
+        }
+    }
+    Err(format!("tesseract executable not found: {}",binary.display()))
+}
+
 impl ResidentTesseractOcr {
     pub fn from_cli_path(binary:impl AsRef<Path>,language:impl Into<String>)->Result<Self,String>{
-        let binary=binary.as_ref();
+        let binary=resolve_cli(binary.as_ref())?;
         let root=binary.parent().ok_or_else(||"tesseract binary has no parent directory".to_string())?;
         let dll=["libtesseract-5.dll","libtesseract.dll"].into_iter().map(|n|root.join(n))
             .find(|p|p.is_file()).ok_or_else(||format!("libtesseract DLL not found beside {}",binary.display()))?;
