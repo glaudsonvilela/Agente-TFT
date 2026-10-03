@@ -68,6 +68,7 @@
       <h2>Simulação e aprendizagem</h2>
       <div class="row"><span>Simulador</span><span class="status" id="simulator">Verificando</span></div>
       <div class="row"><span>Rede neural</span><span class="status" id="neural">Verificando</span></div>
+      <div class="row"><span>Último candidato</span><strong id="neural-candidate">—</strong></div>
       <div class="row"><span>Tempo médio por lote concluído</span><strong id="duration">—</strong></div>
       <div class="row"><span>Versão do simulador</span><strong id="sim-version">—</strong></div>
       <div class="row"><span>Versão da política</span><strong id="policy-version">—</strong></div>
@@ -97,7 +98,9 @@
       set("job-status", fmt(status.running) + " em execução · " + fmt(status.failed) + " falharam");
       set("simulator", m.simulator_ready ? "Ativo" : "Ainda não ativo");
       document.getElementById("simulator").classList.toggle("ready", m.simulator_ready);
-      set("neural", m.neural_training_status === "not_started" ? "Treinamento não iniciado" : m.neural_training_status);
+      set("neural", m.neural_training_status === "not_started" ? "Treinamento não iniciado" : "Candidato treinado · em avaliação");
+      const candidate = (m.neural_experiments || [])[0];
+      set("neural-candidate", candidate ? fmt(candidate.source_frames) + " imagens · " + fmt(candidate.optimizer_steps) + " passos · banco/loja" : "Nenhum");
       set("duration", m.mean_completed_job_ms == null ? "Sem medição" : (m.mean_completed_job_ms / 1000).toFixed(2) + " s");
       set("sim-version", m.latest_simulator_version || "Sem resultado");
       set("policy-version", m.latest_policy_version || "Sem resultado");
@@ -118,7 +121,7 @@
       }
       set("connection", "Servidor conectado");
       document.getElementById("connection").classList.add("active");
-      set("last-update", "Atualizado em " + new Date(m.generated_at_ms).toLocaleTimeString("pt-BR") + ". Dados guardados não são contados como aprendizagem.");
+      set("last-update", "Atualizado em " + new Date(m.generated_at_ms).toLocaleTimeString("pt-BR") + ". O candidato neural ainda não controla as dicas; simulações seguem separadas.");
     } catch (error) {
       set("connection", "Sem conexão");
       document.getElementById("connection").classList.remove("active");

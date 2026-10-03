@@ -296,6 +296,13 @@ class RuntimeSession(Session):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
                     answer['reader_input_transform'] = plan
+                    decision_engine = getattr(self, 'decision_engine', None)
+                    if decision_engine and answer.get('origin') == 'observed_pixels':
+                        answer = decision_engine.evaluate(answer)
+                        self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
+                        self.latest_decision_reason = answer['decision']['evidence'][0]['code']
+                        if answer['decision']['action']['type'] == 'wait':
+                            self.counts['decision_abstentions'] += 1
                     canonical_regions = native_regions(answer, self.registry,
                                                        reader_frame.width, reader_frame.height)
                     regions = regions_to_source(canonical_regions, frame, plan)
@@ -364,6 +371,15 @@ class HM4RuntimeSession(RuntimeSession):
         super().__init__(options)
         self.board_reference_requested = threading.Event()
         self.latest_replay_tip = None
+        self.latest_decision_reason = None
+        self.decision_engine = None
+        if options.replay_review:
+            from .replay_decision import ReplayDecisionEngine
+            self.decision_engine = ReplayDecisionEngine(options.configs)
+            self.versions['replay_decision_policy'] = 'verified_third_copy_v1'
+            self.versions['replay_catalog_set'] = self.decision_engine.set_key
+            self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
+            self.versions['replay_patch_basis'] = 'reported_replay_patch'
 
     def request_board_reference(self):
         if not self.options.board_hub_enabled or self.done.is_set():

@@ -10,6 +10,7 @@ from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
+from hm.replay_decision import ReplayDecisionEngine
 from hm.voice import VoiceCoach, available_voices
 
 
@@ -90,6 +91,30 @@ class HM4RuntimeTests(unittest.TestCase):
         answer["shop"]["slots"][0]["unit_id"]="TFTSet18_Unit"
         answer["shop"]["cadence_delivery"]["fresh"]=False
         self.assertFalse(coach_prompt(answer)["actionable"])
+
+    def test_patch_catalog_binds_shop_but_upgrade_requires_verified_roster(self):
+        root=Path(__file__).resolve().parents[3]
+        engine=ReplayDecisionEngine(str(root/'configs'))
+        answer={"origin":"observed_pixels",
+                "hud":[{"field":"gold","status":"single_frame_observation",
+                        "value":12,"confidence":.97}],
+                "shop":{"cadence_delivery":{"fresh":True},
+                        "slots":[{"slot":0,"status":"offer_text_readable",
+                                  "observed_name":"Kobuko","name_confidence":.96,
+                                  "observed_cost":1,"unit_id":None}]}}
+        bound=engine.evaluate(answer)
+        unit_id=bound["shop"]["slots"][0]["unit_id"]
+        self.assertTrue(unit_id)
+        self.assertEqual(bound["catalog_binding"]["bound_offers"],1)
+        self.assertEqual(bound["decision"]["evidence"][0]["code"],"OWNED_UNITS_UNVERIFIED")
+        self.assertIsNone(answer["shop"]["slots"][0]["unit_id"])
+        owned={"verified":True,"units":[{"unit_id":unit_id,"stars":1,"identity_verified":True},
+                                        {"unit_id":unit_id,"stars":1,"identity_verified":True}]}
+        decided=engine.evaluate(answer,owned)
+        self.assertEqual(decided["decision"]["action"]["type"],"buy")
+        self.assertTrue(coach_prompt(decided)["actionable"])
+        decided=engine.evaluate({**answer,"hud":[]},owned)
+        self.assertEqual(decided["decision"]["evidence"][0]["code"],"GOLD_UNVERIFIED")
 
     def test_reader_only_is_allowed_only_when_explicit(self):
         with tempfile.TemporaryDirectory() as td:

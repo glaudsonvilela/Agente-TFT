@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
 from pathlib import Path
 import secrets
@@ -28,6 +30,48 @@ from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
 
 def unix_ms() -> int:
     return time.time_ns() // 1_000_000
+
+
+def verified_neural_experiments(db_path: Path | None) -> list[dict[str, object]]:
+    """Read sealed local candidates; simulator jobs remain a separate metric."""
+    if db_path is None:
+        return []
+    root = Path(db_path).parent / "experiments"
+    results = []
+    for folder in sorted(root.glob("*"), reverse=True)[:10]:
+        if not folder.is_dir():
+            continue
+        try:
+            train = folder / "training-v2"
+            evaluation = folder / "evaluation-v2"
+            seal = json.loads((train / "TRAINED.json").read_text(encoding="utf-8"))
+            complete = json.loads((evaluation / "COMPLETE.json").read_text(encoding="utf-8"))
+            for name in ("training-report.json", "model.npz"):
+                path = train / name
+                if hashlib.sha256(path.read_bytes()).hexdigest() != seal[name]:
+                    raise ValueError("Training seal mismatch")
+            for name in ("report.json", "model.onnx"):
+                path = evaluation / name
+                if hashlib.sha256(path.read_bytes()).hexdigest() != complete[name]:
+                    raise ValueError("Evaluation seal mismatch")
+            report = json.loads((train / "training-report.json").read_text(encoding="utf-8"))
+            result = json.loads((evaluation / "report.json").read_text(encoding="utf-8"))["summary"]
+            if (report.get("model_trained") is not True or
+                    result.get("model_trained") is not True or
+                    result.get("profile_promoted") is not False):
+                continue
+            results.append({
+                "id": folder.name, "status": "candidate_trained_unpromoted",
+                "scope": "bench_shop_region_only",
+                "source_frames": result["frames"],
+                "optimizer_steps": report["optimizer_steps"],
+                "inference_p95_ms": result["real_inference_ms_p95"],
+                "independent_match_accuracy": result["independent_match_accuracy"],
+                "model_sha256": complete["model.onnx"],
+            })
+        except (OSError, KeyError, ValueError, TypeError, json.JSONDecodeError):
+            continue
+    return results
 
 
 def create_app(
@@ -86,7 +130,11 @@ def create_app(
     async def dashboard_metrics() -> dict[str, object]:
         snapshot = await app.state.store.dashboard_metrics()
         snapshot["simulator_ready"] = not isinstance(app.state.store.backend, NullTrainerBackend)
-        snapshot["neural_training_status"] = "not_started"
+        experiments = verified_neural_experiments(app.state.store.db_path)
+        snapshot["neural_training_status"] = (
+            "candidate_trained_unpromoted" if experiments else "not_started"
+        )
+        snapshot["neural_experiments"] = experiments
         snapshot["generated_at_ms"] = app.state.clock_ms()
         return snapshot
 

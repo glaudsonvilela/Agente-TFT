@@ -1,6 +1,8 @@
 """Offline region-proposal viewer; no external scripts/plugins/network/annotation service."""
 import base64
+import io
 import json
+from PIL import Image
 from .core import require, inside
 
 
@@ -8,8 +10,13 @@ def write_viewer(path, records, root, boxes):
     rows=[]
     for r in records:
         image=inside(root,r['image'])
+        # The viewer is diagnostic. JPEG keeps a long capture session reviewable
+        # without embedding hundreds of megabytes of lossless PNG data.
+        with Image.open(image) as source:
+            buffer=io.BytesIO()
+            source.convert('RGB').save(buffer,format='JPEG',quality=78,optimize=True)
         rows.append(dict(timestamp_ms=r['timestamp_ms'],proposals=r['regions'],
-            uri=('data:image/png;base64,' if image.suffix.lower()=='.png' else 'data:image/jpeg;base64,')+base64.b64encode(image.read_bytes()).decode('ascii')))
+            uri='data:image/jpeg;base64,'+base64.b64encode(buffer.getvalue()).decode('ascii')))
     payload=json.dumps(dict(rows=rows,baseline=boxes),ensure_ascii=True)
     payload=payload.replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
     require(len(payload)<96*1024**2,'viewer budget')

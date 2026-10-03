@@ -532,7 +532,13 @@ class App:
                 voice_label=("voz erro: "+self.voice.error if self.voice and self.voice.error else
                              ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
                               ("voz carregando" if self.voice and self.voice.enabled else "voz desligada")))
-                self.status.configure(text=f'Replay {"ativo" if s.options.replay_review else "desligado"} · visão neural {"diagnóstica" if s.options.model else "indisponível"} · {voice_label} · captura {s.counts["source_frames"]} · OCR {s.counts["reader_native_runs"]} · HUB {s.counts["hub_results"]} · leituras {s.counts["coach_updates"]} · dicas {s.counts["replay_tips"]}')
+                decision_reason=getattr(s,"latest_decision_reason",None)
+                pending={"OWNED_UNITS_UNVERIFIED":"campeões do tabuleiro ainda não confirmados",
+                         "GOLD_UNVERIFIED":"ouro ainda não confirmado",
+                         "SHOP_STALE":"loja desatualizada",
+                         "NO_VERIFIED_UPGRADE":"nenhuma melhoria de unidade confirmada"}.get(decision_reason)
+                self.status.configure(text=f'Replay {"ativo" if s.options.replay_review else "desligado"} · visão neural {"diagnóstica" if s.options.model else "indisponível"} · {voice_label} · OCR {s.counts["reader_native_runs"]} · vínculos loja {s.counts["catalog_bound_offers"]} · HUB {s.counts["hub_results"]} · leituras {s.counts["coach_updates"]} · dicas {s.counts["replay_tips"]}'+
+                                      (f' · aguardando: {pending}' if pending else ''))
             if s.done.is_set() and s.map_results.empty() and s.native_results.empty() and s.hub_results.empty():
                 self.finalizing=True;self.status.configure(text="Selando telemetria e amostras…")
                 def finish():

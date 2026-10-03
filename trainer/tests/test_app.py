@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
+import json
 from fastapi.testclient import TestClient
 
 from remote_trainer.app import create_app
@@ -185,6 +187,36 @@ def test_dashboard_shows_storage_without_claiming_learning(tmp_path: Path):
     page = client.get("/dashboard")
     assert page.status_code == 200
     assert "Caminhos simulados" in page.text
+
+
+def test_dashboard_counts_only_sealed_neural_candidate(tmp_path: Path):
+    folder = tmp_path / "experiments" / "hm45-l3-test"
+    train = folder / "training-v2"
+    evaluation = folder / "evaluation-v2"
+    train.mkdir(parents=True)
+    evaluation.mkdir()
+    (train / "training-report.json").write_text(json.dumps(
+        {"model_trained": True, "optimizer_steps": 600}))
+    (train / "model.npz").write_bytes(b"trained weights")
+    (evaluation / "report.json").write_text(json.dumps({"summary": {
+        "model_trained": True, "profile_promoted": False, "frames": 121,
+        "real_inference_ms_p95": .66, "independent_match_accuracy": None}}))
+    (evaluation / "model.onnx").write_bytes(b"exported candidate")
+    for directory, seal_name, names in (
+        (train, "TRAINED.json", ("training-report.json", "model.npz")),
+        (evaluation, "COMPLETE.json", ("report.json", "model.onnx"))):
+        (directory / seal_name).write_text(json.dumps({
+            name: hashlib.sha256((directory / name).read_bytes()).hexdigest()
+            for name in names}))
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=tmp_path / "trainer.sqlite3")))
+    candidate = client.get("/v1/training/dashboard-metrics").json()
+    assert candidate["neural_training_status"] == "candidate_trained_unpromoted"
+    assert candidate["neural_experiments"][0]["optimizer_steps"] == 600
+    assert candidate["simulator_ready"] is False
+    (evaluation / "model.onnx").write_bytes(b"corrupted")
+    unsealed = client.get("/v1/training/dashboard-metrics").json()
+    assert unsealed["neural_training_status"] == "not_started"
 
 
 

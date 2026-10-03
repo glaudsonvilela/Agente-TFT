@@ -33,6 +33,40 @@ de replay, a disponibilidade do modelo e o estado da voz. Isso reativa a
 visão neural diagnóstica e as leituras do replay; não cria decisões
 estratégicas nem treina pesos automaticamente.
 
+## Primeiro motor de decisão e atualização mensal
+
+A geometria 4×7 do tabuleiro, os nove espaços do banco e as regiões de
+HP/ouro pertencem aos perfis em `configs/ui`. O catálogo de campeões e
+itens pertence à referência versionada do patch em `knowledge/riot-ddragon`.
+O vínculo da partida com o patch fica em `configs/contexts`. Assim, trocar
+o conjunto ou patch não altera as coordenadas nem força novo treino dos
+leitores de HP e ouro.
+
+O primeiro adaptador do motor liga nomes de loja com confiança de OCR de ao
+menos 0,9 a um único ID do catálogo. Ele só sugere comprar a terceira cópia
+de uma unidade de uma estrela quando duas cópias próprias tiverem identidade
+verificada, a oferta estiver atual e houver ouro confirmado para pagá-la.
+Sem esses dados ele registra a razão da abstenção e continua mostrando
+leituras factuais. A implementação não libera rolagem, equipamento ou
+posicionamento a partir de ícones candidatos.
+
+Nos três pacotes de teste de 03/10, o adaptador vinculou 488, 5636 e 246
+observações de ofertas ao catálogo. Todas as decisões continuaram em espera:
+as identidades das unidades próprias no tabuleiro/banco não foram
+confirmadas. Esses totais incluem ofertas repetidas entre frames; não são
+quantidades de campeões diferentes.
+
+Um experimento separado treinou a pequena rede de localização de banco e
+loja com 121 imagens das três sessões, 32 recortes de origem e 600 passos.
+O modelo experimental exportado tem cerca de 527 kB e inferência p95 de
+0,66 ms em CPU sobre a entrada já preparada. No teste sintético, a região
+da loja teve erro p95 de 203 px entre propostas aceitas. Em 13 imagens
+com nome da loja lido pelo OCR no mesmo frame, houve 13 propostas contra
+11 do modelo instalado, usando apenas sobreposição com a geometria fixa
+como referência indireta. Não há rótulos independentes de identidade de
+campeões, itens ou acerto estratégico. O modelo experimental não foi
+promovido ao instalador.
+
 ## O que significa 500 caminhos
 
 Uma partida gravada pode fornecer vários **estados observados**. Em cada

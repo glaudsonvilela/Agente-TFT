@@ -15,7 +15,7 @@ METRICS_URL = "http://127.0.0.1:8801/v1/training/dashboard-metrics"
 def render(data: dict) -> str:
     jobs = data["jobs_by_status"]
     simulator = "ativo" if data["simulator_ready"] else "ainda não ativo"
-    neural = "não iniciado" if data["neural_training_status"] == "not_started" else data["neural_training_status"]
+    neural = "não iniciado" if data["neural_training_status"] == "not_started" else "candidato treinado, não aplicado"
     lines = [
         "✦ AGENTE TFT · BigBANANA",
         f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
@@ -27,8 +27,11 @@ def render(data: dict) -> str:
         f"Tempo médio por lote: {data['mean_completed_job_ms'] / 1000:.2f} s"
         if data["mean_completed_job_ms"] is not None else "Tempo médio por lote: sem medição",
         "Primeira medição planejada: 50 caminhos; depois, 500 por decisão confiável.",
-        "Os arquivos guardados não são contados como aprendizagem.",
+        "Arquivos guardados e simulações são separados do treino neural.",
     ]
+    for candidate in data.get("neural_experiments", [])[:1]:
+        lines.append(f"Candidato {candidate['id']}: {candidate['source_frames']} imagens, "
+                     f"{candidate['optimizer_steps']} passos, banco/loja; sem avaliação independente.")
     if data["recent_jobs"]:
         lines.extend(("", "Últimos lotes:"))
         for job in data["recent_jobs"][:3]:
