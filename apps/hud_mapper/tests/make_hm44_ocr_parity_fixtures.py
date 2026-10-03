@@ -33,3 +33,19 @@ draw.text((40,25),"ALPHA 1",font=block_font,fill=0)
 draw.text((40,120),"BETA 2",font=block_font,fill=0)
 raw=block.tobytes()
 (OUT/"textblock.pgm").write_bytes(f"P5\n{block.width} {block.height}\n255\n".encode("ascii")+raw)
+
+shop_rows=[("ALPHA","1"),("BETA","2"),("GAMMA","3"),("DELTA","4"),("OMEGA","5")]
+for scale,width,height,name_w,cost_x,row_h,font_size in [
+    (3,564,525,459,499,81,38),
+    (4,732,660,612,652,108,50),
+]:
+    im=Image.new("L",(width,height),255)
+    draw=ImageDraw.Draw(im)
+    sf=ImageFont.truetype(str(font_path),font_size)
+    for slot,(name,cost) in enumerate(shop_rows):
+        y=10+slot*(row_h+20)
+        draw.text((18,y+5),name,font=sf,fill=0)
+        draw.text((cost_x+4,y+5),cost,font=sf,fill=0)
+    raw=im.tobytes()
+    (OUT/f"shop_atlas_scale{scale}.pgm").write_bytes(
+        f"P5\n{im.width} {im.height}\n255\n".encode("ascii")+raw)
