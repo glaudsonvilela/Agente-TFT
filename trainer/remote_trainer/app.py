@@ -38,7 +38,10 @@ def create_app(
         title="Agente TFT Remote Trainer",
         version="0.1.0",
     )
-    app.state.store = store or TrainerStore(backend=NullTrainerBackend())
+    app.state.store = store or TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=os.environ.get("TRAINER_DB_PATH") or None,
+    )
     app.state.clock_ms = clock_ms
     app.state.api_token = (
         api_token
@@ -73,6 +76,8 @@ def create_app(
             "ok": True,
             "service": "agente-tft-remote-trainer",
             "protocol_version": 1,
+            "storage": "sqlite" if app.state.store.db_path else "memory",
+            "simulator_ready": not isinstance(app.state.store.backend, NullTrainerBackend),
         }
 
     @app.post(

@@ -541,7 +541,7 @@ def main(mode="hm3"):
         from .voice import _synthesize, available_voices, voice_assets
         import io, wave
         voices=available_voices()
-        if set(voices)!={'cadu','faber'}:raise RuntimeError('Pacote de vozes incompleto')
+        if set(voices)!={'dii','cadu','faber'}:raise RuntimeError('Pacote de vozes incompleto')
         checks={}
         for voice_id in voices:
             wav,_=_synthesize('Compre a unidade agora.',voice_id,voice_assets())

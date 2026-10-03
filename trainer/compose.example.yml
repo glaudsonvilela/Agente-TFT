@@ -1,10 +1,21 @@
+name: agente-tft-trainer
+
 services:
-  agente-tft-trainer:
+  trainer:
     build: .
+    container_name: agente-tft-trainer
     restart: unless-stopped
     environment:
-      TRAINER_API_TOKEN: ${TRAINER_API_TOKEN}
+      TRAINER_API_TOKEN: ${TRAINER_API_TOKEN:?set a private token in .env}
       TRAINER_HOST: 0.0.0.0
       TRAINER_PORT: 8801
+      TRAINER_DB_PATH: /var/lib/agente-tft-trainer/trainer.sqlite3
     ports:
       - "127.0.0.1:8801:8801"
+    volumes:
+      - ./data:/var/lib/agente-tft-trainer
+    cpus: 1.5
+    mem_limit: 1024m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true

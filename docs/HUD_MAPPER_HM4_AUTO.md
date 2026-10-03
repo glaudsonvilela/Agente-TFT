@@ -60,17 +60,20 @@ usuário declara que a fonte é um vídeo de partida encerrada.
 
 ## HM4.5 — narração local opcional
 
-No instalador HM4.5, marque **Narrar orientações**, escolha **Cadu** ou **Faber** em
+No instalador HM4.5, marque **Narrar orientações** e escolha a voz em
 **Voz** e use **Testar voz** antes de iniciar o replay. As duas vozes em
-português brasileiro são empacotadas com o aplicativo. A síntese ocorre em uma
+português brasileiro já existentes continuam disponíveis; **Dii**, uma voz
+feminina brasileira, é a opção inicial. A síntese ocorre em uma
 thread separada, com um núcleo de CPU, sem serviço de nuvem nem voz do sistema.
 Mensagens antigas são descartadas; a dica escrita aparece mesmo se a fala
 estiver desligada ou demorar. A aba **Performance** mostra o tempo de geração
 e um eventual erro de voz.
 
 Os modelos de voz vêm dos pacotes `vits-piper-pt_BR-{cadu,faber}-medium-int8`
+e `vits-piper-pt_BR-dii-high-int8`
 da release `tts-models` do projeto `k2-fsa/sherpa-onnx`, verificados por SHA-256
 no build. A licença do motor e os cartões dos modelos acompanham o instalador.
+O pacote Dii é para uso não comercial de laboratório, conforme seu `README.md`.
 
 
 ## HM4.1 — normalização conservadora dos leitores

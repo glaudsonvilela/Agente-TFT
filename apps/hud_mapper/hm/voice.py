@@ -10,7 +10,8 @@ import threading
 import time
 import wave
 
-VOICE_NAMES = {"cadu": "Cadu (pt-BR)", "faber": "Faber (pt-BR)"}
+VOICE_NAMES = {"dii": "Dii (feminina, pt-BR)",
+               "cadu": "Cadu (pt-BR)", "faber": "Faber (pt-BR)"}
 
 
 def voice_assets() -> Path:

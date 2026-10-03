@@ -2,6 +2,17 @@
 
 O servidor BigBANANA funcionará como **Agente 2 / plano remoto de treinamento**.
 
+O arquivo `compose.example.yml` define um contêiner próprio
+`agente-tft-trainer` com dados em `./data`, limite de 1,5 CPU e 1 GiB.
+A porta 8801 fica restrita ao loopback do servidor para acesso por túnel
+autenticado. Defina `TRAINER_API_TOKEN` no `.env` do diretório do serviço.
+`TRAINER_DB_PATH` ativa SQLite com WAL para sessões, pedidos e resultados.
+O endpoint `/v1/training/health` informa `storage` e `simulator_ready`.
+No estado atual, `simulator_ready=false`: o backend padrão preserva pedidos,
+mas falha explicitamente com `simulator_not_configured` em vez de inventar
+500 resultados. Consulte `docs/HM45_SIMULATION_STORAGE.md` para o caminho de
+integração e os critérios das dicas.
+
 ## Endpoints planejados
 
 ```text

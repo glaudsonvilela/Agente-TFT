@@ -73,8 +73,8 @@ args = [
 ]
 if has_voices:
     voice_report = json.loads((voice_assets / 'VOICE_REPORT.json').read_text(encoding='utf-8'))
-    if set(voice_report.get('voices', {})) != {'cadu', 'faber'}:
-        raise SystemExit('Both pinned pt-BR voices are required')
+    if set(voice_report.get('voices', {})) != {'dii', 'cadu', 'faber'}:
+        raise SystemExit('All pinned pt-BR voices are required')
     args += ['--add-data', f'{voice_assets};voices', '--collect-all', 'sherpa_onnx']
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -104,8 +104,9 @@ for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.te
             if p.is_file() and p.stat().st_size < 1024**2:
                 shutil.copy2(p, licenses / (package + '-' + str(name).replace('/', '-').replace('\\', '-')))
 if has_voices:
-    for key in ('cadu', 'faber'):
-        shutil.copy2(voice_assets / key / 'MODEL_CARD', licenses / f'voice-{key}-MODEL_CARD.txt')
+    for key in ('dii', 'cadu', 'faber'):
+        card = 'README.md' if key == 'dii' else 'MODEL_CARD'
+        shutil.copy2(voice_assets / key / card, licenses / f'voice-{key}-{card}.txt')
 
 forbidden = ('ffmpeg', 'ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn')
 bad = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and any(x in p.name.lower() for x in forbidden)]

@@ -1,0 +1,77 @@
+# HM4.5 — pacote, simulação e memória no BigBANANA
+
+## O que o instalador contém hoje
+
+O instalador HM4.5 inclui o aplicativo Windows, captura Rust WGC, prévia,
+leitores OCR/HP, modelo L3 de localização de banco/loja em modo diagnóstico,
+HUB B4 de posições e ícones candidatos, voz offline e a VM WSL 2 que executa
+os leitores. Os eventos, quadros selecionados e telemetria ficam em
+`%LOCALAPPDATA%\AgenteTFT-HUD-HM4\sessions`.
+
+Ainda não há identificação validada de todos os campeões/itens, GameState
+completo nem simulador TFT calibrado. O worker visual retorna `wait` na
+gravação HM4.5. A UI mostra leituras verificáveis; uma instrução de compra
+ou equipamento só aparece quando houver identificação e decisão com evidência.
+O pacote não deve anunciar 500 partidas simuladas nem aprendizagem online.
+
+## O que significa 500 caminhos
+
+Uma partida gravada pode fornecer vários **estados observados**. Em cada
+momento de decisão confiável, o simulador poderá explorar até 500 futuros
+curtos, divididos entre ações legais como guardar ouro, comprar experiência e
+rolar um orçamento definido. Cada caminho usa uma semente de aleatoriedade,
+uma política de adversários versionada e regras do patch selecionado.
+
+As 500 saídas não são 500 partidas reais nem 500 rótulos para a rede neural.
+O melhor caminho isolado pode ter tido sorte. A escolha precisa comparar
+distribuições por ação: média, dispersão, risco, custo e intervalo de confiança.
+Resultados sintéticos entram na memória como `simulated`; só o replay real
+conta como `observed`. O resultado real posterior serve para calibrar e
+avaliar o simulador, sem reescrever o passado.
+
+## Execução isolada
+
+O BigBANANA tem quatro CPUs, 15 GiB de RAM e cerca de 9,4 GiB livres em
+2026-10-03. O serviço do Agente TFT roda em um quarto contêiner separado dos
+três existentes, com limite inicial de 1,5 CPU, 1 GiB de RAM e sem GPU.
+O limite é uma política de laboratório; o tempo de 500 caminhos só poderá
+ser medido quando o simulador existir. Simular combate e partidas completas
+terá custo muito maior que comparar decisões curtas de economia.
+
+## Armazenamento
+
+O contêiner guarda sessões, pedidos e resultados agregados em SQLite no
+volume exclusivo `trainer/data/trainer.sqlite3` (WAL e commit durável). Um
+reinício preserva os pedidos; tarefas interrompidas ficam marcadas como
+falha, sem inventar resultado. Os arquivos de evidência e, futuramente,
+trajetórias comprimidas ficam no mesmo volume, fora do banco, com SHA-256.
+
+Cada estado que virar candidato a simulação deverá referenciar:
+
+- sessão e momento da partida, frame de origem e hash da evidência;
+- patch, set, regras, catálogo, modelo de visão, simulador e política;
+- campos observados, confiança e campos desconhecidos;
+- ações candidatas, 500 sementes, limites e resultado por ação;
+- ação efetiva observada depois e desfecho real, quando disponíveis.
+
+O servidor recebe estado estruturado e evidência autorizada. Ele não recebe
+comandos de mouse/teclado nem precisa de acesso ao desktop. A captura e a
+interface continuam locais; um atraso ou falha do servidor não bloqueia o
+replay. O canal remoto exige autenticação e transporte protegido; até essa
+ligação estar pronta, os dados locais ficam preservados para sincronização.
+
+## Pendências para dicas completas
+
+1. Validar identificação temporal de campeões, estrelas, posição e itens em
+   amostras anotadas de mais de uma partida.
+2. Criar um GameState com proveniência e `unknown` explícito; reunir regras
+   oficiais de cada patch e conjunto em um pacote versionado.
+3. Implementar simulador determinístico e bot pool, com testes contra
+   probabilidades analíticas e partidas retidas para avaliação.
+4. Medir 500 caminhos no BigBANANA, limitar tempo por decisão e guardar
+   sementes/saídas; comparar recomendações contra o desfecho real.
+5. Treinar e promover uma política apenas depois de avaliação independente.
+
+Esses passos são necessários antes de chamar o instalador de pacote
+estratégico completo. O serviço de armazenamento pode ser implantado já,
+sem anunciar o simulador como pronto.

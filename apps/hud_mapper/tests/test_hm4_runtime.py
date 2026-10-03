@@ -25,12 +25,13 @@ class HM4RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             base=Path(td)
             (base/'espeak-ng-data').mkdir()
-            for name in ('cadu','faber'):
+            for name in ('dii','cadu','faber'):
                 (base/name).mkdir()
                 (base/name/'model.onnx').touch()
                 (base/name/'tokens.txt').touch()
             voice=VoiceCoach(base)
-            self.assertEqual(set(available_voices(base)),{'cadu','faber'})
+            self.assertEqual(set(available_voices(base)),{'dii','cadu','faber'})
+            self.assertEqual(voice.voice_id,'dii')
             voice.set_voice('faber')
             self.assertEqual(voice.voice_id,'faber')
             with self.assertRaises(ValueError):voice.set_voice('system')

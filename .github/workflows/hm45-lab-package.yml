@@ -107,13 +107,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Pinned model download failed' }
           python scripts/prepare_hm4_live_assets.py
           if ($LASTEXITCODE -ne 0) { throw 'Asset verification failed' }
-      - name: Verify and stage two offline Brazilian Portuguese voices
+      - name: Verify and stage offline Brazilian Portuguese voices
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           New-Item -ItemType Directory -Force -Path build/hm45-voice-downloads | Out-Null
-          gh release download tts-models --repo k2-fsa/sherpa-onnx --dir build/hm45-voice-downloads --pattern 'vits-piper-pt_BR-cadu-medium-int8.tar.bz2' --pattern 'vits-piper-pt_BR-faber-medium-int8.tar.bz2'
+          gh release download tts-models --repo k2-fsa/sherpa-onnx --dir build/hm45-voice-downloads --pattern 'vits-piper-pt_BR-dii-high-int8.tar.bz2' --pattern 'vits-piper-pt_BR-cadu-medium-int8.tar.bz2' --pattern 'vits-piper-pt_BR-faber-medium-int8.tar.bz2'
           if ($LASTEXITCODE -ne 0) { throw 'Offline voice download failed' }
           python scripts/prepare_hm45_voices.py
           if ($LASTEXITCODE -ne 0) { throw 'Pinned voice verification failed' }
@@ -124,13 +124,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows app build failed' }
           python scripts/build_hm45_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
-      - name: Run both voices from the packaged Windows app
+      - name: Run voices from the packaged Windows app
         shell: pwsh
         run: |
           & .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe --voice-smoke-output build\hm45-voice-smoke.json
-          if ($LASTEXITCODE -ne 0) { throw 'Packaged offline voice failed' }
+          if ($LASTEXITCODE -ne 0) {
+            Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 80 }
+            throw 'Packaged offline voice failed'
+          }
           $result = Get-Content build\hm45-voice-smoke.json -Raw | ConvertFrom-Json
-          if ($result.cadu.frames -le 0 -or $result.faber.frames -le 0) { throw 'Packaged voice produced empty audio' }
+          if ($result.dii.frames -le 0 -or $result.cadu.frames -le 0 -or $result.faber.frames -le 0) { throw 'Packaged voice produced empty audio' }
       - uses: actions/upload-artifact@v4
         with:
           name: AgenteTFT-HM45-Setup-LAB-Windows-x64

@@ -1,4 +1,4 @@
-"""Verify and stage two pinned offline Brazilian Portuguese voice packs."""
+"""Verify and stage pinned offline Brazilian Portuguese voice packs."""
 from __future__ import annotations
 
 import hashlib
@@ -12,10 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 DOWNLOADS = ROOT / "build/hm45-voice-downloads"
 OUTPUT = ROOT / "build/hm45-voice-assets"
 PACKS = {
+    "dii": ("vits-piper-pt_BR-dii-high-int8.tar.bz2",
+            "8a5b0195eff80a0240f18a3f1d528d4bef08f1b702126cee858d700365fc4111", "high", "README.md"),
     "cadu": ("vits-piper-pt_BR-cadu-medium-int8.tar.bz2",
-             "78f1caf0a74cc6cb8dedaff87affd232ee653d5b0394d4cf4d2e97ecbfa5ff3d"),
+             "78f1caf0a74cc6cb8dedaff87affd232ee653d5b0394d4cf4d2e97ecbfa5ff3d", "medium", "MODEL_CARD"),
     "faber": ("vits-piper-pt_BR-faber-medium-int8.tar.bz2",
-              "dbc8b1d7d729fd417ea78a350ed35696c928770ac93513d3f507bd4e88eee3fd"),
+              "dbc8b1d7d729fd417ea78a350ed35696c928770ac93513d3f507bd4e88eee3fd", "medium", "MODEL_CARD"),
 }
 
 
@@ -25,7 +27,7 @@ def prepare(downloads: Path = DOWNLOADS, output: Path = OUTPUT):
     output.mkdir(parents=True)
     report = {"source": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models",
               "voices": {}}
-    for key, (filename, expected_sha) in PACKS.items():
+    for key, (filename, expected_sha, quality, card) in PACKS.items():
         archive = downloads / filename
         if not archive.is_file():
             raise FileNotFoundError(f"Arquivo de voz ausente: {archive}")
@@ -35,8 +37,8 @@ def prepare(downloads: Path = DOWNLOADS, output: Path = OUTPUT):
         voice_dir = output / key
         voice_dir.mkdir()
         prefix = filename.removesuffix(".tar.bz2") + "/"
-        needed = {f"pt_BR-{key}-medium.onnx": voice_dir / "model.onnx",
-                  "tokens.txt": voice_dir / "tokens.txt", "MODEL_CARD": voice_dir / "MODEL_CARD"}
+        needed = {f"pt_BR-{key}-{quality}.onnx": voice_dir / "model.onnx",
+                  "tokens.txt": voice_dir / "tokens.txt", card: voice_dir / card}
         extracted = set()
         with tarfile.open(archive, "r:bz2") as tar:
             for member in tar:

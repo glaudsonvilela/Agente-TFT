@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from fastapi.testclient import TestClient
 
 from remote_trainer.app import create_app
@@ -47,6 +48,25 @@ def test_health():
     response = client.get("/v1/training/health")
     assert response.status_code == 200
     assert response.json()["protocol_version"] == 1
+    assert response.json()["simulator_ready"] is False
+
+
+def test_sqlite_preserves_training_data_after_server_restart(tmp_path: Path):
+    database = tmp_path / "trainer.sqlite3"
+    first = TestClient(create_app(store=TrainerStore(backend=NullTrainerBackend(), db_path=database),
+                                  clock_ms=lambda: 1000))
+    session = first.post("/v1/training/sessions", json=session_payload()).json()
+    payload = job_payload(session["session_id"])
+    payload["rollout_count"] = 500
+    assert first.post("/v1/training/jobs", json=payload).status_code == 202
+    second = TestClient(create_app(store=TrainerStore(backend=NullTrainerBackend(), db_path=database),
+                                   clock_ms=lambda: 2000))
+    retained = second.get("/v1/training/jobs/job-1").json()
+    assert retained["request"]["rollout_count"] == 500
+    assert retained["status"] == "failed"
+    assert retained["error"] == "simulator_not_configured"
+    assert second.post("/v1/training/jobs", json=payload).status_code == 202
+    assert second.get("/v1/training/health").json()["storage"] == "sqlite"
 
 
 def test_session_and_job_are_idempotent():
