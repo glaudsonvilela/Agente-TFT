@@ -15,7 +15,22 @@ def main():
     c=tk.Canvas(root,bg="#203040");c.pack(fill="both",expand=True)
     c.create_rectangle(60,60,430,300,fill="#ff0000",tags="moving")
     root.update();time.sleep(.2);root.update()
-    target=next(r for r in list_targets(runtime_paths()["configs"]) if r["kind"]=="window" and r["label"]=="HM4 automatic live smoke")
+    def capture_target():
+        return next(r for r in list_targets(runtime_paths()["configs"])
+                    if r["kind"]=="window" and r["label"]=="HM4 automatic live smoke")
+    target=capture_target()
+    if a.replay_review:
+        # WGC includes the window frame; Tk geometry specifies its client area.
+        # Match the captured outer bounds to the exact 16:9 reader contract.
+        for _ in range(4):
+            bounds=target["bounds"]
+            captured=(bounds[2]-bounds[0],bounds[3]-bounds[1])
+            if captured==(960,540):break
+            root.geometry(f"{root.winfo_width()+960-captured[0]}x{root.winfo_height()+540-captured[1]}+40+40")
+            root.update();target=capture_target()
+        bounds=target["bounds"]
+        captured=(bounds[2]-bounds[0],bounds[3]-bounds[1])
+        assert captured==(960,540), ("synthetic_capture_size",captured,target["bounds"])
     cmd=([a.app] if a.app else [sys.executable,"apps/hud_mapper/AgenteTFT_HUD_HM4.py"])+[
         "--capture",f'capture://window/{target["id"]}',"--capture-consent","--output",str(out),"--seconds",str(CAPTURE_SECONDS),
         "--map-hz","6","--sample-hz","1",("--ui-smoke" if a.ui else "--headless")]
