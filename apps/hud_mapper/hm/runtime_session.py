@@ -142,11 +142,13 @@ class RuntimeSession(Session):
                     continue
                 start = time.perf_counter_ns()
                 plan = reader_plan(frame, allow_normalize=self.normalize_reader_input)
+                executed = False
                 if not plan.get('supported'):
                     response = dict(id=frame.id, source_ms=round(frame.pts_ms),
                                     hp=dict(status='resolution_incompatible', signed_hp=None, hp=None),
                                     native_ms=0.0)
                 else:
+                    executed = True
                     reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
@@ -166,8 +168,10 @@ class RuntimeSession(Session):
                                             queue_ms=(start-frame.ready_ns)/1e6,
                                             total_ms=(end-frame.due_ns)/1e6,
                                             native_ms=float(response.get('native_ms') or 0.0),
-                                            input_transform=plan))
-                self.counts['hp_native_runs'] += 1
+                                            native_executed=executed,input_transform=plan))
+                self.counts['hp_results'] += 1
+                if executed:
+                    self.counts['hp_native_runs'] += 1
         except Exception as exc:
             self.error = str(exc)
             self.stop()
