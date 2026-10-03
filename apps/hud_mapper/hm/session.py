@@ -80,8 +80,9 @@ class Session:
                     except Exception:pass
         threading.Thread(target=close,daemon=True).start()
     def request_stop(self):
+        # Graceful UI stop: stop producing new work, but let in-flight readers finish.
         self.stopped_by_user=True
-        self.stop()
+        self.cancel.set()
     def _run(self):
         threads=[]
         try:
