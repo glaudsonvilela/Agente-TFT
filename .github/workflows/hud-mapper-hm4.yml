@@ -10,6 +10,7 @@ on:
       - 'apps/hud_mapper/**'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - 'scripts/audit_hm4_session.py'
+      - 'scripts/compare_hm4_audits.py'
       - 'scripts/compact_hm3_payload.py'
       - 'tools/hm-capture-native/**'
       - 'tools/hm-hp-native/**'
@@ -75,6 +76,13 @@ jobs:
           python -m py_compile scripts/audit_hm4_session.py
           python scripts/audit_hm4_session.py --self-test
           if ($LASTEXITCODE -ne 0) { throw 'HM4 audit contracts failed' }
+
+      - name: Comparison utility contracts
+        shell: pwsh
+        run: |
+          python -m py_compile scripts/compare_hm4_audits.py
+          python scripts/compare_hm4_audits.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 comparison contracts failed' }
 
       - name: Build native capture/readers
         shell: pwsh
