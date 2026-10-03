@@ -105,6 +105,7 @@ def pipeline_metrics(summary):
     hp_queue=timings.get("hp_queue") or {}
     hp_submitted=counts.get("hp_submitted") or 0
     hp_runs=counts.get("hp_native_runs") or 0
+    hp_results=counts.get("hp_results") or 0
     hp_replaced=queues.get("hp_replaced") or 0
     return dict(
         native_submitted=submitted,
@@ -112,6 +113,7 @@ def pipeline_metrics(summary):
         reader_native_runs=runs,
         hp_submitted=hp_submitted,
         hp_native_runs=hp_runs,
+        hp_results=hp_results,
         hp_replaced=hp_replaced,
         hp_replacement_rate=rate(hp_replaced,hp_submitted),
         latest_frame_replaced=replaced,
