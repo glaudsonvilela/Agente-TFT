@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "patch": "18.3B-20260928",
+  "sources": [
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-1/",
+      "claims": [
+        "Planning-only Wisp purchase; champion underneath is revealed when planning ends.",
+        "Every-other-shop cadence and late combat-Wisp guarantee described, without a complete per-Wisp probability table.",
+        "Upgraded Life Debt has a Double Up elimination bug fix; this mode is not inferred from the secondary standard tooltip."
+      ]
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "claims": [
+        "Coven loss essence updated to 22/28/35/60.",
+        "Empowered Sinister Deal grants 2 gold and costs 2 health."
+      ]
+    },
+    {
+      "url": "https://www.tftraits.com/wisps/",
+      "claims": [
+        "15 resource candidates and normal/Blossom variants transcribed as executable coefficients.",
+        "Local semantic keys do not establish official IDs or stage eligibility."
+      ],
+      "candidates": [
+        "beggars_wisp",
+        "coin_flip",
+        "die_roll",
+        "freeroller",
+        "healing_pool",
+        "blood_money",
+        "fertilize",
+        "take_one_with_ya",
+        "good_loss",
+        "golden_road",
+        "minor_gambit",
+        "major_gambit",
+        "payday",
+        "pocket_change",
+        "sinister_deal"
+      ]
+    },
+    {
+      "path": "knowledge/releases/TFTSet18/18.3/0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299/traits.json",
+      "sha256": "9dc638c30c5563fbcbf61deea9f7ce3ed350ba19814130bc051e4e2bf30be2ab",
+      "claims": [
+        "Blossom 7 rebate field retained at 4 gold.",
+        "Coven kill essence fields retained at 2/2/3 for tiers 3/4/5."
+      ]
+    }
+  ],
+  "conflicts_and_limits": [
+    "Golden Road extra-gold wording needs payout calibration.",
+    "Freeroller credit persistence and refund order are candidates, not replay-proven.",
+    "Major Gambit strengthened next-combat wording may include PvE; candidate limited to observed PvP.",
+    "No guessed cashout probability table, Wisp stage eligibility, ghost pairing, or augment availability."
+  ],
+  "full_seasonal_rules": false
+}

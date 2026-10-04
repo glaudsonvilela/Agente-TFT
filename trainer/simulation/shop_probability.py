@@ -23,6 +23,8 @@ def next_shop_probability(world, seat, champion, content, *, at_least=1, slots=5
     ):
         raise IllegalAction("invalid next-shop target count")
     p = world.players[seat]
+    if p.seasonal:
+        raise UnsupportedRule('ordinary shop probability does not include seasonal offerings')
     if world.round_phase != "planning" or p.phase != "planning" or p.hp <= 0:
         raise IllegalAction("player cannot refresh shop")
     identity = pool_identity(champion, content)

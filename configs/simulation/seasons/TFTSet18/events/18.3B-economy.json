@@ -1,0 +1,462 @@
+{
+  "schema_version": 1,
+  "kind": "observed_seasonal_events_candidate",
+  "patch": "18.3B-20260928",
+  "wisps": {
+    "beggars_wisp": {
+      "name": "Beggar's Wisp",
+      "cost": 0,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 3
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 5
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "coin_flip": {
+      "name": "Coin Flip",
+      "cost": 0,
+      "normal": [
+        {
+          "kind": "dice_gold",
+          "dice": 1,
+          "sides": 2,
+          "offset": -1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "dice_gold",
+          "dice": 2,
+          "sides": 2,
+          "offset": -1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "die_roll": {
+      "name": "Die Roll",
+      "cost": 2,
+      "normal": [
+        {
+          "kind": "dice_gold",
+          "dice": 1,
+          "sides": 6,
+          "offset": 0
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "dice_gold",
+          "dice": 2,
+          "sides": 6,
+          "offset": 0
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "freeroller": {
+      "name": "Freeroller",
+      "cost": 2,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "free_rerolls",
+          "amount": 2
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "free_rerolls",
+          "amount": 3
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "healing_pool": {
+      "name": "Healing Pool",
+      "cost": 2,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "hp",
+          "amount": 5
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "hp",
+          "amount": 7
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "blood_money": {
+      "name": "Blood Money",
+      "cost": 2,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 1,
+          "trigger": "champion_kills",
+          "combats": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 1
+        },
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 1,
+          "trigger": "champion_kills",
+          "combats": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "fertilize": {
+      "name": "Fertilize",
+      "cost": 1,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "xp",
+          "amount": 1,
+          "trigger": "champion_kills",
+          "combats": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 2
+        },
+        {
+          "kind": "combat_reward",
+          "resource": "xp",
+          "amount": 1,
+          "trigger": "champion_kills",
+          "combats": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "take_one_with_ya": {
+      "name": "Take One With Ya",
+      "cost": 1,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "xp",
+          "amount": 4,
+          "trigger": "loss",
+          "combats": 1,
+          "min_kills": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "combat_reward",
+          "resource": "xp",
+          "amount": 6,
+          "trigger": "loss",
+          "combats": 1,
+          "min_kills": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "good_loss": {
+      "name": "Good Loss",
+      "cost": 4,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "xp",
+          "amount": 4,
+          "trigger": "loss",
+          "combats": 3,
+          "min_kills": 0
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "combat_reward",
+          "resource": "xp",
+          "amount": 6,
+          "trigger": "loss",
+          "combats": 3,
+          "min_kills": 0
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "golden_road": {
+      "name": "Golden Road",
+      "cost": 2,
+      "normal": [
+        {
+          "kind": "delayed_wins",
+          "combats": 3,
+          "gold_per_win": 2,
+          "bonus": 0
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "delayed_wins",
+          "combats": 3,
+          "gold_per_win": 2,
+          "bonus": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "minor_gambit": {
+      "name": "Minor Gambit",
+      "cost": 1,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 2,
+          "trigger": "win",
+          "combats": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 3,
+          "trigger": "win",
+          "combats": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "major_gambit": {
+      "name": "Major Gambit",
+      "cost": 3,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 8,
+          "trigger": "win",
+          "combats": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 10,
+          "trigger": "win",
+          "combats": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "payday": {
+      "name": "Payday",
+      "cost": 3,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 2,
+          "trigger": "allied_survivors",
+          "combats": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 3,
+          "trigger": "allied_survivors",
+          "combats": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "pocket_change": {
+      "name": "Pocket Change",
+      "cost": 1,
+      "normal": [
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 1,
+          "trigger": "one_star_deaths",
+          "combats": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 1
+        },
+        {
+          "kind": "combat_reward",
+          "resource": "gold",
+          "amount": 1,
+          "trigger": "one_star_deaths",
+          "combats": 1
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false
+    },
+    "sinister_deal": {
+      "name": "Sinister Deal",
+      "cost": 0,
+      "normal": [
+        {
+          "kind": "health_cost",
+          "amount": 4
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 2
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "health_cost",
+          "amount": 2
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 2
+        }
+      ],
+      "source": "https://www.tftraits.com/wisps/",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false,
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/"
+    }
+  },
+  "blossom": {
+    "trait": "DA_18_Blossom",
+    "tiers": {
+      "0": {
+        "empowered": false,
+        "every_shop": false,
+        "rebate": 0,
+        "limit": 1
+      },
+      "3": {
+        "empowered": true,
+        "every_shop": false,
+        "rebate": 0,
+        "limit": 1
+      },
+      "5": {
+        "empowered": true,
+        "every_shop": true,
+        "rebate": 0,
+        "limit": 1
+      },
+      "7": {
+        "empowered": true,
+        "every_shop": true,
+        "rebate": 4,
+        "limit": 1
+      },
+      "9": {
+        "empowered": true,
+        "every_shop": true,
+        "rebate": 4,
+        "limit": 2
+      }
+    },
+    "unsupported_from": 11,
+    "activation": "after_combat",
+    "source": "knowledge/releases/TFTSet18/18.3/0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299/traits.json"
+  },
+  "coven": {
+    "trait": "DA_18_Coven",
+    "tiers": {
+      "3": {
+        "per_kill": 2,
+        "per_loss": 22
+      },
+      "4": {
+        "per_kill": 2,
+        "per_loss": 28
+      },
+      "5": {
+        "per_kill": 3,
+        "per_loss": 35
+      }
+    },
+    "unsupported_from": 7,
+    "first_cashout": 40,
+    "cashout_tables": null,
+    "sources": [
+      "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "knowledge/releases/TFTSet18/18.3/0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299/traits.json"
+    ]
+  },
+  "hp_cap": 100,
+  "limitations": [
+    "Observed offers only: local keys are not verified Riot IDs. No guessed stage weights or eligibility.",
+    "Only resource Wisps listed here; unsupported Wisps are refused.",
+    "Freeroller persistence, healing cap, deferred payout order and Blossom persistence need replay calibration.",
+    "No full Blossom combat stats, Coven cashout distribution, augments, Inferno/Riftbeast shops or PvE settlement.",
+    "Normal shop probabilities do not model this event layer.",
+    "Golden Road upgraded bonus is treated as one additional gold at maturity, pending replay confirmation.",
+    "Major Gambit upgraded combat wording may include PvE; currently restricted to explicitly observed PvP.",
+    "Blossom rebate is retained from sealed catalog; no assumed prismatic tier."
+  ],
+  "runtime_promoted": false
+}

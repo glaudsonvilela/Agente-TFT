@@ -53,6 +53,7 @@ class Player:
     streak: int = 0
     free_rerolls: int = 0
     round_free_rerolls: int = 0
+    seasonal: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -80,9 +81,9 @@ def validate_world(world: World, content: dict):
     from .economy import validate_economy, validate_pool
 
     validate_economy(content)
-    if world.rules_scope not in ('complete_rules', 'ordinary_shop_probe'):
+    if world.rules_scope not in ('complete_rules', 'ordinary_shop_probe', 'observed_seasonal_probe'):
         raise UnsupportedRule('unknown planning scope')
-    if content.get('planning_requirements') and world.rules_scope != 'ordinary_shop_probe':
+    if content.get('planning_requirements') and world.rules_scope == 'complete_rules':
         raise UnsupportedRule('seasonal planning dependencies incomplete: ' + ', '.join(content['planning_requirements']))
     if world.round_phase not in ('planning', 'between_rounds') or type(world.round_number) is not int or world.round_number < 0:
         raise IllegalAction('invalid round lifecycle')
@@ -90,6 +91,11 @@ def validate_world(world: World, content: dict):
         raise IllegalAction('expected 1..8 players')
     seen = set()
     for p in world.players:
+        if p.seasonal:
+            if world.rules_scope != 'observed_seasonal_probe':
+                raise UnsupportedRule('seasonal state requires its explicit event scope')
+            from .seasonal_events import validate_state
+            validate_state(p.seasonal)
         if type(p.streak) is not int or any(type(v) is not int or v < 0 for v in (p.free_rerolls,p.round_free_rerolls)):
             raise IllegalAction('invalid streak or reroll credits')
         if p.stage is not None and (type(p.stage) is not int or not 1 <= p.stage <= 99):
@@ -212,6 +218,8 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
     result = deepcopy(world); p = result.players[seat]
     if result.round_phase != 'planning' or p.phase != 'planning' or p.hp <= 0:
         raise IllegalAction('player cannot act')
+    if p.seasonal and p.seasonal['phase'] != 'planning':
+        raise IllegalAction('seasonal planning has ended')
     rng = random.Random(world.seed)
     if world.rng_state is not None:
         rng.setstate(world.rng_state)
@@ -225,6 +233,8 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
         if len(args) != 1 or type(args[0]) is not int or not 0 <= args[0] < 5:
             raise IllegalAction('invalid shop slot')
         offer = p.shop[args[0]]
+        if p.seasonal.get('offer') is not None and args[0] == 4:
+            raise IllegalAction('champion is covered by the Wisp offer')
         if offer is None: raise IllegalAction('empty shop slot')
         if offer.kind != 'champion': raise UnsupportedRule('shop consumable needs explicit handler')
         if offer.entity not in content['champions']: raise UnsupportedRule('unknown champion')
@@ -296,6 +306,8 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
         _pay(p, e['xp_cost']); grant_xp(p, e['xp_amount'], content)
     elif kind == 'reroll':
         if args: raise IllegalAction('reroll takes no arguments')
+        if p.seasonal:
+            raise UnsupportedRule('seasonal refresh requires an explicit observed Wisp offering')
         if p.round_free_rerolls:
             p.round_free_rerolls -= 1
         elif p.free_rerolls:
@@ -315,6 +327,8 @@ def legal_actions(world, seat, content, *, positions=False):
     # could mistake for a legitimate "hold" recommendation.
     apply(world, seat, Action('hold'), content)
     p = world.players[seat]
+    if p.seasonal:
+        raise UnsupportedRule('seasonal search requires Wisp actions and outcome dependencies')
     proposals = [Action('hold'), Action('xp'), Action('reroll'), Action('lock', (not p.shop_locked,))]
     proposals += [Action('buy', (i,)) for i in range(5)]
     for u in p.units:

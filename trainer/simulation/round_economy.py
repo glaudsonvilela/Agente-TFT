@@ -71,6 +71,8 @@ def project_pvp(player, content, rules, *, outcome, surviving_enemy_champions):
     caller; the returned player must pass through a new planning boundary.
     """
     validate_rules(rules)
+    if player.seasonal:
+        raise UnsupportedRule('seasonal economy requires ordered event settlement')
     if outcome not in ("win", "loss"):
         raise UnsupportedRule("draw/PvE/special round economy not bound")
     if type(player.streak) is not int:

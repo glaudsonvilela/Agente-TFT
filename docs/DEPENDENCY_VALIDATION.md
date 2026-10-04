@@ -1,6 +1,52 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
-## Prioridade atual — interações de economia, loja e sobrevivência
+## Eventos sazonais e preparação do lote de 10 mil — 04/10/2026
+
+**Etapa parcial, com código executável e testes no BigBANANA. Não há 10 mil partidas completas em execução.** O [relatório do servidor](evidence/seasonal-events-20261004/bigbanana-preflight.json) identifica cada impedimento; a [verificação](evidence/seasonal-events-20261004/validation.json) registra os hashes e os testes. As habilidades continuam pausadas por solicitação do usuário.
+
+### O que foi acrescentado
+
+- Quinze Wisps de recursos, com versões normal e fortalecida: Beggar's Wisp, Coin Flip, Die Roll, Freeroller, Healing Pool, Blood Money, Fertilize, Take One With Ya, Good Loss, Golden Road, Minor Gambit, Major Gambit, Payday, Pocket Change e Sinister Deal. São **30 programas candidatos de um inventário de 148 Wisps**, com valores e fontes separados do motor.
+- Ofertas observadas como uma camada sobre a quinta unidade da loja. A unidade permanece reservada no estoque; a oferta expira ao encerrar o planejamento. Compra valida o ouro antes de aplicar recompensa/reembolso. Compra, atualização e falhas preservam o registro de cópias e o estado aleatório original.
+- Política econômica candidata de Blossom 3/5/7/9: fortalecimento aplicado após combate, reembolso e limite de uma/duas compras. Cadência é descrita nos dados, mas o seletor automático ainda não a executa: a oferta é um dado observado. Blossom 11 é recusado. Atributos de combate da característica permanecem fora deste módulo.
+- Essência de Coven 3/4/5 calculada por abates declarados e resultado, com valores de derrota do patch 18.3. Identidades duplicadas e campeões na reserva não contam como membros novos. A escolha de continuar acumula Essência; resgate aleatório e Coven 7 permanecem pendentes.
+- Recompensas que persistem por vários combates têm contadores separados do calendário. Carrossel/PvE não consomem contadores de combates contra jogadores. Resultados repetidos, fases inválidas e campos de efeito desconhecidos são recusados.
+- Calendário candidato explícito de 1-1 até 8-7, com classificação PvP/PvE/carrossel e marcação de aprimoramentos. Transições não pulam rodadas. Rodadas de aprimoramento param por falta do handler; nos limites especiais, o laboratório só aceita recursos medidos, identificados como observação externa.
+- Eliminação por custo de vida ou combate devolve unidades/ofertas ao estoque. O modelo comum de economia, a busca e os dois motores de combate recusam estados sazonais que não sabem interpretar, evitando gerar rótulos com efeitos omitidos.
+
+### Evidência executável
+
+A [sequência demonstrativa](evidence/seasonal-events-20261004/walkthrough.json) atravessa 2-2, 2-3, 2-4 e 2-5. Mostra uma recompensa de Golden Road amadurecendo após três PvPs, preservada durante o carrossel. Resultados foram declarados, os recursos do carrossel foram mantidos constantes para o exemplo, e **nenhum combate foi simulado**.
+
+A suíte ampla executou 609 testes: 597 passaram e 12 foram ignorados. Após os últimos ajustes e quatro novos testes, os 28 testes direcionados passaram localmente e no contêiner do BigBANANA. Também passaram os seis testes do modelo de valor, incluindo a recusa de estados sazonais que seu codificador ainda não representa. Não houve treinamento de uma rede de decisões nesta etapa.
+
+```bash
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m training.seasonal_lab --content /caminho/candidate-18.3B.json \
+  --output /caminho/seasonal-walkthrough.json
+
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m training.simulator_lab.batch_preflight \
+  --content /caminho/candidate-18.3B.json \
+  --events configs/simulation/seasons/TFTSet18/events/18.3B-economy.json \
+  --output /caminho/batch-10000-preflight.json --matches 10000 --workers 1
+```
+
+A segunda chamada retorna código 2 enquanto bloqueada. É uma checagem, não um agendador: não iniciará trabalho posteriormente por conta própria.
+
+### BigBANANA e o lote
+
+O servidor possui quatro CPUs e aproximadamente 15 GiB de RAM total. Na verificação, o contêiner do treinador estava limitado a **1,5 CPU / 1 GiB**, com cerca de 4,5 GiB livres no volume. O código foi colocado em uma pasta isolada de validação, sem reiniciar os serviços. Os números exatos e o estado do contêiner constam no relatório.
+
+O lote solicitado permanece em **0/10.000 partidas completas, não iniciado**. Faltam distribuição/identidades dos Wisps, demais Wisps, tabelas e escolhas de resgate, aprimoramentos, lojas especiais e sua prioridade, PvE/loot/carrossel efetivos, pareamento/fantasmas, integração do ciclo completo e os combates ainda incompletos. A classificação do calendário e os recibos de recursos não substituem essas regras.
+
+Antes de estimar duração ou RAM para 10 mil partidas, é necessário executar um piloto de partidas completas com a mesma versão do motor. Os tempos históricos de combates isolados não foram extrapolados. A checagem não possui um botão `ready=true`: mesmo relatórios de cobertura alterados não habilitam o executor sintético como partida sazonal.
+
+### Fontes e calibração pendente
+
+A [procedência](evidence/seasonal-events-20261004/source-observations.json) registra as notas oficiais [18.1](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-1/), [18.3](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/), o catálogo selado e a lista suplementar [TFTraits](https://www.tftraits.com/wisps/). Ordem de pagamentos, persistência, limites de cura e descrições ambíguas continuam candidatos sujeitos a replay. Nenhuma lacuna foi marcada como resolvida apenas por haver texto de referência.
+
+## Histórico — interações de economia, loja e sobrevivência
 
 O usuário pediu a pausa de novas habilidades e prioridade aos sistemas que interagem mais nas decisões. Esta entrega conecta recursos e consequências condicionais; **ainda não é uma partida sazonal completa nem um coach treinado**. Os [sete cenários reproduzíveis](evidence/economy-interactions-20261004/examples.json) e o [registro dos testes](evidence/economy-interactions-20261004/validation.json) documentam esta etapa.
 

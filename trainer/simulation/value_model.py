@@ -39,6 +39,8 @@ class BoardEncoder:
             raise ValueError("Combat value requires two observed teams")
         result = np.zeros((2, ROWS, COLUMNS, self.cell_features), dtype=np.float32)
         for side, team in enumerate(teams):
+            if team.seasonal:
+                raise ValueError("Seasonal resources are outside this model training scope")
             if team.augments:
                 raise ValueError("Augments are outside this model training scope")
             occupied = set()

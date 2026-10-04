@@ -72,6 +72,11 @@ class CombatValueModelTests(unittest.TestCase):
             self.assertFalse(tensor.flags.writeable)
             np.testing.assert_array_equal(tensor, self.parameters[name])
 
+    def test_seasonal_resources_cannot_be_dropped_by_the_combat_encoder(self):
+        self.teams[0].seasonal = {"pending": [{"kind": "delayed_wins"}]}
+        with self.assertRaisesRegex(ValueError, "Seasonal resources"):
+            self.load().predict([self.teams])
+
     def test_content_or_engine_changes_require_a_matching_model(self):
         for identity in ("content_sha256", "engine_sha256"):
             with self.subTest(identity=identity), self.assertRaisesRegex(

@@ -132,6 +132,8 @@ def validate_effects(effects):
 
 class Battle:
     def __init__(self,players,content,seed=0,trace=False):
+        if any(p.seasonal for p in players):
+            raise UnsupportedRule('observed seasonal resources are not full combat bindings')
         if len(players)!=2 or content.get('scope')!='experimental_hex_lab':
             raise UnsupportedRule('event combat remains experimental; two teams required')
         self.content=content;self.rng=random.Random(seed);self.seed=seed
