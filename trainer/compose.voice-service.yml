@@ -1,5 +1,6 @@
 services:
   tft-voice:
+    image: agente-tft-voice:local
     build:
       context: ..
       dockerfile: trainer/Dockerfile.voice-service

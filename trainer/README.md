@@ -154,7 +154,25 @@ O objetivo é encontrar padrões repetidos em contexto, não transformar uma ún
 
 `companion_service` é separado do treinador e não acessa os outros contêineres.
 `compose.voice-service.yml` reserva 0,5 CPU / 192 MiB e publica somente
-`127.0.0.1:8802`. Ainda não foi implantado no BigBANANA.
+`127.0.0.1:8802`. A imagem e o configurador foram preparados no BigBANANA
+em `~/agente-tft-voice/current`; a ativação aguarda a credencial do operador.
+
+No BigBANANA, o comando abaixo pede a chave sem eco, pede o Voice ID e sobe
+somente o contêiner de voz já compilado:
+
+```bash
+~/.local/bin/tft-voz-configurar
+```
+
+A partir do Ubuntu conectado à mesma rede:
+
+```bash
+ssh -t glaudsonvilela@10.0.0.174 /home/glaudsonvilela/.local/bin/tft-voz-configurar
+```
+
+O comando verifica a inicialização local; autenticação na ElevenLabs e qualidade
+de áudio exigem uma geração real posterior. Não imprimir o arquivo privado,
+não enviar a chave pelo chat e não incluir esse arquivo na coleta de sessões.
 
 Na raiz do repositório no servidor, a configuração interativa não mostra a chave:
 

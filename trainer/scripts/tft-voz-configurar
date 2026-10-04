@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+voice_root="${TFT_VOICE_ROOT:-$HOME/agente-tft-voice/current}"
+if [[ ! -f "$voice_root/trainer/companion_service/configure.py" ]]; then
+  echo 'O serviço de voz ainda não foi preparado neste servidor.' >&2
+  exit 1
+fi
+PYTHONPATH="$voice_root/apps/hud_mapper:$voice_root/trainer" python3 -m companion_service.configure
+docker compose --env-file "$HOME/.config/agente-tft/voice.env" \
+  -p agente-tft-voice -f "$voice_root/trainer/compose.voice-service.yml" up -d --no-build
+python3 - <<'PY'
+import json,time
+from urllib.request import urlopen
+for attempt in range(20):
+    try:
+        with urlopen('http://127.0.0.1:8802/health',timeout=2) as response:
+            health=json.load(response)
+        if health.get('voice_configured'):
+            print('Serviço local iniciado. A credencial e o áudio ainda precisam do teste real.')
+            break
+    except Exception:
+        pass
+    time.sleep(.5)
+else:
+    raise SystemExit('Serviço ainda não respondeu; consulte o diagnóstico de inicialização.')
+PY
