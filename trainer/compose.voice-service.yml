@@ -6,6 +6,7 @@ services:
       dockerfile: trainer/Dockerfile.voice-service
     ports:
       - "127.0.0.1:8802:8802"
+    command: ["uvicorn", "companion_service.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8802", "--workers", "1", "--proxy-headers", "--forwarded-allow-ips", "${TFT_VOICE_TRUSTED_PROXIES:-127.0.0.1}", "--no-access-log"]
     environment:
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:?configure on the server only}
       ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:?select the approved voice on the server}
@@ -21,6 +22,26 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+    restart: unless-stopped
+  tft-voice-edge:
+    profiles: ["public"]
+    image: nginx:stable-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+    # Linux server: only loopback is bound by nginx.conf. Cloudflared runs on host.
+    network_mode: host
+    user: "101:101"
+    entrypoint: ["nginx"]
+    command: ["-c", "/etc/nginx/tft.conf", "-g", "daemon off;"]
+    volumes:
+      - ./voice-gateway/nginx.conf:/etc/nginx/tft.conf:ro
+    depends_on: ["tft-voice"]
+    mem_limit: 32m
+    cpus: 0.25
+    pids_limit: 16
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m,uid=101,gid=101
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
     restart: unless-stopped
 volumes:
   tft-voice-data:

@@ -1,0 +1,33 @@
+{
+  "host": "tft.bigbanana.io",
+  "https_certificate_verified": true,
+  "public_dns_verified": true,
+  "local_dns_resolved_at_test": true,
+  "test_dns_source": "dns.google A record; TLS hostname remains tft.bigbanana.io",
+  "client_session_and_audio_passed": true,
+  "request_ms": 169.1,
+  "audio_bytes": 161836,
+  "unauthorized_status": 401,
+  "oversize_status": 413,
+  "unknown_route_status": 404,
+  "health": {
+    "voice_configured": true,
+    "provider": "elevenlabs",
+    "riot_integration": false,
+    "audio_cache": {
+      "entries": 1,
+      "audio_bytes": 161792,
+      "max_audio_bytes": 67108864,
+      "hits": 2,
+      "characters_reused": 100
+    }
+  },
+  "windows_playback_validated": false,
+  "default_client_config_verified": true,
+  "normal_system_dns_verified": true,
+  "normal_client_request_ms": 121.8,
+  "http_redirect_status": 301,
+  "http_redirect_target": "https://tft.bigbanana.io/health",
+  "proxy_client_ip_verified": true,
+  "forwarded_for_spoof_ignored": true
+}

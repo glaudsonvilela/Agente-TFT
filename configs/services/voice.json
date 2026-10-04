@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "provider": "elevenlabs",
-  "service_url": null,
-  "status": "awaiting_operator_configuration",
+  "service_url": "https://tft.bigbanana.io",
+  "status": "configured",
   "account_login_required": false
 }

@@ -163,8 +163,9 @@ O teste real de sessão e `/v1/voice` entregou a frase de boas-vindas em
 714,88 ms (3,669 s de áudio); a repetição devolveu o mesmo áudio em 6,89 ms.
 São duas medições locais no servidor, sem comprovar latência ou reprodução
 no Windows. Evidência: `docs/evidence/voice-api-20261004/approved-voice-activation.json`.
-O endereço HTTPS para clientes ainda precisa ser configurado;
-`configs/services/voice.json` permanece com `service_url: null`.
+O endereço para clientes é `https://tft.bigbanana.io`, configurado em
+`configs/services/voice.json`. A aplicação publicada no túnel Cloudflare
+`bigBANANA` aponta para o gateway local `http://127.0.0.1:8803`.
 
 No BigBANANA, o comando abaixo pede a chave sem eco, pede o Voice ID e sobe
 somente o contêiner de voz já compilado:
@@ -199,9 +200,27 @@ servidor (arquivo de ambiente privado, fora do Git) e executa, na pasta trainer:
 docker compose --env-file /caminho/privado/voice.env -f compose.voice-service.yml up -d --build
 ```
 
-Para outros PCs, configure um proxy HTTPS para essa porta, com limite de corpo
-HTTP de 4 KiB e limitação de solicitações. Preencha `service_url` em
-`configs/services/voice.json` antes do build Windows. O host do serviço pode
+O gateway Nginx do perfil Compose `public` limita o corpo HTTP a 4 KiB,
+restringe os caminhos/métodos da API e aplica limite de solicitações. Ele usa
+32 MiB / 0,25 CPU, escuta apenas em `127.0.0.1:8803` e roda sem privilégios.
+O HTTPS público é terminado pela Cloudflare e segue pelo túnel criptografado;
+o trecho HTTP entre cloudflared, gateway e aplicação permanece no servidor.
+
+Para iniciar o gateway junto com o serviço:
+
+```bash
+docker compose --env-file /caminho/privado/voice.env -p agente-tft-voice -f compose.voice-service.yml --profile public up -d --no-build
+```
+
+Em `voice.env`, `TFT_VOICE_TRUSTED_PROXIES` deve conter `127.0.0.1` e o
+gateway da rede Docker `agente-tft-voice_default` (no BigBANANA: `172.20.0.1`).
+Confira o gateway ao recriar essa rede. Nginx aceita `CF-Connecting-IP` somente
+do cloudflared em loopback e substitui `X-Forwarded-For`; Uvicorn só confia nos
+endereços configurados. Isso preserva os limites por IP sem confiar em cabeçalhos
+enviados diretamente por clientes externos. Outros sites/túneis não são alterados.
+
+Novos builds Windows incorporam o endereço acima; instaladores anteriores
+não recebem essa configuração automaticamente. O host do serviço pode
 receber texto narrado e nick/região para consulta de histórico; não recebe
 quadros da captura. Não há RSO nem chave Riot neste serviço.
 
@@ -252,6 +271,6 @@ a esse resumo; não inferir erros de rolagem a partir de colocações finais.
 
 Os testes automatizados do serviço usam transporte ElevenLabs simulado,
 sem credenciais e sem chamadas pagas. A ativação descrita acima foi validada
-separadamente com áudio real. A distribuição para usuários ainda depende
-de provisionar HTTPS e configurar o endereço no cliente. O resumo de partidas
-também depende de conectar uma fonte válida de histórico.
+separadamente com áudio real. O endpoint HTTPS está configurado; a reprodução
+e a latência dentro do aplicativo instalado no Windows ainda exigem teste nesse
+sistema. O resumo de partidas também depende de conectar uma fonte válida de histórico.
