@@ -18,6 +18,10 @@
     {
       "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/roles-revamped-and-item-changes/",
       "use": "Caster role: 7 mana per attack, 2 per second"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-1/",
+      "use": "Target memory across crowd control. Acquisition priorities and displacement retarget conditions still require calibration."
     }
   ],
   "unresolved": [
@@ -27,7 +31,8 @@
     "Current patch scope excludes 18.3B-only observations and does not infer patch from video date.",
     "No 4-star extrapolation, tank mana cap, fighter stage curve or critical overflow approximation.",
     "New item/trait hooks and health multiplier semantics are candidates, not replay-validated rules.",
-    "All catalog abilities inventoried; blocked programs and role-less ability candidates cannot enter full combat or current-patch training."
+    "All catalog abilities inventoried; blocked programs and role-less ability candidates cannot enter full combat or current-patch training.",
+    "Target memory is implemented; initial role-based target priority and displacement retarget conditions remain uncalibrated."
   ],
   "components": {
     "items": {
@@ -44,7 +49,7 @@
     },
     "profile": {
       "path": "profile.json",
-      "sha256": "c972bce95888dd33917107784c00c67d04f5de9ff8bf9f1955c8f369780e0f78"
+      "sha256": "b44f0e37780bc96248ee374a0d307e7f6430001038baad570728c84b0381d7a9"
     }
   },
   "ability_scope": {

@@ -64,6 +64,7 @@ class Actor:
     marks: set=field(default_factory=set)
     empowers: dict=field(default_factory=dict)
     item_count: int=0
+    target_uid: str | None = None
 
 
 def validate_effects(effects):
@@ -131,6 +132,9 @@ class Battle:
         self.trace=trace;self.active_traits=[];self.max_events=content['combat_rules'].get('max_events',100000)
         self.effect_depth=0
         cfg=content['combat_rules']
+        self.targeting_policy = cfg.get('targeting_policy', 'nearest_each_action')
+        if self.targeting_policy not in ('nearest_each_action', 'retain_until_invalid'):
+            raise UnsupportedRule('unknown target retention policy')
         self.duration=finite(cfg['duration'],'duration')
         self.move_seconds=finite(cfg['move_seconds'],'move_seconds')
         self.cap=finite(cfg['attack_speed_cap'],'attack_speed_cap')
@@ -222,6 +226,22 @@ class Battle:
     def status(self,u,name):return max((end for end in u.statuses.get(name,[]) if end>self.now),default=0.)
 
     def targetable(self,u):return u.hp>0 and not self.status(u,'untargetable')
+
+    def acquire_target(self, unit, enemies):
+        """Keep the selected enemy until it becomes invalid under this profile.
+
+        Crowd control does not erase target memory. First acquisition still uses
+        the laboratory distance/UID tie-break; role priority needs calibration.
+        """
+        if self.targeting_policy == 'retain_until_invalid':
+            previous = next((enemy for enemy in enemies if enemy.uid == unit.target_uid), None)
+            if previous is not None:
+                return previous
+        target = min(enemies, key=lambda enemy: (distance(unit.position, enemy.position), enemy.uid))
+        if target.uid != unit.target_uid:
+            self.emit('target', unit=unit.uid, target=target.uid)
+        unit.target_uid = target.uid
+        return target
 
     def select(self,source,target,selector):
         kind=selector['kind']; enemies=[u for u in self.units if u.team!=source.team and self.targetable(u)]
@@ -542,7 +562,7 @@ class Battle:
             enemies=[u for u in self.units if u.team!=unit.team and self.targetable(u)]
             if not enemies:
                 self.schedule(self.now+self.move_seconds,'act',uid,unit.version);continue
-            target=min(enemies,key=lambda u:(distance(unit.position,u.position),u.uid))
+            target=self.acquire_target(unit, enemies)
             speed=min(self.cap,max(.01,self.get(unit,'attack_speed')*(1-min(.99,max(0,self.get(unit,'slow'))))))
             if kind=='cast':
                 original=self.by_id[payload['target']]

@@ -36,7 +36,8 @@
       "attack_speed_cap": 5,
       "attack_windup_fraction": 0.4,
       "projectile_hexes_per_second": 10,
-      "max_events": 100000
+      "max_events": 100000,
+      "targeting_policy": "retain_until_invalid"
     },
     "default_cast_seconds": 0.5
   },

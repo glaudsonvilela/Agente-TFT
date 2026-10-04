@@ -39,7 +39,8 @@ def audit(project: Path) -> dict:
         / selection["tft_patch"]
         / "manifest.json"
     )
-    compiled = compile_catalog(manifest, catalogs, load_bindings(rules_path))
+    bindings = load_bindings(rules_path)
+    compiled = compile_catalog(manifest, catalogs, bindings)
     coverage = compiled["coverage"]
     units = []
     for champion in catalogs["units"]["champions"]:
@@ -83,9 +84,38 @@ def audit(project: Path) -> dict:
         role_integration_pending=len(coverage["abilities"]["role_integration_pending"]),
         blocked_abilities=len(coverage["abilities"]["blocked"]),
         candidate_item_effects=coverage["items"]["candidate_effects"],
+        candidate_components=sum(
+            item.get("combat_handler") == "effects" and item.get("component", False)
+            for item in compiled["items"].values()
+        ),
+        candidate_noncomponent_items=sum(
+            item.get("combat_handler") == "effects" and not item.get("component", False)
+            for item in compiled["items"].values()
+        ),
+        compiled_recipes=len(compiled["recipes"]),
         candidate_trait_effects=coverage["traits"]["candidate_effects"],
         replay_validated_abilities=coverage["abilities"]["replay_validated"],
         compiled_content_coverage=coverage,
+        seasonal_match_data=dict(
+            economy_present=bool(compiled.get("economy")),
+            round_schedule_present=bool(compiled.get("match_rules")),
+            augment_definitions=len(compiled.get("augments", {})),
+            wisp_definitions=len(compiled.get("wisps", {})),
+            loot_definitions=len(compiled.get("loot", {})),
+            encounter_definitions=len(compiled.get("encounters", {})),
+            full_match_ready=coverage["full_match_ready"],
+        ),
+        calibration=dict(
+            configured_mana_roles=sorted(bindings["profile"]["roles"]),
+            combat_timing_status=bindings["profile"]["timing_profile"]["status"],
+            unresolved=bindings["unresolved"],
+            alternate_forms=bindings.get("ability_scope", {}).get(
+                "alternate_forms_outside_catalog", []
+            ),
+            four_star_coverage_complete=bindings.get("ability_scope", {}).get(
+                "four_star_coverage_complete", False
+            ),
+        ),
         current_patch_training_ready=coverage["current_patch_training_ready"],
         runtime_promoted=False,
         blockers=[

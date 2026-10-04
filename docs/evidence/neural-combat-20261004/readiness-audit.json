@@ -1,0 +1,1400 @@
+{
+  "schema_version": 1,
+  "kind": "coach_readiness_audit",
+  "reviewed_on": "2026-10-04",
+  "review_scope": "Source code, compiled active rules, selected video frames/transcripts, official patch sources and primary learning research.",
+  "complete_simulator": false,
+  "intensive_full_game_training_started": false,
+  "runtime_promoted": false,
+  "code_engine": {
+    "files": {
+      "trainer/simulation/__init__.py": "c0e696593ae28d3dea620f33d007a7f33a90de49a36065087012e80f88d96daa",
+      "trainer/simulation/combat.py": "0e5bab2f6f32189f9a06b6483bb99359759474e9b0d3327158382200681b674d",
+      "trainer/simulation/event_combat.py": "8db59664c347c63eacaf53e3495cda176c1760cf580fc33cafe88335f4fa5c2b",
+      "trainer/simulation/hexgrid.py": "f84d162140fbd5bdbb8a104279eb7b8ce70fdb876604557f10ba3d92e1f74c85",
+      "trainer/simulation/match.py": "a9dc05f5019c282a4b4c9966095254dc814e0137e00744e498796dc158704365",
+      "trainer/simulation/modifiers.py": "7108785493551d0554744d1563886d58440ab29fd23d7acfa9d9c982adedadd3",
+      "trainer/simulation/rollout_stats.py": "83d841f4c22cbe1b34b14177d4dd714d4097bcf004494f9c17f9939aff714372",
+      "trainer/simulation/search.py": "51fd9137f63953fecb8b7d93f55cf57401f54f2e071a861afe9089c3877b8713",
+      "trainer/simulation/state.py": "e78661b73fe2c7e7abe92f0874a5cc49cc781edc8a2452e4ac0e2fdf0e8508c3",
+      "trainer/simulation/traits.py": "2952cf5e4d5fdd8eb310d32f2578ee1fa8b320e6d05eeeebe9af1afc7eecd1ed",
+      "trainer/simulation/value_model.py": "f6f442f7f62deaf36a4c98792e832d4341685fbd288f20847965f6ed668403de",
+      "training/event_lab.py": "5d45f82ce3acb10c5d2e711fc8d470503663d907cda73a44bdd1e778f48ea127"
+    },
+    "sha256": "fe0e109899f1eb5ce1d9ba6275ce6701321d1b51098ce84bf8e4d959bc7c3c8d"
+  },
+  "coverage": {
+    "schema_version": 1,
+    "kind": "simulation_coverage",
+    "set_key": "TFTSet18",
+    "patch": "18.3",
+    "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+    "units": [
+      {
+        "id": "DA_18_Akali_AD",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Camille",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Sentry",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Karma18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_18_Kobuko",
+        "missing_stats": [],
+        "numeric_ability_variables": true,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Leona",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Ornn",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Rakan",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_RekSai",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Cinderling18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Varus",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Veigar",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_18_Xayah",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Yorick",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Alistar",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Scuttlecrab18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Caitlyn",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Elise",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Gromp18_AP",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Kayle",
+        "missing_stats": [
+          "damage"
+        ],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_LeBlanc",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Murkwolf18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Sejuani",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Shen",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Teemo",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Warwick",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Yunara",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Azir",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_18_Cassiopeia",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_18_Diana",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Fiddlesticks18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Hecarim",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_KhaZix",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_KogMaw18_AD",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Krug18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_CrimsonRaptor18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_MasterYi_AD",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Rammus",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Rengar",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Tristana",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Vi18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Ahri",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_Amumu18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Aphelios",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Sentinel18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Ezreal",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lillia",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Malphite",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Morgana",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Nidalee18_AP",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Brambleback18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Sett",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Sivir",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Soraka",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_18_Zyra",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Alune",
+        "missing_stats": [],
+        "numeric_ability_variables": true,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Ashe",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_ElderDragon",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Draven18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_GnarSmall",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Ivern",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": true
+      },
+      {
+        "id": "DA_18_Kennen",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Lux18_Base",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Coven",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Lux18_Blackthorn",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Fae",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Lux18_Blossom",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Inferno",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Moonbeam",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Primal",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Elderwood",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Lux_Sunbeam",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_18_Maokai",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      },
+      {
+        "id": "DA_Taric18",
+        "missing_stats": [],
+        "numeric_ability_variables": false,
+        "unresolved_description": true,
+        "executable_ability": false
+      }
+    ],
+    "champions": 74,
+    "champions_with_complete_stats": 73,
+    "champions_with_numeric_ability_variables": 2,
+    "executable_abilities": 7,
+    "ability_programs": 22,
+    "role_integration_pending": 15,
+    "blocked_abilities": 52,
+    "candidate_item_effects": 21,
+    "candidate_components": 9,
+    "candidate_noncomponent_items": 12,
+    "compiled_recipes": 12,
+    "candidate_trait_effects": 6,
+    "replay_validated_abilities": 0,
+    "compiled_content_coverage": {
+      "abilities": {
+        "scope": {
+          "catalog_entries": 74,
+          "alternate_forms_outside_catalog": [
+            {
+              "identity": "Akali",
+              "form": "AP",
+              "status": "blocked",
+              "reason": "formula and form selection not bound"
+            },
+            {
+              "identity": "Gromp",
+              "form": "AD",
+              "status": "blocked",
+              "reason": "formula and form selection not bound"
+            },
+            {
+              "identity": "KogMaw",
+              "form": "AP",
+              "status": "blocked",
+              "reason": "formula and form selection not bound"
+            },
+            {
+              "identity": "MasterYi",
+              "form": "AP",
+              "status": "blocked",
+              "reason": "formula and form selection not bound"
+            },
+            {
+              "identity": "Nidalee",
+              "form": "AD",
+              "status": "blocked",
+              "reason": "formula and form selection not bound"
+            }
+          ],
+          "supported_stars": [
+            1,
+            2,
+            3
+          ],
+          "four_star_coverage_complete": false
+        },
+        "total": 74,
+        "inventoried": 74,
+        "candidate_programs": 22,
+        "replay_validated": 0,
+        "blocked": {
+          "DA_18_Akali_AD": [
+            "AD/AP coefficient split",
+            "AP adaptor form and kill recast",
+            "burn conditional damage"
+          ],
+          "DA_18_Camille": [
+            "18.3 versus 18.3B AD coefficients conflict",
+            "shield AP scaling confirmation"
+          ],
+          "DA_18_Sentry": [
+            "continuous mana-drain channel",
+            "Teal seasonal buff"
+          ],
+          "DA_18_Kobuko": [
+            "confirm HP/AP coefficients across stars",
+            "next-attack bash replacement"
+          ],
+          "DA_18_Leona": [
+            "armor-scaling coefficient",
+            "12-second resistance decay"
+          ],
+          "DA_18_Ornn": [
+            "cone geometry",
+            "blocked-damage forge progression and artifact rewards"
+          ],
+          "DA_18_Rakan": [
+            "decaying attack-speed curve and most-damage ally tie-break"
+          ],
+          "DA_18_RekSai": [
+            "HP regeneration coefficients",
+            "regeneration tripling window"
+          ],
+          "DA_Cinderling18": [
+            "AD/AP split for five leaves",
+            "Scarlet buff association"
+          ],
+          "DA_18_Varus": [
+            "physical damage AD/AP split",
+            "piercing arrow collision/falloff"
+          ],
+          "DA_18_Xayah": [
+            "feather AD coefficient",
+            "armor reduction AP coefficient"
+          ],
+          "DA_18_Yorick": [
+            "Spirit Walker statistics and taunt",
+            "physical damage AD coefficient"
+          ],
+          "DA_18_Alistar": [
+            "heal HP/AP split",
+            "cleanse ordering and allied heal targeting"
+          ],
+          "DA_Scuttlecrab18": [
+            "cleave attacks",
+            "Green buff proc limits"
+          ],
+          "DA_18_Caitlyn": [
+            "third-attack headshot AD/AP coefficients",
+            "attack counter instead of normal mana"
+          ],
+          "DA_18_Elise": [
+            "decaying AS curve",
+            "spider-form attack heal timing"
+          ],
+          "DA_Gromp18_AP": [
+            "AD adaptor form",
+            "Purple buff scaling and collision selection"
+          ],
+          "DA_18_Kayle": [
+            "missing base attack damage in sealed catalog",
+            "star-dependent ascension and wave geometry"
+          ],
+          "DA_18_LeBlanc": [
+            "copy reward timing/pool/bench priority",
+            "18.3 versus 18.3B copy chance"
+          ],
+          "DA_Murkwolf18": [
+            "inconsistent rendered leap totals",
+            "Grey buff critical scaling"
+          ],
+          "DA_18_Sejuani": [
+            "HP/AP shield coefficients",
+            "cone plus line overlap"
+          ],
+          "DA_18_Teemo": [
+            "18.3 versus 18.3B mushroom damage",
+            "foraged mushroom probabilities and collection rewards"
+          ],
+          "DA_18_Warwick": [
+            "AD coefficient instead of displayed attack total",
+            "AP scaling of damage-based heal"
+          ],
+          "DA_18_Yunara": [
+            "AD/AP coefficient split",
+            "dash position and split-projectile targeting"
+          ],
+          "DA_18_KhaZix": [
+            "18.3 versus 18.3B damage",
+            "isolation and leap geometry",
+            "Rivals augment override"
+          ],
+          "DA_KogMaw18_AD": [
+            "AD damage coefficient",
+            "AP adaptor DOT form"
+          ],
+          "DA_Krug18": [
+            "Kruglette statistics and taunt",
+            "HP/AD scaling split",
+            "Slate death shield"
+          ],
+          "DA_CrimsonRaptor18": [
+            "Tiny Beak damage coefficient and ownership",
+            "Orange buff armor reduction"
+          ],
+          "DA_18_MasterYi_AD": [
+            "AP adaptor form",
+            "double-strike timing and takedown movement"
+          ],
+          "DA_18_Rammus": [
+            "reflection damage scaling",
+            "taunt and shield-break ordering"
+          ],
+          "DA_18_Rengar": [
+            "AD coefficient",
+            "missing-health healing multiplier"
+          ],
+          "DA_18_Tristana": [
+            "AD coefficients",
+            "bomb transfer and attack counter"
+          ],
+          "DA_Vi18": [
+            "passive heal HP coefficient",
+            "active attack-speed scaling"
+          ],
+          "DA_Amumu18": [
+            "passive regeneration HP coefficient",
+            "burn stun multiplier"
+          ],
+          "DA_18_Aphelios": [
+            "AD coefficients",
+            "AS-dependent swipe count",
+            "split explosion"
+          ],
+          "DA_Sentinel18": [
+            "HP/AP shield split",
+            "knockup line and mana reave",
+            "Blue buff"
+          ],
+          "DA_18_Ezreal": [
+            "AD coefficients",
+            "fourth cast consumes accumulated ability AS",
+            "blink geometry"
+          ],
+          "DA_18_Lillia": [
+            "damage-triggered sleep wake",
+            "butterfly allocation"
+          ],
+          "DA_18_Malphite": [
+            "armor/AP wave scaling",
+            "shield-break and petrification"
+          ],
+          "DA_18_Morgana": [
+            "curse stacking damage semantics",
+            "moving versus fixed damage zone"
+          ],
+          "DA_Brambleback18": [
+            "AD coefficients",
+            "leap on target death",
+            "Red buff burn and heal"
+          ],
+          "DA_18_Sett": [
+            "heal HP/AP and damage AD/HP split",
+            "cast windup interruption"
+          ],
+          "DA_18_Sivir": [
+            "AD coefficients",
+            "bounce path and kill extensions"
+          ],
+          "DA_18_Zyra": [
+            "plant spawn geometry and attack cadence",
+            "summon targetability and owner-scaling snapshot"
+          ],
+          "DA_18_Alune": [
+            "moon phase state and progression",
+            "full-moon damage allocation"
+          ],
+          "DA_18_Ashe": [
+            "AD and target-HP split",
+            "18.3 versus 18.3B trail values"
+          ],
+          "DA_18_ElderDragon": [
+            "transform sequence and breath coefficients",
+            "landing geometry and ignite",
+            "Elder execute buff"
+          ],
+          "DA_Draven18": [
+            "AD coefficients",
+            "random target attacks",
+            "bleed consumption and outbound/return collisions"
+          ],
+          "DA_18_GnarSmall": [
+            "rage instead of normal mana",
+            "Mega form displacement and lone-enemy execution"
+          ],
+          "DA_18_Kennen": [
+            "dynamic AP per burning enemy",
+            "dash geometry and split firestorm"
+          ],
+          "DA_18_Maokai": [
+            "blocked-damage threshold and sapling statistics",
+            "HP scaling in heal and damage"
+          ],
+          "DA_Taric18": [
+            "paired-ally identity and trigger",
+            "shield HP/flat split conflicts with official patch",
+            "paired empowered attacks"
+          ]
+        },
+        "role_integration_pending": [
+          "DA_18_Diana",
+          "DA_18_Hecarim",
+          "DA_18_Lux_Coven",
+          "DA_18_Lux_Elderwood",
+          "DA_18_Lux_Fae",
+          "DA_18_Lux_Inferno",
+          "DA_18_Lux_Moonbeam",
+          "DA_18_Lux_Primal",
+          "DA_18_Lux_Sunbeam",
+          "DA_18_Shen",
+          "DA_Fiddlesticks18",
+          "DA_Lux18_Base",
+          "DA_Lux18_Blackthorn",
+          "DA_Lux18_Blossom",
+          "DA_Nidalee18_AP"
+        ],
+        "all_abilities_ready": false
+      },
+      "champions": {
+        "total": 74,
+        "candidate_effects": 7,
+        "replay_validated": 0,
+        "missing_handlers": [
+          "DA_18_Akali_AD",
+          "DA_18_Alistar",
+          "DA_18_Alune",
+          "DA_18_Aphelios",
+          "DA_18_Ashe",
+          "DA_18_Caitlyn",
+          "DA_18_Camille",
+          "DA_18_Diana",
+          "DA_18_ElderDragon",
+          "DA_18_Elise",
+          "DA_18_Ezreal",
+          "DA_18_GnarSmall",
+          "DA_18_Hecarim",
+          "DA_18_Kayle",
+          "DA_18_Kennen",
+          "DA_18_KhaZix",
+          "DA_18_Kobuko",
+          "DA_18_LeBlanc",
+          "DA_18_Leona",
+          "DA_18_Lillia",
+          "DA_18_Lux_Coven",
+          "DA_18_Lux_Elderwood",
+          "DA_18_Lux_Fae",
+          "DA_18_Lux_Inferno",
+          "DA_18_Lux_Moonbeam",
+          "DA_18_Lux_Primal",
+          "DA_18_Lux_Sunbeam",
+          "DA_18_Malphite",
+          "DA_18_Maokai",
+          "DA_18_MasterYi_AD",
+          "DA_18_Morgana",
+          "DA_18_Ornn",
+          "DA_18_Rakan",
+          "DA_18_Rammus",
+          "DA_18_RekSai",
+          "DA_18_Rengar",
+          "DA_18_Sejuani",
+          "DA_18_Sentry",
+          "DA_18_Sett",
+          "DA_18_Shen",
+          "DA_18_Sivir",
+          "DA_18_Teemo",
+          "DA_18_Tristana",
+          "DA_18_Varus",
+          "DA_18_Warwick",
+          "DA_18_Xayah",
+          "DA_18_Yorick",
+          "DA_18_Yunara",
+          "DA_18_Zyra",
+          "DA_Amumu18",
+          "DA_Brambleback18",
+          "DA_Cinderling18",
+          "DA_CrimsonRaptor18",
+          "DA_Draven18",
+          "DA_Fiddlesticks18",
+          "DA_Gromp18_AP",
+          "DA_KogMaw18_AD",
+          "DA_Krug18",
+          "DA_Lux18_Base",
+          "DA_Lux18_Blackthorn",
+          "DA_Lux18_Blossom",
+          "DA_Murkwolf18",
+          "DA_Nidalee18_AP",
+          "DA_Scuttlecrab18",
+          "DA_Sentinel18",
+          "DA_Taric18",
+          "DA_Vi18"
+        ]
+      },
+      "items": {
+        "global_catalog_total": 3444,
+        "set_membership_verified": false,
+        "candidate_effects": 21,
+        "replay_validated": 0
+      },
+      "traits": {
+        "total": 36,
+        "candidate_effects": 6,
+        "replay_validated": 0,
+        "missing_handlers": [
+          "DA_18_Adaptor",
+          "DA_18_ApexPredator",
+          "DA_18_Battlemage",
+          "DA_18_Blackthorn",
+          "DA_18_Blossom",
+          "DA_18_Caustic",
+          "DA_18_Coven",
+          "DA_18_Defender",
+          "DA_18_Eclipse",
+          "DA_18_Elderwood",
+          "DA_18_Executioner",
+          "DA_18_Fae",
+          "DA_18_Greenfather",
+          "DA_18_Hunter",
+          "DA_18_Inferno",
+          "DA_18_Invoker",
+          "DA_18_Lunar",
+          "DA_18_LuxUniqueTrait",
+          "DA_18_Maokai_UniqueTrait",
+          "DA_18_Rival",
+          "DA_18_Slayer",
+          "DA_18_Solar",
+          "DA_18_Sprykin",
+          "DA_18_Summoner",
+          "DA_18_ZyraUniqueTrait",
+          "DA_AluneUniqueTrait18",
+          "DA_DravenUniqueTrait18",
+          "DA_Emerald18",
+          "DA_Primal18",
+          "DA_Riftbeast18"
+        ]
+      },
+      "unresolved": [
+        "Attack recovery, projectile speed, movement and cast timings require replay calibration.",
+        "DOT tick cadence and snapshot versus dynamic scaling are explicit laboratory assumptions.",
+        "Trait member/team replacement and percentage-health stacking require replay checks.",
+        "Current patch scope excludes 18.3B-only observations and does not infer patch from video date.",
+        "No 4-star extrapolation, tank mana cap, fighter stage curve or critical overflow approximation.",
+        "New item/trait hooks and health multiplier semantics are candidates, not replay-validated rules.",
+        "All catalog abilities inventoried; blocked programs and role-less ability candidates cannot enter full combat or current-patch training.",
+        "Target memory is implemented; initial role-based target priority and displacement retarget conditions remain uncalibrated."
+      ],
+      "current_patch_training_ready": false,
+      "runtime_promoted": false,
+      "full_match_ready": false,
+      "augments_ready": false,
+      "seasonal_events_ready": false
+    },
+    "seasonal_match_data": {
+      "economy_present": false,
+      "round_schedule_present": false,
+      "augment_definitions": 0,
+      "wisp_definitions": 0,
+      "loot_definitions": 0,
+      "encounter_definitions": 0,
+      "full_match_ready": false
+    },
+    "calibration": {
+      "configured_mana_roles": [
+        "caster",
+        "marksman"
+      ],
+      "combat_timing_status": "laboratory_assumption",
+      "unresolved": [
+        "Attack recovery, projectile speed, movement and cast timings require replay calibration.",
+        "DOT tick cadence and snapshot versus dynamic scaling are explicit laboratory assumptions.",
+        "Trait member/team replacement and percentage-health stacking require replay checks.",
+        "Current patch scope excludes 18.3B-only observations and does not infer patch from video date.",
+        "No 4-star extrapolation, tank mana cap, fighter stage curve or critical overflow approximation.",
+        "New item/trait hooks and health multiplier semantics are candidates, not replay-validated rules.",
+        "All catalog abilities inventoried; blocked programs and role-less ability candidates cannot enter full combat or current-patch training.",
+        "Target memory is implemented; initial role-based target priority and displacement retarget conditions remain uncalibrated."
+      ],
+      "alternate_forms": [
+        {
+          "identity": "Akali",
+          "form": "AP",
+          "status": "blocked",
+          "reason": "formula and form selection not bound"
+        },
+        {
+          "identity": "Gromp",
+          "form": "AD",
+          "status": "blocked",
+          "reason": "formula and form selection not bound"
+        },
+        {
+          "identity": "KogMaw",
+          "form": "AP",
+          "status": "blocked",
+          "reason": "formula and form selection not bound"
+        },
+        {
+          "identity": "MasterYi",
+          "form": "AP",
+          "status": "blocked",
+          "reason": "formula and form selection not bound"
+        },
+        {
+          "identity": "Nidalee",
+          "form": "AD",
+          "status": "blocked",
+          "reason": "formula and form selection not bound"
+        }
+      ],
+      "four_star_coverage_complete": false
+    },
+    "current_patch_training_ready": false,
+    "runtime_promoted": false,
+    "blockers": [
+      "67 champions cannot enter full combat",
+      "30 traits have missing effect tiers",
+      "Seasonal economy, loot, augments and seasonal mechanic not validated",
+      "Owned units, stars, equipped items and hex positions lack replay ground truth",
+      "No independent match validation for combat or policy"
+    ],
+    "laboratory": {
+      "adapter": "tft_goat_synthetic_tick_v1",
+      "set_key": "synthetic",
+      "official_rules": false,
+      "replay_compatible": false,
+      "explicit_position_actions": false,
+      "item_choice_actions": false
+    }
+  },
+  "media": {
+    "files": [
+      {
+        "source": "https://www.youtube.com/watch?v=af1zvuCmr58",
+        "filename": "livelojnga.mp4",
+        "sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "30/1"
+            }
+          ],
+          "format": {
+            "duration": "17390.167075"
+          }
+        }
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=gziqlVkdUb4",
+        "filename": "videoplayback 02.mp4",
+        "sha256": "7d6150621f84f99a078b46bc41c242bfabdb3bada65307a0fb27dcc6855c4983",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "30/1"
+            }
+          ],
+          "format": {
+            "duration": "1088.528254"
+          }
+        }
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=_zoANnUPl3c",
+        "filename": "videoplayback.mp4",
+        "sha256": "fb82653c864ae792e064ece939132b58d095b6bf17d6c7bcc42edcdb64faeca6",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "30/1"
+            }
+          ],
+          "format": {
+            "duration": "1531.263129"
+          }
+        }
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=Yez0weG0vr4",
+        "filename": "videoplayback03.mp4",
+        "sha256": "2bcaec95e51f71ec116d7800ae39aa5aaea5c70afa4777ab56a796cddf167a02",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "30/1"
+            }
+          ],
+          "format": {
+            "duration": "3981.293424"
+          }
+        }
+      },
+      {
+        "source": "https://www.youtube.com/watch?v=dv06BCe_Vug",
+        "filename": "videoplayback04.mp4",
+        "sha256": "d1aef111ed6d6b4f0de054872b45ee5a61e0a99cc2f3b17dfda1d886a5e37ba6",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "30/1"
+            }
+          ],
+          "format": {
+            "duration": "1240.363537"
+          }
+        }
+      },
+      {
+        "source": "https://www.twitch.tv/videos/2891050468",
+        "filename": "v2891050468.mp4",
+        "sha256": "1eb6a572f9a2e0b605d8131b7f32aa712ef6f1d2be8489d152f6d9464a8717cb",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "620806500/20693399"
+            }
+          ],
+          "format": {
+            "duration": "13795.615333"
+          }
+        }
+      },
+      {
+        "source": "https://www.twitch.tv/videos/2890208196",
+        "filename": "v2890208196.mp4",
+        "sha256": "ddb4846b00a99290380e95e23d04e3cc6920024e7bd4a824ea2f2802f5f20df5",
+        "matches_registry": true,
+        "probe": {
+          "programs": [],
+          "streams": [
+            {
+              "width": 640,
+              "height": 360,
+              "avg_frame_rate": "514711500/17159999"
+            }
+          ],
+          "format": {
+            "duration": "11440.021333"
+          }
+        }
+      }
+    ],
+    "verified_local_videos": 7,
+    "total_duration_hours": 14.018681134722222,
+    "corpus_sources": [
+      {
+        "url": "https://www.twitch.tv/videos/2890208196",
+        "segments": 1706
+      },
+      {
+        "url": "https://www.twitch.tv/videos/2891050468",
+        "segments": 1026
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=6FurRnITERA",
+        "segments": 524
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=SP20lQatN2c",
+        "segments": 188
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=Yez0weG0vr4",
+        "segments": 975
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=_zoANnUPl3c",
+        "segments": 151
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+        "segments": 1405
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=dv06BCe_Vug",
+        "segments": 547
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=gziqlVkdUb4",
+        "segments": 222
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=mf3lxrDg3B4",
+        "segments": 1745
+      }
+    ],
+    "transcript_segments": 8489,
+    "corpus_sha256": "e5cc7144a59466759eddec3f602491933ab8812b37c7b02c8d55cd3d8a11ce59",
+    "reviewed_transition_labels": 0,
+    "all_video_frames_reviewed": false
+  },
+  "video_review": [
+    {
+      "file": "videoplayback.mp4",
+      "at_seconds": 360,
+      "url": "https://www.youtube.com/watch?v=_zoANnUPl3c&t=360",
+      "method": "visual_frame_and_surrounding_transcript",
+      "observation": "Guide describes seasonal wisp categories and conditional spending.",
+      "requirement": "Model wisp cost, alternatives, benefit and lost interest; buying is optional.",
+      "action_outcome_label": false
+    },
+    {
+      "file": "videoplayback.mp4",
+      "at_seconds": 900,
+      "url": "https://www.youtube.com/watch?v=_zoANnUPl3c&t=900",
+      "method": "visual_frame_and_surrounding_transcript",
+      "observation": "Guide makes early leveling conditional on board strength and discusses preserving economy.",
+      "requirement": "Stage alone cannot establish optimal leveling; policy needs board strength, streak, HP and alternatives.",
+      "action_outcome_label": false
+    },
+    {
+      "file": "videoplayback03.mp4",
+      "at_seconds": 120,
+      "url": "https://www.youtube.com/watch?v=Yez0weG0vr4&t=120",
+      "method": "visual_frame_and_surrounding_transcript",
+      "observation": "Replay review discusses preserving placement when contested or behind tempo.",
+      "requirement": "Evaluate placement and survival tradeoffs, not only the next fight.",
+      "action_outcome_label": false
+    },
+    {
+      "file": "livelojnga.mp4",
+      "at_seconds": 600,
+      "url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=600",
+      "method": "visual_frame",
+      "observation": "Full-session VOD contains an in-game stage 2-6 fight.",
+      "requirement": "Segment match boundaries and link pre-action state to action and observed outcome.",
+      "action_outcome_label": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "patch_lineage",
+      "priority": 0,
+      "status": "incomplete",
+      "evidence": "configs/simulation/seasons/TFTSet18/18.3/manifest.json",
+      "detail": "Active bindings exclude 18.3B-only observations; videos include explicit 18.3B guides. Official mid-patch observations exist but are not executable formulas.",
+      "completion": "Version and validate hotfix-specific formulas and availability; preserve base-patch reproducibility."
+    },
+    {
+      "id": "combat_calibration",
+      "priority": 0,
+      "status": "partial",
+      "evidence": "trainer/simulation/event_combat.py",
+      "detail": "Target retention across crowd control added with four regression cases. Initial target role priority, movement, projectiles and timing remain uncalibrated; configured roles only caster/marksman.",
+      "completion": "Replay event comparisons for target selection, mana, hit timing, HP/shields, casts, interruption and death ordering."
+    },
+    {
+      "id": "champion_abilities",
+      "priority": 0,
+      "status": "partial",
+      "evidence": "configs/simulation/seasons/TFTSet18/18.3/champions.json",
+      "detail": "7 integrated candidates, 15 pending role/timing integration, 52 blocked. 74 entries include forms, not 74 independently validated playable champions. Alternate forms and four-star coverage incomplete.",
+      "completion": "Verified formula and behavior for every applicable unit/form/star level and its interactions."
+    },
+    {
+      "id": "items_and_traits",
+      "priority": 0,
+      "status": "partial",
+      "evidence": "training/compile_effects.py",
+      "detail": "21 item handlers comprise 9 components and 12 noncomponents; 12 recipes. 6 of 36 trait definitions have all candidate tiers. Set membership of global item catalog is not verified.",
+      "completion": "Active-set inventory with complete effects, recipes, emblems, artifacts, radiants and trait tier interactions."
+    },
+    {
+      "id": "full_match",
+      "priority": 0,
+      "status": "synthetic_only",
+      "evidence": "trainer/simulation/match.py",
+      "detail": "Eight-player loop uses synthetic shuffle/byes, fixed loser damage, no loot or streaks. Seasonal compiled content has no economy or match_rules, and no wisp, augment, encounter or loot definitions.",
+      "completion": "Verified seasonal round schedule, shop odds/pool, XP, income, streaks, player damage, PvE, loot, carousel, augments, wisps, pairing/ghosts and settlement."
+    },
+    {
+      "id": "action_edge_cases",
+      "priority": 1,
+      "status": "partial",
+      "evidence": "trainer/simulation/state.py",
+      "detail": "Equipped-item merges, permanent-stack merges, shop consumables and inventory overflow on selling are explicitly unsupported.",
+      "completion": "Legal and atomic transitions including rewards, rerolls, bench pressure, duplicates and item priority."
+    },
+    {
+      "id": "video_demonstrations",
+      "priority": 0,
+      "status": "text_indexed_without_transitions",
+      "evidence": "training/source_corpus.py",
+      "detail": "8,489 transcript segments are searchable; no reviewed state/action/next-state/outcome training records. 360p source text limits fine-grained stat reading.",
+      "completion": "Reviewed episodes with patch identity, match-level splits, confidence and explicit unknowns; no pseudo-labels treated as observed truth."
+    },
+    {
+      "id": "neural_policy",
+      "priority": 1,
+      "status": "partial_combat_value_only",
+      "evidence": "trainer/simulation/value_model.py",
+      "detail": "Candidate predicts one supported fight; economy, future placement, augments, opponent beliefs and permanent stacks are outside its input scope.",
+      "completion": "Policy/value learning over full verified matches, diverse self-play opponents, chance-aware search and independent category evaluation."
+    },
+    {
+      "id": "explanations_and_voice",
+      "priority": 1,
+      "status": "limited_existing_actions",
+      "evidence": "apps/hud_mapper/hm/replay_decision.py",
+      "detail": "Runtime primarily has conditional fixed leveling rules and verified-roster purchases; no integrated complete neural coach.",
+      "completion": "Every required advice category produces a traceable recommendation, alternatives, confidence and expiry; text and speech share the same decision."
+    }
+  ],
+  "deployment_requirement": "Complete agreed coach capability coverage and independently measured quality before software integration. No perfect-play claim.",
+  "previous_candidate": {
+    "evidence": "training.json",
+    "status": "historical_before_target_retention_change",
+    "reason": "Current simulator source hash differs; inference loader must reject the earlier checkpoint for current content."
+  },
+  "primary_sources": [
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-1/",
+      "use": "Wisp shop lifecycle and target retention after crowd control."
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "use": "Base patch versus September 24/28 hotfix facts and availability."
+    },
+    {
+      "url": "https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/alphazero-shedding-new-light-on-chess-shogi-and-go/alphazero_preprint.pdf",
+      "use": "Policy/value self-play and MCTS; TFT needs stochastic and partial-information adaptation."
+    },
+    {
+      "url": "https://deepmind.google/blog/alphastar-grandmaster-level-in-starcraft-ii-using-multi-agent-reinforcement-learning/",
+      "use": "Imitation from human games followed by diverse league training."
+    },
+    {
+      "url": "https://ai.meta.com/research/publications/combining-deep-reinforcement-learning-and-search-for-imperfect-information-games/",
+      "use": "Beliefs and search under hidden information; two-player guarantee is not a TFT guarantee."
+    },
+    {
+      "url": "https://www.norvig.com/sudoku.html",
+      "use": "Constraint checking and eliminating impossible actions before search."
+    },
+    {
+      "url": "https://deepmind.google/blog/muzero-mastering-go-chess-shogi-and-atari-without-rules/",
+      "use": "Learned dynamics still need reliable experience and rewards."
+    }
+  ],
+  "validation": {
+    "targeting_combat_seasonal_model_planner_tests_passed": 51,
+    "previous_model_rejected_after_engine_change": true,
+    "windows_field_test": false
+  }
+}
