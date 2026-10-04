@@ -13,6 +13,7 @@ REQUIRED_STATS = ('hp', 'damage', 'attackSpeed', 'armor', 'magicResist',
 
 
 def audit(project: Path) -> dict:
+    from .attribute_worklist import variables_audit
     selection = json.loads((project / 'configs/catalog/active-knowledge-release-v1.json').read_text())
     manifest, catalogs = read_release(project / selection['reference'])
     units = []
@@ -22,7 +23,7 @@ def audit(project: Path) -> dict:
                    or isinstance(stats.get(key), bool) or not math.isfinite(stats[key])]
         ability = champion.get('ability') or {}
         units.append(dict(id=champion['api_name'], missing_stats=missing,
-                          numeric_ability_variables=bool(ability.get('variables')),
+                          numeric_ability_variables=bool(variables_audit(ability)[0]),
                           unresolved_description='@' in str(ability.get('desc', ability.get('description', ''))),
                           executable_ability=False))
     # Coverage means an implemented and tested semantic handler, not merely text/IDs.

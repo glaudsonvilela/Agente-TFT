@@ -1,0 +1,18 @@
+{
+  "local_videos": 5,
+  "total_source_hours": 7.008781944444445,
+  "long_vod_seconds": 17390.167,
+  "coarse_vod_frames_reviewed": 57,
+  "vod_scene_counts": {
+    "board": 49,
+    "shared_draft": 4,
+    "lobby": 3,
+    "desktop": 1
+  },
+  "exact_match_boundaries_verified": false,
+  "outcomes_verified": false,
+  "new_online_videos_downloaded": 0,
+  "new_online_videos_used_for_weight_updates": 0,
+  "bilibili_access": "HTTP 412 on page and public metadata endpoint",
+  "source_registry": "configs/training/video-sources-20261004.json"
+}

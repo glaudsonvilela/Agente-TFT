@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "seasonal_attribute_worklist",
+  "set_key": "TFTSet18",
+  "patch": "18.3",
+  "provider_build": "16.19",
+  "source_url": "https://raw.communitydragon.org/16.19/cdragon/tft/pt_br.json",
+  "source_sha256": "1c049e1a5eaabeea5732aa2d8af634c58ff07af97b6dfb4580e3ecf5634d5fa4",
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "geometry_included": false,
+  "models_included": false,
+  "summary": {
+    "champions": 74,
+    "complete_base_stats": 73,
+    "missing_base_stat_fields": 1,
+    "numeric_variable_arrays": 11,
+    "placeholder_dependencies": 351,
+    "dependencies_without_direct_variable": 350,
+    "executable_abilities": 0,
+    "official_observations": 23,
+    "champions_with_official_observations": 17
+  },
+  "current_patch_training_ready": false,
+  "blockers": [
+    "Missing base attributes must be sourced, never filled with zero",
+    "Direct variable names alone do not define formulas, targeting or timing",
+    "Items snapshot is global; numeric effects do not prove set membership",
+    "Combat handlers require source-backed semantics and replay validation"
+  ]
+}

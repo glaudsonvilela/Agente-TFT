@@ -65,3 +65,40 @@ def simulation_coverage(db_path: Path | None):
             'executable_abilities', 'current_patch_training_ready', 'blockers']}
     except (OSError, ValueError, TypeError):
         return None
+
+
+def scene_learning_jobs(db_path: Path | None):
+    """Report heldout errors and artifact integrity without loading the network."""
+    if db_path is None:
+        return []
+    jobs = []
+    for folder in sorted((Path(db_path).parent / 'vision-runs').glob('*'), reverse=True)[:10]:
+        if not folder.is_dir() or folder.is_symlink():
+            continue
+        try:
+            report = small_json(folder / 'report.json')
+            if (not isinstance(report, dict) or report.get('kind') != 'scene_gate_training'
+                    or report.get('scope') != 'board_visible_only'):
+                continue
+            matrix = report.get('confusion_matrix')
+            if (not isinstance(matrix, list) or len(matrix) != 2
+                    or any(not isinstance(r, list) or len(r) != 2 for r in matrix)
+                    or any(not isinstance(v, int) or isinstance(v, bool) or v < 0 for r in matrix for v in r)
+                    or sum(sum(r) for r in matrix) != report.get('holdout_frames')
+                    or matrix[0][0] + matrix[1][1] != report.get('holdout_correct')):
+                continue
+            model = folder / 'scene-gate.onnx'
+            if model.is_symlink() or model.stat().st_size > 2 * 1024 * 1024:
+                continue
+            row = {k: report.get(k) for k in ['status', 'train_frames', 'holdout_frames',
+                'train_matches', 'holdout_matches', 'holdout_correct', 'holdout_accuracy',
+                'confusion_matrix', 'optimizer_steps', 'changed_parameter_tensors',
+                'model_bytes', 'parameter_count', 'inference_cpu_ms_p95', 'timing_scope',
+                'peak_rss_mib', 'training_seconds', 'limitations']}
+            row.update(id=folder.name, runtime_promoted=False, strategic_learning=False,
+                       human_verified=report.get('human_verified') is True,
+                       artifact_verified=hashlib.sha256(model.read_bytes()).hexdigest() == report.get('model_sha256'))
+            jobs.append(row)
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+    return jobs

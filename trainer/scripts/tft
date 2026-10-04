@@ -79,6 +79,9 @@ def render(data: dict) -> str:
         lines.append(f"Laboratório {job['id']}: {job['status']} · {job['matches_completed']} partidas sintéticas completas · {job['combat_calls']} combates")
         lines.append(f"  {job['transitions']} decisões · {job['optimizer_steps']} atualizações · RAM máxima {number(job['peak_rss_mib'])} MiB · CPU {number(job['process_cpu_seconds'])} s")
         lines.append('  Candidato de laboratório; não liberado para dicas do replay.')
+    for job in data.get('scene_learning_jobs', [])[:1]:
+        lines.append(f"Visibilidade do tabuleiro: {job['holdout_correct']}/{job['holdout_frames']} imagens reservadas · {job['confusion_matrix'][0][1]} falsos positivos")
+        lines.append(f"  {job['model_bytes']} bytes · {job['optimizer_steps']} atualizações · experimental, fora do HUD")
     return "\n".join(lines)
 
 

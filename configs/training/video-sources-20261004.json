@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "kind": "training_video_sources",
+  "updated": "2026-10-04",
+  "authorization_basis": "User states creator permission for project training across Bilibili, international YouTube creators and relevant Twitch creators, including full live-stream VODs. User requested autonomous selection of relevant creators. Raw media stays private.",
+  "policies": {
+    "separate_game_variants": [
+      "TFT_PC",
+      "PBE",
+      "Golden_Spatula",
+      "unknown"
+    ],
+    "patch_specific_rules_require_exact_binding": true,
+    "complete_match_holdout": true,
+    "edited_guides_are_not_complete_matches": true,
+    "metadata_is_not_a_training_sample": true,
+    "full_vod_requires_match_boundaries_and_outcomes": true,
+    "cross_platform_same_match_single_group": true
+  },
+  "access_observations": [
+    {
+      "url": "https://www.bilibili.com/video/BV1kYhb6wEtn/",
+      "result": "HTTP 412"
+    },
+    {
+      "url": "https://api.bilibili.com/x/web-interface/view?bvid=BV1kYhb6wEtn",
+      "result": "HTTP 412"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+      "creator": "Wasianiverson VODs",
+      "title": "Tournament Tomorrow! | 4/45 SEDUW | Enchanted Wilds Patch 18.3 VOD | October 1st, 2026",
+      "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+      "source_file": "livelojnga.mp4",
+      "duration_seconds": 17390.167,
+      "resolution": [
+        640,
+        360
+      ],
+      "kind": "full_session",
+      "patch_claim": "18.3",
+      "availability": "local_verified_manifest",
+      "content_review": "sampled",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gziqlVkdUb4",
+      "creator": "BunnyMuffins",
+      "title": "Your Opener Decides EVERYTHING in Patch 18.3b",
+      "source_sha256": "7d6150621f84f99a078b46bc41c242bfabdb3bada65307a0fb27dcc6855c4983",
+      "source_file": "videoplayback 02.mp4",
+      "duration_seconds": 1088.528,
+      "resolution": [
+        640,
+        360
+      ],
+      "kind": "guide_openers",
+      "patch_claim": "18.3B",
+      "availability": "local_verified_manifest",
+      "content_review": "automatic_transcript_available",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_zoANnUPl3c",
+      "creator": "DobZ",
+      "title": "TUDO QUE VOCÊ PRECISA SABER PARA DOMINAR O SET 18 DO TFT | GUIA DE ECONOMIA, FOGOS-FÁTUOS E DICAS!",
+      "source_sha256": "fb82653c864ae792e064ece939132b58d095b6bf17d6c7bcc42edcdb64faeca6",
+      "source_file": "videoplayback.mp4",
+      "duration_seconds": 1531.263,
+      "resolution": [
+        640,
+        360
+      ],
+      "kind": "guide_economy_wisps",
+      "patch_claim": "Set 18; patch not established",
+      "availability": "local_verified_manifest",
+      "content_review": "automatic_transcript_available",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Yez0weG0vr4",
+      "creator": "BrosephTFT",
+      "title": "You're Slamming items TOO EARLY",
+      "source_sha256": "2bcaec95e51f71ec116d7800ae39aa5aaea5c70afa4777ab56a796cddf167a02",
+      "source_file": "videoplayback03.mp4",
+      "duration_seconds": 3981.293,
+      "resolution": [
+        640,
+        360
+      ],
+      "kind": "guide_item_timing",
+      "patch_claim": "patch not established",
+      "availability": "local_verified_manifest",
+      "content_review": "sampled",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dv06BCe_Vug",
+      "creator": "Vladimin TFT",
+      "title": "TFT - MELHORES COMPS DO PATCH 18.3B!",
+      "source_sha256": "d1aef111ed6d6b4f0de054872b45ee5a61e0a99cc2f3b17dfda1d886a5e37ba6",
+      "source_file": "videoplayback04.mp4",
+      "duration_seconds": 1240.364,
+      "resolution": [
+        640,
+        360
+      ],
+      "kind": "guide_patch_comps",
+      "patch_claim": "18.3B",
+      "availability": "local_verified_manifest",
+      "content_review": "automatic_transcript_available",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1kYhb6wEtn/",
+      "creator": "手刃猫咪",
+      "topic": "Patch 18.3 composition discussion",
+      "patch_claim": "18.3",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1V5gZ6LELN/",
+      "creator": "GoDlike_神超",
+      "topic": "Set 18 champions, traits and mechanics",
+      "patch_claim": "S18 preview; exact build unverified",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1rbtM6YEGA/",
+      "creator": "云顶王者课堂",
+      "topic": "Set 18 PC composition guide",
+      "patch_claim": "S18; patch unverified",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV14Qt468EvJ/",
+      "creator": "云顶王者课堂",
+      "topic": "Early Set 18 patch strategy",
+      "patch_claim": "18.1B title claim",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SP20lQatN2c",
+      "creator": "Teamfight Tactics / Frodan",
+      "topic": "Beginner guide including items, economy and positioning",
+      "patch_claim": "2024 guide; not current-patch rules",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=6FurRnITERA",
+      "creator": "BunnyMuffins",
+      "topic": "Fundamentals: economy, tempo, positioning and itemization",
+      "patch_claim": "2024 guide; not current-patch rules",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=mf3lxrDg3B4",
+      "creator": "BunnyMuffins",
+      "topic": "Must Know TFT Fundamentals",
+      "patch_claim": "unverified",
+      "availability": "metadata_index_only",
+      "content_review": "not_viewed",
+      "training_labels_ready": false
+    }
+  ],
+  "creator_discovery_queue": [
+    {
+      "creator": "Wasianiverson",
+      "platform": "twitch",
+      "channel_url": "https://www.twitch.tv/wasianiverson",
+      "status": "channel_identified_vods_not_ingested",
+      "selection_reason": "Full-session source already present through authorized YouTube archive"
+    },
+    {
+      "creator": "Frodan",
+      "platform": "twitch",
+      "channel_url": "https://www.twitch.tv/frodan",
+      "status": "channel_identified_vods_not_ingested",
+      "selection_reason": "Strategy explanation and VOD analysis"
+    },
+    {
+      "creator": "Dishsoap",
+      "platform": "twitch",
+      "channel_url": "https://www.twitch.tv/dishsoap",
+      "status": "channel_identified_vods_not_ingested",
+      "selection_reason": "Competitive match decisions"
+    },
+    {
+      "creator": "Subzeroark",
+      "platform": "twitch",
+      "channel_url": "https://www.twitch.tv/subzeroark",
+      "status": "channel_identified_vods_not_ingested",
+      "selection_reason": "Educational VOD analysis"
+    }
+  ]
+}

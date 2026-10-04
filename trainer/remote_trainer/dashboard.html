@@ -78,6 +78,8 @@
       <div class="row"><span>Último candidato</span><strong id="neural-candidate">—</strong></div>
       <div class="row"><span>Rede de reconhecimento de itens</span><strong id="item-learning">—</strong></div>
       <div class="note" id="item-evaluation">Treino visual e simulações têm contagens próprias.</div>
+      <div class="row"><span>Rede de presença do tabuleiro</span><strong id="scene-learning">Aguardando treino</strong></div>
+      <div class="note" id="scene-evaluation">Avaliação em partida reservada; sem ativação automática.</div>
       <div class="row"><span>Tempo médio por lote concluído</span><strong id="duration">—</strong></div>
       <div class="row"><span>Versão do simulador</span><strong id="sim-version">—</strong></div>
       <div class="row"><span>Versão da política</span><strong id="policy-version">—</strong></div>
@@ -121,6 +123,9 @@
       const response = await fetch("/v1/training/dashboard-metrics", { cache: "no-store" });
       if (!response.ok) throw new Error("servidor indisponível");
       const m = await response.json();
+      const scene = (m.scene_learning_jobs || [])[0];
+      set("scene-learning", scene ? fmt(scene.holdout_correct) + "/" + fmt(scene.holdout_frames) + " imagens · experimental" : "Aguardando treino");
+      set("scene-evaluation", scene ? "Falsos positivos: " + fmt(scene.confusion_matrix[0][1]) + ". " + decimal(scene.model_bytes / 1024) + " KiB; inferência CPU p95 " + decimal(scene.inference_cpu_ms_p95) + " ms (sem captura). " + (scene.artifact_verified ? "Modelo verificado." : "Falha no hash do modelo.") + " Fora das decisões do HUD." : "Avaliação em partida reservada; sem ativação automática.");
       const coverage = m.simulation_coverage;
       set("policy-coverage", coverage ? "Patch " + coverage.patch + ": " + fmt(coverage.champions_with_complete_stats) + "/" + fmt(coverage.champions) + " campeões com atributos completos; " + fmt(coverage.executable_abilities) + " habilidades executáveis. " + (coverage.current_patch_training_ready ? "Cobertura disponível." : "Treino do patch ainda bloqueado por regras incompletas.") : "Cobertura do patch ainda não auditada neste servidor.");
       const policyTable = document.getElementById("policy-jobs");

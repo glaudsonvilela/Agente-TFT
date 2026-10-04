@@ -11,7 +11,7 @@ import pytest
 
 from training.simulator_lab.catalog_sessions import SessionSource, catalog, safe_relative
 from training.simulator_lab.selfplay import gae, run
-from remote_trainer.policy_learning import policy_learning_jobs
+from remote_trainer.policy_learning import policy_learning_jobs, scene_learning_jobs
 
 
 def test_gae_bootstraps_live_player_but_never_a_terminal():
@@ -98,3 +98,21 @@ def test_policy_dashboard_cannot_claim_real_training_and_verifies_hash(tmp_path)
     assert job['matches_completed'] == 3
     checkpoint.write_bytes(b'tampered')
     assert policy_learning_jobs(tmp_path/'trainer.sqlite')[0]['checkpoint_verified'] is False
+
+
+def test_scene_dashboard_preserves_errors_and_detects_tampering(tmp_path):
+    folder = tmp_path/'vision-runs'/'test'; folder.mkdir(parents=True)
+    model = folder/'scene-gate.onnx'; model.write_bytes(b'never executed by status reader')
+    (folder/'report.json').write_text(json.dumps(dict(kind='scene_gate_training',
+        scope='board_visible_only', holdout_correct=40, holdout_frames=53,
+        confusion_matrix=[[19, 13], [0, 21]], runtime_promoted=True,
+        model_sha256=hashlib.sha256(model.read_bytes()).hexdigest())))
+    result = scene_learning_jobs(tmp_path/'trainer.sqlite')[0]
+    assert result['artifact_verified'] is True
+    assert result['runtime_promoted'] is False
+    assert result['confusion_matrix'][0][1] == 13
+    model.write_bytes(b'tampered')
+    assert scene_learning_jobs(tmp_path/'trainer.sqlite')[0]['artifact_verified'] is False
+    (folder/'report.json').write_text(json.dumps(dict(kind='scene_gate_training', scope='board_visible_only',
+                                                     confusion_matrix=[[0], [1, 2]])))
+    assert scene_learning_jobs(tmp_path/'trainer.sqlite') == []

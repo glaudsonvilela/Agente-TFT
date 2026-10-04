@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "kind": "scene_gate_training",
+  "status": "trained_evaluated",
+  "scope": "board_visible_only",
+  "annotation_sha256": "bb2f3ac309bf7d917df7b9dc3de403cd70a15f17adb3ff0155a9aa3c78d79d7d",
+  "review": {
+    "frames": 219,
+    "scenes": {
+      "augment": 3,
+      "board": 133,
+      "desktop": 5,
+      "loading": 30,
+      "lobby": 37,
+      "other": 1,
+      "shared_draft": 10
+    },
+    "frames_with_hud": 3,
+    "frames_with_units": 3,
+    "independent_human_validation": false,
+    "current_patch_training_ready": false
+  },
+  "train_frames": 166,
+  "holdout_frames": 53,
+  "train_matches": 4,
+  "holdout_matches": 1,
+  "split_method": "whole_match_visual_roster_review",
+  "holdout_match": "match-9acfd9af",
+  "input_size": [
+    160,
+    90
+  ],
+  "optimizer_steps": 400,
+  "parameter_count": 5978,
+  "changed_parameter_tensors": 8,
+  "first_25_loss_mean": 0.6204486835002899,
+  "last_25_loss_mean": 0.015061736283823847,
+  "confusion_matrix": [
+    [
+      19,
+      13
+    ],
+    [
+      0,
+      21
+    ]
+  ],
+  "class_order": [
+    "not_board",
+    "board"
+  ],
+  "holdout_correct": 40,
+  "holdout_accuracy": 0.7547169923782349,
+  "onnx_max_absolute_error": 5.7220458984375e-06,
+  "inference_cpu_ms_p50": 0.1716335004857683,
+  "inference_cpu_ms_p95": 0.6180685998060647,
+  "timing_scope": "inference_only_excludes_capture_resize_transport",
+  "model_sha256": "7055384cfe5cda14f654d3e409dd37de939400dd2774dbc82059c6f6ea52ad39",
+  "model_bytes": 25143,
+  "training_seconds": 22.48325887900046,
+  "peak_rss_mib": 449.7890625,
+  "human_verified": false,
+  "strategic_learning": false,
+  "runtime_promoted": false,
+  "limitations": [
+    "Single heldout match; labels reviewed by assistant, not independently by human",
+    "Board visibility does not establish ownership, planning phase or tactical readiness"
+  ]
+}

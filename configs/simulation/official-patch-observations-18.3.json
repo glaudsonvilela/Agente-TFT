@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "kind": "official_patch_observations",
+  "set_key": "TFTSet18",
+  "base_release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "source_url": "https://teamfighttactics.leagueoflegends.com/pt-br/news/game-updates/teamfight-tactics-patch-18-3/",
+  "reviewed_on": "2026-10-04",
+  "review_method": "assistant_read_official_patch_notes",
+  "facts": [
+    {
+      "entity_id": "DA_18_KhaZix",
+      "field": "ability.base_damage",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        265,
+        370,
+        535
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_KhaZix",
+      "field": "ability.isolation_damage",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        285,
+        410,
+        605
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Camille",
+      "field": "ability.damage",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        150,
+        225,
+        375,
+        640
+      ],
+      "star_levels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reported_scale": "AD",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_LeBlanc",
+      "field": "ability.clone_chance",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        10,
+        15,
+        30
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "percent",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Teemo",
+      "field": "ability.small_mushroom_damage",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        55,
+        82,
+        130
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Ashe",
+      "field": "ability.trail_duration",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        3
+      ],
+      "star_levels": null,
+      "reported_scale": "seconds_scalar",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Ashe",
+      "field": "ability.damage_per_second",
+      "patch": "18.3B",
+      "effective_date": "2026-09-24",
+      "values": [
+        9,
+        14
+      ],
+      "star_levels": [
+        1,
+        2
+      ],
+      "reported_scale": "AD",
+      "formula_binding": null,
+      "source_section": "24 DE SETEMBRO",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_Karma18",
+      "field": "ability.explosion_damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        125,
+        185,
+        300,
+        515
+      ],
+      "star_levels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Veigar",
+      "field": "ability.base_damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        200,
+        300,
+        450,
+        765
+      ],
+      "star_levels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Veigar",
+      "field": "ability.empowered_damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        300,
+        450,
+        675,
+        1015
+      ],
+      "star_levels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reported_scale": "scaling_not_explicit",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Alistar",
+      "field": "ability.heal",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        230,
+        300,
+        400
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Alistar",
+      "field": "ability.damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        180,
+        270,
+        420
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_Gromp18_AP",
+      "field": "ability.AP_form_dot_damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        175,
+        265,
+        410
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_Murkwolf18",
+      "field": "ability.empowered_attack_damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        65,
+        100,
+        160
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AD",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Warwick",
+      "field": "ability.damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        230,
+        345,
+        535
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "AD",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Warwick",
+      "field": "ability.heal_ratio",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        25
+      ],
+      "star_levels": null,
+      "reported_scale": "percent_scalar",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Azir",
+      "field": "ability.damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        46,
+        69,
+        110
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "scaling_not_explicit",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Cassiopeia",
+      "field": "ability.damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        425,
+        630,
+        1020
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "scaling_not_explicit",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Rammus",
+      "field": "ability.shield",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        400,
+        550,
+        725
+      ],
+      "star_levels": [
+        1,
+        2,
+        3
+      ],
+      "reported_scale": "scaling_not_explicit",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_18_Lillia",
+      "field": "ability.heal",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        350,
+        525
+      ],
+      "star_levels": [
+        1,
+        2
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_Nidalee18_AP",
+      "field": "ability.AP_form_third_attack_damage",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        330,
+        500
+      ],
+      "star_levels": [
+        1,
+        2
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_Taric18",
+      "field": "ability.passive_shield",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        75,
+        150
+      ],
+      "star_levels": [
+        1,
+        2
+      ],
+      "reported_scale": "fixed",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    },
+    {
+      "entity_id": "DA_Taric18",
+      "field": "ability.heal",
+      "patch": "18.3",
+      "effective_date": "2026-09-22",
+      "values": [
+        275,
+        450
+      ],
+      "star_levels": [
+        1,
+        2
+      ],
+      "reported_scale": "AP",
+      "formula_binding": null,
+      "source_section": "UNIDADES",
+      "semantics_verified_for_execution": false
+    }
+  ],
+  "availability": [
+    {
+      "name": "Polimorfia Maior",
+      "kind": "wisp",
+      "enabled": false,
+      "effective_date": "2026-09-28",
+      "valid_until_patch": "18.4"
+    }
+  ],
+  "policy": "Supplementary observations only. Preserve published star coverage. AP/AD values are not executable formulas. Do not overwrite sealed release or extrapolate unreported stars.",
+  "runtime_promoted": false
+}

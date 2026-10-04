@@ -28,7 +28,7 @@ from .schemas import (
 )
 from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
 from .resources import ResourceSampler
-from .policy_learning import policy_learning_jobs, simulation_coverage
+from .policy_learning import policy_learning_jobs, simulation_coverage, scene_learning_jobs
 
 
 def unix_ms() -> int:
@@ -225,6 +225,7 @@ def create_app(
         snapshot["neural_experiments"] = experiments
         snapshot["item_learning_jobs"] = item_learning_jobs(app.state.store.db_path)
         snapshot["policy_learning_jobs"] = policy_learning_jobs(app.state.store.db_path)
+        snapshot["scene_learning_jobs"] = scene_learning_jobs(app.state.store.db_path)
         snapshot["simulation_coverage"] = simulation_coverage(app.state.store.db_path)
         snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)
         snapshot["resources"] = app.state.resources.sample()
