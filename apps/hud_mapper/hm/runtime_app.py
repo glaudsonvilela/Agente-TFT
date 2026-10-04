@@ -98,7 +98,14 @@ class App:
         if self.hm4:
             from .voice import VoiceCoach
             self.voice=VoiceCoach()
-        root.title("Agente TFT — "+("Revisão de replay" if self.hm4 else "HM3 Runtime"));root.geometry("1500x950" if self.hm4 else "1440x900");root.minsize(1120,760);root.configure(bg="#f6f3ff" if self.hm4 else "#101820")
+        root.title("Agente TFT — "+("Revisão de replay" if self.hm4 else "HM3 Runtime"))
+        if self.hm4:
+            width=min(1440,max(960,root.winfo_screenwidth()-60))
+            height=min(900,max(600,root.winfo_screenheight()-90))
+            root.geometry(f'{width}x{height}');root.minsize(960,600)
+        else:
+            root.geometry('1440x900');root.minsize(1120,760)
+        root.configure(bg="#f6f3ff" if self.hm4 else "#101820")
         style=ttk.Style(root);style.theme_use("clam")
         if self.hm4:
             for name in ("TFrame","TLabel","TLabelframe","TLabelframe.Label"):
@@ -123,12 +130,13 @@ class App:
         self.voice_enabled=tk.BooleanVar(value=bool(self.voice and self.voice.voices and os.name=="nt"))
         self.voice_choice=tk.StringVar(value=self.voice.voices.get(self.voice.voice_id, "Sem vozes instaladas") if self.voice else "")
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
+        self.compact=tk.BooleanVar(value=False);self.compact_panels=[]
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
         if self.hm4:
             from PIL import Image
             hero_path=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[1]))/"assets/hm4-replay-hero-v1.png"
             self.hero_source=Image.open(hero_path).convert("RGB") if hero_path.is_file() else None
-            self.hero=tk.Canvas(outer,height=155,bg="#eee8ff",highlightthickness=0)
+            self.hero=tk.Canvas(outer,height=100,bg="#eee8ff",highlightthickness=0)
             self.hero.pack(fill="x",pady=(0,10))
             self.hero.bind("<Configure>",self.render_hero)
         else:
@@ -142,7 +150,7 @@ class App:
         line=ttk.Frame(outer);line.pack(fill="x",pady=4)
         if self.hm4:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
-            ttk.Label(line,text=("Visão neural diagnóstica: "+Path(auto).parent.name if auto else "Visão neural indisponível; leitores nativos ativos.")).pack(side="left")
+            ttk.Label(line,text=("Visão neural: diagnóstico ativo" if auto else "Leitores nativos ativos")).pack(side="left")
             ttk.Checkbutton(line,text="Analisar replay (HUB + orientações)",variable=self.replay_review).pack(side="left",padx=8)
             ttk.Checkbutton(line,text="Narrar orientações",variable=self.voice_enabled,
                             command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
@@ -151,10 +159,14 @@ class App:
                                           values=tuple(self.voice.voices.values()))
             self.voice_picker.pack(side="left",padx=3)
             self.voice_picker.bind("<<ComboboxSelected>>",self.choose_voice)
-            ttk.Button(line,text="Testar voz",command=self.test_voice).pack(side="left",padx=2)
-            ttk.Button(line,text="Calibrar tabuleiro",command=self.calibrate_board).pack(side="right",padx=4)
-            ttk.Button(line,text="INICIAR",command=self.start).pack(side="right",padx=8)
-            ttk.Button(line,text="ENCERRAR",command=self.stop).pack(side="right")
+            actions=ttk.Frame(outer);actions.pack(fill='x',pady=(0,3))
+            self.actions_bar=actions
+            self.compact_panels=[(widget,widget.pack_info()) for widget in (self.hero,source,line)]
+            ttk.Checkbutton(actions,text='Priorizar vídeo e dicas',variable=self.compact,
+                            command=self.compact_view).pack(side='left',padx=4)
+            ttk.Button(actions,text="Calibrar tabuleiro",command=self.calibrate_board).pack(side="left",padx=4)
+            ttk.Button(actions,text="INICIAR",command=self.start).pack(side="right",padx=8)
+            ttk.Button(actions,text="ENCERRAR",command=self.stop).pack(side="right")
         else:
             self.file_row(outer,"Modelo L2/L3 (deployment-candidate.json)",self.model)
             self.file_row(outer,"Pasta dos resultados",self.dest,True)
@@ -226,8 +238,14 @@ class App:
             self.hero.create_image(0,0,image=self.hero_photo,anchor="nw")
         self.hero.create_text(34,48,text="A G E N T E   T F T",anchor="w",font=("Segoe UI",27,"bold"),fill="#262047")
         self.hero.create_text(36,89,text="R E V I S Ã O   D E   R E P L A Y",anchor="w",font=("Segoe UI",11,"bold"),fill="#6545b4")
-        self.hero.create_text(36,118,text="Assista ao vídeo, confira as evidências e meça o atraso das dicas.",anchor="w",font=("Segoe UI",10),fill="#40375e")
-        self.hero.create_line(36,145,280,145,fill="#896bd0",width=2)
+
+    def compact_view(self):
+        for widget,options in self.compact_panels:
+            if self.compact.get():
+                widget.pack_forget()
+            else:
+                restored={k:v for k,v in options.items() if k!='in'}
+                widget.pack(before=self.actions_bar,**restored)
 
     def file_row(self,parent,label,var,directory=False):
         from tkinter import ttk,filedialog
@@ -290,6 +308,8 @@ class App:
             else:
                 message += "Nenhum áudio, tecla, input automation ou dica estratégica é executado."
             if not messagebox.askyesno("Confirmar captura",message):return
+            if self.hm4:
+                self.compact.set(True);self.compact_view()
             prefix="hm4" if self.hm4 else "hm3"
             output=self.smoke_output or str(Path(self.dest.get())/(prefix+"-"+datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
             uri=f'capture://{self.selection["kind"]}/{self.selection["id"]}'
@@ -304,8 +324,7 @@ class App:
                 replay_review=self.hm4 and self.replay_review.get(),
                 board_hub_enabled=self.hm4 and self.replay_review.get(),
                 vm_core=self.vm_core,native_preview=self.hm4,preview_hz=30,
-                preview_width=max(160,min(1280,self.canvas.winfo_width()-8)),
-                preview_height=max(90,min(720,self.canvas.winfo_height()-8)),
+                preview_width=1280,preview_height=720,
                 max_samples=90 if self.vm_core else 600,
                 max_bytes=384*1024**2 if self.vm_core else 1024**3,
                 capture_consent=True,capture_expected=self.selection)).start()
@@ -535,7 +554,7 @@ class App:
                 while self.voice.events:
                     s.store.emit('telemetry',self.voice.events.popleft())
             if tip:
-                key=((tip.get("frame_id"),tip.get("text")) if tip.get("actionable")
+                key=((tip.get("decision_key") or tip.get('speech_text'),tip.get("text")) if tip.get("actionable")
                      else (tip.get("status"),tip.get("text")))
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
