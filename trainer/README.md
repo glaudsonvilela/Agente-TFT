@@ -212,7 +212,35 @@ público por projeto: **não é uma licença ou prova de identidade**. Há limit
 de criação de sessões, uma síntese por vez, 6 falas/minuto por instalação,
 120/dia e reserva global de 20.000 caracteres por 24 horas. IDs de instalação
 não são identidades fortes; o orçamento global limita consumo mesmo se forem
-trocados. Erros também consomem a reserva; orçamento não é estimativa de preço.
+trocados. Falhas em tentativas de síntese também consomem a reserva;
+orçamento não é estimativa de preço. Áudios encontrados no cache não reservam
+caracteres, mas continuam exigindo sessão e respeitando os limites de requisições.
+
+### Cache persistente de frases
+
+O serviço guarda o PCM validado em `/data/voice-audio.sqlite3`, no volume Docker,
+com até 512 entradas e 64 MiB de áudio (mais a estrutura do SQLite). Cada áudio
+expira após 30 dias; o cache remove os menos usados recentemente quando atinge
+o limite. Apenas o áudio solicitado é carregado em memória.
+
+A chave do cache inclui o texto exato, voz, modelo, idioma, formato e revisão
+dos parâmetros. Portanto, uma nova voz/modelo não reutiliza a gravação anterior.
+Mudanças futuras de pronúncia/configuração devem atualizar `cache_identity()`.
+Não são salvos texto legível nem credenciais nos metadados; o próprio áudio pode
+conter informações narradas, por isso o volume deve permanecer privado.
+
+Frases fixas, como boas-vindas e instruções recorrentes, são geradas uma vez
+e reutilizadas entre sessões, instalações e reinicializações enquanto a entrada
+permanecer válida. Não há geração antecipada paga de frases que talvez não sejam
+usadas. Textos diferentes são sintetizados normalmente. A decisão de quando
+falar permanece no cliente; um áudio em cache não torna uma dica aplicável.
+
+`/health` informa `audio_cache.entries`, `audio_bytes`, `hits` e
+`characters_reused`; o último conta caracteres que deixaram de ser enviados
+novamente ao provedor, não créditos ou dinheiro. `/v1/voice` informa
+`X-TFT-Voice-Cache: hit|miss`. Áudio corrompido ou expirado é descartado;
+falha de leitura do armazenamento interrompe a solicitação para evitar novas
+chamadas pagas em sequência.
 
 O histórico exige um adaptador `fetch(nickname, region, patch, set_key, limit)`
 que devolva identidade exata, fonte, data e partidas normalizadas. Sem adaptador,

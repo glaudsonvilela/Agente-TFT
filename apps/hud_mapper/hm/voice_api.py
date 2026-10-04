@@ -8,6 +8,8 @@ import time
 import wave
 
 MODEL='eleven_flash_v2_5'
+LANGUAGE='pt'
+OUTPUT_FORMAT='pcm_22050'
 MAX_AUDIO=2*1024*1024
 
 
@@ -27,6 +29,11 @@ class ElevenLabsSpeech:
         self._key=api_key;self.voice_id=validate_voice_id(voice_id)
         self.connection_factory=connection_factory;self.cache=OrderedDict()
         self.closed=False;self.connection=None;self.last_metrics={}
+
+    def cache_identity(self):
+        # Bump revision when pronunciation dictionaries or voice settings change.
+        return dict(provider='elevenlabs',voice_id=self.voice_id,model=MODEL,
+                    language=LANGUAGE,output_format=OUTPUT_FORMAT,revision=1)
 
     def synthesize(self,text):
         if self.closed:raise SpeechError('Cliente de voz encerrado.')
@@ -76,8 +83,8 @@ class ElevenLabsSpeech:
     def open_request(self,text):
         connection=self.connection_factory('api.elevenlabs.io',timeout=2)
         self.connection=connection
-        body=json.dumps(dict(text=text,model_id=MODEL,language_code='pt')).encode('utf-8')
-        connection.request('POST',f'/v1/text-to-speech/{self.voice_id}?output_format=pcm_22050',body,
+        body=json.dumps(dict(text=text,model_id=MODEL,language_code=LANGUAGE)).encode('utf-8')
+        connection.request('POST',f'/v1/text-to-speech/{self.voice_id}?output_format={OUTPUT_FORMAT}',body,
                            {'xi-api-key':self._key,'Content-Type':'application/json','Accept':'audio/pcm'})
         return connection
 

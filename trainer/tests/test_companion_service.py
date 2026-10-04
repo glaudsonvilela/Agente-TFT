@@ -23,10 +23,10 @@ class CompanionServiceTests(unittest.TestCase):
         self.assertFalse(self.client.get('/health').json()['riot_integration'])
     def test_budget_survives_restart_and_new_device(self):
         token=self.session()
-        request=lambda t:self.client.post('/v1/voice',json={'text':'x'*20},headers={'Authorization':'Bearer '+t})
-        self.assertEqual(request(token).status_code,200)
+        request=lambda t,text:self.client.post('/v1/voice',json={'text':text},headers={'Authorization':'Bearer '+t})
+        self.assertEqual(request(token,'x'*20).status_code,200)
         self.client=TestClient(create_app(client=mock_client(),db_path=self.path,daily_characters=30))
-        self.assertEqual(request(self.session()).status_code,429)
+        self.assertEqual(request(self.session(),'y'*20).status_code,429)
     def test_malformed_request_and_registration_limit(self):
         self.assertEqual(self.client.post('/v1/session',json={'installation_id':'bad'}).status_code,422)
         self.assertEqual(self.client.post('/v1/voice',json={'text':'x'*501}).status_code,422)

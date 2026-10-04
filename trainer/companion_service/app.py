@@ -19,6 +19,7 @@ from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from hm.voice_api import ElevenLabsSpeech, SpeechError
+from .audio_cache import AudioCache
 
 
 class SessionRequest(BaseModel):
@@ -80,7 +81,7 @@ class Budget:
             count=db.execute('SELECT count(*) FROM usage WHERE device=? AND created>?',(device,now-60)).fetchone()[0]
             daily=db.execute('SELECT count(*) FROM usage WHERE device=? AND created>?',(device,now-86400)).fetchone()[0]
             total=db.execute('SELECT coalesce(sum(characters),0) FROM usage WHERE created>?',(now-86400,)).fetchone()[0]
-            if count>=6 or daily>=120 or total+characters>self.daily_characters:
+            if count>=6 or daily>=120 or (characters and total+characters>self.daily_characters):
                 raise HTTPException(429,'Voice service budget reached')
             db.execute('INSERT INTO usage VALUES(?,?,?)',(device,now,characters))
 
@@ -88,6 +89,7 @@ class Budget:
 def create_app(*,client=None,db_path=None,daily_characters=20000, history_provider=None, active_release=None):
     app=FastAPI(title='Agente TFT — voz',docs_url=None,redoc_url=None)
     budget=Budget(db_path or os.environ.get('TFT_VOICE_DB','data/voice.sqlite3'),daily_characters)
+    audio_cache=AudioCache(Path(budget.path).with_name('voice-audio.sqlite3'))
     # One shared client/cache, no growing collection of provider engines or threads.
     lock=threading.Lock()
     history_lock=threading.Lock()
@@ -102,7 +104,8 @@ def create_app(*,client=None,db_path=None,daily_characters=20000, history_provid
         client=ElevenLabsSpeech(key,voice) if key and voice else None
 
     @app.get('/health')
-    def health():return dict(voice_configured=client is not None,provider='elevenlabs',riot_integration=False)
+    def health():return dict(voice_configured=client is not None,provider='elevenlabs',
+                            riot_integration=False,audio_cache=audio_cache.stats())
 
     @app.post('/v1/session')
     def session(body:SessionRequest,request:Request):
@@ -154,15 +157,28 @@ def create_app(*,client=None,db_path=None,daily_characters=20000, history_provid
         if not authorization or not authorization.startswith('Bearer '):raise HTTPException(401,'Session required')
         if not lock.acquire(blocking=False):raise HTTPException(429,'Voice service busy')
         try:
-            budget.reserve(authorization[7:],len(body.text))
-            wav=client.synthesize(body.text)
-            with wave.open(io.BytesIO(wav),'rb') as audio:
-                if (audio.getnchannels(),audio.getsampwidth(),audio.getframerate())!=(1,2,22050):
-                    raise SpeechError('Unsupported audio')
-                pcm=audio.readframes(audio.getnframes())
-            return Response(pcm,media_type='audio/pcm',headers={'Cache-Control':'no-store'})
+            key=audio_cache.key(client.cache_identity(),body.text)
+            pcm=audio_cache.get(key)
+            cached=pcm is not None
+            # Cache hits still require a valid session and count toward rate limits.
+            budget.reserve(authorization[7:],0 if cached else len(body.text))
+            if cached:
+                audio_cache.record_hit(len(body.text))
+            else:
+                wav=client.synthesize(body.text)
+                with wave.open(io.BytesIO(wav),'rb') as audio:
+                    if (audio.getnchannels(),audio.getsampwidth(),audio.getframerate())!=(1,2,22050):
+                        raise SpeechError('Unsupported audio')
+                    pcm=audio.readframes(audio.getnframes())
+                if not pcm or len(pcm)%2:raise SpeechError('Incomplete audio')
+                audio_cache.put(key,pcm)
+            return Response(pcm,media_type='audio/pcm',headers={
+                'Cache-Control':'no-store','X-TFT-Voice-Cache':'hit' if cached else 'miss'})
         except SpeechError:
             raise HTTPException(502,'Voice provider unavailable') from None
+        except sqlite3.Error:
+            # Avoid repeated provider spending if persistent storage is unavailable.
+            raise HTTPException(503,'Voice cache storage unavailable') from None
         finally:lock.release()
     return app
 
