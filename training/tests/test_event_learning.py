@@ -24,7 +24,11 @@ class ValueLearning(unittest.TestCase):
             ),
             Player(0, 1, 0),
         ]
-        values = encode(teams, ["unit"], ["rod", "sword"]).reshape(2, 4, 7, 4)
+        values = (
+            encode(teams, ["unit"], ["rod", "sword"])
+            .reshape(2, -1)[:, :-2]
+            .reshape(2, 4, 7, 4)
+        )
         np.testing.assert_allclose(values[0, 3, 6], [1, 2 / 3, 1 / 3, 0])
         self.assertEqual(np.count_nonzero(values[1]), 0)
 
@@ -41,7 +45,7 @@ class ValueLearning(unittest.TestCase):
             ),
             Player(0, 1, 0),
         ]
-        values = encode(teams, ["unit"], []).reshape(2, 4, 7, 2)
+        values = encode(teams, ["unit"], []).reshape(2, -1)[:, :-2].reshape(2, 4, 7, 2)
         self.assertEqual(values[0, :, :, 0].sum(), 2)
         self.assertEqual(values[0, 0, 0, 0], 1)
         self.assertEqual(values[0, 3, 6, 0], 1)

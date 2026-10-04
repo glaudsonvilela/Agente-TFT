@@ -1,0 +1,728 @@
+{
+  "schema_version": 1,
+  "kind": "compiled_strategy_dependency_audit",
+  "knowledge_patch": "18.3B-20260928",
+  "executable_patch": "18.3B-20260928",
+  "patch_label_match": true,
+  "exact_patch_match": false,
+  "revision_reconciliation": "partial",
+  "diagnostic_stage": 4,
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "bindings_sha256": "d1b55970366ab27918318d580ead018d54e7b67336f7854dfbc0254c67172339",
+  "absent_content_sections": [
+    "match_rules",
+    "wisps",
+    "persistent_rules"
+  ],
+  "implemented_augment_count": 0,
+  "planning_status": "ordinary_shop_probe_only",
+  "unresolved_planning_dependencies": [
+    "wisp_offerings_and_purchase",
+    "seasonal_shop_replacement_and_priority",
+    "cross_form_selection_and_merge",
+    "seasonal_calendar_and_loot"
+  ],
+  "combat_coverage": {
+    "abilities": {
+      "scope": {
+        "catalog_entries": 74,
+        "alternate_forms_outside_catalog": [
+          {
+            "identity": "Akali",
+            "form": "AP",
+            "status": "blocked",
+            "reason": "formula and form selection not bound"
+          },
+          {
+            "identity": "Gromp",
+            "form": "AD",
+            "status": "blocked",
+            "reason": "formula and form selection not bound"
+          },
+          {
+            "identity": "KogMaw",
+            "form": "AP",
+            "status": "blocked",
+            "reason": "formula and form selection not bound"
+          },
+          {
+            "identity": "MasterYi",
+            "form": "AP",
+            "status": "blocked",
+            "reason": "formula and form selection not bound"
+          },
+          {
+            "identity": "Nidalee",
+            "form": "AD",
+            "status": "blocked",
+            "reason": "formula and form selection not bound"
+          }
+        ],
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "four_star_coverage_complete": false
+      },
+      "total": 74,
+      "inventoried": 74,
+      "candidate_programs": 31,
+      "replay_validated": 0,
+      "blocked": {
+        "DA_18_Sentry": [
+          "continuous mana-drain channel",
+          "Teal seasonal buff"
+        ],
+        "DA_18_Leona": [
+          "armor-scaling coefficient",
+          "12-second resistance decay"
+        ],
+        "DA_18_Ornn": [
+          "cone geometry",
+          "blocked-damage forge progression and artifact rewards"
+        ],
+        "DA_18_Rakan": [
+          "decaying attack-speed curve and most-damage ally tie-break"
+        ],
+        "DA_Cinderling18": [
+          "AD/AP split for five leaves",
+          "Scarlet buff association"
+        ],
+        "DA_18_Yorick": [
+          "Spirit Walker statistics and taunt",
+          "physical damage AD coefficient"
+        ],
+        "DA_18_Alistar": [
+          "heal HP/AP split",
+          "cleanse ordering and allied heal targeting"
+        ],
+        "DA_Scuttlecrab18": [
+          "cleave attacks",
+          "Green buff proc limits"
+        ],
+        "DA_18_Elise": [
+          "decaying AS curve",
+          "spider-form attack heal timing"
+        ],
+        "DA_Gromp18_AP": [
+          "AD adaptor form",
+          "Purple buff scaling and collision selection"
+        ],
+        "DA_18_Kayle": [
+          "missing base attack damage in sealed catalog",
+          "star-dependent ascension and wave geometry"
+        ],
+        "DA_18_LeBlanc": [
+          "copy reward timing/pool/bench priority",
+          "18.3 versus 18.3B copy chance"
+        ],
+        "DA_Murkwolf18": [
+          "inconsistent rendered leap totals",
+          "Grey buff critical scaling"
+        ],
+        "DA_18_Sejuani": [
+          "HP/AP shield coefficients",
+          "cone plus line overlap"
+        ],
+        "DA_18_Teemo": [
+          "18.3 versus 18.3B mushroom damage",
+          "foraged mushroom probabilities and collection rewards"
+        ],
+        "DA_18_Yunara": [
+          "AD/AP coefficient split",
+          "dash position and split-projectile targeting"
+        ],
+        "DA_18_KhaZix": [
+          "18.3 versus 18.3B damage",
+          "isolation and leap geometry",
+          "Rivals augment override"
+        ],
+        "DA_KogMaw18_AD": [
+          "AD damage coefficient",
+          "AP adaptor DOT form"
+        ],
+        "DA_Krug18": [
+          "Kruglette statistics and taunt",
+          "HP/AD scaling split",
+          "Slate death shield"
+        ],
+        "DA_CrimsonRaptor18": [
+          "Tiny Beak damage coefficient and ownership",
+          "Orange buff armor reduction"
+        ],
+        "DA_18_MasterYi_AD": [
+          "AP adaptor form",
+          "double-strike timing and takedown movement"
+        ],
+        "DA_18_Rammus": [
+          "reflection damage scaling",
+          "taunt and shield-break ordering"
+        ],
+        "DA_18_Rengar": [
+          "AD coefficient",
+          "missing-health healing multiplier"
+        ],
+        "DA_18_Tristana": [
+          "AD coefficients",
+          "bomb transfer and attack counter"
+        ],
+        "DA_Amumu18": [
+          "passive regeneration HP coefficient",
+          "burn stun multiplier"
+        ],
+        "DA_18_Aphelios": [
+          "AD coefficients",
+          "AS-dependent swipe count",
+          "split explosion"
+        ],
+        "DA_Sentinel18": [
+          "HP/AP shield split",
+          "knockup line and mana reave",
+          "Blue buff"
+        ],
+        "DA_18_Ezreal": [
+          "AD coefficients",
+          "fourth cast consumes accumulated ability AS",
+          "blink geometry"
+        ],
+        "DA_18_Lillia": [
+          "damage-triggered sleep wake",
+          "butterfly allocation"
+        ],
+        "DA_18_Malphite": [
+          "armor/AP wave scaling",
+          "shield-break and petrification"
+        ],
+        "DA_18_Morgana": [
+          "curse stacking damage semantics",
+          "moving versus fixed damage zone"
+        ],
+        "DA_Brambleback18": [
+          "AD coefficients",
+          "leap on target death",
+          "Red buff burn and heal"
+        ],
+        "DA_18_Sett": [
+          "heal HP/AP and damage AD/HP split",
+          "cast windup interruption"
+        ],
+        "DA_18_Sivir": [
+          "AD coefficients",
+          "bounce path and kill extensions"
+        ],
+        "DA_18_Zyra": [
+          "plant spawn geometry and attack cadence",
+          "summon targetability and owner-scaling snapshot"
+        ],
+        "DA_18_Alune": [
+          "moon phase state and progression",
+          "full-moon damage allocation"
+        ],
+        "DA_18_Ashe": [
+          "AD and target-HP split",
+          "18.3 versus 18.3B trail values"
+        ],
+        "DA_18_ElderDragon": [
+          "transform sequence and breath coefficients",
+          "landing geometry and ignite",
+          "Elder execute buff"
+        ],
+        "DA_Draven18": [
+          "AD coefficients",
+          "random target attacks",
+          "bleed consumption and outbound/return collisions"
+        ],
+        "DA_18_GnarSmall": [
+          "rage instead of normal mana",
+          "Mega form displacement and lone-enemy execution"
+        ],
+        "DA_18_Kennen": [
+          "dynamic AP per burning enemy",
+          "dash geometry and split firestorm"
+        ],
+        "DA_18_Maokai": [
+          "blocked-damage threshold and sapling statistics",
+          "HP scaling in heal and damage"
+        ],
+        "DA_Taric18": [
+          "paired-ally identity and trigger",
+          "shield HP/flat split conflicts with official patch",
+          "paired empowered attacks"
+        ]
+      },
+      "role_integration_pending": [
+        "DA_18_Hecarim",
+        "DA_18_Kobuko",
+        "DA_18_RekSai",
+        "DA_18_Shen",
+        "DA_Fiddlesticks18",
+        "DA_Vi18"
+      ],
+      "all_abilities_ready": false
+    },
+    "champions": {
+      "total": 74,
+      "candidate_effects": 25,
+      "replay_validated": 0,
+      "missing_handlers": [
+        "DA_18_Alistar",
+        "DA_18_Alune",
+        "DA_18_Aphelios",
+        "DA_18_Ashe",
+        "DA_18_ElderDragon",
+        "DA_18_Elise",
+        "DA_18_Ezreal",
+        "DA_18_GnarSmall",
+        "DA_18_Hecarim",
+        "DA_18_Kayle",
+        "DA_18_Kennen",
+        "DA_18_KhaZix",
+        "DA_18_Kobuko",
+        "DA_18_LeBlanc",
+        "DA_18_Leona",
+        "DA_18_Lillia",
+        "DA_18_Malphite",
+        "DA_18_Maokai",
+        "DA_18_MasterYi_AD",
+        "DA_18_Morgana",
+        "DA_18_Ornn",
+        "DA_18_Rakan",
+        "DA_18_Rammus",
+        "DA_18_RekSai",
+        "DA_18_Rengar",
+        "DA_18_Sejuani",
+        "DA_18_Sentry",
+        "DA_18_Sett",
+        "DA_18_Shen",
+        "DA_18_Sivir",
+        "DA_18_Teemo",
+        "DA_18_Tristana",
+        "DA_18_Yorick",
+        "DA_18_Yunara",
+        "DA_18_Zyra",
+        "DA_Amumu18",
+        "DA_Brambleback18",
+        "DA_Cinderling18",
+        "DA_CrimsonRaptor18",
+        "DA_Draven18",
+        "DA_Fiddlesticks18",
+        "DA_Gromp18_AP",
+        "DA_KogMaw18_AD",
+        "DA_Krug18",
+        "DA_Murkwolf18",
+        "DA_Scuttlecrab18",
+        "DA_Sentinel18",
+        "DA_Taric18",
+        "DA_Vi18"
+      ]
+    },
+    "traits": {
+      "total": 36,
+      "candidate_effects": 12,
+      "replay_validated": 0,
+      "tier_total": 91,
+      "candidate_tiers": 36,
+      "partial_handlers": [
+        "DA_18_Executioner",
+        "DA_18_Inferno"
+      ],
+      "missing_handlers": [
+        "DA_18_Adaptor",
+        "DA_18_ApexPredator",
+        "DA_18_Blackthorn",
+        "DA_18_Blossom",
+        "DA_18_Coven",
+        "DA_18_Eclipse",
+        "DA_18_Elderwood",
+        "DA_18_Executioner",
+        "DA_18_Fae",
+        "DA_18_Greenfather",
+        "DA_18_Inferno",
+        "DA_18_Lunar",
+        "DA_18_LuxUniqueTrait",
+        "DA_18_Maokai_UniqueTrait",
+        "DA_18_Rival",
+        "DA_18_Solar",
+        "DA_18_Sprykin",
+        "DA_18_Summoner",
+        "DA_18_ZyraUniqueTrait",
+        "DA_AluneUniqueTrait18",
+        "DA_DravenUniqueTrait18",
+        "DA_Emerald18",
+        "DA_Primal18",
+        "DA_Riftbeast18"
+      ]
+    },
+    "items": {
+      "global_catalog_total": 3444,
+      "set_membership_verified": false,
+      "candidate_effects": 27,
+      "replay_validated": 0
+    }
+  },
+  "findings": [
+    {
+      "strategy_id": "ravager-flex",
+      "diagnostic_core": [
+        "DA_18_Akali_AD",
+        "DA_18_Camille",
+        "DA_18_Shen"
+      ],
+      "unsupported_units": [
+        "DA_18_Shen"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Adaptor",
+        "DA_18_Coven",
+        "DA_18_Defender",
+        "DA_18_Inferno",
+        "DA_18_Slayer"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "champion handler unavailable: DA_18_Shen",
+      "seasonal_dependencies": [
+        "adaptor_lux",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "blossom-ap",
+      "diagnostic_core": [
+        "DA_Karma18",
+        "DA_18_Yorick",
+        "DA_18_Yunara"
+      ],
+      "unsupported_units": [
+        "DA_18_Yorick",
+        "DA_18_Yunara"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Blossom",
+        "DA_18_Executioner",
+        "DA_18_Spellweaver",
+        "DA_18_Summoner",
+        "DA_Juggernaut18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Blossom",
+      "seasonal_dependencies": [
+        "wisps",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "veigar-reroll",
+      "diagnostic_core": [
+        "DA_18_Veigar",
+        "DA_18_Ornn",
+        "DA_18_Kobuko"
+      ],
+      "unsupported_units": [
+        "DA_18_Ornn",
+        "DA_18_Kobuko"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Brawler",
+        "DA_18_Defender",
+        "DA_18_Elderwood",
+        "DA_18_Spellweaver",
+        "DA_18_Sprykin"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "champion handler unavailable: DA_18_Ornn",
+      "seasonal_dependencies": [
+        "elderwood",
+        "sprykin",
+        "blackthorn",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "khazix-early",
+      "diagnostic_core": [
+        "DA_18_KhaZix",
+        "DA_18_Hecarim",
+        "DA_Fiddlesticks18"
+      ],
+      "unsupported_units": [
+        "DA_18_KhaZix",
+        "DA_18_Hecarim",
+        "DA_Fiddlesticks18"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Defender",
+        "DA_18_Elderwood",
+        "DA_18_Rival",
+        "DA_18_Spellweaver",
+        "DA_18_Vanguard",
+        "DA_FloraFatalis18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Rival",
+      "seasonal_dependencies": [
+        "rival",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "coven-cashout",
+      "diagnostic_core": [
+        "DA_18_Camille",
+        "DA_18_Caitlyn",
+        "DA_18_Elise"
+      ],
+      "unsupported_units": [
+        "DA_18_Elise"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Coven",
+        "DA_18_Hunter",
+        "DA_18_Slayer",
+        "DA_18_Vanguard"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Coven",
+      "seasonal_dependencies": [
+        "coven",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "ashe-fast9",
+      "diagnostic_core": [
+        "DA_18_Ashe",
+        "DA_18_Sejuani",
+        "DA_Draven18"
+      ],
+      "unsupported_units": [
+        "DA_18_Ashe",
+        "DA_18_Sejuani",
+        "DA_Draven18"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Blossom",
+        "DA_18_Hunter",
+        "DA_18_Solar",
+        "DA_DravenUniqueTrait18",
+        "DA_Juggernaut18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_DravenUniqueTrait18",
+      "seasonal_dependencies": [
+        "bounty",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "solar-highroll",
+      "diagnostic_core": [
+        "DA_18_Leona",
+        "DA_18_Kayle",
+        "DA_18_Sejuani"
+      ],
+      "unsupported_units": [
+        "DA_18_Leona",
+        "DA_18_Kayle",
+        "DA_18_Sejuani"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Defender",
+        "DA_18_Rapidfire",
+        "DA_18_Solar",
+        "DA_Juggernaut18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Solar",
+      "seasonal_dependencies": [
+        "solar",
+        "wisps",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "ahri-fast8",
+      "diagnostic_core": [
+        "DA_18_Ahri",
+        "DA_18_Morgana",
+        "DA_18_Sett",
+        "DA_Karma18"
+      ],
+      "unsupported_units": [
+        "DA_18_Morgana",
+        "DA_18_Sett"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Blossom",
+        "DA_18_Brawler",
+        "DA_18_Coven",
+        "DA_18_Invoker",
+        "DA_18_Spellweaver"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Blossom",
+      "seasonal_dependencies": [
+        "wisps",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "nidalee-aphelios",
+      "diagnostic_core": [
+        "DA_18_Aphelios",
+        "DA_KogMaw18_AD",
+        "DA_Amumu18"
+      ],
+      "unsupported_units": [
+        "DA_18_Aphelios",
+        "DA_KogMaw18_AD",
+        "DA_Amumu18"
+      ],
+      "missing_required_forms": [
+        "Nidalee AD"
+      ],
+      "potentially_required_traits": [
+        "DA_18_Adaptor",
+        "DA_18_Caustic",
+        "DA_18_Inferno",
+        "DA_18_Invoker",
+        "DA_18_Lunar",
+        "DA_18_Rapidfire",
+        "DA_Juggernaut18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "champion handler unavailable: DA_18_Aphelios",
+      "seasonal_dependencies": [
+        "adaptor_lux",
+        "primal",
+        "inferno",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "sivir-nidalee",
+      "diagnostic_core": [
+        "DA_18_Sivir",
+        "DA_18_Malphite",
+        "DA_18_RekSai"
+      ],
+      "unsupported_units": [
+        "DA_18_Sivir",
+        "DA_18_Malphite",
+        "DA_18_RekSai"
+      ],
+      "missing_required_forms": [
+        "Nidalee AD"
+      ],
+      "potentially_required_traits": [
+        "DA_18_Battlemage",
+        "DA_18_Blackthorn",
+        "DA_18_Brawler",
+        "DA_18_Hunter",
+        "DA_Primal18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Blackthorn",
+      "seasonal_dependencies": [
+        "adaptor_lux",
+        "primal",
+        "blackthorn",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "azir-rammus",
+      "diagnostic_core": [
+        "DA_18_Azir",
+        "DA_18_Rammus",
+        "DA_18_Teemo",
+        "DA_18_RekSai"
+      ],
+      "unsupported_units": [
+        "DA_18_Rammus",
+        "DA_18_Teemo",
+        "DA_18_RekSai"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Brawler",
+        "DA_18_Defender",
+        "DA_18_Executioner",
+        "DA_18_Invoker",
+        "DA_18_Sprykin",
+        "DA_18_Summoner"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_18_Blackthorn",
+      "seasonal_dependencies": [
+        "blackthorn",
+        "sprykin",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    },
+    {
+      "strategy_id": "riftbeast-reroll",
+      "diagnostic_core": [
+        "DA_Cinderling18",
+        "DA_18_Sentry",
+        "DA_Krug18",
+        "DA_Scuttlecrab18",
+        "DA_Murkwolf18"
+      ],
+      "unsupported_units": [
+        "DA_Cinderling18",
+        "DA_18_Sentry",
+        "DA_Krug18",
+        "DA_Scuttlecrab18",
+        "DA_Murkwolf18"
+      ],
+      "missing_required_forms": [],
+      "potentially_required_traits": [
+        "DA_18_Brawler",
+        "DA_18_Hunter",
+        "DA_18_Invoker",
+        "DA_18_Slayer",
+        "DA_Juggernaut18",
+        "DA_Riftbeast18"
+      ],
+      "combat_initialization": "rejected",
+      "first_rejection": "active trait effect not implemented: DA_Riftbeast18",
+      "seasonal_dependencies": [
+        "riftbeast",
+        "economy"
+      ],
+      "full_strategy_validated": false
+    }
+  ],
+  "accepted_core_initializations": 0,
+  "full_strategy_validation_passes": 0,
+  "complete_matches_run": 0,
+  "training_run": false,
+  "runtime_promoted": false,
+  "limit": "Tests core construction only. No traits are stripped, no AD form is replaced with AP, and no omitted items are claimed validated.",
+  "inputs_sha256": {
+    "configs/training/strategy-memory/TFTSet18/18.3B-20260928/memory.json": "114f267b19c92271d4e0e9f44af1ef8385eb044cd50c4cd7f7885442da6f5de2",
+    "docs/evidence/dependencies-20261004/core-probes.json": "ae714ef6973126a01350fc63d88bc47effeddb339b4f758e30ae489d583806b3"
+  }
+}

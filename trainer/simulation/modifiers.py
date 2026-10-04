@@ -192,7 +192,7 @@ def formula(spec, source, target, now, context=None, stat_getter=None):
         raise UnsupportedRule("formula must be a list of terms")
     total = 0.0
     for term in spec:
-        if set(term) - {"coefficient", "stat", "owner", "base", "context"}:
+        if set(term) - {"coefficient", "stat", "owner", "base", "context", "factor"}:
             raise UnsupportedRule("unknown formula term")
         coefficient = term["coefficient"]
         if isinstance(coefficient, list):
@@ -233,5 +233,23 @@ def formula(spec, source, target, now, context=None, stat_getter=None):
                         else unit.values.get(stat, now, actor_context(unit, now))
                     )
                 )
+        if "factor" in term:
+            factor = term["factor"]
+            if not isinstance(factor, dict) or set(factor) != {"stat", "divisor"}:
+                raise UnsupportedRule("invalid formula factor")
+            divisor = factor["divisor"]
+            if (
+                type(divisor) not in (int, float)
+                or not math.isfinite(divisor)
+                or divisor <= 0
+                or factor["stat"] not in source.values.base
+            ):
+                raise UnsupportedRule("invalid formula factor stat/divisor")
+            factor_value = (
+                stat_getter(source, factor["stat"])
+                if stat_getter is not None
+                else source.values.get(factor["stat"], now, actor_context(source, now))
+            )
+            value *= factor_value / divisor
         total += coefficient * value
     return total

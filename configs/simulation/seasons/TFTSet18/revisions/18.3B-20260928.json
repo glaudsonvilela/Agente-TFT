@@ -1,0 +1,1196 @@
+{
+  "schema_version": 1,
+  "kind": "candidate_rule_revision",
+  "base_patch": "18.3",
+  "patch": "18.3B-20260928",
+  "set_key": "TFTSet18",
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "base_bindings_sha256": "09ac784091b6645b8b5bbe098eabbc3c47b6c223b8ee96832d1ad56d59068288",
+  "runtime_promoted": false,
+  "changes": [
+    {
+      "path": [
+        "profile",
+        "roles",
+        "fighter"
+      ],
+      "expected_sha256": "5aabf5f0e7557eb2de70db0f8ab73403c1fb7953381c03f5e6886804b08b33cf",
+      "value": {
+        "mana_per_attack": 10,
+        "mana_per_second": 0,
+        "mana_per_damage": 0
+      },
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "AD/AP Fighter resource mechanics"
+    },
+    {
+      "path": [
+        "profile",
+        "role_stage_modifiers"
+      ],
+      "expected_sha256": "5aabf5f0e7557eb2de70db0f8ab73403c1fb7953381c03f5e6886804b08b33cf",
+      "value": {
+        "fighter": [
+          {
+            "min_stage": 2,
+            "max_stage": 2,
+            "modifiers": [
+              {
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "value": 0.05
+              }
+            ]
+          },
+          {
+            "min_stage": 3,
+            "max_stage": 3,
+            "modifiers": [
+              {
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "value": 0.1
+              }
+            ]
+          },
+          {
+            "min_stage": 4,
+            "max_stage": 4,
+            "modifiers": [
+              {
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "value": 0.2
+              }
+            ]
+          },
+          {
+            "min_stage": 5,
+            "max_stage": 5,
+            "modifiers": [
+              {
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "value": 0.3
+              }
+            ]
+          },
+          {
+            "min_stage": 6,
+            "modifiers": [
+              {
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "value": 0.3
+              }
+            ]
+          }
+        ]
+      },
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-15-4-notes/",
+      "source_section": "CHAMPION ROLES; stage 2–6 curve, retained as candidate pending Set18 replay calibration; stage1 unsupported"
+    },
+    {
+      "path": [
+        "profile",
+        "lab_sampling",
+        "stages"
+      ],
+      "expected_sha256": "5aabf5f0e7557eb2de70db0f8ab73403c1fb7953381c03f5e6886804b08b33cf",
+      "value": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-15-4-notes/",
+      "source_section": "Only sample stages for which fighter role coefficients are explicitly declared"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_Lux18_Base",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Coven",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_Lux18_Blackthorn",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Fae",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_Lux18_Blossom",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Inferno",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Moonbeam",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Primal",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Elderwood",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Lux_Sunbeam",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "caster",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_Nidalee18_AP",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "marksman",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Diana",
+        "role"
+      ],
+      "expected_sha256": "3d659b6b3075d60ee0e280d08a75301f6b1426bfde2537dd6d8d2386b8c880e7",
+      "value": "fighter",
+      "source_url": "https://www.tftraits.com/roles/",
+      "source_section": "Reviewed champion card role and resource generation"
+    },
+    {
+      "path": [
+        "traits",
+        "entities",
+        "DA_18_Inferno",
+        "tiers",
+        "2",
+        "template",
+        "members",
+        "hooks"
+      ],
+      "expected_sha256": "e4b790df15786b899be7977e4bea87ee02624a0126417d34ea1d93636f52ccfd",
+      "value": [
+        {
+          "event": "damage_dealt",
+          "damage_tags": [
+            "attack",
+            "spell"
+          ],
+          "effects": [
+            {
+              "op": "stat",
+              "target": {
+                "kind": "target"
+              },
+              "stat": "wound",
+              "mode": "flat",
+              "amount": [
+                {
+                  "coefficient": {
+                    "$field": "WoundPercent",
+                    "scale": 0.01
+                  }
+                }
+              ],
+              "duration": {
+                "$field": "Duration",
+                "scale": 1
+              },
+              "group": "wound",
+              "strongest": true
+            },
+            {
+              "op": "over_time",
+              "key": "inferno-burn",
+              "target": {
+                "kind": "target"
+              },
+              "duration": {
+                "$field": "Duration",
+                "scale": 1
+              },
+              "ticks": 3,
+              "scaling_time": "dynamic",
+              "stacking": "refresh_strongest",
+              "group": "inferno-burn",
+              "effects": [
+                {
+                  "op": "damage",
+                  "target": {
+                    "kind": "target"
+                  },
+                  "damage_type": "true",
+                  "amount": [
+                    {
+                      "coefficient": {
+                        "$field": "{2c202877}",
+                        "scale": 0.01
+                      },
+                      "stat": "hp",
+                      "owner": "target"
+                    }
+                  ]
+                }
+              ],
+              "mark": "burn"
+            }
+          ]
+        }
+      ],
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/enchanted-wilds-overview/",
+      "source_section": "Inferno damage applies Burn; explicit status used by Akali"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Akali_AD"
+      ],
+      "expected_sha256": "bad31a0a3e1007504309c28d8c384f47824febf494652e9bb2f330b7c072b7b1",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": "fighter",
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "branch",
+              "condition": {
+                "target_status_active": "burn"
+              },
+              "effects": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        1.8,
+                        2.72,
+                        4.6
+                      ],
+                      "stat": "ad"
+                    },
+                    {
+                      "coefficient": [
+                        0.1,
+                        0.15,
+                        0.25
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "physical"
+                }
+              ],
+              "otherwise": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        1.45,
+                        2.2,
+                        3.8
+                      ],
+                      "stat": "ad"
+                    },
+                    {
+                      "coefficient": [
+                        0.1,
+                        0.15,
+                        0.25
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "physical"
+                }
+              ]
+            }
+          ]
+        },
+        "hooks": [],
+        "name": "Akali",
+        "source_slug": "akali",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/akali/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "Fixed AD form only. Automatic Adaptor form switching is not implemented."
+        ],
+        "identity": "Akali"
+      },
+      "source_url": "https://www.tftraits.com/champions/akali/",
+      "source_section": "Ability text with stat icons; coefficient table; 1–3 stars"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Camille"
+      ],
+      "expected_sha256": "f229c495663ba4202970aa0d9adcc84825768172153f009d03e4a436fcda34f5",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": "fighter",
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    1.5,
+                    2.25,
+                    3.75
+                  ],
+                  "stat": "ad"
+                },
+                {
+                  "coefficient": [
+                    0.1,
+                    0.15,
+                    0.25
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "physical"
+            },
+            {
+              "op": "shield",
+              "target": {
+                "kind": "self"
+              },
+              "amount": [
+                {
+                  "coefficient": [
+                    60,
+                    90,
+                    200
+                  ]
+                }
+              ],
+              "duration": 2
+            }
+          ]
+        },
+        "hooks": [],
+        "name": "Camille",
+        "source_slug": "camille",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/camille/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "18.3B restores AD150/225/375; shield is flat, not AP-scaled, per sealed tooltip and supplemental icons."
+        ]
+      },
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+      "source_section": "SEPTEMBER24 / 18.2 B BALANCE CHANGES RE-ADDED; AP split and flat shield from separately hashed supplemental card"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Varus"
+      ],
+      "expected_sha256": "50609ea089c09c532e82fd8d0279fb52b248418ed5e364640f85b0e66a86117c",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": "caster",
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    4.15,
+                    6.25,
+                    10
+                  ],
+                  "stat": "ad"
+                },
+                {
+                  "coefficient": [
+                    0.3,
+                    0.45,
+                    0.7
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "physical",
+              "target": {
+                "kind": "best_line",
+                "width": 0.8,
+                "includes_target": true
+              },
+              "falloff_per_target": 0.4,
+              "falloff_min": 0.4
+            }
+          ]
+        },
+        "hooks": [],
+        "name": "Varus",
+        "source_slug": "varus",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/varus/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "Line width0.8 is an explicit geometric laboratory assumption, not measured projectile width."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/varus/",
+      "source_section": "Ability text with stat icons; coefficient table; 1–3 stars"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Kobuko"
+      ],
+      "expected_sha256": "f316470525c11e51ac44cd8f2ed6519a6b8c7232cea34d8fec63447189507801",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": null,
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "over_time",
+              "target": {
+                "kind": "self"
+              },
+              "duration": 2,
+              "ticks": 2,
+              "scaling_time": "dynamic",
+              "stacking": "stack",
+              "effects": [
+                {
+                  "op": "heal",
+                  "target": {
+                    "kind": "self"
+                  },
+                  "amount": [
+                    {
+                      "coefficient": [
+                        1.325,
+                        1.575,
+                        2.3
+                      ],
+                      "stat": "ap"
+                    },
+                    {
+                      "coefficient": 0.035,
+                      "stat": "hp"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "empower",
+              "key": "bash",
+              "target": {
+                "kind": "self"
+              },
+              "charges": 1,
+              "replace_attack": true,
+              "effects": [
+                {
+                  "op": "damage",
+                  "damage_type": "magic",
+                  "amount": [
+                    {
+                      "coefficient": 0.1,
+                      "stat": "hp"
+                    },
+                    {
+                      "coefficient": [
+                        0.7,
+                        1.05,
+                        1.5
+                      ],
+                      "stat": "ap"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "hooks": [],
+        "name": "Kobuko",
+        "source_slug": "kobuko",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/kobuko/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "Tank mana and attack/HoT timing still require integration; ability program only."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/kobuko/",
+      "source_section": "Ability text with stat icons; coefficient table; 1–3 stars"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_RekSai"
+      ],
+      "expected_sha256": "b7b3d6e63dfc4507220fc64fb12085ac4285e474fbc6c6cab1738c9f544f63b4",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": null,
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "mark",
+              "name": "regeneration_window",
+              "duration": 3,
+              "target": {
+                "kind": "self"
+              }
+            },
+            {
+              "op": "sequence",
+              "target": {
+                "kind": "area",
+                "center": "source",
+                "radius": 1
+              },
+              "effects": [
+                {
+                  "op": "status",
+                  "name": "stun",
+                  "duration": 1
+                },
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        0.7,
+                        1.05,
+                        1.6
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "magic"
+                }
+              ]
+            }
+          ]
+        },
+        "hooks": [
+          {
+            "event": "periodic",
+            "interval": 1,
+            "effects": [
+              {
+                "op": "branch",
+                "target": {
+                  "kind": "self"
+                },
+                "condition": {
+                  "marked": "regeneration_window"
+                },
+                "effects": [
+                  {
+                    "op": "heal",
+                    "target": {
+                      "kind": "self"
+                    },
+                    "amount": [
+                      {
+                        "coefficient": [
+                          30,
+                          42,
+                          60
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "otherwise": [
+                  {
+                    "op": "heal",
+                    "target": {
+                      "kind": "self"
+                    },
+                    "amount": [
+                      {
+                        "coefficient": [
+                          10,
+                          14,
+                          20
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "name": "Rek'Sai",
+        "source_slug": "reksai",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/reksai/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "Flat regeneration has no AP icon; periodic tick phase and tank mana remain pending replay calibration."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/reksai/",
+      "source_section": "Ability text with stat icons; coefficient table; 1–3 stars"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Warwick"
+      ],
+      "expected_sha256": "20c439821032f77b1d67d2b91ada873472947379b514f2962eb214ac130cd372",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": "fighter",
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    2.3,
+                    3.45,
+                    5.35
+                  ],
+                  "stat": "ad"
+                }
+              ],
+              "damage_type": "physical"
+            },
+            {
+              "op": "heal",
+              "target": {
+                "kind": "self"
+              },
+              "amount": [
+                {
+                  "coefficient": 0.25,
+                  "context": "damage",
+                  "factor": {
+                    "stat": "ap",
+                    "divisor": 100
+                  }
+                }
+              ]
+            },
+            {
+              "op": "stat",
+              "target": {
+                "kind": "self"
+              },
+              "stat": "attack_speed",
+              "mode": "base_pct",
+              "amount": [
+                {
+                  "coefficient": 0.2
+                }
+              ]
+            }
+          ]
+        },
+        "hooks": [],
+        "name": "Warwick",
+        "source_slug": "warwick",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/warwick/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/warwick/",
+      "source_section": "Ability text with stat icons; coefficient table; 1–3 stars"
+    },
+    {
+      "path": [
+        "profile",
+        "roles",
+        "attack_counter"
+      ],
+      "expected_sha256": "5aabf5f0e7557eb2de70db0f8ab73403c1fb7953381c03f5e6886804b08b33cf",
+      "value": {
+        "mana_per_attack": 0,
+        "mana_per_second": 0,
+        "mana_per_damage": 0
+      },
+      "source_url": "https://www.tftraits.com/champions/caitlyn/",
+      "source_section": "Passive third-attack replacement; specialist has no mana-cast loop"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Caitlyn"
+      ],
+      "expected_sha256": "ecbb98300070c48acacfab7372129364f326b30a251059ea4501814f660ebe89",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": "attack_counter",
+        "spell": {
+          "kind": "none",
+          "effects": []
+        },
+        "hooks": [
+          {
+            "event": "before_attack",
+            "every": 3,
+            "effects": [
+              {
+                "op": "empower",
+                "target": {
+                  "kind": "self"
+                },
+                "key": "headshot",
+                "charges": 1,
+                "replace_attack": true,
+                "effects": [
+                  {
+                    "op": "damage",
+                    "amount": [
+                      {
+                        "coefficient": [
+                          1.9,
+                          2.85,
+                          4.7
+                        ],
+                        "stat": "ad"
+                      },
+                      {
+                        "coefficient": [
+                          0.2,
+                          0.3,
+                          0.45
+                        ],
+                        "stat": "ap"
+                      }
+                    ],
+                    "damage_type": "physical",
+                    "inherit_attack_critical": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "name": "Caitlyn",
+        "source_slug": "caitlyn",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/caitlyn/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Third launched attack replaces ordinary attack, preserving its critical roll. Projectile timing and item proc classification require replay calibration."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/caitlyn/",
+      "source_section": "Reviewed AD/AP/HP icons and passive/active description"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_18_Xayah"
+      ],
+      "expected_sha256": "3f80da1d24f9a2d956b30f7a2d07bd2aaba2b4567d8e7c073961bec89ab476c3",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": "marksman",
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "empower",
+              "target": {
+                "kind": "self"
+              },
+              "key": "feathers",
+              "charges": 5,
+              "replace_attack": true,
+              "attack_speed": 0.5,
+              "effects": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        0.68,
+                        1.02,
+                        1.55
+                      ],
+                      "stat": "ad"
+                    }
+                  ],
+                  "damage_type": "physical",
+                  "inherit_attack_critical": true
+                },
+                {
+                  "op": "stat",
+                  "stat": "armor",
+                  "mode": "flat",
+                  "amount": [
+                    {
+                      "coefficient": -0.02,
+                      "stat": "ap"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "hooks": [],
+        "name": "Xayah",
+        "source_slug": "xayah",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/xayah/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "Armor reduction occurs after each feather hit in this candidate; mana lock over the attack sequence and item proc classification need replay calibration."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/xayah/",
+      "source_section": "Reviewed AD/AP/HP icons and passive/active description"
+    },
+    {
+      "path": [
+        "champions",
+        "DA_Vi18"
+      ],
+      "expected_sha256": "3e9c9dc2468e473d73e49a7808bf94a95ca9b58172c2b9753766b0589fefc132",
+      "value": {
+        "ability_status": "candidate_not_replay_validated",
+        "role": null,
+        "spell": {
+          "kind": "effects",
+          "cast_seconds": 0.5,
+          "mana_lock_seconds": 1,
+          "effects": [
+            {
+              "op": "heal",
+              "target": {
+                "kind": "self"
+              },
+              "amount": [
+                {
+                  "coefficient": [
+                    2,
+                    2.65,
+                    3.6
+                  ],
+                  "stat": "ap"
+                }
+              ]
+            },
+            {
+              "op": "stat",
+              "target": {
+                "kind": "self"
+              },
+              "stat": "attack_speed",
+              "mode": "base_pct",
+              "amount": [
+                {
+                  "coefficient": [
+                    0.85,
+                    1,
+                    1.25
+                  ]
+                }
+              ],
+              "duration": 3
+            },
+            {
+              "op": "stat",
+              "target": {
+                "kind": "self"
+              },
+              "stat": "durability",
+              "mode": "flat",
+              "amount": [
+                {
+                  "coefficient": 0.15
+                }
+              ],
+              "duration": 3
+            },
+            {
+              "op": "stat",
+              "target": {
+                "kind": "self"
+              },
+              "stat": "cc_immune",
+              "mode": "flat",
+              "amount": [
+                {
+                  "coefficient": 1
+                }
+              ],
+              "duration": 3
+            }
+          ]
+        },
+        "hooks": [
+          {
+            "event": "attack",
+            "effects": [
+              {
+                "op": "heal",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": 0.02,
+                    "stat": "hp"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "name": "Vi",
+        "source_slug": "vi",
+        "provenance": {
+          "url": "https://www.tftraits.com/champions/vi/",
+          "snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+          "patch_identity_verified": false
+        },
+        "supported_stars": [
+          1,
+          2,
+          3
+        ],
+        "replay_validated": false,
+        "notes": [
+          "Formulas reconciled against reviewed HTML including AD/AP icons; mutable secondary source, replay parity pending.",
+          "Cast timing 0.5s is a laboratory assumption. Mana lock 1s from role reference; exceptions require replay validation.",
+          "Tank mana remains unresolved; only the isolated ability program is executable in a test fixture."
+        ]
+      },
+      "source_url": "https://www.tftraits.com/champions/vi/",
+      "source_section": "Reviewed AD/AP/HP icons and passive/active description"
+    }
+  ],
+  "disabled_content": [
+    {
+      "name": "Major Polymorph",
+      "category": "wisp",
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/"
+    },
+    {
+      "name": "Challenger’s Grace",
+      "category": "augment",
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/"
+    },
+    {
+      "name": "Dark Ritual",
+      "category": "augment",
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/"
+    },
+    {
+      "name": "Infinity Protection",
+      "category": "augment",
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/"
+    },
+    {
+      "name": "Nesting Dolls",
+      "category": "augment",
+      "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/"
+    }
+  ],
+  "pending_reconciliation": [
+    "Blackthorn AP sacrifice coefficient and complete sacrifice ordering",
+    "KhaZix isolation/jump/rival interaction",
+    "LeBlanc clone probability and copy ownership",
+    "Teemo mushrooms and collection rewards",
+    "Ashe trail ticks and target health scaling",
+    "Draven bounty objectives/rewards",
+    "Brambleback precise cast duration is not published",
+    "Disabled names still need executable Wisp/augment IDs before those systems can be activated"
+  ],
+  "reconciliation_status": "partial"
+}

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "kind": "candidate_rule_revision_verification",
+  "base_commit": "95d04056a90587135de1d9816fc4b80eaf6b6bb8",
+  "full_suite": {
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. OMP_NUM_THREADS=1 .venv/bin/python -m unittest discover -s training/tests -q",
+    "exit_code": 0,
+    "tests_run": 583,
+    "passed": 571,
+    "skipped": 12,
+    "seconds": 27.952,
+    "log_sha256": "d641e84f797c441b572310e93562aa6328e467636c32956313a2713df17c27ca"
+  },
+  "final_revision_regressions": {
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python -m unittest training.tests.test_rule_revision -q",
+    "tests_run": 14,
+    "passed": 14,
+    "additional_cases_after_full_suite": 2
+  },
+  "files_sha256": {
+    "configs/simulation/seasons/TFTSet18/revisions/18.3B-20260928.json": "5b1a4e5a2321fdd92007e8b27de365f5315f45ab5e0789c51c121c96ccc05ac4",
+    "ingestion/rule_revision.py": "ab1ccf18be02988abddc0fbbb83bed5db12a8436ed73b8bdc83fea6518850dda",
+    "trainer/simulation/event_combat.py": "a2d6dfb857bd232c9edccae09763fa63bd21ee318b5216b185e1eb687def5720",
+    "trainer/simulation/modifiers.py": "d9ca0ea1b638135407546e3ca6e6d5878dd106f5f636f3a953c6909af338ee4a",
+    "trainer/simulation/state.py": "a166698d3911c204332ff7c8ba8c2dce2a3871515fb3c32f1ad02bb4bf839874",
+    "trainer/simulation/value_model.py": "236ffdb4ba4b81335e9bbf6fb4e15da2252b23b2edfc73e9c9eb0240cd99b865",
+    "training/compile_effects.py": "c014b8c88c654350a5d8ddc589fe9bb174971e7486a37e7a16974c308f647f9f",
+    "training/decision_lab.py": "2eba4c1b697b88373203bd6bc587ccb57372ead517125af6a669c542dd531f86",
+    "training/decision_objectives.py": "7df141610784be959775cd9b3e1c30457c986c0a5d1315338b34433711329cb4",
+    "training/event_lab.py": "31491a90a3f6fc17b3270ea4a82943fb92169b8ca45395c138ce380add9e508d",
+    "training/simulator_lab/dependency_audit.py": "4cbce8a5825b8e64d7d8168f9f23d4cadfa44be672cca77220b233df2e6971e1",
+    "training/tests/test_combat_value_model.py": "b5cac91acfccfed7d8c188ee5abcb62f79fc40592cb740a3e2fa45f26294ad9a",
+    "training/tests/test_decision_lab.py": "4eb35bd8d77b8be2b82aac54da1c037200ec60e372e317b11375e2c37bd81fa2",
+    "training/tests/test_decision_objectives.py": "e8abb1620d8b2b5e650f2c09902df7720583a3151a97232206ba2879d7392f36",
+    "training/tests/test_event_learning.py": "0620e504cc5b4fe5e8bbec215314c92099ca518f4e424882595d54136b8fbfac",
+    "training/tests/test_rule_revision.py": "8f74012e23d12f116be5bf3e0305b4ba040aa5d688f5fe370f3a6d0d2110c9cb"
+  },
+  "engine": {
+    "files": {
+      "trainer/simulation/__init__.py": "c0e696593ae28d3dea620f33d007a7f33a90de49a36065087012e80f88d96daa",
+      "trainer/simulation/combat.py": "d3d788ec7bba4c4a22a00cb38d6f25ae4cf0a0491a6603989de1640902013d15",
+      "trainer/simulation/economy.py": "eddf2c5f019e20ace67493ec8504b8d71dd24a1fb4c7f24980dfcafaa9e7735d",
+      "trainer/simulation/event_combat.py": "a2d6dfb857bd232c9edccae09763fa63bd21ee318b5216b185e1eb687def5720",
+      "trainer/simulation/hexgrid.py": "f84d162140fbd5bdbb8a104279eb7b8ce70fdb876604557f10ba3d92e1f74c85",
+      "trainer/simulation/match.py": "d074452fae9f2939de002fd44ab302b0db5970b589d93c4f21fa1b2c34b54e9c",
+      "trainer/simulation/modifiers.py": "d9ca0ea1b638135407546e3ca6e6d5878dd106f5f636f3a953c6909af338ee4a",
+      "trainer/simulation/rollout_stats.py": "83d841f4c22cbe1b34b14177d4dd714d4097bcf004494f9c17f9939aff714372",
+      "trainer/simulation/search.py": "e7b280120546c3ba5d734b30cdce480e2b1105b7b71d0d58c1ed280e259bbd3c",
+      "trainer/simulation/state.py": "a166698d3911c204332ff7c8ba8c2dce2a3871515fb3c32f1ad02bb4bf839874",
+      "trainer/simulation/traits.py": "2952cf5e4d5fdd8eb310d32f2578ee1fa8b320e6d05eeeebe9af1afc7eecd1ed",
+      "trainer/simulation/value_model.py": "236ffdb4ba4b81335e9bbf6fb4e15da2252b23b2edfc73e9c9eb0240cd99b865",
+      "training/event_lab.py": "31491a90a3f6fc17b3270ea4a82943fb92169b8ca45395c138ce380add9e508d"
+    },
+    "sha256": "5cc206aaa3d4538afdbced262a9591129aa546bbae8af7ba1042a627607f2814"
+  },
+  "compilation": {
+    "target_patch": "18.3B-20260928",
+    "reconciliation_complete": false,
+    "ability_programs": 31,
+    "combat_candidate_entries": 25,
+    "mana_role_pending": 6,
+    "ability_entries_blocked": 43
+  },
+  "training": {
+    "new_algorithms": [
+      "supervised_action_cross_entropy",
+      "direct_preference_optimization"
+    ],
+    "unit_test_parameter_updates": true,
+    "test_data_kind": "synthetic",
+    "full_observable_reviewed_examples_exported": 0,
+    "real_tft_candidate_trained": false,
+    "production_training_run": false,
+    "real_tft_improvement_proven": false
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/abs/2305.18290",
+      "role": "DPO loss, fixed reference"
+    },
+    {
+      "url": "https://arxiv.org/abs/2308.03526",
+      "role": "Offline imitation/RL methodology, no reused TFT labels"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "role": "Hotfix precedence and disabled content; some timings qualitative"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-15-4-notes/",
+      "role": "Fighter stage curve, candidate retention"
+    },
+    {
+      "url": "https://www.tftraits.com/roles/",
+      "role": "Secondary current role descriptions, mutable"
+    },
+    {
+      "url": "https://cookpit.app/mechanic/mana/",
+      "role": "Corroborating unresolved tank coefficients; not authority to bind old formula"
+    }
+  ],
+  "complete_matches_run": 0,
+  "full_strategy_validations": 0,
+  "runtime_promoted": false,
+  "installer_created": false,
+  "completion_claimed": false
+}

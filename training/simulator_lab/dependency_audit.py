@@ -18,7 +18,7 @@ from trainer.simulation.state import Player, Unit, UnsupportedRule
 from training.compile_effects import compile_catalog
 
 
-def audit(memory, probes, content):
+def audit(memory, probes, content, *, diagnostic_stage=4):
     strategies = {row["id"]: row for row in memory["strategies"]}
     if set(probes["cores"]) != set(strategies):
         raise ValueError("Every strategy requires exactly one diagnostic core")
@@ -35,6 +35,7 @@ def audit(memory, probes, content):
                 0,
                 len(core),
                 0,
+                stage=diagnostic_stage,
                 units=[
                     Unit(f"{team}:{i}", champion, zone="board", position=(0, i))
                     for i, champion in enumerate(core)
@@ -73,7 +74,15 @@ def audit(memory, probes, content):
         kind="compiled_strategy_dependency_audit",
         knowledge_patch=memory["patch"],
         executable_patch=content["patch"],
-        exact_patch_match=memory["patch"] == content["patch"],
+        patch_label_match=memory["patch"] == content["patch"],
+        exact_patch_match=memory["patch"] == content["patch"]
+        and coverage.get(
+            "revision_reconciliation_complete", not bool(content.get("rule_revision"))
+        ),
+        revision_reconciliation=content.get("rule_revision", {}).get(
+            "reconciliation_status", "base_only"
+        ),
+        diagnostic_stage=diagnostic_stage,
         release_sha256=content["release_sha256"],
         bindings_sha256=content["bindings_sha256"],
         absent_content_sections=[
@@ -82,7 +91,9 @@ def audit(memory, probes, content):
             if not content.get(k)
         ],
         implemented_augment_count=len(content.get("augments", {})),
-        planning_status=content.get("planning_provenance", {}).get("status", "not_bound"),
+        planning_status=content.get("planning_provenance", {}).get(
+            "status", "not_bound"
+        ),
         unresolved_planning_dependencies=content.get("planning_requirements", []),
         combat_coverage={
             k: coverage[k] for k in ("abilities", "champions", "traits", "items")
@@ -103,6 +114,15 @@ def main():
     root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--revision", type=Path, help="Optional exact-base seasonal revision"
+    )
+    parser.add_argument(
+        "--stage",
+        type=int,
+        default=4,
+        help="Hypothetical stage of diagnostic cores, not an observed replay stage",
+    )
     args = parser.parse_args()
     memory_path = (
         root / "configs/training/strategy-memory/TFTSet18/18.3B-20260928/memory.json"
@@ -115,9 +135,19 @@ def main():
     bindings = load_bindings(
         root / "configs/simulation/seasons/TFTSet18/18.3/manifest.json"
     )
-    content = compile_catalog(manifest, catalogs, bindings)
+    if args.revision:
+        from ingestion.rule_revision import compile_revision
+
+        content = compile_revision(
+            manifest, catalogs, bindings, json.loads(args.revision.read_text())
+        )
+    else:
+        content = compile_catalog(manifest, catalogs, bindings)
     result = audit(
-        json.loads(memory_path.read_text()), json.loads(probe_path.read_text()), content
+        json.loads(memory_path.read_text()),
+        json.loads(probe_path.read_text()),
+        content,
+        diagnostic_stage=args.stage,
     )
     result["inputs_sha256"] = {
         str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()

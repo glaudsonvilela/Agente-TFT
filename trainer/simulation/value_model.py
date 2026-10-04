@@ -14,7 +14,7 @@ import zipfile
 import numpy as np
 
 
-ENCODER = "combat_hex_cells_v2"
+ENCODER = "combat_hex_cells_stage_v3"
 ROWS, COLUMNS = 4, 7
 
 
@@ -31,7 +31,8 @@ class BoardEncoder:
         self.champion_index = {name: i for i, name in enumerate(champions)}
         self.item_index = {name: i for i, name in enumerate(items)}
         self.cell_features = len(champions) + 1 + len(items)
-        self.size = 2 * ROWS * COLUMNS * self.cell_features
+        self.side_size = ROWS * COLUMNS * self.cell_features + 2
+        self.size = 2 * self.side_size
 
     def encode(self, teams):
         if len(teams) != 2:
@@ -76,7 +77,18 @@ class BoardEncoder:
                 cell[len(self.champions)] = unit.stars / 3
                 for item in unit.items:
                     cell[len(self.champions) + 1 + self.item_index[item]] += 1 / 3
-        return result.reshape(-1)
+        sides = []
+        for side, team in enumerate(teams):
+            if team.stage is not None and (
+                type(team.stage) is not int or not 1 <= team.stage <= 99
+            ):
+                raise ValueError("Invalid observed stage")
+            # Each team's context travels with its board during mirroring.
+            context = np.array(
+                [team.stage is not None, (team.stage or 0) / 10], dtype=np.float32
+            )
+            sides.append(np.concatenate((result[side].reshape(-1), context)))
+        return np.concatenate(sides)
 
 
 def probabilities(features, parameters):

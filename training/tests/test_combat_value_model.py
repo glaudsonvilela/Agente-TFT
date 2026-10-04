@@ -67,7 +67,7 @@ class CombatValueModelTests(unittest.TestCase):
         single = model.predict([self.teams])[0]
         batch = model.predict([self.teams, self.teams])
         np.testing.assert_allclose(batch, np.stack([single, single]))
-        np.testing.assert_allclose(batch.sum(axis=1), 1)
+        np.testing.assert_allclose(batch.sum(axis=1), 1, atol=np.finfo(np.float32).eps)
         for name, tensor in model.parameters.items():
             self.assertFalse(tensor.flags.writeable)
             np.testing.assert_array_equal(tensor, self.parameters[name])

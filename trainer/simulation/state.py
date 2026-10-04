@@ -49,6 +49,7 @@ class Player:
     shop_locked: bool = False
     phase: str = 'planning'
     augments: list[str] = field(default_factory=list)
+    stage: int | None = None
 
 
 @dataclass
@@ -86,6 +87,8 @@ def validate_world(world: World, content: dict):
         raise IllegalAction('expected 1..8 players')
     seen = set()
     for p in world.players:
+        if p.stage is not None and (type(p.stage) is not int or not 1 <= p.stage <= 99):
+            raise IllegalAction('invalid observed stage')
         for augment in p.augments:
             spec = content.get('augments', {}).get(augment)
             if spec is None or spec.get('unsupported') or spec.get('planning_effects'):

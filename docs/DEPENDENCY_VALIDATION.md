@@ -1,5 +1,69 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
+## Complementação com revisão 18.3B e treinamento por preferências
+
+**Continua incompleto.** A revisão candidata acrescenta nove programas de habilidade e uma cadeia de treinamento SFT → DPO. Nenhuma composição completa, partida sazonal ou melhoria de ranking foi validada. A [auditoria atual](evidence/rule-revision-20261004/compiled-audit.json) e o [registro de verificação](evidence/rule-revision-20261004/validation.json) substituem os números de implementação das seções históricas abaixo.
+
+### Regras implementadas nesta revisão
+
+- `ingestion/rule_revision.py` aplica alterações sobre o SHA exato da base. Cada mudança identifica o campo anterior, a fonte e a seção. Rejeita base modificada, caminhos sobrepostos e ausência de declaração das pendências. A base 18.3 permanece reproduzível.
+- `configs/simulation/seasons/TFTSet18/revisions/18.3B-20260928.json` contém a revisão parcial. O nome 18.3B não concede paridade: a auditoria mostra `patch_label_match=true`, mas `exact_patch_match=false` enquanto a reconciliação estiver parcial.
+- Akali AD: decide o dano adicional usando a queimadura existente antes do golpe; o próprio golpe não ativa retroativamente esse bônus.
+- Camille: separa AD/AP do dano e escudo fixo; aplica o valor de AD restaurado no hotfix.
+- Varus: exige que a linha escolhida inclua o alvo atual e aplica redução por inimigo atravessado.
+- Warwick: cura a partir do dano efetivamente causado e da escala de AP; acumula velocidade de ataque durante o combate.
+- Kobuko: cura periódica e substituição do próximo ataque. Rek'Sai: regeneração com janela temporária de três segundos e atordoamento adjacente. Vi: cura por ataque, cura ativa, velocidade, durabilidade e imunidade temporárias. Esses três continuam sem integração da função de tanque.
+- Caitlyn: o terceiro ataque substitui o ataque comum, preservando seu crítico, sem inventar uma conjuração por mana. Xayah: cinco ataques substituídos, velocidade temporária e redução de armadura por impacto. A classificação desses ataques para todos os efeitos de itens ainda precisa de replay.
+- Lux (dez entradas) e Nidalee AP recebem suas funções de mana candidatas. Diana e outros lutadores usam estágio explícito para a velocidade da função. O estágio 1 não é extrapolado.
+- O codificador neural passa a `combat_hex_cells_stage_v3`: inclui estágio e presença dessa leitura por equipe. Checkpoints v2 não são reutilizados como se tivessem sido treinados com esse contexto.
+
+| Medida | Base anterior | Revisão candidata |
+|---|---:|---:|
+| Entradas do catálogo, incluindo formas | 74 | 74 |
+| Programas de habilidade | 22 | 31 |
+| Entradas com programa e função de mana integrados | 7 | 25 |
+| Programas aguardando função de mana | 15 | 6 |
+| Entradas sem programa completo | 52 | 43 |
+| Composições completas validadas | 0/12 | 0/12 |
+
+Essas contagens não são porcentagens de fidelidade. Características, itens, formas alternativas, quatro estrelas, Wisps, aprimoramentos, calendário e efeitos entre rodadas têm dependências próprias. “Programa” significa código candidato testado em contratos isolados, não equivalência demonstrada ao cliente do TFT.
+
+### Métodos de treinamento usados em LLMs, aplicados às ações
+
+`training/decision_lab.py` executa aprendizado supervisionado por demonstrações (SFT), congela essa política como referência e aplica DPO a pares de ações preferida/rejeitada. É uma rede pequena que pontua ações candidatas; não é pré-treinamento de um modelo de linguagem.
+
+A implementação segue a função de preferência da [equação 7 do artigo de DPO](https://arxiv.org/abs/2305.18290). Máscaras excluem ações ilegais, gradientes são limitados e a referência não recebe atualizações. Treino, validação e teste são separados por origem, partida e impressão digital da observação. Cada fase exige sua própria validação. O relatório distingue métricas sobre rótulos de melhora real no jogo.
+
+O comando recebe um JSON `reviewed_action_features` com:
+
+- `schema_version: 1`, nomes únicos em `feature_names` e um `evidence_registry` de caminhos e SHA256;
+- `records` vinculados ao patch, SHA do conteúdo compilado e SHA do motor;
+- para cada registro, origem/partida/observação, divisão, cobertura observável completa declarada e proveniência do rótulo;
+- `mode: sft` com demonstração revisada, ou `mode: dpo` com preferência revisada;
+- candidatos com `id`, `features`, `legal`, índice `chosen` e, no DPO, índice `rejected`.
+
+A verificação confere os bytes das evidências e a consistência declarada. Ela **não certifica sozinha a correção semântica da anotação**. Exemplos provenientes de simulação exigem metadados de validação e sementes pareadas; o produtor desses exemplos continua responsável por validar as regras e os resultados. O exportador de sequências revisadas ainda não fornece exemplos com estado completo para essa interface.
+
+Reprodução do comando, depois de produzir e revisar esse conjunto de dados:
+
+```bash
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m training.decision_lab --dataset CAMINHO_DO_DATASET_REVISADO.json \
+  --content CAMINHO_DO_CONTEUDO_COMPILADO.json --output NOVA_PASTA_DO_CANDIDATO
+```
+
+Não foi iniciado treinamento de um coach de produção. Os testes usam exemplos sintéticos, verificando atualização real dos pesos, melhoria em pares sintéticos separados e preservação da referência. Isso testa o algoritmo, sem constituir evidência de competência em TFT.
+
+### Reconciliação e pendências concretas
+
+As [notas oficiais 18.3 e atualizações de setembro](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/) alteram campeões, recompensas e disponibilidade de conteúdo. A revisão registra essas fontes e mantém pendentes Blackthorn, Kha'Zix, LeBlanc, Teemo, Ashe, Draven e os IDs executáveis dos conteúdos desabilitados. A Riot descreve a mudança de Brambleback sem publicar a duração exata: esse tempo não foi inventado.
+
+A curva de velocidade dos lutadores é sustentada pelas [notas oficiais 15.4](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-15-4-notes/) e sua função atual é confrontada com [TFTraits](https://www.tftraits.com/roles/). As cartas suplementares com ícones de AD/AP foram revisadas e têm SHA registrado. Essas páginas são mutáveis; não substituem calibração contra partidas do patch.
+
+A fórmula exata de mana por dano dos tanques continua sem confirmação atual suficiente. A [descrição oficial das funções](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/roles-revamped-and-item-changes/) informa o comportamento, mas não fornece todos os coeficientes. Pesquisar fontes repetindo fórmulas antigas não resolve essa lacuna.
+
+A auditoria dos 12 núcleos ainda recusa todos. Ravager agora avança até Shen; os demais continuam bloqueados por Ornn, Aphelios ou características sazonais. Permanecem ausentes os sistemas completos de Wisps, persistência e progressão de partida. Os vídeos/transcrições já catalogados não foram declarados observações completas automaticamente.
+
 ## Implementação posterior à validação
 
 As correções abaixo acrescentam regras executáveis ao simulador. Os valores, IDs e fontes ficam no pacote `configs/simulation/seasons/TFTSet18/18.3/`; os algoritmos genéricos ficam em `trainer/simulation/`.

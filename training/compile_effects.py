@@ -110,6 +110,8 @@ def compile_catalog(manifest,catalogs,bindings):
                 spec.update(unsupported=True,reason='ability program available; mana role/timing integration unverified')
                 champions[key]=spec
                 continue
+            stage_modifiers=profile.get('role_stage_modifiers',{}).get(binding.get('role'),[])
+            if stage_modifiers:spec['stage_modifiers']=deepcopy(stage_modifiers)
             v=row['stats'];missing=[k for k in ('hp','damage','armor','magicResist','attackSpeed','mana','initialMana','range','critChance','critMultiplier') if v.get(k) is None]
             if missing:raise UnsupportedRule(f'missing attributes: {key}: {missing}')
             spec.update(combat=dict(hp=[v['hp']*n for n in profile['star_multipliers']['hp']],
@@ -168,9 +170,15 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--release',type=Path,required=True)
     p.add_argument('--bindings',type=Path,default=Path('configs/simulation/seasons/TFTSet18/18.3/manifest.json'))
+    p.add_argument('--revision',type=Path,help='Explicit sourced hotfix bound to this exact base')
     p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();manifest,catalogs=read_release(a.release)
-    result=compile_catalog(manifest,catalogs,load_bindings(a.bindings))
+    bindings=load_bindings(a.bindings)
+    if a.revision:
+        from ingestion.rule_revision import compile_revision
+        result=compile_revision(manifest,catalogs,bindings,json.loads(a.revision.read_text()))
+    else:
+        result=compile_catalog(manifest,catalogs,bindings)
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_bytes(canonical(result))
     print(json.dumps(result['coverage'],indent=2))
 

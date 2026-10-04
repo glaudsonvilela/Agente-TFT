@@ -54,6 +54,7 @@ def scenario(content, seed, champions, items):
     rng = random.Random(seed)
     teams = []
     sampling = content["lab_sampling"]
+    stage = rng.choice(sampling["stages"]) if sampling.get("stages") else None
     for team in range(2):
         selected = rng.choices(
             champions,
@@ -71,7 +72,7 @@ def scenario(content, seed, champions, items):
             )
             for i, champion in enumerate(selected)
         ]
-        teams.append(Player(0, 4, 0, units=units))
+        teams.append(Player(0, 4, 0, units=units, stage=stage))
     return teams
 
 

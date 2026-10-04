@@ -18,7 +18,7 @@ from .traits import contributions
 NEUTRAL=dict(damage_amp=0.,durability=0.,omnivamp=0.,wound=0.,healing_amp=0.,shield_amp=0.,
              armor_pen=0.,magic_pen=0.,sunder=0.,shred=0.,slow=0.,precision=0.,cc_immune=0.,invulnerable=0.,
              mana_per_pre_damage=0.,mana_damage_cap=1e12,vulnerable=0.)
-EVENTS={'combat_start','attack','cast','ally_cast','damage_dealt','damage_taken',
+EVENTS={'combat_start','before_attack','attack','cast','ally_cast','damage_dealt','damage_taken',
         'kill','takedown','death','health_below','periodic','shield_end'}
 OPS={'damage','heal','shield','mana','stat','status','over_time','execute',
      'permanent_stat','resource','summon','transform','displace',
@@ -74,10 +74,12 @@ def validate_effects(effects):
         if e.get('op') not in OPS: raise UnsupportedRule(f"unsupported effect: {e.get('op')}")
         selector=e.get('target',{'kind':'target'})
         if selector.get('kind') not in TARGETS: raise UnsupportedRule('unsupported selector')
-        if set(selector)-{'kind','center','cast_range','radius','width','exclude_self','exclude_status','max_range','count','shares_trait','damaged_only'}:
+        if set(selector)-{'kind','center','cast_range','radius','width','exclude_self','exclude_status','max_range','count','shares_trait','damaged_only','includes_target'}:
             raise UnsupportedRule('unknown targeting field')
+        if 'includes_target' in selector and (selector['kind']!='best_line' or type(selector['includes_target']) is not bool):
+            raise UnsupportedRule('target constraint requires best_line')
         fields={
-            'damage':{'amount','damage_type','falloff_min','falloff_per_hex','falloff_per_target','execute_threshold','low_health_multiplier','can_crit','first_target_multiplier','per_unique_three_star'},
+            'damage':{'amount','damage_type','falloff_min','falloff_per_hex','falloff_per_target','execute_threshold','low_health_multiplier','can_crit','first_target_multiplier','per_unique_three_star','inherit_attack_critical'},
             'heal':{'amount'},'shield':{'amount','duration','can_crit'},'mana':{'amount'},
             'stat':{'amount','stat','mode','duration','group','strongest','health_change'},
             'permanent_stat':{'amount','stat','mode','health_change'},
@@ -87,7 +89,7 @@ def validate_effects(effects):
             'summon':{'champion','count','stars'},'transform':{'base_stats','spell'},
             'displace':{'max_hexes','direction'},
             'sequence':{'effects'},'branch':{'condition','effects','otherwise'},
-            'mark':{'name'},'cleanse':{'statuses'},
+            'mark':{'name','duration'},'cleanse':{'statuses'},
             'volley':{'count','effects'},
             'empower':{'charges','replace_attack','attack_speed','effects','last_effects'}}
         if set(e)-({'op','target','key'}|fields[e['op']]):raise UnsupportedRule('unknown effect field')
@@ -96,8 +98,10 @@ def validate_effects(effects):
             validate_effects(e['effects'])
         if e['op']=='branch':
             c=e['condition']
-            if not isinstance(c,dict) or len(c)!=1 or next(iter(c)) not in ('marked','casts_at_least'):
+            if not isinstance(c,dict) or len(c)!=1 or next(iter(c)) not in ('marked','casts_at_least','target_status_active'):
                 raise UnsupportedRule('unknown ability condition')
+            if 'target_status_active' in c and c['target_status_active'] not in ('burn','poison','stun','disarm','silence','root','untargetable'):
+                raise UnsupportedRule('unknown conditional target status')
             validate_effects(e.get('otherwise',[]))
         if e['op'] in ('volley','empower'):
             value=e['count' if e['op']=='volley' else 'charges']
@@ -122,6 +126,8 @@ def validate_effects(effects):
             if not isinstance(e.get('amount'),list): raise UnsupportedRule('explicit formula required')
         if e['op']=='damage' and e.get('damage_type') not in ('magic','physical','true'):
             raise UnsupportedRule('damage type unavailable')
+        if 'inherit_attack_critical' in e and type(e['inherit_attack_critical']) is not bool:
+            raise UnsupportedRule('attack critical inheritance must be boolean')
 
 
 class Battle:
@@ -132,6 +138,11 @@ class Battle:
         self.now=0.;self.queue=[];self.sequence=0;self.units=[];self.by_id={};self.history=[]
         self.trace=trace;self.active_traits=[];self.max_events=content['combat_rules'].get('max_events',100000)
         self.effect_depth=0
+        self.stages=[p.stage for p in players]
+        if any(stage is not None and (type(stage) is not int or not 1 <= stage <= 99) for stage in self.stages):
+            raise UnsupportedRule('invalid combat stage')
+        if any(stage is not None for stage in self.stages) and len(set(self.stages)) != 1:
+            raise UnsupportedRule('teams must share the same observed stage')
         cfg=content['combat_rules']
         self.targeting_policy = cfg.get('targeting_policy', 'nearest_each_action')
         if self.targeting_policy not in ('nearest_each_action', 'retain_until_invalid'):
@@ -162,6 +173,12 @@ class Battle:
         base.update({k:star_value(spec['combat'].get(k,v),stars,k) for k,v in NEUTRAL.items()})
         values=Stats(base);hooks=deepcopy(spec.get('hooks',[]));tags=set(spec.get('traits',[]))
         mods=deepcopy(spec.get('modifiers',[]))
+        if spec.get('stage_modifiers'):
+            stage=self.stages[team]
+            tiers=[tier for tier in spec['stage_modifiers'] if stage is not None and tier['min_stage'] <= stage <= tier.get('max_stage',99)]
+            if len(tiers)!=1:
+                raise UnsupportedRule('role requires an observed stage with one exact rule')
+            mods.extend(deepcopy(tiers[0]['modifiers']))
         for item_index,item in enumerate(items):
             rule=self.content['items'].get(item)
             if not rule or rule.get('combat_handler')!='effects':
@@ -280,6 +297,8 @@ class Battle:
                                                 -distance(p,center),-p[0],-p[1]))
             if kind=='best_line':
                 lines=[(u,self.select(source,u,dict(kind='line',width=selector['width']))) for u in enemies]
+                if selector.get('includes_target'):
+                    lines=[line for line in lines if target is not None and target in line[1]]
                 if not lines:return []
                 target,candidates=min(lines,key=lambda p:(-len(p[1]),distance(source.position,p[0].position),p[0].uid))
                 center=target.position
@@ -422,7 +441,12 @@ class Battle:
                         identities={self.content['champions'][u.champion].get('identity',u.champion)
                                     for u in self.units if u.team==source.team and u.stars==3 and ':summon:' not in u.uid}
                         raw*=1+effect['per_unique_three_star']*len(identities)
-                    crit=effect.get('can_crit',True) and self.get(source,'precision')>0 and self.rng.random()<self.get(source,'crit_chance')
+                    if effect.get('inherit_attack_critical'):
+                        if type(context.get('attack_critical')) is not bool:
+                            raise UnsupportedRule('replacement attack requires original critical roll')
+                        crit=context['attack_critical']
+                    else:
+                        crit=effect.get('can_crit',True) and self.get(source,'precision')>0 and self.rng.random()<self.get(source,'crit_chance')
                     dealt=self.hit(source,unit,raw,effect['damage_type'],tag,crit,tag!='proc')
                     context['damage']=dealt;context['total_damage']=context.get('total_damage',0)+dealt
                 elif op=='heal':self.heal(source,unit,raw)
@@ -452,11 +476,16 @@ class Battle:
                         unit.version+=1;self.schedule(self.now+duration,'act',unit.uid,unit.version)
                     self.emit('status',unit=unit.uid,status=name,duration=duration)
                 elif op=='sequence':self.effects(source,unit,effect['effects'],dict(context,target_index=index),tag)
-                elif op=='mark':unit.marks.add((source.uid,effect['name']))
+                elif op=='mark':
+                    if 'duration' in effect:
+                        unit.statuses[f"mark:{source.uid}:{effect['name']}"]=[self.now+star_value(effect['duration'],source.stars,'mark duration')]
+                    else:unit.marks.add((source.uid,effect['name']))
                 elif op=='branch':
                     condition=effect['condition']
-                    passed=((source.uid,condition['marked']) in unit.marks if 'marked' in condition
-                            else source.casts>=condition['casts_at_least'])
+                    if 'marked' in condition:
+                        passed=((source.uid,condition['marked']) in unit.marks or bool(self.status(unit,f"mark:{source.uid}:{condition['marked']}")))
+                    elif 'target_status_active' in condition:passed=bool(self.status(unit,condition['target_status_active']))
+                    else:passed=source.casts>=condition['casts_at_least']
                     self.effects(source,unit,effect['effects'] if passed else effect.get('otherwise',[]),context,tag)
                 elif op=='cleanse':
                     stunned=bool(self.status(unit,'stun'))
@@ -564,7 +593,8 @@ class Battle:
                 if not payload.get('replace_attack'):
                     self.hit(unit,victim,payload['damage'],'physical','attack',payload['critical'])
                 for enhanced in payload.get('enhanced',[]):
-                    self.effects(self.by_id[enhanced['source']],victim,enhanced['effects'],tag='spell')
+                    self.effects(self.by_id[enhanced['source']],victim,enhanced['effects'],
+                                 context={'attack_critical':payload['critical']},tag='spell')
                 continue
             if unit.hp<=0:continue
             if kind=='periodic':
@@ -594,6 +624,7 @@ class Battle:
                 original=self.by_id[payload['target']]
                 if self.targetable(original) and not self.status(unit,'disarm'):
                     unit.attacks+=1;crit=self.rng.random()<self.get(unit,'crit_chance')
+                    self.hook('before_attack',unit,original,dict(critical=crit))
                     delay=distance(unit.position,original.position)/self.projectile_speed if self.projectile_speed and self.get(unit,'range')>1 else 0.
                     enhanced=[];replace=False
                     for key,buff in list(unit.empowers.items()):
