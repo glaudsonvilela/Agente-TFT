@@ -1,0 +1,42 @@
+{
+  "success": true,
+  "seeded_existing_audio": true,
+  "restart_tested": true,
+  "different_installations_tested": true,
+  "new_characters_reserved": 0,
+  "new_provider_synthesis_required": false,
+  "requests": [
+    {
+      "after_restart": false,
+      "cache": "hit",
+      "request_ms": 36.04,
+      "audio_bytes": 161792
+    },
+    {
+      "after_restart": true,
+      "cache": "hit",
+      "request_ms": 48.93,
+      "audio_bytes": 161792
+    }
+  ],
+  "health": {
+    "voice_configured": true,
+    "provider": "elevenlabs",
+    "riot_integration": false,
+    "audio_cache": {
+      "entries": 1,
+      "audio_bytes": 161792,
+      "max_audio_bytes": 67108864,
+      "hits": 2,
+      "characters_reused": 100
+    }
+  },
+  "windows_playback_validated": false,
+  "public_https_configured": false,
+  "source_commit": "a139689",
+  "automated_tests": {
+    "passed": 20,
+    "skipped": 1,
+    "skip_reason": "Windows DPAPI requires Windows"
+  }
+}
