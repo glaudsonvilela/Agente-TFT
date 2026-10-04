@@ -94,7 +94,9 @@ class Store:
             if not self._thin_samples():break
             if index%self.sample_stride:
                 self.counts['sample_stride_skipped']+=1;return
-        if len(self.records)>=self.max_samples or self.bytes+len(png)>self.max_bytes:
+        if len(self.records)>=self.max_samples:
+            self.counts['sample_limit_skipped']+=1;return
+        if self.bytes+len(png)>self.max_bytes:
             self.counts['byte_limit_skipped']+=1;return
         name=f'samples/{frame.id:09d}.png';p=self.root/name
         with p.open('xb') as f:f.write(png)
