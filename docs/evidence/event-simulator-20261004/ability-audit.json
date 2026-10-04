@@ -86,5 +86,16 @@
     "seconds": 47.61,
     "pytest_passed": 577,
     "subtests_passed": 18
+  },
+  "deployment": {
+    "source_commit": "1982c49",
+    "server": "BigBANANA",
+    "directory": "event-lab-abilities-v4",
+    "audit_sha256": "95b66d07d2585da0662a9845c8a9fc5bdcfd99705edab6366b91e7ae0500f67a",
+    "content_sha256": "2606c661db049b6e9efb50ced3020848eea075a7df954680cd68e5a223068154",
+    "local_server_hashes_match": true,
+    "cli_command_verified": "tft habilidades",
+    "new_training_run": false,
+    "containers_restarted": false
   }
 }
