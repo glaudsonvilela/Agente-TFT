@@ -130,3 +130,43 @@ Para transformar VOD em supervisão de decisões:
 O simulador completo e as dicas neurais do patch **continuam pendentes**. Estes
 artefatos implementam a base auditável de rótulos e atributos; o laboratório
 sintético não foi convertido em um simulador fiel apenas trocando seu catálogo.
+
+### Ampliação do corpus e processamento incremental
+
+`training.source_corpus` reuniu as transcrições dos cinco arquivos autorizados
+com legendas públicas de três guias adicionais: Frodan/TFT, BunnyMuffins
+fundamentos e `Must Know TFT Fundamentals`. O SQLite privado permite busca por
+texto com URL, tempo, hash e declaração de patch. A cópia publicada no servidor
+contém 4.155 trechos de oito fontes; seu relatório está em
+`docs/evidence/hex-simulator-20261004/source-corpus.json`.
+
+`training.transcribe_sources` completa o áudio por blocos de 120 segundos,
+reutiliza as três transcrições integrais existentes após verificar hashes e
+retoma blocos interrompidos. Usa CPU/int8, dois threads, arquivos temporários
+pequenos no SSD e um lock de escritor. Cinco blocos novos atualizam o índice.
+Segmentos antigos sobrepostos são substituídos; silêncio de um bloco também
+substitui ASR anterior. Transcrições, legendas e nomes de canais **não viram
+rótulos de ação/resultado nem atualizações de pesos automaticamente**.
+
+Foram consultados os VODs públicos recentes dos quatro canais da fila. Um VOD
+completo de Dishsoap foi baixado em 360p, com áudio/vídeo e duração conferidos;
+um frame em t=600 mostra TFT PC e indicação 18.3, sem comprovar o hotfix. O VOD
+de Subzeroark está na coleta. O arquivo Twitch `2889146353` é possível duplicata
+do VOD local de Wasianiverson (criador, título e duração), aguardando confirmação
+visual. Watch parties de Frodan permanecem identificadas como tal. O Bilibili
+continua com acesso recusado, sem alegação de uso de seu conteúdo.
+
+O suplemento [TFTCodex](https://tftcodex.com/cards.json), consultado em 04/10,
+contém 88 entradas de unidades, 510 entradas na seção de itens (incluindo outros
+tipos), 36 características e 246 aprimoramentos. Foi arquivado como candidato
+com hash, sem substituir o release imutável. Há divergência de dano publicado
+da Cassiopeia (420 no suplemento, 425 na nota oficial); o relatório preserva
+a divergência e prioriza o fato oficial. Números presentes em texto não
+estabelecem fórmulas, temporização ou handlers executáveis.
+
+O processamento contínuo local roda como unidade de usuário
+`agente-tft-asr-20261004.service`, com teto de dois núcleos, 1,5 GiB e seis horas.
+Progresso e corpus ficam no SSD. Desligar o Ubuntu interrompe esse serviço;
+os blocos já salvos permitem retomada. Não é um treino neural concluído sobre
+todos os vídeos. Ainda faltam pares observados de estado/ação/resultado,
+fronteiras de partidas e a validação do simulador sazonal.

@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "scope": "experimental_hex_lab",
+  "patch": null,
+  "description": "Synthetic integration fixtures, not official TFT units or balance. No current-patch promotion.",
+  "champions": {
+    "lab_fighter": {
+      "cost": 1,
+      "sale_prices": {
+        "1": 1,
+        "2": 3,
+        "3": 9
+      },
+      "combat": {
+        "hp": [
+          600,
+          1080,
+          1944
+        ],
+        "ad": [
+          50,
+          75,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 30,
+        "mr": 30,
+        "attack_speed": 0.75,
+        "range": 1,
+        "mana": 50,
+        "initial_mana": 0,
+        "mana_per_attack": 10,
+        "mana_per_second": 0,
+        "mana_per_damage": 0,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.4
+      },
+      "traits": [],
+      "spell": {
+        "kind": "none"
+      }
+    },
+    "lab_caster": {
+      "cost": 1,
+      "sale_prices": {
+        "1": 1,
+        "2": 3,
+        "3": 9
+      },
+      "combat": {
+        "hp": [
+          450,
+          810,
+          1458
+        ],
+        "ad": [
+          25,
+          37.5,
+          56.25
+        ],
+        "ap": 100,
+        "armor": 30,
+        "mr": 30,
+        "attack_speed": 0.75,
+        "range": 4,
+        "mana": 30,
+        "initial_mana": 0,
+        "mana_per_attack": 7,
+        "mana_per_second": 2,
+        "mana_per_damage": 0,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.4
+      },
+      "traits": [],
+      "spell": {
+        "kind": "target_damage",
+        "amount": [
+          160,
+          240,
+          360
+        ],
+        "scaling": "ap",
+        "damage_type": "magic",
+        "cast_seconds": 0.4
+      }
+    },
+    "lab_tank": {
+      "cost": 2,
+      "sale_prices": {
+        "1": 2,
+        "2": 5,
+        "3": 17
+      },
+      "combat": {
+        "hp": [
+          850,
+          1530,
+          2754
+        ],
+        "ad": [
+          35,
+          52.5,
+          78.75
+        ],
+        "ap": 100,
+        "armor": 50,
+        "mr": 50,
+        "attack_speed": 0.75,
+        "range": 1,
+        "mana": 40,
+        "initial_mana": 0,
+        "mana_per_attack": 10,
+        "mana_per_second": 0,
+        "mana_per_damage": 0,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.4
+      },
+      "traits": [],
+      "spell": {
+        "kind": "self_shield",
+        "amount": [
+          250,
+          375,
+          560
+        ],
+        "scaling": "ap",
+        "duration": 3,
+        "cast_seconds": 0.25
+      }
+    }
+  },
+  "items": {
+    "lab_sword": {
+      "combat_handler": "stats",
+      "component": true,
+      "bonuses": {
+        "ad": 10
+      }
+    },
+    "lab_rod": {
+      "combat_handler": "stats",
+      "component": true,
+      "bonuses": {
+        "ap": 15
+      }
+    },
+    "lab_blade": {
+      "combat_handler": "stats",
+      "bonuses": {
+        "ad": 25
+      }
+    }
+  },
+  "recipes": {
+    "lab_sword+lab_sword": "lab_blade"
+  },
+  "economy": {
+    "inventory_slots": 10,
+    "xp_cost": 4,
+    "xp_amount": 4,
+    "xp_to_next": {
+      "1": 2,
+      "2": 6,
+      "3": 10,
+      "4": 20,
+      "5": 36,
+      "6": 48,
+      "7": 76
+    },
+    "reroll_cost": 2,
+    "shop_odds": {
+      "1": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "2": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "3": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "4": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "5": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "6": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "7": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ],
+      "8": [
+        0.7,
+        0.3,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "combat_rules": {
+    "duration": 40,
+    "move_seconds": 0.25,
+    "first_action_seconds": 0.25,
+    "attack_speed_cap": 5
+  },
+  "match_rules": {
+    "starting_gold": 10,
+    "starting_level": 3,
+    "starting_hp": 30,
+    "pool_per_champion": 90,
+    "base_income": 5,
+    "interest_step": 10,
+    "interest_cap": 5,
+    "natural_xp": 2,
+    "loss_damage": 5,
+    "tie_damage": 2,
+    "max_rounds": 40,
+    "planning_actions": 12,
+    "pairing": "seeded_shuffle_with_bye",
+    "loot": "none",
+    "streaks": "none"
+  }
+}

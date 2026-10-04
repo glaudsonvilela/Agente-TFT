@@ -6,6 +6,7 @@ import json
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -92,11 +93,35 @@ def fetch() -> dict:
 
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "status"
+    if command in ('fontes','simulador'):
+        root=Path(__file__).resolve().parents[1]/'data'
+        pattern='source-corpus-*/report.json' if command=='fontes' else 'hex-lab-*/report.json'
+        reports=sorted(root.glob(pattern),reverse=True)
+        if not reports:
+            print('Ainda não há relatório local para esta etapa.'); return 1
+        path=reports[0]
+        if path.is_symlink() or path.stat().st_size>2*1024*1024:
+            print('Relatório inválido.'); return 1
+        report=json.loads(path.read_text())
+        print('✦ AGENTE TFT · '+('Fontes de referência' if command=='fontes' else 'Simulador experimental'))
+        print('Cópia local atualizada em: '+datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec='seconds'))
+        if command=='fontes':
+            count=sum(s['segments']>0 for s in report['sources'])
+            print(f"{count} fontes com texto · {report['segments']} trechos indexados")
+            print(f"Ações com resultado rotulado: {report['action_outcome_labels']}")
+            print('Transcrição e legenda são referências; não comprovam treino de decisões.')
+        else:
+            print(f"{report['matches_completed']} partidas sintéticas completas · {report['combat_calls']} combates")
+            search=report.get('search') or {}
+            print(f"Busca: {search.get('simulation_paths',0)} caminhos · {search.get('elapsed_seconds',0):.2f} s")
+            print(f"RAM máxima: {report['peak_rss_mib']:.1f} MiB")
+            print('Regras de laboratório. Patch completo e dicas do HUD ainda não liberados.')
+        return 0
     if command in ("web", "navegador"):
         print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
         return 0
     if command not in ("status", "acompanhar", "watch", "painel", "panel"):
-        print("Uso: tft [status|painel|web]", file=sys.stderr)
+        print("Uso: tft [status|painel|web|fontes|simulador]", file=sys.stderr)
         return 2
     try:
         while True:

@@ -1,0 +1,21 @@
+test_exact_attack_damage_and_no_input_mutation (training.tests.test_hex_simulator.Combat.test_exact_attack_damage_and_no_input_mutation) ... ok
+test_separate_star_progressions (training.tests.test_hex_simulator.Combat.test_separate_star_progressions) ... ok
+test_spell_and_dot_use_mana_and_resistance (training.tests.test_hex_simulator.Combat.test_spell_and_dot_use_mana_and_resistance) ... ok
+test_unknown_effects_fail_instead_of_generic_bonus (training.tests.test_hex_simulator.Combat.test_unknown_effects_fail_instead_of_generic_bonus) ... ok
+test_blocked_path_does_not_teleport (training.tests.test_hex_simulator.Hexes.test_blocked_path_does_not_teleport) ... ok
+test_distance_rotation_and_neighbors (training.tests.test_hex_simulator.Hexes.test_distance_rotation_and_neighbors) ... ok
+test_eight_player_game_finishes_reproducibly (training.tests.test_hex_simulator.Match.test_eight_player_game_finishes_reproducibly) ... ok
+test_elimination_releases_all_reserved_shops_atomically (training.tests.test_hex_simulator.Match.test_elimination_releases_all_reserved_shops_atomically) ... ok
+test_failed_purchase_preserves_rng_resources (training.tests.test_hex_simulator.Planning.test_failed_purchase_preserves_rng_resources) ... ok
+test_full_bench_merge_uses_existing_slot_and_keeps_original (training.tests.test_hex_simulator.Planning.test_full_bench_merge_uses_existing_slot_and_keeps_original) ... ok
+test_item_recipe_and_xp_carry (training.tests.test_hex_simulator.Planning.test_item_recipe_and_xp_carry) ... ok
+test_shared_pool_conservation_and_reproducible_reroll (training.tests.test_hex_simulator.Planning.test_shared_pool_conservation_and_reproducible_reroll) ... ok
+test_swap_board_and_bench_at_unit_cap (training.tests.test_hex_simulator.Planning.test_swap_board_and_bench_at_unit_cap) ... ok
+test_planning_search_prefers_buy_when_evaluator_rewards_it (training.tests.test_hex_simulator.Search.test_planning_search_prefers_buy_when_evaluator_rewards_it) ... ok
+test_changed_reference_cannot_reuse_manual_conflict_audit (training.tests.test_source_corpus.SourceCorpus.test_changed_reference_cannot_reuse_manual_conflict_audit) ... ok
+test_incremental_asr_replaces_overlapping_old_text_and_rebuild_is_idempotent (training.tests.test_source_corpus.SourceCorpus.test_incremental_asr_replaces_overlapping_old_text_and_rebuild_is_idempotent) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.353s
+
+OK

@@ -9,7 +9,7 @@ Seu código e licença são preservados pelo bootstrap. Não há cópia de códi
 upstream nos novos módulos de integração.
 
 **Ainda não é um simulador completo do Set 18.** O laboratório usa oito campeões
-sintéticos e regras aproximadas de uma base Set 17. O agente não escolhe hexágonos
+sintéticos e regras aproximadas de uma base Set 17. O agente PPO não escolhe hexágonos
 ou a identidade dos itens equipados; o upstream usa formação/equipamento
 automáticos e sua observação contém contagens de itens. Esses limites impedem
 usar o candidato nas dicas do replay. Não se pode trocar apenas o JSON de
@@ -112,3 +112,55 @@ ser verificadas no host de destino; uma execução local não comprova implanta�
    comparar política treinada com baselines em sementes e partidas separadas.
 6. Só promover um candidato após comprovar cobertura e benefício. Salvar pesos
    novos não equivale a uma política melhor.
+
+## Núcleo próprio com posições e itens (04/10/2026)
+
+`trainer/simulation/{state,hexgrid,combat,match,search}.py` acrescenta um segundo
+motor, próprio e independente do upstream. A configuração versionada
+`configs/simulation/hex-lab-v1.json` contém **três unidades sintéticas**, não
+campeões oficiais. Não foi ligado ao PPO acima nem às recomendações do HUD.
+
+Implementado e exercitado:
+
+- Estado explícito de oito jogadores: ouro, XP, HP, loja reservada do pool
+  compartilhado, banco, estrelas, posições e identidades dos itens.
+- Ações atômicas de comprar, vender, subir nível, atualizar/travar loja,
+  mover/trocar unidades e equipar/combinar componentes no portador. Comprar a
+  terceira cópia funciona com banco cheio; falhas preservam recursos e RNG.
+- Malha de 8×7 hexágonos, alcance e caminho sem atravessar unidades.
+- Combate com resistências, crítico, mana, valores separados por estrela,
+  dano direto, dano periódico e escudos com expiração própria.
+- Rodadas com renda, XP, combates e eliminação. O perfil declara explicitamente
+  emparelhamento aleatório com folga, dano fixo e ausência de loot/sequências;
+  isso não reproduz as regras sazonais do TFT.
+- Busca UCT com orçamento e alternativas de posições/itens. 500 caminhos de
+  busca não são 500 partidas completas. Os valores vêm do combate experimental.
+
+Sinergias, habilidades ou efeitos de item sem handler provocam erro antes do
+combate. Prioridade de itens/stacks durante fusão permanece não suportada.
+Mira, cadência, projéteis, interrupções e outras interações ainda exigem validação
+contra partidas reais. A disponibilidade dos handlers genéricos não altera
+`executable_abilities` do catálogo oficial.
+
+```bash
+.venv/bin/python -m unittest training.tests.test_hex_simulator training.tests.test_source_corpus -v
+.venv/bin/python -m training.hex_lab --output trainer/data/hex-lab-v1/report.json --matches 10 --paths 500 --seconds 120
+```
+
+No BigBANANA, a execução de integração completou dez partidas, 527 combates
+e uma busca de 500 caminhos em 8,58 s, com pico de 36,8 MiB (Python do servidor).
+A busca isolada levou 2,55 s. A execução local usou outro runtime e mediu
+11,20 s/140,1 MiB. São medições deste cenário sintético, sem captura, OCR ou voz.
+Os relatórios estão em `docs/evidence/hex-simulator-20261004/`.
+
+O PPO anterior concluiu seu alvo de **500 partidas** no BigBANANA: 3.738.210
+transições, 60.436 passos de otimização e 40.177 chamadas de combate. Checkpoint
+`8afc57a246da3260f94a75a22134fac12a1589900f7c56634953f780351b5c4e`.
+Em 16 sementes de avaliação por versão, contra adversários programados, a
+colocação média inicial foi 7,9375 e a treinada 1,8125. Esse resultado mostra
+melhora nessa avaliação sintética; não comprova habilidade em TFT real.
+
+No servidor: `tft status` mostra o treino; `tft simulador` mostra a última
+execução do núcleo; `tft fontes` mostra a última cópia do corpus de referência.
+Os dois últimos comandos leem relatórios salvos, não prometem atualização ao
+vivo de processos que executam no Ubuntu.

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "source_corpus",
+  "sources": [
+    {
+      "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+      "url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+      "segments": 501,
+      "previous_scope": "sampled",
+      "newly_transcribed_audio_seconds": 5280,
+      "supervision": "automatic_unreviewed_transcript",
+      "action_outcome_labels": 0
+    },
+    {
+      "source_sha256": "7d6150621f84f99a078b46bc41c242bfabdb3bada65307a0fb27dcc6855c4983",
+      "url": "https://www.youtube.com/watch?v=gziqlVkdUb4",
+      "segments": 222,
+      "previous_scope": "full_guide",
+      "newly_transcribed_audio_seconds": 0,
+      "supervision": "automatic_unreviewed_transcript",
+      "action_outcome_labels": 0
+    },
+    {
+      "source_sha256": "fb82653c864ae792e064ece939132b58d095b6bf17d6c7bcc42edcdb64faeca6",
+      "url": "https://www.youtube.com/watch?v=_zoANnUPl3c",
+      "segments": 151,
+      "previous_scope": "full_guide",
+      "newly_transcribed_audio_seconds": 0,
+      "supervision": "automatic_unreviewed_transcript",
+      "action_outcome_labels": 0
+    },
+    {
+      "source_sha256": "2bcaec95e51f71ec116d7800ae39aa5aaea5c70afa4777ab56a796cddf167a02",
+      "url": "https://www.youtube.com/watch?v=Yez0weG0vr4",
+      "segments": 277,
+      "previous_scope": "sampled",
+      "newly_transcribed_audio_seconds": 720,
+      "supervision": "automatic_unreviewed_transcript",
+      "action_outcome_labels": 0
+    },
+    {
+      "source_sha256": "d1aef111ed6d6b4f0de054872b45ee5a61e0a99cc2f3b17dfda1d886a5e37ba6",
+      "url": "https://www.youtube.com/watch?v=dv06BCe_Vug",
+      "segments": 547,
+      "previous_scope": "full_guide",
+      "newly_transcribed_audio_seconds": 0,
+      "supervision": "automatic_unreviewed_transcript",
+      "action_outcome_labels": 0
+    },
+    {
+      "subtitle_sha256": "001799f66d0e800b68cb020ff361c5606903083487a7d98e47e4198d2bc3bf6e",
+      "url": "https://www.youtube.com/watch?v=SP20lQatN2c",
+      "segments": 188,
+      "supervision": "unreviewed_platform_subtitles",
+      "action_outcome_labels": 0
+    },
+    {
+      "subtitle_sha256": "ae1aa48924b2cd0161a84efe703c552e7c5f6fb9fcf056b14eff0c8bf3f9adae",
+      "url": "https://www.youtube.com/watch?v=6FurRnITERA",
+      "segments": 524,
+      "supervision": "unreviewed_platform_subtitles",
+      "action_outcome_labels": 0
+    },
+    {
+      "subtitle_sha256": "4ee8cf49718f4afdd38d07bc46a48dea62bc985f4f67ec33deade59a5777f2e9",
+      "url": "https://www.youtube.com/watch?v=mf3lxrDg3B4",
+      "segments": 1745,
+      "supervision": "unreviewed_platform_subtitles",
+      "action_outcome_labels": 0
+    }
+  ],
+  "segments": 4155,
+  "action_outcome_labels": 0,
+  "patch_binding_verified": false,
+  "runtime_promoted": false,
+  "database_sha256": "9ff0529cca3068d2b13cd4d8be75c8ff9cf5ebf6b093b1bee97f84ccf1cddce9"
+}

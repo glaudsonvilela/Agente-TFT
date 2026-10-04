@@ -1,1 +1,4 @@
-"""Experimental numeric kernels for the future TFT simulator."""
+"""Experimental hex combat, atomic planning actions and bounded search.
+
+Seasonal TFT parity requires independently validated content and replay tests.
+"""

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "kind": "policy_paired_evaluation",
+  "scope": "synthetic_laboratory",
+  "checkpoint_sha256": "8afc57a246da3260f94a75a22134fac12a1589900f7c56634953f780351b5c4e",
+  "games_per_policy": 16,
+  "evaluation_matches": 32,
+  "opponent": "scripted",
+  "seed_domain": "2**63 + index",
+  "pairs": [
+    {
+      "seed": 9223372036854775808,
+      "seat": "player_0",
+      "initial": 8.0,
+      "candidate": 2.0
+    },
+    {
+      "seed": 9223372036854775809,
+      "seat": "player_1",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775810,
+      "seat": "player_2",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775811,
+      "seat": "player_3",
+      "initial": 8.0,
+      "candidate": 6.0
+    },
+    {
+      "seed": 9223372036854775812,
+      "seat": "player_4",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775813,
+      "seat": "player_5",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775814,
+      "seat": "player_6",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775815,
+      "seat": "player_7",
+      "initial": 8.0,
+      "candidate": 3.0
+    },
+    {
+      "seed": 9223372036854775816,
+      "seat": "player_0",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775817,
+      "seat": "player_1",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775818,
+      "seat": "player_2",
+      "initial": 7.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775819,
+      "seat": "player_3",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775820,
+      "seat": "player_4",
+      "initial": 8.0,
+      "candidate": 2.0
+    },
+    {
+      "seed": 9223372036854775821,
+      "seat": "player_5",
+      "initial": 8.0,
+      "candidate": 3.0
+    },
+    {
+      "seed": 9223372036854775822,
+      "seat": "player_6",
+      "initial": 8.0,
+      "candidate": 1.0
+    },
+    {
+      "seed": 9223372036854775823,
+      "seat": "player_7",
+      "initial": 8.0,
+      "candidate": 3.0
+    }
+  ],
+  "initial_mean_placement": 7.9375,
+  "candidate_mean_placement": 1.8125,
+  "paired_placement_delta": -6.125,
+  "lower_placement_is_better": true,
+  "training_improvement_proven": false,
+  "real_tft_accuracy": null,
+  "runtime_promoted": false,
+  "elapsed_seconds": 144.10538555396488,
+  "caveat": "Small synthetic evaluation measures this laboratory only, not real TFT skill"
+}
