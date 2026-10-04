@@ -45,6 +45,9 @@ class ItemCandidateTests(unittest.TestCase):
             row = result["candidate_slots"][0]
             self.assertEqual(row["status"], "candidate_only")
             self.assertEqual(row["candidates"][0]["ids_with_same_template"], ["A", "A_alias"])
+            self.assertEqual(row["candidates"][0]["catalog_options"],
+                             [{"visual_id": "A", "name": "A"},
+                              {"visual_id": "A_alias", "name": "A_alias"}])
             self.assertEqual(row["candidates"][0]["rms"], 0)
             self.assertIsNone(row["item_id"])
             self.assertFalse(result["item_identity_established"])

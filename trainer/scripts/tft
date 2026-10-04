@@ -33,7 +33,7 @@ def render(data: dict) -> str:
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
         f"Lotes: {jobs['completed']} concluídos, {jobs['running']} em execução, {jobs['failed']} falharam",
-        f"CPU BigBANANA: {number(host.get('cpu_percent'))}%  |  "
+        f"CPU BigBANANA: {number(host.get('cpu_percent')) + '%' if host.get('cpu_percent') is not None else 'medindo'}  |  "
         f"RAM: {number((host.get('memory_used_mib') or 0) / 1024) if host.get('memory_used_mib') is not None else 'indisponível'}"
         f"/{number((host.get('memory_total_mib') or 0) / 1024) if host.get('memory_total_mib') is not None else 'indisponível'} GiB",
         f"CPU contêiner TFT: {number(container.get('cpu_cores_used'), 2)}"

@@ -12,10 +12,25 @@ from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
 from hm.replay_decision import ReplayDecisionEngine
+from hm.board_hub_live import BoardHubLive
 from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_visual_item_ids_link_to_attributes_only_by_exact_api_name(self):
+        root=Path(__file__).resolve().parents[3]
+        knowledge=json.loads((root/'configs/catalog/active-knowledge-release-v1.json').read_text())
+        items=json.loads((root/knowledge['reference']/'items.json').read_text())['items']
+        hub=BoardHubLive.__new__(BoardHubLive)
+        hub.item_attribute_ids={item['api_name'] for item in items}
+        candidate={'catalog_options':[{'visual_id':'TFT_Item_GuinsoosRageblade','name':'Lâmina da Fúria de Guinsoo'},
+                                      {'visual_id':'DA_18_EmblemBrawler','name':'Emblema de Lutador'}]}
+        hub._bind_exact_attribute_ids(candidate)
+        self.assertEqual(candidate['catalog_options'][0]['attribute_id'],'TFT_Item_GuinsoosRageblade')
+        self.assertEqual(candidate['catalog_options'][0]['attribute_binding'],'exact_api_name')
+        self.assertIsNone(candidate['catalog_options'][1]['attribute_id'])
+        self.assertEqual(candidate['catalog_options'][1]['attribute_binding'],'visual_name_only')
+
     def test_fixed_geometry_and_hud_are_independent_of_patch_catalog(self):
         root=Path(__file__).resolve().parents[3]
         static=(root/'configs/ui/board-hub-live-v1.json',

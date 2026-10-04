@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from PIL import Image
 
@@ -23,6 +24,18 @@ class BoardHubLive:
         if self.manifest['set_key'] != catalog['set_key']:
             raise ValueError('Live set and reference mismatch')
         self.icons = root / catalog['icon_dir']
+        knowledge = json.loads((root / 'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
+        release = root / knowledge['reference']
+        release_manifest = json.loads((release / 'release.json').read_text(encoding='utf-8'))
+        items_bytes = (release / 'items.json').read_bytes()
+        if (knowledge['set_key'] != self.manifest['set_key'] or
+                release_manifest['set']['key'] != knowledge['set_key'] or
+                release_manifest['tft_patch'] != knowledge['tft_patch'] or
+                hashlib.sha256(items_bytes).hexdigest() != release_manifest['components']['items']['sha256']):
+            raise ValueError('Visual items and structured release differ')
+        self.item_attribute_ids = {item['api_name'] for item in json.loads(items_bytes)['items']}
+        self.knowledge_release = release_manifest['release_sha256']
+        self.knowledge_patch = knowledge['tft_patch']
         selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
         missing = [entry['icon'] for entry in selected if not (self.icons / entry['icon']).is_file()]
         if missing:
@@ -54,6 +67,15 @@ class BoardHubLive:
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates)
+        for row in snapshot['inventory']['candidate_slots']:
+            for candidate in row['candidates']:
+                self._bind_exact_attribute_ids(candidate)
+        for marker in snapshot['observed_markers']:
+            for slot in marker['equipped_slots']:
+                for candidate in slot['candidates']:
+                    self._bind_exact_attribute_ids(candidate)
+        snapshot['knowledge_release'] = self.knowledge_release
+        snapshot['item_attributes_patch'] = self.knowledge_patch
         # A live recording has no verified patch binding or semantic labels.
         snapshot['live_diagnostic_only'] = True
         snapshot['board_reference_status'] = 'manual_reference_active' if board_read else 'not_calibrated'
@@ -65,9 +87,12 @@ class BoardHubLive:
             item = next((row for row in snapshot['inventory']['candidate_slots']
                          if row['slot'] == slot['slot']), None)
             candidates = (item or {}).get('candidates') or []
+            leading = candidates[0] if candidates else None
+            options = leading['catalog_options'] if leading else []
             regions.append(region(f"hub.inventory.{slot['slot']}", xyxy(slot['rect']), slot['status'],
-                                  value=candidates[0]['ids_with_same_template'][0] if candidates else None,
+                                  value=options[0]['visual_id'] if len(options) == 1 else None,
                                   value_is_unverified_candidate=bool(candidates), item_id=None,
+                                  candidate_items=options,
                                   game_state_write_allowed=False))
         positions = {m['marker_id']: m['position_candidate'] for m in snapshot['observed_markers']}
         for marker in read['markers']:
@@ -76,3 +101,9 @@ class BoardHubLive:
                                   'position_candidate' if location else 'unassigned_bar',
                                   value=location, champion_id=None, game_state_write_allowed=False))
         return {'snapshot': snapshot, 'regions': regions}
+
+    def _bind_exact_attribute_ids(self, candidate: dict) -> None:
+        for option in candidate['catalog_options']:
+            item_id = option['visual_id']
+            option['attribute_id'] = item_id if item_id in self.item_attribute_ids else None
+            option['attribute_binding'] = 'exact_api_name' if option['attribute_id'] else 'visual_name_only'
