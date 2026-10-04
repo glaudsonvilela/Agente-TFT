@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "kind": "online_dependency_evidence",
+  "reviewed_at": "2026-10-04",
+  "raw_media_private": true,
+  "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/20261004-dependency-validation",
+  "frames": [
+    {
+      "file": "twitch-before-round.png",
+      "sha256": "e90e47163866bfc7be272c82f98f9970abdb1bb30edd400c1640d4e2a9ea62e3",
+      "media_time_s": 720.484677,
+      "review": "assistant_visual",
+      "observed": {
+        "stage": "2-2",
+        "phase": "combat_or_aftermath",
+        "level": 4,
+        "xp": 2,
+        "xp_target": 10,
+        "gold": 4,
+        "shop_visible": [
+          "Alistar",
+          "Cinderling",
+          "Yorick",
+          null,
+          null
+        ],
+        "shop_cost_odds": [
+          0.55,
+          0.3,
+          0.15,
+          0,
+          0
+        ],
+        "reroll_price": 2,
+        "xp_purchase_price": 4
+      }
+    },
+    {
+      "file": "twitch-after-round.png",
+      "sha256": "a56f37ea01d1a0eb2843178b4fdac83f189b134d212d4d5ae79bb60fa180fe4b",
+      "media_time_s": 744.20702,
+      "review": "assistant_visual",
+      "observed": {
+        "stage": "2-3",
+        "phase": "planning",
+        "level": 4,
+        "xp": 4,
+        "xp_target": 10,
+        "gold": 10,
+        "shop_visible": [
+          "Pebbles",
+          null,
+          "Scuttlecrab",
+          "Karma",
+          "Diana"
+        ],
+        "shop_cost_odds": [
+          0.55,
+          0.3,
+          0.15,
+          0,
+          0
+        ],
+        "reroll_price": 2,
+        "xp_purchase_price": 4
+      }
+    },
+    {
+      "file": "youtube-rolldown.png",
+      "sha256": "13392e4382ee662f8e1d7417118083acbe7157c6761989c30019184040ef9349",
+      "media_time_s": 632.020545,
+      "review": "assistant_visual",
+      "observed": {
+        "gold": 0,
+        "phase": "planning",
+        "level": 8
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "youtube-rolldown",
+      "url": "https://www.youtube.com/watch?v=qNOZMvMGcVo",
+      "creator": "TFTAcademy / Wasianiverson",
+      "review": "Complete automatic pt-BR transcript read; visual samples and online playback in demonstration around 9:20–10:32. No complete match labeled.",
+      "patch": "Set18; exact recording hotfix unknown",
+      "transcript_sha256": "6894d675937b5639f65c0e2dec23ffee068ae7cecfe86cb91ac0d18857fbb742"
+    },
+    {
+      "id": "twitch-round",
+      "url": "https://www.twitch.tv/videos/2891050468?t=00h12m00s",
+      "creator": "Dishsoap",
+      "review": "Online sampled playback and two annotated stills at 720.484677 and 744.207020. Ads allowed to finish normally.",
+      "patch": "18.3 overlay visible; exact hotfix unknown"
+    },
+    {
+      "id": "twitch-buffering",
+      "url": "https://www.twitch.tv/videos/2892011367",
+      "review": "Player buffered on this visit; not counted as new gameplay evidence."
+    }
+  ],
+  "observations": [
+    {
+      "id": "xp-next-round",
+      "source": "twitch-round",
+      "result": "corroborated_instance",
+      "claim": "2-2 → 2-3; XP 2/10 → 4/10 at level 4.",
+      "limit": "One transition does not prove XP on every round type or all patches."
+    },
+    {
+      "id": "shop-refresh",
+      "source": "twitch-round",
+      "result": "corroborated_instance",
+      "claim": "Different shop after transition; level 4 odds 55/30/15/0/0 visible.",
+      "limit": "Actions occur in the interval; cannot isolate free refresh, lock behavior, paid rolls or all purchases from two stills."
+    },
+    {
+      "id": "gold-settlement",
+      "source": "twitch-round",
+      "result": "not_identifiable",
+      "claim": "Gold 4 → 10; unit transactions occurred.",
+      "limit": "Do not label +6 as income or infer interest/streak formula."
+    },
+    {
+      "id": "roll-stop",
+      "source": "youtube-rolldown",
+      "result": "creator_guidance",
+      "time_range_s": [
+        312,
+        374
+      ],
+      "claim": "Stop based on upgrades, HP and remaining pairs; not always zero gold."
+    },
+    {
+      "id": "equip-deadline",
+      "source": "youtube-rolldown",
+      "result": "creator_guidance",
+      "time_range_s": [
+        380,
+        534
+      ],
+      "claim": "Reserve time to field units; distinguish combat-start item triggers from later equips.",
+      "limit": "Runtime currently disallows all combat-phase actions; mid-combat item updates remain unimplemented."
+    },
+    {
+      "id": "caption-ambiguity",
+      "source": "youtube-rolldown",
+      "result": "rejected_literal",
+      "time_range_s": [
+        196,
+        239
+      ],
+      "claim": "Automatic Portuguese caption can read as buying two Wisps.",
+      "limit": "Context describes first reasonable Wisp costing at most two gold; do not infer two purchases per round from this caption."
+    }
+  ],
+  "facts_not_validated": [
+    "Full combat result or precise damage",
+    "Hidden shared pool",
+    "Complete income decomposition",
+    "Current hotfix identity of recordings",
+    "All item identities and stars",
+    "Seasonal persistent handlers"
+  ],
+  "neural_training_labels_ready": false
+}

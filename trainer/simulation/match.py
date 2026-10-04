@@ -8,7 +8,7 @@ import math
 import random
 
 from .combat import simulate
-from .state import Action, World, Player, UnsupportedRule, apply, validate_world, _reroll
+from .state import Action, World, Player, IllegalAction, UnsupportedRule, apply, validate_world, _reroll
 
 
 def new_match(content, seed):
@@ -17,11 +17,16 @@ def new_match(content, seed):
     if (rules['pairing'],rules['loot'],rules['streaks']) != ('seeded_shuffle_with_bye','none','none'):
         raise UnsupportedRule('seasonal round policies not implemented')
     return World([Player(rules['starting_gold'],rules['starting_level'],0,hp=rules['starting_hp'])
-                  for _ in range(8)], {c:rules['pool_per_champion'] for c in content['champions']},seed=seed)
+                  for _ in range(8)], {c:rules['pool_per_champion'] for c in content['champions']},seed=seed,
+                  round_phase='between_rounds')
 
 
 def begin_round(world, content):
+    validate_world(world, content)
+    if world.round_phase != 'between_rounds':
+        raise IllegalAction('round already started')
     state=deepcopy(world); rng=random.Random(world.seed)
+    state.round_phase='planning'; state.round_number+=1
     if world.rng_state: rng.setstate(world.rng_state)
     for p in state.players:
         if p.hp <= 0: continue
@@ -33,6 +38,11 @@ def begin_round(world, content):
 
 def resolve_round(world, content, seed):
     """All fights see the same round-start boards; settlement follows combat."""
+    validate_world(world, content)
+    if world.round_phase != 'planning':
+        raise IllegalAction('round has already settled or has not started')
+    if any(p.phase != 'planning' for p in world.players if p.hp > 0):
+        raise IllegalAction('round players are not in planning')
     state=deepcopy(world); rng=random.Random(seed); rules=content['match_rules']
     active=[i for i,p in enumerate(state.players) if p.hp>0]; rng.shuffle(active)
     fights=[]
@@ -60,13 +70,15 @@ def resolve_round(world, content, seed):
                     state.pool[offer.entity]+=1
             p.units=[];p.shop=[None]*5;p.phase='eliminated'
         else:
+            p.phase='between_rounds'
             p.gold+=rules['base_income']+min(rules['interest_cap'],p.gold//rules['interest_step'])
             p.xp+=rules['natural_xp']
             curve=content['economy']['xp_to_next']
             while str(p.level) in curve and p.xp>=curve[str(p.level)]:
                 p.xp-=curve[str(p.level)];p.level+=1
+    state.round_phase='between_rounds'
     validate_world(state,content)
-    return state,dict(fights=fights,eliminated=eliminated,bye=active[-1] if len(active)%2 else None)
+    return state,dict(round_number=state.round_number,fights=fights,eliminated=eliminated,bye=active[-1] if len(active)%2 else None)
 
 
 def settle_combat(state, seats, result):

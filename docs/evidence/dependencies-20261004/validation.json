@@ -1,0 +1,50 @@
+{
+  "kind": "dependency_validation_result",
+  "date": "2026-10-04",
+  "training_suite": {
+    "tests": 550,
+    "skipped": 12,
+    "status": "OK",
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python -m unittest discover -s training/tests -v",
+    "log_sha256": "c9c820c247f656efd4cd49f6c6b89898649a2efb20d02cca58f9f0c9deaffd8f"
+  },
+  "regression_before": {
+    "tests": 8,
+    "failures_including_subtests": 7,
+    "errors": 1
+  },
+  "focused_after": {
+    "tests": 42,
+    "status": "OK"
+  },
+  "code_sha256": {
+    "trainer/simulation/combat.py": "d3d788ec7bba4c4a22a00cb38d6f25ae4cf0a0491a6603989de1640902013d15",
+    "trainer/simulation/state.py": "0b8af2f51b4d90ced5b5c7bb994c1e581df013baa34e19cf08d8b2be91519e6e",
+    "trainer/simulation/match.py": "126ed1f65885c07cdda50ba59f11f6c79e367a53553883653a5b794dfa7ee411",
+    "training/simulator_lab/dependency_audit.py": "654acda891622890803dddf9d161e6270a8dc23633d6e6a33ee78ef04c82654c",
+    "training/tests/test_simulation_dependencies.py": "0f38efa1a8c7677b27e5dd891226115232857f3bba52904b24fcc58f59cfac42"
+  },
+  "confirmed_fixes": [
+    "Legacy combat rejects augments it cannot apply. Event combat supported augment behavior retained.",
+    "Planning refuses unknown or unimplemented planning augments.",
+    "Second round-start cannot create free refreshes.",
+    "Settled round cannot pay resources again; next round restores planning.",
+    "Shop probabilities reject nonfinite, negative and boolean values.",
+    "Unknown champion offers fail explicitly before polluting a cloned pool."
+  ],
+  "lab_contracts_checked": [
+    "Shared-pool conservation across reroll/buy/sell/elimination",
+    "Locked shop preservation across rounds",
+    "Atomic rejected actions preserve original state and RNG",
+    "Permanent AP and gold rewards settle from event combat; temporary combat state not copied",
+    "Trait/effect/ability regressions in training suite"
+  ],
+  "current_patch_validation": "failed_incomplete_dependencies",
+  "strategy_cores_tested": 12,
+  "strategy_cores_accepted": 0,
+  "combat_kernel_versions": "legacy v1 and event v2",
+  "official_full_matches_run": 0,
+  "production_or_candidate_weights_updated": false,
+  "runtime_promoted": false,
+  "old_checkpoints": "Engine code identity changed; earlier laboratory weights cannot be relabeled as validated against this engine."
+}

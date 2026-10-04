@@ -376,6 +376,17 @@
       "training_labels_ready": false,
       "transcript_sha256": "135487c4071b3a052ff943ae91b10c212f76987618daf13375872ebf2f2f517a",
       "evidence_report": "configs/training/strategy-memory/TFTSet18/18.3B-20260928/memory.json"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qNOZMvMGcVo",
+      "creator": "TFTAcademy / Wasianiverson",
+      "title": "Como Executar um Rolldown (Guia Rank 1)",
+      "kind": "guide_rolldown",
+      "patch_claim": "Set18; exact recording hotfix unknown",
+      "availability": "online_browser_reviewed",
+      "content_review": "complete_auto_transcript_read_and_selected_visual_demo_review",
+      "training_labels_ready": false,
+      "evidence_report": "docs/evidence/dependencies-20261004/online-evidence.json"
     }
   ],
   "creator_discovery_queue": [

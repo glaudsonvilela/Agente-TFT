@@ -57,6 +57,8 @@ def materialize(players, content):
     if content.get('scope') != 'experimental_hex_lab':
         raise UnsupportedRule('only experimental_hex_lab is supported; current patch is not complete')
     for team, player in enumerate(players):
+        if player.augments:
+            raise UnsupportedRule('augment handlers require the event combat kernel')
         occupied = set()
         for unit in player.units:
             if unit.zone != 'board': continue

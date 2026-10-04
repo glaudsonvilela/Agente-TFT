@@ -1,5 +1,13 @@
 # Simulação e treinamento da política
 
+## Validação das dependências
+
+A [validação de 04/10/2026](DEPENDENCY_VALIDATION.md) corrigiu falhas na sequência
+de rodadas, loja e recusa de aprimoramentos não suportados. A suíte passou com
+550 testes, 12 ignorados. A auditoria dos 12 núcleos estratégicos ainda recusa
+todos por dependências ausentes. Inclui revisão online de YouTube/Twitch,
+evidências visuais e conflito explícito na curva de XP. Nenhum peso promovido.
+
 ## Pesquisa estratégica antes da próxima simulação
 
 A [memória sazonal de 04/10/2026](SEASONAL_STRATEGY_MEMORY.md) registra 19 fontes,

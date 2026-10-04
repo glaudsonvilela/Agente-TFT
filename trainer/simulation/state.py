@@ -8,6 +8,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 import random
+import math
 
 
 class UnsupportedRule(ValueError):
@@ -59,6 +60,9 @@ class World:
     seed: int = 0
     next_uid: int = 0
     rng_state: tuple | None = None
+    # Offline lifecycle only; this does not encode the seasonal round schedule.
+    round_phase: str = 'planning'
+    round_number: int = 0
 
 
 @dataclass(frozen=True)
@@ -68,10 +72,16 @@ class Action:
 
 
 def validate_world(world: World, content: dict):
+    if world.round_phase not in ('planning', 'between_rounds') or type(world.round_number) is not int or world.round_number < 0:
+        raise IllegalAction('invalid round lifecycle')
     if not 1 <= len(world.players) <= 8:
         raise IllegalAction('expected 1..8 players')
     seen = set()
     for p in world.players:
+        for augment in p.augments:
+            spec = content.get('augments', {}).get(augment)
+            if spec is None or spec.get('unsupported') or spec.get('planning_effects'):
+                raise UnsupportedRule(f'planning augment handler unavailable: {augment}')
         if any(type(v) is not int or v < 0 for v in (p.gold, p.level, p.xp, p.hp)) or p.level < 1:
             raise IllegalAction('invalid player resources')
         if len(p.shop) != 5:
@@ -106,6 +116,8 @@ def validate_world(world: World, content: dict):
         for offer in p.shop:
             if offer is not None and (type(offer.cost) is not int or offer.cost < 0):
                 raise IllegalAction('invalid offer cost')
+            if offer is not None and offer.kind == 'champion' and offer.entity not in content['champions']:
+                raise UnsupportedRule('unknown shop champion')
     if any(c not in content['champions'] for c in world.pool):
         raise UnsupportedRule('unknown pool champion')
     if any(type(n) is not int or n < 0 for n in world.pool.values()):
@@ -153,7 +165,9 @@ def _reroll(world, p, content, rng):
                 raise UnsupportedRule('seasonal shop refresh not implemented for this offer')
             world.pool[offer.entity] = world.pool.get(offer.entity, 0) + 1
     weights = content['economy']['shop_odds'].get(str(p.level))
-    if weights is None or len(weights) != 5 or abs(sum(weights) - 1) > 1e-6:
+    if (not isinstance(weights, (list, tuple)) or len(weights) != 5
+            or any(type(w) not in (int, float) or not math.isfinite(w) or not 0 <= w <= 1 for w in weights)
+            or abs(sum(weights) - 1) > 1e-6):
         raise UnsupportedRule('verified shop odds unavailable for level')
     p.shop = []
     for _ in range(5):
@@ -174,7 +188,7 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
     if type(seat) is not int or not 0 <= seat < len(world.players):
         raise IllegalAction('invalid seat')
     result = deepcopy(world); p = result.players[seat]
-    if p.phase != 'planning' or p.hp <= 0:
+    if result.round_phase != 'planning' or p.phase != 'planning' or p.hp <= 0:
         raise IllegalAction('player cannot act')
     rng = random.Random(world.seed)
     if world.rng_state is not None:

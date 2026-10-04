@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "kind": "supplemental_tables_not_activated",
+  "reviewed_at": "2026-10-04",
+  "runtime_enabled": false,
+  "shop": {
+    "source": "https://www.tftraits.com/roll-odds/",
+    "weights_percent": {
+      "1": [
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "2": [
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "3": [
+        75,
+        25,
+        0,
+        0,
+        0
+      ],
+      "4": [
+        55,
+        30,
+        15,
+        0,
+        0
+      ],
+      "5": [
+        45,
+        33,
+        20,
+        2,
+        0
+      ],
+      "6": [
+        30,
+        40,
+        25,
+        5,
+        0
+      ],
+      "7": [
+        16,
+        30,
+        43,
+        10,
+        1
+      ],
+      "8": [
+        15,
+        20,
+        32,
+        30,
+        3
+      ],
+      "9": [
+        10,
+        17,
+        25,
+        33,
+        15
+      ],
+      "10": [
+        5,
+        10,
+        20,
+        40,
+        25
+      ],
+      "11": [
+        1,
+        2,
+        12,
+        50,
+        35
+      ]
+    },
+    "verified_in_sampled_video_levels": [
+      4
+    ],
+    "note": "Level 11 availability requires a rule; table row alone does not enable it."
+  },
+  "pool": {
+    "source": "https://www.tftraits.com/pool-sizes/",
+    "copies_per_cost": {
+      "1": 30,
+      "2": 25,
+      "3": 18,
+      "4": 10,
+      "5": 9
+    },
+    "unverified": "Shared identities for Lux and Adaptor forms; no hidden pool inferred from video."
+  },
+  "xp": {
+    "source": "https://www.tftraits.com/xp-to-level/",
+    "xp_to_next_reported": {
+      "1": 2,
+      "2": 2,
+      "3": 6,
+      "4": 10,
+      "5": 20,
+      "6": 36,
+      "7": 60,
+      "8": 68,
+      "9": 68
+    },
+    "conflict": {
+      "level": 7,
+      "table": 60,
+      "official_18_2_after_hotfix": 56,
+      "official_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+      "status": "quarantined_for_current_patch_replay_check",
+      "note": "Official notes preserve the 7→8 reduction. Need visible current-patch level7 XP bar to resolve secondary table discrepancy."
+    }
+  },
+  "rounds": {
+    "source": "https://www.tftraits.com/rounds/",
+    "augment_rounds": [
+      "2-1",
+      "3-2",
+      "4-2"
+    ],
+    "carousel": "2-4 and later stage-x4",
+    "pve": "1-2/1-3/1-4 and later stage-x7",
+    "implementation": "Synthetic match loop does not implement this calendar, pairing or loot."
+  }
+}
