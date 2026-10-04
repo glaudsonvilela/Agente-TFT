@@ -1,9 +1,12 @@
 # Instalador guiado HM4.5
 
-O HM4.5 terá um único `AgenteTFT-HM45-Setup.exe`. O Inno Setup copia o
-aplicativo Windows e o pacote da VM; em seguida abre o assistente em português
-dentro do executável do Agente TFT. A configuração da VM começa nessa mesma
-instalação, sem comandos manuais para o usuário.
+O arquivo entregue ao usuário será `AgenteTFT-HM45-Online-Setup.exe`, um
+iniciador pequeno. Ele baixa `AgenteTFT-HM45-Setup.exe` de uma prévia de versão
+no GitHub, verifica o SHA-256 fixado no iniciador e abre o assistente completo.
+O pacote baixado contém aplicativo Windows e VM WSL 2; a configuração começa
+na mesma sequência, sem comandos manuais para o usuário. Uma conexão com a
+internet é necessária no início; após o download, a instalação completa não
+depende da rede.
 
 ## O que o usuário verá
 
@@ -58,6 +61,14 @@ separada do Inno usa um rootfs fictício que é apagado e não é publicado.
 O relatório do instalador mantém `release_ready=false` até um teste no Windows
 com WSL 2 real, captura Rust e replay na tela. O pacote HM4 já publicado não
 é substituído por este fluxo.
+
+O iniciador online é gerado por `scripts/build_hm45_online_installer_windows.py`
+a partir do instalador completo já verificado. O URL aponta para uma tag de
+prévia de versão fixa, e o SHA-256 do pacote completo é incorporado ao
+iniciador. O pacote completo e o iniciador precisam ser enviados para a mesma
+prévia de versão no GitHub. Artefatos temporários de CI não servem como fonte
+permanente: expiram e podem exigir autenticação. O instalador online mostra o
+progresso e recusa abrir um download incompleto ou com hash diferente.
 
 ## Caminho dos quadros e limites de desempenho
 

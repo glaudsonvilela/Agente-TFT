@@ -128,6 +128,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows app build failed' }
           python scripts/build_hm45_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
+          python scripts/build_hm45_online_installer_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 online installer build failed' }
       - name: Run voices from the packaged Windows app
         shell: pwsh
         run: |
@@ -147,6 +149,8 @@ jobs:
           path: |
             dist/AgenteTFT-HM45-Setup.exe
             dist/HM45_INSTALLER_REPORT.json
+            dist/AgenteTFT-HM45-Online-Setup.exe
+            dist/HM45_ONLINE_REPORT.json
             build/hm45-voice-smoke.json
           retention-days: 14
           if-no-files-found: error

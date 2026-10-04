@@ -10,6 +10,7 @@ on:
       - 'apps/hud_mapper/tests/test_hm45_setup.py'
       - 'scripts/hm45_installer/**'
       - 'scripts/build_hm45_installer_windows.py'
+      - 'scripts/build_hm45_online_installer_windows.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - '.github/workflows/hm45-installer.yml'
   pull_request:
@@ -19,6 +20,7 @@ on:
       - 'apps/hud_mapper/tests/test_hm45_setup.py'
       - 'scripts/hm45_installer/**'
       - 'scripts/build_hm45_installer_windows.py'
+      - 'scripts/build_hm45_online_installer_windows.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - '.github/workflows/hm45-installer.yml'
   workflow_dispatch:
@@ -58,4 +60,7 @@ jobs:
           if (-not $iscc) { throw 'ISCC.exe missing' }
           & $iscc build/HM45.iss
           if ($LASTEXITCODE -ne 0) { throw 'Inno wizard compilation failed' }
+          python scripts/build_hm45_online_installer_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'Online bootstrap compilation failed' }
           Remove-Item dist/AgenteTFT-HM45-Setup.exe
+          Remove-Item dist/AgenteTFT-HM45-Online-Setup.exe
