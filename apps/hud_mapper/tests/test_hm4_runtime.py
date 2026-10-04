@@ -1,5 +1,6 @@
-import json, os, tempfile, unittest
+import json, os, tempfile, threading, time, types, unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
@@ -11,7 +12,7 @@ from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
 from hm.replay_decision import ReplayDecisionEngine
-from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES
+from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
@@ -64,6 +65,34 @@ class HM4RuntimeTests(unittest.TestCase):
             self.assertEqual(voice.fallback_from,'supertonic-f1')
             with self.assertRaises(ValueError):voice.set_voice('system')
 
+    def test_voice_playback_uses_windows_flags_that_exist(self):
+        calls=[]
+        fake=types.SimpleNamespace(SND_MEMORY=4,SND_NODEFAULT=2,
+                                   PlaySound=lambda wav,flags:calls.append((wav,flags)))
+        with patch.dict('sys.modules',winsound=fake):
+            _play_wav(b'RIFF')
+        self.assertEqual(calls,[(b'RIFF',6)])
+
+    def test_voice_switch_during_load_does_not_mix_engines(self):
+        voice=VoiceCoach();voice.voices={'supertonic-f1':'F1','dii':'Dii'}
+        voice.voice_id='supertonic-f1';voice.enabled=True
+        calls=[]
+        def load(voice_id,base):
+            if voice_id=='supertonic-f1':voice.set_voice('dii')
+            return voice_id
+        def synth(text,voice_id,base,engine):
+            self.assertEqual(voice_id,engine)
+            calls.append(voice_id)
+            return b'RIFF',engine
+        with patch('hm.voice._load_engine',side_effect=load), patch('hm.voice._synthesize',side_effect=synth):
+            thread=threading.Thread(target=voice._run,daemon=True);thread.start()
+            until=time.monotonic()+2
+            while not voice.ready and time.monotonic()<until:time.sleep(.01)
+            voice.close();thread.join(1)
+        self.assertTrue(voice.ready is False)
+        self.assertIn('dii',calls)
+        self.assertIsNone(voice.fallback_from)
+
     @unittest.skipUnless(os.name=='nt','Windows Tk desktop required')
     def test_coach_banner_remains_outside_mapping_tab(self):
         import tkinter as tk
@@ -95,9 +124,10 @@ class HM4RuntimeTests(unittest.TestCase):
         observed=economy_prompt({"hud":[{"field":"gold","status":"single_frame_observation","value":42,"confidence":.95},
                                         {"field":"stage","status":"single_frame_observation","value":"4-3","confidence":.95},
                                         {"field":"level","status":"single_frame_observation","value":8,"confidence":.95}]})
-        self.assertEqual(observed["basis"],["hud.gold","hud.level","hud.stage"])
+        self.assertEqual(observed["basis"],["hud.gold"])
         self.assertFalse(observed["actionable"])
-        self.assertIn("42",observed["text"])
+        self.assertNotIn("42",observed["text"])
+        self.assertNotIn("speech_text",observed)
         self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[]}}))
         self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[{"slot":1}]}}))
         item=inventory_prompt({"verified_action":{"type":"equip","confidence":.95,

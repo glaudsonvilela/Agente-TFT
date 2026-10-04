@@ -15,12 +15,14 @@ METRICS_URL = "http://127.0.0.1:8801/v1/training/dashboard-metrics"
 def render(data: dict) -> str:
     jobs = data["jobs_by_status"]
     simulator = "ativo" if data["simulator_ready"] else "ainda não ativo"
-    neural = "não iniciado" if data["neural_training_status"] == "not_started" else "candidato treinado, não aplicado"
+    neural = ("treino não iniciado" if data["neural_training_status"] == "not_started"
+              else "candidato treinado; falta validação independente")
     lines = [
         "✦ AGENTE TFT · BigBANANA",
         f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
         "────────────────────────────────────────",
-        f"Simulador: {simulator}  |  Rede neural: {neural}",
+        f"Simulador: {simulator}  |  Treino neural no servidor: {neural}",
+        "Visão neural no Windows: diagnóstico local; confira a sessão do Windows.",
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
         f"Lotes: {jobs['completed']} concluídos, {jobs['running']} em execução, {jobs['failed']} falharam",
@@ -29,6 +31,12 @@ def render(data: dict) -> str:
         "Primeira medição planejada: 50 caminhos; depois, 500 por decisão confiável.",
         "Arquivos guardados e simulações são separados do treino neural.",
     ]
+    imported = data.get("latest_imported_runtime")
+    if imported:
+        local = "ativa na sessão gravada" if imported["diagnostic_active"] else "não confirmada"
+        lines.append(f"Último replay Windows: visão diagnóstica {local} · "
+                     f"{imported['mapped_frames']} mapas · "
+                     f"tabuleiro validado: {'sim' if imported['board_cells_validated'] else 'não'}")
     for candidate in data.get("neural_experiments", [])[:1]:
         lines.append(f"Candidato {candidate['id']}: {candidate['source_frames']} imagens, "
                      f"{candidate['optimizer_steps']} passos, banco/loja; sem avaliação independente.")

@@ -239,7 +239,9 @@ class TrainerStore:
                                 for record in recent],
             }
         imports = self.db_path.parent / "imports" if self.db_path else None
-        files = list(imports.glob("*.rar")) if imports and imports.is_dir() else []
+        files = ([path for path in imports.iterdir()
+                  if path.is_file() and path.suffix.lower() in {".rar", ".zip"}]
+                 if imports and imports.is_dir() else [])
         snapshot["evidence_files"] = len(files)
         snapshot["evidence_bytes"] = sum(path.stat().st_size for path in files)
         return snapshot

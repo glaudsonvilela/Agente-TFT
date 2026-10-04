@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import hashlib
 import json
+import zipfile
 from fastapi.testclient import TestClient
 
 from remote_trainer.app import create_app
@@ -217,6 +218,25 @@ def test_dashboard_counts_only_sealed_neural_candidate(tmp_path: Path):
     (evaluation / "model.onnx").write_bytes(b"corrupted")
     unsealed = client.get("/v1/training/dashboard-metrics").json()
     assert unsealed["neural_training_status"] == "not_started"
+
+
+def test_dashboard_distinguishes_imported_windows_diagnostic_from_training(tmp_path: Path):
+    imports = tmp_path / "imports"
+    imports.mkdir()
+    archive = imports / "hm4-20261004-test.zip"
+    with zipfile.ZipFile(archive, "w") as bundle:
+        bundle.writestr("hm4-20261004-test/summary.json", json.dumps({
+            "execution_complete": True, "neural_mode": "shadow_diagnostic",
+            "model_trained": False, "board_cells_validated": False,
+            "versions": {"neural_enabled": True}, "counts": {"mapped_frames": 2707}}))
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=tmp_path / "trainer.sqlite3")))
+    metrics = client.get("/v1/training/dashboard-metrics").json()
+    assert metrics["evidence_files"] == 1
+    assert metrics["neural_training_status"] == "not_started"
+    assert metrics["latest_imported_runtime"]["diagnostic_active"] is True
+    assert metrics["latest_imported_runtime"]["model_trained"] is False
+    assert metrics["latest_imported_runtime"]["mapped_frames"] == 2707
 
 
 

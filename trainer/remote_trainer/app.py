@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import secrets
 import time
+import zipfile
 from typing import Callable
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, status
@@ -74,6 +75,42 @@ def verified_neural_experiments(db_path: Path | None) -> list[dict[str, object]]
     return results
 
 
+def latest_imported_runtime(db_path: Path | None) -> dict[str, object] | None:
+    """Read only a bounded sealed-session summary, never execute uploaded data."""
+    if db_path is None:
+        return None
+    imports = Path(db_path).parent / "imports"
+    for archive in sorted(imports.glob("hm4-*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)[:8]:
+        try:
+            with zipfile.ZipFile(archive) as bundle:
+                summaries = [item for item in bundle.infolist()
+                             if item.filename.endswith("/summary.json") and
+                             len(Path(item.filename).parts) == 2 and
+                             item.file_size <= 1024 * 1024]
+                if len(summaries) != 1:
+                    continue
+                summary = json.loads(bundle.read(summaries[0]))
+            counts = summary.get("counts") or {}
+            versions = summary.get("versions") or {}
+            mapped = counts.get("mapped_frames")
+            if type(mapped) is not int or mapped < 0:
+                continue
+            return {
+                "archive": archive.name,
+                "session_complete": summary.get("execution_complete") is True,
+                "neural_mode": summary.get("neural_mode"),
+                "diagnostic_active": (summary.get("execution_complete") is True and
+                                      summary.get("neural_mode") == "shadow_diagnostic" and
+                                      versions.get("neural_enabled") is True and mapped > 0),
+                "mapped_frames": mapped,
+                "model_trained": summary.get("model_trained") is True,
+                "board_cells_validated": summary.get("board_cells_validated") is True,
+            }
+        except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile, json.JSONDecodeError):
+            continue
+    return None
+
+
 def create_app(
     *,
     store: TrainerStore | None = None,
@@ -135,6 +172,7 @@ def create_app(
             "candidate_trained_unpromoted" if experiments else "not_started"
         )
         snapshot["neural_experiments"] = experiments
+        snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)
         snapshot["generated_at_ms"] = app.state.clock_ms()
         return snapshot
 

@@ -10,22 +10,23 @@ def _hud_value(answer: dict, field: str):
 
 
 def economy_prompt(answer: dict) -> dict:
-    """Show measured facts without inventing an economic action from gold alone."""
+    """Explain the missing evidence; visible HUD values are not coaching."""
     gold = _hud_value(answer, 'gold')
-    stage = _hud_value(answer, 'stage')
-    level = _hud_value(answer, 'level')
     if type(gold) is not int or not 0 <= gold <= 300:
         return {'status': 'abstain_missing_gold', 'text': 'Aguardando leitura confiável de ouro.',
                 'basis': [], 'actionable': False}
-    facts = [f'{gold} ouro'];basis = ['hud.gold']
-    if type(level) is int and 1 <= level <= 10:
-        facts.append(f'nível {level}');basis.append('hud.level')
-    if isinstance(stage, str) and len(stage) <= 8:
-        facts.append(f'estágio {stage}');basis.append('hud.stage')
-    return {'status': 'observation_only',
-            'text': '; '.join(facts) + '.',
-            'speech_text': '; '.join(facts),
-            'basis': basis, 'actionable': False, 'gold_observed': gold}
+    evidence = (answer.get('decision') or {}).get('evidence') or []
+    reason = evidence[0].get('code') if evidence else None
+    messages = {
+        'OWNED_UNITS_UNVERIFIED': 'Aguardando identificação confiável dos campeões no tabuleiro.',
+        'OWNED_UNITS_STALE': 'Aguardando nova leitura dos campeões no tabuleiro.',
+        'SHOP_STALE': 'Aguardando leitura atual da loja.',
+        'NO_VERIFIED_UPGRADE': 'Nenhuma compra com melhoria confirmada neste momento.',
+    }
+    return {'status': 'awaiting_decision',
+            'text': messages.get(reason, 'Analisando tabuleiro e loja para uma ação verificável.'),
+            'basis': ['hud.gold'] + ([f'decision.{reason}'] if reason else []),
+            'actionable': False, 'gold_observed': gold}
 
 
 def coach_prompt(answer: dict) -> dict:

@@ -85,6 +85,13 @@ def _synthesize(text: str, voice_id: str, base: Path, engine=None):
     return out.getvalue(), engine
 
 
+def _play_wav(wav: bytes):
+    import winsound
+    # PlaySound is synchronous unless SND_ASYNC is specified. Python's
+    # winsound module does not expose SND_SYNC on supported Windows builds.
+    winsound.PlaySound(wav, winsound.SND_MEMORY | winsound.SND_NODEFAULT)
+
+
 class VoiceCoach:
     def __init__(self, base: Path | None = None):
         self.base = base or voice_assets()
@@ -153,15 +160,20 @@ class VoiceCoach:
         loaded_voice = None
         while not self.closed:
             if self.enabled and (loaded_voice != self.voice_id or not self.ready):
+                selected_voice = self.voice_id
                 try:
-                    engine = _load_engine(self.voice_id, self.base)
+                    selected_engine = _load_engine(selected_voice, self.base)
                     # Warm the synthesizer before the first time-sensitive readout.
-                    _synthesize("Pronto.", self.voice_id, self.base, engine)
-                    loaded_voice = self.voice_id
+                    _synthesize("Pronto.", selected_voice, self.base, selected_engine)
+                    if selected_voice != self.voice_id or not self.enabled:
+                        continue
+                    engine = selected_engine
+                    loaded_voice = selected_voice
                     self.ready = True
                     self.error = None
                 except Exception as exc:
-                    self._handle_failure(self.voice_id, exc)
+                    if selected_voice == self.voice_id:
+                        self._handle_failure(selected_voice, exc)
                     continue
             try:
                 text, queued_ns, voice_id, force, source_age_ms = self.pending.get(timeout=.2)
@@ -185,12 +197,12 @@ class VoiceCoach:
                     if self.last_text == text:
                         self.last_text = None
                     continue
-                import winsound
-                winsound.PlaySound(wav, winsound.SND_MEMORY | winsound.SND_SYNC | winsound.SND_NODEFAULT)
+                _play_wav(wav)
                 self.played_count += 1
                 self.error = None
             except Exception as exc:
-                self._handle_failure(voice_id, exc)
+                if voice_id == self.voice_id:
+                    self._handle_failure(voice_id, exc)
 
     def close(self):
         self.closed = True

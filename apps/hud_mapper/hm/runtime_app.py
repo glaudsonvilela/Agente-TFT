@@ -174,8 +174,9 @@ class App:
                                      bg="#241746",fg="#c9bde8",font=("Segoe UI",9),anchor="w")
             self.coach_meta.pack(fill="x")
             coach.bind("<Configure>",lambda event:self.tip_label.configure(wraplength=max(300,event.width-36)))
-        tabs=ttk.Notebook(outer);tabs.pack(fill="both",expand=True)
+        tabs=ttk.Notebook(outer);tabs.pack(fill="both",expand=True);self.tabs=tabs
         mapping=ttk.Frame(tabs);performance=ttk.Frame(tabs);data=ttk.Frame(tabs)
+        self.mapping_tab=mapping
         tabs.add(mapping,text="HUD ao vivo / geometria");tabs.add(performance,text="Performance");tabs.add(data,text="Dados coletados")
         if self.hm4:
             history=ttk.Frame(tabs);tabs.add(history,text="Histórico de orientações")
@@ -205,7 +206,9 @@ class App:
         ttk.Button(data,text="Abrir última sessão",command=self.open_output).pack(anchor="w",pady=5)
         if self.voice_enabled.get():
             self.voice.set_enabled(True)
-        root.protocol("WM_DELETE_WINDOW",self.close);root.after(30,self.tick)
+        root.protocol("WM_DELETE_WINDOW",self.close)
+        root.after(30,self.tick)
+        if self.hm4:root.after(16,self.preview_tick)
 
     def render_hero(self,_=None):
         if not self.hm4:return
@@ -353,12 +356,9 @@ class App:
             self.crop_label.configure(image="",text="Selecione uma região.");self.details.delete("1.0","end")
         im=Image.frombytes("RGB",(f.width,f.height),f.rgb)
         w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8)
-        if self.vm_core:
-            w=min(w,1280);h=min(h,720)
-            im.thumbnail((w,h),Image.Resampling.BILINEAR)
-            scale_x=im.width/f.width;scale_y=im.height/f.height
-        else:
-            scale_x=scale_y=1.0
+        w=min(w,1280);h=min(h,720)
+        im.thumbnail((w,h),Image.Resampling.BILINEAR)
+        scale_x=im.width/f.width;scale_y=im.height/f.height
         if self.overlays.get() and view!="capture":
             draw=ImageDraw.Draw(im)
             for reg in regions:
@@ -375,7 +375,6 @@ class App:
                 box=(b[0]*scale_x,b[1]*scale_y,b[2]*scale_x,b[3]*scale_y)
                 draw.rectangle(box,outline=color,width=2)
                 draw.text((box[0]+2,max(0,box[1]-13)),reg["id"],fill=color)
-        if not self.vm_core:im.thumbnail((w,h),Image.Resampling.BILINEAR)
         if self.photo is not None and self.photo_size==im.size:
             self.photo.paste(im)
         else:
@@ -388,8 +387,8 @@ class App:
             self.canvas.coords(self.canvas_image,*center)
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
-        physical = f'{cap["source_width"]}×{cap["source_height"]} original · ' if cap and cap.get('type')=='preview' else ''
-        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} · idade {age:.1f} ms · geometria {f.epoch}')
+        physical = f'{cap["source_width"]}×{cap["source_height"]} capturado · ' if cap and cap.get('type')=='preview' else ''
+        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} recebido → {im.width}×{im.height} exibido · idade {age:.1f} ms · geometria {f.epoch}')
         table_key=(view,None if view=="capture" else f.id)
         if table_key!=self._table_key:
             self._table_key=table_key
@@ -477,35 +476,47 @@ class App:
                      played=self.voice.played_count if self.voice else 0,
                      stale_dropped=self.voice.stale_dropped_count if self.voice else 0))
 
-    def tick(self):
+    def preview_tick(self):
+        if self.closing:return
         s=self.session
         if s and not s.finished and not self.finalizing:
             try:
-                f=s.preview.get(.001);self.last["capture"]=dict(frame=f,record=dict(regions=[]),ready_ns=f.ready_ns,view_kind="capture")
-                now=time.perf_counter_ns()
-                if not self.freeze and self.which.get()=="capture" and now>=self._next_preview_ns:
-                    self.repaint();self._next_preview_ns=now+int(1e9/(s.options.preview_hz if self.vm_core else 30))
-            except queue.Empty:pass
+                f=s.preview.get(0)
+                self.last["capture"]=dict(frame=f,record=dict(regions=[]),ready_ns=f.ready_ns,view_kind="capture")
+                if (not self.freeze and self.which.get()=="capture"
+                        and self.tabs.select()==str(self.mapping_tab)):
+                    self.repaint()
+            except queue.Empty:
+                pass
+        self.root.after(16,self.preview_tick)
+
+    def tick(self):
+        s=self.session
+        if s and not s.finished and not self.finalizing:
             for name,q in (("map",s.map_results),("reader",s.native_results),("hub",s.hub_results)):
                 try:
-                    item=q.get(.001);item["view_kind"]=name;self.last[name]=item
-                    if not self.freeze and self.which.get()==name:self.repaint();s.acknowledge(item,name)
+                    item=q.get(0);item["view_kind"]=name;self.last[name]=item
+                    if (not self.freeze and self.which.get()==name
+                            and self.tabs.select()==str(self.mapping_tab)):
+                        self.repaint();s.acknowledge(item,name)
                 except queue.Empty:pass
             tip=getattr(s,"latest_replay_tip",None)
             if tip:
-                key=(tip.get("frame_id"),tip.get("text"))
+                key=((tip.get("frame_id"),tip.get("text")) if tip.get("actionable")
+                     else (tip.get("status"),tip.get("text")))
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
-                    label='DICA' if tip.get('actionable') else 'LEITURA'
+                    label='DICA' if tip.get('actionable') else 'ANÁLISE EM ANDAMENTO'
                     self.coach_header.configure(text=f'AGENTE  /  {label}',
                                                 fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
                     self.tip_label.configure(text=tip['text'])
                     self.coach_meta.configure(text=f'Frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms · evidência: {", ".join(tip.get("basis") or []) or "insuficiente"}')
-                    self.tip_history.appendleft(f'{label} · +{tip["source_ms"]/1000:.1f}s · atraso ~{age:.0f} ms\n{tip["text"]}\n')
-                    self.tip_log.configure(state='normal');self.tip_log.delete('1.0','end')
-                    self.tip_log.insert('1.0','\n'.join(self.tip_history));self.tip_log.configure(state='disabled')
-                    speech_queued=bool(self.voice and tip.get('speech_text') and
+                    if tip.get('actionable'):
+                        self.tip_history.appendleft(f'{label} · +{tip["source_ms"]/1000:.1f}s · atraso ~{age:.0f} ms\n{tip["text"]}\n')
+                        self.tip_log.configure(state='normal');self.tip_log.delete('1.0','end')
+                        self.tip_log.insert('1.0','\n'.join(self.tip_history));self.tip_log.configure(state='disabled')
+                    speech_queued=bool(tip.get('actionable') and self.voice and tip.get('speech_text') and
                                        self.voice.say(tip['speech_text'],age))
                     s.store.emit('telemetry',dict(event='coach_ui_applied',frame_id=tip['frame_id'],
                         source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
@@ -517,7 +528,7 @@ class App:
                                              physical_display_measured=False))
             now=time.perf_counter_ns()
             if not self.vm_core or now>=self._next_metrics_ns:
-                self._next_metrics_ns=now+250_000_000
+                self._next_metrics_ns=now+1_000_000_000
                 perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
                 if now>=self._next_perf_log_ns:
                     self._next_perf_log_ns=now+5_000_000_000

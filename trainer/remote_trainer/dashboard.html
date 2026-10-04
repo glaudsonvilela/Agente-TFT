@@ -67,7 +67,8 @@
     <div class="wide">
       <h2>Simulação e aprendizagem</h2>
       <div class="row"><span>Simulador</span><span class="status" id="simulator">Verificando</span></div>
-      <div class="row"><span>Rede neural</span><span class="status" id="neural">Verificando</span></div>
+      <div class="row"><span>Treino neural no servidor</span><span class="status" id="neural">Verificando</span></div>
+      <div class="row"><span>Visão neural no último replay</span><strong id="local-vision">Aguardando sessão</strong></div>
       <div class="row"><span>Último candidato</span><strong id="neural-candidate">—</strong></div>
       <div class="row"><span>Tempo médio por lote concluído</span><strong id="duration">—</strong></div>
       <div class="row"><span>Versão do simulador</span><strong id="sim-version">—</strong></div>
@@ -98,7 +99,9 @@
       set("job-status", fmt(status.running) + " em execução · " + fmt(status.failed) + " falharam");
       set("simulator", m.simulator_ready ? "Ativo" : "Ainda não ativo");
       document.getElementById("simulator").classList.toggle("ready", m.simulator_ready);
-      set("neural", m.neural_training_status === "not_started" ? "Treinamento não iniciado" : "Candidato treinado · em avaliação");
+      set("neural", m.neural_training_status === "not_started" ? "Treino não iniciado" : "Candidato treinado · falta validação independente");
+      const runtime = m.latest_imported_runtime;
+      set("local-vision", runtime ? (runtime.diagnostic_active ? "Diagnóstico ativo · " : "Não confirmado · ") + fmt(runtime.mapped_frames) + " mapas" : "Nenhum ZIP de sessão importado");
       const candidate = (m.neural_experiments || [])[0];
       set("neural-candidate", candidate ? fmt(candidate.source_frames) + " imagens · " + fmt(candidate.optimizer_steps) + " passos · banco/loja" : "Nenhum");
       set("duration", m.mean_completed_job_ms == null ? "Sem medição" : (m.mean_completed_job_ms / 1000).toFixed(2) + " s");
