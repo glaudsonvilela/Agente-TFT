@@ -34,10 +34,11 @@ def engine_identity():
 
 def scenario(content,seed,champions,items):
     rng=random.Random(seed);teams=[]
+    sampling=content['lab_sampling']
     for team in range(2):
-        selected=rng.sample(champions,rng.randint(2,min(4,len(champions))))
+        selected=rng.sample(champions,rng.randint(sampling['team_size_min'],min(sampling['team_size_max'],len(champions))))
         cells=rng.sample([(r,c) for r in range(4) for c in range(7)],len(selected))
-        units=[Unit(f'{team}:{i}',champion,stars=rng.choice((1,1,2)),zone='board',position=cells[i],
+        units=[Unit(f'{team}:{i}',champion,stars=rng.choice(sampling['stars']),zone='board',position=cells[i],
                     items=rng.sample(items,rng.randrange(4))) for i,champion in enumerate(selected)]
         teams.append(Player(0,4,0,units=units))
     return teams
@@ -104,15 +105,19 @@ def main():
     a=p.parse_args()
     if not 50<=a.combats<=5000 or not 10<=a.seconds<=3600 or not 1<=a.epochs<=200:p.error('invalid laboratory budget')
     content=json.loads(a.content.read_text())
-    if content.get('combat_version')!=2 or content.get('scope')!='experimental_hex_lab':p.error('candidate event bundle required')
+    if content.get('schema_version')!=3 or content.get('combat_version')!=2 or content.get('scope')!='experimental_hex_lab':
+        p.error('version 3 seasonal bundle required; recompile with training.compile_effects')
     champions=sorted(k for k,v in content['champions'].items() if not v.get('unsupported'))
-    items=['TFT_Item_'+i for i in ('WarmogsArmor','ArchangelsStaff','GuinsoosRageblade','SpearOfShojin',
-                                 'Bloodthirster','RabadonsDeathcap','Deathblade','Crownguard')]
+    items=content['lab_sampling']['items']
+    if len(items)<3 or len(set(items))!=len(items) or any(content['items'].get(i,{}).get('combat_handler')!='effects' for i in items):
+        p.error('invalid or unsupported laboratory item pool')
+    identity={k:content[k] for k in ('patch','release_sha256','bindings_sha256','data_components')}
+    identity['content_sha256']=hashlib.sha256(a.content.read_bytes()).hexdigest()
     started=time.monotonic();cpu_started=time.process_time();a.output.mkdir(parents=True,exist_ok=True)
     features=[];labels=[];durations=[];events=0
     report=dict(schema_version=1,scope='experimental_event_lab',status='simulating',combats_requested=a.combats,
                 combat_calls=0,complete_matches=0,processed_events=0,elapsed_seconds=0,
-                coverage=content['coverage'],engine=engine_identity(),runtime_promoted=False)
+                coverage=content['coverage'],engine=engine_identity(),data_identity=identity,runtime_promoted=False)
     dataset_path=a.output/'scenarios.jsonl'
     if dataset_path.exists():p.error('use a new output directory; existing samples are immutable')
     with dataset_path.open('x') as dataset:
@@ -138,7 +143,8 @@ def main():
         checkpoint=a.output/'candidate.npz';np.savez_compressed(checkpoint,**model)
         training['checkpoint_sha256']=hashlib.sha256(checkpoint.read_bytes()).hexdigest()
         training['checkpoint_bytes']=checkpoint.stat().st_size;report['neural']=training
-        write(a.output/'model-schema.json',dict(champions=champions,items=items,features_per_champion=['presence','stars/3','row/3','column/6']+items,
+        write(a.output/'model-schema.json',dict(data_identity=identity,engine_sha256=report['engine']['sha256'],
+            checkpoint_sha256=training['checkpoint_sha256'],champions=champions,items=items,features_per_champion=['presence','stars/3','row/3','column/6']+items,
             labels=['team_1_wins','tie_or_timeout','team_0_wins'],validation_seeds=validation_ids.tolist(),runtime_promoted=False))
     report.update(status='completed' if len(labels)==a.combats and report.get('neural',{}).get('epochs_completed')==a.epochs else 'stopped_or_budget_limited',
         content_sha256=hashlib.sha256(a.content.read_bytes()).hexdigest(),dataset_sha256=hashlib.sha256(dataset_path.read_bytes()).hexdigest(),

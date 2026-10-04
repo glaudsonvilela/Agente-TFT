@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "set_key": "TFTSet18",
+  "patch": "18.3",
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "status": "candidate_not_replay_validated",
+  "runtime_promoted": false,
+  "sources": [
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "use": "Published damage values; no inferred hotfix merge"
+    },
+    {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "use": "Supplemental targeting, durations and roles; mutable page, patch identity not independently verified"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/roles-revamped-and-item-changes/",
+      "use": "Caster role: 7 mana per attack, 2 per second"
+    }
+  ],
+  "unresolved": [
+    "Attack recovery, projectile speed, movement and cast timings require replay calibration.",
+    "DOT tick cadence and snapshot versus dynamic scaling are explicit laboratory assumptions.",
+    "Trait member/team replacement and percentage-health stacking require replay checks.",
+    "Current patch scope excludes 18.3B-only observations and does not infer patch from video date.",
+    "No 4-star extrapolation, tank mana cap, fighter stage curve or critical overflow approximation.",
+    "New item/trait hooks and health multiplier semantics are candidates, not replay-validated rules."
+  ],
+  "components": {
+    "items": {
+      "path": "items.json",
+      "sha256": "148e516ab8b5dbfaade076ea29cceaf15825c7bf5116a81d42d3e9bc371398d8"
+    },
+    "traits": {
+      "path": "traits.json",
+      "sha256": "e20aa68469e3e7da78729342e060b234d5fdb0b3e06e59c33bb0f3822d915f43"
+    },
+    "champions": {
+      "path": "champions.json",
+      "sha256": "be05cea39a1fb5027f9978b4d1a774656410948c35842b2249ce6a72b0b8b462"
+    },
+    "profile": {
+      "path": "profile.json",
+      "sha256": "e5d484560869bd7bab7f9deb5757dd9283cd2839c37e4d104a4bc3defdf56627"
+    }
+  }
+}

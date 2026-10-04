@@ -1,0 +1,12 @@
+{
+  "targeted_tests_passed": 53,
+  "training_suite_tests": 503,
+  "training_suite_skipped": 12,
+  "training_suite_failures": 0,
+  "training_suite_seconds": 47.28,
+  "migration_parity_scenarios": 20,
+  "server_engine_matches_local": true,
+  "server_compiled_content_matches_local": true,
+  "real_replay_validation": false,
+  "runtime_promoted": false
+}

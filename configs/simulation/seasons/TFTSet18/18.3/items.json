@@ -1,0 +1,688 @@
+{
+  "base_fields": {
+    "AD": {
+      "stat": "ad",
+      "mode": "base_pct",
+      "scale": 1
+    },
+    "AP": {
+      "stat": "ap",
+      "mode": "flat",
+      "scale": 1
+    },
+    "AS": {
+      "stat": "attack_speed",
+      "mode": "base_pct",
+      "scale": 0.01
+    },
+    "ManaRegen": {
+      "stat": "mana_per_second",
+      "mode": "flat",
+      "scale": 1
+    },
+    "Armor": {
+      "stat": "armor",
+      "mode": "flat",
+      "scale": 1
+    },
+    "MagicResist": {
+      "stat": "mr",
+      "mode": "flat",
+      "scale": 1
+    },
+    "Health": {
+      "stat": "hp",
+      "mode": "flat",
+      "scale": 1
+    },
+    "CritChance": {
+      "stat": "crit_chance",
+      "mode": "flat",
+      "scale": 0.01
+    },
+    "StatOmnivamp": {
+      "stat": "omnivamp",
+      "mode": "flat",
+      "scale": 1
+    },
+    "BonusDamage": {
+      "stat": "damage_amp",
+      "mode": "flat",
+      "scale": 1
+    },
+    "BonusPercentHP": {
+      "stat": "hp",
+      "mode": "bonus_pct",
+      "scale": 1
+    }
+  },
+  "entities": {
+    "TFT_Item_BFSword": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_NeedlesslyLargeRod": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_RecurveBow": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_TearOfTheGoddess": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_ChainVest": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_NegatronCloak": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_GiantsBelt": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_SparringGloves": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_FryingPan": {
+      "component": true,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_WarmogsArmor": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_ArchangelsStaff": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "periodic",
+            "interval": {
+              "$field": "IntervalSeconds",
+              "scale": 1
+            },
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ap",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "APPerInterval",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": []
+    },
+    "TFT_Item_GuinsoosRageblade": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "periodic",
+            "interval": 1,
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "AttackSpeedPerStack",
+                      "scale": 0.01
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": []
+    },
+    "TFT_Item_SpearOfShojin": {
+      "component": false,
+      "template": {
+        "modifiers": [
+          {
+            "stat": "mana_per_attack",
+            "value": {
+              "$field": "FlatManaRestore",
+              "scale": 1
+            },
+            "mode": "flat"
+          }
+        ],
+        "hooks": []
+      },
+      "aliases": []
+    },
+    "TFT_Item_Bloodthirster": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "health_below",
+            "threshold": {
+              "$field": "HealthThreshold",
+              "scale": 0.01
+            },
+            "limit": 1,
+            "effects": [
+              {
+                "op": "shield",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ShieldHealthPercent",
+                      "scale": 0.01
+                    },
+                    "stat": "hp"
+                  }
+                ],
+                "duration": {
+                  "$field": "ShieldDuration",
+                  "scale": 1
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": [
+        {
+          "left": {
+            "$field": "LifeSteal",
+            "scale": 0.01
+          },
+          "right": {
+            "$field": "StatOmnivamp",
+            "scale": 1
+          }
+        }
+      ]
+    },
+    "TFT_Item_RabadonsDeathcap": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": [
+        {
+          "left": {
+            "$field": "{1543aa48}",
+            "scale": 1
+          },
+          "right": {
+            "$field": "BonusDamage",
+            "scale": 1
+          }
+        }
+      ]
+    },
+    "TFT_Item_Deathblade": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": []
+      },
+      "aliases": [
+        {
+          "left": {
+            "$field": "{1543aa48}",
+            "scale": 1
+          },
+          "right": {
+            "$field": "BonusDamage",
+            "scale": 1
+          }
+        }
+      ]
+    },
+    "TFT_Item_Crownguard": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "combat_start",
+            "effects": [
+              {
+                "op": "shield",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ShieldSize",
+                      "scale": 0.01
+                    },
+                    "stat": "hp"
+                  }
+                ],
+                "duration": {
+                  "$field": "ShieldDuration",
+                  "scale": 1
+                },
+                "key": "crown"
+              }
+            ]
+          },
+          {
+            "event": "shield_end",
+            "shield_key": "crown",
+            "limit": 1,
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ap",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ShieldBonusAP",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": []
+    },
+    "TFT_Item_TitansResolve": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "attack",
+            "counter": "stacks",
+            "limit": {
+              "$field": "StackCap",
+              "scale": 1,
+              "integer": true
+            },
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ad",
+                "mode": "base_pct",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "StackingAD",
+                      "scale": 1
+                    }
+                  }
+                ]
+              },
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ap",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "StackingSP",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ],
+            "at_limit_effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "damage_amp",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "StackedAmp",
+                      "scale": 1
+                    }
+                  }
+                ]
+              },
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "cc_immune",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "event": "damage_taken",
+            "counter": "stacks",
+            "limit": {
+              "$field": "StackCap",
+              "scale": 1,
+              "integer": true
+            },
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ad",
+                "mode": "base_pct",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "StackingAD",
+                      "scale": 1
+                    }
+                  }
+                ]
+              },
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ap",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "StackingSP",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ],
+            "at_limit_effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "damage_amp",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "StackedAmp",
+                      "scale": 1
+                    }
+                  }
+                ]
+              },
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "cc_immune",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": []
+    },
+    "TFT_Item_LastWhisper": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "damage_dealt",
+            "damage_tags": [
+              "attack",
+              "spell"
+            ],
+            "effects": [
+              {
+                "op": "stat",
+                "stat": "sunder",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ArmorReductionPercent",
+                      "scale": 0.01
+                    }
+                  }
+                ],
+                "duration": {
+                  "$field": "ArmorBreakDuration",
+                  "scale": 1
+                },
+                "group": "sunder",
+                "strongest": true
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": []
+    },
+    "TFT_Item_Quicksilver": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "combat_start",
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "cc_immune",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": 1
+                  }
+                ],
+                "duration": {
+                  "$field": "SpellShieldDuration",
+                  "scale": 1
+                }
+              }
+            ]
+          },
+          {
+            "event": "periodic",
+            "interval": 1,
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ProcAttackSpeed",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": []
+    },
+    "TFT_Item_FrozenHeart": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "combat_start",
+            "effects": [
+              {
+                "op": "mana",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "CombatStartMana",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "event": "health_below",
+            "threshold": {
+              "$field": "HealthThreshold",
+              "scale": 0.01
+            },
+            "limit": 1,
+            "effects": [
+              {
+                "op": "mana",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "TriggerMana",
+                      "scale": 1
+                    }
+                  }
+                ]
+              },
+              {
+                "op": "shield",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ShieldHealthPercent",
+                      "scale": 0.01
+                    },
+                    "stat": "hp"
+                  }
+                ],
+                "duration": {
+                  "$field": "ShieldDuration",
+                  "scale": 1
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": [],
+      "notes": [
+        "One threshold activation per combat is a candidate interpretation; verify in replay."
+      ]
+    }
+  }
+}

@@ -1,0 +1,815 @@
+{
+  "entities": {
+    "DA_Juggernaut18": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{f8c73243}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{6eab9c5e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{f8c73243}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{6eab9c5e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          }
+        },
+        "6": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{f8c73243}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{6eab9c5e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DA_18_Spellweaver": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "ap",
+                  "value": {
+                    "$field": "TeamwideAP",
+                    "scale": 100
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ap",
+                  "value": {
+                    "$field": "{b012bed0}",
+                    "scale": 100
+                  },
+                  "mode": "flat"
+                }
+              ],
+              "hooks": [
+                {
+                  "event": "ally_cast",
+                  "caster_trait": "DA_18_Spellweaver",
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "ap",
+                      "mode": "flat",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "APPerCast",
+                            "scale": 100
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "ap",
+                  "value": {
+                    "$field": "TeamwideAP",
+                    "scale": 100
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ap",
+                  "value": {
+                    "$field": "{b012bed0}",
+                    "scale": 100
+                  },
+                  "mode": "flat"
+                }
+              ],
+              "hooks": [
+                {
+                  "event": "ally_cast",
+                  "caster_trait": "DA_18_Spellweaver",
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "ap",
+                      "mode": "flat",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "APPerCast",
+                            "scale": 100
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "6": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "ap",
+                  "value": {
+                    "$field": "TeamwideAP",
+                    "scale": 100
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ap",
+                  "value": {
+                    "$field": "{b012bed0}",
+                    "scale": 100
+                  },
+                  "mode": "flat"
+                }
+              ],
+              "hooks": [
+                {
+                  "event": "ally_cast",
+                  "caster_trait": "DA_18_Spellweaver",
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "ap",
+                      "mode": "flat",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "APPerCast",
+                            "scale": 100
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DA_18_Rapidfire": {
+      "tiers": {
+        "2": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "attack_speed",
+                  "value": {
+                    "$field": "{1d98dcec}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                }
+              ]
+            },
+            "members": {
+              "hooks": [
+                {
+                  "event": "attack",
+                  "limit": {
+                    "$field": "MaxStacks",
+                    "scale": 1,
+                    "integer": true
+                  },
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "attack_speed",
+                      "mode": "base_pct",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "ASperAttack",
+                            "scale": 1
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "3": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "attack_speed",
+                  "value": {
+                    "$field": "{1d98dcec}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                }
+              ]
+            },
+            "members": {
+              "hooks": [
+                {
+                  "event": "attack",
+                  "limit": {
+                    "$field": "MaxStacks",
+                    "scale": 1,
+                    "integer": true
+                  },
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "attack_speed",
+                      "mode": "base_pct",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "ASperAttack",
+                            "scale": 1
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "attack_speed",
+                  "value": {
+                    "$field": "{1d98dcec}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                }
+              ]
+            },
+            "members": {
+              "hooks": [
+                {
+                  "event": "attack",
+                  "limit": {
+                    "$field": "MaxStacks",
+                    "scale": 1,
+                    "integer": true
+                  },
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "attack_speed",
+                      "mode": "base_pct",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "ASperAttack",
+                            "scale": 1
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "5": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "attack_speed",
+                  "value": {
+                    "$field": "{1d98dcec}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                }
+              ]
+            },
+            "members": {
+              "hooks": [
+                {
+                  "event": "attack",
+                  "limit": {
+                    "$field": "MaxStacks",
+                    "scale": 1,
+                    "integer": true
+                  },
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "stat": "attack_speed",
+                      "mode": "base_pct",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "ASperAttack",
+                            "scale": 1
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DA_FloraFatalis18": {
+      "tiers": {
+        "1": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "takedown",
+                  "effects": [
+                    {
+                      "op": "mana",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "Mana",
+                            "scale": 1
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "2": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "takedown",
+                  "effects": [
+                    {
+                      "op": "mana",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "Mana",
+                            "scale": 1,
+                            "tier": 0
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "op": "heal",
+                      "target": {
+                        "kind": "lowest_hp_allies",
+                        "count": 1
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "PercentHeal",
+                            "scale": 1
+                          },
+                          "stat": "hp",
+                          "owner": "target"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DA_18_Brawler": {
+      "tiers": {
+        "2": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "hp",
+                  "value": {
+                    "$field": "{da2472a7}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "hp",
+                  "value": {
+                    "$field": "{f1ed73eb}",
+                    "scale": 1
+                  },
+                  "mode": "bonus_pct"
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "hp",
+                  "value": {
+                    "$field": "{da2472a7}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "hp",
+                  "value": {
+                    "$field": "{f1ed73eb}",
+                    "scale": 1
+                  },
+                  "mode": "bonus_pct"
+                }
+              ]
+            }
+          }
+        },
+        "6": {
+          "template": {
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "hp",
+                  "value": {
+                    "$field": "{da2472a7}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "hp",
+                  "value": {
+                    "$field": "{f1ed73eb}",
+                    "scale": 1
+                  },
+                  "mode": "bonus_pct"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "notes": [
+        "Team flat health plus member multiplier on total health is candidate semantics; replay validation pending."
+      ]
+    },
+    "DA_18_Vanguard": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "combat_start",
+                  "effects": [
+                    {
+                      "op": "shield",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "MaxHealthShield",
+                            "scale": 1
+                          },
+                          "stat": "hp"
+                        }
+                      ],
+                      "duration": {
+                        "$field": "ShieldDuration",
+                        "scale": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "event": "health_below",
+                  "threshold": {
+                    "$field": "HealthThreshold",
+                    "scale": 1
+                  },
+                  "limit": 1,
+                  "effects": [
+                    {
+                      "op": "shield",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "MaxHealthShield",
+                            "scale": 1
+                          },
+                          "stat": "hp"
+                        }
+                      ],
+                      "duration": {
+                        "$field": "ShieldDuration",
+                        "scale": 1
+                      }
+                    }
+                  ]
+                }
+              ],
+              "modifiers": []
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "combat_start",
+                  "effects": [
+                    {
+                      "op": "shield",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "MaxHealthShield",
+                            "scale": 1
+                          },
+                          "stat": "hp"
+                        }
+                      ],
+                      "duration": {
+                        "$field": "ShieldDuration",
+                        "scale": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "event": "health_below",
+                  "threshold": {
+                    "$field": "HealthThreshold",
+                    "scale": 1
+                  },
+                  "limit": 1,
+                  "effects": [
+                    {
+                      "op": "shield",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "MaxHealthShield",
+                            "scale": 1
+                          },
+                          "stat": "hp"
+                        }
+                      ],
+                      "duration": {
+                        "$field": "ShieldDuration",
+                        "scale": 1
+                      }
+                    }
+                  ]
+                }
+              ],
+              "modifiers": []
+            }
+          }
+        },
+        "6": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "combat_start",
+                  "effects": [
+                    {
+                      "op": "shield",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "MaxHealthShield",
+                            "scale": 1
+                          },
+                          "stat": "hp"
+                        }
+                      ],
+                      "duration": {
+                        "$field": "ShieldDuration",
+                        "scale": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "event": "health_below",
+                  "threshold": {
+                    "$field": "HealthThreshold",
+                    "scale": 1
+                  },
+                  "limit": 1,
+                  "effects": [
+                    {
+                      "op": "shield",
+                      "target": {
+                        "kind": "self"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "MaxHealthShield",
+                            "scale": 1
+                          },
+                          "stat": "hp"
+                        }
+                      ],
+                      "duration": {
+                        "$field": "ShieldDuration",
+                        "scale": 1
+                      }
+                    }
+                  ]
+                }
+              ],
+              "modifiers": [
+                {
+                  "stat": "durability",
+                  "value": {
+                    "$field": "{b58e0b6e}",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "shielded": true
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

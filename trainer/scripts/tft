@@ -122,6 +122,8 @@ def main() -> int:
                 if not candidate_path.is_symlink() and candidate_path.stat().st_size<=2*1024*1024:
                     event=json.loads(candidate_path.read_text())
                     print('\nMotor de eventos: '+event.get('status','desconhecido'))
+                    identity=event.get('data_identity')
+                    if identity:print(f"  Patch: {identity['patch']} · regras: {identity['bindings_sha256'][:12]}")
                     print(f"  {event.get('combat_calls',0)} combates · {event.get('complete_matches',0)} partidas completas · {event.get('elapsed_seconds',0):.2f} s")
                     if event.get('peak_rss_mib') is not None:print(f"  RAM máxima: {event['peak_rss_mib']:.1f} MiB")
                     coverage=event.get('coverage',{})

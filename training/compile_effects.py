@@ -1,8 +1,8 @@
-"""Bind a sealed seasonal catalog to explicit, opt-in candidate effect rules.
+"""Compile a sealed catalog plus a separately versioned seasonal rules pack.
 
-Never scrape descriptions into executable code or drop unknown active effects.
-The report distinguishes numeric availability, implemented templates and actual
-replay validation. A successful build is not a current-patch training approval.
+Mechanics live in trainer.simulation. Names, fields, coefficients, trigger rules,
+role metrics and star progression are supplied by the selected data pack.
+Compilation never implies replay validation or HUD promotion.
 """
 import argparse
 from copy import deepcopy
@@ -11,93 +11,51 @@ import json
 from pathlib import Path
 
 from ingestion.knowledge_release import read_release, canonical
+from ingestion.simulation_bindings import load_bindings,substitute,referenced_fields
 from trainer.simulation.event_combat import validate_effects
 from trainer.simulation.state import UnsupportedRule
 
 
-def terms(value,stat=None,owner='source'):
-    return [dict(coefficient=value,**(dict(stat=stat,owner=owner) if stat else {}))]
+def validate_hooks(hooks):
+    for hook in hooks:
+        validate_effects(hook['effects'])
+        validate_effects(hook.get('at_limit_effects',[]))
 
 
-def modifier(stat,value,mode='flat'):
-    return dict(stat=stat,value=value,mode=mode)
+def compile_item(row,rules):
+    rule=rules['entities'].get(row['api_name']);fields=row['effects']
+    if rule is None:return dict(unsupported=True,name=row['name'],reason='effect binding missing')
+    known=set(rules['base_fields'])|referenced_fields(rule)
+    if set(fields)-known:raise UnsupportedRule(f'unreviewed item numeric fields: {row["api_name"]}')
+    mods=[]
+    for key,binding in rules['base_fields'].items():
+        if key in fields:
+            mods.append(dict(stat=binding['stat'],mode=binding['mode'],
+                             value=substitute({'$field':key,'scale':binding['scale']},fields)))
+    for alias in rule.get('aliases',[]):
+        if abs(substitute(alias['left'],fields)-substitute(alias['right'],fields))>1e-6:
+            raise UnsupportedRule('numeric aliases disagree; never apply twice')
+    template=substitute(rule['template'],fields)
+    mods.extend(template.get('modifiers',[]));hooks=template.get('hooks',[]);validate_hooks(hooks)
+    return dict(name=row['name'],combat_handler='effects',component=rule.get('component',False),
+                unique=row['unique'],modifiers=mods,hooks=hooks,status='candidate_not_replay_validated',
+                **({'grants_traits':template['grants_traits']} if 'grants_traits' in template else {}))
 
 
-def stat_effect(stat,value,mode='flat'):
-    return dict(op='stat',target={'kind':'self'},stat=stat,mode=mode,amount=terms(value))
-
-
-COMPONENTS=('BFSword','NeedlesslyLargeRod','RecurveBow','TearOfTheGoddess','ChainVest',
-            'NegatronCloak','GiantsBelt','SparringGloves','FryingPan')
-ITEMS=COMPONENTS+('WarmogsArmor','ArchangelsStaff','GuinsoosRageblade','SpearOfShojin',
-                  'Bloodthirster','RabadonsDeathcap','Deathblade','Crownguard')
-BASE_FIELDS={'AD':('ad','base_pct',1),'AP':('ap','flat',1),'AS':('attack_speed','base_pct',.01),
-             'ManaRegen':('mana_per_second','flat',1),'Armor':('armor','flat',1),
-             'MagicResist':('mr','flat',1),'Health':('hp','flat',1),
-             'CritChance':('crit_chance','flat',.01),'StatOmnivamp':('omnivamp','flat',1),
-             'BonusDamage':('damage_amp','flat',1),'BonusPercentHP':('hp','bonus_pct',1)}
-ITEM_EXTRA_FIELDS={
-    'ArchangelsStaff':{'APPerInterval','IntervalSeconds'},'GuinsoosRageblade':{'AttackSpeedPerStack'},
-    'SpearOfShojin':{'FlatManaRestore'},'Bloodthirster':{'LifeSteal','HealthThreshold','ShieldHealthPercent','ShieldDuration'},
-    'RabadonsDeathcap':{'{1543aa48}'},'Deathblade':{'{1543aa48}'},
-    'Crownguard':{'ShieldSize','ShieldDuration','ShieldBonusAP'}}
-
-
-def compile_item(row):
-    short=row['api_name'].removeprefix('TFT_Item_');v=row['effects']
-    if short not in ITEMS:return dict(unsupported=True,name=row['name'],reason='effect binding missing')
-    if set(v)-set(BASE_FIELDS)-ITEM_EXTRA_FIELDS.get(short,set()):
-        raise UnsupportedRule(f'unreviewed item numeric fields: {row["api_name"]}')
-    mods=[modifier(stat,v[key]*scale,mode) for key,(stat,mode,scale) in BASE_FIELDS.items() if key in v]
-    hooks=[]
-    if short in ('Deathblade','RabadonsDeathcap') and abs(v['{1543aa48}']-v['BonusDamage'])>1e-6:
-        raise UnsupportedRule('damage alias disagrees; do not apply twice')
-    if short=='ArchangelsStaff':
-        hooks=[dict(event='periodic',interval=v['IntervalSeconds'],effects=[stat_effect('ap',v['APPerInterval'])])]
-    elif short=='GuinsoosRageblade':
-        hooks=[dict(event='periodic',interval=1,effects=[stat_effect('attack_speed',v['AttackSpeedPerStack']/100,'base_pct')])]
-    elif short=='SpearOfShojin':mods.append(modifier('mana_per_attack',v['FlatManaRestore']))
-    elif short=='Bloodthirster':
-        if abs(v['LifeSteal']/100-v['StatOmnivamp'])>1e-6:raise UnsupportedRule('omnivamp aliases disagree')
-        hooks=[dict(event='health_below',threshold=v['HealthThreshold']/100,limit=1,effects=[
-            dict(op='shield',target={'kind':'self'},amount=terms(v['ShieldHealthPercent']/100,'hp'),duration=v['ShieldDuration'])])]
-    elif short=='Crownguard':
-        hooks=[dict(event='combat_start',effects=[dict(op='shield',key='crown',target={'kind':'self'},
-                    amount=terms(v['ShieldSize']/100,'hp'),duration=v['ShieldDuration'])]),
-               dict(event='shield_end',shield_key='crown',limit=1,effects=[stat_effect('ap',v['ShieldBonusAP'])])]
-    for hook in hooks:validate_effects(hook['effects'])
-    return dict(name=row['name'],combat_handler='effects',component=short in COMPONENTS,
-                unique=row['unique'],modifiers=mods,hooks=hooks,status='candidate_not_replay_validated')
-
-
-TRAIT_BINDINGS={'DA_Juggernaut18','DA_18_Spellweaver','DA_18_Rapidfire','DA_FloraFatalis18'}
-
-
-def compile_trait(row):
-    key=row['api_name'];tiers=[]
+def compile_trait(row,rules):
+    rule=rules['entities'].get(row['api_name'],{});tiers=[]
     for effect in row['effects']:
-        v=effect['variables'];tier=dict(min=effect['min_units'],max=effect['max_units'])
-        if key=='DA_Juggernaut18':
-            tier.update(members_replace_team=True,team=dict(modifiers=[modifier('durability',v['{f8c73243}'])]),
-                        members=dict(modifiers=[modifier('durability',v['{6eab9c5e}'])]))
-        elif key=='DA_18_Spellweaver':
-            tier.update(members_replace_team=True,team=dict(modifiers=[modifier('ap',100*v['TeamwideAP'])]),
-                        members=dict(modifiers=[modifier('ap',100*v['{b012bed0}'])],hooks=[
-                            dict(event='ally_cast',caster_trait=key,effects=[stat_effect('ap',100*v['APPerCast'])])]))
-        elif key=='DA_18_Rapidfire':
-            tier.update(team=dict(modifiers=[modifier('attack_speed',v['{1d98dcec}'],'base_pct')]),
-                        members=dict(hooks=[dict(event='attack',limit=int(v['MaxStacks']),
-                                                effects=[stat_effect('attack_speed',v['ASperAttack'],'base_pct')])]))
-        elif key=='DA_FloraFatalis18':
-            # Higher tier inherits the lower tier mana reward explicitly.
-            mana=row['effects'][0]['variables']['Mana']
-            effects=[dict(op='mana',target={'kind':'self'},amount=terms(mana))]
-            if 'PercentHeal' in v:
-                effects.append(dict(op='heal',target={'kind':'lowest_hp_allies','count':1},amount=terms(v['PercentHeal'],'hp','target')))
-            tier.update(members=dict(hooks=[dict(event='takedown',effects=effects)]))
-        else:tier['unsupported']=True
+        tier=dict(min=effect['min_units'],max=effect['max_units'])
+        binding=rule.get('tiers',{}).get(str(effect['min_units']))
+        if binding is None:tier['unsupported']=True
+        else:
+            if set(effect['variables'])-referenced_fields(binding):
+                raise UnsupportedRule(f'unreviewed trait numeric fields: {row["api_name"]}')
+            tier.update(substitute(binding['template'],effect['variables'],row['effects']))
+            for scope in ('team','members'):validate_hooks(tier.get(scope,{}).get('hooks',[]))
         tiers.append(tier)
-    return dict(name=row['name'],tiers=tiers,status='candidate_not_replay_validated' if key in TRAIT_BINDINGS else 'missing_handler')
+    status='candidate_not_replay_validated' if tiers and all(not t.get('unsupported') for t in tiers) else 'missing_handler'
+    return dict(name=row['name'],tiers=tiers,status=status)
 
 
 def compile_catalog(manifest,catalogs,bindings):
@@ -105,6 +63,7 @@ def compile_catalog(manifest,catalogs,bindings):
         raise UnsupportedRule('binding and sealed catalog identity differ')
     if bindings.get('status')!='candidate_not_replay_validated' or bindings.get('runtime_promoted') is not False:
         raise UnsupportedRule('candidate compiler cannot promote a release')
+    profile=bindings['profile']
     trait_names={t['name']:t['api_name'] for t in catalogs['traits']['traits']}
     champions={}
     for row in catalogs['units']['champions']:
@@ -113,42 +72,48 @@ def compile_catalog(manifest,catalogs,bindings):
         if binding is None:
             spec.update(unsupported=True,reason='ability/role/timing binding missing')
         else:
-            if binding['role']!='caster':raise UnsupportedRule('unverified mana role')
+            role=profile['roles'].get(binding['role'])
+            if role is None:raise UnsupportedRule('unverified mana role')
             v=row['stats'];missing=[k for k in ('hp','damage','armor','magicResist','attackSpeed','mana','initialMana','range','critChance','critMultiplier') if v.get(k) is None]
             if missing:raise UnsupportedRule(f'missing attributes: {key}: {missing}')
-            spec.update(combat=dict(hp=[v['hp']*n for n in (1,1.8,3.24)],ad=[v['damage']*n for n in (1,1.5,2.25)],
-                ap=100,armor=v['armor'],mr=v['magicResist'],attack_speed=v['attackSpeed'],range=v['range'],
-                mana=v['mana'],initial_mana=v['initialMana'],mana_per_attack=7,mana_per_second=2,mana_per_damage=0,
+            spec.update(combat=dict(hp=[v['hp']*n for n in profile['star_multipliers']['hp']],
+                ad=[v['damage']*n for n in profile['star_multipliers']['ad']],
+                ap=profile['base_ap'],armor=v['armor'],mr=v['magicResist'],attack_speed=v['attackSpeed'],range=v['range'],
+                mana=v['mana'],initial_mana=v['initialMana'],**deepcopy(role),
                 crit_chance=v['critChance'],crit_multiplier=v['critMultiplier']),
                 spell=deepcopy(binding['spell']),hooks=deepcopy(binding.get('hooks',[])),status='candidate_not_replay_validated')
             validate_effects(spec['spell']['effects'])
         champions[key]=spec
     if set(bindings['champions'])-set(champions):raise UnsupportedRule('binding entity missing from release')
-    items={r['api_name']:compile_item(r) for r in catalogs['items']['items']}
+    items={r['api_name']:compile_item(r,bindings['items']) for r in catalogs['items']['items']}
+    if set(bindings['items']['entities'])-set(items):raise UnsupportedRule('bound item missing from release')
     recipes={'+'.join(sorted(r['composition'])):r['api_name'] for r in catalogs['items']['items']
              if len(r['composition'])==2 and items[r['api_name']].get('combat_handler')=='effects'}
-    traits={r['api_name']:compile_trait(r) for r in catalogs['traits']['traits']}
+    traits={r['api_name']:compile_trait(r,bindings['traits']) for r in catalogs['traits']['traits']}
+    if set(bindings['traits']['entities'])-set(traits):raise UnsupportedRule('bound trait missing from release')
     report=dict(champions=dict(total=len(champions),candidate_effects=sum(not v.get('unsupported') for v in champions.values()),
                               replay_validated=0,missing_handlers=sorted(k for k,v in champions.items() if v.get('unsupported'))),
                 items=dict(global_catalog_total=len(items),set_membership_verified=False,
                            candidate_effects=sum(v.get('combat_handler')=='effects' for v in items.values()),replay_validated=0),
-                traits=dict(total=len(traits),candidate_effects=len(TRAIT_BINDINGS),replay_validated=0,
-                            missing_handlers=sorted(set(traits)-TRAIT_BINDINGS)),
+                traits=dict(total=len(traits),candidate_effects=sum(t['status']=='candidate_not_replay_validated' for t in traits.values()),replay_validated=0,
+                            missing_handlers=sorted(k for k,t in traits.items() if t['status']=='missing_handler')),
                 unresolved=bindings['unresolved'],current_patch_training_ready=False,runtime_promoted=False,
                 full_match_ready=False,augments_ready=False,seasonal_events_ready=False)
-    return dict(schema_version=2,combat_version=2,scope='experimental_hex_lab',patch=bindings['patch'],
+    return dict(schema_version=3,combat_version=2,scope='experimental_hex_lab',patch=bindings['patch'],
                 release_sha256=manifest['release_sha256'],bindings_sha256=hashlib.sha256(canonical(bindings)).hexdigest(),
                 champions=champions,items=items,traits=traits,augments={},recipes=recipes,
-                combat_rules=deepcopy(bindings['timing_profile']['combat_rules']),coverage=report)
+                data_components=deepcopy(bindings['components']),
+                lab_sampling=deepcopy(profile['lab_sampling']),
+                combat_rules=deepcopy(profile['timing_profile']['combat_rules']),coverage=report)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--release',type=Path,required=True)
-    p.add_argument('--bindings',type=Path,default=Path('configs/simulation/set18-effects-bindings-v1.json'))
+    p.add_argument('--bindings',type=Path,default=Path('configs/simulation/seasons/TFTSet18/18.3/manifest.json'))
     p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();manifest,catalogs=read_release(a.release)
-    result=compile_catalog(manifest,catalogs,json.loads(a.bindings.read_text()))
+    result=compile_catalog(manifest,catalogs,load_bindings(a.bindings))
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_bytes(canonical(result))
     print(json.dumps(result['coverage'],indent=2))
 

@@ -14,6 +14,7 @@ class Modifier:
     expires: float = math.inf
     group: str | None = None
     strongest: bool = False
+    when: dict | None = None
 
 
 class Stats:
@@ -22,16 +23,22 @@ class Stats:
         self.base=dict(base)
         self.modifiers=[]
 
-    def add(self, key, stat, value, mode='flat', *, expires=math.inf, group=None, strongest=False):
+    def add(self, key, stat, value, mode='flat', *, expires=math.inf, group=None, strongest=False, when=None):
         if stat not in self.base or mode not in ('flat','base_pct','bonus_pct','multiplier'):
             raise UnsupportedRule('unknown stat or modifier unit')
         if not math.isfinite(value) or math.isnan(expires): raise UnsupportedRule('invalid modifier')
         if mode=='multiplier' and value<0: raise UnsupportedRule('negative multiplier')
-        self.modifiers.append(Modifier(key,stat,mode,float(value),expires,group,strongest))
+        if when is not None:
+            if set(when)!={'shielded'} or type(when['shielded']) is not bool:
+                raise UnsupportedRule('unknown modifier condition')
+            if stat in ('hp','mana','initial_mana','mana_per_second'):
+                raise UnsupportedRule('conditional resource integration not implemented')
+        self.modifiers.append(Modifier(key,stat,mode,float(value),expires,group,strongest,when))
 
-    def get(self, stat, now=0):
+    def get(self, stat, now=0, context=None):
         if stat not in self.base: raise UnsupportedRule(f'unknown stat: {stat}')
-        mods=[m for m in self.modifiers if m.stat==stat and m.expires>now]
+        mods=[m for m in self.modifiers if m.stat==stat and m.expires>now and
+              (m.when is None or context is not None and all(context.get(k)==v for k,v in m.when.items()))]
         groups={}
         selected=[]
         for m in mods:
@@ -74,6 +81,8 @@ def formula(spec, source, target, now):
             if unit is None: raise UnsupportedRule('formula target unavailable')
             if stat=='current_hp': value=unit.hp
             elif stat=='missing_hp': value=max(0,unit.values.get('hp',now)-unit.hp)
-            else: value=unit.values.base[stat] if term.get('base',False) else unit.values.get(stat,now)
+            else:
+                context={'shielded':any(s.amount>0 and s.expires>now for s in getattr(unit,'shields',[]))}
+                value=unit.values.base[stat] if term.get('base',False) else unit.values.get(stat,now,context)
         total+=coefficient*value
     return total

@@ -141,7 +141,7 @@ class Battle:
                     for entry in value:namespace(entry)
                 elif isinstance(value,dict):
                     for key,entry in value.items():
-                        if key in ('key','shield_key'):value[key]=f'item:{item_index}:{entry}'
+                        if key in ('key','shield_key','counter'):value[key]=f'item:{item_index}:{entry}'
                         else:namespace(entry)
             namespace(item_hooks)
             hooks.extend(item_hooks)
@@ -151,7 +151,7 @@ class Battle:
         for key,value in (permanent or {}).items():
             values.add('permanent:'+key,key,finite(value,key))
         for i,m in enumerate(mods):
-            values.add(f'initial:{i}',m['stat'],finite(m['value'],m['stat']),m['mode'])
+            values.add(f'initial:{i}',m['stat'],finite(m['value'],m['stat']),m['mode'],when=m.get('when'))
         spell=deepcopy(spec.get('spell'))
         if not spell or spell.get('kind') not in ('none','effects'): raise UnsupportedRule('event spell missing')
         if spell['kind']=='effects':
@@ -162,6 +162,12 @@ class Battle:
             if h.get('event') not in EVENTS: raise UnsupportedRule('unknown trigger')
             h['_key']=f'hook:{i}'
             validate_effects(h['effects'])
+            validate_effects(h.get('at_limit_effects',[]))
+            if 'counter' in h and (not isinstance(h['counter'],str) or not h['counter']):
+                raise UnsupportedRule('invalid shared trigger counter')
+            if 'limit' in h and (type(h['limit']) is not int or h['limit']<1):
+                raise UnsupportedRule('invalid trigger limit')
+            if h.get('at_limit_effects') and 'limit' not in h:raise UnsupportedRule('capstone requires a limit')
             if h['event']=='periodic' and finite(h.get('interval'),'interval')<=0:
                 raise UnsupportedRule('invalid interval')
         if values.get('hp')<=0 or values.get('attack_speed')<=0 or values.get('range')<1:
@@ -182,7 +188,8 @@ class Battle:
         if not math.isfinite(when) or when<self.now: raise UnsupportedRule('invalid event time')
         self.sequence+=1;heapq.heappush(self.queue,(when,self.sequence,kind,uid,payload))
 
-    def get(self,u,key):return u.values.get(key,self.now)
+    def get(self,u,key):
+        return u.values.get(key,self.now,context={'shielded':any(s.amount>0 and s.expires>self.now for s in u.shields)})
 
     def status(self,u,name):return max((end for end in u.statuses.get(name,[]) if end>self.now),default=0.)
 
@@ -255,14 +262,19 @@ class Battle:
             if context.get('only_hook') is not None and h['_key']!=context['only_hook']:continue
             key=h['_key'];seen=u.counters.get(key+':seen',0)+1;u.counters[key+':seen']=seen
             if seen%h.get('every',1):continue
-            if u.counters.get(key,0)>=h.get('limit',math.inf) or u.cooldowns.get(key,0)>self.now:continue
+            counter=h.get('counter',key)
+            if u.counters.get(counter,0)>=h.get('limit',math.inf) or u.cooldowns.get(key,0)>self.now:continue
             if 'damage_tag' in h and context.get('tag')!=h['damage_tag']:continue
+            if 'damage_tags' in h and context.get('tag') not in h['damage_tags']:continue
             if 'shield_key' in h and context.get('key')!=h['shield_key']:continue
             if 'caster_trait' in h and (target is None or h['caster_trait'] not in target.tags):continue
             if event=='health_below' and (u.hp<=0 or u.hp/self.get(u,'hp')>=h['threshold']):continue
             if self.rng.random()>h.get('chance',1.):continue
-            u.counters[key]=u.counters.get(key,0)+1;u.cooldowns[key]=self.now+h.get('cooldown',0)
+            u.counters[counter]=u.counters.get(counter,0)+1;u.cooldowns[key]=self.now+h.get('cooldown',0)
+            reached_limit=u.counters[counter]==h.get('limit')
             self.effects(u,target,h['effects'],context,tag='proc')
+            if reached_limit:
+                self.effects(u,target,h.get('at_limit_effects',[]),context,tag='proc')
 
     def heal(self,source,target,raw):
         if target.hp<=0:return 0.
@@ -440,7 +452,7 @@ class Battle:
             if unit.hp<=0:continue
             if kind=='periodic':
                 h=unit.hooks[payload];self.hook('periodic',unit,unit,dict(only_hook=h['_key']))
-                if unit.counters.get(h['_key'],0)<h.get('limit',math.inf):
+                if unit.counters.get(h.get('counter',h['_key']),0)<h.get('limit',math.inf):
                     self.schedule(self.now+h['interval'],'periodic',uid,payload)
                 continue
             version=payload if kind=='act' else payload['version']

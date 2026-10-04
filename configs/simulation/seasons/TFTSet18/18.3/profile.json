@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "candidate-combat-profile-v1",
+  "status": "not_replay_validated",
+  "star_multipliers": {
+    "hp": [
+      1,
+      1.8,
+      3.24
+    ],
+    "ad": [
+      1,
+      1.5,
+      2.25
+    ]
+  },
+  "base_ap": 100,
+  "roles": {
+    "caster": {
+      "mana_per_attack": 7,
+      "mana_per_second": 2,
+      "mana_per_damage": 0
+    }
+  },
+  "timing_profile": {
+    "status": "laboratory_assumption",
+    "combat_rules": {
+      "duration": 40,
+      "move_seconds": 0.25,
+      "first_action_seconds": 0.25,
+      "attack_speed_cap": 5,
+      "attack_windup_fraction": 0.4,
+      "projectile_hexes_per_second": 10,
+      "max_events": 100000
+    },
+    "default_cast_seconds": 0.5
+  },
+  "lab_sampling": {
+    "team_size_min": 2,
+    "team_size_max": 4,
+    "stars": [
+      1,
+      1,
+      2
+    ],
+    "items": [
+      "TFT_Item_WarmogsArmor",
+      "TFT_Item_ArchangelsStaff",
+      "TFT_Item_GuinsoosRageblade",
+      "TFT_Item_SpearOfShojin",
+      "TFT_Item_Bloodthirster",
+      "TFT_Item_RabadonsDeathcap",
+      "TFT_Item_Deathblade",
+      "TFT_Item_Crownguard",
+      "TFT_Item_TitansResolve",
+      "TFT_Item_LastWhisper",
+      "TFT_Item_Quicksilver",
+      "TFT_Item_FrozenHeart"
+    ]
+  }
+}

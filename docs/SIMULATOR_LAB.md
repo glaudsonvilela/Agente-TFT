@@ -261,3 +261,73 @@ Use um diretório de saída novo para preservar os dados anteriores. Um arquivo
 treino. No BigBANANA, `tft simulador` lê os contadores atuais durante a execução
 e mostra métricas finais depois; cada consulta lê novamente o relatório. O lote
 acima terminou, portanto não aparece como treino continuamente ativo.
+
+## Separação sazonal consolidada — pacote v3
+
+A configuração monolítica `set18-effects-bindings-v1.json` permanece como
+registro histórico. O compilador agora usa, por padrão, o manifesto explícito
+`configs/simulation/seasons/TFTSet18/18.3/manifest.json` e quatro componentes:
+
+| Componente | Responsabilidade |
+|---|---|
+| `champions.json` | Habilidades, identidade de função e tempos específicos de cada campeão |
+| `items.json` | IDs, componentes, unidades dos atributos, gatilhos e fórmulas de itens |
+| `traits.json` | Patamares, bônus, contadores e efeitos das sinergias |
+| `profile.json` | Progressão por estrela, métricas das funções, hipóteses temporais e seleção do experimento |
+
+Os algoritmos de geometria, movimento, eventos, modificadores, controle e ações
+permanecem em `trainer/simulation`. Eles recebem os dados compilados. A tradução
+genérica em `ingestion/simulation_bindings.py` e `training/compile_effects.py`
+substitui apenas campos numéricos declarados; não executa expressões textuais.
+Não há ramificações por nome/ID de item ou sinergia no compilador. Regeneração de
+mana e multiplicadores por estrela também saíram do código para o perfil.
+
+O manifesto fixa o hash de cada arquivo e a release do catálogo. Arquivo
+alterado, campo desconhecido, divergência de aliases ou ID ausente interrompe a
+compilação. Uma atualização deve criar outro pacote/manifesto, selecionar sua
+release, compilar e comparar resultados; não substituir automaticamente dados
+de replays anteriores. O artefato compilado tem `schema_version: 3`; o runner
+recusa versões anteriores e pede recompilação explícita.
+
+O relatório, esquema de entrada do modelo e identidade do treino guardam patch,
+hash da release, hash das regras e hashes dos quatro componentes. Isso permite
+separar métricas de diferentes patches. `tft simulador` também exibe o patch e a
+identidade das regras. O esquema do modelo agora inclui a identidade do código
+e o checksum dos pesos. A adoção desses pesos no HUD continua desativada.
+
+### Novos efeitos
+
+- **Determinação Titânica:** ataque e dano recebido compartilham o mesmo limite
+  de acúmulos; o bônus final acontece uma vez. Duas cópias têm contadores próprios.
+- **Último Sussurro:** redução de armadura com duração e renovação, sem soma de
+  debuffs iguais; gatilho restrito a dano de ataque/habilidade.
+- **Mercúrio:** imunidade temporária a controle e ganho de velocidade por tempo.
+- **Juramento do Protetor:** mana inicial e recompensa de mana/escudo no limiar
+  de vida; a interpretação de uma ativação por combate ainda exige replay.
+- **Lutador:** bônus de vida de equipe e de membros declarados separadamente.
+  A ordem do percentual sobre a vida total continua como hipótese explícita.
+- **Vanguarda:** escudo inicial, escudo no limiar de vida e, no patamar adequado,
+  durabilidade condicionada à presença de qualquer escudo ativo.
+
+Total atual: **4 habilidades, 21 itens/componentes e 6 sinergias candidatos**.
+A validação em replay permanece em zero e o simulador sazonal completo continua
+pendente. O conjunto de primitivos suporta mais efeitos que o catálogo já ligado
+a eles; esses dois números não devem ser confundidos.
+
+### Verificação desta versão
+
+53 testes direcionados passaram. A suíte de treinamento executou 503 testes,
+12 pulados, nenhuma falha. Vinte cenários anteriores produziram exatamente os
+mesmos resultados após migrar as regras para arquivos separados.
+
+No BigBANANA, o conteúdo foi recompilado a partir do manifesto e da release
+selada, com o mesmo hash do build local. O lote ampliado incluiu os quatro itens
+novos: **500 combates em 16,27 s**, pico do processo **44,70 MiB**, p95 **57,02 ms**.
+A rede de **4.227 parâmetros** fez **780 atualizações** e obteve **85/100** nos
+cenários reservados, contra **62/100** do baseline majoritário. Esse conjunto
+de cenários mudou; o resultado não é diretamente comparável aos 91/100 do lote
+anterior e não demonstra acurácia no jogo real.
+
+Evidências: `docs/evidence/event-simulator-20261004/season-v3-*.json`.
+Código e catálogo privados no servidor: `agente-tft-trainer/event-lab-season-v3`.
+Dados, pesos e relatório: `agente-tft-trainer/data/event-lab-20261004-season-v3`.
