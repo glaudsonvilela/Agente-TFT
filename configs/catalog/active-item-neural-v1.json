@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "item_icon_classifier",
+  "set_key": "TFTSet18",
+  "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+  "mode": "diagnostic_candidates",
+  "release_tag": "item-icons-lab-20261004",
+  "files": {
+    "item-icons.onnx": "5fb590f1f320dc6cce43f0687453f02400717b66a4d477af8f2ad19574fadc83",
+    "metadata.json": "b8174d3f0c0ec859d4bf39b88093d301183d62fc11c68eb7df38e94f9d67382e"
+  }
+}

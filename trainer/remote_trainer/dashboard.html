@@ -73,9 +73,11 @@
     <div class="wide">
       <h2>Simulação e aprendizagem</h2>
       <div class="row"><span>Simulador</span><span class="status" id="simulator">Verificando</span></div>
-      <div class="row"><span>Treino neural no servidor</span><span class="status" id="neural">Verificando</span></div>
+      <div class="row"><span>Modelo de banco/loja</span><span class="status" id="neural">Verificando</span></div>
       <div class="row"><span>Visão neural no último replay</span><strong id="local-vision">Aguardando sessão</strong></div>
       <div class="row"><span>Último candidato</span><strong id="neural-candidate">—</strong></div>
+      <div class="row"><span>Rede de reconhecimento de itens</span><strong id="item-learning">—</strong></div>
+      <div class="note" id="item-evaluation">Treino visual e simulações têm contagens próprias.</div>
       <div class="row"><span>Tempo médio por lote concluído</span><strong id="duration">—</strong></div>
       <div class="row"><span>Versão do simulador</span><strong id="sim-version">—</strong></div>
       <div class="row"><span>Versão da política</span><strong id="policy-version">—</strong></div>
@@ -124,6 +126,10 @@
       const runtime = m.latest_imported_runtime;
       set("local-vision", runtime ? (runtime.diagnostic_active ? "Diagnóstico ativo · " : "Não confirmado · ") + fmt(runtime.mapped_frames) + " mapas" : "Nenhum ZIP de sessão importado");
       const candidate = (m.neural_experiments || [])[0];
+      const itemJob = (m.item_learning_jobs || [])[0];
+      const itemStates = {training: "Treinando", trained_evaluated: "Treinado e avaliado", progress_not_recent: "Progresso sem atualização recente"};
+      set("item-learning", itemJob ? (itemStates[itemJob.status] || itemJob.status) + " · " + fmt(itemJob.optimizer_steps) + "/" + fmt(itemJob.optimizer_steps_total) + " passos · " + fmt(itemJob.classes) + " artes" : "Ainda não iniciado");
+      set("item-evaluation", itemJob && itemJob.replay_total ? "Recortes revisados: " + fmt(itemJob.replay_correct) + "/" + fmt(itemJob.replay_total) + " · " + fmt(itemJob.replay_distinct_items) + " itens distintos. Amostra limitada; não mede estratégia ou partidas completas." : "Treino visual de itens; não são partidas simuladas.");
       set("neural-candidate", candidate ? fmt(candidate.source_frames) + " imagens · " + fmt(candidate.optimizer_steps) + " passos · banco/loja" +
           (candidate.comparison ? " · loja " + fmt(candidate.comparison.candidate["shop:proposal"] || 0) + "/" + fmt(candidate.comparison.frames) + " (anterior " + fmt(candidate.comparison.previous["shop:proposal"] || 0) + ")" : "") : "Nenhum");
       set("duration", m.mean_completed_job_ms == null ? "Sem medição" : (m.mean_completed_job_ms / 1000).toFixed(2) + " s");

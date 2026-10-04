@@ -28,7 +28,7 @@ def render(data: dict) -> str:
         "✦ AGENTE TFT · BigBANANA",
         f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
         "────────────────────────────────────────",
-        f"Simulador: {simulator}  |  Treino neural no servidor: {neural}",
+        f"Simulador: {simulator}  |  Modelo de banco/loja: {neural}",
         "Visão neural no Windows: diagnóstico local; confira a sessão do Windows.",
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
@@ -58,6 +58,11 @@ def render(data: dict) -> str:
             lines.append(f"Loja no mesmo replay: modelo anterior {comparison['previous'].get('shop:proposal', 0)}/"
                          f"{comparison['frames']}; novo {comparison['candidate'].get('shop:proposal', 0)}/"
                          f"{comparison['frames']}. Novo modelo não instalado.")
+    for job in data.get('item_learning_jobs',[])[:1]:
+        lines.append(f"Rede de itens: {job['status']} · {job['optimizer_steps']}/{job['optimizer_steps_total']} passos · {job['classes']} artes.")
+        if job.get('replay_total'):
+            lines.append(f"Recortes revisados: {job['replay_correct']}/{job['replay_total']} · {job['replay_distinct_items']} itens distintos; avaliação limitada.")
+        lines.append('Escopo: reconhecimento visual de itens; não são partidas simuladas.')
     lines.extend(("", "Execuções recentes (atualização a cada 5 s):",
                   "  início    lote                 modo              feitas/pedidas  estado"))
     if not data["recent_jobs"]:

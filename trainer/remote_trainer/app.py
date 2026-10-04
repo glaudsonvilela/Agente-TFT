@@ -34,6 +34,40 @@ def unix_ms() -> int:
     return time.time_ns() // 1_000_000
 
 
+def item_learning_jobs(db_path: Path | None) -> list[dict]:
+    if db_path is None:
+        return []
+    jobs=[]
+    for folder in sorted((Path(db_path).parent/'experiments').glob('hm45-item-icons-*'),reverse=True)[:5]:
+        root=folder/'training-v1'
+        try:
+            path=root/'progress.json'
+            if path.stat().st_size>65536:continue
+            progress=json.loads(path.read_text())
+            if progress.get('kind')!='item_icon_classifier':continue
+            row={k:progress.get(k) for k in ['status','optimizer_steps','optimizer_steps_total',
+                'classes','elapsed_seconds','loss','peak_rss_mib','process_cpu_seconds']}
+            row.update(id=folder.name,scope='item_art_only',strategic_learning=False,
+                       runtime_promoted=False,simulation_paths=0)
+            if row['status']=='training' and time.time()-path.stat().st_mtime>180:
+                row['status']='progress_not_recent'
+            if row['status']=='trained_evaluated':
+                seal=json.loads((root/'COMPLETE.json').read_text())
+                for name in ['item-icons.onnx','metadata.json','report.json']:
+                    if (root/name).stat().st_size>2*1024*1024:raise ValueError('Artifact too large')
+                    if hashlib.sha256((root/name).read_bytes()).hexdigest()!=seal[name]:
+                        raise ValueError('Item model seal mismatch')
+                report=json.loads((root/'report.json').read_text())
+                row.update({k:report[k] for k in ['changed_parameter_tensors','first_50_loss_mean',
+                    'last_50_loss_mean','replay_correct','replay_total','replay_distinct_items',
+                    'synthetic_augmented_top1','independent_match_validation']})
+                row['model_sha256']=seal['item-icons.onnx']
+            jobs.append(row)
+        except (OSError,ValueError,KeyError,TypeError):
+            continue
+    return jobs
+
+
 def verified_neural_experiments(db_path: Path | None) -> list[dict[str, object]]:
     """Read sealed local candidates; simulator jobs remain a separate metric."""
     if db_path is None:
@@ -188,6 +222,7 @@ def create_app(
             experiments[0]["status"] if experiments else "not_started"
         )
         snapshot["neural_experiments"] = experiments
+        snapshot["item_learning_jobs"] = item_learning_jobs(app.state.store.db_path)
         snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)
         snapshot["resources"] = app.state.resources.sample()
         snapshot["generated_at_ms"] = app.state.clock_ms()

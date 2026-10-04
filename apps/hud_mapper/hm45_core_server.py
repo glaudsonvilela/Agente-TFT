@@ -241,6 +241,8 @@ def self_test(root: Path, version: str) -> int:
             hub = check("hub", 4, rgb, 1920, 1080, codec)
             if reader.get("id") != 2 or hp.get("id") != 3 or "snapshot" not in hub:
                 raise RuntimeError("OCR/HP/B4 não retornaram resultados válidos.")
+            if not (hub['snapshot'].get('neural_items') or {}).get('active'):
+                raise RuntimeError('Modelo neural de itens não carregou no núcleo.')
         print("AGENTETFT_CORE_HEALTH_OK", flush=True)
         return 0
     finally:

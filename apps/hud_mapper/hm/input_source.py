@@ -41,8 +41,8 @@ class InputPlan:
             self.source = CaptureSource(o.video, o.configs, o.seconds, capture_hz,
                 consent=o.capture_consent, expected=o.capture_expected,
                 log=Path(o.output)/'capture-stderr.log',
-                preview_hz=o.preview_hz if o.vm_core else None,
-                preview_size=(o.preview_width,o.preview_height) if o.vm_core else None)
+                preview_hz=o.preview_hz if o.vm_core or o.native_preview else None,
+                preview_size=(o.preview_width,o.preview_height) if o.vm_core or o.native_preview else None)
             self.info.update(native=self.source.ready, clock_bridge=self.source.bridge.metadata(),
                              native_binary_sha256=sha(native_path(o.configs)))
         else:

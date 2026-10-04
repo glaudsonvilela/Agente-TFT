@@ -303,7 +303,7 @@ class App:
                 board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
                 replay_review=self.hm4 and self.replay_review.get(),
                 board_hub_enabled=self.hm4 and self.replay_review.get(),
-                vm_core=self.vm_core,preview_hz=30,
+                vm_core=self.vm_core,native_preview=self.hm4,preview_hz=30,
                 preview_width=max(160,min(1280,self.canvas.winfo_width()-8)),
                 preview_height=max(90,min(720,self.canvas.winfo_height()-8)),
                 max_samples=90 if self.vm_core else 600,
@@ -658,6 +658,7 @@ def main(mode="hm3"):
             o=Options(**runtime_paths(),video=a.capture,model=a.model or "",output=a.output,seconds=a.seconds,map_hz=a.map_hz,
                       reader_hz=a.reader_hz,sample_hz=a.sample_hz,capture_consent=True,capture_expected=selected,
                       replay_review=hm4 and a.replay_review,board_hub_enabled=hm4 and a.replay_review,
+                      native_preview=hm4,preview_hz=30,
                       dataset_only=hm4 and not bool(a.model),scenario="hm4-ci" if hm4 else "hm3-ci")
             sess=cls(o).start()
             while not sess.done.is_set():

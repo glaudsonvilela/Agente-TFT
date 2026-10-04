@@ -99,6 +99,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Rust reader failed' }
           cargo build --locked --release --manifest-path tools/hm-hp-native/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'Rust HP failed' }
+      - name: Check native preview for progressive slowdown
+        shell: pwsh
+        run: |
+          python tools/hm-capture-native/tests/windows_preview_endurance.py --seconds 330 --output build/hm45-preview-endurance.json
+          if ($LASTEXITCODE -ne 0) { throw 'Native preview endurance failed' }
       - name: Prepare the matching Windows model and official artwork
         shell: pwsh
         env:
@@ -166,5 +171,12 @@ jobs:
             build/hm45-voice-smoke.json
             build/hm45-replay-voice/report.json
             build/hm45-replay-voice/decision.wav
+            build/hm45-preview-endurance.json
           retention-days: 14
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HM45-Preview-Endurance
+          path: build/hm45-preview-endurance.json
+          if-no-files-found: ignore

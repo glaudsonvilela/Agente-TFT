@@ -408,6 +408,10 @@ class HM4RuntimeSession(RuntimeSession):
                     continue
                 started = time.perf_counter_ns()
                 observed = observer.observe(reader_frame, board_read)
+                self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
+                neural_items=observed['snapshot'].get('neural_items') or {}
+                self.versions['item_neural_active']=neural_items.get('active',False)
+                self.versions['item_neural_model_sha256']=neural_items.get('model_sha256')
                 end = time.perf_counter_ns()
                 regions = regions_to_source(observed['regions'], frame, plan)
                 record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions,

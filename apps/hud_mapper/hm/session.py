@@ -56,6 +56,7 @@ class Options:
     replay_review: bool=False
     board_hub_enabled: bool=False
     vm_core: bool=False
+    native_preview: bool=False
     preview_hz: float=20
     preview_width: int=1280
     preview_height: int=720

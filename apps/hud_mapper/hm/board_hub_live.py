@@ -55,6 +55,14 @@ class BoardHubLive:
         self.inventory_templates = load_templates(selected, self.icons)
         self.equipped_templates = load_templates(selected, self.icons,
                                                  size=self.equipped['icon_size'])
+        self.item_neural=None
+        self.item_neural_error=None
+        if (root/'configs/catalog/active-item-neural-v1.json').is_file():
+            try:
+                from .item_neural import ItemIconObserver
+                self.item_neural=ItemIconObserver(root)
+            except (OSError,ValueError,ImportError,RuntimeError) as exc:
+                self.item_neural_error=str(exc)
 
     def observe(self, canonical_frame, board_read: dict | None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
@@ -67,6 +75,8 @@ class BoardHubLive:
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates)
+            snapshot['neural_items']=(self.item_neural.observe(image,snapshot['inventory']['inventory'],self.inventory)
+                if self.item_neural else dict(active=False,error=self.item_neural_error))
         for row in snapshot['inventory']['candidate_slots']:
             for candidate in row['candidates']:
                 self._bind_exact_attribute_ids(candidate)
@@ -90,8 +100,9 @@ class BoardHubLive:
             candidates = (item or {}).get('candidates') or []
             leading = candidates[0] if candidates else None
             options = leading['catalog_options'] if leading else []
+            names={option['name'] for option in options}
             regions.append(region(f"hub.inventory.{slot['slot']}", xyxy(slot['rect']), slot['status'],
-                                  value=options[0]['visual_id'] if len(options) == 1 else None,
+                                  value=next(iter(names)) if len(names)==1 else None,
                                   value_is_unverified_candidate=bool(candidates), item_id=None,
                                   candidate_items=options,
                                   game_state_write_allowed=False))

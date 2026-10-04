@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+from urllib.request import urlopen
 
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
@@ -45,9 +46,21 @@ def prepare() -> dict:
         raise ValueError(f'Riot item icon download incomplete: {failures[:3]}')
     if any(not (icons / entry['icon']).is_file() for entry in selected):
         raise ValueError('Item icon bank incomplete after download')
+    neural_plan=json.loads((root/'configs/catalog/active-item-neural-v1.json').read_text())
+    neural_dir=model_dir/'item-icons';neural_dir.mkdir(exist_ok=True)
+    for name,expected in neural_plan['files'].items():
+        path=neural_dir/name
+        if not path.is_file():
+            url=f'https://github.com/glaudsonvilela/Agente-TFT/releases/download/{neural_plan["release_tag"]}/{name}'
+            with urlopen(url,timeout=30) as response:raw=response.read(2*1024*1024+1)
+            if len(raw)>2*1024*1024:raise ValueError('Item model exceeds budget')
+            path.write_bytes(raw)
+        if hashlib.sha256(path.read_bytes()).hexdigest()!=expected:
+            raise ValueError('Item model changed: '+name)
     report = {'schema_version': 1, 'policy': 'hm4_replay_screen_assets_v1',
               'model_sha256': model_hash, 'model_bytes': len(model_bytes),
               'model_mode': 'shadow_diagnostic',
+              'item_neural_sha256': neural_plan['files']['item-icons.onnx'],
               'reference_sha256': manifest['reference_sha256'],
               'data_dragon_version': manifest['version'], 'set_key': manifest['set_key'],
               'matching_item_entries': len(selected),
