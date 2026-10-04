@@ -14,7 +14,7 @@ def start(options, session_id):
     if os.name != "nt":
         raise RuntimeError("O núcleo WSL 2 está disponível somente no Windows.")
     package = load_package(Path(sys.executable).resolve().parent / "core")
-    core = VMCore(package.distro, Path(options.output) / "vm-core-stderr.log")
+    core = VMCore(package.runtime_distro, Path(options.output) / "vm-core-stderr.log")
     try:
         if core.ready.get("version") != package.version:
             raise RuntimeError("A versão da VM não corresponde ao instalador.")

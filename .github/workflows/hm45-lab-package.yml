@@ -29,7 +29,7 @@ jobs:
       - name: Build and self-test the WSL root filesystem
         run: python3 scripts/build_hm45_core.py
       - name: Verify on a two-core, 768 MiB VM budget
-        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.2 self-test --version 0.6.2
+        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.3 self-test --version 0.6.3
       - name: Exercise the host client through local IP
         run: |
           python3 -m pip install Pillow==12.1.0

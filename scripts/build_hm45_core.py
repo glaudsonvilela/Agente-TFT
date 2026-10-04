@@ -12,11 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "build/hm45-core"
 CONTEXT = BUILD / "context"
 APP = CONTEXT / "app"
-VERSION = "0.6.2"
-# A new immutable WSL distribution keeps an older installed guest intact while
-# ensuring a new installer cannot silently reuse its outdated item catalog.
+VERSION = "0.6.3"
+# Archive family only. Setup and runtime append the rootfs SHA-256 to the
+# registered distro name so updates never reuse an older guest or catalog.
 DISTRO = "AgenteTFT-Core-v2"
-IMAGE = "agente-tft-hm45-core:0.6.2"
+IMAGE = "agente-tft-hm45-core:0.6.3"
 
 
 def copy(source: Path, destination: Path) -> None:

@@ -28,7 +28,7 @@ for path in (ROOT, ROOT / "apps/hud_mapper", ROOT / "apps/e1_replay"):
 
 from hm45_protocol import ProtocolError, decode_rgb, recv_packet, send_packet
 
-VERSION = "0.6.2"
+VERSION = "0.6.3"
 MAX_CLIENTS = 6
 
 

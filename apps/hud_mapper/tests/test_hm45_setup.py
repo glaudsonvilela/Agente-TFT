@@ -7,11 +7,12 @@ import os
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from hm45_setup_core import CoreInstaller, SetupError, configure_headless_wslg, load_package, restart_windows, verify_package, wait_wsl_after_restart, wsl_available, wsl_names
+from hm45_setup_core import CoreInstaller, SetupError, configure_headless_wslg, load_package, probe_host_core, restart_windows, verify_package, wait_wsl_after_restart, wsl_available, wsl_names
 
 
 class FakeWindows:
@@ -20,6 +21,7 @@ class FakeWindows:
         self.wsl_ready = True
         self.status_failures = 0
         self.distros = set()
+        self.unhealthy_distros = set()
         self.import_fails = False
         self.health_ok = True
         self.enable_code = 0
@@ -43,8 +45,9 @@ class FakeWindows:
             self.distros.add(args[2])
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[:2] == ["wsl.exe", "--distribution"]:
-            return subprocess.CompletedProcess(args, 0 if self.health_ok else 1,
-                                               "AGENTETFT_CORE_HEALTH_OK" if self.health_ok else "", "")
+            ok = self.health_ok and args[2] not in self.unhealthy_distros
+            return subprocess.CompletedProcess(args, 0 if ok else 1,
+                                               "AGENTETFT_CORE_HEALTH_OK" if ok else "", "version mismatch" if not ok else "")
         if args[0] == "powershell.exe":
             return subprocess.CompletedProcess(args, self.enable_code if "-ExecutionPolicy" in args else 0,
                                                self.virtualization, "")
@@ -156,7 +159,7 @@ class SetupContracts(unittest.TestCase):
         self.assertEqual(self.installer.install(lambda _: None), "ready")
         imports = [call for call in self.fake.calls if call[:2] == ["wsl.exe", "--import"]]
         self.assertEqual(len(imports), 1)
-        self.assertEqual(imports[0][2], "AgenteTFT-Core-v1")
+        self.assertEqual(imports[0][2], self.installer.package.runtime_distro)
         self.assertEqual(imports[0][-2:], ["--version", "2"])
         self.assertFalse(any("--unregister" in call for call in self.fake.calls))
 
@@ -172,14 +175,74 @@ class SetupContracts(unittest.TestCase):
                                  build=lambda: 26100, host_probe=lambda package, log: True)
         upgraded.clear_resume = lambda: None
         self.assertEqual(upgraded.install(lambda _: None), "ready")
-        self.assertEqual(self.fake.distros, {"AgenteTFT-Core-v1", "AgenteTFT-Core-v2"})
+        self.assertEqual(self.fake.distros, {"AgenteTFT-Core-v1", upgraded.package.runtime_distro})
         self.assertFalse(any("--unregister" in call for call in self.fake.calls))
 
     def test_first_import_after_reboot_with_no_wsl_distribution(self):
         self.fake.empty_list_is_error = True
         self.assertEqual(self.installer.install(lambda _: None), "ready")
-        self.assertIn("AgenteTFT-Core-v1", self.fake.distros)
+        self.assertIn(self.installer.package.runtime_distro, self.fake.distros)
         self.assertEqual(sum(call[:2] == ["wsl.exe", "--import"] for call in self.fake.calls), 1)
+
+    def test_upgrade_with_same_archive_family_preserves_incompatible_legacy_guest(self):
+        # Field failure: 0.6.2 reused the registered v2 guest from 0.6.1,
+        # so health-check rejected it before importing the new rootfs.
+        legacy = self.installer.package.distro
+        self.fake.distros.update({legacy, "Ubuntu"})
+        self.fake.unhealthy_distros.add(legacy)
+        messages = []
+        self.assertEqual(self.installer.install(messages.append), "ready")
+        installed = self.installer.package.runtime_distro
+        self.assertEqual(self.fake.distros, {legacy, "Ubuntu", installed})
+        health_calls = [c for c in self.fake.calls if c[:2] == ["wsl.exe", "--distribution"]]
+        self.assertEqual([c[2] for c in health_calls], [installed])
+        self.assertTrue(any("outro pacote" in m for m in messages))
+        self.assertFalse(any("--unregister" in c or "--terminate" in c for c in self.fake.calls))
+
+    def test_same_version_rebuilt_catalog_gets_a_distinct_guest_and_reinstall_reuses_it(self):
+        self.installer.install(lambda _: None)
+        previous = self.installer.package.runtime_distro
+        self.tar.write_bytes(b"a rebuilt rootfs with a newer catalog")
+        self.manifest["sha256"] = hashlib.sha256(self.tar.read_bytes()).hexdigest()
+        (self.core / "core-package.json").write_text(json.dumps(self.manifest), encoding="utf-8")
+        self.installer.package = load_package(self.core)
+        current = self.installer.package.runtime_distro
+        self.assertNotEqual(current, previous)
+        self.installer.install(lambda _: None)
+        self.installer.install(lambda _: None)
+        imports = [c for c in self.fake.calls if c[:2] == ["wsl.exe", "--import"]]
+        self.assertEqual([c[2] for c in imports], [previous, current])
+        self.assertEqual(self.fake.distros, {previous, current})
+        self.assertNotEqual(imports[0][3], imports[1][3])
+
+    def test_failed_upgrade_does_not_accept_healthy_legacy_guest_as_success(self):
+        self.fake.distros.add(self.installer.package.distro)
+        self.fake.import_fails = True
+        with self.assertRaisesRegex(SetupError, "importação"):
+            self.installer.install(lambda _: None)
+        self.assertEqual(self.fake.distros, {self.installer.package.distro})
+
+    def test_probe_and_application_launch_the_same_package_that_setup_imported(self):
+        self.installer.install(lambda _: None)
+        imported = next(c[2] for c in self.fake.calls if c[:2] == ["wsl.exe", "--import"])
+        package = self.installer.package
+        core = MagicMock()
+        core.ready = {"version": package.version}
+        with patch("hm45_vm_client.VMCore", return_value=core) as factory:
+            self.assertTrue(probe_host_core(package, self.base / "probe.log"))
+            self.assertEqual(factory.call_args.args[0], imported)
+            core.close.assert_called_once()
+        from hm import vm_bridge
+        options = SimpleNamespace(output=str(self.base), model=None)
+        with patch.object(vm_bridge, "load_package", return_value=package), \
+             patch.object(vm_bridge, "VMCore", return_value=core) as factory, \
+             patch.object(vm_bridge, "RemoteNativeWorker"), \
+             patch.object(vm_bridge.os, "name", "nt"):
+            # Patch only the bridge's path constructor: pathlib on Linux
+            # cannot construct WindowsPath when os.name is mocked.
+            with patch.object(vm_bridge, "Path", type(self.base)):
+                self.assertIs(vm_bridge.start(options, "test-session")[0], core)
+            self.assertEqual(factory.call_args.args[0], imported)
 
     def test_no_distribution_message_is_not_missing_wsl(self):
         self.fake.wsl_ready = False
@@ -197,7 +260,7 @@ class SetupContracts(unittest.TestCase):
                          {"AgenteTFT-Core-v1"})
 
     def test_existing_unhealthy_vm_is_preserved(self):
-        self.fake.distros.add("AgenteTFT-Core-v1")
+        self.fake.distros.add(self.installer.package.runtime_distro)
         self.fake.health_ok = False
         with self.assertRaisesRegex(SetupError, "preservada"):
             self.installer.install(lambda _: None)
@@ -205,7 +268,7 @@ class SetupContracts(unittest.TestCase):
         self.assertFalse(any("--unregister" in call for call in self.fake.calls))
 
     def test_windows_to_wsl_ip_must_pass_before_ready(self):
-        self.fake.distros.add("AgenteTFT-Core-v1")
+        self.fake.distros.add(self.installer.package.runtime_distro)
         self.installer.host_probe = lambda package, log: False
         with self.assertRaisesRegex(SetupError, "preservada"):
             self.installer.install(lambda _: None)

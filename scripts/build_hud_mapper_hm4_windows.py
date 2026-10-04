@@ -150,7 +150,7 @@ with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as ar
 iss = root / 'build/HM4.iss'
 iss.write_text(r'''[Setup]
 AppName=Agente TFT Replay Screen Lab
-AppVersion=0.6.2
+AppVersion=0.6.3
 DefaultDirName={localappdata}\AgenteTFT-HUD-HM4
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest

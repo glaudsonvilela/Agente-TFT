@@ -40,6 +40,13 @@ class Package:
     sha256: str
     version: str
 
+    @property
+    def runtime_distro(self) -> str:
+        # The archive family is not an installed guest identity: multiple
+        # releases (and catalog rebuilds) can share it. Pin import AND launch
+        # to the complete rootfs digest without deleting an older guest.
+        return f"{self.distro}-{self.sha256}"
+
 
 @dataclass(frozen=True)
 class Preflight:
@@ -206,7 +213,7 @@ def configure_headless_wslg(config_path: Path) -> Path | None:
 def probe_host_core(package: Package, log: Path) -> bool:
     """Prove that the Windows application can reach the WSL service over local IP."""
     from hm45_vm_client import VMCore
-    core = VMCore(package.distro, log)
+    core = VMCore(package.runtime_distro, log)
     try:
         return core.ready.get("version") == package.version
     finally:
@@ -366,7 +373,7 @@ class CoreInstaller:
         return False
 
     def health(self) -> bool:
-        result = self._call(["wsl.exe", "--distribution", self.package.distro,
+        result = self._call(["wsl.exe", "--distribution", self.package.runtime_distro,
                              "--exec", HEALTH_EXEC, "--version", self.package.version], 120)
         if result.returncode != 0 or "AGENTETFT_CORE_HEALTH_OK" not in result.stdout:
             self.last_health_error = "O teste L3/OCR/HP/B4 na VM falhou: " + command_detail(result)
@@ -383,25 +390,29 @@ class CoreInstaller:
 
     def install(self, report: Callable[[str], None]) -> str:
         package = self.package
+        distro = package.runtime_distro
+        report(f"Núcleo exigido: {package.version}; pacote SHA-256: {package.sha256}")
         names = distro_names(self.run)
-        if package.distro in names:
-            report(f"VM {package.distro} já existe; verificando saúde.")
+        if distro in names:
+            report(f"VM {distro} já existe; verificando saúde.")
             if not self.health():
                 raise SetupError("A VM existente falhou no teste de saúde. Ela foi preservada para diagnóstico. " +
                                  str(self.last_health_error or ""))
             self.clear_resume()
             return "ready"
         verify_package(package)
-        target = self.install_dir / "distros" / package.distro
+        if any(name == package.distro or name.startswith(package.distro + "-") for name in names):
+            report("Há uma VM de outro pacote. Instalando a VM desta atualização separadamente; a anterior será preservada.")
+        target = self.install_dir / "distros" / distro
         if target.exists() and any(target.iterdir()):
             raise SetupError("Pasta de VM existente sem registro no WSL; preservada para diagnóstico.")
         target.mkdir(parents=True, exist_ok=True)
-        report(f"Importando {package.distro} no WSL 2. Isso pode levar alguns minutos.")
-        imported = self._call(["wsl.exe", "--import", package.distro, str(target),
+        report(f"Importando {distro} no WSL 2. Isso pode levar alguns minutos.")
+        imported = self._call(["wsl.exe", "--import", distro, str(target),
                                str(package.rootfs), "--version", "2"], 1200)
         if imported.returncode != 0:
             # The distro may have been imported by a prior interrupted attempt.
-            if package.distro in distro_names(self.run) and self.health():
+            if distro in distro_names(self.run) and self.health():
                 self.clear_resume()
                 report("VM já importada; verificação concluída.")
                 return "ready"
