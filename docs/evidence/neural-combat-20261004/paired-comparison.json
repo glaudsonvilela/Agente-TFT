@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "kind": "paired_exploratory_comparison",
+  "cases": 50,
+  "better": 3,
+  "same": 47,
+  "worse": 0,
+  "mean_gain": 0.12,
+  "bootstrap_percentile_95": [
+    0.0,
+    0.28
+  ],
+  "bootstrap_seed": 20261004,
+  "bootstrap_resamples": 10000,
+  "evaluation_sha256": "3da83f3fe5d1fca102a776c050a9f4257c946ab2a196e248177d27b737774a5d",
+  "rejected_cases": 153,
+  "mean_completed_planning_rounds": 2.48,
+  "limitations": [
+    "Exploratory interval within a partial simulator; not evidence of real TFT strength.",
+    "The same 50 scenarios were repeated to verify formatting preserved results."
+  ]
+}

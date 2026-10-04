@@ -3,7 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import numpy as np
 from PIL import Image
-from hm.core import valid_box,crop_box,neural_regions,ENVELOPES,xyxy,sha,load_json
+from hm.core import valid_box,crop_box,neural_regions,ENVELOPES,xyxy,sha,load_json,Registry,native_regions
 from hm.dataset import Latest,Store
 from hm.seeds import prepare,verify_session
 
@@ -37,6 +37,21 @@ class Geometry(unittest.TestCase):
         self.assertTrue(all(x['unsupported_resolution'] and x['delta_from_seed_px'] is None for x in r))
     def test_frozen_seed_exact(self):
         self.assertEqual(ENVELOPES['shop'],[345,915,1220,160]);self.assertEqual(ENVELOPES['bench'],[358,682,1038,146])
+    def test_stage_crop_follows_observed_location_without_becoming_ground_truth(self):
+        registry = Registry(Path(__file__).resolve().parents[3] / 'configs')
+        profile = load_json(registry.inputs[1])
+        candidate = next(row for row in profile['candidates'] if row['name'] == 'initial')
+        answer = {'hud': [{'field': 'stage', 'status': 'single_frame_observation',
+                           'value': '1-4', 'confidence': .95,
+                           'localization': {'profile': 'stage_localization_v1',
+                                            'normalized_rect': candidate['rect']}}]}
+        rows = native_regions(answer, registry, 1920, 1080)
+        stage = next(row for row in rows if row['id'] == 'hud.stage')
+        old_stage = next(row for row in registry.fixed(1920, 1080) if row['id'] == 'hud.stage')
+        self.assertGreater(stage['box'][0], old_stage['box'][2])
+        self.assertEqual(stage['value'], '1-4')
+        self.assertFalse(stage['ground_truth'])
+        self.assertIn('tft-1920x1080-match001-v4-stage-recovery.json', registry.hashes)
 
 class Collection(unittest.TestCase):
     def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)/'session'

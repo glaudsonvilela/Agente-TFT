@@ -12,6 +12,7 @@
 #[path="../../../rust/apps/board-replay-probe/src/bars.rs"] mod bars;
 #[path="../../../rust/apps/board-replay-probe/src/scene.rs"] mod scene;
 mod engine;
+mod stage;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
@@ -114,6 +115,7 @@ impl ResidentHudPool{
 
 struct Readers{
     hud:HudLayout,ocr:TesseractOcr,shop:layout::ScreenLayout,recovery:recovery::RecoveryProfile,
+    stage:stage::Reader,
     controls:controls::ControlsReader,board_profile:profile::Profile,board:Option<scene::SceneReader>,available:bool,
     ocr_backend:&'static str,text_ocr_backend:&'static str,ocr_fallback_error:Option<String>,
     #[cfg(any(windows,target_os="linux"))] resident_hud:Option<ResidentHudPool>,
@@ -123,6 +125,7 @@ struct Readers{
 impl Readers{
  fn new(root:&Path,tess:String,controls_path:Option<PathBuf>)->Result<Self,String>{
     let hud:HudLayout=load(&root.join("hud/tft-1920x1080-match001-v3-gray.json"))?;hud.validate().map_err(|e|e.to_string())?;
+    let stage=stage::Reader::new(load(&root.join("hud/tft-1920x1080-match001-v4-stage-recovery.json"))?)?;
     let shop:layout::ScreenLayout=load(&root.join("ui/match001-desktop-1920x1080-ptbr-v1.json"))?;shop.validate()?;
     let recovery:recovery::RecoveryProfile=load(&root.join("ui/match001-shop-recovery-v2.json"))?;recovery.validate(&shop)?;
     let c=load(&controls_path.unwrap_or_else(||root.join("ui/match001-shop-controls-v1.json")))?;
@@ -180,7 +183,7 @@ impl Readers{
         let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
         Some(scene::SceneReader::from_anchors(board_profile.clone(),reference)?)
     } else {None};
-    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
+    Ok(Self{hud,stage,ocr,shop,recovery,controls,board_profile,board,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
         #[cfg(any(windows,target_os="linux"))] resident_hud,
         #[cfg(any(windows,target_os="linux"))] resident_text,
         hud_cache:HashMap::new(),shop_cache:None,controls_cache:None})
@@ -210,7 +213,20 @@ impl Readers{
       let hud_wall_started=ms(&t);
       let mut parallel=Vec::with_capacity(self.hud.regions.len());
       let mut pending=Vec::new();
+      let stage_started=ms(&t);
+      #[cfg(any(windows,target_os="linux"))]
+      let stage=if let Some(pool)=self.resident_hud.as_ref(){
+          let mut ocr=pool.stage.lock().map_err(|_|"resident stage OCR mutex poisoned")?;
+          self.stage.observe(f,&mut *ocr)?
+      }else{self.stage.observe(f,&mut self.ocr)?};
+      #[cfg(not(any(windows,target_os="linux")))]
+      let stage=self.stage.observe(f,&mut self.ocr)?;
+      let stage_duration=ms(&t)-stage_started;
       for (index,region) in self.hud.regions.iter().enumerate() {
+        if region.field==HudField::Stage {
+            parallel.push((index,region.field,Ok(stage.read.clone()),stage_started,stage_duration,stage.cache_hit,None));
+            continue;
+        }
         let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
         if let Some(entry)=self.hud_cache.get(&region.field) {
           if entry.pixels==roi.pixels {
@@ -265,6 +281,10 @@ impl Readers{
       let mut hud_cache_hits=0usize;
       for (_,field,result,started,duration,cache_hit,cached_from) in parallel {
         let mut row=json!({"field":field,"value":null,"source_ms":f.captured_at_ms,"status":"unknown"});
+        if field==HudField::Stage {
+            row["localization"]=stage.details.clone();
+            if let Some(delivery)=stage.details.get("cache_delivery") {row["cache_delivery"]=delivery.clone();}
+        }
         if cache_hit {
           hud_cache_hits+=1;
           if let Some((frame_id,source_ms))=cached_from {

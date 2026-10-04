@@ -58,6 +58,7 @@ class Registry:
         self.control = load_json(controls or root/'ui/match001-shop-controls-v1.json')
         self.board = load_json(root/'ui/match001-board-bench-v1.json')
         self.inputs = [root/'hud/tft-1920x1080-match001-v3-gray.json',
+                       root/'hud/tft-1920x1080-match001-v4-stage-recovery.json',
                        root/'ui/match001-desktop-1920x1080-ptbr-v1.json',
                        Path(controls) if controls else root/'ui/match001-shop-controls-v1.json',
                        root/'ui/match001-board-bench-v1.json']
@@ -120,7 +121,14 @@ def native_regions(answer, registry, width, height):
     rows=registry.fixed(width,height); by_id={r['id']:r for r in rows}
     for read in answer.get('hud') or []:
         r=by_id.get('hud.'+read['field'])
-        if r:r.update(status=read['status'],value=read.get('value'),text=read.get('text'),confidence=read.get('confidence'))
+        if r:
+            r.update(status=read['status'],value=read.get('value'),text=read.get('text'),confidence=read.get('confidence'))
+            localization = read.get('localization') or {}
+            rect = localization.get('normalized_rect')
+            if rect:
+                r.update(box=xyxy([rect['x'] * width, rect['y'] * height,
+                                   rect['width'] * width, rect['height'] * height]),
+                         basis=localization['profile'], localization=localization)
     shop=answer.get('shop') or {}
     for slot in shop.get('slots',[]):
         i=slot.get('slot'); status=slot.get('status','unknown')

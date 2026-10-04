@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source_session": "hm4-20261004-190825-730054",
+  "stage_before": {
+    "saved_observations": 78,
+    "unrecognized_stage": 78
+  },
+  "stage_after": {
+    "saved_images": 47,
+    "stage_counts": {
+      "unknown": 34,
+      "1-1": 3,
+      "1-2": 3,
+      "1-3": 5,
+      "1-4": 2
+    },
+    "median_reader_roundtrip_ms": 21.76,
+    "include_shop": false
+  },
+  "limitations": [
+    "Most saved images show the client, queue or loading, not the board.",
+    "Stage results are not a full-board neural recognition benchmark.",
+    "Timing measured offline on Linux, not Windows field performance.",
+    "Two known HUD locations are supported; arbitrary video borders and viewports are not localized."
+  ],
+  "tests": {
+    "native_worker_rust": 53,
+    "neural_and_seasonal_python": 31,
+    "hud_mapping_python": 23,
+    "remote_trainer_pytest": 44,
+    "remote_trainer_subtests": 4
+  },
+  "code_health": {
+    "structural_errors": 0,
+    "existing_findings": 25,
+    "full_semantic_review": false
+  },
+  "windows_field_test": false,
+  "neural_runtime_promoted": false,
+  "new_installer_built": false
+}

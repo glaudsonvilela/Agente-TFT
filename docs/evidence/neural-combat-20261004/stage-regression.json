@@ -1,0 +1,146 @@
+{
+  "scope": "preserved_hud_crops_not_full_perception",
+  "rows": [
+    {
+      "frame": 6210,
+      "elapsed_ms": 130.1508090000425,
+      "stage": {
+        "confidence": 0.9660189151763916,
+        "field": "stage",
+        "localization": {
+          "attempts": [
+            {
+              "candidate": "standard",
+              "confidence": 0.9663974046707153,
+              "scale": 3,
+              "text": "2-1"
+            },
+            {
+              "candidate": "standard",
+              "confidence": 0.9660189151763916,
+              "scale": 4,
+              "text": "2-1"
+            },
+            {
+              "candidate": "initial",
+              "confidence": null,
+              "scale": 3,
+              "text": null
+            },
+            {
+              "candidate": "initial",
+              "confidence": null,
+              "scale": 4,
+              "text": null
+            }
+          ],
+          "normalized_rect": {
+            "height": 0.02291666716337204,
+            "width": 0.01861979253590107,
+            "x": 0.3990234434604645,
+            "y": 0.004745370242744684
+          },
+          "profile": "stage_localization_v1",
+          "reason": "two_scale_consensus",
+          "selected_candidate": "standard",
+          "temporal_consensus": false
+        },
+        "source_ms": 296831,
+        "status": "single_frame_observation",
+        "text": "2-1",
+        "value": "2-1"
+      },
+      "tip": {
+        "status": "economy_blocked",
+        "actionable": false,
+        "text": "Confirmando nível e XP em duas leituras consecutivas.",
+        "basis": [
+          "decision.ECONOMY_CONFIRMING"
+        ],
+        "diagnostic": {
+          "code": "ECONOMY_CONFIRMING"
+        }
+      }
+    },
+    {
+      "frame": 6300,
+      "elapsed_ms": 42.93526999981623,
+      "stage": {
+        "cache_delivery": {
+          "delivered_frame_id": 6300,
+          "exact_roi_rgb": true,
+          "source_frame_id": 6210,
+          "source_ms": 296831
+        },
+        "confidence": 0.9660189151763916,
+        "field": "stage",
+        "localization": {
+          "attempts": [
+            {
+              "candidate": "standard",
+              "confidence": 0.9663974046707153,
+              "scale": 3,
+              "text": "2-1"
+            },
+            {
+              "candidate": "standard",
+              "confidence": 0.9660189151763916,
+              "scale": 4,
+              "text": "2-1"
+            },
+            {
+              "candidate": "initial",
+              "confidence": null,
+              "scale": 3,
+              "text": null
+            },
+            {
+              "candidate": "initial",
+              "confidence": null,
+              "scale": 4,
+              "text": null
+            }
+          ],
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "normalized_rect": {
+            "height": 0.02291666716337204,
+            "width": 0.01861979253590107,
+            "x": 0.3990234434604645,
+            "y": 0.004745370242744684
+          },
+          "profile": "stage_localization_v1",
+          "reason": "two_scale_consensus",
+          "selected_candidate": "standard",
+          "temporal_consensus": false
+        },
+        "source_ms": 302040,
+        "status": "single_frame_observation",
+        "text": "2-1",
+        "value": "2-1"
+      },
+      "tip": {
+        "status": "action",
+        "actionable": true,
+        "text": "Suba para o nível 4 por 4 de ouro. Restam 2 de ouro.",
+        "speech_text": "Suba para o nível 4. Gaste 4 de ouro.",
+        "basis": [
+          "decision.buy_xp",
+          "hud.stage",
+          "hud.gold",
+          "hud.level",
+          "hud.xp",
+          "controls.buy_xp_price"
+        ],
+        "confidence": 0.9615698456764221,
+        "strategy_basis": "explicit_heuristic",
+        "decision_key": "level:4:cost:4",
+        "speech_max_age_ms": 8000
+      }
+    }
+  ]
+}
