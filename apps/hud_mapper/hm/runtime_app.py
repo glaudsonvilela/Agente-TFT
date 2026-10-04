@@ -564,7 +564,7 @@ class App:
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
-                    label='DICA' if tip.get('actionable') else 'ANÁLISE EM ANDAMENTO'
+                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'ANÁLISE EM ANDAMENTO'
                     self.coach_header.configure(text=f'AGENTE  /  {label}',
                                                 fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
                     self.tip_label.configure(text=tip['text'])
@@ -576,10 +576,12 @@ class App:
                     speech_queued=bool(tip.get('actionable') and self.voice and tip.get('speech_text') and
                                        self.voice.say(tip['speech_text'],age,
                                            decision_key=tip.get('decision_key'),
-                                           max_age_ms=tip.get('speech_max_age_ms',3000)))
+                                           max_age_ms=tip.get('speech_max_age_ms',3000),
+                                           source_frame_id=tip['frame_id'],source_ms=tip['source_ms']))
                     s.store.emit('telemetry',dict(event='coach_ui_applied',frame_id=tip['frame_id'],
                         source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
                         physical_display_measured=False,tip_status=tip['status'],
+                        decision_key=tip.get('decision_key'),
                         actionable=tip.get('actionable',False),speech_queued=speech_queued))
                     with s.lock:
                         s.traces.append(dict(kind='tip_ui' if tip.get('actionable') else 'coach_ui',

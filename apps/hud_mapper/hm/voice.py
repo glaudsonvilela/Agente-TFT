@@ -225,7 +225,8 @@ class VoiceCoach:
             self.thread.start()
 
     def say(self, text: str, source_age_ms: float, *, force: bool = False,
-            decision_key: str | None = None, max_age_ms: float = 3000):
+            decision_key: str | None = None, max_age_ms: float = 3000,
+            source_frame_id: int | None = None, source_ms: float | None = None):
         now = time.monotonic_ns()
         if (not self.enabled or not text or (source_age_ms > 2000 and not force)
                 or (text == self.last_text and not force)
@@ -238,7 +239,8 @@ class VoiceCoach:
         except queue.Empty:
             pass
         self.pending.put_nowait((text, now, self.voice_id, force, source_age_ms,
-                                 decision_key, min(8000, max(0, max_age_ms))))
+                                 decision_key, min(8000, max(0, max_age_ms)),
+                                 dict(frame_id=source_frame_id,source_ms=source_ms,voice_id=self.voice_id)))
         self.queued_count += 1
         return True
 
@@ -274,14 +276,14 @@ class VoiceCoach:
                         self._handle_failure(selected_voice, exc)
                     continue
             try:
-                text, queued_ns, voice_id, force, source_age_ms, decision_key, max_age_ms = self.pending.get(timeout=.2)
+                text, queued_ns, voice_id, force, source_age_ms, decision_key, max_age_ms, metadata = self.pending.get(timeout=.2)
             except queue.Empty:
                 continue
             if not self.enabled or voice_id != self.voice_id:
                 continue
             if not self._valid(queued_ns, source_age_ms, max_age_ms, decision_key, force):
                 self.stale_dropped_count += 1
-                self._event('voice_cancelled_before_synthesis', decision_key, queued_ns, source_age_ms)
+                self._event('voice_cancelled_before_synthesis', decision_key, queued_ns, source_age_ms, **metadata)
                 if self.last_text == text:
                     self.last_text = None
                 continue
@@ -297,12 +299,12 @@ class VoiceCoach:
                 if not self._valid(queued_ns, source_age_ms, max_age_ms, decision_key, force):
                     self.stale_dropped_count += 1
                     self._event('voice_cancelled_after_synthesis', decision_key, queued_ns, source_age_ms,
-                                generation_ms=self.last_generation_ms)
+                                generation_ms=self.last_generation_ms, **metadata)
                     if self.last_text == text:
                         self.last_text = None
                     continue
                 self._event('voice_play_started', decision_key, queued_ns, source_age_ms,
-                            generation_ms=self.last_generation_ms, physical_audio_measured=False)
+                            generation_ms=self.last_generation_ms, physical_audio_measured=False, **metadata)
                 (self.playback or _play_wav)(wav)
                 self.played_count += 1
                 self.error = None

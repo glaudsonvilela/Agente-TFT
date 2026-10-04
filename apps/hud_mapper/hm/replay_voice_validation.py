@@ -70,7 +70,8 @@ def run(fixture: Path, output: Path, paths: dict, voices: Path | None = None,
                 if any(actual.get(k)!=v for k,v in expected.items()):
                     raise ValueError('Unexpected decision on recorded pixels')
                 queued=voice.say(tip['speech_text'],age,decision_key=tip['decision_key'],
-                                 max_age_ms=tip['speech_max_age_ms'])
+                                 max_age_ms=tip['speech_max_age_ms'],source_frame_id=frame['id'],
+                                 source_ms=frame['source_ms'])
             reads.append(dict(frame_id=frame['id'],hud=answer['hud'],decision=evaluated['decision'],
                               tip=tip,read_to_decision_ms=age,voice_queued=queued))
         if not any(row['voice_queued'] for row in reads):
