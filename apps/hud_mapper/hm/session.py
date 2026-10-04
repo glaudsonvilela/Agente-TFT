@@ -1,6 +1,6 @@
 """Mapping-first session: independent neural/native consumers and natural-frame collection."""
 from __future__ import annotations
-from collections import Counter
+from collections import Counter, deque
 from dataclasses import dataclass
 from pathlib import Path
 import json, os, queue, threading, time, uuid
@@ -85,7 +85,7 @@ class Session:
         self.id=uuid.uuid4().hex;self.cancel=threading.Event();self.producer_done=threading.Event();self.done=threading.Event()
         self.map_pending=Latest();self.native_pending=Latest();self.hp_pending=Latest();self.hub_pending=Latest()
         self.preview=Latest();self.map_results=Latest();self.native_results=Latest();self.hub_results=Latest()
-        self.counts=Counter();self.coverage=Counter();self.traces=[];self.lock=threading.Lock()
+        self.counts=Counter();self.coverage=Counter();self.traces=deque(maxlen=4096);self.lock=threading.Lock()
         self.store=Store(options.output,options.max_samples,options.max_bytes)
         self.source=self.worker=self.hp_worker=self.model=self.core=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False
         self.source_info={};self.versions={};self.source_hash=None;self.registry=None
@@ -290,6 +290,7 @@ class Session:
         result=dict(schema_version=1,policy=getattr(self,'policy_name',default_policy),primary_objective=getattr(self,'primary_objective','HUD_mapping_and_natural_training_material'),
            session_id=self.id,source=self.source_info,versions=self.versions,error=self.error,
            **stop_state,counts=dict(self.counts),
+           timing_scope='most_recent_4096_events_full_events_in_bounded_jsonl_logs',
            queues=dict(mapper_replaced=self.map_pending.replaced,native_replaced=self.native_pending.replaced,hp_replaced=self.hp_pending.replaced,
                        hub_replaced=self.hub_pending.replaced,hub_ui_replaced=self.hub_results.replaced,
                        preview_replaced=self.preview.replaced,map_ui_replaced=self.map_results.replaced,

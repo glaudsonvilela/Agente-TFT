@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from datetime import datetime
 from collections import deque
+from itertools import islice
 import argparse, json, os, queue, statistics, sys, threading, time
 from .core import crop_box, valid_box
 from .runtime_session import RuntimeSession, HM4RuntimeSession
@@ -93,6 +94,7 @@ class App:
         self.canvas_image=None;self._table_key=None;self._next_metrics_ns=0;self._next_perf_log_ns=0
         self.tip_history=deque(maxlen=100);self.tip_label=None
         self._next_preview_ns=0
+        self._next_caption_ns=0
         self.render_ms=deque(maxlen=120);self.preview_times=deque(maxlen=120)
         self.voice=None
         if self.hm4:
@@ -430,7 +432,10 @@ class App:
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
         physical = f'{cap["source_width"]}×{cap["source_height"]} capturado · ' if cap and cap.get('type')=='preview' else ''
-        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} analisado → {shown_w}×{shown_h} exibido · idade {age:.1f} ms · geometria {f.epoch}')
+        now=time.perf_counter_ns()
+        if now>=self._next_caption_ns or previous is None or previous.get('view_kind')!=view:
+            self._next_caption_ns=now+250_000_000
+            self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} analisado → {shown_w}×{shown_h} exibido · idade {age:.1f} ms · geometria {f.epoch}')
         table_key=(view,None if view=="capture" else f.id)
         if table_key!=self._table_key:
             self._table_key=table_key
@@ -439,7 +444,7 @@ class App:
                 rid=str(i);self.row_data[rid]=reg;value=reg.get("value")
                 self.table.insert("","end",iid=rid,values=(reg["id"],reg.get("status"),"" if value is None else str(value)[:90]))
         self.displayed+=1
-        if self.vm_core:
+        if self.hm4:
             elapsed=(time.perf_counter_ns()-started)/1e6
             self.render_ms.append(elapsed)
             if view=="capture":
@@ -461,7 +466,7 @@ class App:
         else:self.crop_label.configure(image="",text="Sem retângulo observado/válido.")
 
     def _performance(self,s):
-        with s.lock:traces=list(s.traces[-240:])
+        with s.lock:traces=list(islice(reversed(s.traces),240))
         maps=[x for x in traces if x["kind"]=="map"];reads=[x for x in traces if x["kind"]=="reader"];hps=[x for x in traces if x["kind"]=="hp"]
         hubs=[x for x in traces if x["kind"]=="hub"]
         stages={}
@@ -581,7 +586,7 @@ class App:
                                              frame_id=tip['frame_id'],total_ms=age,
                                              physical_display_measured=False))
             now=time.perf_counter_ns()
-            if not self.vm_core or now>=self._next_metrics_ns:
+            if now>=self._next_metrics_ns:
                 self._next_metrics_ns=now+1_000_000_000
                 perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
                 if now>=self._next_perf_log_ns:

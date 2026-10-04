@@ -1,6 +1,6 @@
 """Bounded asynchronous natural-pixel collection. Labels and observations remain separate."""
 from __future__ import annotations
-from collections import Counter
+from collections import Counter, deque
 from pathlib import Path
 import hashlib, io, json, os, queue, shutil, threading, time
 from PIL import Image
@@ -33,7 +33,7 @@ class Store:
         self.jobs=queue.Queue(maxsize=8);self.done=threading.Event();self.error=None
         self.counts=Counter();self.records=[];self.events=[];self.bytes=0
         self.log_bytes=0
-        self.closed=False;self.hashes={};self.previous={};self.seen={};self.io_ms=[]
+        self.closed=False;self.hashes={};self.previous={};self.seen={};self.io_ms=deque(maxlen=4096)
         self.thread=threading.Thread(target=self._writer,daemon=True);self.thread.start()
     def emit(self, stream, data, frame=None, sample=False):
         # Snapshot JSON before handing it to the writer. Frame.rgb is immutable bytes.
@@ -165,7 +165,8 @@ class Store:
                       warning='Unknown does not mean absent; temporal agreement is not correctness.')
         dump(self.root/'training-manifest.json',manifest)
         dump(self.root/'summary.json',session)
-        dump(self.root/'collection-metrics.json',dict(counts=dict(self.counts),bytes=self.bytes,write_ms=self.io_ms))
+        dump(self.root/'collection-metrics.json',dict(counts=dict(self.counts),bytes=self.bytes,
+            write_ms=list(self.io_ms),write_timing_scope='most_recent_4096_writes'))
         # This text includes mapping coverage first; performance is secondary.
         with (self.root/'comparison.txt').open('x',encoding='utf-8') as f:
             f.write('HUD MAPPER — MAPEAMENTO / DADOS NATURAIS\n')
