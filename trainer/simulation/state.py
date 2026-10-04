@@ -50,6 +50,9 @@ class Player:
     phase: str = 'planning'
     augments: list[str] = field(default_factory=list)
     stage: int | None = None
+    streak: int = 0
+    free_rerolls: int = 0
+    round_free_rerolls: int = 0
 
 
 @dataclass
@@ -87,6 +90,8 @@ def validate_world(world: World, content: dict):
         raise IllegalAction('expected 1..8 players')
     seen = set()
     for p in world.players:
+        if type(p.streak) is not int or any(type(v) is not int or v < 0 for v in (p.free_rerolls,p.round_free_rerolls)):
+            raise IllegalAction('invalid streak or reroll credits')
         if p.stage is not None and (type(p.stage) is not int or not 1 <= p.stage <= 99):
             raise IllegalAction('invalid observed stage')
         for augment in p.augments:
@@ -291,7 +296,13 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
         _pay(p, e['xp_cost']); grant_xp(p, e['xp_amount'], content)
     elif kind == 'reroll':
         if args: raise IllegalAction('reroll takes no arguments')
-        _pay(p, content['economy']['reroll_cost']); _reroll(result, p, content, rng)
+        if p.round_free_rerolls:
+            p.round_free_rerolls -= 1
+        elif p.free_rerolls:
+            p.free_rerolls -= 1
+        else:
+            _pay(p, content['economy']['reroll_cost'])
+        _reroll(result, p, content, rng)
     else:
         raise IllegalAction('unknown action')
     result.rng_state = rng.getstate()

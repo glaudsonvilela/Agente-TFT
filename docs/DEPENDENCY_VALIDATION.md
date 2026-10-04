@@ -1,6 +1,49 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
-## Complementação com revisão 18.3B e treinamento por preferências
+## Prioridade atual — interações de economia, loja e sobrevivência
+
+O usuário pediu a pausa de novas habilidades e prioridade aos sistemas que interagem mais nas decisões. Esta entrega conecta recursos e consequências condicionais; **ainda não é uma partida sazonal completa nem um coach treinado**. Os [sete cenários reproduzíveis](evidence/economy-interactions-20261004/examples.json) e o [registro dos testes](evidence/economy-interactions-20261004/validation.json) documentam esta etapa.
+
+### Implementação
+
+- `round_economy.py` reúne resultado declarado, sequência de vitórias/derrotas, ouro de vitória, juros, renda, dano ao jogador e XP natural. Cada projeção devolve um recibo dos cálculos. Eliminação interrompe a renda e o XP da próxima rodada. A fase impede pagamento duplicado.
+- `match.py` pode aplicar essa projeção ao resultado de combate em um estado observado de laboratório. Conta sobreviventes entre os campeões originalmente possuídos, excluindo invocações, e devolve as peças e ofertas do eliminado ao estoque. Pareamento continua sintético; empate, número ímpar de jogadores e avanço automático do calendário são recusados neste modo.
+- `state.py` consome primeiro rolagens gratuitas que expiram na rodada, depois créditos persistentes e finalmente ouro. A liquidação expira apenas os créditos temporários. A origem sazonal desses créditos ainda não é simulada.
+- `shop_probability.py` calcula a chance de encontrar ao menos N cópias na próxima loja por programação dinâmica. Considera nível, esgotamento de classes de custo, retirada de cópias a cada oferta e devolução da loja atual antes de rolar. Reservas das lojas adversárias continuam fora do estoque disponível. O cálculo é exato dentro do modelo declarado de loja comum; não presume conhecimento do estoque oculto real.
+- Os coeficientes comuns ficam em `configs/simulation/core/standard-economy-v1.json`, separados dos campeões, itens e chances de loja do pacote sazonal. Sua origem e pendências constam na própria tabela. Mesmo regras comuns podem mudar e exigem versionamento.
+
+### Exemplo de interação
+
+Cenário **hipotético**: 50 de ouro, nível 7 com 52 XP, 20 HP, estágio 4 e quatro derrotas seguidas. A projeção abaixo condiciona a próxima rodada a uma derrota com dois campeões inimigos sobreviventes; não prevê que isso acontecerá.
+
+| Ação | Ouro após ação | Ouro na próxima renda | HP após derrota |
+|---|---:|---:|---:|
+| Guardar | 50 | 62 | 10 |
+| Rolar pagando | 48 | 59 | 10 |
+| Comprar XP e atingir nível 8 | 46 | 57 | 10 |
+| Usar uma rolagem temporária gratuita | 50 | 62 | 10 |
+
+O custo de rolar cruza a faixa de juros; a diferença final é de três de ouro. Comprar XP altera a chance da próxima loja. No cenário de estoque declarado, encontrar Nidalee AP passa de aproximadamente 3,53% no nível 7 para 10,31% no nível 8; seis cópias possuídas por outro jogador reduzem a segunda chance para 4,42%. Esses valores não representam a partida do usuário, não incluem a capacidade de comprar a oferta e não avaliam a força do tabuleiro.
+
+### Evidência e limites
+
+Foram executados **596 testes: 584 passaram e 12 foram ignorados**. Após os últimos ajustes de validação e calendário, passaram os **33 testes direcionados**, incluindo 11 casos de economia. Nenhuma partida completa foi simulada nesta etapa, nenhum exemplo virou rótulo de decisão e nenhum modelo foi promovido ao HUD.
+
+As regras candidatas de sequência e dano foram reconciliadas com as notas oficiais [14.8](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-14-8-notes/) e [14.9](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-14-9-notes/). Isso documenta a origem dos valores; não prova que todos continuam idênticos no patch atual. A ordem dos juros, exceções sazonais e fronteiras de renda precisam de calibração atual.
+
+O [VOD já observado](evidence/dependencies-20261004/online-evidence.json) corrobora uma passagem de 2 para 4 XP entre 2-2 e 2-3. Seu ouro de 4 para 10 não foi usado como prova de renda: houve transações entre os quadros. Fontes divergem sobre pagamentos em PvE; esse caso permanece recusado.
+
+Próximas lacunas deste eixo: Wisps e seus créditos/recompensas; características e aprimoramentos econômicos; sequência completa de PvP/PvE/carrossel; pareamento e fantasmas; validação por replay com inventário e transações observáveis. As habilidades permanecem com 31/74 programas candidatos e as composições completas continuam em 0/12 validadas.
+
+Reprodução dos exemplos (fornecer o pacote candidato compilado):
+
+```bash
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m training.economy_lab --content /caminho/candidate-18.3B.json \
+  --output /caminho/economy-examples.json
+```
+
+## Histórico — complementação com revisão 18.3B e treinamento por preferências
 
 **Continua incompleto.** A revisão candidata acrescenta nove programas de habilidade e uma cadeia de treinamento SFT → DPO. Nenhuma composição completa, partida sazonal ou melhoria de ranking foi validada. A [auditoria atual](evidence/rule-revision-20261004/compiled-audit.json) e o [registro de verificação](evidence/rule-revision-20261004/validation.json) substituem os números de implementação das seções históricas abaixo.
 

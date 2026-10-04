@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "conditional_economy_verification",
+  "base_commit": "f1c24eb8bc048fdc1b5c85dde95661685aa4eab8",
+  "files_sha256": {
+    "trainer/simulation/match.py": "08d2859e05a6c19336a3f1790ebf9e982eca39d2d9ce430c2954f90a3e608c70",
+    "trainer/simulation/state.py": "8710f334397e34a7ec78c421f32f5e5515d88c149137273e03df65075f63190f",
+    "trainer/simulation/round_economy.py": "33e7cf2b14c8fff290786840e9d78bf3fafa664f77b33cd8591b7a0ad6c968b4",
+    "trainer/simulation/shop_probability.py": "b4ea7867ac618fc1ae79a1cd2f6866c87a3ae803838e38e619c4e65c50dd3edd",
+    "training/economy_lab.py": "4dda8f1bea3fd84aa3e431cdddebac55d6685bb4daa2987fdf7cd50784c03533",
+    "training/tests/test_economy_interactions.py": "ec4d87639e876ea2800957e84fc11979c7d6a6aab27fb38d1358e8533680e212",
+    "configs/simulation/core/standard-economy-v1.json": "4dc07baa9b7a6b1c2213b40b27a15aeb25871e9d7e007f5faaed86516acec43b"
+  },
+  "engine": {
+    "files": {
+      "trainer/simulation/__init__.py": "c0e696593ae28d3dea620f33d007a7f33a90de49a36065087012e80f88d96daa",
+      "trainer/simulation/combat.py": "d3d788ec7bba4c4a22a00cb38d6f25ae4cf0a0491a6603989de1640902013d15",
+      "trainer/simulation/economy.py": "eddf2c5f019e20ace67493ec8504b8d71dd24a1fb4c7f24980dfcafaa9e7735d",
+      "trainer/simulation/event_combat.py": "a2d6dfb857bd232c9edccae09763fa63bd21ee318b5216b185e1eb687def5720",
+      "trainer/simulation/hexgrid.py": "f84d162140fbd5bdbb8a104279eb7b8ce70fdb876604557f10ba3d92e1f74c85",
+      "trainer/simulation/match.py": "08d2859e05a6c19336a3f1790ebf9e982eca39d2d9ce430c2954f90a3e608c70",
+      "trainer/simulation/modifiers.py": "d9ca0ea1b638135407546e3ca6e6d5878dd106f5f636f3a953c6909af338ee4a",
+      "trainer/simulation/rollout_stats.py": "83d841f4c22cbe1b34b14177d4dd714d4097bcf004494f9c17f9939aff714372",
+      "trainer/simulation/round_economy.py": "33e7cf2b14c8fff290786840e9d78bf3fafa664f77b33cd8591b7a0ad6c968b4",
+      "trainer/simulation/search.py": "e7b280120546c3ba5d734b30cdce480e2b1105b7b71d0d58c1ed280e259bbd3c",
+      "trainer/simulation/shop_probability.py": "b4ea7867ac618fc1ae79a1cd2f6866c87a3ae803838e38e619c4e65c50dd3edd",
+      "trainer/simulation/state.py": "8710f334397e34a7ec78c421f32f5e5515d88c149137273e03df65075f63190f",
+      "trainer/simulation/traits.py": "2952cf5e4d5fdd8eb310d32f2578ee1fa8b320e6d05eeeebe9af1afc7eecd1ed",
+      "trainer/simulation/value_model.py": "236ffdb4ba4b81335e9bbf6fb4e15da2252b23b2edfc73e9c9eb0240cd99b865",
+      "training/event_lab.py": "31491a90a3f6fc17b3270ea4a82943fb92169b8ca45395c138ce380add9e508d"
+    },
+    "sha256": "73daa14f9e9d5415e2fc89604147b033ab4732f44a292ea42d0f9708f3d9b488"
+  },
+  "full_suite": {
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. OMP_NUM_THREADS=1 .venv/bin/python -m unittest discover -s training/tests -q",
+    "tests_run": 596,
+    "passed": 584,
+    "skipped": 12,
+    "seconds": 28.732,
+    "exit_code": 0,
+    "log_sha256": "45d6e1d19ca49693c3c646ca15f1f5851c5f6c0f9b32ed3b3470fb28c8e2ced1",
+    "timing": "Before final input-validation and calendar guards"
+  },
+  "final_focused_suite": {
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. OMP_NUM_THREADS=1 .venv/bin/python -m unittest training.tests.test_economy_interactions training.tests.test_hex_simulator training.tests.test_simulation_dependencies -q",
+    "tests_run": 33,
+    "passed": 33,
+    "seconds": 1.095,
+    "exit_code": 0,
+    "log_sha256": "afeb92a687bd1b6f9e2c70b507a8da1ee9b760cf8c740813b3f4bc2e187deecc"
+  },
+  "examples_sha256": "b5acefe94eca9e469be5fffb55375719731c4c73c58dfd30b87749392f027760",
+  "hypothetical_examples": 7,
+  "full_matches_run": 0,
+  "training_labels_created": 0,
+  "real_tft_candidate_trained": false,
+  "runtime_promoted": false,
+  "ability_work_paused": true,
+  "limitations": [
+    "Ordinary PvP income projection with explicit outcome and observed stage; not a seasonal calendar.",
+    "Shop probability is conditional on supplied pool, including unobservable opponent reservations.",
+    "Stage damage and income candidates need current-patch replay calibration.",
+    "No Wisps, augment economy, seasonal trait rewards, ghost pairing, PvE or carousel settlement.",
+    "Full current-patch match entry remains blocked."
+  ]
+}

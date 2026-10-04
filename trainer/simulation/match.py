@@ -16,14 +16,24 @@ def match_rules(content, *, initializing=False):
     rules = content.get('match_rules')
     if not isinstance(rules, dict) or content.get('planning_requirements'):
         raise UnsupportedRule('complete match progression dependencies unavailable')
-    positive_integer(rules.get('interest_step'), 'interest_step')
-    for field in ('base_income', 'interest_cap', 'natural_xp', 'loss_damage', 'tie_damage'):
-        positive_integer(rules.get(field), field, zero=True)
+    model=rules.get('income_model','fixed_round')
+    if model not in ('fixed_round','ordinary_pvp_economy'):
+        raise UnsupportedRule('unknown income model')
+    if model=='ordinary_pvp_economy':
+        from .round_economy import validate_rules
+        validate_rules(rules.get('round_economy',{}))
+        if initializing:
+            raise UnsupportedRule('ordinary PvP settlement requires an observed stage; full calendar unavailable')
+    else:
+        positive_integer(rules.get('interest_step'), 'interest_step')
+        for field in ('base_income', 'interest_cap', 'natural_xp', 'loss_damage', 'tie_damage'):
+            positive_integer(rules.get(field), field, zero=True)
     if initializing:
         for field in ('starting_level', 'starting_hp', 'pool_per_champion'):
             positive_integer(rules.get(field), field)
         positive_integer(rules.get('starting_gold'), 'starting_gold', zero=True)
-    if tuple(rules.get(k) for k in ('pairing', 'loot', 'streaks')) != ('seeded_shuffle_with_bye', 'none', 'none'):
+    streak_policy='outcome_signed' if model=='ordinary_pvp_economy' else 'none'
+    if tuple(rules.get(k) for k in ('pairing', 'loot', 'streaks')) != ('seeded_shuffle_with_bye', 'none', streak_policy):
         raise UnsupportedRule('seasonal round policies not implemented')
     return rules
 
@@ -40,7 +50,9 @@ def new_match(content, seed):
 
 
 def begin_round(world, content):
-    match_rules(content)
+    rules = match_rules(content)
+    if rules.get('income_model') == 'ordinary_pvp_economy':
+        raise UnsupportedRule('next observed stage and round type required; full calendar unavailable')
     if world.rules_scope != 'complete_rules':
         raise UnsupportedRule('planning probe cannot advance a full match')
     validate_world(world, content)
@@ -69,22 +81,40 @@ def resolve_round(world, content, seed):
         raise IllegalAction('round players are not in planning')
     state=deepcopy(world); rng=random.Random(seed)
     active=[i for i,p in enumerate(state.players) if p.hp>0]; rng.shuffle(active)
+    if rules.get('income_model')=='ordinary_pvp_economy' and len(active)%2:
+        raise UnsupportedRule('ordinary economy requires a resolved opponent; ghost pairing unavailable')
+    if rules.get('income_model')=='ordinary_pvp_economy' and len({state.players[i].stage for i in active})!=1:
+        raise UnsupportedRule('ordinary economy requires one shared observed stage')
     fights=[]
     for a,b in zip(active[::2],active[1::2]):
         result=simulate([world.players[a],world.players[b]],content,seed=rng.randrange(2**31))
         settle_combat(state,(a,b),result)
         winner=result['winner']
-        if winner is None:
+        if winner is not None and (type(winner) is not int or winner not in (0,1)):
+            raise UnsupportedRule('invalid combat winner')
+        receipts=[]
+        if rules.get('income_model')=='ordinary_pvp_economy':
+            from .round_economy import project_pvp
+            if winner is None: raise UnsupportedRule('draw economy unavailable')
+            for local,seat in enumerate((a,b)):
+                enemy=(b,a)[local]
+                original_enemy_ids={u.uid for u in world.players[enemy].units if u.zone=='board'}
+                survivors=sum(row['health']>0 and row['uid'] in original_enemy_ids for row in result['units'])
+                state.players[seat],receipt=project_pvp(state.players[seat],content,rules['round_economy'],
+                    outcome='win' if local==winner else 'loss',surviving_enemy_champions=survivors)
+                receipts.append(dict(seat=seat,**receipt))
+        elif winner is None:
             state.players[a].hp=max(0,state.players[a].hp-rules['tie_damage'])
             state.players[b].hp=max(0,state.players[b].hp-rules['tie_damage'])
         else:
             loser=(a,b)[1-winner]
             state.players[loser].hp=max(0,state.players[loser].hp-rules['loss_damage'])
         fights.append(dict(seats=[a,b],winner=None if winner is None else (a,b)[winner],
-                           duration_seconds=result['duration_seconds']))
+                           duration_seconds=result['duration_seconds'],economy_receipts=receipts))
     eliminated=[]
     for i in active:
         p=state.players[i]
+        p.round_free_rerolls=0
         if p.hp<=0:
             eliminated.append(i)
             for u in p.units:
@@ -97,8 +127,9 @@ def resolve_round(world, content, seed):
             p.units=[];p.shop=[None]*5;p.phase='eliminated'
         else:
             p.phase='between_rounds'
-            p.gold+=rules['base_income']+min(rules['interest_cap'],p.gold//rules['interest_step'])
-            grant_xp(p, rules['natural_xp'], content)
+            if rules.get('income_model')!='ordinary_pvp_economy':
+                p.gold+=rules['base_income']+min(rules['interest_cap'],p.gold//rules['interest_step'])
+                grant_xp(p, rules['natural_xp'], content)
     state.round_phase='between_rounds'
     validate_world(state,content)
     return state,dict(round_number=state.round_number,fights=fights,eliminated=eliminated,bye=active[-1] if len(active)%2 else None)
