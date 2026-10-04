@@ -73,6 +73,8 @@ class ReplayDecisionEngine:
     def evaluate(self, answer: dict, owned: dict | None = None) -> dict:
         """Return a new answer; never turn a candidate icon into a owned unit."""
         output = copy.deepcopy(answer)
+        output["decision_capabilities"] = dict(level="conditional_economy", buy="verified_roster_required",
+                                                roll="not_implemented", position="not_implemented", equip="not_implemented")
         shop = output.get("shop") or {}
         bound = 0
         for slot in shop.get("slots") or []:
@@ -106,7 +108,7 @@ class ReplayDecisionEngine:
                     (owned or {}).get("perspective") == "self")
         units = (owned or {}).get("units") or []
         if not verified or not units:
-            output["decision"] = self._economy(output) or self._wait("OWNED_UNITS_UNVERIFIED")
+            output["decision"] = self._economy(output) or self._economy_wait("OWNED_UNITS_UNVERIFIED")
             return output
         age_ms = owned.get("age_ms")
         if type(age_ms) not in (int, float) or not 0 <= age_ms <= 2000:
@@ -131,7 +133,7 @@ class ReplayDecisionEngine:
                       copies[slot["unit_id"]] >= 2 and
                       gold >= slot["observed_cost"]]
         if not candidates:
-            output["decision"] = self._economy(output) or self._wait("NO_VERIFIED_UPGRADE")
+            output["decision"] = self._economy(output) or self._economy_wait("NO_VERIFIED_UPGRADE")
             return output
         slot = min(candidates, key=lambda row: (row["observed_cost"], row["slot"]))
         output["decision"] = {
@@ -152,42 +154,57 @@ class ReplayDecisionEngine:
         return (type(answer.get("source_ms")) in (int, float) and
                 section.get("timestamp_ms") == answer["source_ms"])
 
+    def _economy_block(self, code, **details):
+        self._economy_diagnostic=dict(code=code,**details)
+        return None
+
+    def _economy_wait(self, fallback):
+        result=self._wait(fallback)
+        result['economy']=copy.deepcopy(self._economy_diagnostic)
+        return result
+
     def _economy(self, answer: dict) -> dict | None:
-        # A level opportunity has its own inputs; no invented roster/strength.
-        rows = {r.get('field'): r for r in answer.get('hud', [])
-                if r.get('status') == 'single_frame_observation' and
-                float(r.get('confidence') or 0) >= .90}
-        if not all(k in rows for k in ('gold','stage','level','xp')):
-            self._economy_previous = None
-            return None
-        gold,stage,level,xp = [rows[k].get('value') for k in ('gold','stage','level','xp')]
+        # Every exit states which input or rule stopped the decision. No guessed values.
+        rows={}
+        for field in ('gold','stage','level','xp'):
+            matches=[r for r in answer.get('hud',[]) if r.get('field')==field
+                     and r.get('status')=='single_frame_observation'
+                     and float(r.get('confidence') or 0)>=.90]
+            if len(matches)==1:rows[field]=matches[0]
+        missing=[k for k in ('gold','stage','level','xp') if k not in rows]
+        if missing:
+            self._economy_previous=None
+            return self._economy_block('HUD_FIELDS_UNVERIFIED',fields=missing)
+        gold,stage,level,xp=[rows[k].get('value') for k in ('gold','stage','level','xp')]
         at=answer.get('source_ms')
         match=re.fullmatch(r'\s*(\d+)\s*/\s*(\d+)\s*',str(rows['xp'].get('text','')))
         if (type(gold) is not int or not 0<=gold<=300 or type(level) is not int or
                 not 2<=level<=9 or type(xp) is not int or match is None or
                 int(match[1])!=xp or not 0<=xp<int(match[2])<=100 or
-                type(at) not in (int,float)):
+                type(at) not in (int,float) or not math.isfinite(at)):
             self._economy_previous=None
-            return None
-        # Shopping changes gold between observations. Confirm the level/XP
-        # opportunity over time, then price it using the latest observed gold.
+            return self._economy_block('HUD_VALUES_INCONSISTENT')
         signature=(stage,level,xp,int(match[2]))
         previous=self._economy_previous
         self._economy_previous=(at,signature)
+        window=next((r for r in self.economy_policy['level_windows'] if r['stage']==stage),None)
+        if window is None:return self._economy_block('NO_LEVEL_RULE_FOR_STAGE',stage=stage)
+        if window['target_level']!=level+1:
+            return self._economy_block('LEVEL_WINDOW_NOT_APPLICABLE',level=level,target_level=window['target_level'])
         if previous is None or previous[1]!=signature or not 200<=at-previous[0]<=8000:
-            return None
-        window=next((r for r in self.economy_policy['level_windows']
-                     if r['stage']==stage and r['target_level']==level+1),None)
+            return self._economy_block('ECONOMY_CONFIRMING')
         controls=answer.get('controls') or {}
-        if window is None or not self._current(controls,answer):return None
-        active=any(r.get('id')=='buy_xp' and r.get('status')=='observed' and
-                   r.get('appearance')=='active_appearance' for r in controls.get('controls',[]))
+        if not self._current(controls,answer):return self._economy_block('XP_CONTROLS_STALE')
+        active=any(r.get('id')=='buy_xp' and r.get('status')=='observed'
+                   and r.get('appearance')=='active_appearance' for r in controls.get('controls',[]))
+        if not active:return self._economy_block('XP_BUTTON_UNVERIFIED')
         prices=[r for r in controls.get('numeric_fields',[]) if r.get('id')=='buy_xp_price'
                 and r.get('status')=='observed' and float(r.get('confidence') or 0)>=.9]
-        if not active or len(prices)!=1 or prices[0].get('value')!=4:return None
-        clicks=math.ceil((int(match[2])-xp)/self.economy_policy['xp_per_purchase'])
-        cost=clicks*4
-        if gold-cost<window['reserve_gold']:return None
+        if len(prices)!=1 or prices[0].get('value')!=4:
+            return self._economy_block('XP_PRICE_UNVERIFIED')
+        clicks=math.ceil((int(match[2])-xp)/self.economy_policy['xp_per_purchase']);cost=clicks*4
+        if gold-cost<window['reserve_gold']:
+            return self._economy_block('LEVEL_RESERVE_NOT_MET',cost=cost,reserve=window['reserve_gold'])
         return {'schema_version':'0.1.0',
                 'action':{'type':'buy_xp','target_level':level+1,'gold_cost':cost,
                           'purchases':clicks,'gold_after':gold-cost},

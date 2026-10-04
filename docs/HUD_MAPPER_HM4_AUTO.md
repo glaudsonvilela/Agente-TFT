@@ -58,29 +58,63 @@ exigem identidade verificada, evidência fresca e confiança explícita do motor
 leitura se abstém. O modo de dicas só é habilitado quando o
 usuário declara que a fonte é um vídeo de partida encerrada.
 
-## HM4.5 — narração local opcional
+## HM4.5 / 0.6.2 — voz via ElevenLabs e perfil local
 
-No instalador HM4.5, marque **Narrar orientações** e escolha a voz em
-**Voz** e use **Testar voz** antes de iniciar o replay. **Supertonic F1** é a
-opção inicial escolhida após a prévia. Dii, Cadu e Faber continuam disponíveis.
-A síntese F1 ocorre em uma thread separada, com até dois núcleos de CPU,
-sem serviço de nuvem nem voz do sistema. Se F1 falhar ao carregar ou sintetizar,
-o aplicativo troca para Dii e registra a troca no painel e na telemetria.
-Mensagens antigas são descartadas; a dica escrita aparece mesmo se a fala
-estiver desligada ou demorar. A aba **Performance** mostra o tempo de geração
-e um eventual erro de voz.
+O código 0.6.2 remove Supertonic, Piper, Sherpa e os pesos de TTS do pacote.
+Os modelos ONNX de **visão** continuam presentes. A captura, OCR e as decisões
+continuam locais; somente o texto narrado passa pelo serviço de voz do Agente
+TFT e pela ElevenLabs. Reprodução PCM/WAV ocorre no Windows sem FFmpeg.
 
-Os modelos de voz vêm dos pacotes `vits-piper-pt_BR-{cadu,faber}-medium-int8`
-e `vits-piper-pt_BR-dii-high-int8`
-da release `tts-models` do projeto `k2-fsa/sherpa-onnx`, verificados por SHA-256
-no build. Supertonic F1 usa os pesos ONNX da revisão fixa
-`3cadd1ee6394adea1bd021217a0e650ede09a323` de
-`Supertone/supertonic-3`, também verificados por SHA-256. O instalador
-inclui só o estilo F1 e os modelos necessários, não todas as vozes Supertonic.
-A licença OpenRAIL-M do modelo, a licença do motor e os cartões das vozes
-acompanham o instalador.
-O pacote Dii é para uso não comercial de laboratório, conforme seu `README.md`.
+Na primeira abertura, o formulário pede **nick (nome#tag)** e **região**.
+Não há login nem integração de conta com a Riot. O perfil é declarado pelo
+usuário, salvo no computador e pode ser trocado em **Perfil do jogador**.
+Quando o serviço está conectado e o perfil ainda não foi preenchido, a voz diz:
+“Bem-vindo! Coloque seu nick e região para começar.”
 
+A chave da ElevenLabs e o Voice ID são configurados pelo operador no servidor;
+o jogador não preenche credenciais da API. O cliente abre uma sessão anônima
+automaticamente. **Conectar voz** permite tentar novamente; **Testar áudio**
+produz uma solicitação explícita. A chave nunca é embutida no instalador.
+
+**Estado desta implementação:** o endereço em `configs/services/voice.json`
+ainda está vazio. O serviço não foi ativado nem o áudio real da ElevenLabs
+validado. Os contratos automatizados usam PCM silencioso simulado e não
+comprovam qualidade da voz, latência de internet ou áudio físico no Windows.
+Não entregar esta revisão como teste de voz pronta enquanto isso estiver pendente.
+
+A fila mantém no máximo uma fala aguardando. Solicitações têm prazo, limite de
+áudio de 2 MiB, cache em RAM de até 16 frases/4 MiB e espera após falhas.
+Decisões antigas ou substituídas são descartadas após a resposta da API.
+A mesma dica pode ser tentada novamente com uma observação nova mesmo que o
+texto visível não mude. Os painéis ocultos não são redesenhados a cada segundo.
+O diagnóstico distingue ausência de quadros, falha/formato da leitura e
+ausência de regra de decisão. Isso não mede FPS real no computador do jogador.
+
+### Dados do jogador — ranked do patch atual
+
+Ao abrir **Dados coletados** ou atualizar o histórico, a interface consulta o
+serviço fora da thread gráfica. O contrato calcula até 20 partidas ranked do
+**set e patch ativos no servidor**. Descarta patches desconhecidos/anteriores,
+partidas normais, resultados inválidos e duplicatas. Exibe média de colocação,
+vitórias, Top 4, fonte e data. Uma comparação recente exige dez partidas do
+mesmo patch. O cache por perfil/região/set/patch dura até 15 minutos.
+
+O resumo disponível é narrado quando não há revisão ativa; durante a revisão,
+as dicas têm prioridade. Esses cálculos são determinísticos e verificáveis:
+`neural_analysis_applied=false`. Nenhum treino novo é declarado por consultar
+histórico ou sintetizar voz. O adaptador externo de histórico ainda não foi
+conectado: a UI informa essa ausência, sem inventar partidas ou estatísticas.
+
+### Limites ainda presentes
+
+- A política local tem janelas específicas de nível; não implementa recomendações
+  de rolagem, posicionamento ou equipamento.
+- A rede visual atual não foi treinada para distinguir fila, menu e loading.
+  O classificador experimental anterior separa apenas tabuleiro/não tabuleiro;
+  não pode ser apresentado como reconhecimento dessas novas classes.
+- A fonte MetaTFT permanece opcional: não há API pública de histórico confirmada
+  nesta revisão. Não se usam endpoints internos nem conta Riot como substituto.
+- A ativação do serviço requer endereço HTTPS e credencial ElevenLabs no servidor.
 
 ## HM4.1 — normalização conservadora dos leitores
 

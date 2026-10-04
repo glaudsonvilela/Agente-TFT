@@ -148,3 +148,53 @@ outcome real
 ```
 
 O objetivo é encontrar padrões repetidos em contexto, não transformar uma única simulação em regra.
+
+
+## Serviço independente de voz e resumo de jogador (0.6.2)
+
+`companion_service` é separado do treinador e não acessa os outros contêineres.
+`compose.voice-service.yml` reserva 0,5 CPU / 192 MiB e publica somente
+`127.0.0.1:8802`. Ainda não foi implantado no BigBANANA.
+
+Na raiz do repositório no servidor, a configuração interativa não mostra a chave:
+
+```bash
+PYTHONPATH=apps/hud_mapper:trainer python3 -m companion_service.configure
+```
+
+Ela salva `~/.config/agente-tft/voice.env` com permissão 0600. O Voice ID é
+informado pelo operador; a prévia por nome não identifica um ID confirmado.
+
+O operador configura `ELEVENLABS_API_KEY` e `ELEVENLABS_VOICE_ID` somente no
+servidor (arquivo de ambiente privado, fora do Git) e executa, na pasta trainer:
+
+```bash
+docker compose --env-file /caminho/privado/voice.env -f compose.voice-service.yml up -d --build
+```
+
+Para outros PCs, configure um proxy HTTPS para essa porta, com limite de corpo
+HTTP de 4 KiB e limitação de solicitações. Preencha `service_url` em
+`configs/services/voice.json` antes do build Windows. O host do serviço pode
+receber texto narrado e nick/região para consulta de histórico; não recebe
+quadros da captura. Não há RSO nem chave Riot neste serviço.
+
+Endpoints: `GET /health`, `POST /v1/session`, `POST /v1/voice` e
+`POST /v1/player-summary`. Sessões anônimas duram 24 horas; tokens ficam em
+memória no cliente e somente hashes no SQLite do servidor. O registro é
+público por projeto: **não é uma licença ou prova de identidade**. Há limites
+de criação de sessões, uma síntese por vez, 6 falas/minuto por instalação,
+120/dia e reserva global de 20.000 caracteres por 24 horas. IDs de instalação
+não são identidades fortes; o orçamento global limita consumo mesmo se forem
+trocados. Erros também consomem a reserva; orçamento não é estimativa de preço.
+
+O histórico exige um adaptador `fetch(nickname, region, patch, set_key, limit)`
+que devolva identidade exata, fonte, data e partidas normalizadas. Sem adaptador,
+a resposta é `external_history_unavailable`. O módulo `player_summary` calcula
+somente ranked do set/patch de `TFT_ACTIVE_KNOWLEDGE` (arquivo do catálogo); o
+cache inclui essas versões e invalida na atualização. Para trocar o patch,
+atualize o arquivo e reinicie o serviço. Não há análise neural treinada aplicada
+a esse resumo; não inferir erros de rolagem a partir de colocações finais.
+
+Os testes do serviço usam transporte ElevenLabs simulado, sem credenciais,
+sem chamada paga e sem comprovar voz real. A distribuição para usuários ainda
+depende de provisionar HTTPS/ElevenLabs e conectar uma fonte válida de histórico.

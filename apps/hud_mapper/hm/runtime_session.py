@@ -137,12 +137,12 @@ class RuntimeSession(Session):
                    input_kind='previously_recorded_video_on_screen',
                    ground_truth=False, game_state_updated=False)
         with self.lock:
+            self.latest_replay_tip=tip
             if (tip['text']==getattr(self,'_last_replay_tip',None)
                     and frame.pts_ms<getattr(self,'_next_tip_ms',0)):
                 return
             self._last_replay_tip=tip['text']
             self._next_tip_ms=frame.pts_ms+5000
-            self.latest_replay_tip=tip
             self.counts['coach_updates']+=1
             if tip.get('actionable'):self.counts['replay_tips']+=1
         self.store.emit('replay-tips',tip)
@@ -207,7 +207,9 @@ class RuntimeSession(Session):
                     continue
                 start = time.perf_counter_ns()
                 plan = reader_plan(frame, allow_normalize=self.normalize_reader_input)
-                pixels = reader_signature(frame, allow_any_resolution=bool(plan.get('supported') and self.normalize_reader_input))
+                cache_enabled=not self.separate_hp_loop and not self.options.board_reference
+                pixels = (reader_signature(frame, allow_any_resolution=bool(plan.get('supported') and self.normalize_reader_input))
+                          if cache_enabled else None)
                 hit = bool(plan.get('supported') and not self.options.board_reference and
                            not self.separate_hp_loop and
                            not (getattr(self, 'board_reference_requested', None) and self.board_reference_requested.is_set()) and
@@ -300,7 +302,7 @@ class RuntimeSession(Session):
                     if decision_engine and answer.get('origin') == 'observed_pixels':
                         answer = decision_engine.evaluate(answer)
                         self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
-                        self.latest_decision_reason = answer['decision']['evidence'][0]['code']
+                        self.latest_decision_reason = (answer['decision'].get('economy') or {}).get('code') or answer['decision']['evidence'][0]['code']
                         if answer['decision']['action']['type'] == 'wait':
                             self.counts['decision_abstentions'] += 1
                     canonical_regions = native_regions(answer, self.registry,

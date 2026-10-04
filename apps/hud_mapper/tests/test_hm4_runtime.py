@@ -13,7 +13,7 @@ from hm.core import neural_regions
 from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
 from hm.replay_decision import ReplayDecisionEngine
 from hm.board_hub_live import BoardHubLive
-from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES, _play_wav
+from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
@@ -85,29 +85,6 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertFalse(voice.say('12 ouro',100))
         self.assertEqual(voice.pending.get_nowait()[0],'12 ouro')
 
-    def test_voice_choice_uses_bundled_models(self):
-        with tempfile.TemporaryDirectory() as td:
-            base=Path(td)
-            (base/'espeak-ng-data').mkdir()
-            for name in ('dii','cadu','faber'):
-                (base/name).mkdir()
-                (base/name/'model.onnx').touch()
-                (base/name/'tokens.txt').touch()
-            for name in SUPERTONIC_FILES:
-                target=base/'supertonic-f1'/name
-                target.parent.mkdir(parents=True,exist_ok=True)
-                target.touch()
-            voice=VoiceCoach(base)
-            self.assertEqual(set(available_voices(base)),{'supertonic-f1','dii','cadu','faber'})
-            self.assertEqual(voice.voice_id,'supertonic-f1')
-            voice.set_voice('faber')
-            self.assertEqual(voice.voice_id,'faber')
-            voice.set_voice('supertonic-f1')
-            voice._handle_failure('supertonic-f1',RuntimeError('modelo inválido'))
-            self.assertEqual(voice.voice_id,'dii')
-            self.assertEqual(voice.fallback_from,'supertonic-f1')
-            with self.assertRaises(ValueError):voice.set_voice('system')
-
     def test_voice_playback_uses_windows_flags_that_exist(self):
         calls=[]
         fake=types.SimpleNamespace(SND_MEMORY=4,SND_NODEFAULT=2,
@@ -115,26 +92,6 @@ class HM4RuntimeTests(unittest.TestCase):
         with patch.dict('sys.modules',winsound=fake):
             _play_wav(b'RIFF')
         self.assertEqual(calls,[(b'RIFF',6)])
-
-    def test_voice_switch_during_load_does_not_mix_engines(self):
-        voice=VoiceCoach(isolated=False);voice.voices={'supertonic-f1':'F1','dii':'Dii'}
-        voice.voice_id='supertonic-f1';voice.enabled=True
-        calls=[]
-        def load(voice_id,base):
-            if voice_id=='supertonic-f1':voice.set_voice('dii')
-            return voice_id
-        def synth(text,voice_id,base,engine):
-            self.assertEqual(voice_id,engine)
-            calls.append(voice_id)
-            return b'RIFF',engine
-        with patch('hm.voice._load_engine',side_effect=load), patch('hm.voice._synthesize',side_effect=synth):
-            thread=threading.Thread(target=voice._run,daemon=True);thread.start()
-            until=time.monotonic()+2
-            while not voice.ready and time.monotonic()<until:time.sleep(.01)
-            voice.close();thread.join(1)
-        self.assertTrue(voice.ready is False)
-        self.assertIn('dii',calls)
-        self.assertIsNone(voice.fallback_from)
 
     @unittest.skipUnless(os.name=='nt','Windows Tk desktop required')
     def test_coach_banner_remains_outside_mapping_tab(self):
@@ -145,7 +102,7 @@ class HM4RuntimeTests(unittest.TestCase):
             app=App(root,'hm4')
             root.update_idletasks()
             self.assertTrue(app.replay_review.get())
-            self.assertEqual(app.voice_enabled.get(),bool(app.voice.voices))
+            self.assertTrue(app.voice_enabled.get())
             self.assertEqual(app.tip_label.winfo_manager(),'pack')
             self.assertEqual(app.tip_label.master.winfo_manager(),'pack')
             self.assertEqual(app.tip_log.winfo_manager(),'pack')

@@ -19,8 +19,7 @@ from .replay_coach import coach_prompt
 from .voice import VoiceCoach
 
 
-def run(fixture: Path, output: Path, paths: dict, voices: Path | None = None,
-        voice_id: str = 'supertonic-f1') -> dict:
+def run(fixture: Path, output: Path, paths: dict, *, mock_transport: bool = False) -> dict:
     manifest = json.loads((fixture/'manifest.json').read_text())
     output.mkdir(parents=True, exist_ok=False)
     audio_done = threading.Event()
@@ -32,9 +31,14 @@ def run(fixture: Path, output: Path, paths: dict, voices: Path | None = None,
             raise ValueError('Decision produced empty audio')
         (output/'decision.wav').write_bytes(wav)
         audio_done.set()
-    voice = VoiceCoach(voices, playback=receive_audio)
-    voice.set_voice(voice_id)
-    # Offline harness uses the same queue/thread/process, with a file audio sink.
+    if mock_transport:
+        from .voice_validation import mock_client
+        voice = VoiceCoach(client=mock_client(), playback=receive_audio, load_settings=False)
+    else:
+        voice = VoiceCoach(playback=receive_audio)
+    if not voice.client:
+        raise RuntimeError('Configure API credentials for manual validation or explicitly use mock transport')
+    # Harness uses the same queue and worker thread, with a file audio sink.
     voice.enabled = True
     voice.thread = threading.Thread(target=voice._run, daemon=True)
     voice.thread.start()
@@ -79,7 +83,8 @@ def run(fixture: Path, output: Path, paths: dict, voices: Path | None = None,
         if not audio_done.wait(15):
             raise RuntimeError('Decision audio did not arrive within validity: '+str(voice.error))
         report=dict(complete=True,source=manifest['source'],frames=reads,voice_id=voice.voice_id,
-                    voice_process_separate=True,voice_process_memory=voice.engine_process.memory,
+                    voice_process_separate=False,voice_backend="elevenlabs_api",
+                    mock_transport=mock_transport,provider_audio_validated=not mock_transport,
                     events=list(voice.events),audio=audio_report,
                     physical_audio_measured=False,full_match_accuracy_measured=False,
                     policy_kind='explicit_economy_heuristic_not_neural_combat_strategy')

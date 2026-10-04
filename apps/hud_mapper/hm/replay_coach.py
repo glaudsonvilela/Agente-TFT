@@ -11,6 +11,26 @@ def _hud_value(answer: dict, field: str):
 
 def economy_prompt(answer: dict) -> dict:
     """Explain the missing evidence; visible HUD values are not coaching."""
+    if answer.get('origin')=='resolution_gate':
+        return dict(status='reader_resolution_incompatible',actionable=False,basis=['reader_input_transform'],
+                    text='Captura recebida, mas o formato da imagem não é compatível com os leitores. Selecione o vídeo em 16:9, sem bordas.')
+    diagnostic=(answer.get('decision') or {}).get('economy') or {}
+    code=diagnostic.get('code')
+    messages={
+        'HUD_VALUES_INCONSISTENT':'Leitura de nível ou XP inconsistente. Mantenha a HUD inteira visível.',
+        'NO_LEVEL_RULE_FOR_STAGE':'Não há regra de evolução para este estágio nesta versão. Dicas de rolagem ainda não estão implementadas.',
+        'LEVEL_WINDOW_NOT_APPLICABLE':'A regra de evolução deste estágio não se aplica ao nível atual.',
+        'ECONOMY_CONFIRMING':'Confirmando nível e XP em duas leituras consecutivas.',
+        'XP_CONTROLS_STALE':'Leitura do botão de XP desatualizada; aguardando leitura nova.',
+        'XP_BUTTON_UNVERIFIED':'Não foi possível reconhecer o botão de compra de XP.',
+        'XP_PRICE_UNVERIFIED':'Não foi possível confirmar o preço de compra de XP.',
+        'LEVEL_RESERVE_NOT_MET':'O ouro disponível não atende à reserva exigida pela regra de evolução.'}
+    if code=='HUD_FIELDS_UNVERIFIED':
+        names={'gold':'ouro','stage':'estágio','level':'nível','xp':'XP'}
+        message='Leitura sem confiança suficiente: '+', '.join(names.get(k,k) for k in diagnostic['fields'])+'.'
+    else:message=messages.get(code)
+    if message:
+        return dict(status='economy_blocked',actionable=False,text=message,basis=['decision.'+code],diagnostic=diagnostic)
     gold = _hud_value(answer, 'gold')
     if type(gold) is not int or not 0 <= gold <= 300:
         return {'status': 'abstain_missing_gold', 'text': 'Aguardando leitura confiável de ouro.',
@@ -24,7 +44,7 @@ def economy_prompt(answer: dict) -> dict:
         'NO_VERIFIED_UPGRADE': 'Nenhuma compra com melhoria confirmada neste momento.',
     }
     return {'status': 'awaiting_decision',
-            'text': messages.get(reason, 'Analisando tabuleiro e loja para uma ação verificável.'),
+            'text': messages.get(reason, 'Nenhuma decisão disponível. Consulte o diagnóstico de captura e leitura.'),
             'basis': ['hud.gold'] + ([f'decision.{reason}'] if reason else []),
             'actionable': False, 'gold_observed': gold}
 

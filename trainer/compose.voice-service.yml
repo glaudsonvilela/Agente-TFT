@@ -1,0 +1,25 @@
+services:
+  tft-voice:
+    build:
+      context: ..
+      dockerfile: trainer/Dockerfile.voice-service
+    ports:
+      - "127.0.0.1:8802:8802"
+    environment:
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:?configure on the server only}
+      ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:?select the approved voice on the server}
+    volumes:
+      - tft-voice-data:/data
+    mem_limit: 192m
+    cpus: 0.5
+    pids_limit: 64
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+volumes:
+  tft-voice-data:

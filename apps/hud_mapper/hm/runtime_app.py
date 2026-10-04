@@ -10,6 +10,7 @@ from .runtime_session import RuntimeSession, HM4RuntimeSession
 from .session import Options
 from .capture_source import list_targets
 from .process_memory import current_process_memory
+from .pipeline_health import snapshot as pipeline_snapshot
 
 def runtime_paths():
     root=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[3]))
@@ -100,6 +101,10 @@ class App:
         if self.hm4:
             from .voice import VoiceCoach
             self.voice=VoiceCoach()
+            self._voice_connecting=False;self._voice_connection_result=None
+            from .player_profile import load as load_profile
+            self.player_profile=load_profile();self._onboarding=None
+            self._player_summary_result=None;self._player_summary_running=False
         root.title("Agente TFT — "+("Revisão de replay" if self.hm4 else "HM3 Runtime"))
         if self.hm4:
             width=min(1440,max(960,root.winfo_screenwidth()-60))
@@ -129,8 +134,8 @@ class App:
         self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-replay-screen" if self.hm4 else "hud-live-01")
         self.map_hz=tk.StringVar(value="2" if self.hm4 else "8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
         self.replay_review=tk.BooleanVar(value=self.hm4)
-        self.voice_enabled=tk.BooleanVar(value=bool(self.voice and self.voice.voices and os.name=="nt"))
-        self.voice_choice=tk.StringVar(value=self.voice.voices.get(self.voice.voice_id, "Sem vozes instaladas") if self.voice else "")
+        self.voice_enabled=tk.BooleanVar(value=bool(self.voice and os.name=="nt"))
+        self.voice_choice=tk.StringVar(value=self.voice.voices.get(self.voice.voice_id, "Configure ElevenLabs") if self.voice else "")
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         self.compact=tk.BooleanVar(value=False);self.compact_panels=[]
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
@@ -154,16 +159,16 @@ class App:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
             ttk.Label(line,text=("Visão neural: diagnóstico ativo" if auto else "Leitores nativos ativos")).pack(side="left")
             ttk.Checkbutton(line,text="Analisar replay (HUB + orientações)",variable=self.replay_review).pack(side="left",padx=8)
-            ttk.Checkbutton(line,text="Narrar orientações",variable=self.voice_enabled,
+            voice_line=ttk.Frame(outer);voice_line.pack(fill="x",pady=2)
+            ttk.Checkbutton(voice_line,text="Narrar orientações",variable=self.voice_enabled,
                             command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
-            ttk.Label(line,text="Voz").pack(side="left")
-            self.voice_picker=ttk.Combobox(line,textvariable=self.voice_choice,state="readonly",width=21,
-                                          values=tuple(self.voice.voices.values()))
-            self.voice_picker.pack(side="left",padx=3)
-            self.voice_picker.bind("<<ComboboxSelected>>",self.choose_voice)
+            ttk.Label(voice_line,text="Voz").pack(side="left")
+            ttk.Button(voice_line,text="Conectar voz",command=self.connect_voice).pack(side="left",padx=3)
+            ttk.Button(voice_line,text="Testar áudio",command=self.test_voice).pack(side="left",padx=3)
+            ttk.Button(voice_line,text="Perfil do jogador",command=self.configure_player).pack(side="left",padx=3)
             actions=ttk.Frame(outer);actions.pack(fill='x',pady=(0,3))
             self.actions_bar=actions
-            self.compact_panels=[(widget,widget.pack_info()) for widget in (self.hero,source,line)]
+            self.compact_panels=[(widget,widget.pack_info()) for widget in (self.hero,source,line,voice_line)]
             ttk.Checkbutton(actions,text='Priorizar vídeo e dicas',variable=self.compact,
                             command=self.compact_view).pack(side='left',padx=4)
             ttk.Button(actions,text="Calibrar tabuleiro",command=self.calibrate_board).pack(side="left",padx=4)
@@ -193,9 +198,11 @@ class App:
                                      bg="#241746",fg="#c9bde8",font=("Segoe UI",9),anchor="w")
             self.coach_meta.pack(fill="x")
             coach.bind("<Configure>",lambda event:self.tip_label.configure(wraplength=max(300,event.width-36)))
+        self.pipeline_label=ttk.Label(outer,text="Diagnóstico local: aguardando início da captura.",wraplength=1000)
+        self.pipeline_label.pack(anchor="w",pady=3)
         tabs=ttk.Notebook(outer);tabs.pack(fill="both",expand=True);self.tabs=tabs
         mapping=ttk.Frame(tabs);performance=ttk.Frame(tabs);data=ttk.Frame(tabs)
-        self.mapping_tab=mapping
+        self.mapping_tab=mapping;self.performance_tab=performance;self.data_tab=data
         tabs.add(mapping,text="HUD ao vivo / geometria");tabs.add(performance,text="Performance");tabs.add(data,text="Dados coletados")
         if self.hm4:
             history=ttk.Frame(tabs);tabs.add(history,text="Histórico de orientações")
@@ -221,10 +228,17 @@ class App:
         self.details=tk.Text(right,height=6,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.details.grid(row=3,column=0,columnspan=2,sticky="ew")
         self.perf=tk.Text(performance,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.perf.pack(fill="both",expand=True)
         ttk.Label(data,text="O hot path trabalha em memória. PNGs/recortes são amostras assíncronas e limitadas; previsões não viram ground truth.",justify="left").pack(anchor="w",pady=10)
+        if self.hm4:
+            ttk.Label(data,text="Dados do jogador — ranked",font=("Segoe UI",12,"bold")).pack(anchor="w",pady=(10,4))
+            self.player_summary_label=ttk.Label(data,text="Cadastre o perfil para consultar o histórico.",wraplength=800,justify="left")
+            self.player_summary_label.pack(anchor="w",pady=4)
+            ttk.Button(data,text="Atualizar histórico ranked",command=self.refresh_player_summary).pack(anchor="w",pady=4)
         self.data_text=tk.Text(data,height=18,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.data_text.pack(fill="both",expand=True)
         ttk.Button(data,text="Abrir última sessão",command=self.open_output).pack(anchor="w",pady=5)
+        if self.hm4 and not self.player_profile:self.root.after(250,self.configure_player)
         if self.voice_enabled.get():
-            self.voice.set_enabled(True)
+            self.connect_voice()
+        if self.hm4:self.tabs.bind("<<NotebookTabChanged>>",self.data_tab_changed)
         root.protocol("WM_DELETE_WINDOW",self.close)
         root.after(30,self.tick)
         if self.hm4:root.after(16,self.preview_tick)
@@ -301,6 +315,8 @@ class App:
             if self.hm4:
                 self.voice.set_enabled(self.voice_enabled.get())
                 self._shown_tip_key=None
+                self.voice.last_tip_attempt=None
+                self.voice.set_context(None)
                 self.coach_header.configure(text="AGENTE  /  "+("REVISÃO ATIVA" if self.replay_review.get() else "REVISÃO DESATIVADA"))
                 self.tip_label.configure(text=("Aguardando leituras confiáveis do replay." if self.replay_review.get()
                                                else "Ative Analisar replay para receber orientações."))
@@ -337,19 +353,67 @@ class App:
 
     def stop(self):
         if self.session and not self.session.done.is_set():self.session.request_stop()
+    def configure_player(self):
+        import tkinter as tk
+        from tkinter import ttk,messagebox
+        from .player_profile import REGIONS,WELCOME,save
+        if self._onboarding and self._onboarding.winfo_exists():
+            self._onboarding.lift();return
+        dialog=tk.Toplevel(self.root);self._onboarding=dialog
+        dialog.title("Bem-vindo ao Agente TFT");dialog.transient(self.root)
+        ttk.Label(dialog,text=WELCOME,wraplength=420).pack(padx=24,pady=18)
+        ttk.Label(dialog,text="Nick (nome#tag, se disponível)").pack(anchor='w',padx=24)
+        nickname=ttk.Entry(dialog,width=42);nickname.pack(padx=24,pady=5)
+        if self.player_profile:nickname.insert(0,self.player_profile['nickname'])
+        region=tk.StringVar(value=(self.player_profile or {}).get('region','BR'))
+        ttk.Label(dialog,text="Região").pack(anchor='w',padx=24)
+        ttk.Combobox(dialog,textvariable=region,values=REGIONS,state='readonly').pack(padx=24,pady=5)
+        ttk.Label(dialog,text="Perfil salvo neste computador, sem login. Histórico externo ainda não conectado.",wraplength=400).pack(padx=24,pady=12)
+        def finish():
+            try:self.player_profile=save(nickname.get(),region.get())
+            except ValueError as exc:messagebox.showerror("Perfil",str(exc),parent=dialog);return
+            dialog.destroy();self.refresh_player_summary()
+        ttk.Button(dialog,text="Começar",command=finish).pack(pady=(0,20))
+        nickname.focus_set()
+
+    def data_tab_changed(self,event=None):
+        if self.tabs.select()==str(self.data_tab) and self.player_profile:
+            self.refresh_player_summary()
+
+    def refresh_player_summary(self):
+        if not self.player_profile:
+            self.configure_player();return
+        if not self.voice.client:
+            self.player_summary_label.configure(text="Perfil salvo. Serviço de histórico ainda não conectado.");return
+        if self._player_summary_running:return
+        self._player_summary_running=True
+        profile=dict(self.player_profile);client=self.voice.client
+        self.player_summary_label.configure(text="Consultando histórico ranked…")
+        def fetch():
+            from .voice_service import fetch_player_summary
+            self._player_summary_result=(profile['profile_id'],fetch_player_summary(client,profile))
+        threading.Thread(target=fetch,daemon=True,name="player-history").start()
+
+    def connect_voice(self):
+        if self._voice_connecting:return
+        self._voice_connecting=True
+        def connect():
+            from .voice_service import connect as connect_service
+            try:self._voice_connection_result=(connect_service(),None)
+            except Exception as exc:
+                from .voice_api import SpeechError
+                self._voice_connection_result=(None,str(exc) if isinstance(exc,SpeechError) else "Serviço de voz indisponível.")
+        threading.Thread(target=connect,daemon=True,name="voice-service-connect").start()
+
     def test_voice(self):
-        if not self.voice.voices:
-            self.status.configure(text="Este pacote não contém vozes locais. Use o instalador HM4.5 com vozes.")
-            return
+        if not self.voice.client:
+            from tkinter import messagebox
+            messagebox.showinfo("Voz",self.voice.error or "O serviço de voz ainda não está conectado.")
+            self.connect_voice();return
         self.voice_enabled.set(True)
         self.voice.set_enabled(True)
         self.voice.say("Agente TFT pronto para a revisão.",0,force=True)
-    def choose_voice(self,event=None):
-        selected=self.voice_choice.get()
-        for voice_id,label in self.voice.voices.items():
-            if label==selected:
-                self.voice.set_voice(voice_id)
-                return
+
     def calibrate_board(self):
         from tkinter import messagebox
         try:
@@ -488,6 +552,8 @@ class App:
                     core_p95_ms=pct([x["core_ms"] for x in rows],.95),
                     wire_p95_bytes=pct([x["wire_bytes"] for x in rows],.95))
         return dict(
+          pipeline=pipeline_snapshot(now_ns=time.perf_counter_ns(),source=s.source,
+                                     reader_item=self.last.get("reader"),counts=s.counts),
           source_frames=s.counts["source_frames"],mapped=s.counts["mapped_frames"],reader_results=s.counts["read_frames"],
           reader_native_runs=s.counts["reader_native_runs"],reader_exact_cache_hits=s.counts["reader_exact_cache_hits"],
           resolution_skipped=s.counts["reader_resolution_skipped"],
@@ -544,6 +610,31 @@ class App:
         self.root.after(max(1,int(16-elapsed_ms)),self.preview_tick)
 
     def tick(self):
+        if self.hm4 and self._player_summary_result is not None:
+            profile_id,result=self._player_summary_result;self._player_summary_result=None
+            self._player_summary_running=False
+            if self.player_profile and self.player_profile['profile_id']==profile_id:
+                text=result['summary']
+                if result.get('source'):text+='\nFonte: '+str(result['source'])
+                if result.get('fetched_at'):text+='\nAtualizado: '+datetime.fromtimestamp(result['fetched_at']).strftime('%d/%m/%Y %H:%M')
+                for group in result.get('by_patch',[]):
+                    text+=f"\n{group['set']} · patch {group['patch']}: {group['matches']} partidas; média {group['average_placement']}."
+                self.player_summary_label.configure(text=text)
+                if result.get('status')=='available' and self.voice and self.voice.enabled:
+                    if not self.session or self.session.finished:
+                        self.voice.say(result['summary'][:500],0,force=True)
+        if self.voice and self._voice_connection_result is not None:
+            client,error=self._voice_connection_result;self._voice_connection_result=None
+            self._voice_connecting=False
+            if client:
+                if self.closing:client.close()
+                else:
+                    self.voice.configure(client);self.voice.set_enabled(self.voice_enabled.get())
+                    if not self.player_profile:
+                        from .player_profile import WELCOME
+                        self.voice.say(WELCOME,0,force=True)
+            elif not self.voice.client:self.voice.error=error
+            if not self.session:self.status.configure(text=error or "Voz conectada · ElevenLabs")
         s=self.session
         if s and not s.finished and not self.finalizing:
             for name,q in (("map",s.map_results),("reader",s.native_results),("hub",s.hub_results)):
@@ -555,7 +646,7 @@ class App:
                 except queue.Empty:pass
             tip=getattr(s,"latest_replay_tip",None)
             if self.voice:
-                self.voice.set_context(tip.get('decision_key') if tip and tip.get('actionable') else None)
+                self.voice.observe_tip(tip,time.perf_counter_ns())
                 while self.voice.events:
                     s.store.emit('telemetry',self.voice.events.popleft())
             if tip:
@@ -564,7 +655,7 @@ class App:
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
-                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'ANÁLISE EM ANDAMENTO'
+                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'DIAGNÓSTICO'
                     self.coach_header.configure(text=f'AGENTE  /  {label}',
                                                 fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
                     self.tip_label.configure(text=tip['text'])
@@ -573,16 +664,11 @@ class App:
                         self.tip_history.appendleft(f'{label} · +{tip["source_ms"]/1000:.1f}s · atraso ~{age:.0f} ms\n{tip["text"]}\n')
                         self.tip_log.configure(state='normal');self.tip_log.delete('1.0','end')
                         self.tip_log.insert('1.0','\n'.join(self.tip_history));self.tip_log.configure(state='disabled')
-                    speech_queued=bool(tip.get('actionable') and self.voice and tip.get('speech_text') and
-                                       self.voice.say(tip['speech_text'],age,
-                                           decision_key=tip.get('decision_key'),
-                                           max_age_ms=tip.get('speech_max_age_ms',3000),
-                                           source_frame_id=tip['frame_id'],source_ms=tip['source_ms']))
                     s.store.emit('telemetry',dict(event='coach_ui_applied',frame_id=tip['frame_id'],
                         source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
                         physical_display_measured=False,tip_status=tip['status'],
                         decision_key=tip.get('decision_key'),
-                        actionable=tip.get('actionable',False),speech_queued=speech_queued))
+                        actionable=tip.get('actionable',False),voice_attempt_logged_separately=True))
                     with s.lock:
                         s.traces.append(dict(kind='tip_ui' if tip.get('actionable') else 'coach_ui',
                                              frame_id=tip['frame_id'],total_ms=age,
@@ -590,11 +676,18 @@ class App:
             now=time.perf_counter_ns()
             if now>=self._next_metrics_ns:
                 self._next_metrics_ns=now+1_000_000_000
-                perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
+                visible=self.tabs.select()
+                log_due=now>=self._next_perf_log_ns
+                perf=self._performance(s) if log_due or visible==str(self.performance_tab) else None
+                if visible==str(self.performance_tab):
+                    self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
+                health=(perf or {}).get('pipeline') or pipeline_snapshot(now_ns=now,source=s.source,
+                                     reader_item=self.last.get('reader'),counts=s.counts)
+                self.pipeline_label.configure(text=health['message'])
                 if now>=self._next_perf_log_ns:
                     self._next_perf_log_ns=now+5_000_000_000
                     s.store.emit("telemetry",dict(event="ui_performance",preview=perf["preview"],
-                        voice=perf["voice"],process_memory=perf["process_memory"],
+                        voice=perf["voice"],process_memory=perf["process_memory"],pipeline=health,
                         coach_updates=s.counts["coach_updates"],
                         actionable_tips=s.counts["replay_tips"]))
                 if self.voice:
@@ -610,13 +703,14 @@ class App:
                             ready=voice_state[1],error=voice_state[2],queued=voice_state[3],
                             played=voice_state[4],stale_dropped=voice_state[5],
                             selected=voice_state[6],fallback_from=voice_state[7]))
-                self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
-                  sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
-                  note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
+                if visible==str(self.data_tab):
+                    self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
+                      sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
+                      note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
                 voice_label=("voz erro: "+self.voice.error if self.voice and self.voice.error else
-                             ("voz Dii (reserva) · reproduzida "+str(self.voice.played_count) if self.voice and self.voice.fallback_from and self.voice.enabled and self.voice.ready else
+                             ("voz ElevenLabs · reproduzida "+str(self.voice.played_count) if self.voice and self.voice.fallback_from and self.voice.enabled and self.voice.ready else
                               ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
-                               ("voz carregando" if self.voice and self.voice.enabled else "voz desligada"))))
+                               ("voz configurada" if self.voice and self.voice.enabled else "voz desligada"))))
                 decision_reason=getattr(s,"latest_decision_reason",None)
                 pending={"OWNED_UNITS_UNVERIFIED":"campeões do tabuleiro ainda não confirmados",
                          "OWNED_UNITS_STALE":"leitura do tabuleiro antiga",
@@ -638,7 +732,7 @@ class App:
             self.status.configure(text=label+" · "+self.last_finished)
             if self.smoke or self.closing:self.root.destroy();return
         elif self.closing and (not s or s.finished) and not self.finalizing:self.root.destroy();return
-        self.root.after(10 if self.vm_core else 30,self.tick)
+        self.root.after(30,self.tick)
 
     def open_output(self):
         if not self.last_finished:return
@@ -651,27 +745,19 @@ def main(mode="hm3"):
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
     p.add_argument("--replay-review",action="store_true")
     p.add_argument("--voice-smoke-output")
+    p.add_argument("--mock-voice-transport",action="store_true")
     p.add_argument("--replay-voice-validation")
     p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=2 if mode=="hm4" else 1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
     if a.replay_voice_validation:
         if not hm4 or not a.output:p.error('HM4 and output required')
         from .replay_voice_validation import run
-        run(Path(a.replay_voice_validation),Path(a.output),runtime_paths())
+        run(Path(a.replay_voice_validation),Path(a.output),runtime_paths(),mock_transport=a.mock_voice_transport)
         return 0
     if a.voice_smoke_output:
         if not hm4:p.error("Voice smoke is HM4 only")
-        from .voice import _synthesize, available_voices, voice_assets
-        import io, wave
-        voices=available_voices()
-        if set(voices)!={'supertonic-f1','dii','cadu','faber'}:raise RuntimeError('Pacote de vozes incompleto')
-        checks={}
-        for voice_id in voices:
-            wav,_=_synthesize('Compre a unidade agora.',voice_id,voice_assets())
-            with wave.open(io.BytesIO(wav),'rb') as audio:
-                checks[voice_id]=dict(bytes=len(wav),rate=audio.getframerate(),frames=audio.getnframes())
-                if audio.getnframes()==0:raise RuntimeError('Voz vazia: '+voice_id)
-        Path(a.voice_smoke_output).write_text(json.dumps(checks),encoding='utf-8')
+        from .voice_validation import package_contract
+        Path(a.voice_smoke_output).write_text(json.dumps(package_contract()),encoding='utf-8')
         return
     if a.headless or a.ui_smoke:
         required=all((a.capture,a.capture_consent,a.output)) and (hm4 or bool(a.model))

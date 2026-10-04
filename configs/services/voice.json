@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "provider": "elevenlabs",
+  "service_url": null,
+  "status": "awaiting_operator_configuration",
+  "account_login_required": false
+}

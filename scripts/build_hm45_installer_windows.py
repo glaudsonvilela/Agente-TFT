@@ -22,8 +22,10 @@ manifest_path = core / "core-package.json"
 if not app.is_file() or not manifest_path.is_file():
     raise SystemExit("HM4 app or HM4.5 core package missing")
 app_manifest = json.loads((app.parent / "BUILD_MANIFEST.json").read_text(encoding="utf-8"))
-if set(app_manifest.get("offline_voice_options", [])) != {"supertonic-f1", "dii", "cadu", "faber"}:
-    raise SystemExit("HM4.5 requires all packaged offline voices")
+if (app_manifest.get("offline_voice_options") != [] or
+        app_manifest.get("voice_backend") != "elevenlabs_api" or
+        app_manifest.get("local_tts_models_bundled") is not False):
+    raise SystemExit("HM4.5 requires API voice without local TTS models")
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 assets = json.loads((ROOT / "build/hm4-live-assets/ASSET_REPORT.json").read_text(encoding="utf-8"))
 if (manifest.get("schema_version") != 1 or
@@ -62,7 +64,8 @@ report = {
     "rootfs_sha256": manifest["sha256"],
     "rootfs_bytes": rootfs.stat().st_size,
     "guest_contract": manifest["analysis_health_contract"],
-    "offline_voice_options": app_manifest["offline_voice_options"],
+    "offline_voice_options": [],
+    "voice_backend": "elevenlabs_api",
     "release_ready": False,
     "reason": "Requires a real Windows/WSL2 field test before publication",
 }

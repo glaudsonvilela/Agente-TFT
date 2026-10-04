@@ -1,0 +1,13 @@
+FROM python:3.12-slim
+WORKDIR /app
+RUN pip install --no-cache-dir 'fastapi>=0.115,<1' 'uvicorn>=0.34,<1'
+COPY trainer/companion_service /app/companion_service
+COPY apps/hud_mapper/hm/voice_api.py /app/hm/voice_api.py
+COPY configs/catalog/active-knowledge-release-v1.json /app/active-release.json
+ENV TFT_ACTIVE_KNOWLEDGE=/app/active-release.json
+ENV TFT_VOICE_DB=/data/voice.sqlite3
+ENV PYTHONDONTWRITEBYTECODE=1
+RUN useradd --uid 10001 --create-home voice && mkdir /data && chown voice /data
+USER voice
+EXPOSE 8802
+CMD ["uvicorn", "companion_service.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8802", "--workers", "1", "--no-proxy-headers", "--no-access-log"]

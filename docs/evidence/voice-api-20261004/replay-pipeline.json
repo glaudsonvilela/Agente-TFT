@@ -1,0 +1,195 @@
+{
+  "complete": true,
+  "source": "hm4-20261004-035734-676421",
+  "frames": [
+    {
+      "frame_id": 6210,
+      "hud": [
+        {
+          "confidence": 0.9612112641334534,
+          "field": "stage",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "2-1",
+          "value": "2-1"
+        },
+        {
+          "confidence": 0.966102123260498,
+          "field": "gold",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "11",
+          "value": 11
+        },
+        {
+          "confidence": 0.9688053727149963,
+          "field": "level",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "3",
+          "value": 3
+        },
+        {
+          "confidence": 0.9615698456764221,
+          "field": "xp",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "2/6",
+          "value": 2
+        }
+      ],
+      "decision": {
+        "schema_version": "0.1.0",
+        "action": {
+          "type": "wait"
+        },
+        "confidence": 0.0,
+        "evidence": [
+          {
+            "code": "OWNED_UNITS_UNVERIFIED"
+          }
+        ],
+        "policy": "verified_third_copy_v1",
+        "economy": {
+          "code": "ECONOMY_CONFIRMING"
+        }
+      },
+      "tip": {
+        "status": "economy_blocked",
+        "actionable": false,
+        "text": "Confirmando nível e XP em duas leituras consecutivas.",
+        "basis": [
+          "decision.ECONOMY_CONFIRMING"
+        ],
+        "diagnostic": {
+          "code": "ECONOMY_CONFIRMING"
+        }
+      },
+      "read_to_decision_ms": 143.388604,
+      "voice_queued": false
+    },
+    {
+      "frame_id": 6300,
+      "hud": [
+        {
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "confidence": 0.9612112641334534,
+          "field": "stage",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "2-1",
+          "value": "2-1"
+        },
+        {
+          "confidence": 0.968392550945282,
+          "field": "gold",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "6",
+          "value": 6
+        },
+        {
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "confidence": 0.9688053727149963,
+          "field": "level",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "3",
+          "value": 3
+        },
+        {
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "confidence": 0.9615698456764221,
+          "field": "xp",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "2/6",
+          "value": 2
+        }
+      ],
+      "decision": {
+        "schema_version": "0.1.0",
+        "action": {
+          "type": "buy_xp",
+          "target_level": 4,
+          "gold_cost": 4,
+          "purchases": 1,
+          "gold_after": 2
+        },
+        "confidence": 0.9612112641334534,
+        "evidence": [
+          {
+            "code": "LEVEL_WITH_RESERVE",
+            "stage": "2-1",
+            "observed_xp": "2/6",
+            "reserve_gold": 0,
+            "consecutive_consistent_observations": 2
+          }
+        ],
+        "policy": "replay_standard_tempo_v1",
+        "strategy_basis": "explicit_heuristic",
+        "combat_outcome_predicted": false,
+        "patch": "18.3"
+      },
+      "tip": {
+        "status": "action",
+        "actionable": true,
+        "text": "Suba para o nível 4 por 4 de ouro. Restam 2 de ouro.",
+        "speech_text": "Suba para o nível 4. Gaste 4 de ouro.",
+        "basis": [
+          "decision.buy_xp",
+          "hud.stage",
+          "hud.gold",
+          "hud.level",
+          "hud.xp",
+          "controls.buy_xp_price"
+        ],
+        "confidence": 0.9612112641334534,
+        "strategy_basis": "explicit_heuristic",
+        "decision_key": "level:4:cost:4",
+        "speech_max_age_ms": 8000
+      },
+      "read_to_decision_ms": 72.288857,
+      "voice_queued": true
+    }
+  ],
+  "voice_id": "mock-voice",
+  "voice_process_separate": false,
+  "voice_backend": "elevenlabs_api",
+  "mock_transport": true,
+  "provider_audio_validated": false,
+  "events": [
+    {
+      "event": "voice_play_started",
+      "decision_key": "level:4:cost:4",
+      "source_age_ms": 72.476344,
+      "generation_ms": 0.080632,
+      "physical_audio_measured": false,
+      "frame_id": 6300,
+      "source_ms": 302040,
+      "voice_id": "mock-voice"
+    }
+  ],
+  "audio": {
+    "frames": 2205,
+    "rate": 22050
+  },
+  "physical_audio_measured": false,
+  "full_match_accuracy_measured": false,
+  "policy_kind": "explicit_economy_heuristic_not_neural_combat_strategy"
+}

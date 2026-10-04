@@ -1,6 +1,6 @@
 [Setup]
 AppName=Agente TFT · Laboratório HM4.5
-AppVersion=0.6.1
+AppVersion=0.6.2
 DefaultDirName={localappdata}\AgenteTFT-HM45
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest
@@ -17,6 +17,12 @@ DisableReadyPage=yes
 WizardStyle=modern
 WizardSizePercent=115
 SetupLogging=yes
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\_internal\voices"
+Type: filesandordirs; Name: "{app}\_internal\sherpa_onnx"
+Type: filesandordirs; Name: "{app}\_internal\sherpa_onnx_core"
+Type: filesandordirs; Name: "{app}\_internal\supertonic"
 
 [Files]
 Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

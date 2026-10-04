@@ -196,6 +196,7 @@ class CaptureSource:
         self.pending = queue.Queue(maxsize=1); self.preview_frames = Latest() if preview_hz else None
         self.ready = None; self.end = None; self.error = None
         self.preview_received = 0
+        self.last_analysis_received_ns = self.last_preview_received_ns = None
         self.source_replaced = 0; self.control_events = []; self.log_tail = []
         self.clock_anomalies = 0
         self.binary = native_path(configs)
@@ -251,6 +252,7 @@ class CaptureSource:
                     last_id[kind] = header['frame_id']
                     ready_ns = time.perf_counter_ns()
                     if kind == 'preview':
+                        self.last_preview_received_ns=ready_ns
                         if self.preview_frames is None:raise ValueError('Prévia nativa inesperada.')
                         due, timing = frame_clock(header, self.bridge, ready_ns, last_preview_compositor)
                         acquired = timing['native_acquired_ns']
@@ -264,6 +266,7 @@ class CaptureSource:
                             header['width'], header['height'], pixels, header['geometry_segment'], capture))
                         self.preview_received += 1
                     else:
+                        self.last_analysis_received_ns=ready_ns
                         try:self.pending.get_nowait(); self.source_replaced += 1
                         except queue.Empty:pass
                         small = (preview_for_analysis[1:] if preview_for_analysis and

@@ -6,8 +6,6 @@ root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
     raise SystemExit('Windows build host required')
 live_assets = root / 'build/hm4-live-assets'
-voice_assets = root / 'build/hm45-voice-assets'
-has_voices = (voice_assets / 'VOICE_REPORT.json').is_file()
 asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
 if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
     raise SystemExit('Replay-screen assets were not verified')
@@ -75,15 +73,9 @@ args = [
     '--hidden-import', 'hm45_protocol',
     '--hidden-import', 'hm.vm_bridge',
 ]
-if has_voices:
-    voice_report = json.loads((voice_assets / 'VOICE_REPORT.json').read_text(encoding='utf-8'))
-    if set(voice_report.get('voices', {})) != {'supertonic-f1', 'dii', 'cadu', 'faber'}:
-        raise SystemExit('All pinned pt-BR voices are required')
-    args += ['--add-data', f'{voice_assets};voices', '--collect-all', 'sherpa_onnx',
-             '--collect-all', 'supertonic']
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
-for module in ('torch', 'torchvision', 'torchaudio', 'hm.train', 'hm.seeds',
+for module in ('torch', 'torchvision', 'torchaudio', 'sherpa_onnx', 'sherpa_onnx_core', 'supertonic', 'hm.train', 'hm.seeds',
                'hm.app', 'hm.capture_app', 'e1.app', 'e1.source', 'e1.pipeline'):
     args += ['--exclude-module', module]
 args += [str(root / 'apps/hud_mapper/AgenteTFT_HUD_HM4.py')]
@@ -101,21 +93,15 @@ licenses.mkdir()
 for p in tess.rglob('*'):
     if p.is_file() and p.stat().st_size < 1024**2 and any(n in p.name.lower() for n in ('license', 'copying', 'copyright')):
         shutil.copy2(p, licenses / ('tesseract-' + '-'.join(p.relative_to(tess).parts)))
-for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.text', 'jaraco.context', 'jaraco.functools') + (('sherpa-onnx', 'sherpa-onnx-core', 'supertonic') if has_voices else ()):
+for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.text', 'jaraco.context', 'jaraco.functools'):
     distribution = importlib.metadata.distribution(package)
     for name in distribution.files or []:
         if any(n in str(name).lower() for n in ('license', 'copying', 'copyright')):
             p = Path(distribution.locate_file(name))
             if p.is_file() and p.stat().st_size < 1024**2:
                 shutil.copy2(p, licenses / (package + '-' + str(name).replace('/', '-').replace('\\', '-')))
-if has_voices:
-    shutil.copy2(voice_assets / 'supertonic-f1/LICENSE', licenses / 'voice-supertonic-f1-LICENSE.txt')
-    for key in ('dii', 'cadu', 'faber'):
-        card = 'README.md' if key == 'dii' else 'MODEL_CARD'
-        shutil.copy2(voice_assets / key / card, licenses / f'voice-{key}-{card}.txt')
-
-forbidden = ('ffmpeg', 'ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn')
-bad = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and any(x in p.name.lower() for x in forbidden)]
+forbidden = ('ffmpeg', 'ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn', 'sherpa', 'supertonic', 'espeak', 'voice_styles')
+bad = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and any(x in p.relative_to(folder).as_posix().lower() for x in forbidden)]
 fonts = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and p.suffix.lower() in {'.ttf', '.otf', '.woff', '.woff2', '.fon', '.fnt', '.pfb', '.pfa', '.ttc'}]
 if bad or fonts:
     raise SystemExit(f'Refuse runtime publication: forbidden={bad[:20]}, fonts={fonts[:20]}')
@@ -142,7 +128,11 @@ manifest = dict(
     board_hub_reference_sha256=asset_report['reference_sha256'],
     board_hub_candidate_only=True,
     replay_screen_review_prompts=True,
-    offline_voice_options=list(voice_report['voices']) if has_voices else [],
+    offline_voice_options=[],
+    voice_backend='elevenlabs_api',
+    voice_service_configured=bool(json.loads((root / 'configs/services/voice.json').read_text())['service_url']),
+    voice_api_credentials_bundled=False,
+    local_tts_models_bundled=False,
     live_strategy_enabled=False,
     signed=False,
     files=files,
@@ -160,7 +150,7 @@ with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as ar
 iss = root / 'build/HM4.iss'
 iss.write_text(r'''[Setup]
 AppName=Agente TFT Replay Screen Lab
-AppVersion=0.5
+AppVersion=0.6.2
 DefaultDirName={localappdata}\AgenteTFT-HUD-HM4
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest
@@ -173,6 +163,12 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\AgenteTFT-HUD-HM4-Auto.exe
 DisableProgramGroupPage=yes
 WizardStyle=modern
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\_internal\voices"
+Type: filesandordirs; Name: "{app}\_internal\sherpa_onnx"
+Type: filesandordirs; Name: "{app}\_internal\sherpa_onnx_core"
+Type: filesandordirs; Name: "{app}\_internal\supertonic"
+
 [Files]
 Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]

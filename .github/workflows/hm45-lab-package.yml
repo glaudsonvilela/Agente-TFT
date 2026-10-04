@@ -29,7 +29,7 @@ jobs:
       - name: Build and self-test the WSL root filesystem
         run: python3 scripts/build_hm45_core.py
       - name: Verify on a two-core, 768 MiB VM budget
-        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.1 self-test --version 0.6.1
+        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.2 self-test --version 0.6.2
       - name: Exercise the host client through local IP
         run: |
           python3 -m pip install Pillow==12.1.0
@@ -75,10 +75,6 @@ jobs:
           'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           python -m pip install -r apps/hud_mapper/requirements.txt
           if ($LASTEXITCODE -ne 0) { throw 'Runtime dependencies failed' }
-          python -m pip install sherpa-onnx==1.13.8
-          if ($LASTEXITCODE -ne 0) { throw 'Offline voice dependency failed' }
-          python -m pip install supertonic==1.3.1
-          if ($LASTEXITCODE -ne 0) { throw 'Supertonic F1 dependency failed' }
           python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
           if ($LASTEXITCODE -ne 0) { throw 'Packaging dependencies failed' }
       - name: Verify HM4.5 protocol and setup
@@ -88,6 +84,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 contracts failed' }
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'HM4 runtime contracts failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_player_profile.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Player profile contracts failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_voice_api.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'API voice contracts failed' }
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_capture.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'Native capture protocol failed' }
       - name: Build native Rust capture and readers
@@ -114,18 +114,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Pinned model download failed' }
           python scripts/prepare_hm4_live_assets.py
           if ($LASTEXITCODE -ne 0) { throw 'Asset verification failed' }
-      - name: Verify and stage offline Brazilian Portuguese voices
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          New-Item -ItemType Directory -Force -Path build/hm45-voice-downloads | Out-Null
-          gh release download tts-models --repo k2-fsa/sherpa-onnx --dir build/hm45-voice-downloads --pattern 'vits-piper-pt_BR-dii-high-int8.tar.bz2' --pattern 'vits-piper-pt_BR-cadu-medium-int8.tar.bz2' --pattern 'vits-piper-pt_BR-faber-medium-int8.tar.bz2'
-          if ($LASTEXITCODE -ne 0) { throw 'Offline voice download failed' }
-          python scripts/prepare_hm45_voices.py
-          if ($LASTEXITCODE -ne 0) { throw 'Pinned voice verification failed' }
-          python scripts/prepare_hm45_supertonic.py
-          if ($LASTEXITCODE -ne 0) { throw 'Pinned Supertonic F1 verification failed' }
       - name: Build Windows app and guided VM installer
         shell: pwsh
         run: |
@@ -135,7 +123,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
           python scripts/build_hm45_online_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 online installer build failed' }
-      - name: Run voices from the packaged Windows app
+      - name: Check packaged API voice client without paid network calls
         shell: pwsh
         run: |
           $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
@@ -143,18 +131,18 @@ jobs:
           $process = Start-Process -FilePath $app -ArgumentList @('--voice-smoke-output', $smoke) -Wait -PassThru
           if ($process.ExitCode -ne 0) {
             Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 80 }
-            throw "Packaged offline voice failed with exit code $($process.ExitCode)"
+            throw "Packaged API voice contract failed with exit code $($process.ExitCode)"
           }
           if (!(Test-Path $smoke)) { throw 'Packaged voice smoke did not write its result' }
           $result = Get-Content $smoke -Raw | ConvertFrom-Json
-          if ($result.'supertonic-f1'.frames -le 0 -or $result.dii.frames -le 0 -or $result.cadu.frames -le 0 -or $result.faber.frames -le 0) { throw 'Packaged voice produced empty audio' }
-      - name: Recorded replay pixels to decision and isolated F1 voice
+          if (!$result.api_only -or $result.local_tts_models_bundled -or !$result.mock_transport_passed) { throw 'API voice package contract failed' }
+      - name: Recorded replay pixels to decision and mocked API transport
         shell: pwsh
         run: |
           $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
           $fixturePath = (Resolve-Path tests/fixtures/replay-economy).Path
           $output = Join-Path (Get-Location).Path 'build\hm45-replay-voice'
-          $process = Start-Process -FilePath $app -ArgumentList @('--replay-voice-validation', $fixturePath, '--output', $output) -PassThru
+          $process = Start-Process -FilePath $app -ArgumentList @('--replay-voice-validation', $fixturePath, '--mock-voice-transport', '--output', $output) -PassThru
           if (!$process.WaitForExit(120000)) { Stop-Process -Id $process.Id -Force; throw 'Replay voice pipeline timed out' }
           if ($process.ExitCode -ne 0 -or !(Test-Path "$output\report.json")) {
             Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 3 | ForEach-Object { Get-Content $_.FullName -Tail 60 }
