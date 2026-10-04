@@ -14,8 +14,9 @@ test_swap_board_and_bench_at_unit_cap (training.tests.test_hex_simulator.Plannin
 test_planning_search_prefers_buy_when_evaluator_rewards_it (training.tests.test_hex_simulator.Search.test_planning_search_prefers_buy_when_evaluator_rewards_it) ... ok
 test_changed_reference_cannot_reuse_manual_conflict_audit (training.tests.test_source_corpus.SourceCorpus.test_changed_reference_cannot_reuse_manual_conflict_audit) ... ok
 test_incremental_asr_replaces_overlapping_old_text_and_rebuild_is_idempotent (training.tests.test_source_corpus.SourceCorpus.test_incremental_asr_replaces_overlapping_old_text_and_rebuild_is_idempotent) ... ok
+test_new_finalized_download_joins_queue_and_duplicate_media_is_skipped (training.tests.test_source_corpus.SourceCorpus.test_new_finalized_download_joins_queue_and_duplicate_media_is_skipped) ... ok
 
 ----------------------------------------------------------------------
-Ran 16 tests in 1.353s
+Ran 17 tests in 1.359s
 
 OK

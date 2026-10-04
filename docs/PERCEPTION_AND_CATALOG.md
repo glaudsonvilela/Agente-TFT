@@ -151,7 +151,9 @@ rótulos de ação/resultado nem atualizações de pesos automaticamente**.
 Foram consultados os VODs públicos recentes dos quatro canais da fila. Um VOD
 completo de Dishsoap foi baixado em 360p, com áudio/vídeo e duração conferidos;
 um frame em t=600 mostra TFT PC e indicação 18.3, sem comprovar o hotfix. O VOD
-de Subzeroark está na coleta. O arquivo Twitch `2889146353` é possível duplicata
+de Subzeroark também foi baixado e conferido (TFT PC em t=600, patch não
+estabelecido). Ambos entraram na fila incremental de transcrição, somando
+aproximadamente sete horas adicionais. O arquivo Twitch `2889146353` é possível duplicata
 do VOD local de Wasianiverson (criador, título e duração), aguardando confirmação
 visual. Watch parties de Frodan permanecem identificadas como tal. O Bilibili
 continua com acesso recusado, sem alegação de uso de seu conteúdo.

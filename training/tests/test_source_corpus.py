@@ -6,9 +6,21 @@ import tempfile
 import unittest
 
 from training.source_corpus import build, reference_audit
+from training.transcribe_sources import available_sources
 
 
 class SourceCorpus(unittest.TestCase):
+    def test_new_finalized_download_joins_queue_and_duplicate_media_is_skipped(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/'registry.json'
+            first=dict(source_sha256='a'*64,source_file='a.mp4',duration_seconds=1)
+            path.write_text(json.dumps(dict(sources=[first])))
+            queue=available_sources(path)
+            self.assertEqual(next(queue),first)
+            second=dict(source_sha256='b'*64,local_media='b.mp4',duration_seconds=2)
+            path.write_text(json.dumps(dict(sources=[first,dict(first,source_file='duplicate.mp4'),second])))
+            self.assertEqual(list(queue),[second])
+
     def test_incremental_asr_replaces_overlapping_old_text_and_rebuild_is_idempotent(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);analysis=root/'analysis';analysis.mkdir()

@@ -27,6 +27,19 @@ def atomic(path, value):
     os.replace(tmp, path)
 
 
+def available_sources(registry):
+    """Pick up newly finalized downloads between videos, deduplicated by media hash."""
+    seen=set()
+    while True:
+        rows=json.loads(registry.read_text())['sources']
+        pending=[r for r in rows if r.get('source_sha256') not in seen and
+                 r.get('source_sha256') and (r.get('source_file') or r.get('local_media'))]
+        if not pending: return
+        source=min(pending,key=lambda r:r['duration_seconds'])
+        seen.add(source['source_sha256'])
+        yield source
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--registry', type=Path, required=True)
@@ -48,7 +61,7 @@ def main():
     import numpy as np
     model = WhisperModel(str(args.model), device='cpu', compute_type='int8',
                          cpu_threads=args.threads, local_files_only=True)
-    sources = sorted(json.loads(args.registry.read_text())['sources'],key=lambda s:s.get('duration_seconds',float('inf')))
+    sources = available_sources(args.registry)
     from .source_corpus import TRANSCRIPTS, build
     analysis = args.media/'analysis'
     seals = {r['filename']:r for r in json.loads((analysis/'analysis-index.json').read_text())['transcripts']}

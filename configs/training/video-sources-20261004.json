@@ -292,13 +292,20 @@
       "url": "https://www.twitch.tv/videos/2890208196",
       "creator": "Subzeroark",
       "title": "Tactician Showdown: Into the Wilds Tournament Day 1",
-      "duration_seconds": 11440.0,
+      "duration_seconds": 11440.021333,
       "kind": "full_session",
       "patch_claim": "unverified",
-      "availability": "download_in_progress",
-      "content_review": "not_viewed",
+      "availability": "local_media_verified_duration",
+      "content_review": "one_frame_visually_reviewed_at_600_seconds",
       "training_labels_ready": false,
-      "local_media": "datasets/twitch-authorized/v2890208196.mp4"
+      "local_media": "datasets/twitch-authorized/v2890208196.mp4",
+      "source_sha256": "ddb4846b00a99290380e95e23d04e3cc6920024e7bd4a824ea2f2802f5f20df5",
+      "bytes": 912604874,
+      "download_resolution": [
+        640,
+        360
+      ],
+      "game_variant": "TFT_PC"
     },
     {
       "url": "https://www.twitch.tv/videos/2889388141",
