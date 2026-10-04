@@ -116,6 +116,24 @@ def main() -> int:
             print(f"Busca: {search.get('simulation_paths',0)} caminhos · {search.get('elapsed_seconds',0):.2f} s")
             print(f"RAM máxima: {report['peak_rss_mib']:.1f} MiB")
             print('Regras de laboratório. Patch completo e dicas do HUD ainda não liberados.')
+            candidates=sorted(root.glob('event-lab-*/report.json'),key=lambda p:p.stat().st_mtime,reverse=True)
+            if candidates:
+                candidate_path=candidates[0]
+                if not candidate_path.is_symlink() and candidate_path.stat().st_size<=2*1024*1024:
+                    event=json.loads(candidate_path.read_text())
+                    print('\nMotor de eventos: '+event.get('status','desconhecido'))
+                    print(f"  {event.get('combat_calls',0)} combates · {event.get('complete_matches',0)} partidas completas · {event.get('elapsed_seconds',0):.2f} s")
+                    if event.get('peak_rss_mib') is not None:print(f"  RAM máxima: {event['peak_rss_mib']:.1f} MiB")
+                    coverage=event.get('coverage',{})
+                    for label,key in [('Campeões','champions'),('Itens/componentes','items'),('Sinergias','traits')]:
+                        value=coverage.get(key,{})
+                        print(f"  {label}: {value.get('candidate_effects',0)} implementados em laboratório · {value.get('replay_validated',0)} validados em replay")
+                    neural=event.get('neural',{})
+                    if neural:
+                        print(f"  Rede: {neural.get('optimizer_steps',0)} atualizações · {neural.get('parameters',0)} parâmetros")
+                        evaluation=neural.get('final_validation',{})
+                        print(f"  Avaliação: {evaluation.get('accuracy',0):.1%} em {evaluation.get('samples',0)} tabuleiros reservados do simulador")
+                    print('  Não comprova acurácia no TFT real; modelo fora do HUD.')
         return 0
     if command in ("web", "navegador"):
         print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")

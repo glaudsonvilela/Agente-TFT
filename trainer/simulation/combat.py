@@ -109,6 +109,9 @@ def mitigation(resistance):
 
 def simulate(players, content, *, seed=0, trace=False):
     """No mutation of planning state. Independent shields and persistent DOT events."""
+    if content.get('combat_version')==2:
+        from .event_combat import simulate as event_simulate
+        return event_simulate(players,content,seed=seed,trace=trace)
     units = materialize(players, content); by_id = {u.uid: u for u in units}
     cfg = content['combat_rules']
     required = ('duration', 'move_seconds', 'first_action_seconds', 'attack_speed_cap')

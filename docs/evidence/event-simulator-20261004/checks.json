@@ -1,0 +1,16 @@
+{
+  "targeted_tests": {
+    "passed": 43,
+    "command": "OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest training/tests/test_event_combat.py training/tests/test_effects_catalog.py training/tests/test_event_learning.py training/tests/test_hex_simulator.py -q"
+  },
+  "training_suite": {
+    "run": 493,
+    "skipped": 12,
+    "failed": 0,
+    "seconds": 50.879,
+    "command": ".venv/bin/python -m unittest discover -s training/tests -q"
+  },
+  "server_engine_matches_local": true,
+  "real_replay_validation": false,
+  "runtime_promoted": false
+}

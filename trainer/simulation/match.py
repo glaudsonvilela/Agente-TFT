@@ -4,6 +4,7 @@ The rules bundle declares income, XP, damage and the intentionally simplified
 pairing/loot/streak policies. Unknown policies raise instead of being skipped.
 """
 from copy import deepcopy
+import math
 import random
 
 from .combat import simulate
@@ -37,6 +38,7 @@ def resolve_round(world, content, seed):
     fights=[]
     for a,b in zip(active[::2],active[1::2]):
         result=simulate([world.players[a],world.players[b]],content,seed=rng.randrange(2**31))
+        settle_combat(state,(a,b),result)
         winner=result['winner']
         if winner is None:
             state.players[a].hp=max(0,state.players[a].hp-rules['tie_damage'])
@@ -65,6 +67,30 @@ def resolve_round(world, content, seed):
                 p.xp-=curve[str(p.level)];p.level+=1
     validate_world(state,content)
     return state,dict(fights=fights,eliminated=eliminated,bye=active[-1] if len(active)%2 else None)
+
+
+def settle_combat(state, seats, result):
+    """Apply earned deltas once to the cloned round state, including dead owners.
+
+    Temporary stats, health and summoned units never become owned pieces.
+    Summon rewards belong to the summon team; summon stats are not persisted.
+    The caller owns the atomic transaction (resolve_round uses a deep copy).
+    """
+    seen=set()
+    for row in result.get('units',[]):
+        uid=row['uid'];team=row['team']
+        if uid in seen or type(team) is not int or team not in (0,1):
+            raise UnsupportedRule('invalid combat settlement identity')
+        seen.add(uid);player=state.players[seats[team]]
+        owned=next((u for u in player.units if u.uid==uid),None)
+        for stat,delta in row.get('permanent_delta',{}).items():
+            if type(delta) not in (int,float) or not math.isfinite(delta):
+                raise UnsupportedRule('invalid permanent reward')
+            if owned is not None:owned.permanent[stat]=owned.permanent.get(stat,0)+delta
+        for resource,amount in row.get('resources',{}).items():
+            if resource!='gold' or type(amount) not in (int,float) or not math.isfinite(amount) or amount<0 or int(amount)!=amount:
+                raise UnsupportedRule('invalid combat resource reward')
+            player.gold+=int(amount)
 
 
 def scripted_action(world,seat,content):

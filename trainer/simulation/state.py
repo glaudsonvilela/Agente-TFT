@@ -48,6 +48,7 @@ class Player:
     shop: list[Offer | None] = field(default_factory=lambda: [None] * 5)
     shop_locked: bool = False
     phase: str = 'planning'
+    augments: list[str] = field(default_factory=list)
 
 
 @dataclass
