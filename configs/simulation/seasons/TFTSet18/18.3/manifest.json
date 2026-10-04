@@ -37,7 +37,7 @@
   "components": {
     "items": {
       "path": "items.json",
-      "sha256": "148e516ab8b5dbfaade076ea29cceaf15825c7bf5116a81d42d3e9bc371398d8"
+      "sha256": "e53acce894273cc30622c2111a6ffeba71f71ec6cf6b87d4507971070f820c0e"
     },
     "traits": {
       "path": "traits.json",
@@ -49,7 +49,7 @@
     },
     "profile": {
       "path": "profile.json",
-      "sha256": "b44f0e37780bc96248ee374a0d307e7f6430001038baad570728c84b0381d7a9"
+      "sha256": "88d714229bf4437d3f636702fdde6b7ef816eea8e039e70348dd0d018a8c2314"
     }
   },
   "ability_scope": {

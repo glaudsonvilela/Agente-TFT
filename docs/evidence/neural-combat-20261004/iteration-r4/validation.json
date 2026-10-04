@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "implementation_iteration",
+  "engine_sha256": "3fe00b2f237bb8434ccecc044d0e215a8d3db2574dd0ba654881c9d445067838",
+  "scope": "additional_candidate_item_mechanics_and_reviewed_video_transitions",
+  "corrected": [
+    "Health-dependent stat branches update through damage and healing.",
+    "Only matching trigger events advance cadence counters.",
+    "Formula evaluation preserves damage context after stat terms."
+  ],
+  "candidate_items_before": 21,
+  "candidate_items_after": 27,
+  "components": 9,
+  "noncomponent_items": 18,
+  "recipes": 18,
+  "additional_items": [
+    "Blue Buff",
+    "Void Staff",
+    "Kraken Fury",
+    "Nashors Tooth",
+    "Steadfast Heart",
+    "Hand of Justice"
+  ],
+  "tests": {
+    "focused_pytest_passed": 79,
+    "focused_subtests_passed": 18,
+    "training_unittest_discovered": 533,
+    "training_unittest_skipped": 12,
+    "training_unittest_status": "OK",
+    "sequence_final_regression_passed": 5
+  },
+  "code_health": {
+    "errors": 0,
+    "preexisting_findings": 25,
+    "full_semantic_review": false
+  },
+  "remaining": {
+    "blocked_ability_programs": 52,
+    "ability_role_integration_pending": 15,
+    "missing_trait_handlers": 30,
+    "replay_validated_abilities": 0,
+    "seasonal_economy_ready": false,
+    "seasonal_round_schedule_ready": false,
+    "augments_ready": false,
+    "wisps_ready": false,
+    "reviewed_complete_strategic_episodes": 0,
+    "independent_match_fidelity_validated": false
+  },
+  "independent_game_improvement_proven": false,
+  "intensive_full_match_training_started": false,
+  "new_installer_created": false,
+  "runtime_promoted": false,
+  "research_reference": "https://storage.googleapis.com/deepmind-media/research/alphastar/AlphaStar_unformatted.pdf",
+  "method_adaptation": "Reviewed human demonstrations, then diverse opponent league after full-game rules and fidelity are validated; no claim of AlphaStar-scale implementation.",
+  "media": "Private source videos and extracted frames remain outside git. Source and frame hashes are included for local verification.",
+  "decision_evaluation": {
+    "cases": 100,
+    "paired_comparison": "paired-comparison.json",
+    "inference_ms_p95": 3.1801250998341857,
+    "decision_ms_p95": 783.6113092501819,
+    "scope": "offline_combat_decisions_excludes_screen_capture_transport_and_voice"
+  }
+}

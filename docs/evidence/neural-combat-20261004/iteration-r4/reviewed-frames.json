@@ -1,0 +1,340 @@
+{
+  "schema_version": 2,
+  "kind": "board_review",
+  "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+  "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+  "frames": [
+    {
+      "image": "wasian-469.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "3c994e98d67c244157e846ed9251f395438aebf66729802e5ee6d543d9cf6660",
+      "pixel_sha256": "425cb5937039e86404867cec3448fff8a5299625166f34414ee1736f8288512d",
+      "session_id": "wasian-authorized-vod",
+      "source_ms": 469000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false,
+        "scope": [
+          "scene",
+          "phase",
+          "hud",
+          "selected_unit_locations"
+        ]
+      },
+      "hud": {
+        "hp": 97,
+        "gold": 17,
+        "level": 5,
+        "xp": 2,
+        "xp_cap": 20,
+        "stage": "2-5"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "bench-mover",
+            "zone": "bench",
+            "owner": "self",
+            "bench_slot": 2,
+            "box": [
+              196,
+              237,
+              224,
+              275
+            ]
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "bench-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "wasian-470.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "b5379840eac60b25f80b408ce328caae39325477d0193ff1f9f9927948f16cd5",
+      "pixel_sha256": "256097a335944d91b4601bf156ce861d3f9047e7d963709ad65254f7cec19e2e",
+      "session_id": "wasian-authorized-vod",
+      "source_ms": 470000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false,
+        "scope": [
+          "scene",
+          "phase",
+          "hud",
+          "selected_unit_locations"
+        ]
+      },
+      "hud": {
+        "hp": 97,
+        "gold": 17,
+        "level": 5,
+        "xp": 2,
+        "xp_cap": 20,
+        "stage": "2-5"
+      },
+      "layout": {
+        "units": []
+      },
+      "entities": []
+    },
+    {
+      "image": "wasian-471.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "396cabd3acb0a38a9b2b01238abf2f960bef875eb143feeaec62e2618cb73bd7",
+      "pixel_sha256": "5a790390f0d8523b1b072b2e13adaa63fcb5b48c83186e0985526b4cde162b22",
+      "session_id": "wasian-authorized-vod",
+      "source_ms": 471000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false,
+        "scope": [
+          "scene",
+          "phase",
+          "hud",
+          "selected_unit_locations"
+        ]
+      },
+      "hud": {
+        "hp": 97,
+        "gold": 17,
+        "level": 5,
+        "xp": 2,
+        "xp_cap": 20,
+        "stage": "2-5"
+      },
+      "layout": {
+        "units": []
+      },
+      "entities": []
+    },
+    {
+      "image": "wasian-472.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "ff5042369a40b51d127ba507e65c593d967759596d9fceb9dfb9f6d6a0bf57af",
+      "pixel_sha256": "be319e0356d25b70abaae1fc0a917dbcd9383663497bf1615bd9b81d9c1af89b",
+      "session_id": "wasian-authorized-vod",
+      "source_ms": 472000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false,
+        "scope": [
+          "scene",
+          "phase",
+          "hud",
+          "selected_unit_locations"
+        ]
+      },
+      "hud": {
+        "hp": 97,
+        "gold": 17,
+        "level": 5,
+        "xp": 2,
+        "xp_cap": 20,
+        "stage": "2-5"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "bench-mover",
+            "zone": "bench",
+            "owner": "self",
+            "bench_slot": 8,
+            "box": [
+              435,
+              233,
+              463,
+              274
+            ]
+          },
+          {
+            "key": "frontline-mover",
+            "zone": "bench",
+            "owner": "self",
+            "bench_slot": 1,
+            "box": [
+              153,
+              231,
+              189,
+              276
+            ]
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "bench-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "frontline-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "wasian-473.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "efd29c34802b8a4f983679369f905b4f29c977c10041b018e0bcf8f83af0c14a",
+      "pixel_sha256": "d77e671fd30ef3fb6206d6bc8d27f3aada220a52587b0357cc0130419a2b0718",
+      "session_id": "wasian-authorized-vod",
+      "source_ms": 473000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false,
+        "scope": [
+          "scene",
+          "phase",
+          "hud",
+          "selected_unit_locations"
+        ]
+      },
+      "hud": {
+        "hp": 97,
+        "gold": 17,
+        "level": 5,
+        "xp": 2,
+        "xp_cap": 20,
+        "stage": "2-5"
+      },
+      "layout": {
+        "units": []
+      },
+      "entities": []
+    },
+    {
+      "image": "wasian-475.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "3e24a1877c2730bb0d76df0471e9484ac0e18f353971a8c5092a54f6cd1c3f82",
+      "pixel_sha256": "fa9a132f439df8b2fe0865c46ba869f5f53f526c2396d49f8157f85c965d754b",
+      "session_id": "wasian-authorized-vod",
+      "source_ms": 475000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false,
+        "scope": [
+          "scene",
+          "phase",
+          "hud",
+          "selected_unit_locations"
+        ]
+      },
+      "hud": {
+        "hp": 97,
+        "gold": 17,
+        "level": 5,
+        "xp": 2,
+        "xp_cap": 20,
+        "stage": "2-5"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "bench-mover",
+            "zone": "bench",
+            "owner": "self",
+            "bench_slot": 8,
+            "box": [
+              435,
+              233,
+              463,
+              274
+            ]
+          },
+          {
+            "key": "frontline-mover",
+            "zone": "board",
+            "owner": "self",
+            "hex": [
+              0,
+              1
+            ],
+            "box": [
+              201,
+              110,
+              240,
+              158
+            ]
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "bench-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "frontline-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ]
+    }
+  ]
+}

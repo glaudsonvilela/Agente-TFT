@@ -11,7 +11,7 @@ import random
 
 from .combat import STATS, finite, star_value, mitigation
 from .hexgrid import distance, global_hex, next_step
-from .modifiers import Stats, formula
+from .modifiers import Stats, formula, actor_context
 from .state import UnsupportedRule
 from .traits import contributions
 
@@ -191,6 +191,10 @@ class Battle:
             validate_effects(spell['effects'])
         for i,h in enumerate(hooks):
             if h.get('event') not in EVENTS: raise UnsupportedRule('unknown trigger')
+            if 'critical' in h and type(h['critical']) is not bool:
+                raise UnsupportedRule('critical trigger filter must be boolean')
+            if type(h.get('every',1)) is not int or h.get('every',1)<1:
+                raise UnsupportedRule('trigger cadence must be a positive integer')
             h['_key']=f'hook:{i}'
             validate_effects(h['effects'])
             validate_effects(h.get('at_limit_effects',[]))
@@ -221,7 +225,7 @@ class Battle:
         self.sequence+=1;heapq.heappush(self.queue,(when,self.sequence,kind,uid,payload))
 
     def get(self,u,key):
-        return u.values.get(key,self.now,context={'shielded':any(s.amount>0 and s.expires>self.now for s in u.shields)})
+        return u.values.get(key,self.now,context=actor_context(u,self.now))
 
     def status(self,u,name):return max((end for end in u.statuses.get(name,[]) if end>self.now),default=0.)
 
@@ -318,15 +322,16 @@ class Battle:
         for h in u.hooks:
             if h['event']!=event:continue
             if context.get('only_hook') is not None and h['_key']!=context['only_hook']:continue
+            if 'damage_tag' in h and context.get('tag')!=h['damage_tag']:continue
+            if 'damage_tags' in h and context.get('tag') not in h['damage_tags']:continue
+            if 'critical' in h and context.get('critical') is not h['critical']:continue
+            if 'shield_key' in h and context.get('key')!=h['shield_key']:continue
+            if 'caster_trait' in h and (target is None or h['caster_trait'] not in target.tags):continue
+            if event=='health_below' and (u.hp<=0 or u.hp/self.get(u,'hp')>=h['threshold']):continue
             key=h['_key'];seen=u.counters.get(key+':seen',0)+1;u.counters[key+':seen']=seen
             if seen%h.get('every',1):continue
             counter=h.get('counter',key)
             if u.counters.get(counter,0)>=h.get('limit',math.inf) or u.cooldowns.get(key,0)>self.now:continue
-            if 'damage_tag' in h and context.get('tag')!=h['damage_tag']:continue
-            if 'damage_tags' in h and context.get('tag') not in h['damage_tags']:continue
-            if 'shield_key' in h and context.get('key')!=h['shield_key']:continue
-            if 'caster_trait' in h and (target is None or h['caster_trait'] not in target.tags):continue
-            if event=='health_below' and (u.hp<=0 or u.hp/self.get(u,'hp')>=h['threshold']):continue
             if self.rng.random()>h.get('chance',1.):continue
             u.counters[counter]=u.counters.get(counter,0)+1;u.cooldowns[key]=self.now+h.get('cooldown',0)
             reached_limit=u.counters[counter]==h.get('limit')

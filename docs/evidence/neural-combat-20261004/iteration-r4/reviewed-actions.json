@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed_action_sequences",
+  "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+  "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+  "transitions": [
+    {
+      "id": "wasian-bench-relocation-469",
+      "before": "3c994e98d67c244157e846ed9251f395438aebf66729802e5ee6d543d9cf6660",
+      "after": "ff5042369a40b51d127ba507e65c593d967759596d9fceb9dfb9f6d6a0bf57af",
+      "evidence_frames": [
+        "b5379840eac60b25f80b408ce328caae39325477d0193ff1f9f9927948f16cd5",
+        "396cabd3acb0a38a9b2b01238abf2f960bef875eb143feeaec62e2618cb73bd7"
+      ],
+      "evidence_kind": "visible_execution",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false
+      },
+      "action": {
+        "kind": "move",
+        "unit_key": "bench-mover",
+        "from": {
+          "zone": "bench",
+          "slot": 2
+        },
+        "to": {
+          "zone": "bench",
+          "slot": 8
+        }
+      }
+    },
+    {
+      "id": "wasian-deploy-frontline-472",
+      "before": "ff5042369a40b51d127ba507e65c593d967759596d9fceb9dfb9f6d6a0bf57af",
+      "after": "3e24a1877c2730bb0d76df0471e9484ac0e18f353971a8c5092a54f6cd1c3f82",
+      "evidence_frames": [
+        "efd29c34802b8a4f983679369f905b4f29c977c10041b018e0bcf8f83af0c14a"
+      ],
+      "evidence_kind": "visible_execution",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false
+      },
+      "action": {
+        "kind": "move",
+        "unit_key": "frontline-mover",
+        "from": {
+          "zone": "bench",
+          "slot": 1
+        },
+        "to": {
+          "zone": "board",
+          "hex": [
+            0,
+            1
+          ]
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Partial observations, reviewed by assistant; no independent human validation.",
+    "Champion identities, stars, complete item state, match boundaries, placement and exact hotfix binding remain unknown.",
+    "Level five appears at the round transition. It is not labeled as an executed XP purchase."
+  ]
+}

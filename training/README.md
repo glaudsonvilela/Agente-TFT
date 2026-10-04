@@ -76,6 +76,67 @@ vencedor de combates simulados, isoladamente, não satisfaz esses requisitos.
 
 Os relatórios desta revisão estão em `docs/evidence/neural-combat-20261004/`.
 
+### Ampliação de itens e demonstrações revisadas
+
+O pacote candidato agora possui 27 itens com efeitos executáveis: nove
+componentes e 18 itens completos. Efeito Azul, Cajado do Vazio, Fúria do Cráquem,
+Dente de Na'Shor, Coração Inabalável e Mão da Justiça foram acrescentados. Os
+nomes, IDs, fórmulas e valores pertencem ao pacote da temporada; o motor fornece
+condições de vida e filtros de evento. Um ID antigo, como `TFT_Item_StatikkShiv`,
+não autoriza aplicar a habilidade histórica do item ao Cajado do Vazio atual.
+
+Os testes verificam transições de vida por dano e cura, substituição do bônus de
+mana em críticos, acúmulos limitados, renovação de Fragmentação sem somar suas
+porcentagens e efeitos de cópias independentes. Também verificam que eventos
+fora do filtro não avançam contadores e que fórmulas preservam o contexto de
+dano entre seus termos. Isso valida contratos internos; não comprova fidelidade
+às partidas reais.
+
+`training.reviewed_sequences` exporta sequências de quadros revisados. Somente
+o quadro anterior entra na observação de entrada. A ação é um rótulo separado;
+o quadro seguinte e as imagens da execução ficam em `validation_only`. Campos
+desconhecidos continuam ausentes. Narrativa, previsões e movimentos sem âncoras
+espaciais coerentes são recusados. O exportador valida os hashes do vídeo e das
+imagens e aceita somente diretórios novos.
+
+```bash
+python -m training.reviewed_sequences \
+  --frames /caminho/privado/frames.json \
+  --actions /caminho/privado/actions.json \
+  --video /caminho/privado/video.mp4 \
+  --output /caminho/privado/export-novo
+```
+
+`assign_splits` separa fontes inteiras e reúne cópias conhecidas da mesma partida
+e imagens com os mesmos pixels. Uma fonte selecionada para teste leva suas
+duplicatas para teste; conflitos entre teste e validação são recusados. Isso
+depende de registrar a identidade compartilhada quando uma partida reaparece
+editada em outro canal. Não há detecção automática de toda duplicata possível.
+
+A primeira exportação contém duas movimentações do VOD autorizado de
+Wasianiverson, com seis imagens revisadas entre 469 e 475 segundos. A revisão
+é do assistente, sem validação humana independente. Identidades dos campeões,
+itens completos, resultado da partida e vínculo exato ao hotfix permanecem
+desconhecidos. São exemplos parciais para pesquisa de imitação de ação; **não
+são exemplos completos de estratégia, recompensa ou prova de treino intensivo**.
+O aumento de nível na transição de rodada não foi rotulado como compra de XP.
+
+Na revisão `iteration-r4`, o treino limitado aceitou 5.000 confrontos e recusou
+15.901 por efeitos de características ausentes. Foram 160 épocas e 20.160
+atualizações de pesos. A validação de previsão teve 88,0% de acerto em 985
+cenários, contra 48,2% da classe majoritária. Os 100 cenários independentes de
+escolha tiveram resultado médio de +0,22 com planejamento e +0,08 mantendo o
+tabuleiro. Essas médias usam vitória=+1, empate=0, derrota=-1; não são taxas de
+vitória. O p95 foi 3,18 ms para inferência e 783,6 ms para a decisão planejada,
+sem captura de tela, transporte ou voz. O treino levou 133,4 segundos e atingiu
+185,4 MiB de RAM; o arquivo de pesos tem 174.510 bytes. Dados, hashes, recusas e
+limitações estão em `docs/evidence/neural-combat-20261004/iteration-r4/`.
+
+Os cenários e a lista de itens diferem dos experimentos anteriores. As métricas
+não constituem uma comparação direta de versões, fidelidade ao TFT real ou
+autorização para promover o modelo. Partidas completas e treino de política
+estratégica permanecem pendentes.
+
 ## Caminho para o coach completo
 
 Esta seção define trabalho necessário; os componentes abaixo ainda não estão

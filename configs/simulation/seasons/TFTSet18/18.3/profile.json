@@ -61,7 +61,13 @@
       "TFT_Item_TitansResolve",
       "TFT_Item_LastWhisper",
       "TFT_Item_Quicksilver",
-      "TFT_Item_FrozenHeart"
+      "TFT_Item_FrozenHeart",
+      "TFT_Item_BlueBuff",
+      "TFT_Item_StatikkShiv",
+      "TFT_Item_RunaansHurricane",
+      "TFT_Item_Leviathan",
+      "TFT_Item_NightHarvester",
+      "TFT_Item_UnstableConcoction"
     ]
   }
 }

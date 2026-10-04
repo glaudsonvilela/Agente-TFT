@@ -69,7 +69,7 @@ class CatalogBindings(unittest.TestCase):
         self.assertEqual(result['coverage']['abilities']['candidate_programs'],22)
         self.assertEqual(len(result['coverage']['abilities']['blocked']),52)
         self.assertEqual(result['coverage']['abilities']['inventoried'],74)
-        self.assertEqual(result['coverage']['items']['candidate_effects'],21)
+        self.assertEqual(result['coverage']['items']['candidate_effects'],27)
         self.assertEqual(result['coverage']['traits']['candidate_effects'],6)
         self.assertEqual(result['coverage']['champions']['replay_validated'],0)
         self.assertFalse(result['coverage']['current_patch_training_ready'])

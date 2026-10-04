@@ -683,6 +683,308 @@
       "notes": [
         "One threshold activation per combat is a candidate interpretation; verify in replay."
       ]
+    },
+    "TFT_Item_BlueBuff": {
+      "component": false,
+      "template": {
+        "modifiers": [
+          {
+            "stat": "ad",
+            "mode": "bonus_pct",
+            "value": {
+              "$field": "ModifiedADAP",
+              "scale": 1
+            }
+          },
+          {
+            "stat": "ap",
+            "mode": "bonus_pct",
+            "value": {
+              "$field": "ModifiedADAP",
+              "scale": 1
+            }
+          }
+        ],
+        "hooks": []
+      },
+      "aliases": [],
+      "notes": [
+        "AD/AP amplification applies after base and flat bonuses. Duplicate amplification uses an additive bonus-percent layer; replay calibration remains required."
+      ]
+    },
+    "TFT_Item_StatikkShiv": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "damage_dealt",
+            "damage_tags": [
+              "attack",
+              "spell"
+            ],
+            "effects": [
+              {
+                "op": "stat",
+                "stat": "shred",
+                "mode": "flat",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "MRShred",
+                      "scale": 0.01
+                    }
+                  }
+                ],
+                "duration": {
+                  "$field": "MRShredDuration",
+                  "scale": 1
+                },
+                "group": "shred",
+                "strongest": true
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": [],
+      "notes": [
+        "Catalog ID names StatikkShiv, but sealed description and recipe identify Void Staff (Cajado do Vazio). Do not substitute the artifact with the same display-name history."
+      ]
+    },
+    "TFT_Item_RunaansHurricane": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "attack",
+            "limit": {
+              "$field": "MaxStacks",
+              "scale": 1,
+              "integer": true
+            },
+            "effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "ad",
+                "mode": "base_pct",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ADOnAttack",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ],
+            "at_limit_effects": [
+              {
+                "op": "stat",
+                "target": {
+                  "kind": "self"
+                },
+                "stat": "attack_speed",
+                "mode": "base_pct",
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ASCapstone",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": [],
+      "notes": [
+        "Sealed display name is Kraken Fury; effect and recipe come from the selected release, not legacy item-ID semantics."
+      ]
+    },
+    "TFT_Item_Leviathan": {
+      "component": false,
+      "template": {
+        "modifiers": [],
+        "hooks": [
+          {
+            "event": "attack",
+            "critical": false,
+            "effects": [
+              {
+                "op": "mana",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "BaseManaOnHit",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "event": "attack",
+            "critical": true,
+            "effects": [
+              {
+                "op": "mana",
+                "target": {
+                  "kind": "self"
+                },
+                "amount": [
+                  {
+                    "coefficient": {
+                      "$field": "ManaOnCrit",
+                      "scale": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "aliases": [],
+      "notes": [
+        "Critical attacks replace the normal bonus-mana amount. They do not receive both bonuses."
+      ]
+    },
+    "TFT_Item_NightHarvester": {
+      "component": false,
+      "template": {
+        "modifiers": [
+          {
+            "stat": "durability",
+            "mode": "flat",
+            "value": {
+              "$field": "BaseDurability",
+              "scale": 1
+            },
+            "when": {
+              "hp_at_most": {
+                "$field": "ThresholdForEmpower",
+                "scale": 1
+              }
+            }
+          },
+          {
+            "stat": "durability",
+            "mode": "flat",
+            "value": {
+              "$field": "EmpoweredDurability",
+              "scale": 1
+            },
+            "when": {
+              "hp_above": {
+                "$field": "ThresholdForEmpower",
+                "scale": 1
+              }
+            }
+          }
+        ],
+        "hooks": []
+      },
+      "aliases": [],
+      "notes": [
+        "Empowered durability replaces base durability above the threshold. Healing can restore the stronger branch."
+      ]
+    },
+    "TFT_Item_UnstableConcoction": {
+      "component": false,
+      "template": {
+        "modifiers": [
+          {
+            "stat": "ad",
+            "mode": "base_pct",
+            "value": {
+              "$field": "AD_NotStatBar",
+              "scale": 1
+            }
+          },
+          {
+            "stat": "ap",
+            "mode": "flat",
+            "value": {
+              "$field": "AP_NotStatBar",
+              "scale": 1
+            }
+          },
+          {
+            "stat": "omnivamp",
+            "mode": "flat",
+            "value": {
+              "$field": "StatOmnivamp_NotStatBar",
+              "scale": 1
+            }
+          },
+          {
+            "stat": "ad",
+            "mode": "base_pct",
+            "value": {
+              "$field": "AD_NotStatBar",
+              "scale": 1
+            },
+            "when": {
+              "hp_above": {
+                "$field": "HealthThreshold",
+                "scale": 1
+              }
+            }
+          },
+          {
+            "stat": "ap",
+            "mode": "flat",
+            "value": {
+              "$field": "AP_NotStatBar",
+              "scale": 1
+            },
+            "when": {
+              "hp_above": {
+                "$field": "HealthThreshold",
+                "scale": 1
+              }
+            }
+          },
+          {
+            "stat": "omnivamp",
+            "mode": "flat",
+            "value": {
+              "$field": "StatOmnivamp_NotStatBar",
+              "scale": 1
+            },
+            "when": {
+              "hp_below": {
+                "$field": "HealthThreshold",
+                "scale": 1
+              }
+            }
+          }
+        ],
+        "hooks": []
+      },
+      "aliases": [
+        {
+          "left": {
+            "$field": "{f23e83fc}",
+            "scale": 1
+          },
+          "right": 2
+        }
+      ],
+      "notes": [
+        "Base bonuses always apply; exactly at the threshold neither strict above/below bonus applies. Doubling multiplier is checked, never inferred from the hash field alone."
+      ]
     }
   }
 }
