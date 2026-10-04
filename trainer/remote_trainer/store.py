@@ -218,7 +218,7 @@ class TrainerStore:
             durations = [record.updated_at_ms - record.accepted_at_ms
                          for record in completed
                          if record.updated_at_ms >= record.accepted_at_ms]
-            recent = sorted(jobs, key=lambda record: record.updated_at_ms, reverse=True)[:6]
+            recent = sorted(jobs, key=lambda record: record.updated_at_ms, reverse=True)[:12]
             snapshot = {
                 "sessions": len(self.sessions),
                 "episodes": len({record.request.episode_id for record in jobs}),
@@ -227,11 +227,17 @@ class TrainerStore:
                                    for key in ("accepted", "running", "completed", "failed", "cancelled")},
                 "paths_requested": sum(record.request.rollout_count for record in jobs),
                 "paths_completed": paths_completed,
+                "paths_in_running_jobs": sum(record.request.rollout_count for record in jobs
+                                             if record.status == TrainingJobStatus.RUNNING),
                 "mean_completed_job_ms": round(sum(durations) / len(durations), 1) if durations else None,
                 "last_activity_ms": max((record.updated_at_ms for record in jobs), default=None),
                 "latest_simulator_version": completed[0].result.simulator_version if completed else None,
                 "latest_policy_version": completed[0].result.policy_version if completed else None,
-                "recent_jobs": [{"job_id": record.request.job_id, "status": record.status.value,
+                "recent_jobs": [{"job_id": record.request.job_id,
+                                 "episode_id": record.request.episode_id,
+                                 "mode": record.request.mode.value,
+                                 "accepted_at_ms": record.accepted_at_ms,
+                                 "status": record.status.value,
                                  "requested_paths": record.request.rollout_count,
                                  "completed_paths": sum(outcome.samples for outcome in record.result.outcomes)
                                  if record.result else 0,

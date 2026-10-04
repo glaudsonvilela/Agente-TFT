@@ -16,8 +16,11 @@ integração e os critérios das dicas.
 ## Painel e comando no BigBANANA
 
 O quarto contêiner serve um painel leve em /dashboard. Ele mostra arquivos
-guardados, sessões, caminhos solicitados e realmente concluídos, tempo por
-lote e versões de simulador/política. O estado da rede neural permanece
+guardados, sessões, caminhos solicitados e realmente concluídos, uma tabela
+de até 12 execuções recentes, CPU e RAM do contêiner TFT e do servidor,
+tempo por lote e versões de simulador/política. CPU é medida pela diferença
+entre duas atualizações; a primeira leitura aparece como "medindo". Valores
+indisponíveis são exibidos como tal, sem presumir zero. O estado da rede neural permanece
 "treinamento não iniciado" até existir um processo real de aprendizagem.
 O painel atualiza a cada cinco segundos, sem bibliotecas externas.
 

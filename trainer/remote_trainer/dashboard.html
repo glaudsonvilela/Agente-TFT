@@ -41,6 +41,12 @@
     .job small { grid-column: 1 / -1; color: #80768e; }
     .footer { color: #7d7392; font-size: 12px; line-height: 1.5; margin-top: 22px; }
     .error { color: #a12e54; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 11px 9px; text-align: left; border-bottom: 1px solid #eeeaf6; white-space: nowrap; }
+    th { color: #766c91; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    td:nth-child(2) { max-width: 230px; overflow: hidden; text-overflow: ellipsis; }
+    .resource-value { font-weight: 700; font-variant-numeric: tabular-nums; }
     @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } .lower { grid-template-columns: 1fr; } }
     @media (max-width: 530px) { main { padding: 24px 15px 50px; } header { display: block; } .badge { display: inline-block; } .grid { grid-template-columns: 1fr 1fr; } .card { padding: 16px; min-height: 125px; } .value { font-size: 31px; } }
   </style>
@@ -57,7 +63,7 @@
   </header>
 
   <section class="grid" aria-label="Indicadores">
-    <div class="card"><div class="label">Arquivos guardados</div><div class="value" id="evidence">—</div><div class="note">Gravações de diagnóstico, ainda sem rótulos</div></div>
+    <div class="card"><div class="label">Arquivos guardados</div><div class="value" id="evidence">—</div><div class="note">Diagnósticos e vídeos autorizados</div></div>
     <div class="card"><div class="label">Sessões</div><div class="value" id="sessions">—</div><div class="note">Sessões enviadas ao treinador</div></div>
     <div class="card"><div class="label">Caminhos simulados</div><div class="value" id="paths">—</div><div class="note">Somente resultados concluídos</div></div>
     <div class="card"><div class="label">Lotes concluídos</div><div class="value" id="completed">—</div><div class="note" id="job-status">Aguardando dados</div></div>
@@ -77,15 +83,28 @@
       <div class="meta"><span>Execução: <strong id="progress">0 / 0</strong> caminhos solicitados</span><span>Primeira medição: 50 · alvo: 500</span></div>
     </div>
     <div class="wide">
-      <h2>Últimos lotes</h2>
-      <div class="jobs" id="recent-jobs"><div class="note">Nenhum lote enviado ainda.</div></div>
+      <h2>Uso do BigBANANA</h2>
+      <div class="row"><span>CPU do servidor</span><span class="resource-value" id="host-cpu">Medindo…</span></div>
+      <div class="row"><span>RAM do servidor</span><span class="resource-value" id="host-memory">—</span></div>
+      <div class="row"><span>CPU do contêiner TFT</span><span class="resource-value" id="container-cpu">Medindo…</span></div>
+      <div class="row"><span>RAM do contêiner TFT</span><span class="resource-value" id="container-memory">—</span></div>
+      <div class="note">O contêiner mede só o Agente TFT; o servidor inclui os outros serviços.</div>
     </div>
+  </section>
+  <section class="wide" style="margin-top:14px" aria-label="Tabela de simulações">
+    <h2>Execuções recentes</h2>
+    <div class="note" id="running-summary">Aguardando dados do servidor.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Início</th><th>Lote</th><th>Modo</th><th>Solicitadas</th><th>Concluídas</th><th>Estado</th><th>Duração</th></tr></thead>
+      <tbody id="recent-jobs"><tr><td colspan="7">Nenhuma execução iniciada.</td></tr></tbody>
+    </table></div>
   </section>
   <div class="footer" id="last-update">Conectando…</div>
 </main>
 <script>
   const set = (id, value) => { document.getElementById(id).textContent = value; };
   const fmt = n => new Intl.NumberFormat("pt-BR").format(n);
+  const decimal = n => new Intl.NumberFormat("pt-BR", {maximumFractionDigits: 1}).format(n);
   async function refresh() {
     try {
       const response = await fetch("/v1/training/dashboard-metrics", { cache: "no-store" });
@@ -112,18 +131,28 @@
       set("policy-version", m.latest_policy_version || "Sem resultado");
       set("progress", fmt(m.paths_completed) + " / " + fmt(m.paths_requested));
       document.getElementById("bar-fill").style.width = Math.min(100, m.paths_requested ? 100 * m.paths_completed / m.paths_requested : 0) + "%";
+      const resources = m.resources || {};
+      const host = resources.host || {};
+      const containerUse = resources.container || {};
+      set("host-cpu", host.cpu_percent == null ? "Medindo…" : decimal(host.cpu_percent) + "%");
+      set("host-memory", host.memory_used_mib == null ? "Indisponível" : decimal(host.memory_used_mib / 1024) + " / " + decimal(host.memory_total_mib / 1024) + " GiB");
+      set("container-cpu", containerUse.cpu_cores_used == null ? "Medindo…" : decimal(containerUse.cpu_cores_used) + " / " + (containerUse.cpu_limit_cores == null ? "?" : decimal(containerUse.cpu_limit_cores)) + " núcleo(s)" + (containerUse.cpu_percent_of_limit == null ? "" : " · " + decimal(containerUse.cpu_percent_of_limit) + "% do limite"));
+      set("container-memory", containerUse.memory_used_mib == null ? "Indisponível" : decimal(containerUse.memory_used_mib) + " / " + (containerUse.memory_limit_mib == null ? "?" : decimal(containerUse.memory_limit_mib)) + " MiB");
+      set("running-summary", fmt(status.running) + " lote(s) em execução · " + fmt(m.paths_in_running_jobs) + " caminhos solicitados nesses lotes · " + fmt(m.paths_completed) + " caminhos realmente concluídos.");
       const container = document.getElementById("recent-jobs");
       container.replaceChildren();
       if (!m.recent_jobs.length) {
-        const empty = document.createElement("div"); empty.className = "note"; empty.textContent = "Nenhum lote enviado ainda."; container.append(empty);
+        const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 7;
+        cell.textContent = "Nenhuma simulação iniciada. O simulador ainda não está ativo."; row.append(cell); container.append(row);
       }
       for (const job of m.recent_jobs) {
-        const row = document.createElement("div"); row.className = "job";
-        const name = document.createElement("strong"); name.textContent = job.job_id;
-        const state = document.createElement("span"); state.textContent = job.status;
-        const detail = document.createElement("small");
-        detail.textContent = fmt(job.completed_paths) + " de " + fmt(job.requested_paths) + " caminhos" + (job.error ? " · " + job.error : "");
-        row.append(name, state, detail); container.append(row);
+        const row = document.createElement("tr");
+        const values = [new Date(job.accepted_at_ms).toLocaleTimeString("pt-BR"), job.job_id,
+          job.mode, fmt(job.requested_paths), fmt(job.completed_paths),
+          job.error ? job.status + " · " + job.error : job.status,
+          job.status === "running" ? "Em curso" : decimal(Math.max(0, job.updated_at_ms - job.accepted_at_ms) / 1000) + " s"];
+        for (const value of values) { const cell = document.createElement("td"); cell.textContent = value; row.append(cell); }
+        container.append(row);
       }
       set("connection", "Servidor conectado");
       document.getElementById("connection").classList.add("active");

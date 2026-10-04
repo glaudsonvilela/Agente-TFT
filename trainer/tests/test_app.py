@@ -170,6 +170,8 @@ def test_dashboard_shows_storage_without_claiming_learning(tmp_path: Path):
     before = client.get("/v1/training/dashboard-metrics").json()
     assert before["evidence_files"] == 1
     assert before["paths_completed"] == 0
+    assert before["paths_in_running_jobs"] == 0
+    assert "container" in before["resources"] and "host" in before["resources"]
     assert before["neural_training_status"] == "not_started"
     assert before["simulator_ready"] is False
 
@@ -183,11 +185,14 @@ def test_dashboard_shows_storage_without_claiming_learning(tmp_path: Path):
     assert after["sessions"] == 1
     assert after["paths_requested"] == 50
     assert after["paths_completed"] == 0
+    assert after["paths_in_running_jobs"] == 0
     assert after["jobs_by_status"]["failed"] == 1
     assert after["recent_jobs"][0]["error"] == "simulator_not_configured"
     page = client.get("/dashboard")
     assert page.status_code == 200
     assert "Caminhos simulados" in page.text
+    assert "Uso do BigBANANA" in page.text
+    assert "Execuções recentes" in page.text
 
 
 def test_dashboard_counts_only_sealed_neural_candidate(tmp_path: Path):

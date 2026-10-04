@@ -27,6 +27,7 @@ from .schemas import (
     TrainingSessionRequest,
 )
 from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
+from .resources import ResourceSampler
 
 
 def unix_ms() -> int:
@@ -140,6 +141,7 @@ def create_app(
         db_path=os.environ.get("TRAINER_DB_PATH") or None,
     )
     app.state.clock_ms = clock_ms
+    app.state.resources = ResourceSampler()
     app.state.api_token = (
         api_token
         if api_token is not None
@@ -187,6 +189,7 @@ def create_app(
         )
         snapshot["neural_experiments"] = experiments
         snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)
+        snapshot["resources"] = app.state.resources.sample()
         snapshot["generated_at_ms"] = app.state.clock_ms()
         return snapshot
 
