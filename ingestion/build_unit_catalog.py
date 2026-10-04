@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -128,6 +129,31 @@ def playable_champion(champion: dict[str, Any]) -> bool:
 
 
 def normalize_champion(champion: dict[str, Any]) -> dict[str, Any]:
+    raw_stats = champion.get("stats")
+    stats = None
+    if isinstance(raw_stats, dict):
+        stats = {}
+        for key in ("hp", "damage", "attackSpeed", "armor", "magicResist",
+                    "range", "mana", "initialMana", "critChance", "critMultiplier"):
+            value = raw_stats.get(key)
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+                stats[key] = value
+    raw_ability = champion.get("ability")
+    ability = None
+    if isinstance(raw_ability, dict):
+        variables = []
+        for row in raw_ability.get("variables", []):
+            if not isinstance(row, dict) or not isinstance(row.get("name"), str):
+                continue
+            values = row.get("value")
+            if isinstance(values, list) and all(
+                isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+                for value in values
+            ):
+                variables.append({"name": row["name"], "values": values})
+        ability = {"name": str(raw_ability.get("name") or ""),
+                   "description": str(raw_ability.get("desc") or ""),
+                   "variables": variables}
     return {
         "api_name": str(champion["apiName"]),
         "character_name": str(champion.get("characterName") or ""),
@@ -135,6 +161,8 @@ def normalize_champion(champion: dict[str, Any]) -> dict[str, Any]:
         "cost": int(champion["cost"]),
         "role": champion.get("role"),
         "traits": [str(value) for value in champion.get("traits", [])],
+        "stats": stats,
+        "ability": ability,
         "icon_path": champion.get("icon"),
         "square_icon_path": champion.get("squareIcon"),
         "tile_icon_path": champion.get("tileIcon"),

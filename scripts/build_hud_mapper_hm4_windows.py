@@ -13,6 +13,8 @@ if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('ma
     raise SystemExit('Replay-screen assets were not verified')
 live_plan = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
 reference = root / live_plan['reference']
+knowledge_plan = json.loads((root / 'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
+knowledge_reference = root / knowledge_plan['reference']
 
 stage = root / 'build/hm4-tools'
 stage.mkdir(parents=True, exist_ok=False)
@@ -54,6 +56,7 @@ args = [
     '--add-data', f'{root / "configs"};configs',
     '--add-data', f'{root / "apps/hud_mapper/assets"};assets',
     '--add-data', f'{reference};{live_plan["reference"]}',
+    '--add-data', f'{knowledge_reference};{knowledge_plan["reference"]}',
     '--add-data', f'{live_assets / "models"};models',
     '--add-data', f'{live_assets / live_plan["icon_dir"]};{live_plan["icon_dir"]}',
     '--add-data', f'{td};tesseract',

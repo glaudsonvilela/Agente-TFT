@@ -1,0 +1,8 @@
+# Offline CPU experiment container. Separate from the 1 GiB API container.
+FROM python:3.12-slim
+ENV OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=2
+RUN python -m pip install --no-cache-dir --only-binary=:all: \
+      --index-url https://download.pytorch.org/whl/cpu torch==2.5.1+cpu \
+ && python -m pip install --no-cache-dir --only-binary=:all: \
+      numpy==1.26.4 Pillow==10.2.0 onnx==1.20.1 onnxruntime==1.23.2
+WORKDIR /experiment

@@ -107,7 +107,19 @@ def build(source_path, *, selector, tft_patch, source_build, locale, output_root
     parts = {k:canonical(v) for k,v in catalogs.items()}
     identity = dict(schema_version=1, policy='seasonal_release_v1', set=catalogs['units']['set'],
         tft_patch=tft_patch, provider_build=source_build, locale=locale, source_sha256=checksum,
+        source_url=f'https://raw.communitydragon.org/{source_build}/cdragon/tft/{locale}.json',
         source_identity='local snapshot bytes; provider build and game patch explicitly declared, not inferred',
+        champion_attribute_coverage={
+            'total': catalogs['units']['champion_count'],
+            'stats': sum(bool(champion['stats']) for champion in catalogs['units']['champions']),
+            'abilities': sum(champion['ability'] is not None for champion in catalogs['units']['champions']),
+            'abilities_with_numeric_variables': sum(bool(champion['ability'] and champion['ability']['variables'])
+                                                    for champion in catalogs['units']['champions']),
+            'abilities_with_unresolved_placeholders': sum(bool(champion['ability'] and
+                                                           '@' in champion['ability']['description'])
+                                                         for champion in catalogs['units']['champions']),
+            'traits': sum(bool(champion['traits']) for champion in catalogs['units']['champions']),
+        },
         components={k:dict(path=k+'.json', sha256=digest(v), size_bytes=len(v)) for k,v in parts.items()},
         items_scope='provider snapshot; per-set membership not inferred',
         unit_scope='existing normalizer: playable costs 1..5; special offers/other costs may be excluded',

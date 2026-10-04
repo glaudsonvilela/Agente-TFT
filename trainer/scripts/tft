@@ -16,6 +16,7 @@ def render(data: dict) -> str:
     jobs = data["jobs_by_status"]
     simulator = "ativo" if data["simulator_ready"] else "ainda não ativo"
     neural = ("treino não iniciado" if data["neural_training_status"] == "not_started"
+              else "novo candidato rejeitado por regressão" if data["neural_training_status"] == "regression_rejected"
               else "candidato treinado; falta validação independente")
     lines = [
         "✦ AGENTE TFT · BigBANANA",
@@ -40,6 +41,11 @@ def render(data: dict) -> str:
     for candidate in data.get("neural_experiments", [])[:1]:
         lines.append(f"Candidato {candidate['id']}: {candidate['source_frames']} imagens, "
                      f"{candidate['optimizer_steps']} passos, banco/loja; sem avaliação independente.")
+        comparison = candidate.get("comparison")
+        if candidate["status"] == "regression_rejected" and comparison:
+            lines.append(f"Loja no mesmo replay: modelo anterior {comparison['previous'].get('shop:proposal', 0)}/"
+                         f"{comparison['frames']}; novo {comparison['candidate'].get('shop:proposal', 0)}/"
+                         f"{comparison['frames']}. Novo modelo não instalado.")
     if data["recent_jobs"]:
         lines.extend(("", "Últimos lotes:"))
         for job in data["recent_jobs"][:3]:

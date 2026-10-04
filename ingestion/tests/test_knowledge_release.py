@@ -27,6 +27,28 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotIn('/latest/',json.dumps(c))
         self.assertEqual(m['tft_patch'],'18.3');self.assertEqual(m['provider_build'],'16.19')
         self.assertFalse(m['geometry_included'])
+        self.assertEqual(m['champion_attribute_coverage']['total'], 2)
+        self.assertEqual(m['champion_attribute_coverage']['stats'], 0)
+    def test_champion_combat_attributes_survive_release(self):
+        raw=source()
+        raw['sets']['18']['champions'][0]['stats']={
+            'hp': 650, 'damage': 52, 'attackSpeed': 0.7, 'armor': 35,
+            'magicResist': 30, 'range': 2, 'mana': 80, 'initialMana': 20,
+            'critChance': 0.25, 'critMultiplier': 1.4,
+        }
+        raw['sets']['18']['champions'][0]['ability']={
+            'name': 'Golpe', 'desc': 'Causa dano',
+            'variables': [{'name': 'Damage', 'value': [100, 200, 300]}],
+        }
+        self.input.write_text(json.dumps(raw))
+        path,manifest,_=self.build();_,catalogs=k.read_release(path)
+        champion=catalogs['units']['champions'][0]
+        self.assertEqual(champion['stats']['hp'],650)
+        self.assertEqual(champion['stats']['range'],2)
+        self.assertEqual(champion['ability']['variables'][0]['values'],[100,200,300])
+        self.assertEqual(manifest['champion_attribute_coverage']['stats'],1)
+        self.assertEqual(manifest['champion_attribute_coverage']['abilities'],1)
+        self.assertEqual(manifest['champion_attribute_coverage']['abilities_with_numeric_variables'],1)
     def test_repeated_snapshot_is_idempotent(self):
         p,m,a=self.build();p2,m2,b=self.build()
         self.assertTrue(a);self.assertFalse(b);self.assertEqual((p,m),(p2,m2))

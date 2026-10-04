@@ -215,6 +215,12 @@ def test_dashboard_counts_only_sealed_neural_candidate(tmp_path: Path):
     assert candidate["neural_training_status"] == "candidate_trained_unpromoted"
     assert candidate["neural_experiments"][0]["optimizer_steps"] == 600
     assert candidate["simulator_ready"] is False
+    (folder / "compare-previous.json").write_text(json.dumps({
+        "frames": 46, "previous": {"shop:proposal": 43},
+        "candidate": {"shop:proposal": 5}, "candidate_promoted": False}))
+    regression = client.get("/v1/training/dashboard-metrics").json()
+    assert regression["neural_training_status"] == "regression_rejected"
+    assert regression["neural_experiments"][0]["comparison"]["frames"] == 46
     (evaluation / "model.onnx").write_bytes(b"corrupted")
     unsealed = client.get("/v1/training/dashboard-metrics").json()
     assert unsealed["neural_training_status"] == "not_started"

@@ -61,14 +61,28 @@ def verified_neural_experiments(db_path: Path | None) -> list[dict[str, object]]
                     result.get("model_trained") is not True or
                     result.get("profile_promoted") is not False):
                 continue
+            status = "candidate_trained_unpromoted"
+            comparison = None
+            comparison_file = folder / "compare-previous.json"
+            if comparison_file.is_file() and comparison_file.stat().st_size <= 65536:
+                try:
+                    comparison = json.loads(comparison_file.read_text(encoding="utf-8"))
+                    previous_shop = int(comparison["previous"].get("shop:proposal", 0))
+                    candidate_shop = int(comparison["candidate"].get("shop:proposal", 0))
+                    if (comparison.get("frames", 0) > 0 and candidate_shop < previous_shop and
+                            comparison.get("candidate_promoted") is False):
+                        status = "regression_rejected"
+                except (OSError, KeyError, ValueError, TypeError, json.JSONDecodeError):
+                    comparison = None
             results.append({
-                "id": folder.name, "status": "candidate_trained_unpromoted",
+                "id": folder.name, "status": status,
                 "scope": "bench_shop_region_only",
                 "source_frames": result["frames"],
                 "optimizer_steps": report["optimizer_steps"],
                 "inference_p95_ms": result["real_inference_ms_p95"],
                 "independent_match_accuracy": result["independent_match_accuracy"],
                 "model_sha256": complete["model.onnx"],
+                "comparison": comparison,
             })
         except (OSError, KeyError, ValueError, TypeError, json.JSONDecodeError):
             continue
@@ -169,7 +183,7 @@ def create_app(
         snapshot["simulator_ready"] = not isinstance(app.state.store.backend, NullTrainerBackend)
         experiments = verified_neural_experiments(app.state.store.db_path)
         snapshot["neural_training_status"] = (
-            "candidate_trained_unpromoted" if experiments else "not_started"
+            experiments[0]["status"] if experiments else "not_started"
         )
         snapshot["neural_experiments"] = experiments
         snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)

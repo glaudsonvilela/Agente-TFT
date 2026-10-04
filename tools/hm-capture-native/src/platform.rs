@@ -145,7 +145,7 @@ pub fn stream(args: &Args) -> Result<()> {
                 continue;
             }
             let analysis_due=last_analysis.is_none_or(|at:Instant|arrived_at.duration_since(at).as_secs_f64()>=1.0/args.hz);
-            let preview_due=args.preview_hz.is_some_and(|hz|
+            let preview_due=args.preview_hz.is_some_and(|hz| analysis_due ||
                 last_preview.is_none_or(|at:Instant|arrived_at.duration_since(at).as_secs_f64()>=1.0/hz));
             if !analysis_due && !preview_due {
                 rate_skipped+=1;frame.Close()?;continue;

@@ -161,6 +161,9 @@ class HM4RuntimeTests(unittest.TestCase):
         bound=engine.evaluate(answer)
         unit_id=bound["shop"]["slots"][0]["unit_id"]
         self.assertTrue(unit_id)
+        self.assertIn("hp",engine.champion_attributes[unit_id]["stats"])
+        self.assertTrue(engine.champion_attributes[unit_id]["traits"])
+        self.assertEqual(bound["catalog_binding"]["knowledge_release"],engine.knowledge_release)
         self.assertEqual(bound["catalog_binding"]["bound_offers"],1)
         self.assertEqual(bound["decision"]["evidence"][0]["code"],"OWNED_UNITS_UNVERIFIED")
         self.assertIsNone(answer["shop"]["slots"][0]["unit_id"])

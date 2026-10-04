@@ -99,11 +99,14 @@
       set("job-status", fmt(status.running) + " em execução · " + fmt(status.failed) + " falharam");
       set("simulator", m.simulator_ready ? "Ativo" : "Ainda não ativo");
       document.getElementById("simulator").classList.toggle("ready", m.simulator_ready);
-      set("neural", m.neural_training_status === "not_started" ? "Treino não iniciado" : "Candidato treinado · falta validação independente");
+      set("neural", m.neural_training_status === "not_started" ? "Treino não iniciado" :
+          m.neural_training_status === "regression_rejected" ? "Novo modelo rejeitado · detecção da loja piorou" :
+          "Candidato treinado · falta validação independente");
       const runtime = m.latest_imported_runtime;
       set("local-vision", runtime ? (runtime.diagnostic_active ? "Diagnóstico ativo · " : "Não confirmado · ") + fmt(runtime.mapped_frames) + " mapas" : "Nenhum ZIP de sessão importado");
       const candidate = (m.neural_experiments || [])[0];
-      set("neural-candidate", candidate ? fmt(candidate.source_frames) + " imagens · " + fmt(candidate.optimizer_steps) + " passos · banco/loja" : "Nenhum");
+      set("neural-candidate", candidate ? fmt(candidate.source_frames) + " imagens · " + fmt(candidate.optimizer_steps) + " passos · banco/loja" +
+          (candidate.comparison ? " · loja " + fmt(candidate.comparison.candidate["shop:proposal"] || 0) + "/" + fmt(candidate.comparison.frames) + " (anterior " + fmt(candidate.comparison.previous["shop:proposal"] || 0) + ")" : "") : "Nenhum");
       set("duration", m.mean_completed_job_ms == null ? "Sem medição" : (m.mean_completed_job_ms / 1000).toFixed(2) + " s");
       set("sim-version", m.latest_simulator_version || "Sem resultado");
       set("policy-version", m.latest_policy_version || "Sem resultado");

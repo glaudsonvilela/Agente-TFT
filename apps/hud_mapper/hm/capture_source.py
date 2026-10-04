@@ -166,6 +166,7 @@ class CapturedFrame:
     rgb: bytes
     epoch: int
     capture: dict
+    ui_preview: tuple[int, int, bytes] | None = None
 
 
 class CaptureSource:
@@ -227,6 +228,7 @@ class CaptureSource:
         try:
             last_id = {'frame': None, 'preview': None}
             first_preview_acquired = last_preview_compositor = None
+            preview_for_analysis = None
             while not self.stop.is_set():
                 header, pixels = read_packet(self.proc.stdout)
                 kind = header.get('type')
@@ -248,6 +250,8 @@ class CaptureSource:
                         if first_preview_acquired is None:first_preview_acquired = acquired
                         last_preview_compositor = header['capture_ns']
                         capture = dict(header, bridge=self.bridge.metadata(), rgb_received_ns=ready_ns, timing=timing)
+                        preview_for_analysis = (header['frame_id'], header['width'],
+                                                header['height'], pixels)
                         self.preview_frames.put(CapturedFrame(header['frame_id'],
                             (acquired-first_preview_acquired)/1e6, due, ready_ns,
                             header['width'], header['height'], pixels, header['geometry_segment'], capture))
@@ -255,7 +259,9 @@ class CaptureSource:
                     else:
                         try:self.pending.get_nowait(); self.source_replaced += 1
                         except queue.Empty:pass
-                        self.pending.put_nowait((header, pixels, ready_ns))
+                        small = (preview_for_analysis[1:] if preview_for_analysis and
+                                 preview_for_analysis[0] == header['frame_id'] else None)
+                        self.pending.put_nowait((header, pixels, ready_ns, small))
                 elif kind == 'geometry_changed':
                     if len(self.control_events) >= 256:raise ValueError('Mudanças de geometria excederam o limite.')
                     self.control_events.append(header)
@@ -270,7 +276,7 @@ class CaptureSource:
     def frames(self, cancelled, max_seconds=300):
         first_acquired = last_acquired = last_compositor = None
         while not cancelled.is_set():
-            try:header, pixels, ready_ns = self.pending.get(timeout=.1)
+            try:header, pixels, ready_ns, small = self.pending.get(timeout=.1)
             except queue.Empty:
                 if self.error:raise RuntimeError(self.error)
                 if self.reader_done.is_set():break
@@ -285,7 +291,8 @@ class CaptureSource:
             record = dict(header, bridge=self.bridge.metadata(), source_queue_replaced=self.source_replaced,
                           rgb_received_ns=ready_ns, timing=timing)
             yield CapturedFrame(header['frame_id'], (acquired_ns-first_acquired)/1e6, due, ready_ns,
-                                header['width'], header['height'], pixels, header['geometry_segment'], record)
+                                header['width'], header['height'], pixels, header['geometry_segment'], record,
+                                small)
         if self.error and not cancelled.is_set():raise RuntimeError(self.error)
         if not cancelled.is_set() and (not self.end or not self.end.get('execution_complete')):
             raise RuntimeError('Sessão nativa incompleta.')

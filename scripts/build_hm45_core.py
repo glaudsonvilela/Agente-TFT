@@ -38,6 +38,7 @@ def main() -> None:
     if report.get("model_mode") != "shadow_diagnostic" or report.get("matching_item_entries", 0) < 100:
         raise SystemExit("Pinned model and icon bank were not verified")
     catalog = json.loads((ROOT / "configs/catalog/active-visual-reference-v1.json").read_text(encoding="utf-8"))
+    knowledge = json.loads((ROOT / "configs/catalog/active-knowledge-release-v1.json").read_text(encoding="utf-8"))
     if CONTEXT.exists():
         shutil.rmtree(CONTEXT)
     APP.mkdir(parents=True)
@@ -55,6 +56,7 @@ def main() -> None:
     copy(assets / "models", APP / "models")
     copy(assets / catalog["icon_dir"], APP / catalog["icon_dir"])
     copy(ROOT / catalog["reference"], APP / catalog["reference"])
+    copy(ROOT / knowledge["reference"], APP / knowledge["reference"])
     copy(ROOT / "scripts/hm45_core/health-check", APP / "bin/health-check")
 
     run(["docker", "build", "--pull", "--tag", IMAGE, str(CONTEXT)])

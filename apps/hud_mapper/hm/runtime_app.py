@@ -354,7 +354,9 @@ class App:
         if (previous is None or previous.get("view_kind")!=view or
                 (view!="capture" and previous["frame"].id!=f.id)):
             self.crop_label.configure(image="",text="Selecione uma região.");self.details.delete("1.0","end")
-        im=Image.frombytes("RGB",(f.width,f.height),f.rgb)
+        small=getattr(f,"ui_preview",None) if view!="capture" else None
+        image_width,image_height,image_rgb=small if small else (f.width,f.height,f.rgb)
+        im=Image.frombytes("RGB",(image_width,image_height),image_rgb)
         w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8)
         w=min(w,1280);h=min(h,720)
         im.thumbnail((w,h),Image.Resampling.BILINEAR)
@@ -388,7 +390,7 @@ class App:
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
         physical = f'{cap["source_width"]}×{cap["source_height"]} capturado · ' if cap and cap.get('type')=='preview' else ''
-        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} recebido → {im.width}×{im.height} exibido · idade {age:.1f} ms · geometria {f.epoch}')
+        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} analisado → {im.width}×{im.height} exibido · idade {age:.1f} ms · geometria {f.epoch}')
         table_key=(view,None if view=="capture" else f.id)
         if table_key!=self._table_key:
             self._table_key=table_key

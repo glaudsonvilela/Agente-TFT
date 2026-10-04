@@ -43,3 +43,24 @@ the chosen monitor for several minutes. Record `voice.played`,
 `preview.render_p95_ms`, `replay_tips`, and `board_reference_status`. A real
 Windows run is required to measure the FPS change and audio output; CI only
 checks program behavior and packaged voice synthesis.
+
+## New learning experiment
+
+The separate BigBANANA CPU training container fine-tuned the bench/shop
+localizer for 600 optimizer steps using 66 verified frames from three sessions.
+The ONNX export passed parity (max absolute difference 2.98e-7); real inference
+p95 was about 1.03 ms. On the same 46 latest-session frames, the installed
+candidate proposed a shop region in 43; the new candidate proposed one in 5.
+This regression blocks promotion. Neither candidate has independent champion,
+item, board-cell, or decision accuracy labels. No strategic neural learning or
+simulator has been activated by this localization experiment.
+
+The pinned 18.3 knowledge release contains all 74 playable unit IDs with combat
+stats, traits, and ability descriptions, joined exactly to the 74 visual IDs.
+Only two abilities expose numeric variables and all descriptions contain
+unresolved placeholders. The client snapshot may lag Riot's 18.3 B notes, so
+strategy activation remains false.
+The separate CPU JIT benchmark aggregated 500 synthetic paths of 12 steps in
+0.0234 ms/call after warmup versus 2.8063 ms/call in plain Python on
+BigBANANA (120x). First-call compilation took 578 ms. These paths are numeric
+fixtures; they are not simulated TFT games.
