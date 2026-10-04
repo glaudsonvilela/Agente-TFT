@@ -19,8 +19,8 @@ from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES, _play_wav
 class HM4RuntimeTests(unittest.TestCase):
     def test_visual_item_ids_link_to_attributes_only_by_exact_api_name(self):
         root=Path(__file__).resolve().parents[3]
-        knowledge=json.loads((root/'configs/catalog/active-knowledge-release-v1.json').read_text())
-        items=json.loads((root/knowledge['reference']/'items.json').read_text())['items']
+        knowledge=json.loads((root/'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
+        items=json.loads((root/knowledge['reference']/'items.json').read_text(encoding='utf-8'))['items']
         hub=BoardHubLive.__new__(BoardHubLive)
         hub.item_attribute_ids={item['api_name'] for item in items}
         candidate={'catalog_options':[{'visual_id':'TFT_Item_GuinsoosRageblade','name':'Lâmina da Fúria de Guinsoo'},
