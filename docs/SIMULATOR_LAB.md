@@ -1,5 +1,14 @@
 # Simulação e treinamento da política
 
+## Pesquisa estratégica antes da próxima simulação
+
+A [memória sazonal de 04/10/2026](SEASONAL_STRATEGY_MEMORY.md) registra 19 fontes,
+15 grupos de mecânicas e 12 estratégias condicionais para 18.3B + hotfix de 28/09.
+Inclui correções de Blackthorn, terreno de Ivern e lojas especiais, além de
+condições de entrada/saída e comparações planejadas. É conhecimento de pesquisa,
+sem atualização de pesos, nova simulação ou promoção para o HUD. O perfil
+executável 18.3 continua separado do conhecimento do hotfix.
+
 ## Estado real
 
 Foi integrado um laboratório de oito jogadores com loja, ouro, XP, banco,

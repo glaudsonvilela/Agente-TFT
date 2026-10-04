@@ -364,6 +364,18 @@
       "content_review": "sampled visual inspection and transcript review of champion section",
       "training_labels_ready": false,
       "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/online-video-review.json"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=k8EmL7emHoI",
+      "creator": "TFTAcademy and Wasianiverson",
+      "title": "Rank 1 Climbing Flowchart for Patch 18.3",
+      "kind": "guide_strategy",
+      "patch_claim": "18.3; recording hotfix unverified",
+      "availability": "online_browser_reviewed",
+      "content_review": "complete_auto_transcript_read_and_visual_sample_42s",
+      "training_labels_ready": false,
+      "transcript_sha256": "135487c4071b3a052ff943ae91b10c212f76987618daf13375872ebf2f2f517a",
+      "evidence_report": "configs/training/strategy-memory/TFTSet18/18.3B-20260928/memory.json"
     }
   ],
   "creator_discovery_queue": [

@@ -1,0 +1,22 @@
+{
+  "kind": "research_memory_integrity_audit",
+  "patch": "18.3B-20260928",
+  "memory_sha256": "114f267b19c92271d4e0e9f44af1ef8385eb044cd50c4cd7f7885442da6f5de2",
+  "sources": 19,
+  "mechanic_groups": 15,
+  "conditional_strategies": 12,
+  "inherited_traits": 36,
+  "checks": [
+    "unique JSON keys and IDs",
+    "all provenance references resolve",
+    "all strategy dependencies resolve",
+    "inventory SHA-256 and all 36 traits retained",
+    "entry/action/exit present",
+    "no strategy marked simulated or runtime ready"
+  ],
+  "research_data_valid": true,
+  "game_rules_validated": false,
+  "full_simulator_ready": false,
+  "neural_weights_updated": false,
+  "new_simulations": 0
+}

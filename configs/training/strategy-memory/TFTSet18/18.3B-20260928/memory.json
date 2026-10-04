@@ -1,0 +1,1207 @@
+{
+  "schema_version": 1,
+  "kind": "strategy_research_memory",
+  "set_key": "TFTSet18",
+  "patch": "18.3B-20260928",
+  "researched_at": "2026-10-04",
+  "language": "pt-BR",
+  "purpose": "Conhecimento externo revisado para projetar cenários; não contém pesos neurais nem ordens ao usuário.",
+  "runtime_enabled": false,
+  "neural_weights_updated": false,
+  "simulations_run": 0,
+  "source_precedence": [
+    "official_current_patch",
+    "official_older_patch_not_superseded",
+    "observed_game_replay",
+    "supplemental_game_table",
+    "creator_strategy_hypothesis",
+    "prelaunch_preview"
+  ],
+  "inherited_inventory": {
+    "path": "configs/simulation/seasons/TFTSet18/18.3/mapping-requirements.json",
+    "sha256": "7a03efe7f17814e01b604ad30c2c8a32b736caed52f80d763a0bc9549680193a",
+    "traits": 36,
+    "note": "Todo inventário anterior permanece; esta pesquisa aprofunda os mecanismos abaixo. Não significa completar todas as regras."
+  },
+  "source_ids": [
+    "riot-18.3",
+    "riot-18.2",
+    "riot-overview",
+    "wasian-flowchart",
+    "flow-invoker-ahri",
+    "flow-rammus-azir",
+    "flow-nidalee-aphelios",
+    "flow-sivir-nidalee",
+    "flow-riftbeast-tempo",
+    "tables-blackthorn",
+    "tables-coven",
+    "tables-greenfather",
+    "tables-primal",
+    "tables-riftbeast",
+    "tables-elderwood",
+    "tables-sprykin",
+    "tables-solar",
+    "tables-rival",
+    "tables-bounty-seeker"
+  ],
+  "sources": [
+    {
+      "id": "riot-18.3",
+      "url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+      "kind": "official_patch",
+      "patch_scope": "18.3 + 18.3B + 2026-09-28",
+      "accessed": "2026-10-04",
+      "review": "Read patch, hotfix, disables and gameplay bug fixes."
+    },
+    {
+      "id": "riot-18.2",
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+      "kind": "official_patch",
+      "patch_scope": "18.2 + 18.2B",
+      "accessed": "2026-10-04",
+      "review": "Read seasonal changes, XP, Polymorph and sacrifice fixes."
+    },
+    {
+      "id": "riot-overview",
+      "url": "https://teamfighttactics.leagueoflegends.com/en-sg/news/game-updates/enchanted-wilds-overview/",
+      "kind": "official_prelaunch",
+      "patch_scope": "Set18 preview; numbers explicitly provisional",
+      "accessed": "2026-10-04",
+      "review": "Structural reference only; current patch overrides preview."
+    },
+    {
+      "id": "wasian-flowchart",
+      "url": "https://www.youtube.com/watch?v=k8EmL7emHoI",
+      "kind": "creator_guide",
+      "patch_scope": "18.3 claimed; exact recording hotfix unverified",
+      "accessed": "2026-10-04",
+      "review": "Read complete auto-generated pt-BR transcript; online playback sampled to 42.10432s, not a full visual review. Mistranscribed names/formulas are not numeric truth."
+    },
+    {
+      "id": "flow-invoker-ahri",
+      "url": "https://tftflow.com/composition/set18/invoker-ahri",
+      "kind": "creator_guide",
+      "patch_scope": "18.3b displayed",
+      "accessed": "2026-10-04",
+      "review": "Read conditions, tips and economy. Author opinion; no measured win-rate or guaranteed optimum."
+    },
+    {
+      "id": "flow-rammus-azir",
+      "url": "https://tftflow.com/composition/set18/rammus-azir",
+      "kind": "creator_guide",
+      "patch_scope": "18.3b displayed",
+      "accessed": "2026-10-04",
+      "review": "Read conditions, tips and economy. Author opinion; no measured win-rate or guaranteed optimum."
+    },
+    {
+      "id": "flow-nidalee-aphelios",
+      "url": "https://tftflow.com/composition/set18/nidalee-aphelios",
+      "kind": "creator_guide",
+      "patch_scope": "18.3b displayed",
+      "accessed": "2026-10-04",
+      "review": "Read conditions, tips and economy. Author opinion; no measured win-rate or guaranteed optimum."
+    },
+    {
+      "id": "flow-sivir-nidalee",
+      "url": "https://tftflow.com/composition/set18/sivir-nidalee",
+      "kind": "creator_guide",
+      "patch_scope": "18.3b displayed",
+      "accessed": "2026-10-04",
+      "review": "Read conditions, tips and economy. Author opinion; no measured win-rate or guaranteed optimum."
+    },
+    {
+      "id": "flow-riftbeast-tempo",
+      "url": "https://tftflow.com/composition/set18/riftbeast-tempo",
+      "kind": "creator_guide",
+      "patch_scope": "18.3b displayed",
+      "accessed": "2026-10-04",
+      "review": "Read conditions, tips and economy. Author opinion; no measured win-rate or guaranteed optimum."
+    },
+    {
+      "id": "tables-blackthorn",
+      "url": "https://www.tftraits.com/traits/blackthorn/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-coven",
+      "url": "https://www.tftraits.com/traits/coven/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-greenfather",
+      "url": "https://www.tftraits.com/traits/greenfather/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-primal",
+      "url": "https://www.tftraits.com/traits/primal/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-riftbeast",
+      "url": "https://www.tftraits.com/traits/riftbeast/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-elderwood",
+      "url": "https://www.tftraits.com/traits/elderwood/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-sprykin",
+      "url": "https://www.tftraits.com/traits/sprykin/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-solar",
+      "url": "https://www.tftraits.com/traits/solar/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-rival",
+      "url": "https://www.tftraits.com/traits/rival/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    },
+    {
+      "id": "tables-bounty-seeker",
+      "url": "https://www.tftraits.com/traits/bounty-seeker/",
+      "kind": "supplemental_game_table",
+      "patch_scope": "Set18; page not immutable",
+      "accessed": "2026-10-04",
+      "review": "Read displayed tables; unresolved semantics require official/replay corroboration."
+    }
+  ],
+  "mechanics": [
+    {
+      "id": "wisps",
+      "title": "Wisps e Blossom",
+      "source_ids": [
+        "riot-overview",
+        "riot-18.2",
+        "riot-18.3"
+      ],
+      "observed_facts": [
+        "Compra no planejamento; vaga final; oferta alternada; Blossom altera frequência e limite.",
+        "Polymorph: somente primeira oferta da fase; Major Polymorph desativado."
+      ],
+      "required_state": [
+        "planning_phase",
+        "shop_index",
+        "wisp_offer_index",
+        "underlying_shop_unit",
+        "purchases_this_round",
+        "blossom_tier_after_combat",
+        "normal_or_empowered",
+        "cost",
+        "duration",
+        "eligibility_pool"
+      ],
+      "remaining_unknowns": [
+        "Elegibilidade/pesos por estágio e histórico; ordem com loja especial; 25 preços ausentes no inventário r5; executar todos os efeitos e expiração."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "base_purchase_cap": 1,
+        "blossom_purchase_cap_at_9": 2,
+        "blossom_every_shop_at": 5,
+        "polymorph_offer_index": 1
+      },
+      "ambiguity": "Depois do estágio 5, a fonte diz alternância de Wisp de combate; não significa todos os Wisps. Confirmar limite exato da fase em replay."
+    },
+    {
+      "id": "blackthorn",
+      "title": "Sacrifício Blackthorn",
+      "source_ids": [
+        "riot-18.3",
+        "riot-18.2",
+        "tables-blackthorn"
+      ],
+      "observed_facts": [
+        "Patamar 6 ainda sacrifica: correção oficial supera descrição antiga.",
+        "Escolha por papel, custo e estrela; HP de equipe e bônus próprios separados."
+      ],
+      "required_state": [
+        "sacrifice_hex",
+        "occupant",
+        "itemized_role",
+        "cost",
+        "star",
+        "tier",
+        "precombat_snapshot",
+        "death_spawn_queue"
+      ],
+      "remaining_unknowns": [
+        "Desempates; momento do snapshot; prioridade com Sprykin/Primal; fórmula completa validada; bônus no 6 após remover sacrifício."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "team_hp_by_tier": {
+          "2": 175,
+          "4": 350,
+          "6": 600
+        },
+        "ap_sacrifice_damage_amp": 0.12,
+        "ap_sacrifice_mana_regen": 2,
+        "tank_resist": 12
+      },
+      "regression_cases": [
+        "Sacrificar Yorick/Krug deve gerar suas invocações.",
+        "Não manter unidade sacrificada viva por confiar em tooltip antigo."
+      ]
+    },
+    {
+      "id": "coven",
+      "title": "Essência e retirada Coven",
+      "source_ids": [
+        "riot-overview",
+        "riot-18.3",
+        "tables-coven"
+      ],
+      "observed_facts": [
+        "Essência por matar campeões e perder combate contra jogador; aceitar ou adiar recompensa."
+      ],
+      "required_state": [
+        "essence",
+        "tier",
+        "kills",
+        "pvp_loss",
+        "offered_threshold",
+        "cashout_choice",
+        "reward_seed",
+        "bench_capacity",
+        "hp"
+      ],
+      "remaining_unknowns": [
+        "Tabela completa de pacotes/probabilidades; reset após retirada; ordem simultânea; texto introdutório secundário fala mortes próprias e conflita com Riot."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "loss_essence_by_tier": {
+          "3": 22,
+          "4": 28,
+          "5": 35,
+          "7": 60
+        },
+        "thresholds": [
+          40,
+          85,
+          130,
+          185,
+          250,
+          365,
+          500,
+          650,
+          800
+        ]
+      },
+      "regression_cases": [
+        "Não garantir item completo específico ao atingir 130: existem pacotes alternativos."
+      ]
+    },
+    {
+      "id": "greenfather",
+      "title": "Ivern e terreno persistente",
+      "source_ids": [
+        "riot-18.2",
+        "tables-greenfather"
+      ],
+      "observed_facts": [
+        "Ivern começa com 3 hexes, não 3 sementes. Tabela suplementar: 5 sementes para cultivar um hex."
+      ],
+      "required_state": [
+        "strongest_ivern",
+        "seed_count",
+        "biome",
+        "grown_hexes",
+        "hex_types",
+        "god_willow",
+        "round"
+      ],
+      "remaining_unknowns": [
+        "Geometria por bioma; seleção/ordem dos novos hexes; venda/fusão; desempate do Ivern mais forte; beneficiários do God-Willow."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "starting_hexes": 3,
+        "seeds_per_growth": 5,
+        "water_mana_per_second": 1,
+        "tree_hp_fraction": 0.08,
+        "mushroom_damage_amp": 0.08
+      }
+    },
+    {
+      "id": "primal",
+      "title": "Escolha permanente Primal",
+      "source_ids": [
+        "tables-primal"
+      ],
+      "observed_facts": [
+        "2 unidades: uma bênção; 4: segunda. Phoenix gera componente a cada 15 abates assistidos Primal, máximo 4."
+      ],
+      "required_state": [
+        "chosen_blessings",
+        "active_tier",
+        "primal_takedowns",
+        "components_granted",
+        "combat_time"
+      ],
+      "remaining_unknowns": [
+        "Ativação após remover/repor trait; armory delay; Tiger soma ou substitui bônus da equipe; autoria de dano periódico."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "tiger_delay_s": 6,
+        "tiger_member_as": 0.35,
+        "tiger_team_as": 0.15,
+        "turtle_period_s": 4,
+        "turtle_max_hp_heal": 0.04,
+        "bear_execute_hp_fraction": 0.12
+      }
+    },
+    {
+      "id": "riftbeast",
+      "title": "Alfa e loja Riftbeast",
+      "source_ids": [
+        "tables-riftbeast"
+      ],
+      "observed_facts": [
+        "5: loja especial a cada 3 combates; 7: crescimento inicial e a cada 5 segundos.",
+        "Loja especial usa conjuntos correlacionados; marginais por campeão não são cinco sorteios independentes."
+      ],
+      "required_state": [
+        "alpha_owner",
+        "combat_counter",
+        "player_level",
+        "preset_lineup",
+        "owned_stars",
+        "shared_pool",
+        "replacement_attempts",
+        "growth_ticks"
+      ],
+      "remaining_unknowns": [
+        "Validar conjuntos completos, pesos e reposição de três/quatro estrelas; consumo do pool; Alpha de cada criatura; prioridade com Wisps e Inferno."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "overrun_every_combats": 3,
+        "growth_period_s": 5,
+        "team_capacity_at_10": 2
+      }
+    },
+    {
+      "id": "elderwood",
+      "title": "Plantas Elderwood",
+      "source_ids": [
+        "tables-elderwood"
+      ],
+      "observed_facts": [
+        "Invocações posicionáveis; atributos dependem de estrelas dos membros, estágio e patamar."
+      ],
+      "required_state": [
+        "plant_positions",
+        "sum_member_stars",
+        "stage",
+        "tier",
+        "plant_stars",
+        "plant_owner",
+        "alive_plants"
+      ],
+      "remaining_unknowns": [
+        "Todos os atributos e habilidades das plantas; ocupação de casas; remoção ao baixar trait; unidades de duração exibidas como porcentagem são ambíguas."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "plant_star_at_tier": {
+          "9": 2,
+          "11": 3
+        }
+      }
+    },
+    {
+      "id": "sprykin",
+      "title": "Montaria Sprykin",
+      "source_ids": [
+        "tables-sprykin"
+      ],
+      "observed_facts": [
+        "BFF recebe um cavaleiro; efeitos diferem entre corpo a corpo e distância."
+      ],
+      "required_state": [
+        "rider",
+        "rider_role",
+        "tier",
+        "stage",
+        "bff_hp",
+        "casts",
+        "emblem_owner"
+      ],
+      "remaining_unknowns": [
+        "Ordenar morte/desmontagem; compartilhamento de buffs e itens; comprovar bônus de equipe zero no patamar 5 da tabela atual."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "rider_hp_by_tier": {
+          "3": 0.15,
+          "5": 0.4,
+          "7": 0.45
+        },
+        "rider_as_by_tier": {
+          "3": 0.15,
+          "5": 0.35,
+          "7": 0.45
+        }
+      }
+    },
+    {
+      "id": "solar",
+      "title": "Solar e Eclipse",
+      "source_ids": [
+        "tables-solar"
+      ],
+      "observed_facts": [
+        "Contagem de campeões únicos de três estrelas altera dano/escudo e desbloqueia patamares; 3 Solar + 3 Lunar ativa Eclipse."
+      ],
+      "required_state": [
+        "unique_three_star_identities",
+        "solar_count",
+        "lunar_count",
+        "shield_expiry",
+        "ascension_timer",
+        "temporary_stars"
+      ],
+      "remaining_unknowns": [
+        "Duplicatas e formas; ascensão de quatro estrelas; persistência/reset; seleção/execução de Eclipse."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "unique_star_thresholds": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "ascension_period_s": 4,
+        "base_shield_fraction": 0.05,
+        "base_bonus_magic_fraction": 0.08
+      }
+    },
+    {
+      "id": "rival",
+      "title": "Rival e progresso",
+      "source_ids": [
+        "tables-rival"
+      ],
+      "observed_facts": [
+        "Um Rival em campo; somente o mais forte acumula; takedown de outro Rival vale 3."
+      ],
+      "required_state": [
+        "strongest_rival",
+        "fielded_rivals",
+        "takedowns",
+        "victim_identity",
+        "progression_thresholds",
+        "gold_paid",
+        "rival_augment"
+      ],
+      "remaining_unknowns": [
+        "Regras da exceção por aprimoramento; transferência ao fundir/vender; upgrades Kha completos; distinguir kill de takedown."
+      ],
+      "simulation_status": "not_validated"
+    },
+    {
+      "id": "bounty",
+      "title": "Draven e missões",
+      "source_ids": [
+        "tables-bounty-seeker",
+        "riot-18.3"
+      ],
+      "observed_facts": [
+        "Somente Draven mais forte progride; concluir missão abre próxima escolha."
+      ],
+      "required_state": [
+        "strongest_draven",
+        "selected_bounty",
+        "attack_count",
+        "casts",
+        "damage",
+        "kills",
+        "takedowns",
+        "survived_combats",
+        "reward_pool"
+      ],
+      "remaining_unknowns": [
+        "Distribuição das ofertas; progresso por combate ou acumulado; cópias e venda; significado de last player standing no texto secundário."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "attacks_for_five_cost": 60,
+        "casts_for_two_four_costs": 6,
+        "casts_for_six_rerolls": 8,
+        "damage_for_seven_gold": 10000,
+        "kills_for_twelve_gold": 8
+      }
+    },
+    {
+      "id": "fae",
+      "title": "Pixies Fae",
+      "source_ids": [
+        "riot-overview",
+        "riot-18.2"
+      ],
+      "observed_facts": [
+        "Dano, cura e escudo alimentam progresso de Pixies; patamar 4 pode gerar ouro."
+      ],
+      "required_state": [
+        "eligible_damage_heal_shield",
+        "pixie_count",
+        "golden_pixie_count",
+        "half_hp_trigger",
+        "active_tier"
+      ],
+      "remaining_unknowns": [
+        "Thresholds normais; overkill/overheal e escudo absorvido versus concedido; periodicidade de cura; cap e persistência."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "first_six_golden_thresholds": [
+          170000,
+          200000,
+          300000,
+          400000,
+          500000,
+          600000
+        ]
+      }
+    },
+    {
+      "id": "inferno",
+      "title": "Inferno e slots da loja",
+      "source_ids": [
+        "riot-overview",
+        "riot-18.3"
+      ],
+      "observed_facts": [
+        "Burn/wound e transformação de slots após combate precisam compartilhar o estado da loja."
+      ],
+      "required_state": [
+        "burn_source",
+        "wound_expiry",
+        "ignited_slots",
+        "shop_cost_tier",
+        "pool_reservations",
+        "combat_end"
+      ],
+      "remaining_unknowns": [
+        "Empilhamento de fontes; slots excluídos; chance/retorno ao pool; interação Lux, Riftbeast e Wisps."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "burn_by_tier": {
+          "2": 0.01,
+          "3": 0.01,
+          "5": 0.03,
+          "7": 0.04
+        }
+      }
+    },
+    {
+      "id": "adaptor_lux",
+      "title": "Formas Adaptor e Lux",
+      "source_ids": [
+        "riot-overview"
+      ],
+      "observed_facts": [
+        "Adaptor muda habilidade com AD/AP; Lux contribui duas vezes para sua origem."
+      ],
+      "required_state": [
+        "itemized_role",
+        "ad_ap_comparison",
+        "form",
+        "lux_origin",
+        "owned_lux",
+        "shared_lux_pool"
+      ],
+      "remaining_unknowns": [
+        "Normalização AD/AP e empate; cinco formas ainda sem vínculo; confirmar regras de distribuição Lux após PBE; transição dinâmica de forma."
+      ],
+      "simulation_status": "not_validated"
+    },
+    {
+      "id": "economy",
+      "title": "Economia e ofertas sazonais",
+      "source_ids": [
+        "riot-18.2",
+        "riot-18.3"
+      ],
+      "observed_facts": [
+        "XP 7→8: 56; 8→9 e 9→10: 68 após reversão.",
+        "Pandora não deve retirar/devolver cópias em dobro ao pool."
+      ],
+      "required_state": [
+        "gold",
+        "xp",
+        "level",
+        "streak",
+        "interest_snapshot",
+        "pool",
+        "pending_transformation",
+        "bench_capacity",
+        "shop_lock"
+      ],
+      "remaining_unknowns": [
+        "Demais níveis/odds/pool; arredondamento; PvE/loot/pareamento/dano ao jogador; probabilidade e exclusões de augments."
+      ],
+      "simulation_status": "not_validated",
+      "research_parameters": {
+        "xp_to_next_level": {
+          "7": 56,
+          "8": 68,
+          "9": 68
+        }
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "id": "ravager-flex",
+      "title": "Abertura Ravager flexível",
+      "source_ids": [
+        "wasian-flowchart"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Ravagers disponíveis; tanques melhorados."
+      ],
+      "candidate_action": "Carregar itens temporariamente e escolher transição AD/AP.",
+      "stop_or_pivot": "Mudar conforme itens e unidades obtidos.",
+      "mechanic_dependencies": [
+        "adaptor_lux",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "Ravager",
+          "melhor tabuleiro alternativo"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        37,
+        94
+      ]
+    },
+    {
+      "id": "blossom-ap",
+      "title": "Blossom para AP",
+      "source_ids": [
+        "wasian-flowchart"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Karma; Shojin e JG."
+      ],
+      "candidate_action": "Transição para Ahri/Morgana.",
+      "stop_or_pivot": "Não forçar sem peças.",
+      "mechanic_dependencies": [
+        "wisps",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "Blossom",
+          "Ravager AP"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        95,
+        123
+      ]
+    },
+    {
+      "id": "veigar-reroll",
+      "title": "Veigar reroll",
+      "source_ids": [
+        "wasian-flowchart"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Veigar/Ornn; dois itens adequados perto de 3-1."
+      ],
+      "candidate_action": "Considerar reroll e crescimento.",
+      "stop_or_pivot": "Sem itens: jogar tempo.",
+      "mechanic_dependencies": [
+        "elderwood",
+        "sprykin",
+        "blackthorn",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "reroll",
+          "transição AP"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        206,
+        263
+      ]
+    },
+    {
+      "id": "khazix-early",
+      "title": "Kha’Zix cedo",
+      "source_ids": [
+        "wasian-flowchart",
+        "riot-18.3"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Kha’Zix cedo; componentes compatíveis."
+      ],
+      "candidate_action": "Construir força cedo; conferir disputa.",
+      "stop_or_pivot": "Contestado: considerar carry duas estrelas e transição.",
+      "mechanic_dependencies": [
+        "rival",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "reroll",
+          "usar duas estrelas e subir"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        383,
+        499
+      ],
+      "revalidation": "Coeficientes do hotfix e isolation/leap pendentes; ranking do vídeo não foi transferido."
+    },
+    {
+      "id": "coven-cashout",
+      "title": "Coven: retirar ou continuar",
+      "source_ids": [
+        "wasian-flowchart",
+        "tables-coven"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Coven cedo; HP para perdas."
+      ],
+      "candidate_action": "Comparar retirada em 130 com continuação.",
+      "stop_or_pivot": "Priorizar sobrevivência e transição viável.",
+      "mechanic_dependencies": [
+        "coven",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "retirar na oferta",
+          "continuar até próxima oferta"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        273,
+        343
+      ],
+      "revalidation": "Guia simplifica recompensa: usar distribuição, não item completo garantido; Dark Ritual excluído."
+    },
+    {
+      "id": "ashe-fast9",
+      "title": "Ashe ou Draven no nível 9",
+      "source_ids": [
+        "wasian-flowchart"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Economia e estabilidade; itens transferíveis."
+      ],
+      "candidate_action": "Ashe com Shojin/Red Buff; Draven com Rageblade/Kraken.",
+      "stop_or_pivot": "Sem estabilidade, melhorar nível atual.",
+      "mechanic_dependencies": [
+        "bounty",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "subir9",
+          "estabilizar8"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        647,
+        754
+      ]
+    },
+    {
+      "id": "solar-highroll",
+      "title": "Solar/Lunar condicional",
+      "source_ids": [
+        "wasian-flowchart"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Economia forte; várias cópias naturais."
+      ],
+      "candidate_action": "Considerar reroll com espaço no banco.",
+      "stop_or_pivot": "Evitar sem recursos.",
+      "mechanic_dependencies": [
+        "solar",
+        "wisps",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "reroll Solar",
+          "transição flexível"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "source_time_range": [
+        755,
+        784
+      ]
+    },
+    {
+      "id": "ahri-fast8",
+      "title": "Ahri Invoker no nível 8",
+      "source_ids": [
+        "flow-invoker-ahri"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Abertura AP; itens de mana/dano e frontline."
+      ],
+      "candidate_action": "Estabilizar carry/tanque; posição central para área, abrir formação contra Ahri adversária.",
+      "stop_or_pivot": "Pouco HP e upgrades ausentes: gastar mais; estável: poupar para 9.",
+      "mechanic_dependencies": [
+        "wisps",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "rolar8",
+          "poupar9",
+          "mudar formação"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "items": [
+        "Spear of Shojin",
+        "Jeweled Gauntlet",
+        "Morellonomicon",
+        "Void Staff conforme necessidade"
+      ],
+      "positioning": "Formação depende do oponente; evitar duplicar redução de resistência sem benefício."
+    },
+    {
+      "id": "nidalee-aphelios",
+      "title": "Nidalee + Aphelios",
+      "source_ids": [
+        "flow-nidalee-aphelios"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Itens AD e velocidade; abertura Ravager."
+      ],
+      "candidate_action": "Usar Kog’Maw/Inferno para utilidade; decidir bênção Primal pelo horizonte de tempo.",
+      "stop_or_pivot": "Phoenix cedo com abates; comparar Tiger/Turtle quando retorno econômico for tardio.",
+      "mechanic_dependencies": [
+        "adaptor_lux",
+        "primal",
+        "inferno",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "Phoenix",
+          "Tiger",
+          "Turtle",
+          "transição AP"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "items": [
+        "Guinsoo’s Rageblade / Kraken’s Fury para Aphelios",
+        "Infinity Edge / Spear of Shojin / Sterak’s Gage para Nidalee"
+      ],
+      "caveat": "Não eliminar automaticamente todo item utilitário: disponibilidade e uptime importam."
+    },
+    {
+      "id": "sivir-nidalee",
+      "title": "Sivir + Nidalee",
+      "source_ids": [
+        "flow-sivir-nidalee"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Itens AD; frontline melhorada."
+      ],
+      "candidate_action": "Comparar Tiger com outras bênçãos; usar tanque disponível, sem exigir Malphite/Rek’Sai.",
+      "stop_or_pivot": "Se peças não vierem, trocar frontline e carry compatíveis.",
+      "mechanic_dependencies": [
+        "adaptor_lux",
+        "primal",
+        "blackthorn",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "Tiger",
+          "Bear",
+          "frontline alternativa"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "items": [
+        "Infinity Edge",
+        "Spear of Shojin",
+        "Sterak’s Gage"
+      ],
+      "caveat": "Popularidade recente de Tiger é hipótese de guia, não prova de superioridade universal."
+    },
+    {
+      "id": "azir-rammus",
+      "title": "Azir + Rammus reroll",
+      "source_ids": [
+        "flow-rammus-azir"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Azir e frontline; itens AP disponíveis."
+      ],
+      "candidate_action": "Comparar sacrifício AP Teemo/Soraka e melhorias no nível 7.",
+      "stop_or_pivot": "Ao completar carry/tanque, comparar subir; perto de Fiddlesticks três estrelas, considerar ficar.",
+      "mechanic_dependencies": [
+        "blackthorn",
+        "sprykin",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "Teemo2 sacrifício",
+          "Soraka2 sacrifício",
+          "subir8",
+          "rolar7"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "items": [
+        "Archangel’s Staff",
+        "Hextech Gunblade",
+        "Guinsoo’s Rageblade opcional"
+      ],
+      "caveat": "Não sacrificar Gnar; comparar custo do sacrifício com força perdida. Guia prefere Teemo2 a Soraka1."
+    },
+    {
+      "id": "riftbeast-reroll",
+      "title": "Riftbeast com abertura adequada",
+      "source_ids": [
+        "flow-riftbeast-tempo"
+      ],
+      "status": "research_hypothesis",
+      "eligible_patch": "18.3B-20260928",
+      "entry_signals": [
+        "Cinco Riftbeast cedo; três cópias de Cinderling ou Pebbles."
+      ],
+      "candidate_action": "Buscar upgrades no nível 7; Alpha geralmente no Krug, carry se frontline suportar.",
+      "stop_or_pivot": "Krug três estrelas permite comparar progressão para Elder Dragon; fast9 só em abertura excepcional.",
+      "mechanic_dependencies": [
+        "riftbeast",
+        "economy"
+      ],
+      "experiment": {
+        "status": "planned_not_run",
+        "alternatives": [
+          "reroll7",
+          "subir9",
+          "Alpha tanque",
+          "Alpha carry"
+        ],
+        "origin": "project_proposed_comparison"
+      },
+      "simulation_ready": false,
+      "conflict": "Wasian desprioriza abertura Riftbeast genérica; este guia exige peças específicas. Manter condições, não votação de tier lists."
+    }
+  ],
+  "disabled": [
+    {
+      "name": "Major Polymorph",
+      "kind": "wisp",
+      "source_id": "riot-18.3"
+    },
+    {
+      "name": "Challenger’s Grace",
+      "kind": "augment",
+      "source_id": "riot-18.3"
+    },
+    {
+      "name": "Dark Ritual",
+      "kind": "augment",
+      "source_id": "riot-18.3"
+    },
+    {
+      "name": "Infinity Protection",
+      "kind": "augment",
+      "source_id": "riot-18.3"
+    },
+    {
+      "name": "Nesting Dolls",
+      "kind": "augment",
+      "source_id": "riot-18.3"
+    }
+  ],
+  "rejected_claims": [
+    {
+      "claim": "Blackthorn 6 não sacrifica.",
+      "reason": "Patch oficial esclarece que sacrifica.",
+      "sources": [
+        "riot-overview",
+        "riot-18.3"
+      ]
+    },
+    {
+      "claim": "Ivern começa com três sementes.",
+      "reason": "18.2 diz três hexes iniciais.",
+      "sources": [
+        "riot-18.2"
+      ]
+    },
+    {
+      "claim": "130 Coven garante sempre um item completo.",
+      "reason": "Pacotes alternativos existem; comentário do guia é simplificação.",
+      "sources": [
+        "wasian-flowchart",
+        "riot-18.2"
+      ]
+    },
+    {
+      "claim": "Usar Dark Ritual e Major Polymorph porque aparecem em guias.",
+      "reason": "Desativados no patch pesquisado.",
+      "sources": [
+        "riot-18.3"
+      ]
+    },
+    {
+      "claim": "Tabela marginal da loja Riftbeast define sorteios independentes.",
+      "reason": "Ofertas são conjuntos correlacionados.",
+      "sources": [
+        "tables-riftbeast"
+      ]
+    },
+    {
+      "claim": "Toda decisão de rolar depende apenas do estágio.",
+      "reason": "Comparações precisam HP, economia, upgrades, itens, disputa e horizonte.",
+      "sources": [
+        "flow-invoker-ahri",
+        "flow-nidalee-aphelios"
+      ]
+    }
+  ],
+  "experiment_contract": {
+    "origin": "project_design_not_creator_claim",
+    "required_observations": [
+      "patch",
+      "phase",
+      "stage",
+      "player_hp",
+      "gold",
+      "level",
+      "xp",
+      "streak",
+      "board_units_stars_positions",
+      "bench_units",
+      "equipped_items",
+      "inventory_components",
+      "augments",
+      "wisp_state",
+      "scouted_opponents",
+      "observation_age"
+    ],
+    "gates": [
+      "Perfil executável correspondente ao hotfix, sem confundir patch-base com patch atual.",
+      "Habilidades, itens e TODAS as sinergias presentes implementadas e validadas; não apagar traits para liberar cenário.",
+      "Estado persistente/economia/pool/loja e transições revisados.",
+      "Estado inicial anotado e independente do conjunto de avaliação.",
+      "Ações legais e comparações com guardar ouro/item; descartar conselho após mudança de fase/estado."
+    ],
+    "design": [
+      "Mesma distribuição e sementes emparelhadas por alternativa; somente informação visível ao jogador.",
+      "Variar HP, ouro, pares/cópias, itens, disputa, posição e força adversária.",
+      "Separar por partida/criador; sem frames do mesmo jogo em treino e avaliação.",
+      "Contar rolagens de busca separadamente de partidas independentes."
+    ],
+    "metrics": [
+      "HP e ouro futuros",
+      "probabilidade de melhorar carry/tanque",
+      "colocação/top4 apenas com partidas completas",
+      "arrependimento entre alternativas",
+      "latência p50/p95 e memória",
+      "intervalos de incerteza por partida independente"
+    ],
+    "release_rule": "Guia gera hipótese; simulação válida compara; replay independente e avaliação ponta a ponta autorizam promoção. Nenhum ranking de guia é rótulo de vitória."
+  }
+}
