@@ -69,11 +69,25 @@ def compile_catalog(manifest,catalogs,bindings):
     for row in catalogs['units']['champions']:
         key=row['api_name'];spec=dict(name=row['name'],cost=row['cost'],traits=[trait_names[n] for n in row['traits']])
         binding=bindings['champions'].get(key)
-        if binding is None:
-            spec.update(unsupported=True,reason='ability/role/timing binding missing')
+        if binding is None or binding.get('ability_status')=='blocked':
+            if binding and ('spell' in binding or not binding.get('blockers')):
+                raise UnsupportedRule('blocked ability must list blockers and cannot expose a runnable spell')
+            spec.update(unsupported=True,reason='ability binding incomplete',
+                        ability_status='blocked',ability_blockers=deepcopy((binding or {}).get('blockers',['binding missing'])))
         else:
-            role=profile['roles'].get(binding['role'])
-            if role is None:raise UnsupportedRule('unverified mana role')
+            if binding.get('ability_status') not in (None,'candidate_not_replay_validated'):
+                raise UnsupportedRule('unknown ability status')
+            validate_effects(binding['spell']['effects']);validate_hooks(binding.get('hooks',[]))
+            spec['ability_status']='candidate_not_replay_validated'
+            spec['ability_program']={k:deepcopy(binding[k]) for k in ('spell','hooks','modifiers') if k in binding}
+            spec['ability_notes']=deepcopy(binding.get('notes',[]))
+            spec['supported_stars']=deepcopy(binding.get('supported_stars',[1,2,3]))
+            if 'identity' in binding:spec['identity']=binding['identity']
+            role=profile['roles'].get(binding.get('role'))
+            if role is None:
+                spec.update(unsupported=True,reason='ability program available; mana role/timing integration unverified')
+                champions[key]=spec
+                continue
             v=row['stats'];missing=[k for k in ('hp','damage','armor','magicResist','attackSpeed','mana','initialMana','range','critChance','critMultiplier') if v.get(k) is None]
             if missing:raise UnsupportedRule(f'missing attributes: {key}: {missing}')
             spec.update(combat=dict(hp=[v['hp']*n for n in profile['star_multipliers']['hp']],
@@ -81,7 +95,7 @@ def compile_catalog(manifest,catalogs,bindings):
                 ap=profile['base_ap'],armor=v['armor'],mr=v['magicResist'],attack_speed=v['attackSpeed'],range=v['range'],
                 mana=v['mana'],initial_mana=v['initialMana'],**deepcopy(role),
                 crit_chance=v['critChance'],crit_multiplier=v['critMultiplier']),
-                spell=deepcopy(binding['spell']),hooks=deepcopy(binding.get('hooks',[])),status='candidate_not_replay_validated')
+                spell=deepcopy(binding['spell']),hooks=deepcopy(binding.get('hooks',[])),modifiers=deepcopy(binding.get('modifiers',[])),status='candidate_not_replay_validated')
             validate_effects(spec['spell']['effects'])
         champions[key]=spec
     if set(bindings['champions'])-set(champions):raise UnsupportedRule('binding entity missing from release')
@@ -91,7 +105,12 @@ def compile_catalog(manifest,catalogs,bindings):
              if len(r['composition'])==2 and items[r['api_name']].get('combat_handler')=='effects'}
     traits={r['api_name']:compile_trait(r,bindings['traits']) for r in catalogs['traits']['traits']}
     if set(bindings['traits']['entities'])-set(traits):raise UnsupportedRule('bound trait missing from release')
-    report=dict(champions=dict(total=len(champions),candidate_effects=sum(not v.get('unsupported') for v in champions.values()),
+    report=dict(abilities=dict(scope=deepcopy(bindings.get('ability_scope',{})),total=len(champions),inventoried=sum(k in bindings['champions'] for k in champions),
+                candidate_programs=sum(v.get('ability_status')=='candidate_not_replay_validated' for v in champions.values()),
+                replay_validated=0,blocked={k:v.get('ability_blockers',[]) for k,v in champions.items() if v.get('ability_status')=='blocked'},
+                role_integration_pending=sorted(k for k,v in champions.items() if v.get('ability_program') and v.get('unsupported')),
+                all_abilities_ready=False),
+                champions=dict(total=len(champions),candidate_effects=sum(not v.get('unsupported') for v in champions.values()),
                               replay_validated=0,missing_handlers=sorted(k for k,v in champions.items() if v.get('unsupported'))),
                 items=dict(global_catalog_total=len(items),set_membership_verified=False,
                            candidate_effects=sum(v.get('combat_handler')=='effects' for v in items.values()),replay_validated=0),

@@ -93,6 +93,29 @@ def fetch() -> dict:
 
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "status"
+    if command == 'habilidades':
+        root=Path(__file__).resolve().parents[1]/'data'
+        reports=sorted(root.glob('ability-lab-*/audit.json'),key=lambda p:p.stat().st_mtime,reverse=True)
+        if not reports:
+            print('Ainda não há auditoria de habilidades instalada.');return 1
+        path=reports[0]
+        if path.is_symlink() or path.stat().st_size>2*1024*1024:
+            print('Relatório inválido.');return 1
+        report=json.loads(path.read_text())
+        print(f"✦ AGENTE TFT · Habilidades · patch {report['patch']}")
+        print(f"Regras: {report['bindings_sha256'][:12]}")
+        print(f"{report['candidate_programs']}/{report['catalog_entries']} programas candidatos · {report['blocked_programs']} pendentes")
+        print(f"{report['role_bound_programs']} com regra de mana · {report['replay_validated']} validados em replay")
+        print('Inventário não equivale a habilidades completas. Treino do patch e HUD bloqueados.')
+        for variant in report.get('scope',{}).get('alternate_forms_outside_catalog',[]):
+            print(f"  Forma fora do catálogo: {variant['identity']} {variant['form']} · pendente")
+        print('\nCampeão / forma                        Estado')
+        for row in report['entries']:
+            status='candidato' if row['status']=='candidate_not_replay_validated' else 'pendente'
+            if status=='candidato' and not row['role_bound']:status+='; falta integrar mana/tempo'
+            print(f"  {row['id']:36} {status}")
+            for reason in row['blockers']:print('    '+reason)
+        return 0
     if command in ('fontes','simulador'):
         root=Path(__file__).resolve().parents[1]/'data'
         pattern='source-corpus-*/report.json' if command=='fontes' else 'hex-lab-*/report.json'
@@ -141,7 +164,7 @@ def main() -> int:
         print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
         return 0
     if command not in ("status", "acompanhar", "watch", "painel", "panel"):
-        print("Uso: tft [status|painel|web|fontes|simulador]", file=sys.stderr)
+        print("Uso: tft [status|painel|web|fontes|simulador|habilidades]", file=sys.stderr)
         return 2
     try:
         while True:

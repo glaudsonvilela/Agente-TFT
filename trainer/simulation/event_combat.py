@@ -17,13 +17,15 @@ from .traits import contributions
 
 NEUTRAL=dict(damage_amp=0.,durability=0.,omnivamp=0.,wound=0.,healing_amp=0.,shield_amp=0.,
              armor_pen=0.,magic_pen=0.,sunder=0.,shred=0.,slow=0.,precision=0.,cc_immune=0.,invulnerable=0.,
-             mana_per_pre_damage=0.,mana_damage_cap=1e12)
+             mana_per_pre_damage=0.,mana_damage_cap=1e12,vulnerable=0.)
 EVENTS={'combat_start','attack','cast','ally_cast','damage_dealt','damage_taken',
         'kill','takedown','death','health_below','periodic','shield_end'}
 OPS={'damage','heal','shield','mana','stat','status','over_time','execute',
-     'permanent_stat','resource','summon','transform','displace'}
+     'permanent_stat','resource','summon','transform','displace',
+     'sequence','branch','mark','volley','empower','cleanse'}
 TARGETS={'self','target','allies','enemies','lowest_hp_allies','nearest_enemies',
-         'farthest_enemies','target_and_nearest','area','best_area','line'}
+         'farthest_enemies','target_and_nearest','area','best_area','line',
+         'best_line','area_allies','lowest_hp_enemies','most_damage_allies','least_items_farthest'}
 
 
 @dataclass
@@ -59,6 +61,9 @@ class Actor:
     dot_groups: dict=field(default_factory=dict)
     contributors: set=field(default_factory=set)
     mana_lock_until: float=0.
+    marks: set=field(default_factory=set)
+    empowers: dict=field(default_factory=dict)
+    item_count: int=0
 
 
 def validate_effects(effects):
@@ -67,20 +72,42 @@ def validate_effects(effects):
         if e.get('op') not in OPS: raise UnsupportedRule(f"unsupported effect: {e.get('op')}")
         selector=e.get('target',{'kind':'target'})
         if selector.get('kind') not in TARGETS: raise UnsupportedRule('unsupported selector')
-        if set(selector)-{'kind','center','cast_range','radius','width','exclude_self','exclude_status','max_range','count'}:
+        if set(selector)-{'kind','center','cast_range','radius','width','exclude_self','exclude_status','max_range','count','shares_trait','damaged_only'}:
             raise UnsupportedRule('unknown targeting field')
         fields={
-            'damage':{'amount','damage_type','falloff_min','falloff_per_hex','falloff_per_target','execute_threshold','low_health_multiplier','can_crit'},
-            'heal':{'amount'},'shield':{'amount','duration'},'mana':{'amount'},
+            'damage':{'amount','damage_type','falloff_min','falloff_per_hex','falloff_per_target','execute_threshold','low_health_multiplier','can_crit','first_target_multiplier','per_unique_three_star'},
+            'heal':{'amount'},'shield':{'amount','duration','can_crit'},'mana':{'amount'},
             'stat':{'amount','stat','mode','duration','group','strongest','health_change'},
             'permanent_stat':{'amount','stat','mode','health_change'},
             'status':{'name','duration'},
             'over_time':{'duration','ticks','effects','then','mark','scaling_time','stacking','group'},
             'execute':set(),'resource':{'resource','amount'},
             'summon':{'champion','count','stars'},'transform':{'base_stats','spell'},
-            'displace':{'max_hexes','direction'}}
+            'displace':{'max_hexes','direction'},
+            'sequence':{'effects'},'branch':{'condition','effects','otherwise'},
+            'mark':{'name'},'cleanse':{'statuses'},
+            'volley':{'count','effects'},
+            'empower':{'charges','replace_attack','attack_speed','effects','last_effects'}}
         if set(e)-({'op','target','key'}|fields[e['op']]):raise UnsupportedRule('unknown effect field')
-        if 'duration' in e and finite(e['duration'],'duration')<=0:raise UnsupportedRule('invalid effect duration')
+        if 'duration' in e and any(finite(v,'duration')<=0 for v in (e['duration'] if isinstance(e['duration'],list) else [e['duration']])):raise UnsupportedRule('invalid effect duration')
+        if e['op'] in ('sequence','branch','volley','empower'):
+            validate_effects(e['effects'])
+        if e['op']=='branch':
+            c=e['condition']
+            if not isinstance(c,dict) or len(c)!=1 or next(iter(c)) not in ('marked','casts_at_least'):
+                raise UnsupportedRule('unknown ability condition')
+            validate_effects(e.get('otherwise',[]))
+        if e['op'] in ('volley','empower'):
+            value=e['count' if e['op']=='volley' else 'charges']
+            for n in value if isinstance(value,list) else [value]:
+                if type(n) is not int or not 1<=n<=100:raise UnsupportedRule('invalid ability counter')
+        if e['op']=='empower':
+            validate_effects(e.get('last_effects',[]))
+            if type(e.get('replace_attack')) is not bool or 'key' not in e:
+                raise UnsupportedRule('empowered attack replacement and key required')
+            finite(e.get('attack_speed',0),'empowered attack speed')
+        if e['op']=='cleanse' and set(e['statuses'])-{'stun','disarm','silence','root'}:
+            raise UnsupportedRule('unknown cleanse status')
         if e['op']=='over_time':
             if type(e.get('ticks')) is not int or not 1<=e['ticks']<=1000 or finite(e.get('duration'),'duration')<=0:
                 raise UnsupportedRule('invalid periodic effect')
@@ -178,6 +205,7 @@ class Battle:
             raise UnsupportedRule('critical chance overflow conversion is not implemented')
         actor=Actor(uid,champion,team,stars,position,values,spell,hooks,tags,
                     values.get('hp'),values.get('initial_mana'))
+        actor.item_count=len(items)
         self.units.append(actor);self.by_id[uid]=actor
         return actor
 
@@ -203,14 +231,22 @@ class Battle:
         if kind=='target':return [target] if target and self.targetable(target) else []
         if kind=='allies': candidates=allies
         elif kind in ('enemies','nearest_enemies','farthest_enemies','target_and_nearest'):candidates=enemies
-        elif kind=='lowest_hp_allies':candidates=sorted(allies,key=lambda u:(u.hp/self.get(u,'hp'),u.uid))
-        elif kind in ('area','best_area','line'):
+        elif kind in ('lowest_hp_allies','lowest_hp_enemies'):
+            candidates=sorted(allies if kind=='lowest_hp_allies' else enemies,key=lambda u:(u.hp/self.get(u,'hp'),u.uid))
+        elif kind=='most_damage_allies':candidates=sorted(allies,key=lambda u:(-u.damage_dealt,u.uid))
+        elif kind=='least_items_farthest':candidates=sorted(enemies,key=lambda u:(u.item_count,-distance(source.position,u.position),u.uid))
+        elif kind in ('area','area_allies','best_area','line','best_line'):
             center=source.position if selector.get('center','target')=='source' else target.position if target else source.position
             if kind=='best_area':
                 cells=[(r,c) for r in range(8) for c in range(7) if distance(source.position,(r,c))<=selector['cast_range']]
                 center=max(cells,key=lambda p:(sum(distance(p,u.position)<=selector['radius'] for u in enemies),
                                                 -distance(p,center),-p[0],-p[1]))
-            if kind=='line':
+            if kind=='best_line':
+                lines=[(u,self.select(source,u,dict(kind='line',width=selector['width']))) for u in enemies]
+                if not lines:return []
+                target,candidates=min(lines,key=lambda p:(-len(p[1]),distance(source.position,p[0].position),p[0].uid))
+                center=target.position
+            elif kind=='line':
                 if target is None:return []
                 # Exact center-line intersections; widths must be explicitly provided.
                 from .hexgrid import cube
@@ -228,18 +264,20 @@ class Battle:
                         candidates.append(u)
                 candidates.sort(key=lambda u:(distance(source.position,u.position),u.uid))
             else:
-                candidates=[u for u in enemies if distance(center,u.position)<=selector['radius']]
+                candidates=[u for u in (allies if kind=='area_allies' else enemies) if distance(center,u.position)<=selector['radius']]
             self.last_center=center
         else:raise UnsupportedRule('selector not implemented')
         if kind in ('nearest_enemies','farthest_enemies','target_and_nearest'):
             reverse=-1 if kind=='farthest_enemies' else 1
             candidates.sort(key=lambda u:(reverse*distance(source.position,u.position),u.uid))
+        if selector.get('shares_trait'):candidates=[u for u in candidates if u.tags & source.tags]
+        if selector.get('damaged_only'):candidates=[u for u in candidates if u.hp<self.get(u,'hp')]
         if selector.get('exclude_self'):candidates=[u for u in candidates if u.uid!=source.uid]
         if 'exclude_status' in selector:candidates=[u for u in candidates if not self.status(u,selector['exclude_status'])]
         if 'max_range' in selector:candidates=[u for u in candidates if distance(source.position,u.position)<=selector['max_range']]
         if kind=='target_and_nearest' and target and self.targetable(target):
             candidates=[target]+[u for u in candidates if u.uid!=target.uid]
-        return candidates[:selector.get('count',len(candidates))]
+        return candidates[:int(star_value(selector.get('count',len(candidates)),source.stars,'target count'))]
 
     def change_stat(self,u,key,value,mode,identifier,duration=None,group=None,strongest=False,health_change=None):
         old_hp=self.get(u,'hp')
@@ -291,6 +329,7 @@ class Battle:
         else:raise UnsupportedRule('unknown damage type')
         damage=max(0,raw)*(self.get(source,'crit_multiplier') if critical else 1)
         if dtype!='true':damage*=mitigation(resist)*(1+self.get(source,'damage_amp'))*(1-min(1,max(0,self.get(target,'durability'))))
+        if dtype!='true':damage*=1+max(0,self.get(target,'vulnerable'))
         pre_shield=damage
         for shield in sorted(target.shields,key=lambda s:s.expires):
             if shield.expires<=self.now or shield.amount<=0:continue
@@ -321,35 +360,52 @@ class Battle:
         finally:self.effect_depth-=1
 
     def _effects(self,source,target,effects,context=None,tag='spell'):
+        context=dict(context or {})
         for effect in effects:
             selector=effect.get('target',{'kind':'target'})
             selected=self.select(source,target,selector)
             center=getattr(self,'last_center',target.position if target else source.position)
+            if effect['op']=='volley':
+                for shot in range(int(star_value(effect['count'],source.stars,'volley count'))):
+                    living=[u for u in selected if self.targetable(u)]
+                    if not living:break
+                    self.effects(source,living[shot%len(living)],effect['effects'],context,tag)
+                continue
             for index,unit in enumerate(selected):
-                op=effect['op'];raw=formula(effect['amount'],source,unit,self.now) if 'amount' in effect else None
+                op=effect['op'];raw=formula(effect['amount'],source,unit,self.now,context) if 'amount' in effect else None
                 identifier=effect.get('key',f'effect:{source.uid}:{self.sequence}:{index}')
                 if op=='damage':
                     raw*=max(effect.get('falloff_min',0),1-effect.get('falloff_per_hex',0)*distance(center,unit.position))
-                    raw*=max(effect.get('falloff_min',0),1-effect.get('falloff_per_target',0)*index)
+                    raw*=max(effect.get('falloff_min',0),1-star_value(effect.get('falloff_per_target',0),source.stars,'falloff')*context.get('target_index',index))
                     if 'execute_threshold' in effect and unit.hp/self.get(unit,'hp')<effect['execute_threshold']:
                         raw*=effect['low_health_multiplier']
+                    if context.get('target_index',index)==0:raw*=effect.get('first_target_multiplier',1)
+                    if 'per_unique_three_star' in effect:
+                        identities={self.content['champions'][u.champion].get('identity',u.champion)
+                                    for u in self.units if u.team==source.team and u.stars==3 and ':summon:' not in u.uid}
+                        raw*=1+effect['per_unique_three_star']*len(identities)
                     crit=effect.get('can_crit',True) and self.get(source,'precision')>0 and self.rng.random()<self.get(source,'crit_chance')
-                    self.hit(source,unit,raw,effect['damage_type'],tag,crit,tag!='proc')
+                    dealt=self.hit(source,unit,raw,effect['damage_type'],tag,crit,tag!='proc')
+                    context['damage']=dealt;context['total_damage']=context.get('total_damage',0)+dealt
                 elif op=='heal':self.heal(source,unit,raw)
                 elif op=='shield':
                     amount=max(0,raw)*(1+self.get(source,'shield_amp'))
-                    unit.shields.append(Shield(identifier,amount,self.now+effect['duration']))
-                    self.schedule(self.now+effect['duration'],'expiry',unit.uid)
+                    if effect.get('can_crit') and self.get(source,'precision')>0 and self.rng.random()<self.get(source,'crit_chance'):
+                        amount*=self.get(source,'crit_multiplier')
+                    duration=star_value(effect['duration'],source.stars,'shield duration')
+                    unit.shields.append(Shield(identifier,amount,self.now+duration))
+                    self.schedule(self.now+duration,'expiry',unit.uid)
                     self.emit('shield',unit=unit.uid,amount=amount)
                 elif op=='mana':self.gain_mana(unit,raw)
                 elif op in ('stat','permanent_stat'):
-                    self.change_stat(unit,effect['stat'],raw,effect.get('mode','flat'),identifier,effect.get('duration'),
+                    self.change_stat(unit,effect['stat'],raw,effect.get('mode','flat'),identifier,
+                                     star_value(effect['duration'],source.stars,'stat duration') if 'duration' in effect else None,
                                      effect.get('group'),effect.get('strongest',False),effect.get('health_change'))
                     if op=='permanent_stat':
                         if effect.get('mode','flat')!='flat':raise UnsupportedRule('permanent layer must be explicit flat value')
                         unit.permanent_delta[effect['stat']]=unit.permanent_delta.get(effect['stat'],0)+raw
                 elif op=='status':
-                    name=effect['name'];duration=effect['duration']
+                    name=effect['name'];duration=star_value(effect['duration'],source.stars,'status duration')
                     if name not in ('stun','disarm','silence','root','untargetable','poison','burn'):
                         raise UnsupportedRule('unknown status')
                     if name in ('stun','disarm','silence','root') and self.get(unit,'cc_immune')>0:continue
@@ -357,6 +413,24 @@ class Battle:
                     if name=='stun':
                         unit.version+=1;self.schedule(self.now+duration,'act',unit.uid,unit.version)
                     self.emit('status',unit=unit.uid,status=name,duration=duration)
+                elif op=='sequence':self.effects(source,unit,effect['effects'],dict(context,target_index=index),tag)
+                elif op=='mark':unit.marks.add((source.uid,effect['name']))
+                elif op=='branch':
+                    condition=effect['condition']
+                    passed=((source.uid,condition['marked']) in unit.marks if 'marked' in condition
+                            else source.casts>=condition['casts_at_least'])
+                    self.effects(source,unit,effect['effects'] if passed else effect.get('otherwise',[]),context,tag)
+                elif op=='cleanse':
+                    stunned=bool(self.status(unit,'stun'))
+                    for name in effect['statuses']:unit.statuses.pop(name,None)
+                    if stunned and not self.status(unit,'stun'):
+                        unit.version+=1;self.schedule(self.now,'act',unit.uid,unit.version)
+                elif op=='empower':
+                    key=f'empower:{source.uid}:{identifier}'
+                    unit.values.remove(key)
+                    unit.values.add(key,'attack_speed',effect.get('attack_speed',0),'base_pct')
+                    unit.empowers[key]=dict(source=source.uid,remaining=int(star_value(effect['charges'],source.stars,'charges')),
+                                             rule=deepcopy(effect))
                 elif op=='over_time':
                     if effect.get('mark'):unit.statuses.setdefault(effect['mark'],[]).append(self.now+effect['duration'])
                     ticks=effect['ticks']
@@ -448,7 +522,12 @@ class Battle:
                     if not peers or max(peers,key=lambda p:(p[1][2],p[0]))[0]!=key:continue
                 self.effects(unit,self.by_id[payload['target']],payload['effects'],tag=payload['tag']);continue
             if kind=='impact':
-                self.hit(unit,self.by_id[payload['target']],payload['damage'],'physical','attack',payload['critical']);continue
+                victim=self.by_id[payload['target']]
+                if not payload.get('replace_attack'):
+                    self.hit(unit,victim,payload['damage'],'physical','attack',payload['critical'])
+                for enhanced in payload.get('enhanced',[]):
+                    self.effects(self.by_id[enhanced['source']],victim,enhanced['effects'],tag='spell')
+                continue
             if unit.hp<=0:continue
             if kind=='periodic':
                 h=unit.hooks[payload];self.hook('periodic',unit,unit,dict(only_hook=h['_key']))
@@ -468,7 +547,7 @@ class Battle:
             if kind=='cast':
                 original=self.by_id[payload['target']]
                 if self.targetable(original):target=original
-                self.effects(unit,target,unit.spell['effects'])
+                self.effects(unit,target,payload['effects'])
                 self.hook('cast',unit,target)
                 for ally in list(self.units):
                     if ally.team==unit.team and ally.hp>0:self.hook('ally_cast',ally,unit)
@@ -478,7 +557,16 @@ class Battle:
                 if self.targetable(original) and not self.status(unit,'disarm'):
                     unit.attacks+=1;crit=self.rng.random()<self.get(unit,'crit_chance')
                     delay=distance(unit.position,original.position)/self.projectile_speed if self.projectile_speed and self.get(unit,'range')>1 else 0.
-                    self.schedule(self.now+delay,'impact',uid,dict(target=original.uid,damage=self.get(unit,'ad'),critical=crit))
+                    enhanced=[];replace=False
+                    for key,buff in list(unit.empowers.items()):
+                        rule=buff['rule'];buff['remaining']-=1
+                        enhanced.append(dict(source=buff['source'],effects=deepcopy(
+                            rule.get('last_effects',rule['effects']) if buff['remaining']==0 else rule['effects'])))
+                        replace=replace or rule['replace_attack']
+                        if buff['remaining']==0:
+                            unit.values.remove(key);del unit.empowers[key]
+                    self.schedule(self.now+delay,'impact',uid,dict(target=original.uid,damage=self.get(unit,'ad'),critical=crit,
+                                                                  replace_attack=replace,enhanced=enhanced))
                     self.gain_mana(unit,self.get(unit,'mana_per_attack'))
                     self.hook('attack',unit,original,dict(critical=crit))
                 continue
@@ -491,7 +579,7 @@ class Battle:
             elif unit.spell['kind']!='none' and unit.mana>=self.get(unit,'mana') and not self.status(unit,'silence'):
                 unit.mana-=self.get(unit,'mana');unit.casts+=1;self.emit('cast',unit=uid,target=target.uid)
                 unit.mana_lock_until=self.now+unit.spell.get('mana_lock_seconds',unit.spell['cast_seconds'])
-                self.schedule(self.now+unit.spell['cast_seconds'],'cast',uid,dict(version=unit.version,target=target.uid))
+                self.schedule(self.now+unit.spell['cast_seconds'],'cast',uid,dict(version=unit.version,target=target.uid,effects=deepcopy(unit.spell['effects'])))
             else:
                 if not self.status(unit,'disarm'):
                     self.schedule(self.now+self.windup/speed,'attack',uid,dict(version=unit.version,target=target.uid))

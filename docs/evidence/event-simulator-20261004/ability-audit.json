@@ -1,0 +1,90 @@
+{
+  "bindings_sha256": "a69069bbe2193233a8aa9f46b0f8a7f0d3cfe74337ed2ea47d3629746659f685",
+  "blocked_programs": 52,
+  "candidate_programs": 22,
+  "catalog_entries": 74,
+  "complete": false,
+  "current_patch_training_ready": false,
+  "data_components": {
+    "champions": {
+      "path": "champions.json",
+      "sha256": "db64aa73b833e2c4c7a140bfd58e340036e1ccd536c679ce6f1aae342fa34882"
+    },
+    "items": {
+      "path": "items.json",
+      "sha256": "148e516ab8b5dbfaade076ea29cceaf15825c7bf5116a81d42d3e9bc371398d8"
+    },
+    "profile": {
+      "path": "profile.json",
+      "sha256": "c972bce95888dd33917107784c00c67d04f5de9ff8bf9f1955c8f369780e0f78"
+    },
+    "traits": {
+      "path": "traits.json",
+      "sha256": "e20aa68469e3e7da78729342e060b234d5fdb0b3e06e59c33bb0f3822d915f43"
+    }
+  },
+  "kind": "ability_implementation_audit",
+  "patch": "18.3",
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "replay_validated": 0,
+  "role_bound_programs": 7,
+  "runtime_promoted": false,
+  "schema_version": 1,
+  "scope": {
+    "alternate_forms_outside_catalog": [
+      {
+        "form": "AP",
+        "identity": "Akali",
+        "reason": "formula and form selection not bound",
+        "status": "blocked"
+      },
+      {
+        "form": "AD",
+        "identity": "Gromp",
+        "reason": "formula and form selection not bound",
+        "status": "blocked"
+      },
+      {
+        "form": "AP",
+        "identity": "KogMaw",
+        "reason": "formula and form selection not bound",
+        "status": "blocked"
+      },
+      {
+        "form": "AP",
+        "identity": "MasterYi",
+        "reason": "formula and form selection not bound",
+        "status": "blocked"
+      },
+      {
+        "form": "AD",
+        "identity": "Nidalee",
+        "reason": "formula and form selection not bound",
+        "status": "blocked"
+      }
+    ],
+    "catalog_entries": 74,
+    "four_star_coverage_complete": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "audit_sha256": "95b66d07d2585da0662a9845c8a9fc5bdcfd99705edab6366b91e7ae0500f67a",
+  "new_training_run": false,
+  "notes": [
+    "22 candidate programs are not 22 replay-validated complete champion kits.",
+    "74 entries exclude five known alternate forms and full four-star coverage."
+  ],
+  "tests": {
+    "suite": "training/tests",
+    "tests": 607,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 12,
+    "seconds": 47.61,
+    "pytest_passed": 577,
+    "subtests_passed": 18
+  }
+}

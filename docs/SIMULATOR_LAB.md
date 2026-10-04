@@ -331,3 +331,67 @@ anterior e não demonstra acurácia no jogo real.
 Evidências: `docs/evidence/event-simulator-20261004/season-v3-*.json`.
 Código e catálogo privados no servidor: `agente-tft-trainer/event-lab-season-v3`.
 Dados, pesos e relatório: `agente-tft-trainer/data/event-lab-20261004-season-v3`.
+
+### Prioridade: habilidades — auditoria de 04/10/2026
+
+O pacote `configs/simulation/seasons/TFTSet18/18.3/champions.json` agora inventaria
+as **74 entradas do catálogo selado**. Isso inclui formas de Lux; não equivale a
+74 campeões distintos nem a todas as formas possíveis do jogo.
+
+Estado desta etapa:
+
+- **22 programas candidatos**, antes 4. Os 18 adicionados são Diana,
+  Fiddlesticks, Hecarim, Shen, Soraka, Azir, Nidalee AP, Ivern e 10 formas de Lux.
+- **52 entradas bloqueadas**, cada uma com suas dependências em `blockers`.
+  Uma entrada bloqueada não recebe uma habilidade genérica substituta.
+- **7 programas com papel de mana vinculado**. Os outros 15 podem ser
+  exercitados em testes isolados; a compilação de combate continua bloqueada.
+  Mesmo os 7 dependem da cobertura das sinergias ativas e de calibração temporal.
+- **0 validados em replay**. Não foi iniciado novo treino nem atualizado o HUD.
+- Akali AP, Gromp AD, Kog'Maw AP, Master Yi AP e Nidalee AD são lacunas adicionais
+  fora das 74 entradas. Quatro estrelas também não estão cobertas integralmente.
+
+O motor neutro recebeu seleção da melhor linha, distribuição de projéteis,
+sequências com alvos fixados, marcas por conjurador, condições por número de
+conjurações, ataques fortalecidos com cargas, escudos críticos e limpeza de
+controle. Coeficientes, formas, escolhas de alvos e hipóteses temporais ficam no
+pacote sazonal. As formas de Lux compartilham uma identidade para não inflar
+contagens de campeões distintos.
+
+Os testes verificam separadamente: AP versus dano de ataque; seis orbes totais
+de Diana; cura de Fiddlesticks não multiplicada pelos alvos; resistência e
+atordoamento de Hecarim; ataques substituídos de Azir; escudo e ataques do aliado
+de Shen; seleção da terceira lança de Nidalee; escudo crítico e limiar de Ivern;
+marcas de Soraka; atenuação e bônus das formas de Lux; remoção e renovação de
+bônus sem acúmulo indevido. Esses testes usam atributos explícitos de laboratório,
+não adversários reconstruídos de partidas reais.
+
+Limitações de interpretação continuam explícitas nas notas de cada programa:
+ordem/velocidade dos projéteis, cadência de drenos, escolha de aliados de Ivern,
+compartilhamento de marcas entre duas Sorakas, geometria da linha e recuperação
+dos ataques. O ataque fortalecido dado por Shen usa AP e autoria do conjurador
+neste candidato; autoria de dano, interação com itens do aliado e snapshot versus
+AP no impacto precisam de replay independente. O modelo de soldados de Azir
+representa comandos de ataque, sem posição independente dos soldados.
+
+As fontes suplementares não possuem identidade de patch comprovada. Foram
+cruzadas com as observações oficiais já registradas; não há fusão automática de
+18.3B. TFTraits forneceu os coeficientes AP do escudo de Ivern que estavam como
+`?` no TFTCodex e confirmou que o escudo de Diana é apresentado sem escala AP.
+Essas referências **não substituem validação empírica**:
+
+- https://tftraits.com/champions/ivern/
+- https://tftraits.com/champions/diana/
+- https://tftcodex.com/cards.json (hash fixado no manifesto)
+
+Gerar a auditoria, sem executar treino:
+
+```bash
+python -m training.ability_audit \
+  --output datasets/ability-lab-20261004/audit.json
+```
+
+No BigBANANA, `tft habilidades` mostra a cobertura instalada e as pendências por
+entrada. `tft simulador` continua mostrando a última execução efetiva; instalar
+novas regras não incrementa contadores de treino nem altera resultados antigos.
+A conclusão de todas as habilidades segue pendente.

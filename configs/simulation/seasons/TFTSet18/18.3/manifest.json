@@ -26,7 +26,8 @@
     "Trait member/team replacement and percentage-health stacking require replay checks.",
     "Current patch scope excludes 18.3B-only observations and does not infer patch from video date.",
     "No 4-star extrapolation, tank mana cap, fighter stage curve or critical overflow approximation.",
-    "New item/trait hooks and health multiplier semantics are candidates, not replay-validated rules."
+    "New item/trait hooks and health multiplier semantics are candidates, not replay-validated rules.",
+    "All catalog abilities inventoried; blocked programs and role-less ability candidates cannot enter full combat or current-patch training."
   ],
   "components": {
     "items": {
@@ -39,11 +40,52 @@
     },
     "champions": {
       "path": "champions.json",
-      "sha256": "be05cea39a1fb5027f9978b4d1a774656410948c35842b2249ce6a72b0b8b462"
+      "sha256": "db64aa73b833e2c4c7a140bfd58e340036e1ccd536c679ce6f1aae342fa34882"
     },
     "profile": {
       "path": "profile.json",
-      "sha256": "e5d484560869bd7bab7f9deb5757dd9283cd2839c37e4d104a4bc3defdf56627"
+      "sha256": "c972bce95888dd33917107784c00c67d04f5de9ff8bf9f1955c8f369780e0f78"
     }
+  },
+  "ability_scope": {
+    "catalog_entries": 74,
+    "alternate_forms_outside_catalog": [
+      {
+        "identity": "Akali",
+        "form": "AP",
+        "status": "blocked",
+        "reason": "formula and form selection not bound"
+      },
+      {
+        "identity": "Gromp",
+        "form": "AD",
+        "status": "blocked",
+        "reason": "formula and form selection not bound"
+      },
+      {
+        "identity": "KogMaw",
+        "form": "AP",
+        "status": "blocked",
+        "reason": "formula and form selection not bound"
+      },
+      {
+        "identity": "MasterYi",
+        "form": "AP",
+        "status": "blocked",
+        "reason": "formula and form selection not bound"
+      },
+      {
+        "identity": "Nidalee",
+        "form": "AD",
+        "status": "blocked",
+        "reason": "formula and form selection not bound"
+      }
+    ],
+    "supported_stars": [
+      1,
+      2,
+      3
+    ],
+    "four_star_coverage_complete": false
   }
 }

@@ -47,6 +47,20 @@
     "notes": [
       "0.89s cast/lock is a third-party timing claim, not a measured replay result.",
       "Only published 1-3 star formulas enabled; 4-star low-health ratio differs."
+    ],
+    "ability_status": "candidate_not_replay_validated",
+    "name": "Veigar",
+    "source_slug": "veigar",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
     ]
   },
   "DA_Karma18": {
@@ -119,6 +133,20 @@
     },
     "notes": [
       "Three half-second ticks and cast time are provisional."
+    ],
+    "ability_status": "candidate_not_replay_validated",
+    "name": "Karma",
+    "source_slug": "karma",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
     ]
   },
   "DA_18_Cassiopeia": {
@@ -161,6 +189,20 @@
     "notes": [
       "425 at 1 star from official notes overrides supplemental 420; does not alter sealed source.",
       "One-second ticks and cast time are provisional."
+    ],
+    "ability_status": "candidate_not_replay_validated",
+    "name": "Cassiopeia",
+    "source_slug": "cassiopeia",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
     ]
   },
   "DA_18_Ahri": {
@@ -193,6 +235,2501 @@
     },
     "notes": [
       "Cast time, center tie-break and linear falloff need replay validation."
+    ],
+    "ability_status": "candidate_not_replay_validated",
+    "name": "Ahri",
+    "source_slug": "ahri",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
     ]
+  },
+  "DA_18_Diana": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "shield",
+          "amount": [
+            {
+              "coefficient": [
+                150,
+                275,
+                500
+              ]
+            }
+          ],
+          "duration": 2,
+          "target": {
+            "kind": "self"
+          }
+        },
+        {
+          "op": "volley",
+          "target": {
+            "kind": "nearest_enemies",
+            "max_range": 2
+          },
+          "count": 6,
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    0.75,
+                    1.15,
+                    1.8
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic"
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Six orbs distributed in deterministic round-robin order; exact order and travel require replay calibration.",
+      "Shield has no AP scaling marker in both supplemental sources.",
+      "Fighter stage AS and shield-dependent mana-lock timing are unresolved."
+    ],
+    "name": "Diana",
+    "source_slug": "diana",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ],
+    "supplemental_sources": [
+      "https://tftraits.com/champions/diana/"
+    ]
+  },
+  "DA_Fiddlesticks18": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "nearest_enemies",
+            "count": 3
+          },
+          "effects": [
+            {
+              "op": "stat",
+              "stat": "mr",
+              "amount": [
+                {
+                  "coefficient": -10
+                }
+              ],
+              "target": {
+                "kind": "target"
+              }
+            },
+            {
+              "op": "over_time",
+              "duration": 2,
+              "ticks": 2,
+              "target": {
+                "kind": "target"
+              },
+              "scaling_time": "snapshot",
+              "stacking": "stack",
+              "effects": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        0.35,
+                        0.525,
+                        0.85
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "magic"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "over_time",
+          "duration": 2,
+          "ticks": 2,
+          "target": {
+            "kind": "self"
+          },
+          "scaling_time": "snapshot",
+          "stacking": "stack",
+          "effects": [
+            {
+              "op": "heal",
+              "amount": [
+                {
+                  "coefficient": [
+                    2.05,
+                    2.425,
+                    4.25
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "target": {
+                "kind": "self"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "One-second drain ticks are provisional; total heal is per cast, not per enemy.",
+      "Tank damage-to-mana role is unresolved."
+    ],
+    "name": "Fiddlesticks",
+    "source_slug": "fiddlesticks",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Hecarim": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "stat",
+          "stat": "armor",
+          "amount": [
+            {
+              "coefficient": 50
+            }
+          ],
+          "target": {
+            "kind": "self"
+          },
+          "duration": 3
+        },
+        {
+          "op": "stat",
+          "stat": "mr",
+          "amount": [
+            {
+              "coefficient": 50
+            }
+          ],
+          "target": {
+            "kind": "self"
+          },
+          "duration": 3
+        },
+        {
+          "op": "over_time",
+          "duration": 3,
+          "ticks": 3,
+          "target": {
+            "kind": "self"
+          },
+          "scaling_time": "snapshot",
+          "stacking": "stack",
+          "effects": [
+            {
+              "op": "heal",
+              "amount": [
+                {
+                  "coefficient": [
+                    1.25,
+                    1.5833333333333335,
+                    2.283333333333333
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "target": {
+                "kind": "self"
+              }
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "nearest_enemies",
+            "count": 3
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    0.8,
+                    1.2,
+                    1.95
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic"
+            },
+            {
+              "op": "status",
+              "name": "stun",
+              "duration": [
+                1.5,
+                1.5,
+                1.75
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Tank damage-to-mana role is unresolved."
+    ],
+    "name": "Hecarim",
+    "source_slug": "hecarim",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Shen": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "shield",
+          "amount": [
+            {
+              "coefficient": [
+                3.5,
+                4.3,
+                5.5
+              ],
+              "stat": "ap"
+            }
+          ],
+          "duration": 4,
+          "target": {
+            "kind": "self"
+          }
+        },
+        {
+          "op": "empower",
+          "key": "spirit",
+          "charges": 3,
+          "replace_attack": false,
+          "attack_speed": 0.4,
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    0.35,
+                    0.55,
+                    0.8
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic"
+            }
+          ],
+          "target": {
+            "kind": "self"
+          }
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "lowest_hp_allies",
+            "damaged_only": true,
+            "exclude_self": true,
+            "max_range": 2,
+            "count": 1
+          },
+          "effects": [
+            {
+              "op": "shield",
+              "amount": [
+                {
+                  "coefficient": [
+                    2.0,
+                    2.75,
+                    3.75
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "duration": 4,
+              "target": {
+                "kind": "target"
+              }
+            },
+            {
+              "op": "empower",
+              "key": "spirit",
+              "charges": 3,
+              "replace_attack": false,
+              "attack_speed": 0.4,
+              "effects": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        0.35,
+                        0.55,
+                        0.8
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "magic"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Nearby ally radius 2 and lowest-percent-health selection are provisional.",
+      "Buff damage scales with caster AP; ally still deals its own normal attack.",
+      "Tank damage-to-mana role is unresolved."
+    ],
+    "name": "Shen",
+    "source_slug": "shen",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Soraka": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": "caster",
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "branch",
+          "condition": {
+            "marked": "star"
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    2.25,
+                    3.35,
+                    10.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic"
+            },
+            {
+              "op": "volley",
+              "count": 3,
+              "effects": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        1.0,
+                        1.5,
+                        10.0
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "magic"
+                }
+              ]
+            }
+          ],
+          "otherwise": [
+            {
+              "op": "mark",
+              "name": "star"
+            },
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    2.25,
+                    3.35,
+                    10.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic"
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Cross-caster mark sharing is not verified; laboratory uses caster-local marks."
+    ],
+    "name": "Soraka",
+    "source_slug": "soraka",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Azir": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": "marksman",
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "empower",
+          "target": {
+            "kind": "self"
+          },
+          "key": "soldiers",
+          "charges": 6,
+          "replace_attack": true,
+          "attack_speed": 1.5,
+          "effects": [
+            {
+              "op": "volley",
+              "count": 2,
+              "effects": [
+                {
+                  "op": "damage",
+                  "amount": [
+                    {
+                      "coefficient": [
+                        0.46,
+                        0.69,
+                        1.1
+                      ],
+                      "stat": "ap"
+                    }
+                  ],
+                  "damage_type": "magic"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Soldiers are non-targetable attack commands in this program; independent soldier positioning remains unverified."
+    ],
+    "name": "Azir",
+    "source_slug": "azir",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_Nidalee18_AP": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "empower",
+          "target": {
+            "kind": "self"
+          },
+          "key": "javelins",
+          "charges": 3,
+          "replace_attack": true,
+          "attack_speed": 1.5,
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    1.7,
+                    2.55,
+                    20.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic"
+            }
+          ],
+          "last_effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.3,
+                    5.0,
+                    30.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "target": {
+                "kind": "least_items_farthest",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "This entry covers the AP form only. AD form and adaptor selection are separately blocked.",
+      "Role and empowered-attack mana lock need verification."
+    ],
+    "name": "Nidalee",
+    "source_slug": "nidalee18",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Ivern": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": "caster",
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.15,
+      "effects": [
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "lowest_hp_allies",
+            "count": [
+              2,
+              2,
+              10
+            ]
+          },
+          "effects": [
+            {
+              "op": "shield",
+              "amount": [
+                {
+                  "coefficient": [
+                    1.85,
+                    3.5,
+                    30.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "duration": 6,
+              "target": {
+                "kind": "target"
+              },
+              "can_crit": true
+            },
+            {
+              "op": "stat",
+              "stat": "damage_amp",
+              "amount": [
+                {
+                  "coefficient": [
+                    0.1,
+                    0.15,
+                    1.0
+                  ]
+                }
+              ],
+              "target": {
+                "kind": "target"
+              },
+              "duration": 6,
+              "group": "triggerseed_amp",
+              "strongest": true
+            },
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    1.55,
+                    2.35,
+                    20.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "target": {
+                "kind": "area",
+                "radius": 1
+              }
+            },
+            {
+              "op": "branch",
+              "condition": {
+                "casts_at_least": 7
+              },
+              "effects": [
+                {
+                  "op": "stat",
+                  "stat": "attack_speed",
+                  "amount": [
+                    {
+                      "coefficient": 1
+                    }
+                  ],
+                  "target": {
+                    "kind": "target"
+                  },
+                  "mode": "base_pct"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "mana_lock_seconds": 1.0
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "After casting six times interpreted as cast 7 onward.",
+      "Lowest-percent-health ally choice is provisional; source only specifies number of allies.",
+      "Shield AP coefficients from TFTraits; TFTCodex contains unresolved placeholder."
+    ],
+    "name": "Ivern",
+    "source_slug": "ivern",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ],
+    "supplemental_sources": [
+      "https://tftraits.com/champions/ivern/"
+    ]
+  },
+  "DA_Lux18_Base": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux",
+    "source_slug": "lux18base",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Coven": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            },
+            {
+              "op": "stat",
+              "stat": "armor",
+              "amount": [
+                {
+                  "coefficient": -8
+                }
+              ],
+              "target": {
+                "kind": "target"
+              }
+            },
+            {
+              "op": "stat",
+              "stat": "mr",
+              "amount": [
+                {
+                  "coefficient": -8
+                }
+              ],
+              "target": {
+                "kind": "target"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Congregação das Bruxas)",
+    "source_slug": "luxcoven",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_Lux18_Blackthorn": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            },
+            {
+              "op": "status",
+              "name": "stun",
+              "duration": 1
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Espinhos Negros)",
+    "source_slug": "lux18blackthorn",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Fae": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            },
+            {
+              "op": "heal",
+              "target": {
+                "kind": "lowest_hp_allies",
+                "count": 1
+              },
+              "amount": [
+                {
+                  "coefficient": 0.18,
+                  "context": "damage"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Feérica)",
+    "source_slug": "luxfae",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_Lux18_Blossom": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4,
+              "first_target_multiplier": 1.1
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Florescer)",
+    "source_slug": "lux18blossom",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Inferno": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [
+      {
+        "event": "takedown",
+        "effects": [
+          {
+            "op": "mana",
+            "target": {
+              "kind": "self"
+            },
+            "amount": [
+              {
+                "coefficient": 10
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Inferno)",
+    "source_slug": "luxinferno",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Moonbeam": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            },
+            {
+              "op": "stat",
+              "stat": "vulnerable",
+              "amount": [
+                {
+                  "coefficient": 0.08
+                }
+              ],
+              "target": {
+                "kind": "target"
+              },
+              "duration": 4,
+              "group": "vulnerable",
+              "strongest": true
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Lunar)",
+    "source_slug": "luxmoonbeam",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Primal": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            }
+          ]
+        },
+        {
+          "op": "stat",
+          "stat": "attack_speed",
+          "amount": [
+            {
+              "coefficient": 0.6
+            }
+          ],
+          "target": {
+            "kind": "self"
+          },
+          "mode": "base_pct",
+          "duration": 6,
+          "group": "primal",
+          "strongest": true
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Primordial)",
+    "source_slug": "luxprimal",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Elderwood": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4
+            }
+          ]
+        },
+        {
+          "op": "stat",
+          "stat": "hp",
+          "amount": [
+            {
+              "coefficient": 0.025
+            }
+          ],
+          "target": {
+            "kind": "allies"
+          },
+          "mode": "base_pct",
+          "health_change": "add_delta"
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Sabugueiro)",
+    "source_slug": "luxelderwood",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Lux_Sunbeam": {
+    "ability_status": "candidate_not_replay_validated",
+    "role": null,
+    "spell": {
+      "kind": "effects",
+      "cast_seconds": 0.5,
+      "effects": [
+        {
+          "op": "mana",
+          "target": {
+            "kind": "allies",
+            "shares_trait": true
+          },
+          "amount": [
+            {
+              "coefficient": [
+                0.03,
+                0.03,
+                1.0
+              ],
+              "stat": "ap"
+            }
+          ]
+        },
+        {
+          "op": "sequence",
+          "target": {
+            "kind": "best_line",
+            "width": 0.87
+          },
+          "effects": [
+            {
+              "op": "damage",
+              "amount": [
+                {
+                  "coefficient": [
+                    3.75,
+                    5.65,
+                    65.0
+                  ],
+                  "stat": "ap"
+                }
+              ],
+              "damage_type": "magic",
+              "falloff_per_target": [
+                0.25,
+                0.25,
+                0.1
+              ],
+              "falloff_min": 0.4,
+              "per_unique_three_star": 0.15
+            }
+          ]
+        }
+      ]
+    },
+    "hooks": [],
+    "notes": [
+      "Cast, projectile timing and targeting tie-breaks are explicit laboratory assumptions; not replay validated.",
+      "Laser width 0.87, linear attenuation and equal-count direction tie-break are provisional.",
+      "Role verification remains required before full-fight compilation.",
+      "Elderwood health uses additive base-health percent; Fae heals per hit based on post-mitigation HP damage."
+    ],
+    "identity": "Lux",
+    "name": "Lux (Solar)",
+    "source_slug": "luxsunbeam",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": [
+      1,
+      2,
+      3
+    ]
+  },
+  "DA_18_Akali_AD": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD/AP coefficient split",
+      "AP adaptor form and kill recast",
+      "burn conditional damage"
+    ],
+    "name": "Akali",
+    "source_slug": "akali",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Camille": {
+    "ability_status": "blocked",
+    "blockers": [
+      "18.3 versus 18.3B AD coefficients conflict",
+      "shield AP scaling confirmation"
+    ],
+    "name": "Camille",
+    "source_slug": "camille",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Sentry": {
+    "ability_status": "blocked",
+    "blockers": [
+      "continuous mana-drain channel",
+      "Teal seasonal buff"
+    ],
+    "name": "Cascalho",
+    "source_slug": "sentry",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Kobuko": {
+    "ability_status": "blocked",
+    "blockers": [
+      "confirm HP/AP coefficients across stars",
+      "next-attack bash replacement"
+    ],
+    "name": "Kobuko",
+    "source_slug": "kobuko",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Leona": {
+    "ability_status": "blocked",
+    "blockers": [
+      "armor-scaling coefficient",
+      "12-second resistance decay"
+    ],
+    "name": "Leona",
+    "source_slug": "leona",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Ornn": {
+    "ability_status": "blocked",
+    "blockers": [
+      "cone geometry",
+      "blocked-damage forge progression and artifact rewards"
+    ],
+    "name": "Ornn",
+    "source_slug": "ornn",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Rakan": {
+    "ability_status": "blocked",
+    "blockers": [
+      "decaying attack-speed curve and most-damage ally tie-break"
+    ],
+    "name": "Rakan",
+    "source_slug": "rakan",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_RekSai": {
+    "ability_status": "blocked",
+    "blockers": [
+      "HP regeneration coefficients",
+      "regeneration tripling window"
+    ],
+    "name": "Rek'Sai",
+    "source_slug": "reksai",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Cinderling18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD/AP split for five leaves",
+      "Scarlet buff association"
+    ],
+    "name": "Rubrivirim",
+    "source_slug": "cinderling",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Varus": {
+    "ability_status": "blocked",
+    "blockers": [
+      "physical damage AD/AP split",
+      "piercing arrow collision/falloff"
+    ],
+    "name": "Varus",
+    "source_slug": "varus",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Xayah": {
+    "ability_status": "blocked",
+    "blockers": [
+      "feather AD coefficient",
+      "armor reduction AP coefficient"
+    ],
+    "name": "Xayah",
+    "source_slug": "xayah",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Yorick": {
+    "ability_status": "blocked",
+    "blockers": [
+      "Spirit Walker statistics and taunt",
+      "physical damage AD coefficient"
+    ],
+    "name": "Yorick",
+    "source_slug": "yorick",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Alistar": {
+    "ability_status": "blocked",
+    "blockers": [
+      "heal HP/AP split",
+      "cleanse ordering and allied heal targeting"
+    ],
+    "name": "Alistar",
+    "source_slug": "alistar",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Scuttlecrab18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "cleave attacks",
+      "Green buff proc limits"
+    ],
+    "name": "Aronguejo",
+    "source_slug": "scuttlecrab",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Caitlyn": {
+    "ability_status": "blocked",
+    "blockers": [
+      "third-attack headshot AD/AP coefficients",
+      "attack counter instead of normal mana"
+    ],
+    "name": "Caitlyn",
+    "source_slug": "caitlyn",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Elise": {
+    "ability_status": "blocked",
+    "blockers": [
+      "decaying AS curve",
+      "spider-form attack heal timing"
+    ],
+    "name": "Elise",
+    "source_slug": "elise",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Gromp18_AP": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD adaptor form",
+      "Purple buff scaling and collision selection"
+    ],
+    "name": "Grompe",
+    "source_slug": "gromp18",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Kayle": {
+    "ability_status": "blocked",
+    "blockers": [
+      "missing base attack damage in sealed catalog",
+      "star-dependent ascension and wave geometry"
+    ],
+    "name": "Kayle",
+    "source_slug": "kayle",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_LeBlanc": {
+    "ability_status": "blocked",
+    "blockers": [
+      "copy reward timing/pool/bench priority",
+      "18.3 versus 18.3B copy chance"
+    ],
+    "name": "LeBlanc",
+    "source_slug": "leblanc",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Murkwolf18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "inconsistent rendered leap totals",
+      "Grey buff critical scaling"
+    ],
+    "name": "Lobo Trevoguari",
+    "source_slug": "murkwolf",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Sejuani": {
+    "ability_status": "blocked",
+    "blockers": [
+      "HP/AP shield coefficients",
+      "cone plus line overlap"
+    ],
+    "name": "Sejuani",
+    "source_slug": "sejuani",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Teemo": {
+    "ability_status": "blocked",
+    "blockers": [
+      "18.3 versus 18.3B mushroom damage",
+      "foraged mushroom probabilities and collection rewards"
+    ],
+    "name": "Teemo",
+    "source_slug": "teemo",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Warwick": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficient instead of displayed attack total",
+      "AP scaling of damage-based heal"
+    ],
+    "name": "Warwick",
+    "source_slug": "warwick",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Yunara": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD/AP coefficient split",
+      "dash position and split-projectile targeting"
+    ],
+    "name": "Yunara",
+    "source_slug": "yunara",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_KhaZix": {
+    "ability_status": "blocked",
+    "blockers": [
+      "18.3 versus 18.3B damage",
+      "isolation and leap geometry",
+      "Rivals augment override"
+    ],
+    "name": "Kha'Zix",
+    "source_slug": "khazix",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_KogMaw18_AD": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD damage coefficient",
+      "AP adaptor DOT form"
+    ],
+    "name": "Kog'Maw",
+    "source_slug": "kogmaw18",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Krug18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "Kruglette statistics and taunt",
+      "HP/AD scaling split",
+      "Slate death shield"
+    ],
+    "name": "Krugue",
+    "source_slug": "krug",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_CrimsonRaptor18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "Tiny Beak damage coefficient and ownership",
+      "Orange buff armor reduction"
+    ],
+    "name": "Mamãe Bicuda",
+    "source_slug": "crimsonraptor",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_MasterYi_AD": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AP adaptor form",
+      "double-strike timing and takedown movement"
+    ],
+    "name": "Master Yi",
+    "source_slug": "masteryi",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Rammus": {
+    "ability_status": "blocked",
+    "blockers": [
+      "reflection damage scaling",
+      "taunt and shield-break ordering"
+    ],
+    "name": "Rammus",
+    "source_slug": "rammus",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Rengar": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficient",
+      "missing-health healing multiplier"
+    ],
+    "name": "Rengar",
+    "source_slug": "rengar",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Tristana": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficients",
+      "bomb transfer and attack counter"
+    ],
+    "name": "Tristana",
+    "source_slug": "tristana",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Vi18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "passive heal HP coefficient",
+      "active attack-speed scaling"
+    ],
+    "name": "Vi",
+    "source_slug": "vi",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Amumu18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "passive regeneration HP coefficient",
+      "burn stun multiplier"
+    ],
+    "name": "Amumu",
+    "source_slug": "amumu",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Aphelios": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficients",
+      "AS-dependent swipe count",
+      "split explosion"
+    ],
+    "name": "Aphelios",
+    "source_slug": "aphelios",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Sentinel18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "HP/AP shield split",
+      "knockup line and mana reave",
+      "Blue buff"
+    ],
+    "name": "Azuporã",
+    "source_slug": "sentinel",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Ezreal": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficients",
+      "fourth cast consumes accumulated ability AS",
+      "blink geometry"
+    ],
+    "name": "Ezreal",
+    "source_slug": "ezreal",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Lillia": {
+    "ability_status": "blocked",
+    "blockers": [
+      "damage-triggered sleep wake",
+      "butterfly allocation"
+    ],
+    "name": "Lillia",
+    "source_slug": "lillia",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Malphite": {
+    "ability_status": "blocked",
+    "blockers": [
+      "armor/AP wave scaling",
+      "shield-break and petrification"
+    ],
+    "name": "Malphite",
+    "source_slug": "malphite",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Morgana": {
+    "ability_status": "blocked",
+    "blockers": [
+      "curse stacking damage semantics",
+      "moving versus fixed damage zone"
+    ],
+    "name": "Morgana",
+    "source_slug": "morgana",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Brambleback18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficients",
+      "leap on target death",
+      "Red buff burn and heal"
+    ],
+    "name": "Rubrivira",
+    "source_slug": "brambleback",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Sett": {
+    "ability_status": "blocked",
+    "blockers": [
+      "heal HP/AP and damage AD/HP split",
+      "cast windup interruption"
+    ],
+    "name": "Sett",
+    "source_slug": "sett",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Sivir": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficients",
+      "bounce path and kill extensions"
+    ],
+    "name": "Sivir",
+    "source_slug": "sivir",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Zyra": {
+    "ability_status": "blocked",
+    "blockers": [
+      "plant spawn geometry and attack cadence",
+      "summon targetability and owner-scaling snapshot"
+    ],
+    "name": "Zyra",
+    "source_slug": "zyra",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Alune": {
+    "ability_status": "blocked",
+    "blockers": [
+      "moon phase state and progression",
+      "full-moon damage allocation"
+    ],
+    "name": "Alune",
+    "source_slug": "alune",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Ashe": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD and target-HP split",
+      "18.3 versus 18.3B trail values"
+    ],
+    "name": "Ashe",
+    "source_slug": "ashe",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_ElderDragon": {
+    "ability_status": "blocked",
+    "blockers": [
+      "transform sequence and breath coefficients",
+      "landing geometry and ignite",
+      "Elder execute buff"
+    ],
+    "name": "Dragão Ancião",
+    "source_slug": "elderdragon",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Draven18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "AD coefficients",
+      "random target attacks",
+      "bleed consumption and outbound/return collisions"
+    ],
+    "name": "Draven",
+    "source_slug": "draven",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_GnarSmall": {
+    "ability_status": "blocked",
+    "blockers": [
+      "rage instead of normal mana",
+      "Mega form displacement and lone-enemy execution"
+    ],
+    "name": "Gnar",
+    "source_slug": "gnarsmall",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Kennen": {
+    "ability_status": "blocked",
+    "blockers": [
+      "dynamic AP per burning enemy",
+      "dash geometry and split firestorm"
+    ],
+    "name": "Kennen",
+    "source_slug": "kennen",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_18_Maokai": {
+    "ability_status": "blocked",
+    "blockers": [
+      "blocked-damage threshold and sapling statistics",
+      "HP scaling in heal and damage"
+    ],
+    "name": "Maokai",
+    "source_slug": "maokai",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
+  },
+  "DA_Taric18": {
+    "ability_status": "blocked",
+    "blockers": [
+      "paired-ally identity and trigger",
+      "shield HP/flat split conflicts with official patch",
+      "paired empowered attacks"
+    ],
+    "name": "Taric",
+    "source_slug": "taric",
+    "provenance": {
+      "url": "https://tftcodex.com/cards.json",
+      "sha256": "c645113e0b1950bfdef766b1d4870c6495ce828732557a5097474c50e14c2593",
+      "patch_identity_verified": false
+    },
+    "replay_validated": false,
+    "supported_stars": []
   }
 }

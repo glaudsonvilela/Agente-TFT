@@ -65,7 +65,10 @@ class CatalogBindings(unittest.TestCase):
         release=root/'knowledge/releases/TFTSet18/18.3'/bindings['release_sha256']
         if not release.exists():self.skipTest('private sealed catalog not present on CI')
         manifest,catalogs=read_release(release);result=compile_catalog(manifest,catalogs,bindings)
-        self.assertEqual(result['coverage']['champions']['candidate_effects'],4)
+        self.assertEqual(result['coverage']['champions']['candidate_effects'],7)
+        self.assertEqual(result['coverage']['abilities']['candidate_programs'],22)
+        self.assertEqual(len(result['coverage']['abilities']['blocked']),52)
+        self.assertEqual(result['coverage']['abilities']['inventoried'],74)
         self.assertEqual(result['coverage']['items']['candidate_effects'],21)
         self.assertEqual(result['coverage']['traits']['candidate_effects'],6)
         self.assertEqual(result['coverage']['champions']['replay_validated'],0)

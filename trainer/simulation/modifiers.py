@@ -60,12 +60,12 @@ class Stats:
         self.modifiers[:]=[m for m in self.modifiers if m.key!=key]
 
 
-def formula(spec, source, target, now):
+def formula(spec, source, target, now, context=None):
     """Sum explicit terms; never eval source text or infer AD/AP from HTML labels."""
     if not isinstance(spec,list): raise UnsupportedRule('formula must be a list of terms')
     total=0.
     for term in spec:
-        if set(term)-{'coefficient','stat','owner','base'}: raise UnsupportedRule('unknown formula term')
+        if set(term)-{'coefficient','stat','owner','base','context'}: raise UnsupportedRule('unknown formula term')
         coefficient=term['coefficient']
         if isinstance(coefficient,list):
             if len(coefficient)<source.stars: raise UnsupportedRule('formula missing star level')
@@ -73,7 +73,11 @@ def formula(spec, source, target, now):
         if type(coefficient) not in (int,float) or not math.isfinite(coefficient):
             raise UnsupportedRule('formula coefficient must be finite')
         stat=term.get('stat')
-        if stat is None: value=1.
+        if 'context' in term:
+            if stat is not None or term['context'] not in ('damage','total_damage') or term['context'] not in (context or {}):
+                raise UnsupportedRule('formula context unavailable')
+            value=context[term['context']]
+        elif stat is None: value=1.
         else:
             owner=term.get('owner','source')
             if owner not in ('source','target'): raise UnsupportedRule('unknown formula owner')

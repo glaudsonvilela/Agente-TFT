@@ -20,6 +20,11 @@
       "mana_per_attack": 7,
       "mana_per_second": 2,
       "mana_per_damage": 0
+    },
+    "marksman": {
+      "mana_per_attack": 10,
+      "mana_per_second": 0,
+      "mana_per_damage": 0
     }
   },
   "timing_profile": {
