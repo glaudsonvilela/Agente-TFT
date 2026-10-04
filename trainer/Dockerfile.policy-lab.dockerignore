@@ -1,0 +1,11 @@
+**
+!scripts/
+!scripts/bootstrap_tft_goat.sh
+!training/
+!training/simulator_lab/
+!training/simulator_lab/**
+!configs/
+!configs/simulation/
+!configs/simulation/**
+**/__pycache__/
+**/*.pyc

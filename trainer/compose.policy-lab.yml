@@ -1,0 +1,20 @@
+# Optional worker on the server, sharing only experiment artifacts with its panel.
+# Build from repository root: docker compose -f trainer/compose.policy-lab.yml build
+services:
+  tft-policy-lab:
+    build:
+      context: ..
+      dockerfile: trainer/Dockerfile.policy-lab
+    init: true
+    user: "${TFT_WORKER_UID:-1000}:${TFT_WORKER_GID:-1000}"
+    restart: "no"
+    cpus: 1.5
+    mem_limit: 1536m
+    pids_limit: 128
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    volumes:
+      - ./data:/data
+    command: ["--profile", "synthetic-lab", "--output", "/data/policy-runs/lab-v1", "--iterations", "100", "--seconds", "3600", "--memory-mib", "1200"]

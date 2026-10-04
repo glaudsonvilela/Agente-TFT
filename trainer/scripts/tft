@@ -28,7 +28,7 @@ def render(data: dict) -> str:
         "✦ AGENTE TFT · BigBANANA",
         f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
         "────────────────────────────────────────",
-        f"Simulador: {simulator}  |  Modelo de banco/loja: {neural}",
+        f"Simulador do replay: {simulator}  |  Modelo de banco/loja: {neural}",
         "Visão neural no Windows: diagnóstico local; confira a sessão do Windows.",
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
@@ -66,12 +66,19 @@ def render(data: dict) -> str:
     lines.extend(("", "Execuções recentes (atualização a cada 5 s):",
                   "  início    lote                 modo              feitas/pedidas  estado"))
     if not data["recent_jobs"]:
-        lines.append("  Nenhuma simulação iniciada.")
+        lines.append("  Nenhum pedido de simulação do HUD.")
     for job in data["recent_jobs"][:8]:
         started = datetime.fromtimestamp(job['accepted_at_ms'] / 1000).strftime('%H:%M:%S')
         lines.append(f"  {started}  {job['job_id'][:20]:20} {job['mode'][:17]:17} "
                      f"{job['completed_paths']:4}/{job['requested_paths']:<7} "
                      f"{job['status']}" + (f" ({job['error']})" if job['error'] else ""))
+    coverage = data.get('simulation_coverage')
+    if coverage:
+        lines.append(f"\nPatch {coverage['patch']}: {coverage['executable_abilities']}/{coverage['champions']} habilidades executáveis; treino do patch bloqueado.")
+    for job in data.get('policy_learning_jobs', [])[:3]:
+        lines.append(f"Laboratório {job['id']}: {job['status']} · {job['matches_completed']} partidas sintéticas completas · {job['combat_calls']} combates")
+        lines.append(f"  {job['transitions']} decisões · {job['optimizer_steps']} atualizações · RAM máxima {number(job['peak_rss_mib'])} MiB · CPU {number(job['process_cpu_seconds'])} s")
+        lines.append('  Candidato de laboratório; não liberado para dicas do replay.')
     return "\n".join(lines)
 
 

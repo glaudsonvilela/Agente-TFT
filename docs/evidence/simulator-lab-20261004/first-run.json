@@ -1,0 +1,154 @@
+{
+  "scope": "synthetic_laboratory_only",
+  "dataset": {
+    "schema_version": 1,
+    "kind": "verified_replay_frame_catalog",
+    "source_samples": 221,
+    "unique_frames": 219,
+    "duplicate_frames": 2,
+    "reviewed_labels": 0,
+    "strategic_training_ready": false,
+    "independent_match_split": false,
+    "split_policy": "Require reviewed match identity before any train/validation split"
+  },
+  "coverage": {
+    "schema_version": 1,
+    "kind": "simulation_coverage",
+    "set_key": "TFTSet18",
+    "patch": "18.3",
+    "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+    "champions": 74,
+    "champions_with_complete_stats": 73,
+    "champions_with_numeric_ability_variables": 2,
+    "executable_abilities": 0,
+    "current_patch_training_ready": false,
+    "runtime_promoted": false,
+    "blockers": [
+      "Set18 ability handlers and numerical formulas missing",
+      "Set18 item and trait effects not implemented and verified",
+      "Set18 economy, loot, augments and seasonal mechanic not validated",
+      "Owned units, stars, equipped items and hex positions lack replay ground truth",
+      "No independent match validation for combat or policy"
+    ],
+    "laboratory": {
+      "adapter": "tft_goat_synthetic_tick_v1",
+      "set_key": "synthetic",
+      "official_rules": false,
+      "replay_compatible": false,
+      "explicit_position_actions": false,
+      "item_choice_actions": false
+    }
+  },
+  "local_training": {
+    "schema_version": 1,
+    "kind": "policy_selfplay",
+    "adapter": "tft_goat_synthetic_tick_v1",
+    "scope": "synthetic_laboratory",
+    "status": "completed",
+    "official_patch": null,
+    "current_patch_training_ready": false,
+    "runtime_promoted": false,
+    "matches_completed": 26,
+    "transitions": 106652,
+    "iterations": 104,
+    "optimizer_steps": 1744,
+    "changed_parameter_tensors": 9,
+    "combat_calls": 2165,
+    "training_improvement_proven": false,
+    "pid": 23266,
+    "updated_at_ms": 1791116635477,
+    "elapsed_seconds": 59.18588079400024,
+    "peak_rss_mib": 328.421875,
+    "process_cpu_seconds": 94.38678900000001,
+    "resumed_partial_episode_discarded": true,
+    "parameter_count": 37308,
+    "memory_limit_mib": 1024.0,
+    "cpu_threads": 2,
+    "policy_loss": 0.030773963300614722,
+    "value_loss": 0.005827663349919021,
+    "entropy": 0.6020433588160409,
+    "checkpoint_sha256": "f05044f4c0b13e2c3a039b4fbf5e231cfa3fa0aa931a3f6d4fd2bf06c6474c47",
+    "checkpoint_iteration": 104,
+    "invocation_iterations": 100
+  },
+  "paired_evaluation": {
+    "schema_version": 1,
+    "kind": "policy_paired_evaluation",
+    "scope": "synthetic_laboratory",
+    "checkpoint_sha256": "f05044f4c0b13e2c3a039b4fbf5e231cfa3fa0aa931a3f6d4fd2bf06c6474c47",
+    "games_per_policy": 8,
+    "evaluation_matches": 16,
+    "opponent": "scripted",
+    "seed_domain": "2**63 + index",
+    "pairs": [
+      {
+        "seed": 9223372036854775808,
+        "seat": "player_0",
+        "initial": 8.0,
+        "candidate": 1.0
+      },
+      {
+        "seed": 9223372036854775809,
+        "seat": "player_1",
+        "initial": 8.0,
+        "candidate": 5.0
+      },
+      {
+        "seed": 9223372036854775810,
+        "seat": "player_2",
+        "initial": 8.0,
+        "candidate": 1.0
+      },
+      {
+        "seed": 9223372036854775811,
+        "seat": "player_3",
+        "initial": 8.0,
+        "candidate": 7.0
+      },
+      {
+        "seed": 9223372036854775812,
+        "seat": "player_4",
+        "initial": 8.0,
+        "candidate": 1.0
+      },
+      {
+        "seed": 9223372036854775813,
+        "seat": "player_5",
+        "initial": 8.0,
+        "candidate": 1.0
+      },
+      {
+        "seed": 9223372036854775814,
+        "seat": "player_6",
+        "initial": 8.0,
+        "candidate": 4.0
+      },
+      {
+        "seed": 9223372036854775815,
+        "seat": "player_7",
+        "initial": 8.0,
+        "candidate": 2.0
+      }
+    ],
+    "initial_mean_placement": 8.0,
+    "candidate_mean_placement": 2.75,
+    "paired_placement_delta": -5.25,
+    "lower_placement_is_better": true,
+    "training_improvement_proven": false,
+    "real_tft_accuracy": null,
+    "runtime_promoted": false,
+    "elapsed_seconds": 26.392248882999866,
+    "caveat": "Small synthetic evaluation measures this laboratory only, not real TFT skill"
+  },
+  "verification": {
+    "unit_tests_passed": 29,
+    "docker_image_built": true,
+    "server_worker_started": true,
+    "server_match_target": 500,
+    "server_seconds_limit": 3600,
+    "server_cpu_limit": 1,
+    "server_memory_limit_mib": 1024,
+    "current_patch_ready": false,
+    "runtime_promoted": false
+  }
+}

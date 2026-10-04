@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "tft-goat-synthetic-tick-v1",
+  "upstream_commit": "d5358e9402569f745bea81b61c5aed0500c57d66",
+  "content": "synthetic",
+  "combat": "tick_engine",
+  "official_patch": null,
+  "runtime_promoted": false,
+  "limitations": [
+    "Eight synthetic champions, not the current seasonal roster",
+    "Economic and round rules inherited from the Set17 research environment",
+    "Automatic combat formation; policy cannot select exact hex positions",
+    "Policy sees item counts; equipment selection is automatic",
+    "Generic combat values and incomplete trait, item and augment semantics",
+    "Training measurements do not establish stronger play in real TFT"
+  ]
+}

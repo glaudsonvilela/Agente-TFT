@@ -1,0 +1,9 @@
+# Install CPU torch separately: pip install torch --index-url https://download.pytorch.org/whl/cpu
+numpy>=2,<3
+pillow>=11,<13
+torch>=2.6,<3
+pydantic>=2.8,<3
+gymnasium>=1,<2
+pettingzoo>=1.24,<2
+httpx>=0.28,<1
+riotwatcher>=3,<4

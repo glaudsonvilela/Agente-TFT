@@ -390,3 +390,18 @@ def test_shadow_step_rejects_stale_decision_revision():
         },
     )
     assert response.status_code == 409
+
+
+def test_policy_lab_is_visible_without_activating_hud_simulator(tmp_path):
+    folder = tmp_path/'policy-runs'/'lab'; folder.mkdir(parents=True)
+    (folder/'progress.json').write_text(json.dumps(dict(kind='policy_selfplay',
+        runtime_promoted=False, status='completed', matches_completed=26, transitions=106652)))
+    (tmp_path/'simulation-coverage.json').write_text(json.dumps(dict(kind='simulation_coverage',
+        patch='18.3', champions=74, executable_abilities=0, current_patch_training_ready=False)))
+    client = TestClient(create_app(store=TrainerStore(backend=NullTrainerBackend(), db_path=tmp_path/'trainer.sqlite3')))
+    metrics = client.get('/v1/training/dashboard-metrics').json()
+    assert metrics['policy_learning_jobs'][0]['matches_completed'] == 26
+    assert metrics['simulation_coverage']['current_patch_training_ready'] is False
+    assert metrics['simulator_ready'] is False
+    assert metrics['paths_completed'] == 0
+    assert 'Rede de decisões' in client.get('/dashboard').text

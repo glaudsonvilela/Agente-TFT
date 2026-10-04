@@ -72,7 +72,7 @@
   <section class="lower">
     <div class="wide">
       <h2>Simulação e aprendizagem</h2>
-      <div class="row"><span>Simulador</span><span class="status" id="simulator">Verificando</span></div>
+      <div class="row"><span>Simulador do replay</span><span class="status" id="simulator">Verificando</span></div>
       <div class="row"><span>Modelo de banco/loja</span><span class="status" id="neural">Verificando</span></div>
       <div class="row"><span>Visão neural no último replay</span><strong id="local-vision">Aguardando sessão</strong></div>
       <div class="row"><span>Último candidato</span><strong id="neural-candidate">—</strong></div>
@@ -102,6 +102,15 @@
     </table></div>
   </section>
   <div class="footer" id="last-update">Conectando…</div>
+  <section class="wide" style="margin-top:14px" aria-label="Treinamento da política">
+    <h2>Rede de decisões — laboratório</h2>
+    <div class="note" id="policy-coverage">Verificando cobertura do patch.</div>
+    <p class="note">Partidas sintéticas validam o ciclo de treino. Seus modelos não estão liberados para dicas. Decisões, combates e partidas completas são contados separadamente.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Experimento</th><th>Estado</th><th>Partidas completas</th><th>Combates</th><th>Decisões</th><th>Atualizações</th><th>RAM máxima</th><th>CPU / tempo</th><th>Checkpoint</th></tr></thead>
+      <tbody id="policy-jobs"><tr><td colspan="9">Nenhum treino iniciado.</td></tr></tbody>
+    </table></div>
+  </section>
 </main>
 <script>
   const set = (id, value) => { document.getElementById(id).textContent = value; };
@@ -112,6 +121,26 @@
       const response = await fetch("/v1/training/dashboard-metrics", { cache: "no-store" });
       if (!response.ok) throw new Error("servidor indisponível");
       const m = await response.json();
+      const coverage = m.simulation_coverage;
+      set("policy-coverage", coverage ? "Patch " + coverage.patch + ": " + fmt(coverage.champions_with_complete_stats) + "/" + fmt(coverage.champions) + " campeões com atributos completos; " + fmt(coverage.executable_abilities) + " habilidades executáveis. " + (coverage.current_patch_training_ready ? "Cobertura disponível." : "Treino do patch ainda bloqueado por regras incompletas.") : "Cobertura do patch ainda não auditada neste servidor.");
+      const policyTable = document.getElementById("policy-jobs");
+      policyTable.replaceChildren();
+      const policyJobs = m.policy_learning_jobs || [];
+      if (!policyJobs.length) {
+        const row = document.createElement("tr"), cell = document.createElement("td");
+        cell.colSpan = 9; cell.textContent = "Nenhum treino da política iniciado.";
+        row.append(cell); policyTable.append(row);
+      }
+      for (const job of policyJobs) {
+        const row = document.createElement("tr");
+        const states = {collecting:"Simulando", optimizing:"Atualizando rede", checkpoint_saved:"Checkpoint salvo", completed:"Lote concluído", stopped:"Parado", failed:"Falhou", progress_not_recent:"Sem atualização recente"};
+        const values = [job.id, (states[job.status] || job.status) + (job.reason ? " · " + job.reason : ""),
+          fmt(job.matches_completed), fmt(job.combat_calls), fmt(job.transitions), fmt(job.optimizer_steps),
+          decimal(job.peak_rss_mib) + " MiB", decimal(job.process_cpu_seconds) + " s CPU / " + decimal(job.elapsed_seconds) + " s",
+          job.checkpoint_verified ? "Hash verificado · candidato" : "Não verificado"];
+        for (const value of values) { const cell = document.createElement("td"); cell.textContent = value; row.append(cell); }
+        policyTable.append(row);
+      }
       const status = m.jobs_by_status;
       set("evidence", fmt(m.evidence_files));
       set("sessions", fmt(m.sessions));
@@ -149,7 +178,7 @@
       container.replaceChildren();
       if (!m.recent_jobs.length) {
         const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 7;
-        cell.textContent = "Nenhuma simulação iniciada. O simulador ainda não está ativo."; row.append(cell); container.append(row);
+        cell.textContent = "Nenhum pedido de simulação do HUD."; row.append(cell); container.append(row);
       }
       for (const job of m.recent_jobs) {
         const row = document.createElement("tr");
