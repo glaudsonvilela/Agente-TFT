@@ -74,9 +74,10 @@ args = [
 ]
 if has_voices:
     voice_report = json.loads((voice_assets / 'VOICE_REPORT.json').read_text(encoding='utf-8'))
-    if set(voice_report.get('voices', {})) != {'dii', 'cadu', 'faber'}:
+    if set(voice_report.get('voices', {})) != {'supertonic-f1', 'dii', 'cadu', 'faber'}:
         raise SystemExit('All pinned pt-BR voices are required')
-    args += ['--add-data', f'{voice_assets};voices', '--collect-all', 'sherpa_onnx']
+    args += ['--add-data', f'{voice_assets};voices', '--collect-all', 'sherpa_onnx',
+             '--collect-all', 'supertonic']
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
 for module in ('torch', 'torchvision', 'torchaudio', 'hm.train', 'hm.seeds',
@@ -97,7 +98,7 @@ licenses.mkdir()
 for p in tess.rglob('*'):
     if p.is_file() and p.stat().st_size < 1024**2 and any(n in p.name.lower() for n in ('license', 'copying', 'copyright')):
         shutil.copy2(p, licenses / ('tesseract-' + '-'.join(p.relative_to(tess).parts)))
-for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.text', 'jaraco.context', 'jaraco.functools') + (('sherpa-onnx', 'sherpa-onnx-core') if has_voices else ()):
+for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.text', 'jaraco.context', 'jaraco.functools') + (('sherpa-onnx', 'sherpa-onnx-core', 'supertonic') if has_voices else ()):
     distribution = importlib.metadata.distribution(package)
     for name in distribution.files or []:
         if any(n in str(name).lower() for n in ('license', 'copying', 'copyright')):
@@ -105,6 +106,7 @@ for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.te
             if p.is_file() and p.stat().st_size < 1024**2:
                 shutil.copy2(p, licenses / (package + '-' + str(name).replace('/', '-').replace('\\', '-')))
 if has_voices:
+    shutil.copy2(voice_assets / 'supertonic-f1/LICENSE', licenses / 'voice-supertonic-f1-LICENSE.txt')
     for key in ('dii', 'cadu', 'faber'):
         card = 'README.md' if key == 'dii' else 'MODEL_CARD'
         shutil.copy2(voice_assets / key / card, licenses / f'voice-{key}-{card}.txt')

@@ -10,8 +10,13 @@ import threading
 import time
 import wave
 
-VOICE_NAMES = {"dii": "Dii (feminina, pt-BR)",
+VOICE_NAMES = {"supertonic-f1": "F1 (feminina)",
+               "dii": "Dii (feminina, pt-BR)",
                "cadu": "Cadu (pt-BR)", "faber": "Faber (pt-BR)"}
+SUPERTONIC_FILES = ("onnx/duration_predictor.onnx", "onnx/text_encoder.onnx",
+                    "onnx/vector_estimator.onnx", "onnx/vocoder.onnx",
+                    "onnx/tts.json", "onnx/unicode_indexer.json",
+                    "voice_styles/F1.json", "LICENSE")
 
 
 def voice_assets() -> Path:
@@ -21,13 +26,23 @@ def voice_assets() -> Path:
 
 def available_voices(base: Path | None = None) -> dict[str, str]:
     base = base or voice_assets()
-    return {key: label for key, label in VOICE_NAMES.items()
-            if (base / key / "model.onnx").is_file()
-            and (base / key / "tokens.txt").is_file()
-            and (base / "espeak-ng-data").is_dir()}
+    found = {}
+    if all((base / "supertonic-f1" / name).is_file() for name in SUPERTONIC_FILES):
+        found["supertonic-f1"] = VOICE_NAMES["supertonic-f1"]
+    for key in ("dii", "cadu", "faber"):
+        if ((base / key / "model.onnx").is_file()
+                and (base / key / "tokens.txt").is_file()
+                and (base / "espeak-ng-data").is_dir()):
+            found[key] = VOICE_NAMES[key]
+    return found
 
 
 def _load_engine(voice_id: str, base: Path):
+    if voice_id == "supertonic-f1":
+        from supertonic import TTS
+        model = TTS(model_dir=str(base / voice_id), auto_download=False,
+                    intra_op_num_threads=2)
+        return model, model.get_voice_style("F1")
     import sherpa_onnx
     model = base / voice_id
     config = sherpa_onnx.OfflineTtsConfig(model=sherpa_onnx.OfflineTtsModelConfig(
@@ -41,15 +56,23 @@ def _load_engine(voice_id: str, base: Path):
 
 
 def _synthesize(text: str, voice_id: str, base: Path, engine=None):
-    import sherpa_onnx
     import numpy as np
     if engine is None:
         engine = _load_engine(voice_id, base)
-    generation = sherpa_onnx.GenerationConfig()
-    generation.sid = 0
-    generation.speed = 1.0
-    audio = engine.generate(text, generation)
-    samples = np.asarray(audio.samples)
+    if voice_id == "supertonic-f1":
+        model, style = engine
+        samples, _ = model.synthesize(text, voice_style=style, lang="pt",
+                                      total_steps=6)
+        sample_rate = model.sample_rate
+    else:
+        import sherpa_onnx
+        generation = sherpa_onnx.GenerationConfig()
+        generation.sid = 0
+        generation.speed = 1.0
+        audio = engine.generate(text, generation)
+        samples = audio.samples
+        sample_rate = audio.sample_rate
+    samples = np.asarray(samples).reshape(-1)
     if samples.size == 0:
         raise RuntimeError("A voz local não gerou áudio.")
     pcm = (np.clip(samples, -1, 1) * 32767).astype("<i2").tobytes()
@@ -57,7 +80,7 @@ def _synthesize(text: str, voice_id: str, base: Path, engine=None):
     with wave.open(out, "wb") as wav:
         wav.setnchannels(1)
         wav.setsampwidth(2)
-        wav.setframerate(int(audio.sample_rate))
+        wav.setframerate(int(sample_rate))
         wav.writeframes(pcm)
     return out.getvalue(), engine
 
@@ -79,6 +102,7 @@ class VoiceCoach:
         self.played_count = 0
         self.stale_dropped_count = 0
         self.ready = False
+        self.fallback_from = None
 
     def set_voice(self, voice_id: str):
         if voice_id not in self.voices:
@@ -86,6 +110,19 @@ class VoiceCoach:
         self.voice_id = voice_id
         self.last_text = None
         self.ready = False
+        self.fallback_from = None
+
+    def _handle_failure(self, voice_id: str, exc: Exception):
+        if voice_id == "supertonic-f1" and "dii" in self.voices:
+            self.voice_id = "dii"
+            self.fallback_from = voice_id
+            self.last_text = None
+            self.ready = False
+            self.error = f"F1 falhou; Dii ativada: {exc}"
+        else:
+            self.error = f"Voz local: {exc}"
+            self.ready = False
+            self.enabled = False
 
     def set_enabled(self, enabled: bool):
         self.enabled = bool(enabled and os.name == "nt" and self.voice_id and not self.closed)
@@ -124,9 +161,7 @@ class VoiceCoach:
                     self.ready = True
                     self.error = None
                 except Exception as exc:
-                    self.error = f"Voz local: {exc}"
-                    self.ready = False
-                    self.enabled = False
+                    self._handle_failure(self.voice_id, exc)
                     continue
             try:
                 text, queued_ns, voice_id, force, source_age_ms = self.pending.get(timeout=.2)
@@ -155,9 +190,7 @@ class VoiceCoach:
                 self.played_count += 1
                 self.error = None
             except Exception as exc:
-                self.error = f"Voz local: {exc}"
-                self.ready = False
-                self.enabled = False
+                self._handle_failure(voice_id, exc)
 
     def close(self):
         self.closed = True

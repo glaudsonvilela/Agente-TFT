@@ -25,8 +25,8 @@ o modelo L3 não foi selecionado (`neural_mode=disabled`,
 quando existia uma orientação. Esses fatos explicam a ausência de leituras
 no painel de orientação, de áudio e de inferência neural nessa sessão.
 
-O aplicativo agora inicia a análise de replay e a voz Dii quando o pacote de
-voz está disponível no Windows. A voz é aquecida fora da interface antes das
+O aplicativo agora inicia a análise de replay e a voz Supertonic F1 quando o
+pacote de voz está disponível no Windows, com Dii como reserva. A voz é aquecida fora da interface antes das
 leituras, e a telemetria distingue orientações exibidas, áudio enfileirado,
 áudio reproduzido e mensagens descartadas por atraso. O rodapé exibe o modo
 de replay, a disponibilidade do modelo e o estado da voz. Isso reativa a

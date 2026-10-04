@@ -11,7 +11,7 @@ from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
 from hm.replay_decision import ReplayDecisionEngine
-from hm.voice import VoiceCoach, available_voices
+from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES
 
 
 class HM4RuntimeTests(unittest.TestCase):
@@ -49,11 +49,19 @@ class HM4RuntimeTests(unittest.TestCase):
                 (base/name).mkdir()
                 (base/name/'model.onnx').touch()
                 (base/name/'tokens.txt').touch()
+            for name in SUPERTONIC_FILES:
+                target=base/'supertonic-f1'/name
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.touch()
             voice=VoiceCoach(base)
-            self.assertEqual(set(available_voices(base)),{'dii','cadu','faber'})
-            self.assertEqual(voice.voice_id,'dii')
+            self.assertEqual(set(available_voices(base)),{'supertonic-f1','dii','cadu','faber'})
+            self.assertEqual(voice.voice_id,'supertonic-f1')
             voice.set_voice('faber')
             self.assertEqual(voice.voice_id,'faber')
+            voice.set_voice('supertonic-f1')
+            voice._handle_failure('supertonic-f1',RuntimeError('modelo inválido'))
+            self.assertEqual(voice.voice_id,'dii')
+            self.assertEqual(voice.fallback_from,'supertonic-f1')
             with self.assertRaises(ValueError):voice.set_voice('system')
 
     @unittest.skipUnless(os.name=='nt','Windows Tk desktop required')

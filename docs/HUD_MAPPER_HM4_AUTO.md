@@ -61,10 +61,11 @@ usuário declara que a fonte é um vídeo de partida encerrada.
 ## HM4.5 — narração local opcional
 
 No instalador HM4.5, marque **Narrar orientações** e escolha a voz em
-**Voz** e use **Testar voz** antes de iniciar o replay. As duas vozes em
-português brasileiro já existentes continuam disponíveis; **Dii**, uma voz
-feminina brasileira, é a opção inicial. A síntese ocorre em uma
-thread separada, com um núcleo de CPU, sem serviço de nuvem nem voz do sistema.
+**Voz** e use **Testar voz** antes de iniciar o replay. **Supertonic F1** é a
+opção inicial escolhida após a prévia. Dii, Cadu e Faber continuam disponíveis.
+A síntese F1 ocorre em uma thread separada, com até dois núcleos de CPU,
+sem serviço de nuvem nem voz do sistema. Se F1 falhar ao carregar ou sintetizar,
+o aplicativo troca para Dii e registra a troca no painel e na telemetria.
 Mensagens antigas são descartadas; a dica escrita aparece mesmo se a fala
 estiver desligada ou demorar. A aba **Performance** mostra o tempo de geração
 e um eventual erro de voz.
@@ -72,7 +73,12 @@ e um eventual erro de voz.
 Os modelos de voz vêm dos pacotes `vits-piper-pt_BR-{cadu,faber}-medium-int8`
 e `vits-piper-pt_BR-dii-high-int8`
 da release `tts-models` do projeto `k2-fsa/sherpa-onnx`, verificados por SHA-256
-no build. A licença do motor e os cartões dos modelos acompanham o instalador.
+no build. Supertonic F1 usa os pesos ONNX da revisão fixa
+`3cadd1ee6394adea1bd021217a0e650ede09a323` de
+`Supertone/supertonic-3`, também verificados por SHA-256. O instalador
+inclui só o estilo F1 e os modelos necessários, não todas as vozes Supertonic.
+A licença OpenRAIL-M do modelo, a licença do motor e os cartões das vozes
+acompanham o instalador.
 O pacote Dii é para uso não comercial de laboratório, conforme seu `README.md`.
 
 

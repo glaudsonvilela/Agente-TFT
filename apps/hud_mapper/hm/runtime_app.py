@@ -142,7 +142,7 @@ class App:
             ttk.Checkbutton(line,text="Narrar orientações",variable=self.voice_enabled,
                             command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
             ttk.Label(line,text="Voz").pack(side="left")
-            self.voice_picker=ttk.Combobox(line,textvariable=self.voice_choice,state="readonly",width=18,
+            self.voice_picker=ttk.Combobox(line,textvariable=self.voice_choice,state="readonly",width=21,
                                           values=tuple(self.voice.voices.values()))
             self.voice_picker.pack(side="left",padx=3)
             self.voice_picker.bind("<<ComboboxSelected>>",self.choose_voice)
@@ -470,6 +470,7 @@ class App:
           voice=dict(enabled=bool(self.voice and self.voice.enabled),
                      ready=bool(self.voice and self.voice.ready),
                      selected=self.voice.voice_id if self.voice else None,
+                     fallback_from=self.voice.fallback_from if self.voice else None,
                      synthesis_ms=self.voice.last_generation_ms if self.voice else None,
                      error=self.voice.error if self.voice else None,
                      queued=self.voice.queued_count if self.voice else 0,
@@ -524,19 +525,25 @@ class App:
                         voice=perf["voice"],coach_updates=s.counts["coach_updates"],
                         actionable_tips=s.counts["replay_tips"]))
                 if self.voice:
+                    current_label=self.voice.voices.get(self.voice.voice_id)
+                    if current_label and self.voice_choice.get()!=current_label:
+                        self.voice_choice.set(current_label)
                     voice_state=(self.voice.enabled,self.voice.ready,self.voice.error,self.voice.queued_count,
-                                 self.voice.played_count,self.voice.stale_dropped_count)
+                                 self.voice.played_count,self.voice.stale_dropped_count,
+                                 self.voice.voice_id,self.voice.fallback_from)
                     if voice_state!=getattr(self,"_last_voice_state",None):
                         self._last_voice_state=voice_state
                         s.store.emit("telemetry",dict(event="voice_state",enabled=voice_state[0],
                             ready=voice_state[1],error=voice_state[2],queued=voice_state[3],
-                            played=voice_state[4],stale_dropped=voice_state[5]))
+                            played=voice_state[4],stale_dropped=voice_state[5],
+                            selected=voice_state[6],fallback_from=voice_state[7]))
                 self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
                   sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
                   note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
                 voice_label=("voz erro: "+self.voice.error if self.voice and self.voice.error else
-                             ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
-                              ("voz carregando" if self.voice and self.voice.enabled else "voz desligada")))
+                             ("voz Dii (reserva) · reproduzida "+str(self.voice.played_count) if self.voice and self.voice.fallback_from and self.voice.enabled and self.voice.ready else
+                              ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
+                               ("voz carregando" if self.voice and self.voice.enabled else "voz desligada"))))
                 decision_reason=getattr(s,"latest_decision_reason",None)
                 pending={"OWNED_UNITS_UNVERIFIED":"campeões do tabuleiro ainda não confirmados",
                          "OWNED_UNITS_STALE":"leitura do tabuleiro antiga",
@@ -578,7 +585,7 @@ def main(mode="hm3"):
         from .voice import _synthesize, available_voices, voice_assets
         import io, wave
         voices=available_voices()
-        if set(voices)!={'dii','cadu','faber'}:raise RuntimeError('Pacote de vozes incompleto')
+        if set(voices)!={'supertonic-f1','dii','cadu','faber'}:raise RuntimeError('Pacote de vozes incompleto')
         checks={}
         for voice_id in voices:
             wav,_=_synthesize('Compre a unidade agora.',voice_id,voice_assets())
