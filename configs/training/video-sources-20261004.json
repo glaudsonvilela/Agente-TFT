@@ -42,8 +42,11 @@
       "kind": "full_session",
       "patch_claim": "18.3",
       "availability": "local_verified_manifest",
-      "content_review": "sampled",
-      "training_labels_ready": false
+      "content_review": "sampled_visual_review_actions_and_item_tooltip",
+      "training_labels_ready": false,
+      "reviewed_action_transitions": 2,
+      "contains_embedded_replay": true,
+      "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/video-mechanics.json"
     },
     {
       "url": "https://www.youtube.com/watch?v=gziqlVkdUb4",
@@ -255,7 +258,7 @@
       "kind": "full_session",
       "patch_claim": "18.3 shown in overlay at t=600; hotfix unverified",
       "availability": "local_media_verified_duration",
-      "content_review": "one_frame_visually_reviewed_at_600_seconds",
+      "content_review": "sampled_visual_review_including_planning_action_608_to_610_seconds",
       "training_labels_ready": false,
       "local_media": "datasets/twitch-authorized/v2891050468.mp4",
       "source_sha256": "1eb6a572f9a2e0b605d8131b7f32aa712ef6f1d2be8489d152f6d9464a8717cb",
@@ -264,7 +267,9 @@
         640,
         360
       ],
-      "game_variant": "TFT_PC"
+      "game_variant": "TFT_PC",
+      "reviewed_action_transitions": 1,
+      "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/twitch-demonstration.json"
     },
     {
       "url": "https://www.twitch.tv/videos/2890063192",
@@ -296,7 +301,7 @@
       "kind": "full_session",
       "patch_claim": "unverified",
       "availability": "local_media_verified_duration",
-      "content_review": "one_frame_visually_reviewed_at_600_seconds",
+      "content_review": "sampled_visual_review_including_Azir_tooltip_at_7368_seconds",
       "training_labels_ready": false,
       "local_media": "datasets/twitch-authorized/v2890208196.mp4",
       "source_sha256": "ddb4846b00a99290380e95e23d04e3cc6920024e7bd4a824ea2f2802f5f20df5",
@@ -305,7 +310,8 @@
         640,
         360
       ],
-      "game_variant": "TFT_PC"
+      "game_variant": "TFT_PC",
+      "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/video-mechanics.json"
     },
     {
       "url": "https://www.twitch.tv/videos/2889388141",
@@ -328,6 +334,36 @@
       "availability": "metadata_only",
       "content_review": "not_viewed",
       "training_labels_ready": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=IqP4lrjZ5O4",
+      "creator": "g_ree",
+      "title": "HOW TO PLAY EVERY SINGLE EMBLEM IN TFT SET 18",
+      "patch_claim": "18.3; exact hotfix not established",
+      "availability": "online_browser_verified",
+      "content_review": "full automatic transcript read; only selected frames visually reviewed",
+      "training_labels_ready": false,
+      "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/online-video-review.json"
+    },
+    {
+      "url": "https://www.twitch.tv/videos/2892011367",
+      "creator": "Dishsoap",
+      "title": "Blossom Cup Final Lobby #STEALTHESLOT #TPC !overlay",
+      "patch_claim": "Overlay 18.3; B hotfix not established",
+      "availability": "online_browser_verified",
+      "content_review": "sampled opening gameplay; no downloaded source used",
+      "training_labels_ready": false,
+      "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/online-video-review.json"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Y5WLavM8cCA",
+      "creator": "Teamfight Tactics / Riot Truexy",
+      "title": "TFT Patch 18.3 Rundown",
+      "patch_claim": "18.3 base, published 2026-09-22; predates hotfix",
+      "availability": "online_browser_verified",
+      "content_review": "sampled visual inspection and transcript review of champion section",
+      "training_labels_ready": false,
+      "evidence_report": "docs/evidence/neural-combat-20261004/iteration-r5/online-video-review.json"
     }
   ],
   "creator_discovery_queue": [

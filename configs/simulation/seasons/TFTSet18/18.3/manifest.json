@@ -22,6 +22,10 @@
     {
       "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-1/",
       "use": "Target memory across crowd control. Acquisition priorities and displacement retarget conditions still require calibration."
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+      "use": "Bloodthirster and Hand of Justice deltas missing from the catalog, retained by 18.3. Video tooltip corroborates Bloodthirster threshold/shield; combat trigger still requires replay calibration."
     }
   ],
   "unresolved": [
@@ -37,11 +41,11 @@
   "components": {
     "items": {
       "path": "items.json",
-      "sha256": "e53acce894273cc30622c2111a6ffeba71f71ec6cf6b87d4507971070f820c0e"
+      "sha256": "6943d4f1df99e3701b9c152ec6fd171e0f223ddacfa029d71d15b63279d69e6d"
     },
     "traits": {
       "path": "traits.json",
-      "sha256": "e20aa68469e3e7da78729342e060b234d5fdb0b3e06e59c33bb0f3822d915f43"
+      "sha256": "272c3117586c0ee343be7379893786946fff1b5803f01a70c428d02e540ca3c2"
     },
     "champions": {
       "path": "champions.json",

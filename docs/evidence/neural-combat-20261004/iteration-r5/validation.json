@@ -1,0 +1,18 @@
+{
+  "full_training_suite": {
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python -m unittest discover -s training/tests",
+    "tests": 539,
+    "skipped": 12,
+    "result": "passed_before_rule_map_added"
+  },
+  "focused_final_suite": {
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python -m unittest training.tests.test_rule_map training.tests.test_patch_trait_evidence training.tests.test_seasonal_rules training.tests.test_effects_catalog training.tests.test_item_conditionals -v",
+    "tests": 35,
+    "result": "passed"
+  },
+  "rule_map": {
+    "catalog_inventory_complete": true,
+    "all_game_variables_mapped": false
+  },
+  "runtime_promoted": false
+}

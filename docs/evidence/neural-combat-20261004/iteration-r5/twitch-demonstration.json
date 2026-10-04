@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "demonstration_export",
+  "source_sha256": "1eb6a572f9a2e0b605d8131b7f32aa712ef6f1d2be8489d152f6d9464a8717cb",
+  "reviewed_transitions": 1,
+  "actions": {
+    "move": 1
+  },
+  "frame_review": {
+    "frames": 3,
+    "scenes": {
+      "board": 3
+    },
+    "frames_with_hud": 3,
+    "frames_with_units": 2,
+    "independent_human_validation": false,
+    "current_patch_training_ready": false
+  },
+  "patch_bound_transitions": 0,
+  "full_state_policy_examples": 0,
+  "outcome_value_examples": 0,
+  "runtime_promoted": false,
+  "split_counts": {
+    "train": 1
+  },
+  "action_annotation_sha256": "221e2cd810474a9c3b454a6f0af589417760f0050b41cbe9e1de9ec29847e8ed",
+  "frame_annotation_sha256": "c06ee4aa3bc85cde4d7302fa6520bd99754ebbd2b8ae3608ce3c53b75f48ca78",
+  "sufficient_for_training": false
+}

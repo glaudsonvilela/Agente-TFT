@@ -810,6 +810,239 @@
           }
         }
       }
+    },
+    "DA_18_Caustic": {
+      "tiers": {
+        "1": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "damage_dealt",
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "stat": "shred",
+                      "mode": "flat",
+                      "key": "caustic_shred",
+                      "group": "shred",
+                      "strongest": true,
+                      "duration": {
+                        "$field": "ShredDuration"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "ShredPercent",
+                            "scale": 0.01
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "op": "stat",
+                      "stat": "sunder",
+                      "mode": "flat",
+                      "key": "caustic_sunder",
+                      "group": "sunder",
+                      "strongest": true,
+                      "duration": {
+                        "$field": "ShredDuration"
+                      },
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "ShredPercent",
+                            "scale": 0.01
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DA_18_Defender": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "{0eb6405e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "{0eb6405e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "{8c16b281}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "{8c16b281}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "{0eb6405e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "{0eb6405e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "{8c16b281}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "{8c16b281}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          }
+        },
+        "6": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "{0eb6405e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "{0eb6405e}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "{8c16b281}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "{8c16b281}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          },
+          "numeric_overrides": [
+            {
+              "field": "{8c16b281}",
+              "expected": 120,
+              "value": 115,
+              "patch": "18.3",
+              "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+              "source_section": "LARGE CHANGES / TRAITS / Defender Resists"
+            }
+          ]
+        }
+      }
+    },
+    "DA_18_Executioner": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "crit_chance",
+                  "value": {
+                    "$field": "CritChance",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "precision",
+                  "mode": "flat",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      "notes": [
+        "Only tier two is bound. Bleed base damage, cadence and stacking at tiers three/four require verification."
+      ]
     }
-  }
+  },
+  "patch": "18.3"
 }

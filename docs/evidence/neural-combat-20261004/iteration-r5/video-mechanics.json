@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed_video_mechanics",
+  "sources": [
+    "youtube",
+    "twitch"
+  ],
+  "observations": [
+    {
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+      "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+      "source_seconds": 10655,
+      "image_file": "youtube-wasian-10655.png",
+      "image_sha256": "e0e98616bcb42c8ebc86a7abac3e2948d3817dd7f0f53c609c1db07750be9553",
+      "review_method": "assistant_visual_review",
+      "independent_human_verified": false,
+      "evidence_scope": "visible_item_tooltip",
+      "facts": [
+        {
+          "entity": "TFT_Item_Bloodthirster",
+          "field": "trigger_health_percent",
+          "visible": 50,
+          "sealed_catalog": 40,
+          "action": "official_18.2_delta_applied_to_18.3_rules"
+        },
+        {
+          "entity": "TFT_Item_Bloodthirster",
+          "field": "shield_max_health_percent",
+          "visible": 30,
+          "sealed_catalog": 25,
+          "action": "official_18.2_delta_applied_to_18.3_rules"
+        },
+        {
+          "entity": "TFT_Item_Bloodthirster",
+          "field": "shield_duration_seconds",
+          "visible": 5,
+          "sealed_catalog": 5,
+          "action": "corroborates_catalog"
+        }
+      ],
+      "limitations": [
+        "Tooltip evidence does not validate actual trigger ordering or damage resolution.",
+        "Small source text was inspected as an enlarged crop; no enhanced/generated pixels."
+      ],
+      "exact_patch_bound": false,
+      "runtime_promoted": false
+    },
+    {
+      "source_url": "https://www.twitch.tv/videos/2890208196",
+      "source_sha256": "ddb4846b00a99290380e95e23d04e3cc6920024e7bd4a824ea2f2802f5f20df5",
+      "source_seconds": 7368,
+      "image_file": "twitch-subzeroark-7368.png",
+      "image_sha256": "832e7fd0e550b09de6a3e41bcfa79ec5c0eb79de2ffc45a2f3dfe60685e94c58",
+      "review_method": "assistant_visual_review",
+      "independent_human_verified": false,
+      "evidence_scope": "visible_ability_tooltip",
+      "facts": [
+        {
+          "entity": "DA_18_Azir",
+          "field": "bonus_attack_speed_percent",
+          "visible": 150
+        },
+        {
+          "entity": "DA_18_Azir",
+          "field": "soldiers",
+          "visible": 2
+        },
+        {
+          "entity": "DA_18_Azir",
+          "field": "empowered_attacks",
+          "visible": 6
+        },
+        {
+          "entity": "DA_18_Azir",
+          "field": "displayed_soldier_magic_damage",
+          "visible": 46
+        },
+        {
+          "entity": "DA_18_Azir",
+          "field": "replaces_basic_attacks",
+          "visible": true
+        }
+      ],
+      "limitations": [
+        "Shop tooltip corroborates base displayed damage, not the full AP scaling curve or all star levels.",
+        "Independent soldier position, target selection and cast lock remain unverified."
+      ],
+      "exact_patch_bound": false,
+      "runtime_promoted": false
+    },
+    {
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+      "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+      "source_seconds": 6189,
+      "image_file": "youtube-wasian-6189.png",
+      "image_sha256": "2bd78c28b57be3c579c468241161e7a89eeb5dcf489eb7e5bd6d297951180cf8",
+      "review_method": "assistant_visual_review",
+      "independent_human_verified": false,
+      "evidence_scope": "embedded_replay_context",
+      "facts": [
+        {
+          "field": "view",
+          "visible": "embedded_video_player_showing_augment_selection"
+        }
+      ],
+      "limitations": [
+        "Narration around this interval cannot be assigned to the live game without aligning the embedded replay.",
+        "At 6211 seconds the outer view shows Match Accepted; a continuous narration is not a continuous combat."
+      ],
+      "exact_patch_bound": false,
+      "runtime_promoted": false
+    }
+  ],
+  "raw_media_published": false,
+  "verified_full_combats": 0,
+  "neural_training_examples_from_tooltip_text": 0
+}

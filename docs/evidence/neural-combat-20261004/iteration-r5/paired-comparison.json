@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "cases": 100,
+  "better": 8,
+  "same": 92,
+  "worse": 0,
+  "mean_paired_gain": 0.16,
+  "bootstrap_95_interval": [
+    0.06,
+    0.28
+  ],
+  "bootstrap_seed": 20261004,
+  "outcome_scale": "win=+1, tie/timeout=0, loss=-1; means are not win rates",
+  "limitations": [
+    "Supported scenarios only, no real-match validation",
+    "Exploratory paired bootstrap; no real TFT benefit established",
+    "Comparison to hold within r5; changed content prevents direct r4 vs r5 accuracy comparison"
+  ],
+  "runtime_promoted": false
+}

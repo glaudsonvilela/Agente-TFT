@@ -1,0 +1,2959 @@
+{
+  "schema_version": 1,
+  "kind": "online_champion_attribute_mapping",
+  "source_index": "https://www.tftraits.com/champions/",
+  "observed": "2026-10-04",
+  "private_snapshot_sha256": "af96c72be5700505ad6da66a0c9fda1a84782bfd2fd10541ce77db6c386708e8",
+  "pages": 65,
+  "forms_observed": 70,
+  "catalog_id_matches": 65,
+  "entries": [
+    {
+      "name": "Akali",
+      "url": "https://www.tftraits.com/champions/akali/",
+      "catalog_ids_by_name": [
+        "DA_18_Akali_AD"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Fighter",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 25.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        },
+        {
+          "stars": 1,
+          "role": "AP Fighter",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 25.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "d233c8ba9b090e61f30850b7222da425fc9659e19d3c71a2b7063972b66357e1",
+      "snapshot_sha256": "e7c325dbdfbf7014889ec54753de365507c687375cf1cc4de66737d9a9134419",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Camille",
+      "url": "https://www.tftraits.com/champions/camille/",
+      "catalog_ids_by_name": [
+        "DA_18_Camille"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Fighter",
+          "stats": {
+            "hp": 700.0,
+            "displayed_mana": 0.0,
+            "mana": 25.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "621d1f8cc274bdcf039e8cbb03abb2f7d9330f4065292d0587ee4281eb860a29",
+      "snapshot_sha256": "cb6800892ca4311a2714e4d33e4b6883465cc7240080f08f6ae1eacbaa045907",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Cinderling",
+      "url": "https://www.tftraits.com/champions/cinderling/",
+      "catalog_ids_by_name": [
+        "DA_Cinderling18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 500.0,
+            "displayed_mana": 0.0,
+            "mana": 50.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 25.0,
+            "magicResist": 25.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "bbd500e866e2bedef0c826552c4ce04071f1c519f3ad9fde8d32cf7a13ad2b96",
+      "snapshot_sha256": "08124549b1780da1c13108b83cd0b91cb718e0d11bf913df5c063facbd83c647",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Karma",
+      "url": "https://www.tftraits.com/champions/karma/",
+      "catalog_ids_by_name": [
+        "DA_Karma18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 500.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 25.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 25.0,
+            "magicResist": 25.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "38",
+              "visible_value": "25"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "b6186495be94e0d05681515ee9bc75c468062bbe39027260729fa6d1d22847c2",
+      "snapshot_sha256": "7c0e17ab3a7bfaa895c4501e650474816bc6bb2bb3a53346b43988ab612710db",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Kobuko",
+      "url": "https://www.tftraits.com/champions/kobuko/",
+      "catalog_ids_by_name": [
+        "DA_18_Kobuko"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 700.0,
+            "displayed_mana": 0.0,
+            "mana": 90.0,
+            "damage": 55.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "83",
+              "visible_value": "55"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "fa2371252edac4c3421ed285613fbe69660a7783f52e23603211aa15f67dc993",
+      "snapshot_sha256": "b1ff9b4cf79627e89e53fada6088db41f779cf1c20bab199ac70b7998e6040c7",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Leona",
+      "url": "https://www.tftraits.com/champions/leona/",
+      "catalog_ids_by_name": [
+        "DA_18_Leona"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 750.0,
+            "displayed_mana": 0.0,
+            "mana": 90.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "fbe67a7aa46f30c7af6480507590f874cba5f92141fca963afd4a55b9cee9386",
+      "snapshot_sha256": "f3a8d3e7b4ca267bcbd26756725ee9ae67f80ac6fdc861239c1ed5cb881a55e5",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Ornn",
+      "url": "https://www.tftraits.com/champions/ornn/",
+      "catalog_ids_by_name": [
+        "DA_18_Ornn"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 700.0,
+            "displayed_mana": 30.0,
+            "mana": 100.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "f7b5af977cb4e26b18adb912aa17ed00cddae8d6806cfa76eb6718a63b06bee6",
+      "snapshot_sha256": "9fa64c12b22eb595485f7edfc0c9245671f2477d0a24796a54a66e7633e3a262",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Pebbles",
+      "url": "https://www.tftraits.com/champions/pebbles/",
+      "catalog_ids_by_name": [
+        "DA_18_Sentry"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 500.0,
+            "displayed_mana": 0.0,
+            "mana": 70.0,
+            "damage": 35.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 25.0,
+            "magicResist": 25.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "53",
+              "visible_value": "35"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "82fc784514daf12a2b5ea015589b53c37ad153a444fb7ca46acc11f7132671a2",
+      "snapshot_sha256": "9a7e0b86f60188f21727e00edb7bd36fddbbdba44fff1b7f9fb5459a4732ee0f",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Rakan",
+      "url": "https://www.tftraits.com/champions/rakan/",
+      "catalog_ids_by_name": [
+        "DA_18_Rakan"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 700.0,
+            "displayed_mana": 0.0,
+            "mana": 105.0,
+            "damage": 45.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "68",
+              "visible_value": "45"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "41dc19cfa189a04cb31bb404fbafa74f8324fd11f0171010890121147bf728f2",
+      "snapshot_sha256": "23cf5e59160fd005e2c11137327b1d678cf22f7b13dab669a994055bb8995e65",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Rek'Sai",
+      "url": "https://www.tftraits.com/champions/reksai/",
+      "catalog_ids_by_name": [
+        "DA_18_RekSai"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 700.0,
+            "displayed_mana": 0.0,
+            "mana": 100.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.55,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "a1c13bb9decf13a1a9faacb60dae8f0aa88ad18938c1a7884a30d7527f96faf9",
+      "snapshot_sha256": "490d82c2c3d2df79f35637e3b63a007172eb9d4eda87a287f15a32d60682f909",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Varus",
+      "url": "https://www.tftraits.com/champions/varus/",
+      "catalog_ids_by_name": [
+        "DA_18_Varus"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 500.0,
+            "displayed_mana": 0.0,
+            "mana": 120.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 25.0,
+            "magicResist": 25.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "4875b3f8656bdaf570e5af67a6917263162bf8f360c8bd50a178d28e80fcc036",
+      "snapshot_sha256": "88c27e9ea250b0fe1d07a1c2ecf72aef80ed40f9f4d9e1ad9ca94551c7a87c8e",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Veigar",
+      "url": "https://www.tftraits.com/champions/veigar/",
+      "catalog_ids_by_name": [
+        "DA_18_Veigar"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 500.0,
+            "displayed_mana": 0.0,
+            "mana": 30.0,
+            "damage": 25.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 25.0,
+            "magicResist": 25.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "38",
+              "visible_value": "25"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "b03d73bf981d44ca52ff9566c46ab3b269a44685aa43d7b4c75874a5a0b5202c",
+      "snapshot_sha256": "f5afa561633463c1537a697b3e58c6a1fab9e8e1c74aeebdaa29986af8fc91ec",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Xayah",
+      "url": "https://www.tftraits.com/champions/xayah/",
+      "catalog_ids_by_name": [
+        "DA_18_Xayah"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Carry",
+          "stats": {
+            "hp": 450.0,
+            "displayed_mana": 0.0,
+            "mana": 50.0,
+            "damage": 45.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 25.0,
+            "magicResist": 25.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "68",
+              "visible_value": "45"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "37e450ca238d9ebe60f1b3230d69d5f385a25dcaed48021d691a775997efa930",
+      "snapshot_sha256": "5ed564642ebab9aacbd6f0aa0de23a2a68431e034bd7064f5d27118c65d7a14e",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Yorick",
+      "url": "https://www.tftraits.com/champions/yorick/",
+      "catalog_ids_by_name": [
+        "DA_18_Yorick"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Tank",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 110.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "2376f6cf6061454b5dfd66937d630fdb57a803f29347c616b13b75652576464d",
+      "snapshot_sha256": "1f4d7bccf6b59957bc6d92f36c3ad2e55db7e4a9430ed589577c88f53e4b6712",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Alistar",
+      "url": "https://www.tftraits.com/champions/alistar/",
+      "catalog_ids_by_name": [
+        "DA_18_Alistar"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 950.0,
+            "displayed_mana": 0.0,
+            "mana": 90.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "32a43c5c4a9c2f8bfb2afa345966adf6231534f2045824a0fbfd1f4010bab5f4",
+      "snapshot_sha256": "c09904a2eb9fef0efef562df82b53950de5d8b812b8a43ffefec7066a58ced6a",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Caitlyn",
+      "url": "https://www.tftraits.com/champions/caitlyn/",
+      "catalog_ids_by_name": [
+        "DA_18_Caitlyn"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Specialist",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 3.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "e4b5f0781e2f18a17458d4196dea675b2fe65e28f0558602216ab1c965ff6f90",
+      "snapshot_sha256": "102939b2163007603f837f8eb17597dc5fe948013c84ca3f01fe47103d52f04d",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Elise",
+      "url": "https://www.tftraits.com/champions/elise/",
+      "catalog_ids_by_name": [
+        "DA_18_Elise"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 70.0,
+            "damage": 20.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "30",
+              "visible_value": "20"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "2f3a72e3541d9b15e61011e57ae265156e909ffa90929404aa871079572ca87f",
+      "snapshot_sha256": "35d5818de80a2a25a61ae6d4141c100a5e74f7a41bdb7dd70bc0c8e946b6704a",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Gromp",
+      "url": "https://www.tftraits.com/champions/gromp/",
+      "catalog_ids_by_name": [
+        "DA_Gromp18_AP"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 45.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        },
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 80.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "115943f82f8b842202146d09583e9c6807ab65c4a1d4978063865549cbc0ec0f",
+      "snapshot_sha256": "7fc0ec4f071d89d492dea5c3eae6293c1268731542cf49a2c33120746a93c47b",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Kayle",
+      "url": "https://www.tftraits.com/champions/kayle/",
+      "catalog_ids_by_name": [
+        "DA_18_Kayle"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Specialist",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 0.0,
+            "damage": 10.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "15",
+              "visible_value": "10"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_18_Kayle",
+          "field": "damage",
+          "catalog_value": null,
+          "source_value": 10.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "4f41ccad5d45c72365549261649cc86d90b551d597bdec1e2c6954273115f64d",
+      "snapshot_sha256": "215105232897351745c7626adddaa78858f40907e2ec3926b34a9a8fa623c940",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "LeBlanc",
+      "url": "https://www.tftraits.com/champions/leblanc/",
+      "catalog_ids_by_name": [
+        "DA_18_LeBlanc"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "51a0badd96746a2e66eb322a815f4136a1b5df246fd21506b397d0cdc33b5968",
+      "snapshot_sha256": "1e06e4176fe31bb0788e50c8b95d01204d3a1adec0ca4a02993e8ce2a240b732",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Murkwolf",
+      "url": "https://www.tftraits.com/champions/murkwolf/",
+      "catalog_ids_by_name": [
+        "DA_Murkwolf18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Reaper",
+          "stats": {
+            "hp": 700.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "ba9f502798c86172571f8fc5b10278237a802ec6cec39c01c1149356818453c1",
+      "snapshot_sha256": "044475694230bc0a71140bad689656e8c6508e41d2495e5dac626d0701b11882",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Scuttlecrab",
+      "url": "https://www.tftraits.com/champions/scuttlecrab/",
+      "catalog_ids_by_name": [
+        "DA_Scuttlecrab18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Tank",
+          "stats": {
+            "hp": 950.0,
+            "displayed_mana": 0.0,
+            "mana": 100.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "1564f1f762b5bf199f699295ee96566a656312911adc7d618eab1cdd59924123",
+      "snapshot_sha256": "1c298559826ca0e84d76d05512460d044206e13b0514c4a8d6a8b3ba3f7b8216",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Sejuani",
+      "url": "https://www.tftraits.com/champions/sejuani/",
+      "catalog_ids_by_name": [
+        "DA_18_Sejuani"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 100.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "b8f68116167fbc60b27a3f15b9cbb754d035fca7d4936624921f48beee23bab1",
+      "snapshot_sha256": "a45f9c246ce5d21919a424625caf5d90400666f3c731b4d13ce898eeb9fe39b4",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Shen",
+      "url": "https://www.tftraits.com/champions/shen/",
+      "catalog_ids_by_name": [
+        "DA_18_Shen"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 90.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "7dad835eb91426e53f7605574a06f897fff20eb889383b2855548424e08d5183",
+      "snapshot_sha256": "92bc545eaa067e7787eb94ac52ffd5dfcaa41473f52f3f331d3644e6cfca7ac4",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Teemo",
+      "url": "https://www.tftraits.com/champions/teemo/",
+      "catalog_ids_by_name": [
+        "DA_18_Teemo"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 50.0,
+            "damage": 35.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "53",
+              "visible_value": "35"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "6f708e2f77d5511d43e30fb2270176fd7bdb1c41f2ab5ab25f67796a4b219417",
+      "snapshot_sha256": "8d722c19254df1101a064f85cc9a0028c3e512381442894522389c41be0e8526",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Warwick",
+      "url": "https://www.tftraits.com/champions/warwick/",
+      "catalog_ids_by_name": [
+        "DA_18_Warwick"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Fighter",
+          "stats": {
+            "hp": 750.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 45.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "68",
+              "visible_value": "45"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "534301c20ce5092c115268e4d75d72213b253ec69e9d80405cadb5d5927af561",
+      "snapshot_sha256": "4b2467d7a555d1a8659fe291ccaa420a14c587ca79a219616c50a07b056e0f0f",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Yunara",
+      "url": "https://www.tftraits.com/champions/yunara/",
+      "catalog_ids_by_name": [
+        "DA_18_Yunara"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 550.0,
+            "displayed_mana": 0.0,
+            "mana": 35.0,
+            "damage": 42.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "63",
+              "visible_value": "42"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "ee59b0b9081f1d3e6ec994ef97ef2584291db29a23446a39b113de0b8922ea80",
+      "snapshot_sha256": "544724df4bf6591f4d4fb70d0078f949176ca89cf76e65d889214dd89347e1ab",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Azir",
+      "url": "https://www.tftraits.com/champions/azir/",
+      "catalog_ids_by_name": [
+        "DA_18_Azir"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Carry",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 35.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "abbdebb383eda29fbf8bbdb8f358f33a67a6bfebd889d57debc5c66d4e0e0a79",
+      "snapshot_sha256": "9cfab444dcda1ed233827ddd21061330fdd35e48e99ad9183fc1bd65e9934973",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Cassiopeia",
+      "url": "https://www.tftraits.com/champions/cassiopeia/",
+      "catalog_ids_by_name": [
+        "DA_18_Cassiopeia"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 30.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "49eba3afb75b5a2aaf2f697cb4493f03cb50e916cbf74f917b451eef249cd0e2",
+      "snapshot_sha256": "d3fa242a81ac65588a050ddc66e2d92dd7da7e8ab6f252a683eabdb8f406f51b",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Diana",
+      "url": "https://www.tftraits.com/champions/diana/",
+      "catalog_ids_by_name": [
+        "DA_18_Diana"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Fighter",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 50.0,
+            "magicResist": 50.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_18_Diana",
+          "field": "mana",
+          "catalog_value": 30.0,
+          "source_value": 40.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "e0f33885031cb6276b08038bfd328656e13acee5abad3c94b4f2318e9378a9cd",
+      "snapshot_sha256": "9a6bda5f8b53044cca89d11cb30dfe90de369a547c6aa2bfc7dd299ad7288601",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Fiddlesticks",
+      "url": "https://www.tftraits.com/champions/fiddlesticks/",
+      "catalog_ids_by_name": [
+        "DA_Fiddlesticks18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1000.0,
+            "displayed_mana": 0.0,
+            "mana": 90.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "8e7d4cd8f03ac8fdc2e52481bd4e9e93b747cc1e23caff583c61e8eef0882cbd",
+      "snapshot_sha256": "fd0581252cdd3924022d5f299e28900920a81af151401af78e556eacc3e62ec5",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Hecarim",
+      "url": "https://www.tftraits.com/champions/hecarim/",
+      "catalog_ids_by_name": [
+        "DA_18_Hecarim"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 110.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 50.0,
+            "magicResist": 50.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "b5be3276a6c845c9274325437fd19d275a8d84ef536cdaf7d6bfdb2e83a349bd",
+      "snapshot_sha256": "ac991b2da65f6f66486ab1faa3830a7779354dce53ad4744cce0d7af2162b687",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Kha'Zix",
+      "url": "https://www.tftraits.com/champions/khazix/",
+      "catalog_ids_by_name": [
+        "DA_18_KhaZix"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Reaper",
+          "stats": {
+            "hp": 950.0,
+            "displayed_mana": 0.0,
+            "mana": 25.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.85,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "5447a0f10793060b135d1b8f803a8c24b1e3b88029280366f19a8453ceb08083",
+      "snapshot_sha256": "2cba66133bd2064b78ddf65e17407e0bd7e80348b9b07edc2fd9ff2318bef8b4",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Kog'Maw",
+      "url": "https://www.tftraits.com/champions/kogmaw/",
+      "catalog_ids_by_name": [
+        "DA_KogMaw18_AD"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 55.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        },
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 55.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "df225ede8b8dd14993f317941dcfbc07f5567877d9ef53b745ddf419ef7851b6",
+      "snapshot_sha256": "a6df6a1822f54cbfdf1e3b3fed96713458bd29828f262aff5c1ce59102ee474a",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Krug",
+      "url": "https://www.tftraits.com/champions/krug/",
+      "catalog_ids_by_name": [
+        "DA_Krug18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Tank",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 135.0,
+            "damage": 55.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "83",
+              "visible_value": "55"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "14d95f5e6af3dce5ffe3e447090d03a6de8c8df09e5e9b2e414de24a34a79b65",
+      "snapshot_sha256": "0955b36795658f13a5a55926049873c7d542802ddb39ca08b37c78c7cee9bb02",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Mama Beak",
+      "url": "https://www.tftraits.com/champions/mama-beak/",
+      "catalog_ids_by_name": [
+        "DA_CrimsonRaptor18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Carry",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 60.0,
+            "damage": 55.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "83",
+              "visible_value": "55"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "e2888291b405350f48a0ddf7d981f271d817899aaf7dad799ce820591899e9cd",
+      "snapshot_sha256": "fa07e78ce438e6af6fb175e041b918cad0402ed105ab8a5e9f261cf28c5c151d",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Master Yi",
+      "url": "https://www.tftraits.com/champions/master-yi/",
+      "catalog_ids_by_name": [
+        "DA_18_MasterYi_AD"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Specialist",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 3.0,
+            "damage": 60.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "90",
+              "visible_value": "60"
+            }
+          ]
+        },
+        {
+          "stars": 1,
+          "role": "AD Specialist",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 3.0,
+            "damage": 15.0,
+            "ap": 100.0,
+            "attackSpeed": 0.85,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "23",
+              "visible_value": "15"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_18_MasterYi_AD",
+          "field": "damage",
+          "catalog_value": 62.0,
+          "source_value": 60.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "28768661f356eed7e9c7234aa31fcec6a726cccb7b93523ca56eb4d9fe6eee1c",
+      "snapshot_sha256": "8e77349aa938b5c13329e63e3b0aaee3379c5b3b832c9f49977a617b1c38536d",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Rammus",
+      "url": "https://www.tftraits.com/champions/rammus/",
+      "catalog_ids_by_name": [
+        "DA_18_Rammus"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Tank",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 80.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 50.0,
+            "magicResist": 50.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "5698688c25b296daa7e0d97abf3b11944033adbe8064bf4d42e48181484e3248",
+      "snapshot_sha256": "bf9365aace9e090d0377b6ea766c53271f394fa2988142f7cf99c3ea946638f2",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Rengar",
+      "url": "https://www.tftraits.com/champions/rengar/",
+      "catalog_ids_by_name": [
+        "DA_18_Rengar"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Fighter",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 50.0,
+            "damage": 60.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "90",
+              "visible_value": "60"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "cef26c259380c3f45060c2cccc3389e704a7f371e86352a599177f6f09b65395",
+      "snapshot_sha256": "c7028207bee650a832b4fedb358408849458fa054ca1b083d3315b5d35e23579",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Tristana",
+      "url": "https://www.tftraits.com/champions/tristana/",
+      "catalog_ids_by_name": [
+        "DA_18_Tristana"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Carry",
+          "stats": {
+            "hp": 650.0,
+            "displayed_mana": 0.0,
+            "mana": 60.0,
+            "damage": 55.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 35.0,
+            "magicResist": 35.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "83",
+              "visible_value": "55"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "12f4c7057c057f22f0501c2f832938fa92e76ad13ecb606b8b17f14250d5e51e",
+      "snapshot_sha256": "6efd0eff789ca932343f9c3d77752f28a02f6ee0c64de59e6182a6018de43b47",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Vi",
+      "url": "https://www.tftraits.com/champions/vi/",
+      "catalog_ids_by_name": [
+        "DA_Vi18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Tank",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 60.0,
+            "damage": 45.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 50.0,
+            "magicResist": 50.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "68",
+              "visible_value": "45"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "379d2accf970e5af92059b2837138f0a7df88b80159b32870ef627acb1437d05",
+      "snapshot_sha256": "ec273f77cbf079bb4c5a1af4e55871211b59b6010ec2e3d3bd82b6aa712214f7",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Ahri",
+      "url": "https://www.tftraits.com/champions/ahri/",
+      "catalog_ids_by_name": [
+        "DA_18_Ahri"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 100.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "fbfbc404e3e2af8c53172d3544fa7ee6d28643352705b47ca70105565b27f0d1",
+      "snapshot_sha256": "f9c5c209d86ee9eb360bf1b03d4aff7f171d956440c7500bfd004890018ab859",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Amumu",
+      "url": "https://www.tftraits.com/champions/amumu/",
+      "catalog_ids_by_name": [
+        "DA_Amumu18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1300.0,
+            "displayed_mana": 0.0,
+            "mana": 125.0,
+            "damage": 70.0,
+            "ap": 100.0,
+            "attackSpeed": 0.7,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "105",
+              "visible_value": "70"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "891add844096863966a25173f587bfda7b4a1b92434afe8faafc2cb9a082acde",
+      "snapshot_sha256": "773bca3918d9ab1f6beaade93558cfb1430dadfcfe72c73809f60df07242b391",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Aphelios",
+      "url": "https://www.tftraits.com/champions/aphelios/",
+      "catalog_ids_by_name": [
+        "DA_18_Aphelios"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Carry",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 70.0,
+            "damage": 60.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "90",
+              "visible_value": "60"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "33a31ed8056cc57ed1e91fa5b835d624695414006026c5fc200a406ec26a18f0",
+      "snapshot_sha256": "83ba7fe109e6d8d9c6aacf1d0677139c825ddd45ee080ed6f25bb9f580c425b1",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Brambleback",
+      "url": "https://www.tftraits.com/champions/brambleback/",
+      "catalog_ids_by_name": [
+        "DA_Brambleback18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Fighter",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 120.0,
+            "ap": 100.0,
+            "attackSpeed": 0.55,
+            "critChance": 0.25,
+            "armor": 65.0,
+            "magicResist": 65.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "180",
+              "visible_value": "120"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "0fe020299e417a3465efac097f664041aab0179e41f59130cb932e54a5158e3c",
+      "snapshot_sha256": "552b6eeee844bbade78039c125713ece593b3526a0af33468d498a750a7264cc",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Ezreal",
+      "url": "https://www.tftraits.com/champions/ezreal/",
+      "catalog_ids_by_name": [
+        "DA_18_Ezreal"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 30.0,
+            "damage": 45.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "68",
+              "visible_value": "45"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "5a1d068f00d5036cb4963029810efa3bdd938f94909b7587f31750ad14fee28f",
+      "snapshot_sha256": "2a01d3c5b9dae0f57720fc6548cc79cefb785e02743ab1488e3d719fd3fb13b8",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Lillia",
+      "url": "https://www.tftraits.com/champions/lillia/",
+      "catalog_ids_by_name": [
+        "DA_18_Lillia"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1300.0,
+            "displayed_mana": 0.0,
+            "mana": 140.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "2df1f69797d8b647847058097b43ba65d80db28d84bfa1366c8823ff7cdcbe77",
+      "snapshot_sha256": "85d2014160533d14f7facd7387a75e5a2a253f0bf7106bc070c0163dbbf30aee",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Malphite",
+      "url": "https://www.tftraits.com/champions/malphite/",
+      "catalog_ids_by_name": [
+        "DA_18_Malphite"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1300.0,
+            "displayed_mana": 0.0,
+            "mana": 80.0,
+            "damage": 70.0,
+            "ap": 100.0,
+            "attackSpeed": 0.55,
+            "critChance": 0.25,
+            "armor": 70.0,
+            "magicResist": 70.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "105",
+              "visible_value": "70"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "4260fa5051f8ec41984367994724343a6235acd838c3106ef7bf0ff8921b815f",
+      "snapshot_sha256": "70a9b7f17f495c452d805e30953e4dd05ed66c784cbb247960fc209f444b2e23",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Morgana",
+      "url": "https://www.tftraits.com/champions/morgana/",
+      "catalog_ids_by_name": [
+        "DA_18_Morgana"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Fighter",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 65.0,
+            "damage": 45.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 2.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "68",
+              "visible_value": "45"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "0c3d5217742db90447e74bebbaf5fe20533c086f1252fe1ce53b72b8e95dfef4",
+      "snapshot_sha256": "47e1d794c21540e45b8d8eb08adad305e6c62b59be6aac17fdca41624e83cbca",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Nidalee",
+      "url": "https://www.tftraits.com/champions/nidalee/",
+      "catalog_ids_by_name": [
+        "DA_Nidalee18_AP"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Carry",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 45.0,
+            "damage": 35.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 30.0,
+            "magicResist": 30.0,
+            "range": 5.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "53",
+              "visible_value": "35"
+            }
+          ]
+        },
+        {
+          "stars": 1,
+          "role": "AD Reaper",
+          "stats": {
+            "hp": 1100.0,
+            "displayed_mana": 0.0,
+            "mana": 20.0,
+            "damage": 60.0,
+            "ap": 100.0,
+            "attackSpeed": 0.85,
+            "critChance": 0.25,
+            "armor": 65.0,
+            "magicResist": 65.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "90",
+              "visible_value": "60"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_Nidalee18_AP",
+          "field": "range",
+          "catalog_value": 1.0,
+          "source_value": 5.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "8512bdf4167c65a8209178d79830311082b57915453de0b02fe67f452596273e",
+      "snapshot_sha256": "e13fddaee3856ab0e928a041a74e29151d8194b6c5213cdc34113f1d897f3ee1",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Sentinel",
+      "url": "https://www.tftraits.com/champions/sentinel/",
+      "catalog_ids_by_name": [
+        "DA_Sentinel18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1300.0,
+            "displayed_mana": 0.0,
+            "mana": 150.0,
+            "damage": 75.0,
+            "ap": 100.0,
+            "attackSpeed": 0.6,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "113",
+              "visible_value": "75"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "ce90334e569c31eb132de4e77a8f654434a5cdffc102ce7af7ef762058dd7725",
+      "snapshot_sha256": "e78b2755b04490a1cbeca959aa3652bad3037fa41674505f7518f444eeadd7c5",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Sett",
+      "url": "https://www.tftraits.com/champions/sett/",
+      "catalog_ids_by_name": [
+        "DA_18_Sett"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Tank",
+          "stats": {
+            "hp": 1200.0,
+            "displayed_mana": 0.0,
+            "mana": 135.0,
+            "damage": 80.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "120",
+              "visible_value": "80"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "c0b628b2c310042174b0970fd8e5cfb5ba30066929448a535b62a39453c3f97e",
+      "snapshot_sha256": "eea7554a934598c85324560b22a542123289b102de746237d9c7b7144685987d",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Sivir",
+      "url": "https://www.tftraits.com/champions/sivir/",
+      "catalog_ids_by_name": [
+        "DA_18_Sivir"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "899c0898e9e81a5e3974338a7e818bdaa2a1ea0931569a4462298be0f797ebce",
+      "snapshot_sha256": "68cc71a3648d9016f794166e7c54c1a2cb37e19e083bd85a77dfe15d5ffa083d",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Soraka",
+      "url": "https://www.tftraits.com/champions/soraka/",
+      "catalog_ids_by_name": [
+        "DA_18_Soraka"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 30.0,
+            "damage": 30.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "45",
+              "visible_value": "30"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "4fbb05e4a206c8fefa7fa0b0f97976623b30a23eabcfb273e6adadf2f31518b9",
+      "snapshot_sha256": "3ffc52d8655f398e7ce4d4ebeefe7e962f25be2d5c21f0bd4daabe4d0795f18b",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Zyra",
+      "url": "https://www.tftraits.com/champions/zyra/",
+      "catalog_ids_by_name": [
+        "DA_18_Zyra"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 850.0,
+            "displayed_mana": 0.0,
+            "mana": 45.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 40.0,
+            "magicResist": 40.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "c78ba5cf9efac976ad6a10969d846b9a4d8a6278d6db0a5505093cf4b348d120",
+      "snapshot_sha256": "0703aaf37d5ab390b0c4a9844fa0fe062afff57762dfaa04a0548d6d1121ecde",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Alune",
+      "url": "https://www.tftraits.com/champions/alune/",
+      "catalog_ids_by_name": [
+        "DA_18_Alune"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 35.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 4.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "55edef729cf0b5c19cc47369379d5f4d9c081f69e70f211dd53e7889c8929492",
+      "snapshot_sha256": "e07c0b231be6757fec7b9fcc8fd6bdd36aaf705d7b1d81d55e2bfc331c1e02e0",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Ashe",
+      "url": "https://www.tftraits.com/champions/ashe/",
+      "catalog_ids_by_name": [
+        "DA_18_Ashe"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Caster",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 80.0,
+            "damage": 75.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 5.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "113",
+              "visible_value": "75"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_18_Ashe",
+          "field": "range",
+          "catalog_value": 6.0,
+          "source_value": 5.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "4e7c67f66fdec5595ecf3c054c4a2ed83ce3232881cd2e430f174390ea1ae3e7",
+      "snapshot_sha256": "138dff3c9d7130cd1ced55ae4f54a46551dd796c5312662a775a5a9331e277a7",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Draven",
+      "url": "https://www.tftraits.com/champions/draven/",
+      "catalog_ids_by_name": [
+        "DA_Draven18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Carry",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 110.0,
+            "damage": 48.0,
+            "ap": 100.0,
+            "attackSpeed": 0.85,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 5.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "72",
+              "visible_value": "48"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_Draven18",
+          "field": "range",
+          "catalog_value": 6.0,
+          "source_value": 5.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "be83c1146ac33289bacb93286b8154abac3fa3902ebc11c736dc818d8e33abb8",
+      "snapshot_sha256": "8350be9c855ad43c32cf191fe06d8d3c3384f7f7fa9398665ffcb7fe2383939c",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Elder Dragon",
+      "url": "https://www.tftraits.com/champions/elder-dragon/",
+      "catalog_ids_by_name": [
+        "DA_18_ElderDragon"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Fighter",
+          "stats": {
+            "hp": 1800.0,
+            "displayed_mana": 0.0,
+            "mana": 60.0,
+            "damage": 125.0,
+            "ap": 100.0,
+            "attackSpeed": 0.5,
+            "critChance": 0.25,
+            "armor": 75.0,
+            "magicResist": 75.0,
+            "range": 2.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "188",
+              "visible_value": "125"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "311be83a7b7b64dbbe1e15502d9261ac0eea8bdaffde84026dfbf636649658bb",
+      "snapshot_sha256": "5c91439c64f76ea09a9964ce7727b651e5b534c735b7b86947fdb8f1019da069",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Gnar",
+      "url": "https://www.tftraits.com/champions/gnar/",
+      "catalog_ids_by_name": [
+        "DA_18_GnarSmall"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AD Specialist",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 70.0,
+            "damage": 100.0,
+            "ap": 100.0,
+            "attackSpeed": 0.9,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 2.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "150",
+              "visible_value": "100"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "8eacc6074705b04e433315f8d47bb915df4dfa330c129cfe3253c3adfe2df861",
+      "snapshot_sha256": "37fb5d8960d69af83036e8b009728f72750c90304253e09d8ae239a6bb527179",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Ivern",
+      "url": "https://www.tftraits.com/champions/ivern/",
+      "catalog_ids_by_name": [
+        "DA_18_Ivern"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 1000.0,
+            "displayed_mana": 0.0,
+            "mana": 80.0,
+            "damage": 60.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 55.0,
+            "magicResist": 55.0,
+            "range": 3.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "90",
+              "visible_value": "60"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "e44d6e76ee65426488ea06d799ffad50dd3d45bf077566a6fc37e63a433c09e0",
+      "snapshot_sha256": "27b27b547651b211700ad8fbedccebb652a0a4def28a3a5c29d86435cc9d084d",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Kennen",
+      "url": "https://www.tftraits.com/champions/kennen/",
+      "catalog_ids_by_name": [
+        "DA_18_Kennen"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Reaper",
+          "stats": {
+            "hp": 1200.0,
+            "displayed_mana": 0.0,
+            "mana": 40.0,
+            "damage": 50.0,
+            "ap": 100.0,
+            "attackSpeed": 0.85,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 2.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "75",
+              "visible_value": "50"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "8dbb96695017bb251953f99ae6aee331e19577b4864aac615ae38ab1a7054b52",
+      "snapshot_sha256": "1b387b33aa1efd8f5742e10ab7fbb60d061fa2b77c94023e6c39110a166aa84b",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Lux",
+      "url": "https://www.tftraits.com/champions/lux/",
+      "catalog_ids_by_name": [
+        "DA_Lux18_Base"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Caster",
+          "stats": {
+            "hp": 900.0,
+            "displayed_mana": 0.0,
+            "mana": 70.0,
+            "damage": 40.0,
+            "ap": 100.0,
+            "attackSpeed": 0.8,
+            "critChance": 0.25,
+            "armor": 45.0,
+            "magicResist": 45.0,
+            "range": 5.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "60",
+              "visible_value": "40"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_Lux18_Base",
+          "field": "armor",
+          "catalog_value": 40.0,
+          "source_value": 45.0,
+          "applied": false
+        },
+        {
+          "catalog_id": "DA_Lux18_Base",
+          "field": "magicResist",
+          "catalog_value": 40.0,
+          "source_value": 45.0,
+          "applied": false
+        },
+        {
+          "catalog_id": "DA_Lux18_Base",
+          "field": "range",
+          "catalog_value": 6.0,
+          "source_value": 5.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "0190980e0fc0b4c083dd5ad8c5d71be0c6ad6c19321e09c0b62646d0f64700cf",
+      "snapshot_sha256": "7cd53c08bbe9baec71b04b0d707b1177e7576186694c94d99b05611de9a02c38",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Maokai",
+      "url": "https://www.tftraits.com/champions/maokai/",
+      "catalog_ids_by_name": [
+        "DA_18_Maokai"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1150.0,
+            "displayed_mana": 0.0,
+            "mana": 100.0,
+            "damage": 80.0,
+            "ap": 100.0,
+            "attackSpeed": 0.65,
+            "critChance": 0.25,
+            "armor": 60.0,
+            "magicResist": 60.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "120",
+              "visible_value": "80"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [
+        {
+          "catalog_id": "DA_18_Maokai",
+          "field": "mana",
+          "catalog_value": 90.0,
+          "source_value": 100.0,
+          "applied": false
+        }
+      ],
+      "ability_snapshot_sha256": "1e48f3149bc157c3137be51861ea0180b509e1c9216be6ee862b015be9cdeaf6",
+      "snapshot_sha256": "09676d7377b9a9f70dce694cddb5da352b92d994c052392ad9b32a0c219f10df",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    },
+    {
+      "name": "Taric",
+      "url": "https://www.tftraits.com/champions/taric/",
+      "catalog_ids_by_name": [
+        "DA_Taric18"
+      ],
+      "forms": [
+        {
+          "stars": 1,
+          "role": "AP Tank",
+          "stats": {
+            "hp": 1300.0,
+            "displayed_mana": 0.0,
+            "mana": 65.0,
+            "damage": 55.0,
+            "ap": 100.0,
+            "attackSpeed": 0.75,
+            "critChance": 0.25,
+            "armor": 65.0,
+            "magicResist": 65.0,
+            "range": 1.0,
+            "damage_amp": 0.0,
+            "omnivamp": 0.0,
+            "durability": 0.0
+          },
+          "stale_tooltip_fields": [
+            {
+              "field": "damage",
+              "tooltip": "83",
+              "visible_value": "55"
+            }
+          ]
+        }
+      ],
+      "catalog_stat_conflicts": [],
+      "ability_snapshot_sha256": "ef04994657fc406dc3f63eeb23fab264120321356bb62dcd330b685cdccbbb75",
+      "snapshot_sha256": "2623b8bcc804ea4249779ccd2b4491b835d35ee82d4203ba5e65ca273c01ecd3",
+      "ability_description_observed": true,
+      "formula_semantics_verified": false,
+      "patch_verified": false,
+      "replay_validated": false
+    }
+  ],
+  "limits": [
+    "All 65 index pages read through visible DOM, using selected one-star displayed numbers",
+    "Tooltip title text can be stale after changing stars; visible number retained separately",
+    "Descriptions preserve AP/AD/HP image markers in private snapshot; not blindly compiled",
+    "Name-based identity matching is an audit hint; Lux variants still require individual rules",
+    "Mana bar current value belongs to animated preview; it is NOT initialMana and is never compared as an initial attribute",
+    "Third-party timing and balance require official patch binding and independent replay validation"
+  ],
+  "runtime_promoted": false
+}

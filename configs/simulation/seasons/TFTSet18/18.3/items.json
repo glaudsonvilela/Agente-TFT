@@ -266,6 +266,40 @@
             "scale": 1
           }
         }
+      ],
+      "numeric_overrides": [
+        {
+          "field": "HealthThreshold",
+          "expected": 40,
+          "value": 50,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / Bloodthirster; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        },
+        {
+          "field": "AD",
+          "expected": 0.15,
+          "value": 0.18,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / Bloodthirster; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        },
+        {
+          "field": "AP",
+          "expected": 15,
+          "value": 18,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / Bloodthirster; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        },
+        {
+          "field": "ShieldHealthPercent",
+          "expected": 25,
+          "value": 30,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / Bloodthirster; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        }
       ]
     },
     "TFT_Item_RabadonsDeathcap": {
@@ -984,7 +1018,34 @@
       ],
       "notes": [
         "Base bonuses always apply; exactly at the threshold neither strict above/below bonus applies. Doubling multiplier is checked, never inferred from the hash field alone."
+      ],
+      "numeric_overrides": [
+        {
+          "field": "AD_NotStatBar",
+          "expected": 0.15,
+          "value": 0.18,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / UnstableConcoction; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        },
+        {
+          "field": "AP_NotStatBar",
+          "expected": 15,
+          "value": 18,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / UnstableConcoction; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        },
+        {
+          "field": "StatOmnivamp_NotStatBar",
+          "expected": 0.12,
+          "value": 0.15,
+          "patch": "18.3",
+          "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+          "source_section": "ITEMS / UnstableConcoction; 18.2 change retained in 18.3 (no subsequent change in 18.3 notes)"
+        }
       ]
     }
-  }
+  },
+  "patch": "18.3"
 }

@@ -1,0 +1,152 @@
+{
+  "schema_version": 2,
+  "kind": "board_review",
+  "source_url": "https://www.twitch.tv/videos/2891050468",
+  "source_sha256": "1eb6a572f9a2e0b605d8131b7f32aa712ef6f1d2be8489d152f6d9464a8717cb",
+  "frames": [
+    {
+      "image": "twitch-dishsoap-608.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "c82336ce2aba48ca9cc52a6d8abca9066ac4756f738d05c010bfd782349d04dd",
+      "pixel_sha256": "e23579192052bb7a7e694ddec54f3791398d30ff17d979746728b45d4c4f3ce8",
+      "session_id": "dishsoap-blossom-cup-v2891050468",
+      "source_ms": 608000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false
+      },
+      "hud": {
+        "hp": 100,
+        "gold": 8,
+        "level": 3,
+        "xp": 2,
+        "xp_cap": 6,
+        "stage": "2-1"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "frontline-mover",
+            "zone": "board",
+            "owner": "self",
+            "box": [
+              245,
+              112,
+              279,
+              162
+            ],
+            "hex": [
+              0,
+              2
+            ]
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "frontline-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "twitch-dishsoap-609.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "bc7ac89794db5ed8f819107b6b55024f0189040ed702cfec420917fb69f5fbe9",
+      "pixel_sha256": "0fe66b94f807c565838ef4f11a1d66f76288d48e23a5eeb14ec26ef7187f7a02",
+      "session_id": "dishsoap-blossom-cup-v2891050468",
+      "source_ms": 609000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false
+      },
+      "hud": {
+        "hp": 100,
+        "gold": 8,
+        "level": 3,
+        "xp": 2,
+        "xp_cap": 6,
+        "stage": "2-1"
+      },
+      "layout": {
+        "units": []
+      },
+      "entities": []
+    },
+    {
+      "image": "twitch-dishsoap-610.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "sha256": "660eabac811ffa466c854710e55ffec0ead1a1f032786690c93668b612090b79",
+      "pixel_sha256": "023ba149803e1a6bd2b9a8c3d4bc8703a6e244f80e1f21e8256c4ccab0310b33",
+      "session_id": "dishsoap-blossom-cup-v2891050468",
+      "source_ms": 610000,
+      "scene": "board",
+      "phase": "planning",
+      "patch_binding": null,
+      "match_group": null,
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "human_verified": false
+      },
+      "hud": {
+        "hp": 100,
+        "gold": 8,
+        "level": 3,
+        "xp": 2,
+        "xp_cap": 6,
+        "stage": "2-1"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "frontline-mover",
+            "zone": "board",
+            "owner": "self",
+            "box": [
+              280,
+              112,
+              320,
+              163
+            ],
+            "hex": [
+              0,
+              3
+            ]
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "frontline-mover",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ]
+    }
+  ]
+}

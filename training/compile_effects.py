@@ -12,6 +12,7 @@ from pathlib import Path
 
 from ingestion.knowledge_release import read_release, canonical
 from ingestion.simulation_bindings import load_bindings,substitute,referenced_fields
+from ingestion.numeric_overrides import apply_overrides
 from trainer.simulation.event_combat import validate_effects
 from trainer.simulation.state import UnsupportedRule
 
@@ -25,6 +26,7 @@ def validate_hooks(hooks):
 def compile_item(row,rules):
     rule=rules['entities'].get(row['api_name']);fields=row['effects']
     if rule is None:return dict(unsupported=True,name=row['name'],reason='effect binding missing')
+    fields=apply_overrides(fields,rule.get('numeric_overrides',[]),rules.get('patch'))
     known=set(rules['base_fields'])|referenced_fields(rule)
     if set(fields)-known:raise UnsupportedRule(f'unreviewed item numeric fields: {row["api_name"]}')
     mods=[]
@@ -39,19 +41,26 @@ def compile_item(row,rules):
     mods.extend(template.get('modifiers',[]));hooks=template.get('hooks',[]);validate_hooks(hooks)
     return dict(name=row['name'],combat_handler='effects',component=rule.get('component',False),
                 unique=row['unique'],modifiers=mods,hooks=hooks,status='candidate_not_replay_validated',
-                **({'grants_traits':template['grants_traits']} if 'grants_traits' in template else {}))
+                **({'grants_traits':template['grants_traits']} if 'grants_traits' in template else {}),
+                **({'numeric_overrides':deepcopy(rule['numeric_overrides'])} if rule.get('numeric_overrides') else {}))
 
 
 def compile_trait(row,rules):
     rule=rules['entities'].get(row['api_name'],{});tiers=[]
-    for effect in row['effects']:
+    effects=deepcopy(row['effects'])
+    for effect in effects:
+        binding=rule.get('tiers',{}).get(str(effect['min_units']),{})
+        effect['variables']=apply_overrides(effect['variables'],binding.get('numeric_overrides',[]),rules.get('patch'))
+    for effect in effects:
         tier=dict(min=effect['min_units'],max=effect['max_units'])
         binding=rule.get('tiers',{}).get(str(effect['min_units']))
         if binding is None:tier['unsupported']=True
         else:
             if set(effect['variables'])-referenced_fields(binding):
                 raise UnsupportedRule(f'unreviewed trait numeric fields: {row["api_name"]}')
-            tier.update(substitute(binding['template'],effect['variables'],row['effects']))
+            tier.update(substitute(binding['template'],effect['variables'],effects))
+            if binding.get('numeric_overrides'):
+                tier['numeric_overrides']=deepcopy(binding['numeric_overrides'])
             for scope in ('team','members'):validate_hooks(tier.get(scope,{}).get('hooks',[]))
         tiers.append(tier)
     status='candidate_not_replay_validated' if tiers and all(not t.get('unsupported') for t in tiers) else 'missing_handler'
@@ -63,6 +72,9 @@ def compile_catalog(manifest,catalogs,bindings):
         raise UnsupportedRule('binding and sealed catalog identity differ')
     if bindings.get('status')!='candidate_not_replay_validated' or bindings.get('runtime_promoted') is not False:
         raise UnsupportedRule('candidate compiler cannot promote a release')
+    for name in ('items','traits','champions','profile'):
+        if 'patch' in bindings[name] and bindings[name]['patch']!=bindings['patch']:
+            raise UnsupportedRule(f'seasonal component patch mismatch: {name}')
     profile=bindings['profile']
     trait_names={t['name']:t['api_name'] for t in catalogs['traits']['traits']}
     champions={}
@@ -115,6 +127,9 @@ def compile_catalog(manifest,catalogs,bindings):
                 items=dict(global_catalog_total=len(items),set_membership_verified=False,
                            candidate_effects=sum(v.get('combat_handler')=='effects' for v in items.values()),replay_validated=0),
                 traits=dict(total=len(traits),candidate_effects=sum(t['status']=='candidate_not_replay_validated' for t in traits.values()),replay_validated=0,
+                            tier_total=sum(len(t['tiers']) for t in traits.values()),
+                            candidate_tiers=sum(not tier.get('unsupported') for t in traits.values() for tier in t['tiers']),
+                            partial_handlers=sorted(k for k,t in traits.items() if t['status']=='missing_handler' and any(not tier.get('unsupported') for tier in t['tiers'])),
                             missing_handlers=sorted(k for k,t in traits.items() if t['status']=='missing_handler')),
                 unresolved=bindings['unresolved'],current_patch_training_ready=False,runtime_promoted=False,
                 full_match_ready=False,augments_ready=False,seasonal_events_ready=False)

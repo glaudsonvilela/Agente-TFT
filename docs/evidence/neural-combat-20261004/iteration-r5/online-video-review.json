@@ -1,0 +1,328 @@
+{
+  "schema_version": 1,
+  "kind": "online_video_review",
+  "review_date": "2026-10-04",
+  "complete_vods_watched": 0,
+  "complete_matches_labeled": 0,
+  "training_policy_examples_exported": 0,
+  "runtime_promoted": false,
+  "sources": [
+    {
+      "url": "https://www.youtube.com/watch?v=IqP4lrjZ5O4",
+      "creator": "g_ree",
+      "title": "HOW TO PLAY EVERY SINGLE EMBLEM IN TFT SET 18",
+      "patch_claim": "18.3; exact hotfix not established",
+      "access": "online_browser_playback",
+      "review": "full automatic transcript read; only selected frames visually reviewed",
+      "visual_samples": [
+        {
+          "seconds": 43,
+          "frame": {
+            "file": "youtube-IqP4lrjZ5O4-43s.png",
+            "sha256": "bc1b8f5edacdc4d92035ff9fe075b9b8869bc9fa12571a1971e93859844ab340"
+          }
+        },
+        {
+          "seconds": 346,
+          "frame": {
+            "file": "youtube-IqP4lrjZ5O4-sprykin.png",
+            "sha256": "69587d0efd947f29bcfc27fd54252857f6f7909e2b59c596be687281018118bf"
+          }
+        }
+      ],
+      "segments": [
+        {
+          "topic": "Blossom",
+          "start_seconds": 14,
+          "end_seconds": 53,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Flexibilizar unidades preservando o patamar; prismatic exige condições adicionais"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Inferno",
+          "start_seconds": 53,
+          "end_seconds": 96,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Portador transitório pode diferir do portador final; preservar função da composição"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Fae",
+          "start_seconds": 96,
+          "end_seconds": 132,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Escolha de tanque depende dos itens disponíveis"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Primal",
+          "start_seconds": 132,
+          "end_seconds": 161,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Combinar bônus de cura com linha de frente; dependente da bênção"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Lunar",
+          "start_seconds": 161,
+          "end_seconds": 182,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Posicionamento adjacente importa para distribuir bônus"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Blackthorn",
+          "start_seconds": 182,
+          "end_seconds": 284,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Sacrifício depende de função e estrelas; não sacrificar sempre o tanque",
+            "Reroll de dois custos e transição de Azir têm condições diferentes"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Elderwood",
+          "start_seconds": 284,
+          "end_seconds": 330,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Patamares altos exigem população/emblemas e disponibilidade de Lux"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Sprykin",
+          "start_seconds": 330,
+          "end_seconds": 455,
+          "review": "transcript_and_sampled_visual_review_330_to_346",
+          "claims": [
+            "Escolha de cavaleiro/BFF e itens do tanque altera o plano",
+            "Tooltip observado: 3 dá 15% HP/AS; 5 mostra 40% HP/35% AS; 7 mostra 45%/45%",
+            "Tooltip mostra 0% de distribuição no patamar 5: manter como conflito, sem converter em regra"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Coven",
+          "start_seconds": 455,
+          "end_seconds": 494,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Abertura condicionada à presença de unidades e risco do cashout"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Flora Fatalis",
+          "start_seconds": 494,
+          "end_seconds": 573,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Emblema comum e aprimoramento que fortalece emblema têm usos diferentes"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Spellweaver",
+          "start_seconds": 586,
+          "end_seconds": 658,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Evitar extrapolar sugestões que o próprio autor chama de não testadas"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Rapidfire",
+          "start_seconds": 658,
+          "end_seconds": 744,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "AS da característica muda o valor marginal dos itens de velocidade"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Hunter",
+          "start_seconds": 744,
+          "end_seconds": 804,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Autor reconhece tooltip errado nesta seção",
+            "Comentário fixado cita 18% AD por eliminação, enquanto patch oficial 18.3 informa 15%; prevalece patch"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Executioner",
+          "start_seconds": 804,
+          "end_seconds": 874,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Precisão reduz necessidade de redundância de crítico mágico"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Invoker",
+          "start_seconds": 874,
+          "end_seconds": 938,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Mana do emblema muda escolha dos outros dois itens"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Brawler",
+          "start_seconds": 938,
+          "end_seconds": 1085,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Aberturas temporárias e plano final são decisões diferentes"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Vanguard",
+          "start_seconds": 1085,
+          "end_seconds": 1155,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Emblema pode liberar vaga sem perder patamar"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Ravager",
+          "start_seconds": 1155,
+          "end_seconds": 1214,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Autor distingue estratégia viável de experimento divertido; não rotular ambos como ótimo"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Defender",
+          "start_seconds": 1214,
+          "end_seconds": 1314,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Prioridade de itens no carry e tanque antes de unidade secundária"
+          ],
+          "policy_label": false
+        },
+        {
+          "topic": "Juggernaut",
+          "start_seconds": 1314,
+          "end_seconds": 1408,
+          "review": "transcript_review_not_visual_verification",
+          "claims": [
+            "Conjuração, mana de morte de aliados e escudo interagem; verificar emblema no patch"
+          ],
+          "policy_label": false
+        }
+      ],
+      "conflicts": [
+        "Pinned creator correction: Hunter segment accidentally displays Executioner emblem",
+        "Hunter takedown value in pinned comment is stale versus official 18.3",
+        "Sprykin 5 tooltip displays 0% shared effect; not reliable",
+        "Auto captions mistranscribe champion/trait names"
+      ]
+    },
+    {
+      "url": "https://www.twitch.tv/videos/2892011367",
+      "creator": "Dishsoap",
+      "title": "Blossom Cup Final Lobby #STEALTHESLOT #TPC !overlay",
+      "access": "online_browser_playback_after_normal_preroll",
+      "review": "sampled opening gameplay; no downloaded source used",
+      "patch_claim": "Overlay 18.3; B hotfix not established",
+      "visual_samples": [
+        {
+          "seconds": 37.443009,
+          "frame": {
+            "file": "twitch-2892011367-online.png",
+            "sha256": "57fe0e95a3ae54a08b0175df6d1694691523bb25d8a0aaa385a65b59ce63c9fc"
+          },
+          "observations": {
+            "stage": "5-2",
+            "hp": 74,
+            "gold": 18,
+            "level": 9,
+            "xp": "2/66",
+            "board_capacity_display": "8/9"
+          },
+          "uncertainties": [
+            "Dragging state can temporarily change board count",
+            "Occupied hexes, champion identities and equipped items not fully labeled",
+            "Tournament overlay and prior combat view must be segmented",
+            "XP maximum 66 is visible at level 9; supplemental XP table says 68. Cannot infer hotfix or overwrite economy from this single frame."
+          ]
+        }
+      ],
+      "policy_label": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Y5WLavM8cCA",
+      "creator": "Teamfight Tactics / Riot Truexy",
+      "title": "TFT Patch 18.3 Rundown",
+      "access": "online_browser_playback",
+      "patch_claim": "18.3 base, published 2026-09-22; predates hotfix",
+      "review": "sampled visual inspection and transcript review of champion section",
+      "visual_samples": [
+        {
+          "seconds": 473.620582,
+          "frame": {
+            "file": "youtube-Y5WLavM8cCA-champions.png",
+            "sha256": "0e06250894576c042965fe75a204b6a7cea297cc407ecf3bea3ad6e35d4fb27d"
+          },
+          "facts": {
+            "gromp_ap_dot": [
+              175,
+              265,
+              410
+            ],
+            "gromp_ad_attack_speed": 0.75,
+            "gromp_ad_base_ad": 50,
+            "alistar_heal_ap": [
+              230,
+              300,
+              400
+            ],
+            "alistar_damage_ap": [
+              180,
+              270,
+              420
+            ]
+          }
+        }
+      ],
+      "chapters": {
+        "traits": 112,
+        "champions": 224,
+        "wisps": 843,
+        "augments": 921,
+        "emblems_artifacts": 1288,
+        "bugs": 1383
+      },
+      "unresolved": [
+        "Alistar heal formula conflicts with supplemental guide; visual slide corroborates patch numeric delta but does not resolve full formula",
+        "Champion strategy commentary is not an independent labeled combat"
+      ]
+    }
+  ],
+  "official_crosscheck": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/"
+}

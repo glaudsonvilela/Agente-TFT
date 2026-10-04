@@ -24,6 +24,8 @@ def load_bindings(path):
         if not component.resolve(strict=True).is_relative_to(path.parent):raise UnsupportedRule('component escapes pack')
         value,checksum=load(component)
         if checksum!=entry['sha256']:raise UnsupportedRule(f'seasonal component changed: {name}')
+        if 'patch' in value and value['patch']!=manifest['patch']:
+            raise UnsupportedRule(f'seasonal component patch mismatch: {name}')
         result[name]=value
     return result
 

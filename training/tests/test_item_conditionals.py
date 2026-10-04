@@ -59,20 +59,20 @@ class ItemConditionals(unittest.TestCase):
             ),
         )
         a, z = b.units
-        assert b.get(a, "ad") == 26
-        assert b.get(a, "ap") == 130
-        assert b.get(a, "omnivamp") == 0.12
+        assert b.get(a, "ad") == pytest.approx(27.2)
+        assert b.get(a, "ap") == 136
+        assert b.get(a, "omnivamp") == 0.15
         a.hp = 50
-        assert b.get(a, "ad") == 23
-        assert b.get(a, "omnivamp") == 0.12
+        assert b.get(a, "ad") == pytest.approx(23.6)
+        assert b.get(a, "omnivamp") == 0.15
         a.hp = 40
-        assert b.get(a, "omnivamp") == 0.24
-        assert formula([{"stat": "ap", "coefficient": 1}], a, z, b.now) == 115
+        assert b.get(a, "omnivamp") == 0.3
+        assert formula([{"stat": "ap", "coefficient": 1}], a, z, b.now) == 118
         b.hit(a, z, 20, "physical", "attack")
-        assert a.hp == pytest.approx(44.8)
+        assert a.hp == pytest.approx(46)
         b.heal(a, a, 10)
-        assert b.get(a, "ad") == 26
-        assert b.get(a, "omnivamp") == 0.12
+        assert b.get(a, "ad") == pytest.approx(27.2)
+        assert b.get(a, "omnivamp") == 0.15
 
     def test_nashor_critical_bonus_replaces_normal_bonus_and_duplicates_are_independent(
         self,

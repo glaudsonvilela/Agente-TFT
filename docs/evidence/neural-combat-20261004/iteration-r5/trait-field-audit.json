@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "kind": "trait_field_name_evidence",
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "method": "Description placeholder with exact case-insensitive FNV1a32 or plain-key match; field identity only.",
+  "unique_entity_fields": 99,
+  "resolved_entity_fields": 97,
+  "unresolved_entity_fields": 2,
+  "mechanics_verified": false,
+  "records": [
+    {
+      "entity_id": "DA_18_Adaptor",
+      "resolved": {
+        "{0412779a}": "ADAPGain"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_Emerald18",
+      "resolved": {},
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_LuxUniqueTrait",
+      "resolved": {},
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Executioner",
+      "resolved": {
+        "CritChance": "CritChance",
+        "BleedDuration": "BleedDuration",
+        "{2c61751d}": "BonusBleedPercent"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_DravenUniqueTrait18",
+      "resolved": {},
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Hunter",
+      "resolved": {
+        "DamageAmp": "DamageAmp",
+        "{641254b6}": "HunterAD",
+        "{83011ee7}": "HunterDuration"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_Juggernaut18",
+      "resolved": {
+        "{6eab9c5e}": "JuggernautDurability",
+        "{f8c73243}": "TeamDurability"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_AluneUniqueTrait18",
+      "resolved": {
+        "DamageAmp": "DamageAmp",
+        "Durability": "Durability"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Coven",
+      "resolved": {
+        "{7a9d7f0e}": "EssencePerDeath",
+        "{d62ae6ae}": "EssenceForRitualTooltip",
+        "{de46577b}": "EssencePerLoss"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Maokai_UniqueTrait",
+      "resolved": {
+        "{36e69059}": "UniqueTraitHealthPerStack",
+        "{56607148}": "UniqueTraitHexRange"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Caustic",
+      "resolved": {
+        "ShredDuration": "ShredDuration",
+        "ShredPercent": "ShredPercent"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_ZyraUniqueTrait",
+      "resolved": {
+        "BaseDurability": "BaseDurability",
+        "{7c65d9f5}": "PlantNumThreshold",
+        "{8e1b920c}": "IncreasedDurability"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Defender",
+      "resolved": {
+        "{0eb6405e}": "NonDefenderDefenseGain",
+        "{8c16b281}": "DefenderDefenseGain"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Slayer",
+      "resolved": {
+        "Omnivamp": "Omnivamp",
+        "{a9a813e7}": "BonusDamagePercentBase",
+        "{bef0ca90}": "EnemyHealthThreshold"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Eclipse",
+      "resolved": {
+        "DelaySeconds": "DelaySeconds",
+        "{53db05e8}": "EclipseBeamPeriod"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Invoker",
+      "resolved": {
+        "TeamManaRegen": "TeamManaRegen",
+        "{de27cb95}": "InvokerManaBonus"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Spellweaver",
+      "resolved": {
+        "APPerCast": "APPerCast",
+        "TeamwideAP": "TeamwideAP",
+        "{b012bed0}": "SpellweaverAP"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Blackthorn",
+      "resolved": {
+        "Health": "Health",
+        "StatMultiplier": "StatMultiplier"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_Riftbeast18",
+      "resolved": {
+        "{e8d16db1}": "OverrunCombats",
+        "{0776b071}": "CapstoneAP",
+        "{08cfb22e}": "CapstoneHealth",
+        "{0d6c2c87}": "CapstoneMR",
+        "{1b76cfed}": "CapstoneAD",
+        "{3230276c}": "CapstoneManaRegen",
+        "{4e1998f4}": "CapstoneAspd",
+        "{a8c6eeaf}": "CapstoneArmor",
+        "TeamSize": "TeamSize"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Fae",
+      "resolved": {
+        "ADAP": "ADAP",
+        "Heal": "Heal",
+        "HealThreshold": "HealThreshold"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_FloraFatalis18",
+      "resolved": {
+        "Mana": "Mana",
+        "PercentHeal": "PercentHeal"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Blossom",
+      "resolved": {
+        "ADAP": "ADAP",
+        "BonusHealth": "BonusHealth",
+        "{91925b8e}": "GoldPerCharmPurchased"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Rapidfire",
+      "resolved": {
+        "ASperAttack": "ASPerAttack",
+        "MaxStacks": "MaxStacks",
+        "{1d98dcec}": "TeamAS"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Inferno",
+      "resolved": {
+        "Duration": "Duration",
+        "WoundPercent": "WoundPercent",
+        "{2c202877}": "HPBurnPerSecond",
+        "{c4c70a4e}": "LuckySlotCount"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Summoner",
+      "resolved": {
+        "DamageMult": "DamageMult",
+        "{1cb64e3c}": "NumExtraAttacks",
+        "{5311f791}": "HealthMult",
+        "{6bba9a92}": "AzirDamageMult"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Lunar",
+      "resolved": {
+        "AbilityPower": "AbilityPower",
+        "AttackSpeed": "AttackSpeed",
+        "{6d27fbd4}": "LunarMultiplier"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Brawler",
+      "resolved": {
+        "{da2472a7}": "BrawlerTeamHealth",
+        "{f1ed73eb}": "BrawlerHealthPercent"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Battlemage",
+      "resolved": {
+        "Resists": "Resists"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Greenfather",
+      "resolved": {
+        "{5f537bd3}": "SeedsPerCast",
+        "{5fea9917}": "CombatStartSeeds",
+        "{b133da98}": "SeedsToGrowHex"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_ApexPredator",
+      "resolved": {},
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_Primal18",
+      "resolved": {},
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Rival",
+      "resolved": {
+        "{1b5b0a96}": "RengarGold",
+        "{3bcd79f5}": "RengarADStackReq",
+        "{740d1888}": "RengarGold_3",
+        "{750d1a1b}": "RengarGold_2",
+        "{a1ab72d6}": "RengarThresholdAD",
+        "{a6d81c50}": "RengarStackReq",
+        "{f1f3dbfc}": "RengarADPerStack"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Elderwood",
+      "resolved": {
+        "{b027c2f9}": "StonebarkTreeBonusHealth"
+      },
+      "unresolved": [
+        "{0f90e7a4}",
+        "{4013f48e}"
+      ]
+    },
+    {
+      "entity_id": "DA_18_Solar",
+      "resolved": {
+        "BonusMagicDamage": "BonusMagicDamage",
+        "ShieldRatio": "ShieldRatio",
+        "{092e2b2b}": "NumThreeStarThreshold1",
+        "{0a2e2cbe}": "NumThreeStarThreshold2",
+        "{0b2e2e51}": "NumThreeStarThreshold3",
+        "{5cfe766f}": "Threshold2TrueDamageConversion",
+        "{617a160e}": "Threshold1AttackSpeed",
+        "{7e77da03}": "Threshold1ArmorMagicResist",
+        "{a51b2ace}": "PercentIncreasePer3Star",
+        "{d91f7c21}": "Threshold3StarUpPeriod"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Vanguard",
+      "resolved": {
+        "HealthThreshold": "HealthThreshold",
+        "MaxHealthShield": "MaxHealthShield",
+        "ShieldDuration": "ShieldDuration",
+        "{b58e0b6e}": "DurabilityIncrease"
+      },
+      "unresolved": []
+    },
+    {
+      "entity_id": "DA_18_Sprykin",
+      "resolved": {
+        "AttackSpeedIncrease": "AttackSpeedIncrease",
+        "HealthIncrease": "HealthIncrease",
+        "{aa3fad66}": "TeamwideRatio"
+      },
+      "unresolved": []
+    }
+  ]
+}

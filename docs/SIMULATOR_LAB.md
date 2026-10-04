@@ -395,3 +395,65 @@ No BigBANANA, `tft habilidades` mostra a cobertura instalada e as pendências po
 entrada. `tft simulador` continua mostrando a última execução efetiva; instalar
 novas regras não incrementa contadores de treino nem altera resultados antigos.
 A conclusão de todas as habilidades segue pendente.
+
+### Mapeamento e revisão online — iteração r5
+
+O mapa regenerável está em `docs/SIMULATOR_RULE_MAP.md` e no JSON correspondente
+em `docs/evidence/neural-combat-20261004/iteration-r5/`. Ele enumera as 74 entradas
+de campeões/formas, 36 características, 3.444 registros do catálogo global e
+cinco formas adicionais. O índice suplementar registra 249 aprimoramentos e
+148 Wisps; 25 desses Wisps não mostram preço na referência. Ausência de preço
+permanece desconhecida. IDs do catálogo global não comprovam disponibilidade.
+
+Foram lidas online as páginas dos 65 campeões do TFTraits, com atributos visíveis
+na seleção de uma estrela, incluindo cinco formas alternativas (70 fichas).
+O relatório preserva os conflitos com o catálogo selado. A mana atual da animação
+da página **não é mana inicial**. Os tooltips de atributos podem reter valores
+de duas estrelas após o clique em uma estrela; a coleta usa o número visível e
+registra essa diferença. Fórmulas e balanceamento suplementares não foram
+promovidos automaticamente a regras executáveis.
+
+A revisão online de YouTube/Twitch está documentada em `online-video-review.json`:
+guia de emblemas de g_ree, vídeo oficial 18.3 da Riot e trecho inicial do novo VOD
+2892011367 do Dishsoap. São trechos visuais e transcrições, não VODs integralmente
+assistidos nem partidas completas rotuladas. O guia contém um tooltip de emblema
+incorreto reconhecido pelo próprio autor. Isso reforça a necessidade de cruzar
+vídeo, patch e ID antes de gerar rótulos.
+
+Correções executáveis desta iteração:
+
+- Bloodthirster: limiar 50%, escudo 30% e AD/AP 18; Hand of Justice: AD/AP 18 e
+  vampirismo base 15%, preservando o ajuste conforme a vida. Deltas oficiais
+  ficam separados do catálogo imutável, com valor anterior, patch e fonte.
+- Defender com substituição do bônus de equipe e resistência 115 no patamar 6;
+  Caustic com redução renovável e prioridade do efeito mais forte.
+- Executioner somente no patamar 2. Sangramento dos patamares 3/4 continua bloqueado.
+- Resolução de nomes de campos pelo hash do placeholder, sem inferir semântica:
+  97 de 99 campos únicos das características receberam correspondência.
+
+O treino r5 terminou 5.000 combates, 160 épocas e 20.160 passos, em 135,86 s e
+185,59 MiB de pico. A validação separada teve 85,84% de acerto contra 51,77% do
+baseline majoritário. O conteúdo mudou; esse número não permite comparar
+acurácia diretamente com r4. Em 100 decisões com sementes separadas, o planejador
+melhorou 8 resultados, manteve 92 e piorou 0 em relação a manter a formação;
+p95 da decisão 781,65 ms. Ganho pareado médio 0,16 na escala -1/0/+1, intervalo
+bootstrap exploratório 95% [0,06; 0,28]. Isso não é uma taxa de vitória real.
+
+11.409 cenários foram recusados: 8.648 por Greenfather, 2.751 por Blackthorn e
+10 por overflow de crítico. Continuam 22 programas de habilidades candidatos,
+7 integrados ao combate e 0 validados em replay; 8 características completas
+como candidatas, Executioner parcial e 27 handlers de itens. Nenhum novo
+instalador foi gerado e os pesos não foram promovidos ao coach.
+
+```bash
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m training.simulator_lab.rule_map \
+  --output docs/evidence/neural-combat-20261004/iteration-r5/rule-map.json \
+  --summary docs/SIMULATOR_RULE_MAP.md \
+  --supplemental docs/evidence/neural-combat-20261004/iteration-r5/supplemental-rule-map.json
+```
+
+**O inventário do catálogo foi coberto; todas as regras do jogo ainda não.**
+Aprimoramentos, Wisps, economia sazonal, loot, fases, invocações e interações
+persistentes precisam de implementação e de validação independente. Registrar
+uma dependência no mapa não a resolve.

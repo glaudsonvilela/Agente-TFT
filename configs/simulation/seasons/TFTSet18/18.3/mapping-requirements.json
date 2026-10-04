@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "kind": "simulation_mapping_requirements",
+  "set_key": "TFTSet18",
+  "patch": "18.3",
+  "traits": {
+    "DA_18_Adaptor": [
+      "Comparação AD/AP e normalização de unidades",
+      "Escolha de forma, empate, recálculo após itens e bônus",
+      "Todas as formas alternativas e interações"
+    ],
+    "DA_Emerald18": [
+      "Seleção do Taric mais forte e desempate",
+      "Vínculo persistente com aliado; transferência de escudo/cura"
+    ],
+    "DA_18_LuxUniqueTrait": [
+      "Conversão de variantes da loja e identidade única",
+      "Contribuição dupla somente da origem escolhida"
+    ],
+    "DA_18_Executioner": [
+      "Precisão e crítico no patamar 2 implementados como candidato",
+      "Patamares 3/4: base do sangramento, cadência, autoria e renovação"
+    ],
+    "DA_DravenUniqueTrait18": [
+      "Todas as missões, limiares por estrela e recompensas",
+      "Escolha de missão e progresso persistente",
+      "Aplicar correções 18.3B sem contaminar perfil 18.3 base"
+    ],
+    "DA_18_Hunter": [
+      "AD por patamar com deltas oficiais",
+      "Tempo no mesmo alvo, reinício ao trocar e interação com controle"
+    ],
+    "DA_Juggernaut18": [
+      "Substituição do bônus de equipe pelo bônus do membro",
+      "Calibração de durabilidade e ordem de multiplicadores"
+    ],
+    "DA_AluneUniqueTrait18": [
+      "Fases da Lua e transições por conjuração",
+      "Bônus dinâmico de equipe e ordem de eventos"
+    ],
+    "DA_18_Coven": [
+      "Essência por eliminação/derrota e persistência",
+      "Tabela completa de recompensas, probabilidades e ofertas",
+      "Desativação do aprimoramento Dark Ritual no hotfix"
+    ],
+    "DA_18_Maokai_UniqueTrait": [
+      "Distância da morte, dono mais forte e desempate",
+      "HP persistente, fusão, venda e cópias"
+    ],
+    "DA_18_Caustic": [
+      "Dano direto/periódico e redução de resistências",
+      "Renovação e prioridade do efeito mais forte implementadas; validar em replay"
+    ],
+    "DA_18_ZyraUniqueTrait": [
+      "Contagem de plantas vivas por proprietário",
+      "Recalcular durabilidade ao invocar e morrer"
+    ],
+    "DA_18_Defender": [
+      "Bônus de membro substitui equipe",
+      "Patamar 6 corrigido para 115; replay independente pendente"
+    ],
+    "DA_18_Slayer": [
+      "Vampirismo e amplificação condicionada ao HP do alvo",
+      "Limiar antes/depois do impacto e dano periódico"
+    ],
+    "DA_18_Eclipse": [
+      "Catálogo sem limites numéricos válidos para o patamar",
+      "Condição de ativação, primeiro disparo e repetição",
+      "Alvo de menor HP, desempate e imunidade à execução"
+    ],
+    "DA_18_Invoker": [
+      "Semântica de soma/substituição e bônus próprio",
+      "Total de mana por patamar confrontado com patch",
+      "Regeneração durante bloqueio de mana e conjuração"
+    ],
+    "DA_18_Spellweaver": [
+      "AP de equipe/membro e incremento por conjuração aliada",
+      "Validar instante de incremento, invocações e cópias"
+    ],
+    "DA_18_Blackthorn": [
+      "Casa de sacrifício e unidade elegível",
+      "Matriz de bônus por função/custo/estrela",
+      "Snapshot, remoção antes do combate, HP de equipe e escalas",
+      "Hotfix reduz amplificação do sacrifício AP de 14% para 12%"
+    ],
+    "DA_Riftbeast18": [
+      "Marca Alfa e bônus por criatura",
+      "Contador de combates e invasão da loja respeitando pool",
+      "Crescimento periódico e limite de equipe"
+    ],
+    "DA_18_Fae": [
+      "Atração por dano/cura/escudo efetivos",
+      "Limiares, Pixies douradas e ouro",
+      "Bônus por Pixie e cura ao cruzar limiar"
+    ],
+    "DA_FloraFatalis18": [
+      "Eliminação versus assistência e atribuição",
+      "Mana e cura do aliado com menor HP; desempate"
+    ],
+    "DA_18_Blossom": [
+      "Aprimoramentos de cada Wisp e persistência após combate",
+      "Frequência na loja, custo, reembolso e limite por rodada",
+      "Condições dos patamares prismáticos"
+    ],
+    "DA_18_Rapidfire": [
+      "Velocidade de ataque da equipe e acúmulos por ataque",
+      "Limite e distinção entre ataque básico e impacto de habilidade"
+    ],
+    "DA_18_Inferno": [
+      "Queimadura própria acumulável e ferimento",
+      "Cadência, renovação e autoria",
+      "Transformação de casas da loja, custo superior e pool"
+    ],
+    "DA_18_Summoner": [
+      "Invocações reais por proprietário e tipo",
+      "Vida/dano/ataques adicionais por patamar",
+      "Soldados de Azir têm representação parcial no motor"
+    ],
+    "DA_18_Lunar": [
+      "Adjacência inicial ou dinâmica e vizinhos únicos",
+      "Acúmulo entre múltiplas fontes e bônus dos membros"
+    ],
+    "DA_18_Brawler": [
+      "Vida fixa da equipe e percentual dos membros",
+      "Ordem de aplicação e interação com itens/estrelas"
+    ],
+    "DA_18_Battlemage": [
+      "Contagem dinâmica de inimigos que miram o portador",
+      "Recalcular resistências ao trocar alvo e morrer"
+    ],
+    "DA_18_Greenfather": [
+      "Sementes por combate/conjuração e persistência",
+      "Escolha/expansão de casas; ocupação e biomas",
+      "Efeitos de todos os biomas e transição"
+    ],
+    "DA_18_ApexPredator": [
+      "Ocupação de dois espaços na equipe",
+      "Contribuição de duas unidades para Riftbeast",
+      "Legalidade de compra/fusão e excesso de população"
+    ],
+    "DA_Primal18": [
+      "Quatro bênçãos, efeitos e seleção",
+      "Escala dos dois patamares e persistência da escolha"
+    ],
+    "DA_18_Rival": [
+      "Exclusividade/ativação conjunta por patamar",
+      "Eliminações compartilhadas e bônus contra rival",
+      "Evoluções do KhaZix; ouro e AD persistentes do Rengar"
+    ],
+    "DA_18_Elderwood": [
+      "Unidades de planta posicionáveis e regras de ocupação",
+      "Dois campos numéricos sem nome resolvido",
+      "Atributos/habilidades das plantas e evolução por patamar"
+    ],
+    "DA_18_Solar": [
+      "Contagem de identidades únicas com três estrelas",
+      "Escudo, dano adicional e conversão parcial em dano verdadeiro",
+      "Promoção temporária a quatro estrelas e ordem de eventos"
+    ],
+    "DA_18_Vanguard": [
+      "Escudo inicial e gatilho único de HP",
+      "Durabilidade apenas com escudo; expiração e renovação"
+    ],
+    "DA_18_Sprykin": [
+      "Escolha do cavaleiro e vínculo com BFF",
+      "Atributos e habilidades do BFF por estrela",
+      "Distribuição do efeito nos patamares 5/7; tooltip de guia mostra valor 0% suspeito"
+    ]
+  },
+  "systems": [
+    {
+      "id": "geometry",
+      "name": "Tabuleiro, banco e coordenadas",
+      "layer": "núcleo",
+      "status": "candidato",
+      "contract": "Hexágonos, ocupação, distâncias e transformação de tela",
+      "missing": [
+        "Calibrar cada layout/resolução, observação versus tabuleiro próprio"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/hexgrid.py",
+        "trainer/simulation/state.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "observation",
+      "name": "Tela → estado observado",
+      "layer": "percepção",
+      "status": "parcial",
+      "contract": "Unidades, estrelas, itens equipados/inventário, loja, HP, ouro, XP, estágio, fase",
+      "missing": [
+        "Ground truth independente",
+        "Confiança/calibração por campo, validade temporal e oclusões",
+        "Menu, fila, loading, combate e planejamento; cortar cenas/POV"
+      ],
+      "implementation_paths": [
+        "training/board_review.py",
+        "training/replay_labeler.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "capture",
+      "name": "Captura Windows e transporte local",
+      "layer": "aplicativo",
+      "status": "medição pendente",
+      "contract": "Timestamps monotônicos, frames recentes, fila limitada, preview independente da inferência",
+      "missing": [
+        "Teste sustentado com CPU/RAM/FPS e idade do frame",
+        "Separar atraso da captura, OCR, decisão, fila de voz"
+      ],
+      "implementation_paths": [],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "identity",
+      "name": "Identidade, formas e estrelas",
+      "layer": "núcleo + pacote",
+      "status": "parcial",
+      "contract": "Identidade estável, variantes e coeficientes sazonais",
+      "missing": [
+        "Cinco formas fora do catálogo",
+        "Quatro estrelas e prioridades de fusão/equipamento"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/state.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "attributes",
+      "name": "Atributos de campeões",
+      "layer": "pacote",
+      "status": "parcial",
+      "contract": "HP, AD, AP, AS, mana, resistências, alcance, crítico e papéis",
+      "missing": [
+        "AD ausente de Kayle",
+        "Papéis e progressão por estrela; conflitos entre fontes"
+      ],
+      "implementation_paths": [
+        "configs/simulation/seasons/TFTSet18/18.3/champions.json"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "abilities",
+      "name": "Habilidades, passivas e invocações",
+      "layer": "pacote",
+      "status": "parcial",
+      "contract": "Fórmulas, alvos, geometria, tempos, autoria, recasts e persistência",
+      "missing": [
+        "52 programas bloqueados",
+        "15 programas aguardam integração de função/tempo",
+        "Nenhuma habilidade validada por combate real"
+      ],
+      "implementation_paths": [
+        "training/compile_effects.py",
+        "trainer/simulation/event_combat.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "targeting",
+      "name": "Alvos e movimento",
+      "layer": "núcleo + calibração",
+      "status": "parcial",
+      "contract": "Aquisição, memória, desempate, pathfinding e deslocamento",
+      "missing": [
+        "Prioridades por função e mudanças 18.2/18.3",
+        "Taunt e recálculo dinâmico de aggro"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/event_combat.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "timeline",
+      "name": "Tempo e agendamento",
+      "layer": "núcleo + calibração",
+      "status": "laboratório",
+      "contract": "Ataque, recuperação, projétil, conjuração, mana lock e eventos simultâneos",
+      "missing": [
+        "Tempos reais por campeão",
+        "Cadência de DOT, interrupção e ordem simultânea"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/event_combat.py",
+        "configs/simulation/seasons/TFTSet18/18.3/profile.json"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "damage",
+      "name": "Dano, cura, escudo e estados",
+      "layer": "núcleo",
+      "status": "parcial",
+      "contract": "Resistência, penetração, crítico, amplificação, redução, vampirismo e imunidades",
+      "missing": [
+        "Overflow de crítico",
+        "Snapshot/dinâmico, autoria e interações por efeito",
+        "Calibrar todas as ordens de aplicação"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/event_combat.py",
+        "trainer/simulation/modifiers.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "traits",
+      "name": "Características e patamares",
+      "layer": "pacote",
+      "status": "parcial",
+      "contract": "Identidades distintas, emblemas, efeitos próprios/equipe e estados persistentes",
+      "missing": [
+        "28 características com patamares pendentes",
+        "Interações entre efeitos persistentes"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/traits.py",
+        "configs/simulation/seasons/TFTSet18/18.3/traits.json"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "items",
+      "name": "Itens, receitas e inventário",
+      "layer": "pacote",
+      "status": "parcial",
+      "contract": "Componentes, completos, radiantes, artefatos, suporte, emblemas e consumíveis",
+      "missing": [
+        "Pool atual não verificado entre 3444 registros globais",
+        "27 handlers candidatos; demais efeitos pendentes",
+        "Custo de oportunidade de guardar componentes"
+      ],
+      "implementation_paths": [
+        "configs/simulation/seasons/TFTSet18/18.3/items.json"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "augments",
+      "name": "Aprimoramentos",
+      "layer": "pacote",
+      "status": "não implementado",
+      "contract": "Ofertas, raridade, exclusões, rerolls, efeitos e desativações",
+      "missing": [
+        "Catálogo elegível do patch",
+        "Handlers, probabilidades e interações"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/traits.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "wisps",
+      "name": "Fogos-fátuos e mecânica sazonal",
+      "layer": "pacote",
+      "status": "não implementado",
+      "contract": "Disponibilidade por estágio, loja, compra, limite e Blossom",
+      "missing": [
+        "Catálogo integral e versões normal/aprimorada",
+        "Custos/efeitos e Major Polymorph desativado no hotfix"
+      ],
+      "implementation_paths": [],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "economy",
+      "name": "Ouro, XP, níveis e sequências",
+      "layer": "pacote",
+      "status": "aproximação sintética",
+      "contract": "Renda, juros, streak, vitória, XP, compra/venda e progressão",
+      "missing": [
+        "Tabelas sazonais exatas",
+        "Momento de liquidação e arredondamento"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/match.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "shop",
+      "name": "Loja e pool compartilhado",
+      "layer": "núcleo + pacote",
+      "status": "parcial",
+      "contract": "Reservas do pool, probabilidades por nível, reroll, trava e devolução",
+      "missing": [
+        "Chances/tamanho do pool no patch",
+        "Loja transformada por Inferno, Riftbeast, Lux e Wisps"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/match.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "rounds",
+      "name": "Rodadas e dano ao jogador",
+      "layer": "pacote",
+      "status": "aproximação sintética",
+      "contract": "Agenda PvP/PvE/carrossel, dano, overtime, empate e eliminação",
+      "missing": [
+        "Dano real por estágio/sobreviventes",
+        "Histórico de pareamento, fantasmas e critérios de empate"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/match.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "loot",
+      "name": "Loot, PvE e carrossel",
+      "layer": "pacote",
+      "status": "não implementado",
+      "contract": "Monstros, drops, orbes, compensações, seleção e prioridade",
+      "missing": [
+        "Tabelas e probabilidades completas",
+        "Restrições de inventário e mecanismos de compensação"
+      ],
+      "implementation_paths": [],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "persistent",
+      "name": "Estado entre combates",
+      "layer": "núcleo + pacote",
+      "status": "parcial",
+      "contract": "Stacks, missões, sementes, sacrifício, metamorfose e invocações",
+      "missing": [
+        "Fusão/venda/morte e persistência por efeito",
+        "Estado transportável entre turnos do simulador"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/state.py",
+        "trainer/simulation/event_combat.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "search",
+      "name": "Decisões e busca",
+      "layer": "planejamento",
+      "status": "parcial",
+      "contract": "Ações legais, observação parcial, oponentes e futuros aleatórios",
+      "missing": [
+        "Busca atual limitada a um combate",
+        "Compra/venda/rolar/XP/guardar item com economia futura",
+        "Belief state, múltiplos oponentes e MCTS de partidas completas"
+      ],
+      "implementation_paths": [
+        "trainer/simulation/search.py",
+        "training/combat_planner.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "learning",
+      "name": "Treino e validação",
+      "layer": "treinamento",
+      "status": "laboratório",
+      "contract": "Seeds/partidas separadas, baseline, checkpoints e métricas",
+      "missing": [
+        "Treino de partidas reais com motor completo",
+        "Generalização, calibração e regressão por patch",
+        "Três transições visuais revisadas não bastam para política"
+      ],
+      "implementation_paths": [
+        "training/combat_choice_lab.py",
+        "trainer/simulation/value_model.py"
+      ],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "coach",
+      "name": "Dicas e voz",
+      "layer": "aplicativo",
+      "status": "integração não validada",
+      "contract": "Ação contextual, justificativa, validade, prioridade, deduplicação e ElevenLabs",
+      "missing": [
+        "Rede deste laboratório não promovida ao HUD",
+        "Teste ponta a ponta da captura até texto/voz",
+        "Descartar conselhos vencidos; cache de áudio por voz/modelo/texto"
+      ],
+      "implementation_paths": [],
+      "independent_replay_validation": false
+    },
+    {
+      "id": "versioning",
+      "name": "Patch e procedência",
+      "layer": "dados",
+      "status": "parcial",
+      "contract": "Núcleo neutro, pacotes selados, deltas e compatibilidade de modelos",
+      "missing": [
+        "Perfil separado 18.3B e desativações posteriores",
+        "Pool sazonal completo e validação empírica"
+      ],
+      "implementation_paths": [
+        "ingestion/simulation_bindings.py",
+        "ingestion/numeric_overrides.py"
+      ],
+      "independent_replay_validation": false
+    }
+  ],
+  "completeness_limits": [
+    "O inventário cobre cada registro do catálogo selado; o catálogo não contém todas as regras do jogo.",
+    "O pacote executável é 18.3 base. Vídeos recentes podem incluir 18.3B e desativações de 28/09; não são automaticamente compatíveis.",
+    "3444 registros de itens são globais e incluem conteúdo histórico; falta validar disponibilidade e classificação no set atual.",
+    "Cinco formas alternativas, quatro estrelas, invocações, aprimoramentos, Wisps, loot e tabelas de partida ainda têm lacunas.",
+    "Nomes recuperados por hash não comprovam fórmula, escala, ordem de execução ou valor correto no patch.",
+    "Trechos de guias e comentários são hipóteses estratégicas; não equivalem a partidas completas rotuladas ou regras oficiais.",
+    "Vídeos foram inspecionados em trechos e transcrições. Nenhum VOD novo foi assistido integralmente ou validado como partida completa.",
+    "Todas as validações de replay e prontidão permanecem falsas até haver evidência independente."
+  ]
+}
