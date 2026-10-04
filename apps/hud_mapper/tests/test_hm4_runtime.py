@@ -17,6 +17,34 @@ from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_level_advice_requires_temporal_evidence_and_current_affordability(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,text=t,status='single_frame_observation',confidence=.97)
+            for k,v,t in [('stage','2-1','2-1'),('gold',11,'11'),('level',3,'3'),('xp',2,'2/6')]],
+            'controls':{'cadence_delivery':{'fresh':True},'controls':[
+                dict(id='buy_xp',status='observed',appearance='active_appearance')],
+                'numeric_fields':[dict(id='buy_xp_price',status='observed',confidence=.95,value=4)]}}
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        answer['source_ms']=1500;answer['hud'][1]['value']=6
+        decision=engine.evaluate(answer)
+        self.assertEqual(decision['decision']['action']['gold_cost'],4)
+        self.assertTrue(coach_prompt(decision)['actionable'])
+        answer['source_ms']=2000;answer['hud'][1]['value']=2
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        answer['source_ms']=2500;answer['hud'][1]['value']=6
+        answer['controls']['cadence_delivery']['fresh']=False
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+
+    def test_voice_cancels_a_superseded_decision_even_inside_its_deadline(self):
+        voice=VoiceCoach();voice.enabled=True
+        queued=time.monotonic_ns();voice.set_context('level:4:cost:4')
+        self.assertTrue(voice._valid(queued,500,8000,'level:4:cost:4',False))
+        voice.set_context(None)
+        self.assertFalse(voice._valid(queued,500,8000,'level:4:cost:4',False))
+        voice.set_context('level:4:cost:4')
+        self.assertFalse(voice._valid(queued,9000,8000,'level:4:cost:4',False))
+
     def test_visual_item_ids_link_to_attributes_only_by_exact_api_name(self):
         root=Path(__file__).resolve().parents[3]
         knowledge=json.loads((root/'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
@@ -89,7 +117,7 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertEqual(calls,[(b'RIFF',6)])
 
     def test_voice_switch_during_load_does_not_mix_engines(self):
-        voice=VoiceCoach();voice.voices={'supertonic-f1':'F1','dii':'Dii'}
+        voice=VoiceCoach(isolated=False);voice.voices={'supertonic-f1':'F1','dii':'Dii'}
         voice.voice_id='supertonic-f1';voice.enabled=True
         calls=[]
         def load(voice_id,base):

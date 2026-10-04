@@ -10,6 +10,8 @@ from collections import Counter
 import copy
 import hashlib
 import json
+import math
+import re
 from pathlib import Path
 import unicodedata
 
@@ -63,6 +65,10 @@ class ReplayDecisionEngine:
         for entry in champions["entries"]:
             names.setdefault(_key(entry["name"]), set()).add(entry["id"])
         self.names = names
+        self.economy_policy = json.loads((root / "configs/contexts/replay-economy-policy-v1.json").read_text())
+        if (self.economy_policy['set_key'], self.economy_policy['tft_patch']) != (self.set_key, self.patch):
+            raise ValueError("Economy policy belongs to another patch")
+        self._economy_previous = None
 
     def evaluate(self, answer: dict, owned: dict | None = None) -> dict:
         """Return a new answer; never turn a candidate icon into a owned unit."""
@@ -100,7 +106,7 @@ class ReplayDecisionEngine:
                     (owned or {}).get("perspective") == "self")
         units = (owned or {}).get("units") or []
         if not verified or not units:
-            output["decision"] = self._wait("OWNED_UNITS_UNVERIFIED")
+            output["decision"] = self._economy(output) or self._wait("OWNED_UNITS_UNVERIFIED")
             return output
         age_ms = owned.get("age_ms")
         if type(age_ms) not in (int, float) or not 0 <= age_ms <= 2000:
@@ -116,7 +122,7 @@ class ReplayDecisionEngine:
         if gold is None:
             output["decision"] = self._wait("GOLD_UNVERIFIED")
             return output
-        if (shop.get("cadence_delivery") or {}).get("fresh") is not True:
+        if not self._current(shop, output):
             output["decision"] = self._wait("SHOP_STALE")
             return output
         candidates = [slot for slot in shop.get("slots") or []
@@ -125,7 +131,7 @@ class ReplayDecisionEngine:
                       copies[slot["unit_id"]] >= 2 and
                       gold >= slot["observed_cost"]]
         if not candidates:
-            output["decision"] = self._wait("NO_VERIFIED_UPGRADE")
+            output["decision"] = self._economy(output) or self._wait("NO_VERIFIED_UPGRADE")
             return output
         slot = min(candidates, key=lambda row: (row["observed_cost"], row["slot"]))
         output["decision"] = {
@@ -137,6 +143,60 @@ class ReplayDecisionEngine:
             "policy": "verified_third_copy_v1",
             "patch": self.patch}
         return output
+
+    @staticmethod
+    def _current(section: dict, answer: dict) -> bool:
+        cadence = section.get("cadence_delivery")
+        if cadence is not None:
+            return cadence.get("fresh") is True
+        return (type(answer.get("source_ms")) in (int, float) and
+                section.get("timestamp_ms") == answer["source_ms"])
+
+    def _economy(self, answer: dict) -> dict | None:
+        # A level opportunity has its own inputs; no invented roster/strength.
+        rows = {r.get('field'): r for r in answer.get('hud', [])
+                if r.get('status') == 'single_frame_observation' and
+                float(r.get('confidence') or 0) >= .90}
+        if not all(k in rows for k in ('gold','stage','level','xp')):
+            self._economy_previous = None
+            return None
+        gold,stage,level,xp = [rows[k].get('value') for k in ('gold','stage','level','xp')]
+        at=answer.get('source_ms')
+        match=re.fullmatch(r'\s*(\d+)\s*/\s*(\d+)\s*',str(rows['xp'].get('text','')))
+        if (type(gold) is not int or not 0<=gold<=300 or type(level) is not int or
+                not 2<=level<=9 or type(xp) is not int or match is None or
+                int(match[1])!=xp or not 0<=xp<int(match[2])<=100 or
+                type(at) not in (int,float)):
+            self._economy_previous=None
+            return None
+        # Shopping changes gold between observations. Confirm the level/XP
+        # opportunity over time, then price it using the latest observed gold.
+        signature=(stage,level,xp,int(match[2]))
+        previous=self._economy_previous
+        self._economy_previous=(at,signature)
+        if previous is None or previous[1]!=signature or not 200<=at-previous[0]<=8000:
+            return None
+        window=next((r for r in self.economy_policy['level_windows']
+                     if r['stage']==stage and r['target_level']==level+1),None)
+        controls=answer.get('controls') or {}
+        if window is None or not self._current(controls,answer):return None
+        active=any(r.get('id')=='buy_xp' and r.get('status')=='observed' and
+                   r.get('appearance')=='active_appearance' for r in controls.get('controls',[]))
+        prices=[r for r in controls.get('numeric_fields',[]) if r.get('id')=='buy_xp_price'
+                and r.get('status')=='observed' and float(r.get('confidence') or 0)>=.9]
+        if not active or len(prices)!=1 or prices[0].get('value')!=4:return None
+        clicks=math.ceil((int(match[2])-xp)/self.economy_policy['xp_per_purchase'])
+        cost=clicks*4
+        if gold-cost<window['reserve_gold']:return None
+        return {'schema_version':'0.1.0',
+                'action':{'type':'buy_xp','target_level':level+1,'gold_cost':cost,
+                          'purchases':clicks,'gold_after':gold-cost},
+                'confidence':min(r['confidence'] for r in rows.values()),
+                'evidence':[{'code':'LEVEL_WITH_RESERVE','stage':stage,
+                             'observed_xp':rows['xp']['text'],'reserve_gold':window['reserve_gold'],
+                             'consecutive_consistent_observations':2}],
+                'policy':self.economy_policy['id'],'strategy_basis':'explicit_heuristic',
+                'combat_outcome_predicted':False,'patch':self.patch}
 
     @staticmethod
     def _wait(reason: str) -> dict:

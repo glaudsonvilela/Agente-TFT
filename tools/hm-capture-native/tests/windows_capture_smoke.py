@@ -29,13 +29,15 @@ def exercise(binary, target, root, canvas, resize=False):
                 pixels=exact(proc.stdout,size)
                 if h['type']=='error':raise RuntimeError(h['error'])
                 if h['type'] in ('frame','preview'):
-                    assert size==h['width']*h['height']*3
-                    assert h['stride_bytes']==h['width']*3 and h['pixel_format']=='RGB8'
+                    channels=4 if h['type']=='preview' else 3
+                    assert size==h['width']*h['height']*channels
+                    assert h['stride_bytes']==h['width']*channels
+                    assert h['pixel_format']==('BGRA8' if channels==4 else 'RGB8')
                     assert h['capture_ns']>0 and h['qpc_frequency']>0
                     if h['type']=='preview':
                         assert h['width']<=1280 and h['height']<=720
                         assert h['source_width']>=h['width'] and h['source_height']>=h['height']
-                    h['fixture_color_pixels']=sum(1 for i in range(0,len(pixels),39)
+                    h['fixture_color_pixels']=sum(1 for i in range(0,len(pixels),13*channels)
                         if i+2<len(pixels) and ((pixels[i]>210 and pixels[i+1]<60 and pixels[i+2]<60)
                          or (pixels[i+1]>210 and pixels[i]<60 and pixels[i+2]<60)))
                 events.put(h)

@@ -1,5 +1,5 @@
 //! Documented WGC + D3D11 only. Selection uses public desktop metadata, never game memory.
-use crate::{bad, packet, preview_rgb_from_bgra, rgb_from_bgra, Args, Result};
+use crate::{bad, packet, preview_bgra, rgb_from_bgra, Cadence, Args, Result};
 use serde::Serialize;
 use serde_json::json;
 use std::{io::BufRead, sync::{Arc, atomic::{AtomicBool, Ordering}, mpsc}, time::{Duration, Instant}};
@@ -120,7 +120,8 @@ pub fn stream(args: &Args) -> Result<()> {
             "color_policy":"BGRA8_SDR_contract_HDR_not_certified","cursor_policy":"OS_default",
             "screen_capture_active":true,"input_automation":false}), &[])?;
         session.StartCapture()?;
-        let start=Instant::now();let mut last_analysis=None;let mut last_preview=None;
+        let start=Instant::now();let mut analysis_cadence=Cadence::new(args.hz);
+        let mut preview_cadence=args.preview_hz.map(Cadence::new);
         let mut frame_id=0u64;let mut analysis_frames=0u64;let mut preview_frames=0u64;let mut seen=0u64;
         let mut rate_skipped=0u64;let mut size_changes=0u64;
         let mut staging:Option<ID3D11Texture2D>=None;let mut staging_dims=(0,0);
@@ -144,9 +145,10 @@ pub fn stream(args: &Args) -> Result<()> {
                     "segment":size_changes,"coordinates_reused":false}),&[])?;
                 continue;
             }
-            let analysis_due=last_analysis.is_none_or(|at:Instant|arrived_at.duration_since(at).as_secs_f64()>=1.0/args.hz);
-            let preview_due=args.preview_hz.is_some_and(|hz| analysis_due ||
-                last_preview.is_none_or(|at:Instant|arrived_at.duration_since(at).as_secs_f64()>=1.0/hz));
+            let elapsed=arrived_at.duration_since(start).as_secs_f64();
+            let analysis_due=analysis_cadence.take(elapsed);
+            let preview_due=preview_cadence.as_mut().is_some_and(|cadence| cadence.take(elapsed)) ||
+                (analysis_due && args.preview_hz.is_some());
             if !analysis_due && !preview_due {
                 rate_skipped+=1;frame.Close()?;continue;
             }
@@ -179,7 +181,7 @@ pub fn stream(args: &Args) -> Result<()> {
             let count=(mapped.RowPitch as usize).checked_mul(content.Height as usize).ok_or_else(||bad("mapped length overflow"))?;
             if mapped.pData.is_null() || count>256*1024*1024 {context.Unmap(cpu,0);return Err(bad("invalid mapped buffer"));}
             let source=std::slice::from_raw_parts(mapped.pData as *const u8,count);
-            let preview=preview_due.then(||preview_rgb_from_bgra(source,
+            let preview=preview_due.then(||preview_bgra(source,
                 content.Width as usize,content.Height as usize,mapped.RowPitch as usize,
                 args.preview_width,args.preview_height));
             let analysis=analysis_due.then(||rgb_from_bgra(source,
@@ -193,15 +195,15 @@ pub fn stream(args: &Args) -> Result<()> {
                 .chain(analysis.map(|rgb|("frame",content.Width as usize,content.Height as usize,rgb))) {
                 let outgoing=json!({"type":kind,"bytes":rgb.len(),"frame_id":frame_id,
                     "width":width,"height":height,"source_width":content.Width,"source_height":content.Height,
-                    "stride_bytes":width*3,"capture_ns":capture_ns,"clock":"WGC_SystemRelativeTime_QPC_nanoseconds",
+                    "stride_bytes":width*if kind=="preview" {4} else {3},"capture_ns":capture_ns,"clock":"WGC_SystemRelativeTime_QPC_nanoseconds",
                     "qpc_acquired_ticks":begin,"qpc_sent_ticks":after_rgb,"qpc_frequency":frequency,"geometry_segment":size_changes,
-                    "frames_received":seen,"rate_skipped":rate_skipped,"pixel_format":"RGB8",
+                    "frames_received":seen,"rate_skipped":rate_skipped,"pixel_format":if kind=="preview" {"BGRA8"} else {"RGB8"},
                     "gpu_copy_and_map_ms":ticks_to_ms(after_map-begin),"bgra_rgb_ms":ticks_to_ms(after_rgb-after_map),
                     "previous_ipc_write_ms":previous_write_ms,"capture_space":args.kind,
                     "capture_age_before_ipc_ms":after_rgb as f64*1000.0/frequency as f64-capture_ns as f64/1e6});
                 let write=Instant::now();packet(&outgoing,&rgb)?;previous_write_ms=write.elapsed().as_secs_f64()*1000.0;
-                if kind=="preview" {preview_frames+=1;last_preview=Some(arrived_at);}
-                else {analysis_frames+=1;last_analysis=Some(arrived_at);}
+                if kind=="preview" {preview_frames+=1;}
+                else {analysis_frames+=1;}
             }
             frame_id+=1;
         }

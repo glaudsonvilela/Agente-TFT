@@ -52,7 +52,12 @@ def target_signature(target):
 def read_exact(stream, count):
     if not 0 <= count <= MAX_PAYLOAD:
         raise ValueError('Orçamento IPC excedido.')
-    out = bytearray()
+    if not count:
+        return b''
+    first = stream.read(count)
+    if len(first) == count:
+        return first
+    out = bytearray(first)
     while len(out) < count:
         data = stream.read(count-len(out))
         if not data:
@@ -73,7 +78,9 @@ def read_packet(stream):
         w, h = header.get('width'), header.get('height')
         if type(w) is not int or type(h) is not int or not (0 < w <= 8192 and 0 < h <= 8192):
             raise ValueError('Dimensões físicas inválidas.')
-        if size != w*h*3 or header.get('stride_bytes') != w*3 or header.get('pixel_format') != 'RGB8':
+        channels = 4 if header.get('type') == 'preview' and header.get('pixel_format') == 'BGRA8' else 3
+        allowed = ('RGB8', 'BGRA8') if header.get('type') == 'preview' else ('RGB8',)
+        if size != w*h*channels or header.get('stride_bytes') != w*channels or header.get('pixel_format') not in allowed:
             raise ValueError('Formato ou stride incompatível; não completar pixels.')
         if type(header.get('capture_ns')) is not int or header['capture_ns'] <= 0:
             raise ValueError('Timestamp nativo ausente.')
@@ -166,7 +173,7 @@ class CapturedFrame:
     rgb: bytes
     epoch: int
     capture: dict
-    ui_preview: tuple[int, int, bytes] | None = None
+    ui_preview: tuple | None = None
 
 
 class CaptureSource:
@@ -251,7 +258,7 @@ class CaptureSource:
                         last_preview_compositor = header['capture_ns']
                         capture = dict(header, bridge=self.bridge.metadata(), rgb_received_ns=ready_ns, timing=timing)
                         preview_for_analysis = (header['frame_id'], header['width'],
-                                                header['height'], pixels)
+                                                header['height'], pixels, header['pixel_format'])
                         self.preview_frames.put(CapturedFrame(header['frame_id'],
                             (acquired-first_preview_acquired)/1e6, due, ready_ns,
                             header['width'], header['height'], pixels, header['geometry_segment'], capture))

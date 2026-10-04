@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "replay_standard_tempo_v1",
+  "set_key": "TFTSet18",
+  "tft_patch": "18.3",
+  "basis": "explicit_standard_tempo_heuristic_not_learned_combat_value",
+  "xp_per_purchase": 4,
+  "level_windows": [
+    {
+      "stage": "2-1",
+      "target_level": 4,
+      "reserve_gold": 0
+    },
+    {
+      "stage": "2-5",
+      "target_level": 5,
+      "reserve_gold": 20
+    },
+    {
+      "stage": "3-2",
+      "target_level": 6,
+      "reserve_gold": 30
+    },
+    {
+      "stage": "4-1",
+      "target_level": 7,
+      "reserve_gold": 30
+    }
+  ]
+}

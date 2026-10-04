@@ -64,7 +64,7 @@ def run(image, read: dict, board: dict, position_profile: dict, equipped_profile
     selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
     templates, available = (preloaded_templates if preloaded_templates is not None else
                             load_templates(selected, icon_dir, size=equipped_profile["icon_size"]))
-    frame = np.asarray(rgb, dtype=np.float32)
+    frame = np.asarray(rgb, dtype=np.uint8)
     rows = []
     for marker in read["markers"]:
         if marker["color"] != "green":

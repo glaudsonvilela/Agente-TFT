@@ -156,7 +156,8 @@ def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Pat
     inventory = observe(rgb.tobytes(), rgb.width, rgb.height, profile)
     selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
     templates, available = preloaded_templates if preloaded_templates is not None else load_templates(selected, icon_dir)
-    frame = np.asarray(rgb, dtype=np.float32)
+    # Keep the full frame byte-sized; only tiny candidate patches need floats.
+    frame = np.asarray(rgb, dtype=np.uint8)
     rows = []
     for slot in inventory["slots"]:
         if slot["status"] != "icon_candidate":

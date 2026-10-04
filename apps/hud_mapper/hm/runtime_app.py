@@ -86,6 +86,10 @@ class App:
         self.vm_core=self.hm4 and (Path(sys.executable).resolve().parent/"core/core-package.json").is_file()
         self.photo=self.zoom_photo=None;self.photo_size=None;self.freeze=False;self.finalizing=False;self.final_result=None
         self.last_finished=None;self.closing=False;self.displayed=0;self.smoke=False;self.smoke_output=None
+        self.native_preview=None;self.preview_backend="tk_photo"
+        if os.name=="nt":
+            from .native_preview import NativePreview
+            self.native_preview=NativePreview()
         self.canvas_image=None;self._table_key=None;self._next_metrics_ns=0;self._next_perf_log_ns=0
         self.tip_history=deque(maxlen=100);self.tip_label=None
         self._next_preview_ns=0
@@ -356,42 +360,58 @@ class App:
                 (view!="capture" and previous["frame"].id!=f.id)):
             self.crop_label.configure(image="",text="Selecione uma região.");self.details.delete("1.0","end")
         small=getattr(f,"ui_preview",None) if view!="capture" else None
-        image_width,image_height,image_rgb=small if small else (f.width,f.height,f.rgb)
-        im=Image.frombytes("RGB",(image_width,image_height),image_rgb)
-        w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8)
-        w=min(w,1280);h=min(h,720)
-        im.thumbnail((w,h),Image.Resampling.BILINEAR)
-        scale_x=im.width/f.width;scale_y=im.height/f.height
-        if self.overlays.get() and view!="capture":
-            draw=ImageDraw.Draw(im)
-            for reg in regions:
-                for cell in reg.get("guide_points",[]):
-                    x,y=cell["screen"];x*=scale_x;y*=scale_y
-                    draw.ellipse((x-4,y-4,x+4,y+4),outline="#bb91ff",width=2)
-                b=reg.get("box")
-                if not b or not valid_box(b,f.width,f.height):continue
-                status=str(reg.get("status"))
-                if str(reg["id"]).startswith("neural."):color="#ffca55"
-                elif status in ("observed","accepted","coarse_candidate","offer_text_readable"):color="#57df93"
-                elif "incompatible" in status or status in ("unknown","unavailable"):color="#ff6868"
-                else:color="#5ad7dc"
-                box=(b[0]*scale_x,b[1]*scale_y,b[2]*scale_x,b[3]*scale_y)
-                draw.rectangle(box,outline=color,width=2)
-                draw.text((box[0]+2,max(0,box[1]-13)),reg["id"],fill=color)
-        if self.photo is not None and self.photo_size==im.size:
-            self.photo.paste(im)
-        else:
-            self.photo=ImageTk.PhotoImage(im);self.photo_size=im.size
-        center=(self.canvas.winfo_width()//2,self.canvas.winfo_height()//2)
-        if self.canvas_image is None:
-            self.canvas_image=self.canvas.create_image(*center,image=self.photo,anchor="center")
-        else:
-            self.canvas.itemconfigure(self.canvas_image,image=self.photo)
-            self.canvas.coords(self.canvas_image,*center)
+        image_width,image_height,image_rgb=small[:3] if small else (f.width,f.height,f.rgb)
+        pixel_format=(small[3] if len(small)>3 else "RGB8") if small else (getattr(f,"capture",None) or {}).get("pixel_format","RGB8")
+        native_drawn=False
+        if self.native_preview and view=="capture" and pixel_format=="BGRA8":
+            if self.canvas_image is not None:
+                self.canvas.delete(self.canvas_image);self.canvas_image=None;self.photo=None
+            try:
+                shown_w,shown_h=self.native_preview.draw(self.canvas,image_width,image_height,image_rgb)
+                self.preview_backend="windows_dib_bgra"
+                native_drawn=True
+            except (OSError,ValueError) as exc:
+                self.native_preview=None
+                if self.session:
+                    self.session.store.emit('telemetry',dict(event='preview_renderer_fallback',error=str(exc)))
+        if not native_drawn:
+            im=Image.frombytes("RGB",(image_width,image_height),image_rgb,"raw","BGRX" if pixel_format=="BGRA8" else "RGB")
+            w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8)
+            w=min(w,1280);h=min(h,720)
+            im.thumbnail((w,h),Image.Resampling.BILINEAR)
+            scale_x=im.width/f.width;scale_y=im.height/f.height
+            if self.overlays.get() and view!="capture":
+                draw=ImageDraw.Draw(im)
+                for reg in regions:
+                    for cell in reg.get("guide_points",[]):
+                        x,y=cell["screen"];x*=scale_x;y*=scale_y
+                        draw.ellipse((x-4,y-4,x+4,y+4),outline="#bb91ff",width=2)
+                    b=reg.get("box")
+                    if not b or not valid_box(b,f.width,f.height):continue
+                    status=str(reg.get("status"))
+                    if str(reg["id"]).startswith("neural."):color="#ffca55"
+                    elif status in ("observed","accepted","coarse_candidate","offer_text_readable"):color="#57df93"
+                    elif "incompatible" in status or status in ("unknown","unavailable"):color="#ff6868"
+                    else:color="#5ad7dc"
+                    box=(b[0]*scale_x,b[1]*scale_y,b[2]*scale_x,b[3]*scale_y)
+                    draw.rectangle(box,outline=color,width=2)
+                    draw.text((box[0]+2,max(0,box[1]-13)),reg["id"],fill=color)
+            if self.photo is not None and self.photo_size==im.size:
+                self.photo.paste(im)
+            else:
+                self.photo=ImageTk.PhotoImage(im);self.photo_size=im.size
+            center=(self.canvas.winfo_width()//2,self.canvas.winfo_height()//2)
+            if self.canvas_image is None:
+                self.canvas_image=self.canvas.create_image(*center,image=self.photo,anchor="center")
+            else:
+                self.canvas.itemconfigure(self.canvas_image,image=self.photo)
+                self.canvas.coords(self.canvas_image,*center)
+            shown_w,shown_h=im.size
+            self.preview_backend="tk_photo"
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
         physical = f'{cap["source_width"]}×{cap["source_height"]} capturado · ' if cap and cap.get('type')=='preview' else ''
-        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} analisado → {im.width}×{im.height} exibido · idade {age:.1f} ms · geometria {f.epoch}')
+        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} analisado → {shown_w}×{shown_h} exibido · idade {age:.1f} ms · geometria {f.epoch}')
         table_key=(view,None if view=="capture" else f.id)
         if table_key!=self._table_key:
             self._table_key=table_key
@@ -408,7 +428,7 @@ class App:
                 if self.session and (self.displayed%20)==0:
                     self.session.store.emit('telemetry',dict(event='preview_render',frame_id=f.id,
                         render_ms=elapsed,source_age_ms=(time.perf_counter_ns()-f.due_ns)/1e6,
-                        preview_size=[im.width,im.height],source_size=[f.width,f.height]))
+                        preview_size=[shown_w,shown_h],renderer=self.preview_backend,source_size=[f.width,f.height]))
 
     def selected(self,_=None):
         if not self.current or not self.table.selection():return
@@ -462,7 +482,7 @@ class App:
                    board_reference_status=s.versions.get("board_reference_status")),
           tips=dict(actionable=s.counts["replay_tips"],coach_updates=s.counts["coach_updates"],
                     mode="replay_review_only" if s.options.replay_review else "disabled"),
-          capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,
+          capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,renderer=self.preview_backend,
                                    capture_device_kind=(getattr(s.source,'ready',None) or {}).get('device_kind'),
                                    native_received=getattr(s.source,'preview_received',0),
                                    native_queue_replaced=getattr(getattr(s.source,'preview_frames',None),'replaced',0),
@@ -471,6 +491,9 @@ class App:
           samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"],
           process_memory=current_process_memory(),
           voice=dict(enabled=bool(self.voice and self.voice.enabled),
+                     process_memory=(self.voice.engine_process.memory
+                         if self.voice and self.voice.engine_process else None),
+                     isolated=bool(self.voice and self.voice.isolated),
                      ready=bool(self.voice and self.voice.ready),
                      selected=self.voice.voice_id if self.voice else None,
                      fallback_from=self.voice.fallback_from if self.voice else None,
@@ -481,6 +504,7 @@ class App:
                      stale_dropped=self.voice.stale_dropped_count if self.voice else 0))
 
     def preview_tick(self):
+        tick_started=time.perf_counter_ns()
         if self.closing:return
         s=self.session
         if s and not s.finished and not self.finalizing:
@@ -492,7 +516,8 @@ class App:
                     self.repaint()
             except queue.Empty:
                 pass
-        self.root.after(16,self.preview_tick)
+        elapsed_ms=(time.perf_counter_ns()-tick_started)/1e6
+        self.root.after(max(1,int(16-elapsed_ms)),self.preview_tick)
 
     def tick(self):
         s=self.session
@@ -505,6 +530,10 @@ class App:
                         self.repaint();s.acknowledge(item,name)
                 except queue.Empty:pass
             tip=getattr(s,"latest_replay_tip",None)
+            if self.voice:
+                self.voice.set_context(tip.get('decision_key') if tip and tip.get('actionable') else None)
+                while self.voice.events:
+                    s.store.emit('telemetry',self.voice.events.popleft())
             if tip:
                 key=((tip.get("frame_id"),tip.get("text")) if tip.get("actionable")
                      else (tip.get("status"),tip.get("text")))
@@ -521,7 +550,9 @@ class App:
                         self.tip_log.configure(state='normal');self.tip_log.delete('1.0','end')
                         self.tip_log.insert('1.0','\n'.join(self.tip_history));self.tip_log.configure(state='disabled')
                     speech_queued=bool(tip.get('actionable') and self.voice and tip.get('speech_text') and
-                                       self.voice.say(tip['speech_text'],age))
+                                       self.voice.say(tip['speech_text'],age,
+                                           decision_key=tip.get('decision_key'),
+                                           max_age_ms=tip.get('speech_max_age_ms',3000)))
                     s.store.emit('telemetry',dict(event='coach_ui_applied',frame_id=tip['frame_id'],
                         source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
                         physical_display_measured=False,tip_status=tip['status'],
@@ -594,8 +625,14 @@ def main(mode="hm3"):
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
     p.add_argument("--replay-review",action="store_true")
     p.add_argument("--voice-smoke-output")
+    p.add_argument("--replay-voice-validation")
     p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=2 if mode=="hm4" else 1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
+    if a.replay_voice_validation:
+        if not hm4 or not a.output:p.error('HM4 and output required')
+        from .replay_voice_validation import run
+        run(Path(a.replay_voice_validation),Path(a.output),runtime_paths())
+        return 0
     if a.voice_smoke_output:
         if not hm4:p.error("Voice smoke is HM4 only")
         from .voice import _synthesize, available_voices, voice_assets

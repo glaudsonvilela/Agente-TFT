@@ -9,6 +9,74 @@ import sys
 import threading
 import time
 import wave
+from collections import OrderedDict, deque
+
+
+def _voice_process_main(connection, voice_id, base):
+    """Models and ONNX arenas live outside the UI process and die with it."""
+    try:
+        engine = _load_engine(voice_id, Path(base))
+        _synthesize('Pronto.', voice_id, Path(base), engine)
+        connection.send({'ready': True, 'pid': os.getpid()})
+        cache = OrderedDict()
+        while True:
+            text = connection.recv()
+            if text is None:
+                break
+            cached = text in cache
+            if not cached:
+                wav, engine = _synthesize(text, voice_id, Path(base), engine)
+                cache[text] = wav
+                while len(cache) > 16 or sum(map(len, cache.values())) > 8*1024*1024:
+                    cache.popitem(last=False)
+            else:
+                wav = cache[text]
+                cache.move_to_end(text)
+            from .process_memory import current_process_memory
+            connection.send({'wav': wav, 'cache_hit': cached,
+                             'process_memory': current_process_memory()})
+    except (EOFError, BrokenPipeError):
+        pass
+    except Exception as exc:
+        try:
+            connection.send({'error': str(exc)})
+        except (EOFError, BrokenPipeError, OSError):
+            pass
+    finally:
+        connection.close()
+
+
+class VoiceProcess:
+    def __init__(self, voice_id, base):
+        import multiprocessing
+        context = multiprocessing.get_context('spawn')
+        self.connection, child = context.Pipe()
+        self.process = context.Process(target=_voice_process_main,
+            args=(child, voice_id, str(base)), daemon=True, name='tft-voice')
+        self.process.start()
+        child.close()
+        self.memory = None
+
+    def receive(self, timeout):
+        if not self.connection.poll(timeout):
+            raise TimeoutError('A geração de voz excedeu o tempo limite.')
+        result = self.connection.recv()
+        if result.get('error'):
+            raise RuntimeError(result['error'])
+        return result
+
+    def synthesize(self, text):
+        self.connection.send(text)
+        result = self.receive(30)
+        self.memory = result.get('process_memory')
+        return result['wav']
+
+    def close(self):
+        # Close also interrupts stuck inference; no growing orphan model set.
+        if self.process.is_alive():
+            self.process.terminate()
+        self.process.join(timeout=1)
+        self.connection.close()
 
 VOICE_NAMES = {"supertonic-f1": "F1 (feminina)",
                "dii": "Dii (feminina, pt-BR)",
@@ -93,7 +161,7 @@ def _play_wav(wav: bytes):
 
 
 class VoiceCoach:
-    def __init__(self, base: Path | None = None):
+    def __init__(self, base: Path | None = None, *, isolated: bool = True, playback=None):
         self.base = base or voice_assets()
         self.voices = available_voices(self.base)
         self.voice_id = next(iter(self.voices), None)
@@ -110,6 +178,23 @@ class VoiceCoach:
         self.stale_dropped_count = 0
         self.ready = False
         self.fallback_from = None
+        self.isolated = isolated
+        self.engine_process = None
+        self.context_key = None
+        self.events = deque(maxlen=64)
+        self.playback = playback
+
+    def set_context(self, decision_key):
+        self.context_key = decision_key
+
+    def _valid(self, queued_ns, source_age_ms, max_age_ms, decision_key, force):
+        return (self.enabled and not self.closed and
+                (force or ((time.monotonic_ns()-queued_ns)/1e6 + source_age_ms <= max_age_ms
+                           and (decision_key is None or self.context_key == decision_key))))
+
+    def _event(self, event, decision_key, queued_ns, source_age_ms, **extra):
+        self.events.append(dict(event=event, decision_key=decision_key,
+            source_age_ms=(time.monotonic_ns()-queued_ns)/1e6+source_age_ms, **extra))
 
     def set_voice(self, voice_id: str):
         if voice_id not in self.voices:
@@ -139,7 +224,8 @@ class VoiceCoach:
             self.thread = threading.Thread(target=self._run, daemon=True, name="agente-tft-voice")
             self.thread.start()
 
-    def say(self, text: str, source_age_ms: float, *, force: bool = False):
+    def say(self, text: str, source_age_ms: float, *, force: bool = False,
+            decision_key: str | None = None, max_age_ms: float = 3000):
         now = time.monotonic_ns()
         if (not self.enabled or not text or (source_age_ms > 2000 and not force)
                 or (text == self.last_text and not force)
@@ -151,7 +237,8 @@ class VoiceCoach:
             self.pending.get_nowait()
         except queue.Empty:
             pass
-        self.pending.put_nowait((text, now, self.voice_id, force, source_age_ms))
+        self.pending.put_nowait((text, now, self.voice_id, force, source_age_ms,
+                                 decision_key, min(8000, max(0, max_age_ms))))
         self.queued_count += 1
         return True
 
@@ -162,9 +249,17 @@ class VoiceCoach:
             if self.enabled and (loaded_voice != self.voice_id or not self.ready):
                 selected_voice = self.voice_id
                 try:
-                    selected_engine = _load_engine(selected_voice, self.base)
-                    # Warm the synthesizer before the first time-sensitive readout.
-                    _synthesize("Pronto.", selected_voice, self.base, selected_engine)
+                    if self.engine_process:
+                        self.engine_process.close()
+                        self.engine_process = None
+                    engine = None
+                    if self.isolated:
+                        self.engine_process = VoiceProcess(selected_voice, self.base)
+                        self.engine_process.receive(60)
+                        selected_engine = self.engine_process
+                    else:
+                        selected_engine = _load_engine(selected_voice, self.base)
+                        _synthesize("Pronto.", selected_voice, self.base, selected_engine)
                     if selected_voice != self.voice_id or not self.enabled:
                         continue
                     engine = selected_engine
@@ -172,35 +267,49 @@ class VoiceCoach:
                     self.ready = True
                     self.error = None
                 except Exception as exc:
+                    if self.engine_process:
+                        self.engine_process.close()
+                        self.engine_process = None
                     if selected_voice == self.voice_id:
                         self._handle_failure(selected_voice, exc)
                     continue
             try:
-                text, queued_ns, voice_id, force, source_age_ms = self.pending.get(timeout=.2)
+                text, queued_ns, voice_id, force, source_age_ms, decision_key, max_age_ms = self.pending.get(timeout=.2)
             except queue.Empty:
                 continue
             if not self.enabled or voice_id != self.voice_id:
                 continue
-            if (time.monotonic_ns()-queued_ns)/1e6 + source_age_ms > 3000 and not force:
+            if not self._valid(queued_ns, source_age_ms, max_age_ms, decision_key, force):
                 self.stale_dropped_count += 1
+                self._event('voice_cancelled_before_synthesis', decision_key, queued_ns, source_age_ms)
                 if self.last_text == text:
                     self.last_text = None
                 continue
             try:
                 started = time.monotonic_ns()
-                wav, engine = _synthesize(text, voice_id, self.base, engine)
+                if self.isolated:
+                    wav = engine.synthesize(text)
+                else:
+                    wav, engine = _synthesize(text, voice_id, self.base, engine)
                 self.last_generation_ms = (time.monotonic_ns()-started)/1e6
                 if not self.enabled or voice_id != self.voice_id or self.closed:
                     continue
-                if not force and (time.monotonic_ns()-queued_ns)/1e6 + source_age_ms > 3000:
+                if not self._valid(queued_ns, source_age_ms, max_age_ms, decision_key, force):
                     self.stale_dropped_count += 1
+                    self._event('voice_cancelled_after_synthesis', decision_key, queued_ns, source_age_ms,
+                                generation_ms=self.last_generation_ms)
                     if self.last_text == text:
                         self.last_text = None
                     continue
-                _play_wav(wav)
+                self._event('voice_play_started', decision_key, queued_ns, source_age_ms,
+                            generation_ms=self.last_generation_ms, physical_audio_measured=False)
+                (self.playback or _play_wav)(wav)
                 self.played_count += 1
                 self.error = None
             except Exception as exc:
+                if self.engine_process:
+                    self.engine_process.close()
+                    self.engine_process = None
                 if voice_id == self.voice_id:
                     self._handle_failure(voice_id, exc)
 
@@ -208,3 +317,6 @@ class VoiceCoach:
         self.closed = True
         self.enabled = False
         self.ready = False
+        if self.engine_process:
+            self.engine_process.close()
+            self.engine_process = None

@@ -78,7 +78,8 @@ class BoardHubLive:
         snapshot['item_attributes_patch'] = self.knowledge_patch
         # A live recording has no verified patch binding or semantic labels.
         snapshot['live_diagnostic_only'] = True
-        snapshot['board_reference_status'] = 'manual_reference_active' if board_read else 'not_calibrated'
+        snapshot['board_reference_status'] = (read.get('reference_basis', 'reference_unspecified')
+                                               if board_read else 'not_calibrated')
         regions = [region('hub.board.cells', None, snapshot['position_status'],
                           basis='fixed_grid_and_B1_bar_candidates',
                           guide_points=[{'screen': cell['screen_center']} for cell in snapshot['board_cells']],

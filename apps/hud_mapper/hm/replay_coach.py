@@ -33,6 +33,16 @@ def coach_prompt(answer: dict) -> dict:
     """Allow a buy only when a future engine decision matches a current catalog offer."""
     decision = answer.get('decision') or {}
     action = decision.get('action') or {}
+    if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'buy_xp'
+            and decision.get('policy') == 'replay_standard_tempo_v1'
+            and (decision.get('evidence') or [{}])[0].get('code') == 'LEVEL_WITH_RESERVE'):
+        level,cost,left=action['target_level'],action['gold_cost'],action['gold_after']
+        return {'status':'action','actionable':True,
+                'text':f'Suba para o nível {level} por {cost} de ouro. Restam {left} de ouro.',
+                'speech_text':f'Suba para o nível {level}. Gaste {cost} de ouro.',
+                'basis':['decision.buy_xp','hud.stage','hud.gold','hud.level','hud.xp','controls.buy_xp_price'],
+                'confidence':decision['confidence'],'strategy_basis':'explicit_heuristic',
+                'decision_key':f'level:{level}:cost:{cost}', 'speech_max_age_ms':8000}
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'buy'
             and float(decision.get('confidence') or 0) >= .8
             and decision.get('evidence') and type(action.get('shop_slot')) is int):
@@ -53,7 +63,9 @@ def coach_prompt(answer: dict) -> dict:
                         'speech_text': f'Compre {name} agora.',
                         'basis': ['decision.buy', f'shop.{slot_index}.name', 'hud.gold'],
                         'actionable': True, 'confidence': decision['confidence'],
-                        'unit_id': slot['unit_id']}
+                        'unit_id': slot['unit_id'],
+                        'decision_key': f'buy:{slot_index}:{slot["unit_id"]}',
+                        'speech_max_age_ms': 3000}
     return economy_prompt(answer)
 
 

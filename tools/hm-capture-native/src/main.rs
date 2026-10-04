@@ -59,6 +59,37 @@ fn preview_rgb_from_bgra(data: &[u8], width: usize, height: usize, pitch: usize,
     Ok((out_w, out_h, rgb))
 }
 
+// Preserve the native channel order for the Windows DIB preview. Analysis stays RGB.
+fn preview_bgra(data: &[u8], width: usize, height: usize, pitch: usize,
+                max_width: usize, max_height: usize) -> Result<(usize, usize, Vec<u8>)> {
+    if width == 0 || height == 0 || width > 8192 || height > 8192
+        || pitch < width * 4 || pitch.checked_mul(height).is_none_or(|n| data.len() < n) {
+        return Err(bad("invalid preview geometry"));
+    }
+    let (w,h) = preview_size(width,height,max_width,max_height);
+    let mut pixels=vec![0;w*h*4];
+    let offsets:Vec<usize>=(0..w).map(|x| x*width/w*4).collect();
+    for y in 0..h {
+        let row=y*height/h*pitch;
+        for (x,offset) in offsets.iter().enumerate() {
+            let target=(y*w+x)*4;
+            pixels[target..target+4].copy_from_slice(&data[row+offset..row+offset+4]);
+        }
+    }
+    Ok((w,h,pixels))
+}
+
+struct Cadence { period: f64, next: f64 }
+impl Cadence {
+    fn new(hz:f64)->Self {Self {period:1.0/hz,next:0.0}}
+    fn take(&mut self, now:f64)->bool {
+        if now+0.001 < self.next {return false;}
+        self.next += self.period;
+        if self.next <= now {self.next=now+self.period;}
+        true
+    }
+}
+
 fn packet(header: &Value, pixels: &[u8]) -> Result<()> {
     let bytes = serde_json::to_vec(header)?;
     if bytes.len() > 65536 || pixels.len() > 128 * 1024 * 1024 {
@@ -129,6 +160,20 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test] fn preview_cadence_tolerates_sixty_hz_jitter() {
+        let mut cadence=Cadence::new(30.0);
+        let count=(0..600).filter(|i| {
+            cadence.take(*i as f64/60.0 + if i%2==0 {0.0002} else {-0.0002})
+        }).count();
+        assert_eq!(count,300);
+        assert!(cadence.take(20.0));
+        assert!(!cadence.take(20.001));
+    }
+    #[test] fn native_preview_preserves_bgra_and_ignores_stride_padding() {
+        let input=[3,2,1,255,99,99,99,99,6,5,4,255,88,88,88,88];
+        assert_eq!(preview_bgra(&input,1,2,8,1280,720).unwrap(),(1,2,vec![3,2,1,255,6,5,4,255]));
+        assert!(preview_bgra(&input[..10],1,2,8,1280,720).is_err());
+    }
     #[test] fn bgr_rows_ignore_padding() {
         assert_eq!(rgb_from_bgra(&[3,2,1,255,99,99,99,99,6,5,4,0,88,88,88,88],1,2,8).unwrap(),[1,2,3,4,5,6]);
     }

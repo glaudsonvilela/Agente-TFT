@@ -171,7 +171,16 @@ impl Readers{
     let available=resident_hud.is_some() || ocr.available();
     #[cfg(not(any(windows,target_os="linux")))]
     let available=ocr.available();
-    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board:None,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
+    let anchors_path=root.join("ui/standard-arena-anchors-v1.json");
+    let board=if anchors_path.is_file() {
+        let anchors:Value=load(&anchors_path)?;
+        if anchors["schema_version"]!=1 || anchors["profile"]!=board_profile.id {
+            return Err("packaged arena profile mismatch".into());
+        }
+        let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
+        Some(scene::SceneReader::from_anchors(board_profile.clone(),reference)?)
+    } else {None};
+    Ok(Self{hud,ocr,shop,recovery,controls,board_profile,board,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
         #[cfg(any(windows,target_os="linux"))] resident_hud,
         #[cfg(any(windows,target_os="linux"))] resident_text,
         hud_cache:HashMap::new(),shop_cache:None,controls_cache:None})
@@ -290,13 +299,27 @@ impl Readers{
       if !include_shop {
         shop=match self.shop_cache.as_ref() {
           Some(entry)=>{
-            cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms)
+            let mut value=cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms);
+            if entry.pixels==self.shop_signature(f)? {
+                restamp_json(&mut value,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
+                value["cadence_delivery"]["fresh"]=json!(true);
+                value["cadence_delivery"]["exact_reader_pixels"]=json!(true);
+            }
+            value
           },
           None=>json!({"timestamp_ms":f.captured_at_ms,"panel_status":"cadence_deferred_no_prior_observation",
                        "slots":[],"cadence_delivery":{"fresh":false,"policy":"hm4_shop_2s_v1"}}),
         };
         controls=match self.controls_cache.as_ref() {
-          Some(entry)=>cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms),
+          Some(entry)=>{
+            let mut value=cadence_json(&entry.value,entry.source_frame_id,entry.source_ms,f.frame_id,f.captured_at_ms);
+            if entry.pixels==self.controls_signature(f)? {
+                restamp_json(&mut value,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
+                value["cadence_delivery"]["fresh"]=json!(true);
+                value["cadence_delivery"]["exact_reader_pixels"]=json!(true);
+            }
+            value
+          },
           None=>json!({"timestamp_ms":f.captured_at_ms,"status":"cadence_deferred_no_prior_observation",
                        "cadence_delivery":{"fresh":false,"policy":"hm4_shop_2s_v1"}}),
         };
@@ -370,6 +393,14 @@ impl Readers{
       spans.push(json!({"stage":"shop_controls","start_ms":started,"duration_ms":ms(&t)-started,
                         "cache_exact_hit":controls_hit,"cache_basis":"all_controls_reader_pixels_v1"}));
       }
+    }
+    if include_shop {
+        for value in [&mut shop,&mut controls] {
+            if value.is_object() && value["error"].is_null() {
+                value["cadence_delivery"]=json!({"fresh":true,"delivered_frame_id":f.frame_id,
+                    "delivered_source_ms":f.captured_at_ms,"age_ms":0,"policy":"current_frame_v1"});
+            }
+        }
     }
     if valid_size {if let Some(reader)=&self.board {let started=ms(&t);
       board=match reader.read(f){Ok(b)=>serde_json::to_value(b).map_err(|e|e.to_string())?,Err(e)=>json!({"error":e})};
