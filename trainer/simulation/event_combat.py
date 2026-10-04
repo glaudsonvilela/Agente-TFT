@@ -65,6 +65,7 @@ class Actor:
     empowers: dict=field(default_factory=dict)
     item_count: int=0
     target_uid: str | None = None
+    target_acquired_at: float = 0.
 
 
 def validate_effects(effects):
@@ -182,7 +183,7 @@ class Battle:
         for key,value in (permanent or {}).items():
             values.add('permanent:'+key,key,finite(value,key))
         for i,m in enumerate(mods):
-            values.add(f'initial:{i}',m['stat'],finite(m['value'],m['stat']),m['mode'],when=m.get('when'))
+            values.add(f'initial:{i}',m['stat'],finite(m['value'],m['stat']),m['mode'],when=m.get('when'),per_context=m.get('per_context'))
         spell=deepcopy(spec.get('spell'))
         if not spell or spell.get('kind') not in ('none','effects'): raise UnsupportedRule('event spell missing')
         if spell['kind']=='effects':
@@ -224,8 +225,19 @@ class Battle:
         if not math.isfinite(when) or when<self.now: raise UnsupportedRule('invalid event time')
         self.sequence+=1;heapq.heappush(self.queue,(when,self.sequence,kind,uid,payload))
 
-    def get(self,u,key):
-        return u.values.get(key,self.now,context=actor_context(u,self.now))
+    def get(self,u,key,target=None):
+        context=actor_context(u,self.now)
+        held=self.by_id.get(u.target_uid)
+        if held is not None and self.targetable(held):
+            context['target_held_seconds']=max(0,self.now-u.target_acquired_at)
+        if target is not None and target.hp>0:
+            context['target_health_fraction']=target.hp/target.values.get('hp',self.now)
+        if any(m.stat==key and m.per_context=='enemies_targeting' for m in u.values.modifiers):
+            context['enemies_targeting']=sum(
+                enemy.team!=u.team and enemy.hp>0 and enemy.target_uid==u.uid
+                for enemy in self.units
+            ) if self.targetable(u) else 0
+        return u.values.get(key,self.now,context=context)
 
     def status(self,u,name):return max((end for end in u.statuses.get(name,[]) if end>self.now),default=0.)
 
@@ -244,6 +256,7 @@ class Battle:
         target = min(enemies, key=lambda enemy: (distance(unit.position, enemy.position), enemy.uid))
         if target.uid != unit.target_uid:
             self.emit('target', unit=unit.uid, target=target.uid)
+            unit.target_acquired_at = self.now
         unit.target_uid = target.uid
         return target
 
@@ -353,7 +366,7 @@ class Battle:
         elif dtype=='true':resist=0
         else:raise UnsupportedRule('unknown damage type')
         damage=max(0,raw)*(self.get(source,'crit_multiplier') if critical else 1)
-        if dtype!='true':damage*=mitigation(resist)*(1+self.get(source,'damage_amp'))*(1-min(1,max(0,self.get(target,'durability'))))
+        if dtype!='true':damage*=mitigation(resist)*(1+self.get(source,'damage_amp',target))*(1-min(1,max(0,self.get(target,'durability'))))
         if dtype!='true':damage*=1+max(0,self.get(target,'vulnerable'))
         pre_shield=damage
         for shield in sorted(target.shields,key=lambda s:s.expires):
@@ -397,7 +410,7 @@ class Battle:
                     self.effects(source,living[shot%len(living)],effect['effects'],context,tag)
                 continue
             for index,unit in enumerate(selected):
-                op=effect['op'];raw=formula(effect['amount'],source,unit,self.now,context) if 'amount' in effect else None
+                op=effect['op'];raw=formula(effect['amount'],source,unit,self.now,context,self.get) if 'amount' in effect else None
                 identifier=effect.get('key',f'effect:{source.uid}:{self.sequence}:{index}')
                 if op=='damage':
                     raw*=max(effect.get('falloff_min',0),1-effect.get('falloff_per_hex',0)*distance(center,unit.position))
@@ -462,12 +475,12 @@ class Battle:
                     tick_effects=deepcopy(effect['effects'])
                     if effect['scaling_time']=='snapshot':
                         for child in tick_effects:
-                            if 'amount' in child:child['amount']=[{'coefficient':formula(child['amount'],source,unit,self.now)}]
+                            if 'amount' in child:child['amount']=[{'coefficient':formula(child['amount'],source,unit,self.now,stat_getter=self.get)}]
                     gate=None
                     tick_times=[self.now+effect['duration']*tick/ticks for tick in range(1,ticks+1)]
                     if effect.get('stacking')=='refresh_strongest':
                         group=effect['group'];dot_key=(group,source.uid,identifier)
-                        power=sum(formula(e['amount'],source,unit,self.now) for e in tick_effects if e['op']=='damage')
+                        power=sum(formula(e['amount'],source,unit,self.now,stat_getter=self.get) for e in tick_effects if e['op']=='damage')
                         token=self.sequence+1
                         interval=effect['duration']/ticks;old=unit.dot_groups.get(dot_key)
                         anchor=old[3] if old and old[1]>self.now else self.now

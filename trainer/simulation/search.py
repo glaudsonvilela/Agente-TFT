@@ -50,6 +50,8 @@ def search(world, seat, content, evaluate, *, simulations=500, seconds=10., dept
             node.visits += 1; node.total += value; node = node.parent
     ranked = sorted(root.children, key=lambda c: (c.visits, c.total/c.visits), reverse=True)
     return dict(scope='experimental_hex_lab', runtime_promoted=False,
+                planning_scope=world.rules_scope,
+                unresolved_planning_dependencies=list(content.get('planning_requirements',[])),
                 simulation_paths=calls, complete_matches=0, elapsed_seconds=time.monotonic()-started,
                 action=ranked[0].action if ranked else Action('hold'),
                 candidates=[dict(action=c.action, visits=c.visits, value=c.total/c.visits) for c in ranked],

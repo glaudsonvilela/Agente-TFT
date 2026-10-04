@@ -98,6 +98,8 @@ def audit(project: Path) -> dict:
         compiled_content_coverage=coverage,
         seasonal_match_data=dict(
             economy_present=bool(compiled.get("economy")),
+            economy_scope=compiled.get("planning_provenance", {}).get("status", "not_bound"),
+            unresolved_planning_dependencies=compiled.get("planning_requirements", []),
             round_schedule_present=bool(compiled.get("match_rules")),
             augment_definitions=len(compiled.get("augments", {})),
             wisp_definitions=len(compiled.get("wisps", {})),

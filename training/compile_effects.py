@@ -15,6 +15,7 @@ from ingestion.simulation_bindings import load_bindings,substitute,referenced_fi
 from ingestion.numeric_overrides import apply_overrides
 from trainer.simulation.event_combat import validate_effects
 from trainer.simulation.state import UnsupportedRule
+from trainer.simulation.economy import validate_economy, pool_identity
 
 
 def validate_hooks(hooks):
@@ -64,7 +65,7 @@ def compile_trait(row,rules):
             for scope in ('team','members'):validate_hooks(tier.get(scope,{}).get('hooks',[]))
         tiers.append(tier)
     status='candidate_not_replay_validated' if tiers and all(not t.get('unsupported') for t in tiers) else 'missing_handler'
-    return dict(name=row['name'],tiers=tiers,status=status)
+    return dict(name=row['name'],tiers=tiers,status=status,notes=deepcopy(rule.get('notes',[])))
 
 
 def compile_catalog(manifest,catalogs,bindings):
@@ -76,10 +77,19 @@ def compile_catalog(manifest,catalogs,bindings):
         if 'patch' in bindings[name] and bindings[name]['patch']!=bindings['patch']:
             raise UnsupportedRule(f'seasonal component patch mismatch: {name}')
     profile=bindings['profile']
+    planning_profile=profile.get('planning',{})
+    if planning_profile:
+        validate_economy({'economy':planning_profile['economy']})
     trait_names={t['name']:t['api_name'] for t in catalogs['traits']['traits']}
     champions={}
     for row in catalogs['units']['champions']:
         key=row['api_name'];spec=dict(name=row['name'],cost=row['cost'],traits=[trait_names[n] for n in row['traits']])
+        sale_prices=planning_profile.get('economy',{}).get('sale_prices_by_cost',{}).get(str(row['cost']))
+        if sale_prices is not None:spec['sale_prices']=deepcopy(sale_prices)
+        planning=profile.get('planning',{}).get('champions',{}).get(key,{})
+        if set(planning)-{'sale_prices','pool_identity','purchase_blocker'}:
+            raise UnsupportedRule('unknown champion planning binding')
+        spec.update(deepcopy(planning))
         binding=bindings['champions'].get(key)
         if binding is None or binding.get('ability_status')=='blocked':
             if binding and ('spell' in binding or not binding.get('blockers')):
@@ -133,12 +143,25 @@ def compile_catalog(manifest,catalogs,bindings):
                             missing_handlers=sorted(k for k,t in traits.items() if t['status']=='missing_handler')),
                 unresolved=bindings['unresolved'],current_patch_training_ready=False,runtime_promoted=False,
                 full_match_ready=False,augments_ready=False,seasonal_events_ready=False)
-    return dict(schema_version=3,combat_version=2,scope='experimental_hex_lab',patch=bindings['patch'],
+    result = dict(schema_version=3,combat_version=2,scope='experimental_hex_lab',patch=bindings['patch'],
                 release_sha256=manifest['release_sha256'],bindings_sha256=hashlib.sha256(canonical(bindings)).hexdigest(),
                 champions=champions,items=items,traits=traits,augments={},recipes=recipes,
                 data_components=deepcopy(bindings['components']),
                 lab_sampling=deepcopy(profile['lab_sampling']),
                 combat_rules=deepcopy(profile['timing_profile']['combat_rules']),coverage=report)
+    if 'planning' in profile:
+        planning=profile['planning']
+        requirements=planning.get('requirements')
+        if planning.get('status')!='ordinary_shop_probe_only' or not isinstance(requirements,list) or not requirements or any(not isinstance(r,str) or not r for r in requirements):
+            raise UnsupportedRule('planning candidate requires explicit incomplete dependencies')
+        if set(planning.get('champions',{}))-set(champions):
+            raise UnsupportedRule('planning champion missing from release')
+        result['economy']=deepcopy(planning['economy'])
+        result['planning_requirements']=deepcopy(planning['requirements'])
+        result['planning_provenance']={k:deepcopy(planning[k]) for k in ('status','sources','limitations')}
+        validate_economy(result)
+        for champion in champions:pool_identity(champion,result)
+    return result
 
 
 def main():

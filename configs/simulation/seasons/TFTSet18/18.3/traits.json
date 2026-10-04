@@ -1042,6 +1042,540 @@
       "notes": [
         "Only tier two is bound. Bleed base damage, cadence and stacking at tiers three/four require verification."
       ]
+    },
+    "DA_18_Battlemage": {
+      "tiers": {
+        "1": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "armor",
+                  "value": {
+                    "$field": "Resists",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "per_context": "enemies_targeting"
+                },
+                {
+                  "stat": "mr",
+                  "value": {
+                    "$field": "Resists",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "per_context": "enemies_targeting"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "notes": [
+        "Count living enemies retaining this unit as target; updates on retarget and death. Source: sealed catalog tooltip."
+      ]
+    },
+    "DA_18_Slayer": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "omnivamp",
+                  "value": {
+                    "$field": "Omnivamp",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "{a9a813e7}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "{a9a813e7}",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_hp_below": {
+                      "$field": "{bef0ca90}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "omnivamp",
+                  "value": {
+                    "$field": "Omnivamp",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "{a9a813e7}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "{a9a813e7}",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_hp_below": {
+                      "$field": "{bef0ca90}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "6": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "omnivamp",
+                  "value": {
+                    "$field": "Omnivamp",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "{a9a813e7}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "{a9a813e7}",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_hp_below": {
+                      "$field": "{bef0ca90}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "notes": [
+        "Bonus damage doubles strictly below target health threshold, evaluated separately for each damage recipient. Source: sealed catalog tooltip."
+      ]
+    },
+    "DA_18_Invoker": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "TeamManaRegen",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "{de27cb95}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          },
+          "numeric_overrides": [
+            {
+              "field": "{de27cb95}",
+              "expected": 2.0,
+              "value": 3,
+              "patch": "18.3",
+              "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+              "source_section": "LARGE CHANGES / TRAITS"
+            }
+          ]
+        },
+        "3": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "TeamManaRegen",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "{de27cb95}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          },
+          "numeric_overrides": [
+            {
+              "field": "{de27cb95}",
+              "expected": 3.0,
+              "value": 4,
+              "patch": "18.3",
+              "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+              "source_section": "LARGE CHANGES / TRAITS"
+            }
+          ]
+        },
+        "4": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "TeamManaRegen",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "{de27cb95}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          },
+          "numeric_overrides": [
+            {
+              "field": "{de27cb95}",
+              "expected": 5.0,
+              "value": 6,
+              "patch": "18.3",
+              "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+              "source_section": "LARGE CHANGES / TRAITS"
+            }
+          ]
+        },
+        "5": {
+          "template": {
+            "members_replace_team": true,
+            "team": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "TeamManaRegen",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            },
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "mana_per_second",
+                  "value": {
+                    "$field": "{de27cb95}",
+                    "scale": 1
+                  },
+                  "mode": "flat"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "notes": [
+        "Members replace the team mana bonus. Official 18.3 explicitly supplies totals 3/4/6/8; stale catalog values 2/3/5/8 are overridden with provenance."
+      ]
+    },
+    "DA_18_Hunter": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ad",
+                  "value": {
+                    "$field": "{641254b6}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "DamageAmp",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_held_seconds_at_least": {
+                      "$field": "{83011ee7}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "3": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ad",
+                  "value": {
+                    "$field": "{641254b6}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "DamageAmp",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_held_seconds_at_least": {
+                      "$field": "{83011ee7}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "4": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ad",
+                  "value": {
+                    "$field": "{641254b6}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "DamageAmp",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_held_seconds_at_least": {
+                      "$field": "{83011ee7}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "numeric_overrides": [
+            {
+              "field": "{641254b6}",
+              "expected": 0.44999998807907104,
+              "value": 0.4,
+              "patch": "18.3",
+              "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+              "source_section": "LARGE CHANGES / TRAITS"
+            }
+          ]
+        },
+        "5": {
+          "template": {
+            "members": {
+              "modifiers": [
+                {
+                  "stat": "ad",
+                  "value": {
+                    "$field": "{641254b6}",
+                    "scale": 1
+                  },
+                  "mode": "base_pct"
+                },
+                {
+                  "stat": "damage_amp",
+                  "value": {
+                    "$field": "DamageAmp",
+                    "scale": 1
+                  },
+                  "mode": "flat",
+                  "when": {
+                    "target_held_seconds_at_least": {
+                      "$field": "{83011ee7}",
+                      "scale": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "numeric_overrides": [
+            {
+              "field": "{641254b6}",
+              "expected": 0.6499999761581421,
+              "value": 0.6,
+              "patch": "18.3",
+              "source_url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/",
+              "source_section": "LARGE CHANGES / TRAITS"
+            }
+          ]
+        }
+      },
+      "notes": [
+        "AD and damage amplification supplied by 18.3. Target timer resets on target identity change; crowd control retains target memory. Initial acquisition priority remains a lab assumption."
+      ]
+    },
+    "DA_18_Inferno": {
+      "tiers": {
+        "2": {
+          "template": {
+            "members": {
+              "hooks": [
+                {
+                  "event": "damage_dealt",
+                  "damage_tags": [
+                    "attack",
+                    "spell"
+                  ],
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "target": {
+                        "kind": "target"
+                      },
+                      "stat": "wound",
+                      "mode": "flat",
+                      "amount": [
+                        {
+                          "coefficient": {
+                            "$field": "WoundPercent",
+                            "scale": 0.01
+                          }
+                        }
+                      ],
+                      "duration": {
+                        "$field": "Duration",
+                        "scale": 1
+                      },
+                      "group": "wound",
+                      "strongest": true
+                    },
+                    {
+                      "op": "over_time",
+                      "key": "inferno-burn",
+                      "target": {
+                        "kind": "target"
+                      },
+                      "duration": {
+                        "$field": "Duration",
+                        "scale": 1
+                      },
+                      "ticks": 3,
+                      "scaling_time": "dynamic",
+                      "stacking": "refresh_strongest",
+                      "group": "inferno-burn",
+                      "effects": [
+                        {
+                          "op": "damage",
+                          "target": {
+                            "kind": "target"
+                          },
+                          "damage_type": "true",
+                          "amount": [
+                            {
+                              "coefficient": {
+                                "$field": "{2c202877}",
+                                "scale": 0.01
+                              },
+                              "stat": "hp",
+                              "owner": "target"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "notes": [
+        "Only tier 2 is executable. Tiers 3/5/7 also change shops and remain blocked. Burn from the trait shares a group across members, distinct from item burns. One-second ticks and dynamic max-health sampling require replay calibration. Proc-chain attribution remains restricted to attacks/spells."
+      ]
     }
   },
   "patch": "18.3"

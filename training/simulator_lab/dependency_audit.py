@@ -82,6 +82,8 @@ def audit(memory, probes, content):
             if not content.get(k)
         ],
         implemented_augment_count=len(content.get("augments", {})),
+        planning_status=content.get("planning_provenance", {}).get("status", "not_bound"),
+        unresolved_planning_dependencies=content.get("planning_requirements", []),
         combat_coverage={
             k: coverage[k] for k in ("abilities", "champions", "traits", "items")
         },

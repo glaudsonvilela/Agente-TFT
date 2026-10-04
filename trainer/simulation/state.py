@@ -8,7 +8,6 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 import random
-import math
 
 
 class UnsupportedRule(ValueError):
@@ -63,6 +62,8 @@ class World:
     # Offline lifecycle only; this does not encode the seasonal round schedule.
     round_phase: str = 'planning'
     round_number: int = 0
+    rules_scope: str = 'complete_rules'
+    pool_totals: dict[str, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,13 @@ class Action:
 
 
 def validate_world(world: World, content: dict):
+    from .economy import validate_economy, validate_pool
+
+    validate_economy(content)
+    if world.rules_scope not in ('complete_rules', 'ordinary_shop_probe'):
+        raise UnsupportedRule('unknown planning scope')
+    if content.get('planning_requirements') and world.rules_scope != 'ordinary_shop_probe':
+        raise UnsupportedRule('seasonal planning dependencies incomplete: ' + ', '.join(content['planning_requirements']))
     if world.round_phase not in ('planning', 'between_rounds') or type(world.round_number) is not int or world.round_number < 0:
         raise IllegalAction('invalid round lifecycle')
     if not 1 <= len(world.players) <= 8:
@@ -122,6 +130,7 @@ def validate_world(world: World, content: dict):
         raise UnsupportedRule('unknown pool champion')
     if any(type(n) is not int or n < 0 for n in world.pool.values()):
         raise IllegalAction('negative pool')
+    validate_pool(world, content)
 
 
 def _bench(p):
@@ -137,12 +146,19 @@ def _find(p, uid):
 
 
 def _pay(p, amount):
+    if type(amount) is not int or amount < 0:
+        raise UnsupportedRule('invalid payment amount')
     if p.gold < amount:
         raise IllegalAction('insufficient gold')
     p.gold -= amount
 
 
-def _merge(p, champion):
+def _merge(p, champion, content):
+    from .economy import pool_identity
+
+    identity = pool_identity(champion, content)
+    if any(u.champion != champion and pool_identity(u.champion, content) == identity for u in p.units):
+        raise UnsupportedRule('cross-form merge selection not implemented')
     for star in (1, 2):
         candidates = sorted((u for u in p.units if u.champion == champion and u.stars == star),
                             key=lambda u: (u.zone != 'board', u.position, u.uid))
@@ -159,16 +175,14 @@ def _merge(p, champion):
 
 
 def _reroll(world, p, content, rng):
+    from .economy import return_copies, shop_weights
+
+    weights = shop_weights(content, p.level)
     for offer in p.shop:
         if offer is not None:
             if offer.kind != 'champion':
                 raise UnsupportedRule('seasonal shop refresh not implemented for this offer')
-            world.pool[offer.entity] = world.pool.get(offer.entity, 0) + 1
-    weights = content['economy']['shop_odds'].get(str(p.level))
-    if (not isinstance(weights, (list, tuple)) or len(weights) != 5
-            or any(type(w) not in (int, float) or not math.isfinite(w) or not 0 <= w <= 1 for w in weights)
-            or abs(sum(weights) - 1) > 1e-6):
-        raise UnsupportedRule('verified shop odds unavailable for level')
+            return_copies(world.pool, offer.entity, 1, content)
     p.shop = []
     for _ in range(5):
         available = {cost: [c for c, n in world.pool.items() if n > 0 and
@@ -206,6 +220,8 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
         if offer is None: raise IllegalAction('empty shop slot')
         if offer.kind != 'champion': raise UnsupportedRule('shop consumable needs explicit handler')
         if offer.entity not in content['champions']: raise UnsupportedRule('unknown champion')
+        if content['champions'][offer.entity].get('purchase_blocker'):
+            raise UnsupportedRule(content['champions'][offer.entity]['purchase_blocker'])
         _pay(p, offer.cost)
         empty = _bench(p)
         if empty is None:
@@ -217,7 +233,7 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
         while f'unit-{result.next_uid}' in occupied_ids: result.next_uid += 1
         p.units.append(Unit(f'unit-{result.next_uid}', offer.entity, position=(empty,)))
         result.next_uid += 1; p.shop[args[0]] = None
-        _merge(p, offer.entity)
+        _merge(p, offer.entity, content)
     elif kind == 'sell':
         if len(args) != 1: raise IllegalAction('sell needs unit')
         u = _find(p, args[0])
@@ -225,8 +241,11 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
             raise UnsupportedRule('item overflow on sale requires drop handling')
         price = content['champions'][u.champion].get('sale_prices', {}).get(str(u.stars))
         if price is None: raise UnsupportedRule('sale value unavailable at star level')
+        if type(price) is not int or price < 0: raise UnsupportedRule('invalid sale price')
         p.gold += price; p.inventory.extend(u.items); p.units.remove(u)
-        result.pool[u.champion] = result.pool.get(u.champion, 0) + 3 ** (u.stars - 1)
+        from .economy import return_copies
+        if u.stars > 3: raise UnsupportedRule('four-star sale provenance not implemented')
+        return_copies(result.pool, u.champion, 3 ** (u.stars - 1), content)
     elif kind == 'move':
         if len(args) != 3: raise IllegalAction('move needs unit, zone, position')
         u = _find(p, args[0]); zone, pos = args[1], tuple(args[2])
@@ -265,9 +284,8 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
         if args: raise IllegalAction('xp takes no arguments')
         e = content['economy']
         if str(p.level) not in e['xp_to_next']: raise IllegalAction('level cap or unknown XP curve')
-        _pay(p, e['xp_cost']); p.xp += e['xp_amount']
-        while str(p.level) in e['xp_to_next'] and p.xp >= e['xp_to_next'][str(p.level)]:
-            p.xp -= e['xp_to_next'][str(p.level)]; p.level += 1
+        from .economy import grant_xp
+        _pay(p, e['xp_cost']); grant_xp(p, e['xp_amount'], content)
     elif kind == 'reroll':
         if args: raise IllegalAction('reroll takes no arguments')
         _pay(p, content['economy']['reroll_cost']); _reroll(result, p, content, rng)
@@ -279,6 +297,9 @@ def apply(world: World, seat: int, action: Action, content: dict) -> World:
 
 
 def legal_actions(world, seat, content, *, positions=False):
+    # Global missing rules must not become an empty action list that a search
+    # could mistake for a legitimate "hold" recommendation.
+    apply(world, seat, Action('hold'), content)
     p = world.players[seat]
     proposals = [Action('hold'), Action('xp'), Action('reroll'), Action('lock', (not p.shop_locked,))]
     proposals += [Action('buy', (i,)) for i in range(5)]

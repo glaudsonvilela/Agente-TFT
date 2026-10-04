@@ -1,6 +1,51 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
-## Resultado
+## Implementação posterior à validação
+
+As correções abaixo acrescentam regras executáveis ao simulador. Os valores, IDs e fontes ficam no pacote `configs/simulation/seasons/TFTSet18/18.3/`; os algoritmos genéricos ficam em `trainer/simulation/`.
+
+### Combate
+
+| Regra acrescentada | Comportamento testado |
+|---|---|
+| Monólito | Armadura/RM por inimigo vivo mirando na unidade; muda ao trocar de alvo ou morrer. Fórmulas de habilidades também consultam esses atributos dinâmicos. |
+| Caçador | Cronômetro do alvo preservado durante atordoamento; reiniciado na troca de alvo. Amplificação só após o prazo. AD dos níveis 4/5 corrigido pelas notas 18.3. |
+| Devastador | Vampirismo e dano adicional; verifica a vida de cada destinatário antes do impacto, com bônus dobrado estritamente abaixo de 50%. |
+| Emanador | Regeneração de mana por nível; o bônus dos membros substitui o da equipe. Totais 3/4/6/8 extraídos das notas oficiais corrigem 2/3/5/8 do catálogo. |
+| Inferno 2 | Ferimento e queimadura por segundo; renova a duração sem empilhar entre membros, mas permite outro grupo de queimadura. |
+
+Cobertura candidata de características: **8 → 12 completas no pacote**, e **23 → 36 níveis executáveis de 91**. Executioner e Inferno continuam parciais. “Candidata” significa implementação com testes, não validação contra replay. Inferno 3/5/7 continua bloqueado porque modifica a loja; não foi reduzido artificialmente ao efeito de combate de Inferno 2. Cadência e atribuição de queimaduras ainda exigem calibração de replay.
+
+### Loja e progressão
+
+- O compilador agora entrega chances da loja dos níveis 1–10, custos de XP/rolagem, curva de XP e quantidades do pool. Os dados permitem testar a loja comum com campeões reais, incluindo compra e venda de unidades de uma estrela.
+- `new_planning_probe()` constrói um estado explicitamente limitado à loja comum. Contabiliza peças possuídas, equivalentes das estrelas e ofertas reservadas de todos os jogadores antes de permitir ações.
+- Formas compartilham uma identidade de estoque. A associação candidata das variantes de Lux evita criar dez estoques independentes; sua distribuição/seleção e fusão entre formas ainda não estão implementadas. Comprar Lux sem selecionar a forma é recusado.
+- Compra, fusão, venda, nova loja e eliminação preservam o total de cópias. Um registro de totais detecta criação ou perda indevida de peças. Unidades de quatro estrelas exigem proveniência específica e não devolvem automaticamente 27 cópias.
+- XP comprado e natural usam a mesma função, com validação de custos e limiares antes da alteração. Curvas inválidas não podem conceder ouro nem entrar em um ciclo infinito.
+- A curva candidata usa **56 XP de 7 para 8**, conforme a fonte primária, e 68 para os níveis seguintes após o hotfix. A tabela secundária de 60 permanece registrada como divergência; a calibração visual atual continua pendente. [Notas oficiais 18.2](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/).
+- Dependências globais ausentes são propagadas ao planejador; não viram uma lista vazia que possa ser confundida com uma recomendação válida de “manter”. A saída da busca identifica o escopo limitado e as dependências pendentes.
+
+### Resultado e limites atuais
+
+Os [testes e hashes desta implementação](evidence/dependency-fixes-20261004/validation.json) e a [nova auditoria compilada](evidence/dependency-fixes-20261004/compiled-audit.json) substituem os números de implementação abaixo; o relatório anterior fica preservado como histórico.
+
+**As 12 composições completas ainda estão bloqueadas.** O núcleo Ravager agora ultrapassa suas características e para na habilidade de Akali; o núcleo Sivir ultrapassa Monólito e para em Blackthorn. Continuam faltando habilidades, integração de funções de mana, Wisps, lojas especiais, persistência sazonal, calendário/loot e aprimoramentos. Somente uma estrela tem preço de venda vinculado; capacidade do inventário ainda é hipótese de laboratório. O pacote continua em 18.3, com memória estratégica de 18.3B.
+
+O estado de teste da loja comum não pode avançar pelo ciclo de partida completa. Nenhum treino novo de candidato ou promoção ao HUD foi realizado. Checkpoints anteriores têm identidade de motor diferente e precisam de novo treino/avaliação; não são reclassificados como válidos para estas regras.
+
+Reprodução:
+
+```bash
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m unittest training.tests.test_dependency_implementations
+
+PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
+  -m training.simulator_lab.dependency_audit \
+  --output docs/evidence/dependency-fixes-20261004/compiled-audit.json
+```
+
+## Histórico — validação anterior (`fcca246`)
 
 **A base corrigida passou nos testes. As 12 estratégias ainda não passaram na validação de dependências do patch.**
 

@@ -45,7 +45,7 @@
     },
     "traits": {
       "path": "traits.json",
-      "sha256": "272c3117586c0ee343be7379893786946fff1b5803f01a70c428d02e540ca3c2"
+      "sha256": "20dad1bd61ea642dbaef9890530d2b3e0109583556a4fa7b795e43c98cdb35e3"
     },
     "champions": {
       "path": "champions.json",
@@ -53,7 +53,7 @@
     },
     "profile": {
       "path": "profile.json",
-      "sha256": "88d714229bf4437d3f636702fdde6b7ef816eea8e039e70348dd0d018a8c2314"
+      "sha256": "c48741a8c645c228d58ff779886eb82475f3e146925cef1b5981312408c4d468"
     }
   },
   "ability_scope": {

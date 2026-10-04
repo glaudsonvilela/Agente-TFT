@@ -13,6 +13,9 @@ HEALTH_CONDITIONS = {
     "hp_at_least": operator.ge,
     "hp_at_most": operator.le,
 }
+TARGET_HEALTH_CONDITIONS = {
+    "target_" + key: value for key, value in HEALTH_CONDITIONS.items()
+}
 
 
 def matches_condition(condition, context):
@@ -25,6 +28,14 @@ def matches_condition(condition, context):
             if "health_fraction" not in context or not HEALTH_CONDITIONS[key](
                 context["health_fraction"], value
             ):
+                return False
+        elif key in TARGET_HEALTH_CONDITIONS:
+            if "target_health_fraction" not in context or not TARGET_HEALTH_CONDITIONS[
+                key
+            ](context["target_health_fraction"], value):
+                return False
+        elif key == "target_held_seconds_at_least":
+            if context.get("target_held_seconds", -1) < value:
                 return False
         elif context.get(key) != value:
             return False
@@ -52,6 +63,7 @@ class Modifier:
     group: str | None = None
     strongest: bool = False
     when: dict | None = None
+    per_context: str | None = None
 
 
 class Stats:
@@ -72,6 +84,7 @@ class Stats:
         group=None,
         strongest=False,
         when=None,
+        per_context=None,
     ):
         if stat not in self.base or mode not in (
             "flat",
@@ -88,7 +101,12 @@ class Stats:
             if (
                 not isinstance(when, dict)
                 or not when
-                or set(when) - ({"shielded"} | set(HEALTH_CONDITIONS))
+                or set(when)
+                - (
+                    {"shielded", "target_held_seconds_at_least"}
+                    | set(HEALTH_CONDITIONS)
+                    | set(TARGET_HEALTH_CONDITIONS)
+                )
             ):
                 raise UnsupportedRule("unknown modifier condition")
             for name, threshold in when.items():
@@ -98,15 +116,32 @@ class Stats:
                 elif (
                     type(threshold) not in (int, float)
                     or not math.isfinite(threshold)
-                    or not 0 <= threshold <= 1
+                    or threshold < 0
+                    or (name != "target_held_seconds_at_least" and threshold > 1)
                 ):
                     raise UnsupportedRule("health threshold must be a finite fraction")
             if stat in ("hp", "mana", "initial_mana", "mana_per_second"):
                 raise UnsupportedRule(
                     "conditional resource integration not implemented"
                 )
+        if per_context is not None and (
+            per_context != "enemies_targeting"
+            or stat not in ("armor", "mr")
+            or mode != "flat"
+        ):
+            raise UnsupportedRule("unsupported contextual stat multiplier")
         self.modifiers.append(
-            Modifier(key, stat, mode, float(value), expires, group, strongest, when)
+            Modifier(
+                key,
+                stat,
+                mode,
+                float(value),
+                expires,
+                group,
+                strongest,
+                when,
+                per_context,
+            )
         )
 
     def get(self, stat, now=0, context=None):
@@ -129,7 +164,16 @@ class Stats:
             if key not in groups or abs(m.value) > abs(groups[key].value):
                 groups[key] = m
         selected.extend(groups.values())
-        flat = sum(m.value for m in selected if m.mode == "flat")
+
+        def value(m):
+            if m.per_context is None:
+                return m.value
+            scale = (context or {}).get(m.per_context, 0)
+            if type(scale) is not int or scale < 0:
+                raise UnsupportedRule("invalid contextual stat count")
+            return m.value * scale
+
+        flat = sum(value(m) for m in selected if m.mode == "flat")
         base_pct = sum(m.value for m in selected if m.mode == "base_pct")
         bonus_pct = sum(m.value for m in selected if m.mode == "bonus_pct")
         multiplier = math.prod(m.value for m in selected if m.mode == "multiplier")
@@ -142,7 +186,7 @@ class Stats:
         self.modifiers[:] = [m for m in self.modifiers if m.key != key]
 
 
-def formula(spec, source, target, now, context=None):
+def formula(spec, source, target, now, context=None, stat_getter=None):
     """Sum explicit terms; never eval source text or infer AD/AP from HTML labels."""
     if not isinstance(spec, list):
         raise UnsupportedRule("formula must be a list of terms")
@@ -183,7 +227,11 @@ def formula(spec, source, target, now, context=None):
                 value = (
                     unit.values.base[stat]
                     if term.get("base", False)
-                    else unit.values.get(stat, now, actor_context(unit, now))
+                    else (
+                        stat_getter(unit, stat)
+                        if stat_getter is not None
+                        else unit.values.get(stat, now, actor_context(unit, now))
+                    )
                 )
         total += coefficient * value
     return total

@@ -9,19 +9,40 @@ import random
 
 from .combat import simulate
 from .state import Action, World, Player, IllegalAction, UnsupportedRule, apply, validate_world, _reroll
+from .economy import grant_xp, pool_identity, return_copies, positive_integer
+
+
+def match_rules(content, *, initializing=False):
+    rules = content.get('match_rules')
+    if not isinstance(rules, dict) or content.get('planning_requirements'):
+        raise UnsupportedRule('complete match progression dependencies unavailable')
+    positive_integer(rules.get('interest_step'), 'interest_step')
+    for field in ('base_income', 'interest_cap', 'natural_xp', 'loss_damage', 'tie_damage'):
+        positive_integer(rules.get(field), field, zero=True)
+    if initializing:
+        for field in ('starting_level', 'starting_hp', 'pool_per_champion'):
+            positive_integer(rules.get(field), field)
+        positive_integer(rules.get('starting_gold'), 'starting_gold', zero=True)
+    if tuple(rules.get(k) for k in ('pairing', 'loot', 'streaks')) != ('seeded_shuffle_with_bye', 'none', 'none'):
+        raise UnsupportedRule('seasonal round policies not implemented')
+    return rules
 
 
 def new_match(content, seed):
-    rules=content['match_rules']
+    rules=match_rules(content, initializing=True)
     if content.get('scope') != 'experimental_hex_lab': raise UnsupportedRule('experimental match only')
-    if (rules['pairing'],rules['loot'],rules['streaks']) != ('seeded_shuffle_with_bye','none','none'):
-        raise UnsupportedRule('seasonal round policies not implemented')
-    return World([Player(rules['starting_gold'],rules['starting_level'],0,hp=rules['starting_hp'])
-                  for _ in range(8)], {c:rules['pool_per_champion'] for c in content['champions']},seed=seed,
-                  round_phase='between_rounds')
+    pool = {pool_identity(c, content): rules['pool_per_champion'] for c in content['champions']}
+    world = World([Player(rules['starting_gold'],rules['starting_level'],0,hp=rules['starting_hp'])
+                  for _ in range(8)], pool, seed=seed,
+                  round_phase='between_rounds', pool_totals=dict(pool))
+    validate_world(world, content)
+    return world
 
 
 def begin_round(world, content):
+    match_rules(content)
+    if world.rules_scope != 'complete_rules':
+        raise UnsupportedRule('planning probe cannot advance a full match')
     validate_world(world, content)
     if world.round_phase != 'between_rounds':
         raise IllegalAction('round already started')
@@ -38,12 +59,15 @@ def begin_round(world, content):
 
 def resolve_round(world, content, seed):
     """All fights see the same round-start boards; settlement follows combat."""
+    rules = match_rules(content)
+    if world.rules_scope != 'complete_rules':
+        raise UnsupportedRule('planning probe cannot settle a full match')
     validate_world(world, content)
     if world.round_phase != 'planning':
         raise IllegalAction('round has already settled or has not started')
     if any(p.phase != 'planning' for p in world.players if p.hp > 0):
         raise IllegalAction('round players are not in planning')
-    state=deepcopy(world); rng=random.Random(seed); rules=content['match_rules']
+    state=deepcopy(world); rng=random.Random(seed)
     active=[i for i,p in enumerate(state.players) if p.hp>0]; rng.shuffle(active)
     fights=[]
     for a,b in zip(active[::2],active[1::2]):
@@ -63,19 +87,18 @@ def resolve_round(world, content, seed):
         p=state.players[i]
         if p.hp<=0:
             eliminated.append(i)
-            for u in p.units: state.pool[u.champion]+=3**(u.stars-1)
+            for u in p.units:
+                if u.stars > 3: raise UnsupportedRule('four-star elimination provenance not implemented')
+                return_copies(state.pool, u.champion, 3**(u.stars-1), content)
             for offer in p.shop:
                 if offer is not None:
                     if offer.kind!='champion': raise UnsupportedRule('eliminated seasonal offer')
-                    state.pool[offer.entity]+=1
+                    return_copies(state.pool, offer.entity, 1, content)
             p.units=[];p.shop=[None]*5;p.phase='eliminated'
         else:
             p.phase='between_rounds'
             p.gold+=rules['base_income']+min(rules['interest_cap'],p.gold//rules['interest_step'])
-            p.xp+=rules['natural_xp']
-            curve=content['economy']['xp_to_next']
-            while str(p.level) in curve and p.xp>=curve[str(p.level)]:
-                p.xp-=curve[str(p.level)];p.level+=1
+            grant_xp(p, rules['natural_xp'], content)
     state.round_phase='between_rounds'
     validate_world(state,content)
     return state,dict(round_number=state.round_number,fights=fights,eliminated=eliminated,bye=active[-1] if len(active)%2 else None)

@@ -1,0 +1,97 @@
+{
+  "kind": "dependency_implementation_result",
+  "date": "2026-10-04",
+  "base_commit": "fcca246d38a0dc44db4cd1ef31271b040daad11e",
+  "training_suite": {
+    "tests": 564,
+    "passed": 552,
+    "skipped": 12,
+    "status": "OK",
+    "seconds": 27.454,
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python -m unittest discover -s training/tests -v",
+    "log_sha256": "5a1f10108adbdb5c0d4fec42b60c9fa3f2da99fa013750c59949107d21f0ac51"
+  },
+  "new_behavior_tests": 14,
+  "engine": {
+    "files": {
+      "trainer/simulation/__init__.py": "c0e696593ae28d3dea620f33d007a7f33a90de49a36065087012e80f88d96daa",
+      "trainer/simulation/combat.py": "d3d788ec7bba4c4a22a00cb38d6f25ae4cf0a0491a6603989de1640902013d15",
+      "trainer/simulation/economy.py": "eddf2c5f019e20ace67493ec8504b8d71dd24a1fb4c7f24980dfcafaa9e7735d",
+      "trainer/simulation/event_combat.py": "ab23096c9fe837321a077c23a4c41c2baea345421e4d102cad6f7dea03694f5d",
+      "trainer/simulation/hexgrid.py": "f84d162140fbd5bdbb8a104279eb7b8ce70fdb876604557f10ba3d92e1f74c85",
+      "trainer/simulation/match.py": "d074452fae9f2939de002fd44ab302b0db5970b589d93c4f21fa1b2c34b54e9c",
+      "trainer/simulation/modifiers.py": "d401657f8437b1efd520bb951a39723d27e5cb226b0478325367c244fcc02674",
+      "trainer/simulation/rollout_stats.py": "83d841f4c22cbe1b34b14177d4dd714d4097bcf004494f9c17f9939aff714372",
+      "trainer/simulation/search.py": "e7b280120546c3ba5d734b30cdce480e2b1105b7b71d0d58c1ed280e259bbd3c",
+      "trainer/simulation/state.py": "2715f38bc9d7e3092112aa8fa2937f484c15c55f41297d54193dfdac999d0343",
+      "trainer/simulation/traits.py": "2952cf5e4d5fdd8eb310d32f2578ee1fa8b320e6d05eeeebe9af1afc7eecd1ed",
+      "trainer/simulation/value_model.py": "f6f442f7f62deaf36a4c98792e832d4341685fbd288f20847965f6ed668403de",
+      "training/event_lab.py": "5d45f82ce3acb10c5d2e711fc8d470503663d907cda73a44bdd1e778f48ea127"
+    },
+    "sha256": "f0997acf994c013440e93e88dd2ddc694d7dfa7c53641385bb3926ae7dfe3a0e"
+  },
+  "files_sha256": {
+    "trainer/simulation/economy.py": "eddf2c5f019e20ace67493ec8504b8d71dd24a1fb4c7f24980dfcafaa9e7735d",
+    "trainer/simulation/event_combat.py": "ab23096c9fe837321a077c23a4c41c2baea345421e4d102cad6f7dea03694f5d",
+    "trainer/simulation/match.py": "d074452fae9f2939de002fd44ab302b0db5970b589d93c4f21fa1b2c34b54e9c",
+    "trainer/simulation/modifiers.py": "d401657f8437b1efd520bb951a39723d27e5cb226b0478325367c244fcc02674",
+    "trainer/simulation/state.py": "2715f38bc9d7e3092112aa8fa2937f484c15c55f41297d54193dfdac999d0343",
+    "trainer/simulation/search.py": "e7b280120546c3ba5d734b30cdce480e2b1105b7b71d0d58c1ed280e259bbd3c",
+    "training/compile_effects.py": "e5c7525737c5d421d2273cfa9707838973310b0e5bd63ff1c466b23adab1b505",
+    "training/tests/test_dependency_implementations.py": "8390fe150cf28219c0dcf42d81d7209ffc3e213afdeadad6ae566385b832c828",
+    "configs/simulation/seasons/TFTSet18/18.3/manifest.json": "877f55a7cf869c7eb2aa2d9d6384984157097246570384d069f5d09fcb983159",
+    "configs/simulation/seasons/TFTSet18/18.3/traits.json": "20dad1bd61ea642dbaef9890530d2b3e0109583556a4fa7b795e43c98cdb35e3",
+    "configs/simulation/seasons/TFTSet18/18.3/profile.json": "c48741a8c645c228d58ff779886eb82475f3e146925cef1b5981312408c4d468"
+  },
+  "coverage_change": {
+    "complete_candidate_traits": [
+      8,
+      12
+    ],
+    "executable_trait_tiers": [
+      23,
+      36
+    ],
+    "replay_validated": 0
+  },
+  "implemented": [
+    "monolith_dynamic_targeter_resists",
+    "hunter_target_duration_condition",
+    "ravager_target_health_damage_condition",
+    "invoker_member_team_mana_totals",
+    "inferno_tier2_burn_and_wound",
+    "versioned_ordinary_shop_and_xp_bindings",
+    "canonical_pool_copy_ledger_buy_merge_sell_refresh_elimination",
+    "shared_purchased_and_natural_xp_progression",
+    "global_unsupported_planning_dependency_propagation_to_search"
+  ],
+  "economy_scope": "ordinary_shop_probe_only",
+  "strategy_cores_tested": 12,
+  "strategy_cores_accepted": 0,
+  "remaining_planning_dependencies": [
+    "wisp_offerings_and_purchase",
+    "seasonal_shop_replacement_and_priority",
+    "cross_form_selection_and_merge",
+    "seasonal_calendar_and_loot"
+  ],
+  "absent_content_sections": [
+    "match_rules",
+    "wisps",
+    "persistent_rules"
+  ],
+  "executable_patch": "18.3",
+  "knowledge_patch": "18.3B-20260928",
+  "exact_patch_match": false,
+  "candidate_or_production_weights_updated": false,
+  "full_current_patch_matches_run": 0,
+  "current_patch_training_ready": false,
+  "runtime_promoted": false,
+  "installer_built": false,
+  "limitations": [
+    "Unit tests validate engine contracts and formulas, not full TFT replay parity.",
+    "Lux pool grouping remains a candidate; form selection and merging stay explicitly unsupported.",
+    "Ordinary shop probe deliberately excludes seasonal offerings and cannot enter the full-match loop.",
+    "Only one-star sale values are bound; inventory capacity remains a lab assumption.",
+    "Existing checkpoints have a different engine identity and require retraining/evaluation."
+  ]
+}

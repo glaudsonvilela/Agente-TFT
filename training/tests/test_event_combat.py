@@ -182,7 +182,8 @@ class Effects(unittest.TestCase):
         c['champions']['fixture']['hooks']=[dict(event='kill',effects=[
             dict(op='permanent_stat',target={'kind':'self'},stat='ap',amount=amount(2)),
             dict(op='resource',target={'kind':'self'},resource='gold',amount=amount(1))])]
-        c['match_rules']=dict(tie_damage=0,loss_damage=0,base_income=0,interest_cap=0,interest_step=10,natural_xp=0)
+        c['match_rules']=dict(tie_damage=0,loss_damage=0,base_income=0,interest_cap=0,interest_step=10,natural_xp=0,
+                              pairing='seeded_shuffle_with_bye',loot='none',streaks='none')
         world=World(players(),{'fixture':10});before=deepcopy(world)
         after,_=resolve_round(world,c,seed=7)
         self.assertEqual(world,before)
