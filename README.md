@@ -6,25 +6,27 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-**Agente de inteligência artificial para análise estratégica de Teamfight Tactics em tempo real, replay e laboratório.**
+**Agente de inteligência artificial para Teamfight Tactics com captura em tempo real, percepção visual, matemática estratégica, simulação e assistência por voz.**
 
-> **Captura confiável → percepção → estado → matemática → oportunidades → decisão → explicação.**
+> **Captura → percepção → estado → matemática → oportunidades → decisão → explicação/voz.**
 
-O **Agente TFT** é um software de engenharia e IA criado para observar uma partida de Teamfight Tactics, reconstruir o estado relevante do jogo e transformar esse estado em recomendações estratégicas curtas, rastreáveis e sustentadas por cálculo.
+O **Agente TFT** é um software de engenharia e IA criado para observar uma partida de TFT, reconstruir o estado relevante do jogo e transformar esse estado em recomendações estratégicas curtas, rastreáveis e sustentadas por cálculo.
 
-O projeto combina **captura de vídeo**, **visão computacional**, **OCR**, **modelos ONNX**, **memória temporal**, **matemática determinística em Rust**, **scouting**, **Opportunity Engine**, **Decision Core** e uma camada de IA responsável por orquestrar e explicar a decisão.
+O projeto combina **captura de vídeo**, **OCR**, **visão computacional**, **modelos ONNX**, **memória temporal**, **matemática determinística em Rust**, **scouting**, **Opportunity Engine**, **Decision Core**, **simulação de combate/laboratório**, **conhecimento sazonal por patch**, serviços remotos de apoio e uma camada de IA responsável por organizar e explicar decisões.
 
 Ele não foi concebido como um chatbot genérico de TFT. A proposta é construir um **motor de decisão que consegue conversar**: primeiro observa e calcula; depois explica.
 
 ---
 
-## Arquitetura atual — Windows + núcleo Linux isolado
+## Arquitetura atual
 
-A arquitetura evoluiu para separar a experiência visual do processamento pesado.
+A arquitetura atual separa três planos:
 
-O **Windows** continua responsável pela captura e pela interface. O núcleo de análise roda em uma **VM Linux leve via WSL 2**, sem desktop, conectada ao host por um protocolo local autenticado.
+1. **Windows Host** — captura, preview, interface e supervisão;
+2. **AgenteTFT-Core em Linux/WSL 2** — percepção e processamento pesado local;
+3. **BigBANANA** — serviços remotos opcionais para voz, laboratório, treino e avaliação.
 
-A fonte de vídeo pode vir da partida/replay no host e, no perfil de captura externo, de uma **placa de captura**. O frame entra no capturador nativo do Windows; a prévia segue diretamente para a UI e apenas os dados necessários à análise atravessam para o núcleo Linux.
+A fonte pode ser uma partida/replay exibida no Windows ou uma **placa de captura**. O vídeo permanece no host; apenas ROIs, entradas reduzidas e dados necessários à análise seguem para o núcleo Linux.
 
 ### Infográfico atualizado
 
@@ -32,53 +34,63 @@ A fonte de vídeo pode vir da partida/replay no host e, no perfil de captura ext
 flowchart LR
     A["TFT / Replay / Placa de captura"] --> B["Windows Host"]
 
-    B --> C["Captura nativa Rust<br/>WGC / D3D11 / fonte de vídeo"]
-    C --> D["Preview 720p<br/>latest-only"]
+    B --> C["Captura nativa Rust<br/>WGC / D3D11 / fonte externa"]
+    C --> D["Preview BGRA 720p<br/>latest-only"]
     D --> E["Interface Agente TFT<br/>Windows"]
 
     C --> F["ROIs nativas + frame_id<br/>entrada L3 reduzida"]
-    F -->|"TCP local autenticado"| G["VM Linux WSL 2<br/>AgenteTFT-Core"]
+    F -->|"TCP local autenticado"| G["AgenteTFT-Core<br/>Linux / WSL 2"]
 
     G --> H["L3 / ONNX"]
-    G --> I["OCR residente<br/>ouro · estágio · nível · HP · shop"]
-    G --> J["HUB B4<br/>board · bench · ícones · posições"]
+    G --> I["OCR residente<br/>gold · stage · level · XP · HP · shop"]
+    G --> J["HUB B4<br/>board · bench · itens · posições"]
+    G --> K["Classificador neural<br/>de itens"]
 
-    H --> K["State Fusion"]
-    I --> K
-    J --> K
+    H --> L["State Fusion"]
+    I --> L
+    J --> L
+    K --> L
 
-    L["Patch / Set / Catálogo<br/>Riot + Knowledge Pack"] --> K
-    M["Meta externo<br/>prior limitado"] --> K
+    M["Riot / Data Dragon / CommunityDragon<br/>Patch + Set + Knowledge Release"] --> L
+    N["Memória sazonal<br/>mecânicas + estratégias"] --> L
 
-    K --> N["Event Engine"]
-    N --> O["TFT Math Rust<br/>economia · odds · pool · hit"]
-    N --> P["Scouting<br/>lobby · contestação"]
-    N --> Q["Opportunity Engine<br/>todas as alternativas"]
+    L --> O["Event Engine"]
+    O --> P["TFT Math Rust<br/>economia · odds · pool · hit"]
+    O --> Q["Scouting<br/>lobby · contestação"]
+    O --> R["Opportunity Engine<br/>todas as alternativas"]
 
-    O --> R["Decision Core"]
-    P --> R
-    Q --> R
+    P --> S["Decision Core"]
+    Q --> S
+    R --> S
 
-    R --> S["Shadow / Policy / Simulação"]
-    S --> T["Decision Fusion"]
-    R --> T
+    S --> T["Shadow / Policy / Simulação"]
+    T --> U["Decision Fusion"]
+    S --> U
 
-    T --> U["PydanticAI-slim<br/>orquestração + explicação"]
-    U -->|"evento + confiança + TTL"| E
+    U --> V["PydanticAI-slim<br/>orquestração + explicação"]
+    V --> E
 
-    K --> V["Telemetria / Replay / Auditoria"]
-    R --> V
+    U --> W["Voice Queue<br/>TTL + cancelamento"]
+    W --> X["Voz local Windows<br/>ou API remota"]
+
+    Y["BigBANANA<br/>Trainer / Simulator Lab"] -.-> T
+    Z["BigBANANA<br/>Voice Service + cache"] -.-> X
+
+    L --> AA["Telemetria / Replay / Auditoria"]
+    S --> AA
+    T --> AA
 ```
 
-### Separação de responsabilidades
+### Separação física
 
 ```text
 WINDOWS HOST
-├── captura nativa
+├── captura Rust
 ├── placa/fonte de vídeo
 ├── preview fluida
 ├── interface
-└── supervisor da sessão
+├── voz local
+└── supervisor
           │
           │ TCP local autenticado
           ▼
@@ -87,44 +99,365 @@ LINUX CORE / WSL 2
 ├── OCR residente
 ├── HP
 ├── HUB B4
+├── neural item classifier
 ├── State Fusion
 ├── Opportunity Runtime
-├── Decision Core
-└── emissão de recomendações
+└── Decision Core
+
+BIGBANANA (opcional)
+├── Simulator Lab
+├── training/evaluation
+├── Shadow / counterfactual jobs
+├── painel TFT
+└── Voice Service HTTPS
 ```
 
-A VM não precisa capturar a tela do Windows nem renderizar a interface. Isso mantém o caminho visual separado do caminho analítico e evita enviar vídeo de preview desnecessariamente para o núcleo Linux.
+A falha de um serviço remoto não deve bloquear captura, estado local ou fallback determinístico.
 
 ---
 
-## Finalidade
+## O que já existe no projeto
 
-O agente foi projetado para responder perguntas práticas como:
+| Área | Estado atual |
+|---|---|
+| **Captura Windows** | capturador Rust, WGC/D3D11, fonte por monitor/janela e caminho preparado para captura externa |
+| **Preview** | BGRA nativo, `StretchDIBits`, fila latest-only e telemetria de FPS/idade/render |
+| **Core Linux** | `AgenteTFT-Core` headless em WSL 2 com protocolo TCP local autenticado |
+| **HUD/OCR** | gold, stage, level, XP, HP, shop e controles com leitores residentes e confiança |
+| **L3 / ONNX** | mapeamento visual leve de regiões para percepção |
+| **Board HUB B4** | board, bench, inventário, candidatos de posição e itens |
+| **Itens** | catálogo versionado e classificador neural ONNX integrado ao HUB em modo controlado |
+| **State Fusion** | observações com `frame_id`, timestamp, provenance, confidence e validade |
+| **TFT Math** | economia, juros, odds, pool, hit probability e budgets de roll |
+| **Decision Core** | alternativas, evidence, confidence e fallback determinístico |
+| **Opportunity Engine** | ranking explícito de oportunidades e shortlist para avaliação profunda |
+| **Scouting** | memória temporal de adversários e contestação |
+| **Replay Lab** | ingestão, fixtures, sessões, auditoria, viewers e regressões |
+| **Simulator Lab** | simulação sazonal, hex grid, eventos, combate parcial e rollouts de laboratório |
+| **Knowledge System** | releases por patch/set, catálogo de unidades/itens/traits e provenance |
+| **Strategy Memory** | memória estruturada de mecânicas e linhas estratégicas por patch |
+| **Voz** | fila automática, cancelamento por TTL, voz local e serviço remoto opcional |
+| **BigBANANA** | trainer isolado, painel web/terminal, jobs e serviços auxiliares |
+| **Instalador HM4.5** | instalador Windows com pacote do app, core WSL, hashes e health checks |
+| **Licença** | MIT |
 
-- **Comprar ou ignorar** uma unidade;
-- **Rolar agora**, quanto rolar e quando parar;
-- **Subir de nível** ou preservar economia;
-- calcular **probabilidade de hit**;
-- comparar gasto imediato com juros e economia futura;
-- detectar **contestação** no lobby;
-- sugerir **pivot** ou transição parcial;
-- avaliar board, bench, shop, itens e posicionamento;
-- acompanhar adversários;
-- comparar alternativas antes de recomendar uma ação;
-- explicar a recomendação em poucas linhas.
+---
 
-### Formato de recomendação
+## Captura, preview e HM4.5
+
+A família HM evoluiu de mapper/replay para um runtime híbrido Windows + Linux.
+
+### Caminho da imagem
 
 ```text
-ROLE 18–22G AGORA
-
-Player 2 começou a contestar sua carry.
-Busque X 2★ e pare.
-
-Confiança: 84%
+FRAME NATIVO
+   ├── preview BGRA → UI Windows
+   ├── ROI gold
+   ├── ROI stage
+   ├── ROI level / XP
+   ├── ROI HP
+   ├── ROI shop
+   ├── entrada L3 320×192
+   └── board / bench quando necessário
 ```
 
-Cada recomendação pode carregar internamente:
+A preview e os consumidores analíticos têm cadências independentes. Quando um consumidor fica lento, o sistema substitui trabalho antigo em vez de acumular uma fila infinita.
+
+O runtime também registra:
+
+- FPS recebido e exibido;
+- idade do frame;
+- tempo de render;
+- frames substituídos;
+- latência de OCR;
+- latência do HUB;
+- memória;
+- decisões e voz.
+
+---
+
+## AgenteTFT-Core — Linux/WSL 2
+
+O núcleo Linux é um serviço headless versionado e separado da interface.
+
+Ele reúne:
+
+- runtime Python mínimo;
+- componentes Rust;
+- ONNX Runtime;
+- Tesseract residente;
+- L3;
+- leitores HUD;
+- HP;
+- HUB B4;
+- classificador neural de itens;
+- catálogos;
+- health checks.
+
+### Protocolo Windows ↔ Core
+
+A comunicação usa:
+
+- TCP local;
+- token aleatório de sessão;
+- versão de protocolo;
+- `request_id`;
+- `frame_id`;
+- timestamps;
+- limites de cabeçalho/payload;
+- validação de hashes/modelos;
+- timeout;
+- shutdown limpo.
+
+Isso permite manter captura e UI nativas no Windows enquanto o processamento pesado fica isolado.
+
+---
+
+## Percepção visual
+
+A regra central permanece:
+
+> **evidência visual não vira verdade de jogo sem confiança e contexto.**
+
+```text
+pixels
+  ↓
+ROI / detector
+  ↓
+OCR / template / ONNX / probe
+  ↓
+confidence + provenance + timestamp
+  ↓
+consenso temporal
+  ↓
+State Fusion
+  ↓
+GameState
+```
+
+O projeto contém caminhos para:
+
+- OCR Tesseract;
+- multi-pass OCR;
+- leitores residentes;
+- matcher visual;
+- L3 ONNX;
+- UI-Map;
+- board/bench probes;
+- HUB B4;
+- classificador neural de itens;
+- revisão offline e datasets selados.
+
+---
+
+## Catálogo, patch e conhecimento sazonal
+
+O agente mantém conhecimento versionado para impedir mistura silenciosa entre sets/patches.
+
+O pipeline inclui:
+
+```text
+Riot / Data Dragon / fontes revisadas
+              ↓
+        normalização
+              ↓
+       Knowledge Release
+              ↓
+ patch + set + hashes + provenance
+              ↓
+       runtime / simulator
+```
+
+O trabalho atual do Set 18 inclui catálogos estruturados de:
+
+- campeões;
+- atributos;
+- itens;
+- traits;
+- mecânicas;
+- aprimoramentos;
+- revisões de patch;
+- memória estratégica.
+
+A **Strategy Memory** registra hipóteses e estratégias condicionais sem transformar opinião de guia em regra matemática automática.
+
+---
+
+## Motor matemático
+
+O LLM não calcula probabilidades de jogo.
+
+```text
+ECONOMIA
+├── juros
+├── breakpoints
+├── XP / level
+└── custo de gastar agora
+
+SHOP / POOL
+├── odds
+├── unidades observadas
+├── contestação
+└── hit probability
+
+ROLL
+├── budget
+├── janelas 10 / 20 / 30g
+├── expectativa
+└── juros sacrificados
+
+DECISÃO
+├── alternatives
+├── utility
+├── evidence
+├── confidence
+└── TTL
+```
+
+---
+
+## Opportunity Engine
+
+Antes da resposta, o agente pode avaliar o conjunto de oportunidades vigentes.
+
+```text
+GameState
+   ↓
+specialized facts
+   ├── economy
+   ├── shop / pool
+   ├── board
+   ├── items
+   ├── positioning
+   ├── scouting
+   └── meta prior
+   ↓
+Opportunity Engine
+   ↓
+ALL
+   ↓
+utility ranking
+   ↓
+SHORTLIST
+   ├── Decision Core
+   ├── Shadow
+   └── Counterfactual simulation
+```
+
+`all` permanece auditável; o shortlist é usado para cálculo profundo.
+
+**Utility é score interno de ranking, não probabilidade.**
+
+---
+
+## Simulator Lab
+
+O projeto agora possui um laboratório próprio para avançar da heurística para avaliação estratégica reproduzível.
+
+O laboratório inclui:
+
+- estado sazonal;
+- hex grid;
+- combate por eventos;
+- mana;
+- modificadores;
+- traits;
+- itens;
+- habilidades implementadas de forma incremental;
+- seeds reproduzíveis;
+- rollouts;
+- busca;
+- comparação emparelhada de políticas.
+
+### Neural Combat
+
+Há um caminho experimental de **Neural Combat** treinado sobre o simulador parcial.
+
+Os candidatos são avaliados separadamente do coach Windows e carregam:
+
+- schema do modelo;
+- cobertura efetiva;
+- treino;
+- validação;
+- comparação emparelhada;
+- avaliação de planejamento;
+- revisão de ações.
+
+Um candidato de laboratório **não é promovido automaticamente** ao runtime só porque apresentou boa métrica em dados simulados.
+
+---
+
+## BigBANANA — Agente 2 / plano remoto
+
+O BigBANANA funciona como infraestrutura de treinamento e avaliação, não como controlador do cliente TFT.
+
+### Trainer
+
+O serviço remoto suporta a arquitetura para:
+
+- sessões;
+- jobs;
+- Shadow Player;
+- Counterfactual Swarm;
+- métricas;
+- armazenamento SQLite/WAL;
+- painel web;
+- terminal `tft`;
+- CPU/RAM;
+- histórico de execuções.
+
+```text
+GameState
+   ├── Shadow Player → mantém uma linha sequencial
+   └── Counterfactual Swarm → compara futuros alternativos
+```
+
+O objetivo é comparar:
+
+```text
+ação recomendada
+× ação humana
+× Shadow
+× melhor branch
+× outcome
+```
+
+---
+
+## Voz e Companion Service
+
+O agente possui dois caminhos de voz:
+
+### Local
+
+- síntese em processo separado;
+- fila de uma fala;
+- cancelamento se a decisão expirar;
+- associação com `frame_id`;
+- cache local limitado.
+
+### Remoto
+
+Um **Companion Service** independente no BigBANANA fornece voz por HTTPS.
+
+O serviço inclui:
+
+- sessão anônima;
+- autenticação por token;
+- limites de uso;
+- cache persistente de áudio;
+- gateway dedicado;
+- rate limiting;
+- isolamento dos demais serviços;
+- endpoint de resumo de jogador preparado para adaptador externo.
+
+O serviço remoto recebe texto a narrar; **não recebe frames da captura**.
+
+---
+
+## Recomendação e voz
+
+Uma recomendação pode conter:
 
 ```text
 action
@@ -138,387 +471,101 @@ expires_at
 suppression_reason
 ```
 
-Uma recomendação expirada ou sustentada por dados insuficientes deve ser suprimida em vez de apresentada como certeza.
-
----
-
-## Captura e pipeline HM4 / HM4.5
-
-O projeto já possui uma linha própria de captura e mapeamento visual construída em etapas.
-
-### HUD Mapper
-
-A família HM implementa:
-
-- sessões reproduzíveis;
-- captura e replay;
-- relógio de captura;
-- mapeamento de regiões;
-- HUD automático;
-- OCR de campos;
-- runtime de sessão;
-- cache;
-- telemetria;
-- auditoria de sessões;
-- integração com o HUB de board;
-- infraestrutura para execução Windows ↔ Linux.
-
-### Captura nativa
-
-O caminho de captura foi desenhado para manter cada consumidor independente:
+Fluxo:
 
 ```text
-FRAME NATIVO
-   ├── preview → UI
-   ├── ROI ouro
-   ├── ROI stage
-   ├── ROI level / XP
-   ├── ROI HP
-   ├── ROI shop
-   ├── entrada L3
-   └── board / bench quando necessário
+Decision Core
+    ↓
+recomendação atual?
+    ├── não → suprimir/cancelar
+    └── sim
+         ↓
+       UI
+         ↓
+    Voice Queue
+         ↓
+ local synth ou API remota
 ```
 
-A prévia não deve ser limitada pela frequência do OCR ou do detector. Consumidores lentos usam **latest-only/backpressure**, descartando trabalho visual já obsoleto.
+Isso impede que uma fala antiga continue depois que o estado da partida mudou.
 
 ---
 
-## Núcleo Linux / AgenteTFT-Core
+## Scouting e memória temporal
 
-O núcleo Linux é um serviço headless versionado.
-
-Ele inclui:
-
-- worker de análise;
-- runtime Python mínimo;
-- componentes Rust;
-- ONNX Runtime CPU;
-- OCR/Tesseract residente;
-- modelos;
-- catálogo versionado;
-- HUB B4;
-- protocolo local;
-- health check.
-
-A comunicação Windows ↔ Linux usa:
-
-- conexão TCP local;
-- token aleatório por sessão;
-- versão de protocolo;
-- `request_id`;
-- `frame_id`;
-- timestamps;
-- limite explícito de payload;
-- validação de modelo/catálogo;
-- desligamento limpo.
-
-O host pode detectar queda da VM, exibir o estado ao usuário e reconectar sem misturar resultados de frames diferentes.
-
----
-
-## Visão computacional
-
-A percepção segue uma regra central: **nenhum detector sozinho define a verdade do jogo**.
-
-```text
-pixels
-  ↓
-ROI / região observada
-  ↓
-OCR / template / modelo / probe
-  ↓
-confidence + provenance + timestamp
-  ↓
-consenso temporal
-  ↓
-State Fusion
-  ↓
-GameState
-```
-
-O repositório contém e experimenta diferentes caminhos:
-
-- OCR Tesseract;
-- multi-pass OCR;
-- leitores residentes;
-- probes de HUD;
-- matcher visual;
-- board/bench spatial probes;
-- hipóteses de presença;
-- detectores pré-treinados isolados;
-- UI-Map Lite;
-- L3 ONNX;
-- HUB B4.
-
-Resultados experimentais permanecem isolados até passarem pelos gates definidos para confiança, estabilidade e latência.
-
----
-
-## HUB B4 — board, bench e evidência visual
-
-O HUB B4 organiza evidências relacionadas ao tabuleiro e inventário visual.
-
-Ele trabalha com:
-
-- geometria de board;
-- geometria de bench;
-- candidatos de posição;
-- candidatos de item;
-- ícones equipados;
-- inventário;
-- snapshots estruturados;
-- referência por set;
-- hashes de evidência.
-
-O HUB produz **evidência observada**, não ordens automáticas. Uma presença visual isolada não é suficiente para emitir “equipe”, “compre” ou “mova”.
-
----
-
-## Estado, eventos e memória temporal
-
-O `GameState` é a representação central do estado conhecido.
-
-```text
-GameState
-├── match
-├── player
-│   ├── hp
-│   ├── gold
-│   ├── level
-│   ├── xp
-│   ├── board
-│   ├── bench
-│   ├── shop
-│   ├── items
-│   └── augments
-├── lobby
-│   └── opponents[]
-├── history
-└── confidence
-```
-
-O Event Engine evita recalcular tudo continuamente. Mudanças relevantes podem gerar eventos como:
-
-- round changed;
-- shop changed;
-- board changed;
-- bench changed;
-- gold changed;
-- HP changed;
-- level changed;
-- opponent observed;
-- contestation changed;
-- combat started/ended.
-
----
-
-## Motor matemático
-
-A parte quantitativa fica fora do LLM.
-
-```text
-ECONOMIA
-├── juros
-├── breakpoints
-└── custo de gastar agora
-
-SHOP / POOL
-├── odds por nível
-├── unidades observadas
-├── pool estimada
-├── contestação
-└── probabilidade de hit
-
-ROLL
-├── budget
-├── 10 / 20 / 30g
-├── expectativa
-└── juros sacrificados
-
-DECISÃO
-├── alternativas
-├── utility
-├── evidence
-└── confidence
-```
-
-O LLM não inventa matemática. Ele recebe resultados estruturados do motor e os transforma em comunicação legível.
-
----
-
-## Opportunity Engine
-
-Antes de responder, o agente pode avaliar **todas as oportunidades válidas do estado atual**.
-
-```text
-GameState
-   ↓
-fatos especializados
-   ├── economy
-   ├── shop / pool
-   ├── board strength
-   ├── items
-   ├── positioning
-   ├── scouting
-   └── external meta prior
-   ↓
-Opportunity Engine
-   ↓
-ALL opportunities
-   ↓
-utility ranking
-   ↓
-shortlist
-   ├── Decision Core
-   ├── Shadow Player
-   └── Counterfactual simulation
-```
-
-A lista `all` permanece disponível para auditoria e replay. O shortlist concentra a análise profunda nas alternativas mais relevantes.
-
-**Utility é score de ranking interno, não probabilidade.**
-
----
-
-## Scouting e contestação
-
-O sistema mantém memória temporal do lobby para identificar mudanças relevantes.
-
-Já existem estruturas para:
+O sistema possui estruturas para:
 
 - adversários observados;
-- unidades observadas;
 - contestação por player/unidade;
 - `OpponentObserved`;
 - `ContestationChanged`;
-- contexto de lobby;
-- uso de contestação nos cálculos de estratégia.
+- histórico de lobby;
+- idade da observação;
+- uso de contestação na análise estratégica.
 
-A observação dos adversários é tratada como evidência temporal, não como snapshot eterno.
-
----
-
-## Meta e conhecimento por patch
-
-Fontes externas são tratadas como **priors limitados**.
-
-```text
-Riot / Data Dragon / CommunityDragon
-                ↓
-        Knowledge Pack local
-                ↓
-       patch + set + freshness
-                ↓
-              State
-
-Meta público
-    ↓
-normalização + provenance
-    ↓
-MetaSnapshot local
-    ↓
-bounded prior
-    ↓
-Opportunity Engine
-```
-
-Regras:
-
-- nenhuma dependência de consulta externa no hot path;
-- patch/set incompatível invalida o dado;
-- provenance obrigatório;
-- snapshot stale é ignorado;
-- estado observado e matemática local têm prioridade.
+Snapshot antigo não é tratado como estado atual.
 
 ---
 
-## Replay e laboratório
+## Replay e auditoria
 
-O projeto possui caminhos separados para reprodução e validação:
+O projeto mantém uma linha de validação baseada em replay:
 
 - Replay Intake;
 - E1 Replay Lab;
+- HM sessions;
 - fixtures;
-- gravações reais;
-- auditorias HM4;
-- comparação de sessões;
-- benchmarks;
-- viewers locais;
-- testes golden;
+- golden tests;
+- comparações A/B;
+- viewers;
+- telemetry JSONL;
+- evidências por hash;
 - regressões permanentes.
 
-O mesmo pipeline de decisão pode ser exercitado sobre partidas gravadas antes de qualquer uso live.
+```text
+vídeo / captura
+→ frames
+→ percepção
+→ estado
+→ decisão
+→ voz
+→ telemetria
+→ auditoria
+```
 
 ---
 
 ## Instalador HM4.5
 
-A arquitetura HM4.5 inclui um instalador guiado para Windows.
-
-O fluxo previsto e implementado no ramo HM4.5 prepara:
+O fluxo HM4.5 prepara um único instalador Windows com:
 
 ```text
-AgenteTFT-Setup.exe
-   ├── aplicativo Windows
-   ├── capturador
-   ├── interface
-   ├── supervisor
-   ├── rootfs AgenteTFT-Core
-   ├── modelos / catálogos
-   └── manifesto + hashes
+AgenteTFT-HM45-Setup.exe
+├── app Windows
+├── captura Rust
+├── preview
+├── supervisor
+├── modelos / catálogos
+├── vozes locais
+└── AgenteTFT-Core WSL
 ```
 
-O assistente verifica:
+O instalador verifica:
 
 - Windows x64;
 - virtualização;
 - WSL 2;
-- espaço disponível;
-- integridade SHA-256;
-- versão do núcleo;
-- conexão Windows ↔ Linux;
+- espaço;
+- SHA-256;
+- versão do core;
+- conectividade local;
 - L3;
 - OCR;
 - HP;
-- HUB B4.
+- HUB B4;
+- health contract.
 
-O núcleo Linux é instalado como distribuição própria do Agente TFT, sem depender de desktop Linux.
-
----
-
-## Engenharia e auditabilidade
-
-Cada decisão deve poder ser reconstruída:
-
-```text
-fonte de vídeo
-→ frame
-→ observações
-→ confidence / provenance
-→ GameState
-→ eventos
-→ math outputs
-→ oportunidades
-→ candidate actions
-→ policy / simulation
-→ recommendation
-→ ação observada
-→ próximo estado
-→ outcome
-```
-
-O sistema foi desenhado para:
-
-- usar backpressure;
-- descartar frames obsoletos;
-- manter alinhamento por `frame_id`;
-- separar preview e análise;
-- separar evidência de estado confirmado;
-- registrar hashes e versões;
-- limitar payloads;
-- manter timeout;
-- sobreviver à indisponibilidade de uma fonte;
-- medir CPU, RAM, latência e idade da informação.
+Também existe um caminho de **instalador online**: o bootstrap pequeno baixa uma versão fixa do pacote, valida o SHA-256 e só então inicia a instalação.
 
 ---
 
@@ -526,21 +573,25 @@ O sistema foi desenhado para:
 
 | Camada | Tecnologia |
 |---|---|
-| Captura Windows | Rust + WGC/D3D11 / fonte de captura |
-| Interface host | Windows |
-| Núcleo isolado | Linux headless via WSL 2 |
-| Transporte host/core | TCP local autenticado |
+| Captura Windows | Rust + WGC/D3D11 |
+| Fonte externa | placa/fonte de captura |
+| Preview | BGRA + GDI/`StretchDIBits` |
+| Core local | Linux headless / WSL 2 |
+| Transporte | TCP local autenticado |
 | Caminho crítico | Rust |
-| OCR | Tesseract + leitores residentes |
-| Visão | ONNX Runtime + modelos próprios/experimentais |
+| OCR | Tesseract residente |
+| Visão | ONNX Runtime |
+| Neural items | ONNX |
 | Treino | Python + PyTorch |
+| Simulação | Python/Rust + laboratório determinístico |
 | Estado | Rust/Pydantic schemas |
 | Matemática | Rust |
 | Orquestração | PydanticAI-slim |
 | Conhecimento | Riot / Data Dragon / CommunityDragon |
+| Remote trainer | Docker + SQLite/WAL |
+| Voz remota | HTTPS + cache persistente |
 | Telemetria | JSONL + evidências versionadas |
-| Persistência | SQLite + arquivos/hash |
-| UI | Tauri/Svelte como direção de produto |
+| UI | Windows; Tauri/Svelte como direção de produto |
 
 ---
 
@@ -548,40 +599,49 @@ O sistema foi desenhado para:
 
 ```text
 Agente-TFT/
-├── agent/                  # agente, schemas, tools e prompts
+├── agent/
 ├── apps/
-│   ├── e1_replay/          # laboratório de replay
-│   └── hud_mapper/         # HM1 → HM4/HM4.5
-├── assets/                 # banner e material visual
-├── configs/                # layouts, contextos e políticas
-├── docs/                   # arquitetura, HM, engenharia e ADRs
-├── experiments/            # modelos e comparações isoladas
-├── ingestion/              # Riot/Data Dragon/CommunityDragon
-├── knowledge/              # conhecimento versionado por patch/set
-├── models/                 # artefatos ONNX e policy
-├── rust/                   # caminho crítico
-├── scripts/                # build, pacote, auditoria e instalação
-├── telemetry/              # sessões e evidências
-├── tools/                  # ferramentas nativas auxiliares
-├── training/               # datasets, treino e avaliação
-└── tests/                  # integração e regressão
+│   ├── e1_replay/
+│   └── hud_mapper/
+├── assets/
+├── configs/
+│   ├── catalog/
+│   ├── contexts/
+│   ├── services/
+│   ├── simulation/
+│   └── training/
+├── docs/
+│   └── evidence/
+├── experiments/
+├── ingestion/
+├── knowledge/
+├── models/
+├── rust/
+├── scripts/
+├── telemetry/
+├── tools/
+├── trainer/
+├── training/
+└── tests/
 ```
 
 ---
 
-## Princípios do projeto
+## Princípios
 
 - **Estado antes de estratégia.**
 - **Cálculo antes de linguagem.**
 - **Captura separada da análise.**
 - **Preview separada do OCR.**
+- **Core local separado da UI.**
 - **Eventos antes de polling pesado.**
-- **Confiança explícita.**
+- **Confiança e TTL explícitos.**
 - **Patch-aware por padrão.**
 - **Backpressure em vez de filas infinitas.**
-- **Replay/laboratório antes de promoção.**
-- **LLM nunca como fonte de verdade matemática.**
-- **Falha da VM não pode fabricar uma recomendação.**
+- **Replay antes de promoção.**
+- **Modelo experimental não é automaticamente produção.**
+- **LLM nunca é fonte de verdade matemática.**
+- **Serviço remoto não controla o cliente TFT.**
 
 ---
 
@@ -592,10 +652,10 @@ O Agente TFT não depende de:
 - injeção no processo do jogo;
 - leitura de memória do cliente;
 - bypass de anti-cheat;
-- automação invisível de input;
-- confiança inventada pelo LLM.
+- automação invisível de mouse/teclado;
+- confiança fabricada pelo LLM.
 
-O foco do projeto é **percepção, cálculo, simulação, recomendação, replay e pesquisa reproduzível**.
+O foco é **percepção, cálculo, simulação, recomendação, voz, replay e pesquisa reproduzível**.
 
 ---
 
@@ -608,7 +668,7 @@ O foco do projeto é **percepção, cálculo, simulação, recomendação, repla
 - [ADRs](docs/adr/)
 - [Contribuidores](CONTRIBUTORS.md)
 
-Documentos mais recentes de HM4/HM4.5 também descrevem captura, OCR Hub, Board Hub, protocolo host↔VM e empacotamento.
+A árvore de desenvolvimento contém ainda documentação específica de HM4/HM4.5, Simulator Lab, percepção/catalogação, Strategy Memory, voz e evidências de treino/validação.
 
 ---
 
@@ -625,4 +685,4 @@ Este projeto é distribuído sob a **MIT License**. Consulte [LICENSE](LICENSE) 
 
 ---
 
-**Agente TFT está em desenvolvimento ativo.** O objetivo é construir um agente estratégico de alta complexidade com **captura robusta, estado confiável, matemática verificável, isolamento de processamento, baixa latência, auditabilidade e decisões explicáveis**.
+**Agente TFT está em desenvolvimento ativo.** O objetivo é construir um agente estratégico de alta complexidade com **captura robusta, estado confiável, matemática verificável, simulação reproduzível, isolamento de processamento, baixa latência, auditabilidade e decisões explicáveis**.
