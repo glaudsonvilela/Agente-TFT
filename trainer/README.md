@@ -154,8 +154,17 @@ O objetivo é encontrar padrões repetidos em contexto, não transformar uma ún
 
 `companion_service` é separado do treinador e não acessa os outros contêineres.
 `compose.voice-service.yml` reserva 0,5 CPU / 192 MiB e publica somente
-`127.0.0.1:8802`. A imagem e o configurador foram preparados no BigBANANA
-em `~/agente-tft-voice/current`; a ativação aguarda a credencial do operador.
+`127.0.0.1:8802`. A imagem e o configurador ficam no BigBANANA
+em `~/agente-tft-voice/current`. Em 2026-10-04, a voz aprovada pelo operador
+foi configurada e o contêiner independente foi ativado com reinício automático.
+A chave e o Voice ID ficam somente no arquivo privado do servidor.
+
+O teste real de sessão e `/v1/voice` entregou a frase de boas-vindas em
+714,88 ms (3,669 s de áudio); a repetição devolveu o mesmo áudio em 6,89 ms.
+São duas medições locais no servidor, sem comprovar latência ou reprodução
+no Windows. Evidência: `docs/evidence/voice-api-20261004/approved-voice-activation.json`.
+O endereço HTTPS para clientes ainda precisa ser configurado;
+`configs/services/voice.json` permanece com `service_url: null`.
 
 No BigBANANA, o comando abaixo pede a chave sem eco, pede o Voice ID e sobe
 somente o contêiner de voz já compilado:
@@ -180,8 +189,8 @@ Na raiz do repositório no servidor, a configuração interativa não mostra a c
 PYTHONPATH=apps/hud_mapper:trainer python3 -m companion_service.configure
 ```
 
-Ela salva `~/.config/agente-tft/voice.env` com permissão 0600. O Voice ID é
-informado pelo operador; a prévia por nome não identifica um ID confirmado.
+Ela salva `~/.config/agente-tft/voice.env` com permissão 0600. Ao reprovisionar,
+use o Voice ID da voz aprovada; o nome de uma prévia não identifica o ID.
 
 O operador configura `ELEVENLABS_API_KEY` e `ELEVENLABS_VOICE_ID` somente no
 servidor (arquivo de ambiente privado, fora do Git) e executa, na pasta trainer:
@@ -213,6 +222,8 @@ cache inclui essas versões e invalida na atualização. Para trocar o patch,
 atualize o arquivo e reinicie o serviço. Não há análise neural treinada aplicada
 a esse resumo; não inferir erros de rolagem a partir de colocações finais.
 
-Os testes do serviço usam transporte ElevenLabs simulado, sem credenciais,
-sem chamada paga e sem comprovar voz real. A distribuição para usuários ainda
-depende de provisionar HTTPS/ElevenLabs e conectar uma fonte válida de histórico.
+Os testes automatizados do serviço usam transporte ElevenLabs simulado,
+sem credenciais e sem chamadas pagas. A ativação descrita acima foi validada
+separadamente com áudio real. A distribuição para usuários ainda depende
+de provisionar HTTPS e configurar o endereço no cliente. O resumo de partidas
+também depende de conectar uma fonte válida de histórico.

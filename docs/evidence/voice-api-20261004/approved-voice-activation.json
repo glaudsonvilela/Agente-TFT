@@ -1,0 +1,33 @@
+{
+  "test": "approved-voice-service-smoke",
+  "windows_playback_validated": false,
+  "public_https_configured": false,
+  "health": {
+    "voice_configured": true,
+    "provider": "elevenlabs",
+    "riot_integration": false
+  },
+  "session_created": true,
+  "success": true,
+  "provider_audio_validated": true,
+  "voice_approved": true,
+  "requests": [
+    {
+      "attempt": 1,
+      "http_status": 200,
+      "request_ms": 714.88,
+      "audio_bytes": 161792,
+      "audio_seconds": 3.669,
+      "sha256": "7f026b0520891619971ab137358afe096bb524d308c81de7040acf4c14c6e8cc"
+    },
+    {
+      "attempt": 2,
+      "http_status": 200,
+      "request_ms": 6.89,
+      "audio_bytes": 161792,
+      "audio_seconds": 3.669,
+      "sha256": "7f026b0520891619971ab137358afe096bb524d308c81de7040acf4c14c6e8cc"
+    }
+  ],
+  "repeated_audio_identical": true
+}
