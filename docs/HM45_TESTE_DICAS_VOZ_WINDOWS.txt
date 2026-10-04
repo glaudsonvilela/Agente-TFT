@@ -1,0 +1,68 @@
+AGENTE TFT - TESTE DE DICAS E VOZ NO WINDOWS
+Versão: laboratório 0.6.1 (código ea30062).
+
+OBJETIVO
+Medir dica escrita, fala automática, atraso, FPS e memória durante 15 minutos
+de um replay reproduzido na tela. O Agente captura o monitor/janela; não é
+necessário importar o arquivo do vídeo.
+
+Este instalador usa as vozes locais F1 e Dii. A voz escolhida na demonstração
+de API ainda não foi integrada. As novas habilidades do simulador também
+não foram incorporadas ao motor de dicas desta versão.
+
+1. INSTALAR
+Execute AgenteTFT-HM45-Online-Setup.exe nesta pasta.
+Ele precisa de internet para baixar o pacote completo (cerca de 597 MB).
+Se a versão 0.6.1 já estiver instalada, pode abrir o atalho do Agente TFT.
+
+2. PREPARAR
+Abra um replay do patch 18.3 desde o início, em velocidade 1x.
+Use imagem 16:9, sem barras nem controles do player cobrindo ouro, estágio,
+nível e XP. Mantenha o áudio do Windows ligado.
+
+3. CONFIGURAR O AGENTE
+Clique em "Escolher monitor/janela" e escolha a fonte do replay.
+Confirme "Analisar replay (HUB + orientações)" e "Narrar orientações" marcados.
+Mantenha F1 no primeiro teste; o carregamento aparece no estado da voz.
+Se os controles estiverem ocultos, desmarque "Priorizar vídeo e dicas".
+O aquecimento da voz não é uma dica e pode ocorrer sem som.
+
+4. INICIAR
+Clique em INICIAR e reproduza o vídeo.
+Quando estiver visível o tabuleiro do próprio jogador, use "Calibrar tabuleiro".
+Deixe o vídeo e a prévia em movimento; não use "Congelar inspeção".
+Evite capturar a própria janela do Agente, para não criar espelhamento infinito.
+
+5. O QUE PODE SER DITO
+A política econômica pode sugerir evolução de nível em janelas específicas:
+2-1 -> nível 4; 2-5 -> nível 5; 3-2 -> nível 6; 4-1 -> nível 7.
+A sugestão depende de leituras confiáveis e consistentes, XP, custo e reserva.
+Se o jogador já evoluiu, não houver ouro ou os números não forem reconhecidos,
+a dica pode não aparecer. A indicação de referência é "Suba para o nível 4".
+Apenas anunciar ouro/estágio não conta como dica acionável neste teste.
+Ainda não há recomendações validadas de rolagem, posicionamento e montagem
+de itens neste pacote. Não há garantia de uma fala em cada rodada.
+
+6. MEDIR POR 15 MINUTOS
+Consulte Performance brevemente no início, após 5 minutos e após 15 minutos.
+Depois volte à aba "HUD ao vivo / geometria": a prévia só é desenhada nessa
+aba. Permanecer em Performance interrompe o desenho e altera o FPS medido.
+Anote se a dica apareceu, se houve fala e se ela começou atrasada.
+Faça uma captura da aba Performance se ocorrer travamento ou erro de voz.
+Se ficar em silêncio, deixe o teste terminar: os registros distinguem
+falta de decisão, erro de voz e descarte de mensagem atrasada.
+Não troque a voz durante o primeiro teste. Uma comparação com Dii deve usar
+uma nova sessão e o mesmo trecho de replay, para separar os resultados.
+
+7. ENCERRAR E ENVIAR
+Clique em ENCERRAR e aguarde a finalização da sessão.
+Abra "Dados coletados" -> "Abrir última sessão".
+Compacte a pasta inteira dessa sessão em ZIP e envie no chat.
+Caminho padrão: %LOCALAPPDATA%\AgenteTFT-HUD-HM4\sessions
+Inclua também as capturas de Performance e diga se ouviu a fala nos alto-falantes.
+Os registros medem o processamento e a chamada de reprodução; não comprovam
+sozinhos que o som saiu fisicamente no dispositivo correto.
+
+NÃO É NECESSÁRIO ACESSAR O BIGBANANA PARA ESTE TESTE
+As dicas econômicas existentes não usam a política neural experimental do
+servidor. O teste não é um novo treino nem valida inteligência estratégica.
