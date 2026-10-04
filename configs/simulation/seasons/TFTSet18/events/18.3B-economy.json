@@ -21,8 +21,23 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 0,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": null
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_BeggarsWisp18",
+        "blossom": "DA_BeggarsWisp18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      },
+      "fallback_only": true
     },
     "coin_flip": {
       "name": "Coin Flip",
@@ -44,8 +59,22 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 0,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_CoinFlip18",
+        "blossom": "DA_CoinFlip18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      }
     },
     "die_roll": {
       "name": "Die Roll",
@@ -67,8 +96,22 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 3,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-1"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_DieRoll18",
+        "blossom": "DA_DieRoll18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 3
+      }
     },
     "freeroller": {
       "name": "Freeroller",
@@ -88,8 +131,22 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 2,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "4-1"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_Freeroller",
+        "blossom": "DA_18_Freeroller_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 2
+      }
     },
     "healing_pool": {
       "name": "Healing Pool",
@@ -110,7 +167,15 @@
       ],
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "stage_distribution_verified": false,
+      "blossom_cost": 2,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "missing_hp_min": 10,
+        "cooldown_rounds": 10
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
     },
     "blood_money": {
       "name": "Blood Money",
@@ -139,8 +204,22 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 2,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_BloodMoney",
+        "blossom": "DA_18_BloodMoney_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 1
+      }
     },
     "fertilize": {
       "name": "Fertilize",
@@ -169,8 +248,22 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 1,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_Fertilize",
+        "blossom": "DA_18_Fertilize_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 1
+      }
     },
     "take_one_with_ya": {
       "name": "Take One With Ya",
@@ -197,7 +290,14 @@
       ],
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "stage_distribution_verified": false,
+      "blossom_cost": 1,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_max": 2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
     },
     "good_loss": {
       "name": "Good Loss",
@@ -224,7 +324,14 @@
       ],
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "stage_distribution_verified": false,
+      "blossom_cost": 4,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-1",
+        "streak_max": 2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
     },
     "golden_road": {
       "name": "Golden Road",
@@ -247,7 +354,14 @@
       ],
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "stage_distribution_verified": false,
+      "blossom_cost": 2,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "streak_min": -2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
     },
     "minor_gambit": {
       "name": "Minor Gambit",
@@ -272,7 +386,15 @@
       ],
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "stage_distribution_verified": false,
+      "blossom_cost": 1,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_min": -2,
+        "coven_inactive": true
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
     },
     "major_gambit": {
       "name": "Major Gambit",
@@ -297,7 +419,14 @@
       ],
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "stage_distribution_verified": false,
+      "blossom_cost": 3,
+      "eligibility": {
+        "first_round": "4-2",
+        "last_round": "5-7",
+        "streak_min": -2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
     },
     "payday": {
       "name": "Payday",
@@ -321,8 +450,22 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 3,
+      "eligibility": {
+        "first_round": "3-5",
+        "last_round": "4-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_Payday",
+        "blossom": "DA_18_PaydayUpgrade"
+      },
+      "catalog_prices": {
+        "normal": 4,
+        "blossom": 4
+      }
     },
     "pocket_change": {
       "name": "Pocket Change",
@@ -351,8 +494,23 @@
         }
       ],
       "source": "https://www.tftraits.com/wisps/",
-      "catalog_id_verified": false,
-      "stage_distribution_verified": false
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "blossom_cost": 1,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-1",
+        "one_star_min": 2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_PocketChange",
+        "blossom": "DA_18_PocketChange_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 1
+      }
     },
     "sinister_deal": {
       "name": "Sinister Deal",
@@ -382,7 +540,446 @@
       "source": "https://www.tftraits.com/wisps/",
       "catalog_id_verified": false,
       "stage_distribution_verified": false,
-      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/"
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "blossom_cost": 0,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "hp_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "experienced": {
+      "name": "Experienced",
+      "cost": 1,
+      "blossom_cost": 0,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 2
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 2
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_Experienced",
+        "blossom": "DA_18_Experienced_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 0
+      }
+    },
+    "bronze_spoon": {
+      "name": "Bronze Spoon",
+      "cost": 3,
+      "blossom_cost": 2,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 4
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 4
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "4-1"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_BronzeSpoon",
+        "blossom": "DA_18_BronzeSpoon_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 3,
+        "blossom": 2
+      }
+    },
+    "grow_up": {
+      "name": "Grow Up",
+      "cost": 7,
+      "blossom_cost": 7,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 10
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "xp",
+          "amount": 12
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_GrowUp18",
+        "blossom": "DA_GrowUp18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 7,
+        "blossom": 7
+      }
+    },
+    "lucky_7": {
+      "name": "Lucky 7",
+      "cost": 7,
+      "blossom_cost": 7,
+      "normal": [
+        {
+          "kind": "grant",
+          "resource": "free_rerolls",
+          "amount": 7
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "grant",
+          "resource": "free_rerolls",
+          "amount": 10
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "6-1",
+        "last_round": null
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_Lucky718",
+        "blossom": "DA_Lucky718_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 7,
+        "blossom": 7
+      }
+    },
+    "life_debt": {
+      "name": "Life Debt",
+      "cost": 0,
+      "blossom_cost": 0,
+      "normal": [
+        {
+          "kind": "missing_health_gold",
+          "divisor": 12
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "missing_health_gold",
+          "divisor": 12
+        },
+        {
+          "kind": "grant",
+          "resource": "hp",
+          "amount": 3
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "5-1",
+        "last_round": null,
+        "missing_hp_min": 70
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "catalog_ids": {
+        "normal": "DA_18_LifeDebt",
+        "blossom": "DA_18_LifeDebt_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      }
+    },
+    "drought": {
+      "name": "Drought",
+      "cost": 1,
+      "blossom_cost": 1,
+      "normal": [
+        {
+          "kind": "extend_streak",
+          "outcome": "loss",
+          "amount": 2
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "extend_streak",
+          "outcome": "loss",
+          "amount": 3
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_max": 0
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "flood": {
+      "name": "Flood",
+      "cost": 1,
+      "blossom_cost": 1,
+      "normal": [
+        {
+          "kind": "extend_streak",
+          "outcome": "win",
+          "amount": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "extend_streak",
+          "outcome": "win",
+          "amount": 2
+        }
+      ],
+      "source": "https://tftips.app/en/wisps",
+      "catalog_id_verified": false,
+      "stage_distribution_verified": false,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_min": 0
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_ones": {
+      "name": "All Ones",
+      "cost": 0,
+      "blossom_cost": 0,
+      "normal": [
+        {
+          "kind": "shop_tier",
+          "cost": 1
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "shop_tier",
+          "cost": 1
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 1
+        }
+      ],
+      "catalog_ids": {
+        "normal": "DA_18_AllOnes",
+        "blossom": "DA_18_AllOnes_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      },
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "source": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "gold_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_twos": {
+      "name": "All Twos",
+      "cost": 1,
+      "blossom_cost": 1,
+      "normal": [
+        {
+          "kind": "shop_tier",
+          "cost": 2
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "shop_tier",
+          "cost": 2
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 1
+        }
+      ],
+      "catalog_ids": {
+        "normal": "DA_18_AllTwos",
+        "blossom": "DA_18_AllTwos_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 1
+      },
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "source": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "gold_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_threes": {
+      "name": "All Threes",
+      "cost": 2,
+      "blossom_cost": 2,
+      "normal": [
+        {
+          "kind": "shop_tier",
+          "cost": 3
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "shop_tier",
+          "cost": 3
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 2
+        }
+      ],
+      "catalog_ids": {
+        "normal": "DA_18_AllThrees",
+        "blossom": "DA_18_AllThrees_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 2
+      },
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "source": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+      "eligibility": {
+        "first_round": "3-5",
+        "last_round": "4-7",
+        "gold_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_fours": {
+      "name": "All Fours",
+      "cost": 3,
+      "blossom_cost": 3,
+      "normal": [
+        {
+          "kind": "shop_tier",
+          "cost": 4
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "shop_tier",
+          "cost": 4
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 2
+        }
+      ],
+      "catalog_ids": {
+        "normal": "DA_18_AllFours",
+        "blossom": "DA_18_AllFours_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 4,
+        "blossom": 4
+      },
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "source": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+      "eligibility": {
+        "first_round": "5-1",
+        "last_round": "5-7",
+        "gold_min": 8
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/"
+    },
+    "all_fives": {
+      "name": "All Fives",
+      "cost": 8,
+      "blossom_cost": 8,
+      "normal": [
+        {
+          "kind": "shop_tier",
+          "cost": 5
+        }
+      ],
+      "blossom": [
+        {
+          "kind": "shop_tier",
+          "cost": 5
+        },
+        {
+          "kind": "grant",
+          "resource": "gold",
+          "amount": 5
+        }
+      ],
+      "catalog_ids": {
+        "normal": "DA_18_AllFives",
+        "blossom": "DA_18_AllFives_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 10,
+        "blossom": 10
+      },
+      "catalog_id_verified": true,
+      "stage_distribution_verified": false,
+      "source": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+      "eligibility": {
+        "first_round": "6-1",
+        "last_round": null,
+        "gold_min": 15
+      },
+      "eligibility_source": "https://tftips.app/en/wisps",
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/"
     }
   },
   "blossom": {
@@ -449,14 +1046,23 @@
   },
   "hp_cap": 100,
   "limitations": [
-    "Observed offers only: local keys are not verified Riot IDs. No guessed stage weights or eligibility.",
+    "Observed offers only. Stage and resource conditions are enforced; complete selection weights, cadence phase, general exclusion history and combat-offer guarantee remain unbound. Beggar fallback is observed, not generated.",
     "Only resource Wisps listed here; unsupported Wisps are refused.",
     "Freeroller persistence, healing cap, deferred payout order and Blossom persistence need replay calibration.",
     "No full Blossom combat stats, Coven cashout distribution, augments, Inferno/Riftbeast shops or PvE settlement.",
     "Normal shop probabilities do not model this event layer.",
     "Golden Road upgraded bonus is treated as one additional gold at maturity, pending replay confirmation.",
     "Major Gambit upgraded combat wording may include PvE; currently restricted to explicitly observed PvP.",
-    "Blossom rebate is retained from sealed catalog; no assumed prismatic tier."
+    "Blossom rebate is retained from sealed catalog; no assumed prismatic tier.",
+    "Initial cooldown history must be explicitly supplied for cooldown-bound offers. Equal variant costs without matched catalog IDs remain candidates.",
+    "Forced-tier shops reserve from the declared shared pool only. Exhausted tier produces empty slots; replay validation and special shop traits remain outstanding."
   ],
-  "runtime_promoted": false
+  "runtime_promoted": false,
+  "catalog_provenance": {
+    "url": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+    "sha256": "8a98eeed167ecbaee4578d299204aa0897d7f0684eefb235a6e3a2f8b5d7bf07",
+    "provider_version": "16.19.1",
+    "provider_version_is_game_patch": false,
+    "official_patch_overrides_take_precedence": true
+  }
 }

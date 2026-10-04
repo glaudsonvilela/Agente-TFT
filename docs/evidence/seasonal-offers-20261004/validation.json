@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "candidate_not_replay_validated",
+  "patch": "18.3B-20260928",
+  "wisps": 27,
+  "variant_programs": 54,
+  "catalog_pairs": 18,
+  "eligibility_candidates": 27,
+  "local_suite": {
+    "total": 624,
+    "passed": 612,
+    "skipped": 12,
+    "seconds": 28.257,
+    "command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. OMP_NUM_THREADS=1 .venv/bin/python -m unittest discover -s training/tests -q"
+  },
+  "server_tests": {
+    "total": 38,
+    "passed": 38,
+    "seconds": 0.459,
+    "staging": "/var/lib/agente-tft-trainer/seasonal-09161f8054ce",
+    "command": "python -m unittest training.tests.test_seasonal_events training.tests.test_economy_interactions training.tests.test_batch_preflight -q"
+  },
+  "files_sha256": {
+    "trainer/simulation/seasonal_events.py": "764edca9c4a09c1ba282c12c22711985c98e8be38c365f1a080f395c948adb79",
+    "trainer/simulation/seasonal_offers.py": "c5ba32bf30ab24113613540c01bf5fc0544740f8a588d06bb770d84e4d8afa8b",
+    "trainer/simulation/state.py": "ac28a45efeeb96683483246d3d978ebf58b04c756dd790154ef07cd506f0ab00",
+    "training/seasonal_lab.py": "05f25a46f69b2cc22d8186197d268252165f4f66cb954ebbe3ce973a987022fc",
+    "training/economy_lab.py": "3de7a95f4d3857004f20bd4feaf55dd1c6e35fe607c08e7e77e88696bb99bb49",
+    "training/simulator_lab/batch_preflight.py": "b3f4dcebc821bce15cd3feb94c86d56b59cc4afe0d0fa1145dc936347eec035a",
+    "training/tests/test_seasonal_events.py": "28c8cb6715654f3739aa46382af06d648fecee126406bc5a93faa584cc6c14a7",
+    "training/tests/test_economy_interactions.py": "0e281d1d5651638969030f1865b0d04f790850edeb581cebd8727e0312715b8e",
+    "configs/simulation/core/standard-economy-v2.json": "6ded56aaf05fc374858da56c9cf7d86b6f2b92c9fe5a3ee3db5a817da3dbe110",
+    "configs/simulation/seasons/TFTSet18/events/18.3B-economy.json": "229efe80ce3949ba9e71bc3a8e436c4d74298e19f98e0e31038f5357ac038675"
+  },
+  "complete_matches": 0,
+  "training_started": false,
+  "model_promoted": false,
+  "installer_generated": false
+}

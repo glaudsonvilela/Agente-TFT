@@ -118,7 +118,7 @@ def main():
     p.add_argument(
         "--rules",
         type=Path,
-        default=Path("configs/simulation/core/standard-economy-v1.json"),
+        default=Path("configs/simulation/core/standard-economy-v2.json"),
     )
     p.add_argument("--champion", default="DA_Nidalee18_AP")
     p.add_argument("--output", type=Path, required=True)

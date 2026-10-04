@@ -13,6 +13,7 @@ import random
 from .economy import grant_xp, positive_integer, return_copies
 from .round_calendar import describe, require_next
 from .round_economy import project_pvp
+from .seasonal_offers import require_eligible, wisp_cost
 from .state import IllegalAction, UnsupportedRule, validate_world, _pay, _reroll
 
 
@@ -34,6 +35,10 @@ def validate_state(s):
         "coven_choice_pending",
         "pending",
         "shops_seen",
+        "round_kind",
+        "round_index",
+        "offer_history",
+        "calendar_sha256",
     }
     if not isinstance(s, dict) or set(s) != required:
         raise IllegalAction("invalid seasonal state fields")
@@ -43,8 +48,22 @@ def validate_state(s):
         raise IllegalAction("invalid seasonal phase/round")
     if not isinstance(s["rules_sha256"], str) or len(s["rules_sha256"]) != 64:
         raise IllegalAction("missing seasonal rule identity")
+    if not isinstance(s["calendar_sha256"], str) or len(s["calendar_sha256"]) != 64:
+        raise IllegalAction("missing calendar identity")
     for key in ("purchased", "blossom_tier", "coven_essence", "shops_seen"):
         positive_integer(s[key], key, zero=True)
+    positive_integer(s["round_index"], "round index", zero=True)
+    if s["round_kind"] not in ("pvp", "pve", "carousel"):
+        raise IllegalAction("invalid seasonal round kind")
+    if s["offer_history"] is not None:
+        if not isinstance(s["offer_history"], dict):
+            raise IllegalAction("invalid offer history")
+        for name, index in s["offer_history"].items():
+            if not isinstance(name, str):
+                raise IllegalAction("invalid historical Wisp identity")
+            positive_integer(index, "historical round index", zero=True)
+            if index > s["round_index"]:
+                raise IllegalAction("offer history cannot contain future rounds")
     if type(s["coven_choice_pending"]) is not bool or not isinstance(
         s["pending"], list
     ):
@@ -66,6 +85,9 @@ def _validate_effect(e, *, pending=False):
         "delayed_wins": {"combats", "gold_per_win", "bonus"}
         | ({"wins"} if pending else set()),
         "health_cost": {"amount"},
+        "missing_health_gold": {"divisor"},
+        "extend_streak": {"outcome", "amount"},
+        "shop_tier": {"cost"},
     }
     if kind not in fields or set(e) - ({"kind"} | fields[kind]):
         raise UnsupportedRule("unknown seasonal effect field or handler")
@@ -103,6 +125,15 @@ def _validate_effect(e, *, pending=False):
             positive_integer(e.get("wins"), "accumulated wins", zero=True)
     elif kind == "health_cost":
         positive_integer(e.get("amount"), "health cost")
+    elif kind == "missing_health_gold":
+        positive_integer(e.get("divisor"), "missing health divisor")
+    elif kind == "extend_streak":
+        positive_integer(e.get("amount"), "streak extension")
+        if e.get("outcome") not in ("win", "loss"):
+            raise UnsupportedRule("unknown streak extension outcome")
+    elif kind == "shop_tier":
+        if type(e.get("cost")) is not int or not 1 <= e["cost"] <= 5:
+            raise UnsupportedRule("invalid forced shop tier")
     else:
         raise UnsupportedRule("seasonal resource effect not implemented")
     if pending and kind not in ("combat_reward", "delayed_wins"):
@@ -144,7 +175,15 @@ def _policy(s, rules):
 
 
 def begin_observed_round(
-    world, seat, key, content, rules, calendar, *, initial_blossom_tier=0
+    world,
+    seat,
+    key,
+    content,
+    rules,
+    calendar,
+    *,
+    initial_blossom_tier=0,
+    initial_offer_history=None,
 ):
     """Attach an observed round. No free shop, loot or income is manufactured."""
     p = _check(world, seat, content, rules)
@@ -154,6 +193,7 @@ def begin_observed_round(
             "augment choice and economic effects require their binding"
         )
     if p.seasonal:
+        _check_calendar(p, calendar)
         if p.seasonal["phase"] != "settled":
             raise IllegalAction("previous round not settled")
         if p.seasonal["coven_choice_pending"]:
@@ -161,6 +201,8 @@ def begin_observed_round(
         require_next(p.seasonal["round"], key, calendar)
         if initial_blossom_tier != 0:
             raise IllegalAction("cannot override persistent Blossom state")
+        if initial_offer_history is not None:
+            raise IllegalAction("cannot override persistent offer history")
     elif p.phase != "planning":
         raise IllegalAction("initial observed snapshot must be in planning")
     result = deepcopy(world)
@@ -172,6 +214,7 @@ def begin_observed_round(
             round=key,
             phase="planning",
             rules_sha256=identity(rules),
+            calendar_sha256=identity(calendar),
             offer=None,
             purchased=0,
             blossom_tier=initial_blossom_tier,
@@ -179,14 +222,29 @@ def begin_observed_round(
             coven_choice_pending=False,
             pending=[],
             shops_seen=0,
+            round_kind=row["kind"],
+            round_index=list(calendar["rounds"]).index(key),
+            offer_history=deepcopy(initial_offer_history),
         )
     else:
-        target.seasonal.update(round=key, phase="planning", offer=None, purchased=0)
+        target.seasonal.update(
+            round=key,
+            phase="planning",
+            offer=None,
+            purchased=0,
+            round_kind=row["kind"],
+            round_index=list(calendar["rounds"]).index(key),
+        )
     target.stage = row["stage"]
     target.phase = "planning"
     _policy(target.seasonal, rules)
     validate_world(result, content)
     return result
+
+
+def _check_calendar(player, calendar):
+    if player.seasonal["calendar_sha256"] != identity(calendar):
+        raise UnsupportedRule("calendar changed during seasonal probe")
 
 
 def observe_offer(world, seat, wisp, content, rules, *, refresh=False):
@@ -205,7 +263,7 @@ def observe_offer(world, seat, wisp, content, rules, *, refresh=False):
         if p.seasonal["purchased"] >= policy["limit"]:
             raise IllegalAction("round Wisp purchase limit reached")
         spec = rules["wisps"][wisp]
-        positive_integer(spec["cost"], "Wisp cost", zero=True)
+        wisp_cost(spec, policy["empowered"])
         for e in spec["blossom" if policy["empowered"] else "normal"]:
             _validate_effect(e)
     if p.seasonal["offer"] is not None and not refresh:
@@ -223,6 +281,17 @@ def observe_offer(world, seat, wisp, content, rules, *, refresh=False):
         else:
             _pay(target, content["economy"]["reroll_cost"])
         _reroll(result, target, content, rng)
+    if wisp is not None:
+        require_eligible(
+            target,
+            wisp,
+            spec,
+            rules,
+            empowered=policy["empowered"],
+            coven_active=_trait_count(target, content, rules["coven"]["trait"]) >= 3,
+        )
+        if target.seasonal["offer_history"] is not None:
+            target.seasonal["offer_history"][wisp] = target.seasonal["round_index"]
     target.seasonal["offer"] = wisp
     target.seasonal["shops_seen"] += 1
     result.rng_state = rng.getstate()
@@ -276,7 +345,8 @@ def buy_wisp(world, seat, content, rules):
     result = deepcopy(world)
     target = result.players[seat]
     state = target.seasonal
-    _pay(target, spec["cost"])  # rebate and reward cannot finance the purchase
+    cost = wisp_cost(spec, policy["empowered"])
+    _pay(target, cost)  # rebate and reward cannot finance the purchase
     rng = random.Random(world.seed)
     if world.rng_state is not None:
         rng.setstate(world.rng_state)
@@ -297,6 +367,17 @@ def buy_wisp(world, seat, content, rules):
             state["pending"].append(deepcopy(e))
         elif kind == "health_cost":
             target.hp = max(0, target.hp - e["amount"])
+        elif kind == "missing_health_gold":
+            e["gold"] = max(0, rules["hp_cap"] - target.hp) // e["divisor"]
+            target.gold += e["gold"]
+        elif kind == "extend_streak":
+            sign = 1 if e["outcome"] == "win" else -1
+            if target.streak * sign < 0:
+                raise IllegalAction("cannot extend opposite streak")
+            target.streak += sign * e["amount"]
+        elif kind == "shop_tier":
+            _reroll(result, target, content, rng, forced_cost=e["cost"])
+            state["shops_seen"] += 1
         applied.append(e)
     target.gold += policy["rebate"]
     state["purchased"] += 1
@@ -308,7 +389,7 @@ def buy_wisp(world, seat, content, rules):
     return result, dict(
         wisp=s["offer"],
         empowered=policy["empowered"],
-        cost=spec["cost"],
+        cost=cost,
         rebate=policy["rebate"],
         effects=applied,
         gold_after=target.gold,
@@ -363,7 +444,7 @@ def settle_observed_pvp(
     enemy_champion_kills,
     surviving_enemy_champions,
     allied_survivors,
-    one_star_deaths=0
+    one_star_deaths=0,
 ):
     """Observed resource consequences, not a replacement for missing combat logic.
 
@@ -371,6 +452,7 @@ def settle_observed_pvp(
     champion once; revival and duplication event histories require another binding.
     """
     p = _check(world, seat, content, rules, "combat")
+    _check_calendar(p, calendar)
     if describe(p.seasonal["round"], calendar)["kind"] != "pvp":
         raise UnsupportedRule("PvE/carousel settlement requires observed resources")
     if outcome not in ("win", "loss"):
@@ -480,6 +562,7 @@ def settle_observed_non_pvp(world, seat, content, rules, calendar, *, resources)
     their counters. Item/unit loot, augments and carousel drafts remain unsupported.
     """
     p = _check(world, seat, content, rules, "combat")
+    _check_calendar(p, calendar)
     round_kind = describe(p.seasonal["round"], calendar)["kind"]
     if round_kind == "pvp":
         raise IllegalAction("PvP requires its outcome-dependent settlement")

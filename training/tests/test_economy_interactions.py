@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def rules():
     return json.loads(
-        (ROOT / "configs/simulation/core/standard-economy-v1.json").read_text()
+        (ROOT / "configs/simulation/core/standard-economy-v2.json").read_text()
     )
 
 
@@ -42,6 +42,17 @@ def two_cost_content():
 
 
 class RoundEconomy(unittest.TestCase):
+    def test_stage_damage_revision_changes_survival_and_next_income(self):
+        for stage, hp, expected_hp, eliminated in [(3, 7, 0, True), (4, 9, 1, False)]:
+            with self.subTest(stage=stage):
+                p = Player(50, 2, 0, stage=stage, hp=hp)
+                result, r = project_pvp(
+                    p, fixture(), rules(), outcome="loss", surviving_enemy_champions=1
+                )
+                self.assertEqual(result.hp, expected_hp)
+                self.assertEqual(r["eliminated"], eliminated)
+                self.assertEqual(r["base_income"], 0 if eliminated else 5)
+
     def test_victory_gold_reaches_interest_before_base_or_streak_income(self):
         p = Player(9, 1, 0, stage=2, streak=1)
         before = deepcopy(p)
@@ -71,7 +82,7 @@ class RoundEconomy(unittest.TestCase):
             result, receipt = project_pvp(
                 p, fixture(), rules(), outcome="loss", surviving_enemy_champions=4
             )
-            self.assertEqual(result.hp, 88)
+            self.assertEqual(result.hp, 89)
             self.assertEqual(receipt["streak_gold"], expected)
             self.assertEqual(result.gold, 60 + expected)
         self.assertEqual(result.streak, -1)

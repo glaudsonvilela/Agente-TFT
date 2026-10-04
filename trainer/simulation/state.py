@@ -188,10 +188,14 @@ def _merge(p, champion, content):
             candidates = candidates[3:]
 
 
-def _reroll(world, p, content, rng):
+def _reroll(world, p, content, rng, *, forced_cost=None):
     from .economy import return_copies, shop_weights
 
     weights = shop_weights(content, p.level)
+    if forced_cost is not None:
+        if type(forced_cost) is not int or not 1 <= forced_cost <= 5:
+            raise UnsupportedRule('invalid forced shop tier')
+        weights = [int(cost == forced_cost) for cost in range(1, 6)]
     for offer in p.shop:
         if offer is not None:
             if offer.kind != 'champion':

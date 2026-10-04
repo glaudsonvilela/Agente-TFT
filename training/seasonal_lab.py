@@ -88,7 +88,7 @@ def main():
         "content": a.content,
         "events": Path("configs/simulation/seasons/TFTSet18/events/18.3B-economy.json"),
         "calendar": Path("configs/simulation/core/standard-calendar-v1.json"),
-        "economy": Path("configs/simulation/core/standard-economy-v1.json"),
+        "economy": Path("configs/simulation/core/standard-economy-v2.json"),
     }
     report = walkthrough(**{k: json.loads(v.read_text()) for k, v in paths.items()})
     report["data_sha256"] = {

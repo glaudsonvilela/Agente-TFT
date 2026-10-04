@@ -105,6 +105,21 @@ def review(content, events, *, matches=10000, workers=1, output_directory=Path("
         blockers=sorted(set(blockers)),
         unsupported_champions=unsupported,
         resource_wisp_candidates=len(events.get("wisps", {})),
+        wisp_bindings=dict(
+            variant_programs=sum(
+                int(bool(spec.get("normal"))) + int(bool(spec.get("blossom")))
+                for spec in events.get("wisps", {}).values()
+            ),
+            catalog_id_pairs=sum(
+                spec.get("catalog_id_verified") is True
+                for spec in events.get("wisps", {}).values()
+            ),
+            eligibility_candidates=sum(
+                bool(spec.get("eligibility"))
+                for spec in events.get("wisps", {}).values()
+            ),
+            distribution_ready=False,
+        ),
         resources=resources,
         estimated_seconds=None,
         estimated_peak_memory_bytes=None,

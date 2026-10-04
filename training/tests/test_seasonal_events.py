@@ -41,7 +41,7 @@ class SeasonalResources(unittest.TestCase):
             (ROOT / "configs/simulation/core/standard-calendar-v1.json").read_text()
         )
         self.economy = json.loads(
-            (ROOT / "configs/simulation/core/standard-economy-v1.json").read_text()
+            (ROOT / "configs/simulation/core/standard-economy-v2.json").read_text()
         )
         self.c = fixture()
         self.c["patch"] = self.rules["patch"]
@@ -109,8 +109,9 @@ class SeasonalResources(unittest.TestCase):
 
     def test_blossom_rebate_cannot_fund_purchase_and_limit_is_per_round(self):
         w = self.begin(tier=7)
-        w.players[0].gold = 1
+        w.players[0].gold = 2
         w = observe_offer(w, 0, "freeroller", self.c, self.rules)
+        w.players[0].gold = 1  # spent after the observed offer
         original = deepcopy(w)
         with self.assertRaisesRegex(IllegalAction, "insufficient"):
             buy_wisp(w, 0, self.c, self.rules)
@@ -145,7 +146,7 @@ class SeasonalResources(unittest.TestCase):
             legal_actions(w, 0, self.c)
 
     def test_random_rewards_reproduce_and_failures_leave_rng_unchanged(self):
-        w = observe_offer(self.begin(), 0, "die_roll", self.c, self.rules)
+        w = observe_offer(self.begin(key="3-1"), 0, "die_roll", self.c, self.rules)
         original = deepcopy(w)
         a, ra = buy_wisp(w, 0, self.c, self.rules)
         b, rb = buy_wisp(w, 0, self.c, self.rules)
@@ -197,10 +198,10 @@ class SeasonalResources(unittest.TestCase):
         self.assertEqual(w.players[0].seasonal["pending"], [])
 
     def test_good_loss_only_pays_losses_and_expires_after_three_combats(self):
-        w = self.buy(self.begin(), "good_loss")
+        w = self.buy(self.begin(key="3-5"), "good_loss")
         w, r = self.settle(w)
         self.assertEqual(r["resource_events"][0]["amount"], 0)
-        w = self.begin(w, "2-3")
+        w = self.begin(w, "3-6")
         w, r = self.settle(w, "loss", 0, 1, 0)
         self.assertEqual(r["resource_events"][0]["amount"], 4)
         self.assertEqual(w.players[0].seasonal["pending"][0]["combats"], 1)
@@ -259,8 +260,10 @@ class SeasonalResources(unittest.TestCase):
 
     def test_lethal_health_purchase_releases_units_and_shop_without_resurrection(self):
         w = self.begin()
-        w.players[0].hp = 3
-        w = self.buy(w, "sinister_deal")
+        w.players[0].hp = 5
+        w = observe_offer(w, 0, "sinister_deal", self.c, self.rules)
+        w.players[0].hp = 3  # health can change after an offer is generated
+        w, _ = buy_wisp(w, 0, self.c, self.rules)
         p = w.players[0]
         self.assertEqual((p.hp, p.phase), (0, "eliminated"))
         self.assertEqual(p.units, [])
@@ -313,11 +316,193 @@ class SeasonalResources(unittest.TestCase):
             with self.assertRaisesRegex(UnsupportedRule, "seasonal resources"):
                 kernel([p, deepcopy(p)], self.c)
 
+    def test_offer_windows_reject_wrong_stage_and_non_pvp_without_mutation(self):
+        for key, name in [
+            ("2-2", "die_roll"),
+            ("4-3", "freeroller"),
+            ("2-4", "coin_flip"),
+            ("2-7", "coin_flip"),
+        ]:
+            w = self.begin(key=key)
+            before = deepcopy(w)
+            with self.subTest(round=key, wisp=name), self.assertRaises(IllegalAction):
+                observe_offer(w, 0, name, self.c, self.rules)
+            self.assertEqual(w, before)
+
+    def test_refresh_checks_affordability_after_payment_and_rolls_back(self):
+        w = self.begin()
+        w.players[0].gold = 3
+        before = deepcopy(w)
+        with self.assertRaisesRegex(IllegalAction, "insufficient"):
+            observe_offer(w, 0, "freeroller", self.c, self.rules, refresh=True)
+        self.assertEqual(w, before)
+        w.players[0].round_free_rerolls = 1
+        offered = observe_offer(w, 0, "freeroller", self.c, self.rules, refresh=True)
+        self.assertEqual(offered.players[0].gold, 3)
+        self.assertEqual(offered.players[0].round_free_rerolls, 0)
+        self.assertEqual(accounted_copies(offered, self.c), w.pool_totals)
+
+    def test_variant_costs_include_zero_cost_and_official_patch_precedence(self):
+        for name, key, normal, upgraded in [
+            ("die_roll", "3-1", 2, 3),
+            ("experienced", "2-2", 1, 0),
+            ("bronze_spoon", "2-2", 3, 2),
+            ("payday", "3-5", 3, 3),
+            ("blood_money", "3-1", 2, 2),
+            ("all_fives", "6-1", 8, 8),
+        ]:
+            for tier, expected in [(0, normal), (3, upgraded)]:
+                with self.subTest(wisp=name, tier=tier):
+                    w = observe_offer(
+                        self.begin(key=key, tier=tier), 0, name, self.c, self.rules
+                    )
+                    _, r = buy_wisp(w, 0, self.c, self.rules)
+                    self.assertEqual(r["cost"], expected)
+        w = self.begin(tier=3)
+        w.players[0].gold = 0
+        gained = self.buy(w, "experienced")
+        self.assertEqual((gained.players[0].gold, gained.players[0].xp), (0, 2))
+
+    def test_life_debt_uses_missing_health_before_healing_and_rounds_down(self):
+        for hp, expected in [(28, 6), (29, 5)]:
+            w = self.begin(key="5-1", tier=3)
+            w.players[0].hp = hp
+            result = self.buy(w, "life_debt")
+            self.assertEqual(result.players[0].gold, 20 + expected)
+            self.assertEqual(result.players[0].hp, hp + 3)
+
+    def test_streak_wisps_change_next_income_and_do_not_flip_opposite_streak(self):
+        for name, initial, outcome, resulting, gold in [
+            ("drought", -3, "loss", -6, 3),
+            ("flood", 3, "win", 5, 2),
+        ]:
+            w = self.begin()
+            w.players[0].streak = initial
+            w = self.buy(w, name)
+            w, r = self.settle(
+                w,
+                outcome,
+                survivors=int(outcome == "loss"),
+                allies=int(outcome == "win"),
+            )
+            self.assertEqual(w.players[0].streak, resulting)
+            self.assertEqual(r["economy"]["streak_gold"], gold)
+            invalid = self.begin()
+            invalid.players[0].streak = -initial
+            with self.assertRaisesRegex(IllegalAction, "streak"):
+                self.buy(invalid, name)
+
+    def test_health_streak_unit_and_coven_offer_conditions(self):
+        for name, key, field, value in [
+            ("healing_pool", "2-2", "hp", 91),
+            ("life_debt", "5-1", "hp", 31),
+            ("sinister_deal", "2-2", "hp", 4),
+            ("good_loss", "3-1", "streak", 3),
+            ("golden_road", "2-2", "streak", -3),
+        ]:
+            w = self.begin(key=key)
+            setattr(w.players[0], field, value)
+            with self.subTest(wisp=name), self.assertRaises(IllegalAction):
+                self.buy(w, name)
+        with self.assertRaisesRegex(IllegalAction, "one-star"):
+            self.buy(self.begin(key="3-1"), "pocket_change")
+        trait = self.rules["coven"]["trait"]
+        self.c["champions"]["fixture"]["traits"] = [trait]
+        self.c["champions"]["fixture"]["trait_contributions"] = {trait: 3}
+        with self.assertRaisesRegex(IllegalAction, "Coven"):
+            self.buy(self.begin(), "minor_gambit")
+
+    def test_cooldown_requires_history_and_persists_across_rounds(self):
+        self.w.players[0].hp = 80
+        with self.assertRaisesRegex(UnsupportedRule, "history"):
+            self.buy(self.begin(), "healing_pool")
+        w = begin_observed_round(
+            self.w,
+            0,
+            "2-2",
+            self.c,
+            self.rules,
+            self.calendar,
+            initial_offer_history={},
+        )
+        w = self.buy(w, "healing_pool")
+        w, _ = self.settle(w)
+        w = self.begin(w, "2-3")
+        with self.assertRaisesRegex(IllegalAction, "cooldown"):
+            self.buy(w, "healing_pool")
+        # At exactly ten calendar transitions the named cooldown has elapsed.
+        index = list(self.calendar["rounds"]).index("3-3")
+        w = begin_observed_round(
+            self.w,
+            0,
+            "3-3",
+            self.c,
+            self.rules,
+            self.calendar,
+            initial_offer_history={"healing_pool": index - 10},
+        )
+        self.buy(w, "healing_pool")
+
+    def test_forced_tier_shop_returns_reservations_and_respects_exhaustion(self):
+        self.c["champions"]["two"] = deepcopy(self.c["champions"]["fixture"])
+        self.c["champions"]["two"]["cost"] = 2
+        self.w.pool["two"] = 2
+        self.w.pool_totals["two"] = 3
+        self.w.players.append(
+            Player(0, 1, 0, shop=[Offer("champion", "two", 2)] + [None] * 4)
+        )
+        w = self.begin(tier=3)
+        w.players[0].shop[4] = Offer("champion", "fixture", 1)
+        w.pool["fixture"] -= 1
+        before = deepcopy(w)
+        result = self.buy(w, "all_twos")
+        offers = [o for o in result.players[0].shop if o]
+        self.assertEqual([o.entity for o in offers], ["two", "two"])
+        self.assertEqual(sum(o is None for o in result.players[0].shop), 3)
+        self.assertEqual(accounted_copies(result, self.c), w.pool_totals)
+        self.assertEqual(result.players[0].gold, 20)  # cost 1, upgraded rebate 1
+        self.assertEqual(result.players[1].shop[0], before.players[1].shop[0])
+        self.assertEqual(w, before)
+        self.assertEqual(result, self.buy(w, "all_twos"))
+
+    def test_unknown_eligibility_price_and_calendar_are_not_silently_accepted(self):
+        self.rules["wisps"]["coin_flip"]["eligibility"]["mystery"] = True
+        with self.assertRaisesRegex(UnsupportedRule, "eligibility"):
+            self.buy(self.begin(), "coin_flip")
+        del self.rules["wisps"]["coin_flip"]["eligibility"]["mystery"]
+        del self.rules["wisps"]["coin_flip"]["blossom_cost"]
+        with self.assertRaisesRegex(UnsupportedRule, "price"):
+            self.buy(self.begin(tier=3), "coin_flip")
+        w, _ = self.settle(self.begin())
+        changed = deepcopy(self.calendar)
+        changed["rounds"]["2-3"]["kind"] = "pve"
+        with self.assertRaisesRegex(UnsupportedRule, "calendar"):
+            begin_observed_round(w, 0, "2-3", self.c, self.rules, changed)
+
     def test_all_bound_programs_run_both_variants_on_resource_snapshots(self):
         for key in self.rules["wisps"]:
             for tier in (0, 3):
                 with self.subTest(wisp=key, tier=tier):
-                    w = self.begin(tier=tier)
+                    spec = self.rules["wisps"][key]
+                    first = spec["eligibility"]["first_round"]
+                    if self.calendar["rounds"][first]["augment"]:
+                        first = successor(first, self.calendar)
+                    snapshot = deepcopy(self.w)
+                    snapshot.players[0].hp = 28
+                    snapshot.players[0].units.append(
+                        Unit("bench", "fixture", position=(0,))
+                    )
+                    snapshot.pool["fixture"] -= 1
+                    w = begin_observed_round(
+                        snapshot,
+                        0,
+                        first,
+                        self.c,
+                        self.rules,
+                        self.calendar,
+                        initial_blossom_tier=tier,
+                        initial_offer_history={},
+                    )
                     before = deepcopy(w)
                     w = self.buy(w, key)
                     self.assertEqual(before.players[0].seasonal["purchased"], 0)

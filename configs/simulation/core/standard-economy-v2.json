@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "ordinary_pvp_economy_candidate",
+  "status": "candidate_not_replay_validated",
+  "base_income": 5,
+  "win_gold": 1,
+  "interest_step": 10,
+  "interest_cap": 5,
+  "interest_order": "after_win_before_income",
+  "streak_tiers": [
+    {
+      "min": 2,
+      "gold": 1
+    },
+    {
+      "min": 5,
+      "gold": 2
+    },
+    {
+      "min": 6,
+      "gold": 3
+    }
+  ],
+  "natural_xp": 2,
+  "stage_damage": {
+    "2": 2,
+    "3": 6,
+    "4": 7,
+    "5": 10,
+    "6": 12,
+    "7": 17,
+    "8": 150
+  },
+  "damage_per_surviving_champion": 1,
+  "sources": [
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-14-1-notes/",
+      "use": "Streak tiers 3-4/5/6+; minimum changed by 14.8"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-14-8-notes/",
+      "use": "Two-result streak pays one gold; one damage per surviving enemy"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-14-9-notes/",
+      "use": "Standard mode stage damage; Double Up is a different table"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-10-6-notes/",
+      "use": "Ordinary income reaches five gold; early-game sequence is not applied here"
+    },
+    {
+      "url": "https://www.tftraits.com/glossary/",
+      "use": "Current interest thresholds 10..50; retained common economy candidate"
+    },
+    {
+      "url": "https://www.tftraits.com/articles/win-loss-streak/",
+      "use": "Secondary streak/win-gold corroboration; its PvE statement conflicts with historical official notes and is not adopted"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-16-1/",
+      "use": "Supersedes 14.9 stage 3/4 base damage with 6/7. Other stages retained."
+    }
+  ],
+  "limitations": [
+    "Conditional projection to the next ordinary income boundary after PvP, not a full calendar.",
+    "Interest timing and natural XP need current-patch replay calibration.",
+    "No PvE, carousel settlement, draws, economy augments, Wisps or trait rewards are inferred.",
+    "No extrapolation beyond the declared stages; no Double Up or Hyper Roll."
+  ],
+  "runtime_promoted": false,
+  "supersedes": "standard-economy-v1.json"
+}

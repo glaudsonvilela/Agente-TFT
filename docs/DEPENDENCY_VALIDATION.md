@@ -1,5 +1,31 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
+## Revisão atual — elegibilidade, preços e lojas dos Wisps
+
+**Não está pronto para instalar um novo cérebro.** Esta revisão corrige dependências do simulador; não gerou uma política treinada nem executou partidas completas. [Validação](evidence/seasonal-offers-20261004/validation.json) e [checagem no BigBANANA](evidence/seasonal-offers-20261004/bigbanana-preflight.json).
+
+### Lacunas corrigidas nesta revisão
+
+- Dano comum dos estágios 3/4 corrigido para **6/7**, conforme a [alteração oficial 16.1](https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-16-1/). A tabela `standard-economy-v2.json` substitui a anterior nos laboratórios; v1 e relatórios antigos permanecem históricos. Testes mostram a diferença na eliminação e no recebimento da próxima renda.
+- **27 Wisps / 54 programas candidatos**: os 15 anteriores mais Experienced, Bronze Spoon, Grow Up, Lucky 7, Life Debt, Drought, Flood e All Ones/Twos/Threes/Fours/Fives. Há **18 pares de IDs** reconciliados com o catálogo; os demais continuam sem identidade externa confirmada.
+- Custos separados por variante: Die Roll fortalecido custa 3; Experienced fortalecido custa 0; Bronze Spoon fortalecido custa 2. Notas oficiais 18.2/18.3 prevalecem sobre o catálogo anterior para Payday, Blood Money, All Fours e All Fives.
+- Oferta valida janela de rodadas, planejamento PvP, ouro após pagar a atualização, vida, sequência, quantidade de unidades de uma estrela e restrição de Coven. Condições desconhecidas são recusadas. A cadência e o sorteio completo **não** são inferidos dessa lista parcial.
+- Healing Pool exige histórico explícito para validar o intervalo de dez rodadas entre ofertas. O histórico persiste; calendários alterados no meio da sessão são recusados. Uma captura sem histórico não equivale a nunca ter visto a oferta.
+- Life Debt calcula ouro com a vida faltante antes da cura. Drought/Flood alteram a sequência usada para a próxima renda e não convertem uma sequência oposta. XP, créditos de rolagem e custos de compra usam as operações comuns.
+- Lojas forçadas por custo reutilizam o estoque compartilhado: devolvem a reserva anterior, não retiram ofertas dos adversários e não fabricam cópias quando o custo está esgotado. Esse último comportamento ainda exige confirmação em replay. Não há cópia do catálogo por compra nem novo serviço em memória.
+
+### Verificação e limites
+
+Suíte local: **624 testes, 612 passaram e 12 ignorados**, em 28,257 s. No contêiner isolado do BigBANANA, **38 testes direcionados passaram**, em 0,459 s. Os pequenos treinos sintéticos internos da suíte são testes de componentes e não equivalem ao treino do coach. O [exemplo de recursos](evidence/seasonal-offers-20261004/walkthrough.json) continua identificado como observação declarada, com zero partidas/combates simulados e zero rótulos de treino.
+
+O contêiner mantém 1,5 CPU e 1 GiB de RAM; a checagem encontrou cerca de 4,5 GiB livres no disco do servidor. O pacote foi validado em uma pasta isolada. Não houve promoção de modelo ou substituição do serviço em produção.
+
+Ainda faltam: sorteio/cadência/condições completas de todos os Wisps; resgates de Coven com escolha de unidades e itens; aprimoramentos; lojas especiais e prioridade; loot PvE/carrossel; pareamento/fantasmas; integração da partida completa; calibração em replay e combate restante. As habilidades permanecem pausadas conforme a solicitação. **O lote de 10 mil partidas e o treinamento do novo cérebro não começaram.**
+
+A [reconciliação de fontes](evidence/seasonal-offers-20261004/source-reconciliation.json) registra também divergências abertas: a fonte suplementar atual lista 174 Wisps, enquanto o inventário anterior tinha 148; e uma recompensa de Coven diverge das notas oficiais. Não se calcula percentual global de conclusão com esses denominadores.
+
+## Histórico da revisão anterior
+
 ## Eventos sazonais e preparação do lote de 10 mil — 04/10/2026
 
 **Etapa parcial, com código executável e testes no BigBANANA. Não há 10 mil partidas completas em execução.** O [relatório do servidor](evidence/seasonal-events-20261004/bigbanana-preflight.json) identifica cada impedimento; a [verificação](evidence/seasonal-events-20261004/validation.json) registra os hashes e os testes. As habilidades continuam pausadas por solicitação do usuário.

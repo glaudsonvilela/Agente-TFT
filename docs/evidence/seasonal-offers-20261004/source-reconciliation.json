@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "patch": "18.3B-20260928",
+  "catalog_provenance": {
+    "url": "https://raw.githubusercontent.com/noxelisdev/TFT_DDragon/master/data/en_US/charms.json",
+    "sha256": "8a98eeed167ecbaee4578d299204aa0897d7f0684eefb235a6e3a2f8b5d7bf07",
+    "provider_version": "16.19.1",
+    "provider_version_is_game_patch": false,
+    "official_patch_overrides_take_precedence": true
+  },
+  "current_bindings": {
+    "beggars_wisp": {
+      "name": "Beggar's Wisp",
+      "cost": 0,
+      "blossom_cost": 0,
+      "catalog_ids": {
+        "normal": "DA_BeggarsWisp18",
+        "blossom": "DA_BeggarsWisp18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": null
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "coin_flip": {
+      "name": "Coin Flip",
+      "cost": 0,
+      "blossom_cost": 0,
+      "catalog_ids": {
+        "normal": "DA_CoinFlip18",
+        "blossom": "DA_CoinFlip18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "die_roll": {
+      "name": "Die Roll",
+      "cost": 2,
+      "blossom_cost": 3,
+      "catalog_ids": {
+        "normal": "DA_DieRoll18",
+        "blossom": "DA_DieRoll18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 3
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-1"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "freeroller": {
+      "name": "Freeroller",
+      "cost": 2,
+      "blossom_cost": 2,
+      "catalog_ids": {
+        "normal": "DA_18_Freeroller",
+        "blossom": "DA_18_Freeroller_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 2
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "4-1"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "healing_pool": {
+      "name": "Healing Pool",
+      "cost": 2,
+      "blossom_cost": 2,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "missing_hp_min": 10,
+        "cooldown_rounds": 10
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "blood_money": {
+      "name": "Blood Money",
+      "cost": 2,
+      "blossom_cost": 2,
+      "catalog_ids": {
+        "normal": "DA_18_BloodMoney",
+        "blossom": "DA_18_BloodMoney_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 1
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "fertilize": {
+      "name": "Fertilize",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": {
+        "normal": "DA_18_Fertilize",
+        "blossom": "DA_18_Fertilize_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 1
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "take_one_with_ya": {
+      "name": "Take One With Ya",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_max": 2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "good_loss": {
+      "name": "Good Loss",
+      "cost": 4,
+      "blossom_cost": 4,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-1",
+        "streak_max": 2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "golden_road": {
+      "name": "Golden Road",
+      "cost": 2,
+      "blossom_cost": 2,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "streak_min": -2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "minor_gambit": {
+      "name": "Minor Gambit",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_min": -2,
+        "coven_inactive": true
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "major_gambit": {
+      "name": "Major Gambit",
+      "cost": 3,
+      "blossom_cost": 3,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "4-2",
+        "last_round": "5-7",
+        "streak_min": -2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "payday": {
+      "name": "Payday",
+      "cost": 3,
+      "blossom_cost": 3,
+      "catalog_ids": {
+        "normal": "DA_18_Payday",
+        "blossom": "DA_18_PaydayUpgrade"
+      },
+      "catalog_prices": {
+        "normal": 4,
+        "blossom": 4
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-5",
+        "last_round": "4-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "pocket_change": {
+      "name": "Pocket Change",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": {
+        "normal": "DA_18_PocketChange",
+        "blossom": "DA_18_PocketChange_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 1
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-1",
+        "one_star_min": 2
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "sinister_deal": {
+      "name": "Sinister Deal",
+      "cost": 0,
+      "blossom_cost": 0,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-3/",
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "hp_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "experienced": {
+      "name": "Experienced",
+      "cost": 1,
+      "blossom_cost": 0,
+      "catalog_ids": {
+        "normal": "DA_18_Experienced",
+        "blossom": "DA_18_Experienced_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 0
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "bronze_spoon": {
+      "name": "Bronze Spoon",
+      "cost": 3,
+      "blossom_cost": 2,
+      "catalog_ids": {
+        "normal": "DA_18_BronzeSpoon",
+        "blossom": "DA_18_BronzeSpoon_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 3,
+        "blossom": 2
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "4-1"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "grow_up": {
+      "name": "Grow Up",
+      "cost": 7,
+      "blossom_cost": 7,
+      "catalog_ids": {
+        "normal": "DA_GrowUp18",
+        "blossom": "DA_GrowUp18_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 7,
+        "blossom": 7
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-1",
+        "last_round": "4-7"
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "lucky_7": {
+      "name": "Lucky 7",
+      "cost": 7,
+      "blossom_cost": 7,
+      "catalog_ids": {
+        "normal": "DA_Lucky718",
+        "blossom": "DA_Lucky718_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 7,
+        "blossom": 7
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "6-1",
+        "last_round": null
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "life_debt": {
+      "name": "Life Debt",
+      "cost": 0,
+      "blossom_cost": 0,
+      "catalog_ids": {
+        "normal": "DA_18_LifeDebt",
+        "blossom": "DA_18_LifeDebt_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "5-1",
+        "last_round": null,
+        "missing_hp_min": 70
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "drought": {
+      "name": "Drought",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_max": 0
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "flood": {
+      "name": "Flood",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": null,
+      "catalog_prices": null,
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "streak_min": 0
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_ones": {
+      "name": "All Ones",
+      "cost": 0,
+      "blossom_cost": 0,
+      "catalog_ids": {
+        "normal": "DA_18_AllOnes",
+        "blossom": "DA_18_AllOnes_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 0,
+        "blossom": 0
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "2-7",
+        "gold_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_twos": {
+      "name": "All Twos",
+      "cost": 1,
+      "blossom_cost": 1,
+      "catalog_ids": {
+        "normal": "DA_18_AllTwos",
+        "blossom": "DA_18_AllTwos_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 1,
+        "blossom": 1
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "2-1",
+        "last_round": "3-4",
+        "gold_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_threes": {
+      "name": "All Threes",
+      "cost": 2,
+      "blossom_cost": 2,
+      "catalog_ids": {
+        "normal": "DA_18_AllThrees",
+        "blossom": "DA_18_AllThrees_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 2,
+        "blossom": 2
+      },
+      "override_source": null,
+      "eligibility": {
+        "first_round": "3-5",
+        "last_round": "4-7",
+        "gold_min": 5
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_fours": {
+      "name": "All Fours",
+      "cost": 3,
+      "blossom_cost": 3,
+      "catalog_ids": {
+        "normal": "DA_18_AllFours",
+        "blossom": "DA_18_AllFours_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 4,
+        "blossom": 4
+      },
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+      "eligibility": {
+        "first_round": "5-1",
+        "last_round": "5-7",
+        "gold_min": 8
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    },
+    "all_fives": {
+      "name": "All Fives",
+      "cost": 8,
+      "blossom_cost": 8,
+      "catalog_ids": {
+        "normal": "DA_18_AllFives",
+        "blossom": "DA_18_AllFives_Upgrade"
+      },
+      "catalog_prices": {
+        "normal": 10,
+        "blossom": 10
+      },
+      "override_source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/",
+      "eligibility": {
+        "first_round": "6-1",
+        "last_round": null,
+        "gold_min": 15
+      },
+      "eligibility_source": "https://tftips.app/en/wisps"
+    }
+  },
+  "damage_revision": {
+    "source": "https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-16-1/",
+    "previous": {
+      "3": 5,
+      "4": 8
+    },
+    "current": {
+      "3": 6,
+      "4": 7
+    },
+    "historical_v1_preserved": true
+  },
+  "unresolved": [
+    {
+      "topic": "Full Wisp distribution",
+      "detail": "174 names reported by TFTips versus 148 in prior TFTraits inventory; denominator and random weights not reconciled. 27 bound candidates cannot substitute for the full pool."
+    },
+    {
+      "topic": "Coven 250 Morgana cashout",
+      "detail": "Official 18.2 shows 3 gold alongside the changed reward; supplemental current tables list 5. Preserve conflict until a newer override or replay resolves it.",
+      "source": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-2/"
+    },
+    {
+      "topic": "Shop and offer validation",
+      "detail": "Forced tier exhaustion, cadence, fallback-only proof, general cooldown, variant prices without catalog pair and seasonal shop priority still need calibration."
+    },
+    {
+      "topic": "Complete execution",
+      "detail": "Augments, loot, carousel ownership, Coven cashouts, pairing and combat integration remain incomplete. No complete-match executor or production policy trained."
+    }
+  ]
+}
