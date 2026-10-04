@@ -160,6 +160,21 @@ class SetupContracts(unittest.TestCase):
         self.assertEqual(imports[0][-2:], ["--version", "2"])
         self.assertFalse(any("--unregister" in call for call in self.fake.calls))
 
+    def test_new_packaged_guest_imports_beside_old_guest(self):
+        self.fake.distros.add("AgenteTFT-Core-v1")
+        self.tar.rename(self.core / "AgenteTFT-Core-v2.tar")
+        self.manifest["distro_name"] = "AgenteTFT-Core-v2"
+        self.manifest["rootfs_file"] = "AgenteTFT-Core-v2.tar"
+        self.manifest["version"] = "0.6.1"
+        (self.core / "core-package.json").write_text(json.dumps(self.manifest), encoding="utf-8")
+        upgraded = CoreInstaller(self.core, self.base / "installed", self.base / "App.exe",
+                                 run=self.fake, memory=lambda: 8 * 1024**3,
+                                 build=lambda: 26100, host_probe=lambda package, log: True)
+        upgraded.clear_resume = lambda: None
+        self.assertEqual(upgraded.install(lambda _: None), "ready")
+        self.assertEqual(self.fake.distros, {"AgenteTFT-Core-v1", "AgenteTFT-Core-v2"})
+        self.assertFalse(any("--unregister" in call for call in self.fake.calls))
+
     def test_first_import_after_reboot_with_no_wsl_distribution(self):
         self.fake.empty_list_is_error = True
         self.assertEqual(self.installer.install(lambda _: None), "ready")

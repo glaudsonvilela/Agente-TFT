@@ -1,6 +1,6 @@
 [Setup]
 AppName=Agente TFT · Laboratório HM4.5
-AppVersion=0.6
+AppVersion=0.6.1
 DefaultDirName={localappdata}\AgenteTFT-HM45
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest
@@ -21,7 +21,7 @@ SetupLogging=yes
 [Files]
 Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "hm45-core\core-package.json"; DestDir: "{app}\core"; Flags: ignoreversion
-Source: "hm45-core\AgenteTFT-Core-v1.tar"; DestDir: "{app}\core"; Flags: ignoreversion
+Source: "hm45-core\AgenteTFT-Core-v2.tar"; DestDir: "{app}\core"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\Agente TFT HM4.5"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
@@ -64,7 +64,7 @@ begin
   AddParagraph(OverviewPage, 18,
     'O Agente TFT usa captura Rust no Windows. A prévia fica no Windows em até 720p; os quadros para análise seguem por IP local à VM WSL 2. O arquivo do vídeo não é importado.');
   AddParagraph(OverviewPage, 102,
-    'O assistente verifica o PC, instala somente a distribuição AgenteTFT-Core-v1 e testa a análise. As outras distribuições WSL e o arquivo global .wslconfig não são alterados.');
+    'O assistente verifica o PC, instala a distribuição AgenteTFT-Core-v2 e testa a análise. A versão anterior e outras distribuições WSL são preservadas.');
   AddParagraph(OverviewPage, 200,
     'Se o Windows precisar habilitar o WSL 2, pedirá permissão de administrador. Caso exija reinício, o assistente mostrará o botão Reiniciar agora e continuará no próximo login.');
 end;

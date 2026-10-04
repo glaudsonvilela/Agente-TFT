@@ -27,8 +27,8 @@ if set(app_manifest.get("offline_voice_options", [])) != {"supertonic-f1", "dii"
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 assets = json.loads((ROOT / "build/hm4-live-assets/ASSET_REPORT.json").read_text(encoding="utf-8"))
 if (manifest.get("schema_version") != 1 or
-        manifest.get("distro_name") != "AgenteTFT-Core-v1" or
-        manifest.get("rootfs_file") != "AgenteTFT-Core-v1.tar" or
+        manifest.get("distro_name") != "AgenteTFT-Core-v2" or
+        manifest.get("rootfs_file") != "AgenteTFT-Core-v2.tar" or
         manifest.get("analysis_health_contract") != "l3_ocr_b4_roi_v1" or
         manifest.get("linux_container_self_test") is not True or
         manifest.get("model_sha256") != assets.get("model_sha256") or

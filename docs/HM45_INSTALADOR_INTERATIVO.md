@@ -11,7 +11,7 @@ instalação, sem comandos manuais para o usuário.
    além da privacidade do replay. Confere Windows x64, memória, espaço,
    virtualização, WSL 2 e SHA-256 do rootfs antes de qualquer mudança.
 2. **Instalação:** habilita WSL 2 com uma janela UAC quando necessário,
-   importa `AgenteTFT-Core-v1` na conta original do usuário e testa a VM.
+   importa `AgenteTFT-Core-v2` na conta original do usuário e testa a VM; a versão anterior é preservada.
    Se houver reinicialização, registra uma retomada única em `HKCU\RunOnce`
    e oferece **Reiniciar agora**, após pedir que o usuário salve seu trabalho.
 3. **Concluir:** o botão para abrir o Agente TFT só aparece depois que os
@@ -39,9 +39,9 @@ permissão do Windows, o reinício e o resultado do teste de saúde.
 
 - `dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe`, já compilado com
   `hm45_setup` e `hm45_setup_core`;
-- `build/hm45-core/AgenteTFT-Core-v1.tar`;
+- `build/hm45-core/AgenteTFT-Core-v2.tar`;
 - `build/hm45-core/core-package.json` com `schema_version=1`,
-  `distro_name=AgenteTFT-Core-v1`, `rootfs_file`, `sha256`, `version` e
+  `distro_name=AgenteTFT-Core-v2`, `rootfs_file`, `sha256`, `version` e
   `analysis_health_contract=l3_ocr_b4_roi_v1`;
 - `/opt/agente-tft/bin/health-check` no rootfs. O comando deve aceitar
   `--version <version>`, testar L3/OCR/B4 com quadros pela conexão local e

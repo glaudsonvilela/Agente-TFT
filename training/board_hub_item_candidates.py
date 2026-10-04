@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import argparse
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -67,6 +69,10 @@ class TemplateBank:
     matrix: object
     squared_norms: object
     size: int
+    # Exact source pixels only: a changed icon always runs the matcher again.
+    recent_rankings: OrderedDict = field(default_factory=OrderedDict)
+    cache_hits: int = 0
+    cache_misses: int = 0
 
     def __len__(self) -> int:
         return len(self.groups)
@@ -102,17 +108,30 @@ def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
 
     if not patches or not templates.groups:
         return []
+    # Inventory and equipped icons often stay pixel-identical across replay
+    # frames. Keep only a small per-session cache so long sessions do not grow.
+    fingerprint = hashlib.blake2b(
+        b"".join(patch.tobytes() for patch in patches), digest_size=16).digest()
+    if fingerprint in templates.recent_rankings:
+        templates.cache_hits += 1
+        templates.recent_rankings.move_to_end(fingerprint)
+        return copy.deepcopy(templates.recent_rankings[fingerprint])
+    templates.cache_misses += 1
     observed = np.stack([patch.reshape(-1) for patch in patches]).astype(np.float64)
     norms = np.einsum('ij,ij->i', observed, observed)
     squared = norms[:, None] + templates.squared_norms[None, :] - 2 * observed @ templates.matrix.T
     scores = np.sqrt(np.maximum(0, squared.min(axis=0)) / (templates.size * templates.size * 3))
     ranked = np.argsort(scores)[:3]
-    return [{"ids_with_same_template": sorted(set(templates.groups[index]["ids"])),
+    result = [{"ids_with_same_template": sorted(set(templates.groups[index]["ids"])),
              "catalog_options": [{"visual_id": item_id,
                                   "name": templates.groups[index]["labels"][item_id]}
                                  for item_id in sorted(templates.groups[index]["labels"])],
              "template_sha256": templates.groups[index]["template_hash"],
              "rms": round(float(scores[index]), 3)} for index in ranked]
+    templates.recent_rankings[fingerprint] = copy.deepcopy(result)
+    if len(templates.recent_rankings) > 64:
+        templates.recent_rankings.popitem(last=False)
+    return result
 
 
 def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:

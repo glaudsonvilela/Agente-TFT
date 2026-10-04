@@ -29,7 +29,7 @@ jobs:
       - name: Build and self-test the WSL root filesystem
         run: python3 scripts/build_hm45_core.py
       - name: Verify on a two-core, 768 MiB VM budget
-        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.0 self-test --version 0.6.0
+        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.1 self-test --version 0.6.1
       - name: Exercise the host client through local IP
         run: |
           python3 -m pip install Pillow==12.1.0
@@ -38,7 +38,7 @@ jobs:
         with:
           name: HM45-Linux-Core
           path: |
-            build/hm45-core/AgenteTFT-Core-v1.tar
+            build/hm45-core/AgenteTFT-Core-v2.tar
             build/hm45-core/core-package.json
             hm45-vm-e2e.json
           compression-level: 0
@@ -65,7 +65,7 @@ jobs:
       - name: Verify artifact layout before Windows compilation
         shell: pwsh
         run: |
-          if (-not (Test-Path build/hm45-core/AgenteTFT-Core-v1.tar)) { throw 'Linux rootfs missing at expected path' }
+          if (-not (Test-Path build/hm45-core/AgenteTFT-Core-v2.tar)) { throw 'Linux rootfs missing at expected path' }
           if (-not (Test-Path build/hm45-core/core-package.json)) { throw 'Linux manifest missing at expected path' }
       - name: Install Windows build dependencies
         shell: pwsh

@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from PIL import Image
 
-from training.board_hub_item_candidates import load_reference, run
+from training.board_hub_item_candidates import load_reference, load_templates, rank_patches, run
 
 
 ROOT = Path(__file__).parents[2]
@@ -15,6 +15,29 @@ PROFILE = json.loads((ROOT / "configs/ui/match001-inventory-v1.json").read_text(
 
 
 class ItemCandidateTests(unittest.TestCase):
+    def test_exact_icon_cache_reuses_pixels_without_stale_results_or_growth(self):
+        with tempfile.TemporaryDirectory() as temp:
+            icon_dir = Path(temp)
+            for name, color in (("red.png", (230, 20, 20)),
+                                ("green.png", (20, 230, 20))):
+                Image.new("RGB", (28, 28), color).save(icon_dir / name)
+            bank, _ = load_templates([{"id": "red", "icon": "red.png"},
+                                      {"id": "green", "icon": "green.png"}], icon_dir)
+            red = np.full((28, 28, 3), (230, 20, 20), dtype=np.float32)
+            original = rank_patches([red], bank)
+            original[0]["catalog_options"].append({"visual_id": "injected"})
+            again = rank_patches([red], bank)
+            self.assertEqual(bank.cache_hits, 1)
+            self.assertEqual(bank.cache_misses, 1)
+            self.assertEqual(again[0]["catalog_options"],
+                             [{"visual_id": "red", "name": "red"}])
+            green = np.full((28, 28, 3), (20, 230, 20), dtype=np.float32)
+            self.assertEqual(rank_patches([green], bank)[0]["ids_with_same_template"], ["green"])
+            self.assertEqual(bank.cache_misses, 2)
+            for value in range(70):
+                rank_patches([np.full((28, 28, 3), value, dtype=np.float32)], bank)
+            self.assertLessEqual(len(bank.recent_rankings), 64)
+
     def test_reference_is_pinned_and_complete_catalog_is_separate_from_replay(self):
         folder = next((ROOT / "knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18").iterdir())
         manifest, entries = load_reference(folder)

@@ -8,6 +8,7 @@ from .core import crop_box, valid_box
 from .runtime_session import RuntimeSession, HM4RuntimeSession
 from .session import Options
 from .capture_source import list_targets
+from .process_memory import current_process_memory
 
 def runtime_paths():
     root=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[3]))
@@ -468,6 +469,7 @@ class App:
                                    render_p50_ms=pct(self.render_ms,.5),
                                    render_p95_ms=pct(self.render_ms,.95),max_size=[1280,720] if self.vm_core else None),
           samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"],
+          process_memory=current_process_memory(),
           voice=dict(enabled=bool(self.voice and self.voice.enabled),
                      ready=bool(self.voice and self.voice.ready),
                      selected=self.voice.voice_id if self.voice else None,
@@ -535,7 +537,8 @@ class App:
                 if now>=self._next_perf_log_ns:
                     self._next_perf_log_ns=now+5_000_000_000
                     s.store.emit("telemetry",dict(event="ui_performance",preview=perf["preview"],
-                        voice=perf["voice"],coach_updates=s.counts["coach_updates"],
+                        voice=perf["voice"],process_memory=perf["process_memory"],
+                        coach_updates=s.counts["coach_updates"],
                         actionable_tips=s.counts["replay_tips"]))
                 if self.voice:
                     current_label=self.voice.voices.get(self.voice.voice_id)

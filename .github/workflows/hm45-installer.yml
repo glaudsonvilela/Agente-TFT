@@ -52,7 +52,7 @@ jobs:
           Copy-Item C:/Windows/System32/notepad.exe dist/AgenteTFT-HUD-HM4-Auto/AgenteTFT-HUD-HM4-Auto.exe
           Set-Content -Path build/hm45-core/core-package.json -Value '{}' -Encoding utf8
           Set-Content -Path build/hm45-core/fixture.txt -Value 'syntax fixture' -Encoding utf8
-          tar -cf build/hm45-core/AgenteTFT-Core-v1.tar -C build/hm45-core fixture.txt
+          tar -cf build/hm45-core/AgenteTFT-Core-v2.tar -C build/hm45-core fixture.txt
           Copy-Item scripts/hm45_installer/AgenteTFT_HM45.iss build/HM45.iss
           $iscc = @('C:/Program Files (x86)/Inno Setup 6/ISCC.exe', 'C:/Program Files/Inno Setup 6/ISCC.exe') | Where-Object { Test-Path $_ } | Select-Object -First 1
           if (-not $iscc) { throw 'ISCC.exe missing' }
