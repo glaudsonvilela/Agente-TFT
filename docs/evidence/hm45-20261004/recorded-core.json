@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "frames": 74,
+  "source": "hm4-20261004-035734-676421",
+  "reader_ip_p95_ms": 282.15502097737044,
+  "hub_ip_p95_ms": 110.01448798924685,
+  "item_neural_p95_ms": 0.8344999805558473,
+  "peak_cgroup_memory_bytes": 419467264,
+  "tips": [
+    {
+      "source_ms": 302040.475,
+      "tip": {
+        "status": "action",
+        "actionable": true,
+        "text": "Suba para o nível 4 por 4 de ouro. Restam 2 de ouro.",
+        "speech_text": "Suba para o nível 4. Gaste 4 de ouro.",
+        "basis": [
+          "decision.buy_xp",
+          "hud.stage",
+          "hud.gold",
+          "hud.level",
+          "hud.xp",
+          "controls.buy_xp_price"
+        ],
+        "confidence": 0.9612112641334534,
+        "strategy_basis": "explicit_heuristic",
+        "decision_key": "level:4:cost:4",
+        "speech_max_age_ms": 8000
+      }
+    }
+  ],
+  "transport": "authenticated_loopback_tcp_inside_core_container",
+  "windows_wsl_field_test": false,
+  "champion_identity_accuracy_measured": false,
+  "source_commit": "62ad6b7b03736aeef06d05c4205b16b31b4032c1"
+}

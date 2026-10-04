@@ -1,0 +1,31 @@
+{
+  "kind": "item_icon_classifier",
+  "scope": "item_art_only",
+  "classes": 193,
+  "optimizer_steps_total": 1200,
+  "source_artworks": 193,
+  "replay_labels_used_for_training": 0,
+  "simulation_paths": 0,
+  "combat_learning": false,
+  "status": "trained_evaluated",
+  "optimizer_steps": 1200,
+  "changed_parameter_tensors": 8,
+  "parameter_count": 113345,
+  "training_seconds": 67.39925358598703,
+  "first_50_loss_mean": 4.671094617843628,
+  "last_50_loss_mean": 0.019048505263635888,
+  "synthetic_augmented_top1": 0.9857512712478638,
+  "replay_correct": 5,
+  "replay_total": 5,
+  "replay_distinct_items": 4,
+  "independent_match_validation": false,
+  "strategic_learning": false,
+  "runtime_promoted": false,
+  "replay_evaluation_summary": {
+    "correct": 5,
+    "samples": 5,
+    "distinct_items": 4,
+    "scope": "visually reviewed crops from one session; not independent match accuracy"
+  },
+  "artifacts_url": "https://github.com/glaudsonvilela/Agente-TFT/releases/tag/item-icons-lab-20261004"
+}

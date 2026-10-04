@@ -66,10 +66,17 @@ tivesse mudado. O novo pacote usa `AgenteTFT-Core-v2`, mantendo a distribuição
 anterior intacta. Assim o próximo teste efetivamente executará o novo código
 e o escopo `set_plus_core` do catálogo.
 
+## Atualização após as correções
+
+A prévia Windows agora usa BGRA nativo e `StretchDIBits`, evitando a conversão
+via PIL/PhotoImage no caminho normal. Isso é desenho GDI; não equivale a uma
+implementação completa de renderização GPU. O cronômetro de captura tolera
+variação de chegada dos quadros e o cronômetro de desenho desconta seu próprio
+tempo de trabalho. As medições posteriores estão em `HM45_ENTREGA_20261004.md`.
+
 No próximo teste Windows, verificar: versão e distribuição da VM em uso;
 prévia sustentada perto dos 30 fps configurados; tempo e idade de renderização;
-memória residente e privada do processo da HUD, agora registradas a cada 5 s;
-tempos do HUB; geração de dicas apenas após unidades e ouro confirmados. A
-otimização do ranking não elimina o custo da conversão e do desenho da prévia
-em Tk. Uma solução de renderização acelerada ainda precisa ser implementada e
-medida em campo antes de declarar a fluidez resolvida.
+memória residente e privada dos processos da HUD e de voz; tempos do HUB;
+geração de dicas econômicas com HUD e controle de XP confirmados, e compras
+somente com unidades próprias confirmadas. O ensaio isolado não substitui
+a medição da aplicação completa no computador do usuário.

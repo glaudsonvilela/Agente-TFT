@@ -1,0 +1,14 @@
+{
+  "scope": "preview_transport_and_drawing_only",
+  "seconds": 330,
+  "source": "owned_high_entropy_animated_window",
+  "target_fps": 30,
+  "early_fps": 23.226604592934862,
+  "late_fps": 23.616689463844512,
+  "render_p95_ms": 0.4338999999617954,
+  "private_memory_delta_bytes": 1302528,
+  "error": null,
+  "whole_application_or_user_pc_validated": false,
+  "source_to_draw_p95_ms": 9.67465,
+  "source_commit": "ea30062aa0663baa8b4cacd895814b9d6b78b221"
+}

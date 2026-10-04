@@ -1,0 +1,193 @@
+{
+  "complete": true,
+  "source": "hm4-20261004-035734-676421",
+  "frames": [
+    {
+      "frame_id": 6210,
+      "hud": [
+        {
+          "confidence": 0.9628915190696716,
+          "field": "stage",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "2-1",
+          "value": "2-1"
+        },
+        {
+          "confidence": 0.9649301767349243,
+          "field": "gold",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "11",
+          "value": 11
+        },
+        {
+          "confidence": 0.9670999050140381,
+          "field": "level",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "3",
+          "value": 3
+        },
+        {
+          "confidence": 0.9601544141769409,
+          "field": "xp",
+          "source_ms": 296831,
+          "status": "single_frame_observation",
+          "text": "2/6",
+          "value": 2
+        }
+      ],
+      "decision": {
+        "schema_version": "0.1.0",
+        "action": {
+          "type": "wait"
+        },
+        "confidence": 0.0,
+        "evidence": [
+          {
+            "code": "OWNED_UNITS_UNVERIFIED"
+          }
+        ],
+        "policy": "verified_third_copy_v1"
+      },
+      "tip": {
+        "status": "awaiting_decision",
+        "text": "Aguardando identificação confiável dos campeões no tabuleiro.",
+        "basis": [
+          "hud.gold",
+          "decision.OWNED_UNITS_UNVERIFIED"
+        ],
+        "actionable": false,
+        "gold_observed": 11
+      },
+      "read_to_decision_ms": 94.0,
+      "voice_queued": false
+    },
+    {
+      "frame_id": 6300,
+      "hud": [
+        {
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "confidence": 0.9628915190696716,
+          "field": "stage",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "2-1",
+          "value": "2-1"
+        },
+        {
+          "confidence": 0.9684454202651978,
+          "field": "gold",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "6",
+          "value": 6
+        },
+        {
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "confidence": 0.9670999050140381,
+          "field": "level",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "3",
+          "value": 3
+        },
+        {
+          "cache_delivery": {
+            "delivered_frame_id": 6300,
+            "exact_roi_rgb": true,
+            "source_frame_id": 6210,
+            "source_ms": 296831
+          },
+          "confidence": 0.9601544141769409,
+          "field": "xp",
+          "source_ms": 302040,
+          "status": "single_frame_observation",
+          "text": "2/6",
+          "value": 2
+        }
+      ],
+      "decision": {
+        "schema_version": "0.1.0",
+        "action": {
+          "type": "buy_xp",
+          "target_level": 4,
+          "gold_cost": 4,
+          "purchases": 1,
+          "gold_after": 2
+        },
+        "confidence": 0.9601544141769409,
+        "evidence": [
+          {
+            "code": "LEVEL_WITH_RESERVE",
+            "stage": "2-1",
+            "observed_xp": "2/6",
+            "reserve_gold": 0,
+            "consecutive_consistent_observations": 2
+          }
+        ],
+        "policy": "replay_standard_tempo_v1",
+        "strategy_basis": "explicit_heuristic",
+        "combat_outcome_predicted": false,
+        "patch": "18.3"
+      },
+      "tip": {
+        "status": "action",
+        "actionable": true,
+        "text": "Suba para o nível 4 por 4 de ouro. Restam 2 de ouro.",
+        "speech_text": "Suba para o nível 4. Gaste 4 de ouro.",
+        "basis": [
+          "decision.buy_xp",
+          "hud.stage",
+          "hud.gold",
+          "hud.level",
+          "hud.xp",
+          "controls.buy_xp_price"
+        ],
+        "confidence": 0.9601544141769409,
+        "strategy_basis": "explicit_heuristic",
+        "decision_key": "level:4:cost:4",
+        "speech_max_age_ms": 8000
+      },
+      "read_to_decision_ms": 31.0,
+      "voice_queued": true
+    }
+  ],
+  "voice_id": "supertonic-f1",
+  "voice_process_separate": true,
+  "voice_process_memory": {
+    "working_set_bytes": 502505472,
+    "private_bytes": 594853888
+  },
+  "events": [
+    {
+      "event": "voice_play_started",
+      "decision_key": "level:4:cost:4",
+      "source_age_ms": 1218.0,
+      "generation_ms": 1187.0,
+      "physical_audio_measured": false,
+      "frame_id": 6300,
+      "source_ms": 302040,
+      "voice_id": "supertonic-f1"
+    }
+  ],
+  "audio": {
+    "frames": 187392,
+    "rate": 44100
+  },
+  "physical_audio_measured": false,
+  "full_match_accuracy_measured": false,
+  "policy_kind": "explicit_economy_heuristic_not_neural_combat_strategy",
+  "source_commit": "ea30062aa0663baa8b4cacd895814b9d6b78b221"
+}

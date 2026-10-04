@@ -37,8 +37,9 @@ aloud or adding them to the advice history. The BigBANANA terminal and web
 panel separate the server's unpromoted training candidate from the diagnostic
 neural mapping measured in the last imported Windows session.
 
-The next Windows test should press **Testar voz** once, then play a replay on
-the chosen monitor for several minutes. Record `voice.played`,
+The original button-only voice check is superseded by the recorded replay
+pipeline described in `HM45_ENTREGA_20261004.md`. Play a replay on the chosen
+monitor and exercise the complete image → decision → automatic voice path. Record `voice.played`,
 `preview.fps`, `preview.native_received`, `preview.native_queue_replaced`,
 `preview.render_p95_ms`, `replay_tips`, and `board_reference_status`. A real
 Windows run is required to measure the FPS change and audio output; CI only
