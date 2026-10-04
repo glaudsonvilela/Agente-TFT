@@ -13,7 +13,13 @@ METRICS_URL = "http://127.0.0.1:8801/v1/training/dashboard-metrics"
 
 
 def render(data: dict) -> str:
+    def number(value, digits=1):
+        return "medindo" if value is None else f"{value:.{digits}f}"
+
     jobs = data["jobs_by_status"]
+    resources = data.get("resources") or {}
+    host = resources.get("host") or {}
+    container = resources.get("container") or {}
     simulator = "ativo" if data["simulator_ready"] else "ainda não ativo"
     neural = ("treino não iniciado" if data["neural_training_status"] == "not_started"
               else "novo candidato rejeitado por regressão" if data["neural_training_status"] == "regression_rejected"
@@ -27,6 +33,12 @@ def render(data: dict) -> str:
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
         f"Lotes: {jobs['completed']} concluídos, {jobs['running']} em execução, {jobs['failed']} falharam",
+        f"CPU BigBANANA: {number(host.get('cpu_percent'))}%  |  "
+        f"RAM: {number((host.get('memory_used_mib') or 0) / 1024) if host.get('memory_used_mib') is not None else 'indisponível'}"
+        f"/{number((host.get('memory_total_mib') or 0) / 1024) if host.get('memory_total_mib') is not None else 'indisponível'} GiB",
+        f"CPU contêiner TFT: {number(container.get('cpu_cores_used'), 2)}"
+        f"/{number(container.get('cpu_limit_cores'))} núcleo(s)  |  "
+        f"RAM: {number(container.get('memory_used_mib'))}/{number(container.get('memory_limit_mib'))} MiB",
         f"Tempo médio por lote: {data['mean_completed_job_ms'] / 1000:.2f} s"
         if data["mean_completed_job_ms"] is not None else "Tempo médio por lote: sem medição",
         "Primeira medição planejada: 50 caminhos; depois, 500 por decisão confiável.",
@@ -46,12 +58,15 @@ def render(data: dict) -> str:
             lines.append(f"Loja no mesmo replay: modelo anterior {comparison['previous'].get('shop:proposal', 0)}/"
                          f"{comparison['frames']}; novo {comparison['candidate'].get('shop:proposal', 0)}/"
                          f"{comparison['frames']}. Novo modelo não instalado.")
-    if data["recent_jobs"]:
-        lines.extend(("", "Últimos lotes:"))
-        for job in data["recent_jobs"][:3]:
-            lines.append(f"  {job['job_id']}: {job['status']} · "
-                         f"{job['completed_paths']}/{job['requested_paths']} caminhos"
-                         + (f" · {job['error']}" if job["error"] else ""))
+    lines.extend(("", "Execuções recentes (atualização a cada 5 s):",
+                  "  início    lote                 modo              feitas/pedidas  estado"))
+    if not data["recent_jobs"]:
+        lines.append("  Nenhuma simulação iniciada.")
+    for job in data["recent_jobs"][:8]:
+        started = datetime.fromtimestamp(job['accepted_at_ms'] / 1000).strftime('%H:%M:%S')
+        lines.append(f"  {started}  {job['job_id'][:20]:20} {job['mode'][:17]:17} "
+                     f"{job['completed_paths']:4}/{job['requested_paths']:<7} "
+                     f"{job['status']}" + (f" ({job['error']})" if job['error'] else ""))
     return "\n".join(lines)
 
 

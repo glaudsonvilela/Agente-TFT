@@ -25,7 +25,8 @@ indisponíveis são exibidos como tal, sem presumir zero. O estado da rede neura
 O painel atualiza a cada cinco segundos, sem bibliotecas externas.
 
 No servidor, o comando tft mostra um resumo; tft painel (ou tft acompanhar)
-atualiza o próprio terminal a cada cinco segundos. tft web mostra o endereço
+atualiza o próprio terminal a cada cinco segundos, incluindo CPU, RAM e a
+tabela das execuções recentes. tft web mostra o endereço
 da página caso o servidor tenha navegador.
 O executável está em trainer/scripts/tft e pode ser ligado a
 ~/.local/bin/tft. O nome visual "!TFT" pode ser usado na interface, mas
