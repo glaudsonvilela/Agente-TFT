@@ -1,5 +1,6 @@
-import json, os, tempfile, unittest
+import json, os, tempfile, threading, time, types, unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
@@ -9,10 +10,149 @@ from hm.runtime_session import (
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
-from hm.replay_coach import economy_prompt, inventory_prompt
+from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
+from hm.replay_decision import ReplayDecisionEngine
+from hm.board_hub_live import BoardHubLive
+from hm.voice import VoiceCoach, available_voices, SUPERTONIC_FILES, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_level_advice_requires_temporal_evidence_and_current_affordability(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,text=t,status='single_frame_observation',confidence=.97)
+            for k,v,t in [('stage','2-1','2-1'),('gold',11,'11'),('level',3,'3'),('xp',2,'2/6')]],
+            'controls':{'cadence_delivery':{'fresh':True},'controls':[
+                dict(id='buy_xp',status='observed',appearance='active_appearance')],
+                'numeric_fields':[dict(id='buy_xp_price',status='observed',confidence=.95,value=4)]}}
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        answer['source_ms']=1500;answer['hud'][1]['value']=6
+        decision=engine.evaluate(answer)
+        self.assertEqual(decision['decision']['action']['gold_cost'],4)
+        self.assertTrue(coach_prompt(decision)['actionable'])
+        answer['source_ms']=2000;answer['hud'][1]['value']=2
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        answer['source_ms']=2500;answer['hud'][1]['value']=6
+        answer['controls']['cadence_delivery']['fresh']=False
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+
+    def test_voice_cancels_a_superseded_decision_even_inside_its_deadline(self):
+        voice=VoiceCoach();voice.enabled=True
+        queued=time.monotonic_ns();voice.set_context('level:4:cost:4')
+        self.assertTrue(voice._valid(queued,500,8000,'level:4:cost:4',False))
+        voice.set_context(None)
+        self.assertFalse(voice._valid(queued,500,8000,'level:4:cost:4',False))
+        voice.set_context('level:4:cost:4')
+        self.assertFalse(voice._valid(queued,9000,8000,'level:4:cost:4',False))
+
+    def test_visual_item_ids_link_to_attributes_only_by_exact_api_name(self):
+        root=Path(__file__).resolve().parents[3]
+        knowledge=json.loads((root/'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
+        items=json.loads((root/knowledge['reference']/'items.json').read_text(encoding='utf-8'))['items']
+        hub=BoardHubLive.__new__(BoardHubLive)
+        hub.item_attribute_ids={item['api_name'] for item in items}
+        candidate={'catalog_options':[{'visual_id':'TFT_Item_GuinsoosRageblade','name':'Lâmina da Fúria de Guinsoo'},
+                                      {'visual_id':'DA_18_EmblemBrawler','name':'Emblema de Lutador'}]}
+        hub._bind_exact_attribute_ids(candidate)
+        self.assertEqual(candidate['catalog_options'][0]['attribute_id'],'TFT_Item_GuinsoosRageblade')
+        self.assertEqual(candidate['catalog_options'][0]['attribute_binding'],'exact_api_name')
+        self.assertIsNone(candidate['catalog_options'][1]['attribute_id'])
+        self.assertEqual(candidate['catalog_options'][1]['attribute_binding'],'visual_name_only')
+
+    def test_fixed_geometry_and_hud_are_independent_of_patch_catalog(self):
+        root=Path(__file__).resolve().parents[3]
+        static=(root/'configs/ui/board-hub-live-v1.json',
+                root/'configs/ui/match001-board-bench-v1.json',
+                root/'configs/roi/tft-1920x1080-match001-v1.json')
+        for path in static:
+            data=json.loads(path.read_text(encoding='utf-8'))
+            self.assertNotIn('reference',data)
+            self.assertNotIn('set_key',data)
+            self.assertNotIn('tft_patch',data)
+        catalog=json.loads((root/'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
+        context=json.loads((root/'configs/contexts/match001-interface.json').read_text(encoding='utf-8'))
+        manifest=json.loads((root/catalog['reference']/'reference.json').read_text(encoding='utf-8'))
+        self.assertEqual(catalog['set_key'],context['set_key'])
+        self.assertEqual(catalog['set_key'],manifest['set_key'])
+        self.assertNotIn('tft_patch',catalog)
+        self.assertTrue(context['tft_patch'])
+
+    def test_voice_queue_is_latest_only_and_rejects_stale_readouts(self):
+        voice=VoiceCoach();voice.enabled=True;voice.voice_id='cadu'
+        self.assertTrue(voice.say('12 ouro',100))
+        self.assertEqual(voice.queued_count,1)
+        self.assertFalse(voice.say('13 ouro',2500))
+        self.assertFalse(voice.say('12 ouro',100))
+        self.assertEqual(voice.pending.get_nowait()[0],'12 ouro')
+
+    def test_voice_choice_uses_bundled_models(self):
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td)
+            (base/'espeak-ng-data').mkdir()
+            for name in ('dii','cadu','faber'):
+                (base/name).mkdir()
+                (base/name/'model.onnx').touch()
+                (base/name/'tokens.txt').touch()
+            for name in SUPERTONIC_FILES:
+                target=base/'supertonic-f1'/name
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.touch()
+            voice=VoiceCoach(base)
+            self.assertEqual(set(available_voices(base)),{'supertonic-f1','dii','cadu','faber'})
+            self.assertEqual(voice.voice_id,'supertonic-f1')
+            voice.set_voice('faber')
+            self.assertEqual(voice.voice_id,'faber')
+            voice.set_voice('supertonic-f1')
+            voice._handle_failure('supertonic-f1',RuntimeError('modelo inválido'))
+            self.assertEqual(voice.voice_id,'dii')
+            self.assertEqual(voice.fallback_from,'supertonic-f1')
+            with self.assertRaises(ValueError):voice.set_voice('system')
+
+    def test_voice_playback_uses_windows_flags_that_exist(self):
+        calls=[]
+        fake=types.SimpleNamespace(SND_MEMORY=4,SND_NODEFAULT=2,
+                                   PlaySound=lambda wav,flags:calls.append((wav,flags)))
+        with patch.dict('sys.modules',winsound=fake):
+            _play_wav(b'RIFF')
+        self.assertEqual(calls,[(b'RIFF',6)])
+
+    def test_voice_switch_during_load_does_not_mix_engines(self):
+        voice=VoiceCoach(isolated=False);voice.voices={'supertonic-f1':'F1','dii':'Dii'}
+        voice.voice_id='supertonic-f1';voice.enabled=True
+        calls=[]
+        def load(voice_id,base):
+            if voice_id=='supertonic-f1':voice.set_voice('dii')
+            return voice_id
+        def synth(text,voice_id,base,engine):
+            self.assertEqual(voice_id,engine)
+            calls.append(voice_id)
+            return b'RIFF',engine
+        with patch('hm.voice._load_engine',side_effect=load), patch('hm.voice._synthesize',side_effect=synth):
+            thread=threading.Thread(target=voice._run,daemon=True);thread.start()
+            until=time.monotonic()+2
+            while not voice.ready and time.monotonic()<until:time.sleep(.01)
+            voice.close();thread.join(1)
+        self.assertTrue(voice.ready is False)
+        self.assertIn('dii',calls)
+        self.assertIsNone(voice.fallback_from)
+
+    @unittest.skipUnless(os.name=='nt','Windows Tk desktop required')
+    def test_coach_banner_remains_outside_mapping_tab(self):
+        import tkinter as tk
+        from hm.runtime_app import App
+        root=tk.Tk()
+        try:
+            app=App(root,'hm4')
+            root.update_idletasks()
+            self.assertTrue(app.replay_review.get())
+            self.assertEqual(app.voice_enabled.get(),bool(app.voice.voices))
+            self.assertEqual(app.tip_label.winfo_manager(),'pack')
+            self.assertEqual(app.tip_label.master.winfo_manager(),'pack')
+            self.assertEqual(app.tip_log.winfo_manager(),'pack')
+        finally:
+            if 'app' in locals():app.voice.close()
+            root.destroy()
+
     def test_replay_hub_requires_explicit_review_mode(self):
         with tempfile.TemporaryDirectory() as td:
             worker=Path(td)/("worker.exe" if os.name=="nt" else "worker")
@@ -24,15 +164,62 @@ class HM4RuntimeTests(unittest.TestCase):
     def test_replay_coach_uses_observed_values_and_abstains(self):
         missing=economy_prompt({"hud":[{"field":"gold","status":"unknown","value":50}]})
         self.assertEqual(missing["status"],"abstain_missing_gold")
-        observed=economy_prompt({"hud":[{"field":"gold","status":"single_frame_observation","value":42},
-                                        {"field":"stage","status":"single_frame_observation","value":"4-3"},
-                                        {"field":"level","status":"single_frame_observation","value":8}]})
-        self.assertEqual(observed["basis"],["hud.gold","hud.stage","hud.level"])
+        observed=economy_prompt({"hud":[{"field":"gold","status":"single_frame_observation","value":42,"confidence":.95},
+                                        {"field":"stage","status":"single_frame_observation","value":"4-3","confidence":.95},
+                                        {"field":"level","status":"single_frame_observation","value":8,"confidence":.95}]})
+        self.assertEqual(observed["basis"],["hud.gold"])
         self.assertFalse(observed["actionable"])
-        self.assertIn("42",observed["text"])
+        self.assertNotIn("42",observed["text"])
+        self.assertNotIn("speech_text",observed)
         self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[]}}))
-        item=inventory_prompt({"inventory":{"candidate_slots":[{"slot":1}]}})
-        self.assertFalse(item["item_identity_established"])
+        self.assertIsNone(inventory_prompt({"inventory":{"candidate_slots":[{"slot":1}]}}))
+        item=inventory_prompt({"verified_action":{"type":"equip","confidence":.95,
+             "item_name":"Item","unit_name":"Unidade","item_id":"item1","unit_id":"unit1"}})
+        self.assertTrue(item["item_identity_established"])
+
+    def test_buy_requires_bound_fresh_offer_and_engine_evidence(self):
+        answer={"origin":"observed_pixels","hud":[{"field":"gold","status":"single_frame_observation",
+                "value":50,"confidence":.95}],"decision":{"action":{"type":"buy","shop_slot":1,
+                "unit_id":"TFTSet18_Unit"},"confidence":.9,"evidence":[{"code":"UPGRADE"}]},
+                "shop":{"cadence_delivery":{"fresh":True},"slots":[{"slot":1,
+                "status":"offer_text_readable","unit_id":"TFTSet18_Unit","observed_name":"Unidade",
+                "name_confidence":.97,"observed_cost":3}]}}
+        self.assertTrue(coach_prompt(answer)["actionable"])
+        answer["shop"]["slots"][0]["unit_id"]=None
+        self.assertFalse(coach_prompt(answer)["actionable"])
+        answer["shop"]["slots"][0]["unit_id"]="TFTSet18_Unit"
+        answer["shop"]["cadence_delivery"]["fresh"]=False
+        self.assertFalse(coach_prompt(answer)["actionable"])
+
+    def test_patch_catalog_binds_shop_but_upgrade_requires_verified_roster(self):
+        root=Path(__file__).resolve().parents[3]
+        engine=ReplayDecisionEngine(str(root/'configs'))
+        answer={"origin":"observed_pixels",
+                "hud":[{"field":"gold","status":"single_frame_observation",
+                        "value":12,"confidence":.97}],
+                "shop":{"cadence_delivery":{"fresh":True},
+                        "slots":[{"slot":0,"status":"offer_text_readable",
+                                  "observed_name":"Kobuko","name_confidence":.96,
+                                  "observed_cost":1,"cost_confidence":.95,"unit_id":None}]}}
+        bound=engine.evaluate(answer)
+        unit_id=bound["shop"]["slots"][0]["unit_id"]
+        self.assertTrue(unit_id)
+        self.assertIn("hp",engine.champion_attributes[unit_id]["stats"])
+        self.assertTrue(engine.champion_attributes[unit_id]["traits"])
+        self.assertEqual(bound["catalog_binding"]["knowledge_release"],engine.knowledge_release)
+        self.assertEqual(bound["catalog_binding"]["bound_offers"],1)
+        self.assertEqual(bound["decision"]["evidence"][0]["code"],"OWNED_UNITS_UNVERIFIED")
+        self.assertIsNone(answer["shop"]["slots"][0]["unit_id"])
+        owned={"verified":True,"perspective":"self","age_ms":100,
+               "units":[{"unit_id":unit_id,"stars":1,"identity_verified":True},
+                        {"unit_id":unit_id,"stars":1,"identity_verified":True}]}
+        decided=engine.evaluate(answer,owned)
+        self.assertEqual(decided["decision"]["action"]["type"],"buy")
+        self.assertTrue(coach_prompt(decided)["actionable"])
+        decided=engine.evaluate({**answer,"hud":[]},owned)
+        self.assertEqual(decided["decision"]["evidence"][0]["code"],"GOLD_UNVERIFIED")
+        decided=engine.evaluate(answer,{**owned,"age_ms":3000})
+        self.assertEqual(decided["decision"]["evidence"][0]["code"],"OWNED_UNITS_STALE")
 
     def test_reader_only_is_allowed_only_when_explicit(self):
         with tempfile.TemporaryDirectory() as td:

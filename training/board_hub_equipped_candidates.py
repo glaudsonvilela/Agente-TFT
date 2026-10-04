@@ -5,7 +5,8 @@ import argparse
 import json
 from pathlib import Path
 
-from training.board_hub_item_candidates import load_reference, load_templates, select_entries
+from training.board_hub_item_candidates import (TemplateBank, load_reference,
+                                                load_templates, rank_patches, select_entries)
 from training.board_hub_position_candidates import project
 
 
@@ -29,13 +30,10 @@ def validate(profile: dict, board: dict) -> None:
         raise ValueError("equipped appearance thresholds overlap")
 
 
-def rank_equipped(frame, marker: dict, slot: int, templates: list[dict], profile: dict) -> list[dict]:
-    import numpy as np
-
+def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profile: dict) -> list[dict]:
     if not templates:
         return []
-    stack = np.stack([template["pixels"] for template in templates])
-    scores = np.full(len(templates), np.inf, dtype=np.float32)
+    patches = []
     rect = marker["rect"]
     size = profile["icon_size"]
     for dx in range(profile["min_offset_x"], profile["max_offset_x"] + 1):
@@ -45,17 +43,13 @@ def rank_equipped(frame, marker: dict, slot: int, templates: list[dict], profile
             patch = frame[y:y + size, x:x + size]
             if patch.shape != (size, size, 3):
                 continue
-            scores = np.minimum(scores, np.sqrt(np.mean((stack - patch) ** 2, axis=(1, 2, 3))))
-    ranked = np.argsort(scores[np.isfinite(scores)])[:3]
-    finite_indices = np.flatnonzero(np.isfinite(scores))
-    ranked = finite_indices[ranked]
-    return [{"ids_with_same_template": sorted(set(templates[index]["ids"])),
-             "template_sha256": templates[index]["template_hash"],
-             "rms": round(float(scores[index]), 3)} for index in ranked]
+            patches.append(patch)
+    return rank_patches(patches, templates)
 
 
 def run(image, read: dict, board: dict, position_profile: dict, equipped_profile: dict,
-        manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all") -> dict:
+        manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all",
+        preloaded_templates: tuple[TemplateBank, int] | None = None) -> dict:
     import numpy as np
 
     validate(equipped_profile, board)
@@ -68,8 +62,9 @@ def run(image, read: dict, board: dict, position_profile: dict, equipped_profile
                 "unit_identity_established": False, "game_state_updated": False}
     locations = {row["marker_id"]: row for row in positions["candidates"]}
     selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
-    templates, available = load_templates(selected, icon_dir, size=equipped_profile["icon_size"])
-    frame = np.asarray(rgb, dtype=np.float32)
+    templates, available = (preloaded_templates if preloaded_templates is not None else
+                            load_templates(selected, icon_dir, size=equipped_profile["icon_size"]))
+    frame = np.asarray(rgb, dtype=np.uint8)
     rows = []
     for marker in read["markers"]:
         if marker["color"] != "green":
@@ -105,7 +100,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--icon-dir", type=Path, required=True)
-    parser.add_argument("--match-scope", choices=("all", "set_path"), default="all")
+    parser.add_argument("--match-scope", choices=("all", "set_path", "set_plus_core"), default="all")
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--frame-index", type=int, required=True, help="one-based index in B1 report")

@@ -23,6 +23,10 @@ class EquippedCandidateTests(unittest.TestCase):
                 {"key": "TFTSet17/Set17_Items/b", "id": "b"}]
         self.assertEqual([x["id"] for x in select_entries(rows, "TFTSet18", "set_path")], ["a"])
         self.assertEqual(len(select_entries(rows, "TFTSet18", "all")), 2)
+        expanded = rows + [{"key": "TFT_Item_GuinsoosRageblade", "id": "TFT_Item_GuinsoosRageblade"},
+                           {"key": "Set5_RadiantItems/one", "id": "radiant"}]
+        self.assertEqual([x["id"] for x in select_entries(expanded, "TFTSet18", "set_plus_core")],
+                         ["a", "TFT_Item_GuinsoosRageblade", "radiant"])
 
     def test_visible_equipped_icon_links_to_marker_and_candidate_cell(self):
         with tempfile.TemporaryDirectory() as temp:

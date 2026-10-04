@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
+from pathlib import Path
 import secrets
 import time
+import zipfile
 from typing import Callable
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, status
+from fastapi.responses import HTMLResponse
 
 from .schemas import (
     CancelResponse,
@@ -22,10 +27,103 @@ from .schemas import (
     TrainingSessionRequest,
 )
 from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
+from .resources import ResourceSampler
 
 
 def unix_ms() -> int:
     return time.time_ns() // 1_000_000
+
+
+def verified_neural_experiments(db_path: Path | None) -> list[dict[str, object]]:
+    """Read sealed local candidates; simulator jobs remain a separate metric."""
+    if db_path is None:
+        return []
+    root = Path(db_path).parent / "experiments"
+    results = []
+    for folder in sorted(root.glob("*"), reverse=True)[:10]:
+        if not folder.is_dir():
+            continue
+        try:
+            train = folder / "training-v2"
+            evaluation = folder / "evaluation-v2"
+            seal = json.loads((train / "TRAINED.json").read_text(encoding="utf-8"))
+            complete = json.loads((evaluation / "COMPLETE.json").read_text(encoding="utf-8"))
+            for name in ("training-report.json", "model.npz"):
+                path = train / name
+                if hashlib.sha256(path.read_bytes()).hexdigest() != seal[name]:
+                    raise ValueError("Training seal mismatch")
+            for name in ("report.json", "model.onnx"):
+                path = evaluation / name
+                if hashlib.sha256(path.read_bytes()).hexdigest() != complete[name]:
+                    raise ValueError("Evaluation seal mismatch")
+            report = json.loads((train / "training-report.json").read_text(encoding="utf-8"))
+            result = json.loads((evaluation / "report.json").read_text(encoding="utf-8"))["summary"]
+            if (report.get("model_trained") is not True or
+                    result.get("model_trained") is not True or
+                    result.get("profile_promoted") is not False):
+                continue
+            status = "candidate_trained_unpromoted"
+            comparison = None
+            comparison_file = folder / "compare-previous.json"
+            if comparison_file.is_file() and comparison_file.stat().st_size <= 65536:
+                try:
+                    comparison = json.loads(comparison_file.read_text(encoding="utf-8"))
+                    previous_shop = int(comparison["previous"].get("shop:proposal", 0))
+                    candidate_shop = int(comparison["candidate"].get("shop:proposal", 0))
+                    if (comparison.get("frames", 0) > 0 and candidate_shop < previous_shop and
+                            comparison.get("candidate_promoted") is False):
+                        status = "regression_rejected"
+                except (OSError, KeyError, ValueError, TypeError, json.JSONDecodeError):
+                    comparison = None
+            results.append({
+                "id": folder.name, "status": status,
+                "scope": "bench_shop_region_only",
+                "source_frames": result["frames"],
+                "optimizer_steps": report["optimizer_steps"],
+                "inference_p95_ms": result["real_inference_ms_p95"],
+                "independent_match_accuracy": result["independent_match_accuracy"],
+                "model_sha256": complete["model.onnx"],
+                "comparison": comparison,
+            })
+        except (OSError, KeyError, ValueError, TypeError, json.JSONDecodeError):
+            continue
+    return results
+
+
+def latest_imported_runtime(db_path: Path | None) -> dict[str, object] | None:
+    """Read only a bounded sealed-session summary, never execute uploaded data."""
+    if db_path is None:
+        return None
+    imports = Path(db_path).parent / "imports"
+    for archive in sorted(imports.glob("hm4-*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)[:8]:
+        try:
+            with zipfile.ZipFile(archive) as bundle:
+                summaries = [item for item in bundle.infolist()
+                             if item.filename.endswith("/summary.json") and
+                             len(Path(item.filename).parts) == 2 and
+                             item.file_size <= 1024 * 1024]
+                if len(summaries) != 1:
+                    continue
+                summary = json.loads(bundle.read(summaries[0]))
+            counts = summary.get("counts") or {}
+            versions = summary.get("versions") or {}
+            mapped = counts.get("mapped_frames")
+            if type(mapped) is not int or mapped < 0:
+                continue
+            return {
+                "archive": archive.name,
+                "session_complete": summary.get("execution_complete") is True,
+                "neural_mode": summary.get("neural_mode"),
+                "diagnostic_active": (summary.get("execution_complete") is True and
+                                      summary.get("neural_mode") == "shadow_diagnostic" and
+                                      versions.get("neural_enabled") is True and mapped > 0),
+                "mapped_frames": mapped,
+                "model_trained": summary.get("model_trained") is True,
+                "board_cells_validated": summary.get("board_cells_validated") is True,
+            }
+        except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile, json.JSONDecodeError):
+            continue
+    return None
 
 
 def create_app(
@@ -38,8 +136,12 @@ def create_app(
         title="Agente TFT Remote Trainer",
         version="0.1.0",
     )
-    app.state.store = store or TrainerStore(backend=NullTrainerBackend())
+    app.state.store = store or TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=os.environ.get("TRAINER_DB_PATH") or None,
+    )
     app.state.clock_ms = clock_ms
+    app.state.resources = ResourceSampler()
     app.state.api_token = (
         api_token
         if api_token is not None
@@ -73,7 +175,29 @@ def create_app(
             "ok": True,
             "service": "agente-tft-remote-trainer",
             "protocol_version": 1,
+            "storage": "sqlite" if app.state.store.db_path else "memory",
+            "simulator_ready": not isinstance(app.state.store.backend, NullTrainerBackend),
         }
+
+    @app.get("/v1/training/dashboard-metrics")
+    async def dashboard_metrics() -> dict[str, object]:
+        snapshot = await app.state.store.dashboard_metrics()
+        snapshot["simulator_ready"] = not isinstance(app.state.store.backend, NullTrainerBackend)
+        experiments = verified_neural_experiments(app.state.store.db_path)
+        snapshot["neural_training_status"] = (
+            experiments[0]["status"] if experiments else "not_started"
+        )
+        snapshot["neural_experiments"] = experiments
+        snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)
+        snapshot["resources"] = app.state.resources.sample()
+        snapshot["generated_at_ms"] = app.state.clock_ms()
+        return snapshot
+
+    @app.get("/dashboard", response_class=HTMLResponse)
+    async def dashboard() -> HTMLResponse:
+        page = Path(__file__).with_name("dashboard.html").read_text(encoding="utf-8")
+        return HTMLResponse(page, headers={"Cache-Control": "no-store",
+                                           "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'none'; object-src 'none'"})
 
     @app.post(
         "/v1/training/sessions",

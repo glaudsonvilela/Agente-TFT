@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
+from pathlib import Path
+import sqlite3
+from collections import Counter
 from typing import Protocol
 from uuid import uuid4
 
@@ -75,11 +78,47 @@ class NullTrainerBackend:
 @dataclass
 class TrainerStore:
     backend: TrainerBackend
+    db_path: Path | None = None
     shadow_backend: ShadowBackend = field(default_factory=NullShadowBackend)
     sessions: dict[str, TrainingSession] = field(default_factory=dict)
     jobs: dict[str, TrainingJobRecord] = field(default_factory=dict)
     shadow_sessions: dict[str, ShadowSessionRecord] = field(default_factory=dict)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+
+    def __post_init__(self) -> None:
+        if self.db_path is None:
+            return
+        self.db_path = Path(self.db_path)
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.db_path) as db:
+            db.execute("PRAGMA journal_mode=WAL")
+            db.execute("PRAGMA synchronous=FULL")
+            db.execute("CREATE TABLE IF NOT EXISTS records (kind TEXT NOT NULL, id TEXT NOT NULL, payload TEXT NOT NULL, PRIMARY KEY(kind,id))")
+            for kind, identifier, payload in db.execute("SELECT kind,id,payload FROM records"):
+                if kind == "session":
+                    self.sessions[identifier] = TrainingSession.model_validate_json(payload)
+                elif kind == "job":
+                    record = TrainingJobRecord.model_validate_json(payload)
+                    if record.status in (TrainingJobStatus.ACCEPTED, TrainingJobStatus.RUNNING):
+                        record.status = TrainingJobStatus.FAILED
+                        record.error = "server_restarted_before_completion"
+                    self.jobs[identifier] = record
+                elif kind == "shadow":
+                    self.shadow_sessions[identifier] = ShadowSessionRecord.model_validate_json(payload)
+            for identifier, record in self.jobs.items():
+                if record.error == "server_restarted_before_completion":
+                    self._persist("job", identifier, record, db=db)
+
+    def _persist(self, kind: str, identifier: str, record, *, db=None) -> None:
+        if self.db_path is None:
+            return
+        if db is None:
+            with sqlite3.connect(self.db_path) as connection:
+                connection.execute("PRAGMA synchronous=FULL")
+                self._persist(kind, identifier, record, db=connection)
+            return
+        db.execute("INSERT OR REPLACE INTO records(kind,id,payload) VALUES (?,?,?)",
+                   (kind, identifier, record.model_dump_json()))
 
     async def create_session(
         self,
@@ -94,6 +133,7 @@ class TrainerStore:
         )
         async with self.lock:
             self.sessions[session.session_id] = session
+            self._persist("session", session.session_id, session)
         return session
 
     async def get_session(self, session_id: str) -> TrainingSession | None:
@@ -125,6 +165,7 @@ class TrainerStore:
                 updated_at_ms=now_ms,
             )
             self.jobs[request.job_id] = record
+            self._persist("job", request.job_id, record)
             return record, True
 
     async def mark_running(self, job_id: str, now_ms: int) -> None:
@@ -132,6 +173,7 @@ class TrainerStore:
             record = self.jobs[job_id]
             record.status = TrainingJobStatus.RUNNING
             record.updated_at_ms = now_ms
+            self._persist("job", job_id, record)
 
     async def mark_result(
         self,
@@ -145,6 +187,7 @@ class TrainerStore:
             record.updated_at_ms = now_ms
             record.result = result
             record.error = result.error
+            self._persist("job", job_id, record)
 
     async def mark_failed(self, job_id: str, error: str, now_ms: int) -> None:
         async with self.lock:
@@ -152,10 +195,62 @@ class TrainerStore:
             record.status = TrainingJobStatus.FAILED
             record.updated_at_ms = now_ms
             record.error = error
+            self._persist("job", job_id, record)
 
     async def get_job(self, job_id: str) -> TrainingJobRecord | None:
         async with self.lock:
             return self.jobs.get(job_id)
+
+    async def dashboard_metrics(self) -> dict:
+        """Return measured progress only; requested work is never counted as learning."""
+        async with self.lock:
+            jobs = list(self.jobs.values())
+            statuses = Counter(record.status.value for record in jobs)
+            completed = sorted(
+                (record for record in jobs
+                 if record.status == TrainingJobStatus.COMPLETED
+                 and record.result is not None),
+                key=lambda record: record.updated_at_ms,
+                reverse=True,
+            )
+            paths_completed = sum(outcome.samples for record in completed
+                                  for outcome in record.result.outcomes)
+            durations = [record.updated_at_ms - record.accepted_at_ms
+                         for record in completed
+                         if record.updated_at_ms >= record.accepted_at_ms]
+            recent = sorted(jobs, key=lambda record: record.updated_at_ms, reverse=True)[:12]
+            snapshot = {
+                "sessions": len(self.sessions),
+                "episodes": len({record.request.episode_id for record in jobs}),
+                "jobs": len(jobs),
+                "jobs_by_status": {key: statuses.get(key, 0)
+                                   for key in ("accepted", "running", "completed", "failed", "cancelled")},
+                "paths_requested": sum(record.request.rollout_count for record in jobs),
+                "paths_completed": paths_completed,
+                "paths_in_running_jobs": sum(record.request.rollout_count for record in jobs
+                                             if record.status == TrainingJobStatus.RUNNING),
+                "mean_completed_job_ms": round(sum(durations) / len(durations), 1) if durations else None,
+                "last_activity_ms": max((record.updated_at_ms for record in jobs), default=None),
+                "latest_simulator_version": completed[0].result.simulator_version if completed else None,
+                "latest_policy_version": completed[0].result.policy_version if completed else None,
+                "recent_jobs": [{"job_id": record.request.job_id,
+                                 "episode_id": record.request.episode_id,
+                                 "mode": record.request.mode.value,
+                                 "accepted_at_ms": record.accepted_at_ms,
+                                 "status": record.status.value,
+                                 "requested_paths": record.request.rollout_count,
+                                 "completed_paths": sum(outcome.samples for outcome in record.result.outcomes)
+                                 if record.result else 0,
+                                 "error": record.error, "updated_at_ms": record.updated_at_ms}
+                                for record in recent],
+            }
+        imports = self.db_path.parent / "imports" if self.db_path else None
+        files = ([path for path in imports.iterdir()
+                  if path.is_file() and path.suffix.lower() in {".rar", ".zip"}]
+                 if imports and imports.is_dir() else [])
+        snapshot["evidence_files"] = len(files)
+        snapshot["evidence_bytes"] = sum(path.stat().st_size for path in files)
+        return snapshot
 
     async def cancel_job(self, job_id: str, now_ms: int) -> TrainingJobRecord | None:
         async with self.lock:
@@ -170,6 +265,7 @@ class TrainerStore:
                 return record
             record.status = TrainingJobStatus.CANCELLED
             record.updated_at_ms = now_ms
+            self._persist("job", job_id, record)
             return record
 
 
@@ -199,6 +295,7 @@ class TrainerStore:
                 simulated_revision=None,
             )
             self.shadow_sessions[shadow_id] = record
+            self._persist("shadow", shadow_id, record)
             return record
 
     async def get_shadow_session(
@@ -228,6 +325,7 @@ class TrainerStore:
             record.simulated_revision = simulated_revision
             record.last_divergence = result.get("divergence")
             record.error = None
+            self._persist("shadow", shadow_id, record)
             return record
 
     async def degrade_shadow(
@@ -241,6 +339,7 @@ class TrainerStore:
             record.status = ShadowStatus.DEGRADED
             record.updated_at_ms = now_ms
             record.error = error
+            self._persist("shadow", shadow_id, record)
             return record
 
     async def update_shadow_after_sync(
@@ -269,6 +368,7 @@ class TrainerStore:
             record.updated_at_ms = now_ms
             record.status = ShadowStatus.ACTIVE
             record.error = None
+            self._persist("shadow", shadow_id, record)
             return record
 
     async def update_shadow_after_step(
@@ -301,6 +401,7 @@ class TrainerStore:
             record.updated_at_ms = now_ms
             record.status = ShadowStatus.ACTIVE
             record.error = None
+            self._persist("shadow", shadow_id, record)
             return record
 
     async def end_shadow(
@@ -314,4 +415,5 @@ class TrainerStore:
                 return None
             record.status = ShadowStatus.ENDED
             record.updated_at_ms = now_ms
+            self._persist("shadow", shadow_id, record)
             return record

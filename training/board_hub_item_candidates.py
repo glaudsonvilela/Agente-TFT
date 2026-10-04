@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import argparse
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -32,9 +35,12 @@ def load_reference(folder: Path) -> tuple[dict, list[dict]]:
 def select_entries(entries: list[dict], set_key: str, scope: str) -> list[dict]:
     if scope == "all":
         return entries
-    if scope != "set_path":
+    if scope not in {"set_path", "set_plus_core"}:
         raise ValueError("invalid item matching scope")
-    selected = [entry for entry in entries if entry.get("key", "").startswith(set_key + "/")]
+    selected = [entry for entry in entries if entry.get("key", "").startswith(set_key + "/")
+                or (scope == "set_plus_core" and
+                    (entry.get("id", "").startswith("TFT_Item_") or
+                     entry.get("key", "").startswith("Set5_RadiantItems/")))]
     if not selected:
         raise ValueError("no provider items under selected set path")
     return selected
@@ -57,7 +63,22 @@ def fetch_icon(entry: dict, icon_dir: Path) -> bool:
     return True
 
 
-def load_templates(entries: list[dict], icon_dir: Path, size: int = 28) -> tuple[list[dict], int]:
+@dataclass
+class TemplateBank:
+    groups: list[dict]
+    matrix: object
+    squared_norms: object
+    size: int
+    # Exact source pixels only: a changed icon always runs the matcher again.
+    recent_rankings: OrderedDict = field(default_factory=OrderedDict)
+    cache_hits: int = 0
+    cache_misses: int = 0
+
+    def __len__(self) -> int:
+        return len(self.groups)
+
+
+def load_templates(entries: list[dict], icon_dir: Path, size: int = 28) -> tuple[TemplateBank, int]:
     import numpy as np
     from PIL import Image
 
@@ -71,42 +92,72 @@ def load_templates(entries: list[dict], icon_dir: Path, size: int = 28) -> tuple
             resized = source.convert("RGB").resize((size, size), Image.Resampling.BILINEAR)
         pixels = np.asarray(resized, dtype=np.float32)
         template_hash = hashlib.sha256(pixels.tobytes()).hexdigest()
-        group = grouped.setdefault(template_hash, {"template_hash": template_hash, "pixels": pixels, "ids": []})
+        group = grouped.setdefault(template_hash, {"template_hash": template_hash, "pixels": pixels,
+                                                   "ids": [], "labels": {}})
         group["ids"].append(entry["id"])
+        group["labels"][entry["id"]] = entry.get("name") or entry["id"]
         available += 1
-    return list(grouped.values()), available
+    groups = list(grouped.values())
+    matrix = np.stack([group["pixels"].reshape(-1) for group in groups]).astype(np.float64) if groups else np.empty((0, size * size * 3), dtype=np.float64)
+    norms = np.einsum('ij,ij->i', matrix, matrix)
+    return TemplateBank(groups, matrix, norms, size), available
 
 
-def rank_slot(frame, rect: dict, templates: list[dict]) -> list[dict]:
+def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
     import numpy as np
 
+    if not patches or not templates.groups:
+        return []
+    # Inventory and equipped icons often stay pixel-identical across replay
+    # frames. Keep only a small per-session cache so long sessions do not grow.
+    fingerprint = hashlib.blake2b(
+        b"".join(patch.tobytes() for patch in patches), digest_size=16).digest()
+    if fingerprint in templates.recent_rankings:
+        templates.cache_hits += 1
+        templates.recent_rankings.move_to_end(fingerprint)
+        return copy.deepcopy(templates.recent_rankings[fingerprint])
+    templates.cache_misses += 1
+    observed = np.stack([patch.reshape(-1) for patch in patches]).astype(np.float64)
+    norms = np.einsum('ij,ij->i', observed, observed)
+    squared = norms[:, None] + templates.squared_norms[None, :] - 2 * observed @ templates.matrix.T
+    scores = np.sqrt(np.maximum(0, squared.min(axis=0)) / (templates.size * templates.size * 3))
+    ranked = np.argsort(scores)[:3]
+    result = [{"ids_with_same_template": sorted(set(templates.groups[index]["ids"])),
+             "catalog_options": [{"visual_id": item_id,
+                                  "name": templates.groups[index]["labels"][item_id]}
+                                 for item_id in sorted(templates.groups[index]["labels"])],
+             "template_sha256": templates.groups[index]["template_hash"],
+             "rms": round(float(scores[index]), 3)} for index in ranked]
+    templates.recent_rankings[fingerprint] = copy.deepcopy(result)
+    if len(templates.recent_rankings) > 64:
+        templates.recent_rankings.popitem(last=False)
+    return result
+
+
+def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
     if not templates:
         return []
-    stack = np.stack([group["pixels"] for group in templates])
-    scores = np.full(len(templates), np.inf, dtype=np.float32)
+    patches = []
     y = rect["y"]
     for x0 in range(rect["x"] + 6, rect["x"] + 13):
         for y0 in range(y + 9, y + 17):
             patch = frame[y0:y0 + 28, x0:x0 + 28]
             if patch.shape != (28, 28, 3):
                 continue
-            current = np.sqrt(np.mean((stack - patch) ** 2, axis=(1, 2, 3)))
-            scores = np.minimum(scores, current)
-    ranked = np.argsort(scores)[:3]
-    return [{"ids_with_same_template": sorted(set(templates[index]["ids"])),
-             "template_sha256": templates[index]["template_hash"],
-             "rms": round(float(scores[index]), 3)} for index in ranked]
+            patches.append(patch)
+    return rank_patches(patches, templates)
 
 
 def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path,
-        match_scope: str = "all") -> dict:
+        match_scope: str = "all", preloaded_templates: tuple[TemplateBank, int] | None = None) -> dict:
     import numpy as np
 
     rgb = image.convert("RGB")
     inventory = observe(rgb.tobytes(), rgb.width, rgb.height, profile)
     selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
-    templates, available = load_templates(selected, icon_dir)
-    frame = np.asarray(rgb, dtype=np.float32)
+    templates, available = preloaded_templates if preloaded_templates is not None else load_templates(selected, icon_dir)
+    # Keep the full frame byte-sized; only tiny candidate patches need floats.
+    frame = np.asarray(rgb, dtype=np.uint8)
     rows = []
     for slot in inventory["slots"]:
         if slot["status"] != "icon_candidate":
@@ -133,7 +184,7 @@ def main() -> None:
     parser.add_argument("--profile", type=Path, required=True)
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--icon-dir", type=Path, required=True)
-    parser.add_argument("--match-scope", choices=("all", "set_path"), default="all")
+    parser.add_argument("--match-scope", choices=("all", "set_path", "set_plus_core"), default="all")
     parser.add_argument("--fetch-missing", action="store_true")
     args = parser.parse_args()
     manifest, entries = load_reference(args.reference)

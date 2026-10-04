@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import ctypes, json, os, queue, re, struct, subprocess, threading, time
+from .dataset import Latest
 
 MAX_PAYLOAD = 128 * 1024**2
 
@@ -51,7 +52,12 @@ def target_signature(target):
 def read_exact(stream, count):
     if not 0 <= count <= MAX_PAYLOAD:
         raise ValueError('Orçamento IPC excedido.')
-    out = bytearray()
+    if not count:
+        return b''
+    first = stream.read(count)
+    if len(first) == count:
+        return first
+    out = bytearray(first)
     while len(out) < count:
         data = stream.read(count-len(out))
         if not data:
@@ -68,14 +74,21 @@ def read_packet(stream):
     size = header.get('bytes')
     if type(size) is not int or not 0 <= size <= MAX_PAYLOAD:
         raise ValueError('Tamanho de frame inválido.')
-    if header.get('type') == 'frame':
+    if header.get('type') in ('frame', 'preview'):
         w, h = header.get('width'), header.get('height')
         if type(w) is not int or type(h) is not int or not (0 < w <= 8192 and 0 < h <= 8192):
             raise ValueError('Dimensões físicas inválidas.')
-        if size != w*h*3 or header.get('stride_bytes') != w*3 or header.get('pixel_format') != 'RGB8':
+        channels = 4 if header.get('type') == 'preview' and header.get('pixel_format') == 'BGRA8' else 3
+        allowed = ('RGB8', 'BGRA8') if header.get('type') == 'preview' else ('RGB8',)
+        if size != w*h*channels or header.get('stride_bytes') != w*channels or header.get('pixel_format') not in allowed:
             raise ValueError('Formato ou stride incompatível; não completar pixels.')
         if type(header.get('capture_ns')) is not int or header['capture_ns'] <= 0:
             raise ValueError('Timestamp nativo ausente.')
+        if header.get('type') == 'preview':
+            source_w, source_h = header.get('source_width'), header.get('source_height')
+            if (type(source_w) is not int or type(source_h) is not int or
+                    not w <= source_w <= 8192 or not h <= source_h <= 8192 or w > 1280 or h > 720):
+                raise ValueError('Geometria da prévia nativa inválida.')
     elif size:
         raise ValueError('Payload inesperado para evento de controle.')
     return header, read_exact(stream, size)
@@ -160,10 +173,12 @@ class CapturedFrame:
     rgb: bytes
     epoch: int
     capture: dict
+    ui_preview: tuple | None = None
 
 
 class CaptureSource:
-    def __init__(self, uri, configs, seconds, hz, *, consent=False, expected=None, log=None):
+    def __init__(self, uri, configs, seconds, hz, *, consent=False, expected=None, log=None,
+                 preview_hz=None, preview_size=None):
         if consent is not True:
             raise ValueError('Captura requer confirmação explícita da fonte.')
         if os.name != 'nt':
@@ -178,12 +193,19 @@ class CaptureSource:
         self.bridge = ClockBridge()
         from e1.protocol import spawn
         self.stop = threading.Event(); self.lock = threading.Lock(); self.closed = False
-        self.pending = queue.Queue(maxsize=1); self.ready = None; self.end = None; self.error = None
+        self.pending = queue.Queue(maxsize=1); self.preview_frames = Latest() if preview_hz else None
+        self.ready = None; self.end = None; self.error = None
+        self.preview_received = 0
         self.source_replaced = 0; self.control_events = []; self.log_tail = []
         self.clock_anomalies = 0
         self.binary = native_path(configs)
-        self.proc = spawn([self.binary, 'stream', '--kind', kind, '--id', identity,
-                           '--seconds', str(seconds), '--hz', str(hz), '--consent'],
+        command = [self.binary, 'stream', '--kind', kind, '--id', identity,
+                   '--seconds', str(seconds), '--hz', str(hz), '--consent']
+        if preview_hz is not None:
+            command += ['--preview-hz', str(preview_hz)]
+            if preview_size is not None:
+                command += ['--preview-width', str(preview_size[0]), '--preview-height', str(preview_size[1])]
+        self.proc = spawn(command,
                           stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
         self.target = current; self.log = Path(log) if log else None
         self.reader_done = threading.Event(); self.ready_event = threading.Event()
@@ -211,7 +233,9 @@ class CaptureSource:
 
     def _read(self):
         try:
-            last_id = None
+            last_id = {'frame': None, 'preview': None}
+            first_preview_acquired = last_preview_compositor = None
+            preview_for_analysis = None
             while not self.stop.is_set():
                 header, pixels = read_packet(self.proc.stdout)
                 kind = header.get('type')
@@ -220,15 +244,31 @@ class CaptureSource:
                     self.ready = header; self.ready_event.set()
                 elif kind == 'error':
                     raise RuntimeError(header.get('error', 'Erro nativo.'))
-                elif kind == 'frame':
+                elif kind in ('frame', 'preview'):
                     if self.ready is None:raise ValueError('Frame anterior ao ready.')
-                    if type(header.get('frame_id')) is not int or (last_id is not None and header['frame_id'] <= last_id):
+                    if type(header.get('frame_id')) is not int or (last_id[kind] is not None and header['frame_id'] <= last_id[kind]):
                         raise ValueError('Identidade da captura retrocedeu.')
-                    last_id = header['frame_id']
+                    last_id[kind] = header['frame_id']
                     ready_ns = time.perf_counter_ns()
-                    try:self.pending.get_nowait(); self.source_replaced += 1
-                    except queue.Empty:pass
-                    self.pending.put_nowait((header, pixels, ready_ns))
+                    if kind == 'preview':
+                        if self.preview_frames is None:raise ValueError('Prévia nativa inesperada.')
+                        due, timing = frame_clock(header, self.bridge, ready_ns, last_preview_compositor)
+                        acquired = timing['native_acquired_ns']
+                        if first_preview_acquired is None:first_preview_acquired = acquired
+                        last_preview_compositor = header['capture_ns']
+                        capture = dict(header, bridge=self.bridge.metadata(), rgb_received_ns=ready_ns, timing=timing)
+                        preview_for_analysis = (header['frame_id'], header['width'],
+                                                header['height'], pixels, header['pixel_format'])
+                        self.preview_frames.put(CapturedFrame(header['frame_id'],
+                            (acquired-first_preview_acquired)/1e6, due, ready_ns,
+                            header['width'], header['height'], pixels, header['geometry_segment'], capture))
+                        self.preview_received += 1
+                    else:
+                        try:self.pending.get_nowait(); self.source_replaced += 1
+                        except queue.Empty:pass
+                        small = (preview_for_analysis[1:] if preview_for_analysis and
+                                 preview_for_analysis[0] == header['frame_id'] else None)
+                        self.pending.put_nowait((header, pixels, ready_ns, small))
                 elif kind == 'geometry_changed':
                     if len(self.control_events) >= 256:raise ValueError('Mudanças de geometria excederam o limite.')
                     self.control_events.append(header)
@@ -243,7 +283,7 @@ class CaptureSource:
     def frames(self, cancelled, max_seconds=300):
         first_acquired = last_acquired = last_compositor = None
         while not cancelled.is_set():
-            try:header, pixels, ready_ns = self.pending.get(timeout=.1)
+            try:header, pixels, ready_ns, small = self.pending.get(timeout=.1)
             except queue.Empty:
                 if self.error:raise RuntimeError(self.error)
                 if self.reader_done.is_set():break
@@ -258,7 +298,8 @@ class CaptureSource:
             record = dict(header, bridge=self.bridge.metadata(), source_queue_replaced=self.source_replaced,
                           rgb_received_ns=ready_ns, timing=timing)
             yield CapturedFrame(header['frame_id'], (acquired_ns-first_acquired)/1e6, due, ready_ns,
-                                header['width'], header['height'], pixels, header['geometry_segment'], record)
+                                header['width'], header['height'], pixels, header['geometry_segment'], record,
+                                small)
         if self.error and not cancelled.is_set():raise RuntimeError(self.error)
         if not cancelled.is_set() and (not self.end or not self.end.get('execution_complete')):
             raise RuntimeError('Sessão nativa incompleta.')

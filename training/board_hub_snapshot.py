@@ -7,23 +7,27 @@ from pathlib import Path
 import re
 
 from training.board_hub_equipped_candidates import run as equipped_run
-from training.board_hub_item_candidates import load_reference, run as inventory_run
+from training.board_hub_item_candidates import TemplateBank, load_reference, run as inventory_run
 from training.board_hub_position_candidates import project
 
 
 def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    equipped_profile: dict, inventory_profile: dict, manifest: dict,
                    entries: list[dict], icon_dir: Path, match_scope: str,
-                   recording_context: dict | None = None) -> dict:
+                   recording_context: dict | None = None,
+                   inventory_templates: tuple[TemplateBank, int] | None = None,
+                   equipped_templates: tuple[TemplateBank, int] | None = None) -> dict:
     if recording_context is not None:
         if (recording_context.get("schema_version") != 1 or
                 recording_context.get("set_key") != manifest["set_key"] or
                 not recording_context.get("tft_patch")):
             raise ValueError("recording set/patch context does not match visual reference")
     positions = project(read, position_profile, board)
-    inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope)
+    inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope,
+                              preloaded_templates=inventory_templates)
     equipped = equipped_run(image, read, board, position_profile, equipped_profile,
-                            manifest, entries, icon_dir, match_scope)
+                            manifest, entries, icon_dir, match_scope,
+                            preloaded_templates=equipped_templates)
     grouped = {}
     for row in positions["candidates"]:
         grouped.setdefault((row["zone"], row["row"], row["cell_or_slot"]), []).append(row["marker_id"])
@@ -77,7 +81,7 @@ def main() -> None:
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--recording-context", type=Path, required=True)
     parser.add_argument("--icon-dir", type=Path, required=True)
-    parser.add_argument("--match-scope", choices=("all", "set_path"), default="set_path")
+    parser.add_argument("--match-scope", choices=("all", "set_path", "set_plus_core"), default="set_plus_core")
     args = parser.parse_args()
     report = json.loads(args.report.read_text())
     if not 1 <= args.frame_index <= len(report["records"]):

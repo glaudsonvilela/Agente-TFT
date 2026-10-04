@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 
 from training.board_hub_snapshot import build_snapshot
+from training.board_hub_item_candidates import load_templates
 
 
 ROOT = Path(__file__).parents[2]
@@ -41,6 +42,12 @@ class SnapshotTests(unittest.TestCase):
                        "version_basis": "user date and Riot schedule"}
             result = build_snapshot(frame, read, BOARD, POSITION, EQUIPPED, INVENTORY,
                                     manifest, entries, icon_dir, "set_path", context)
+            cached = build_snapshot(frame, read, BOARD, POSITION, EQUIPPED, INVENTORY,
+                                    manifest, entries, icon_dir, "set_path", context,
+                                    inventory_templates=load_templates(entries, icon_dir),
+                                    equipped_templates=load_templates(entries, icon_dir,
+                                                                      size=EQUIPPED["icon_size"]))
+            self.assertEqual(cached, result)
             self.assertEqual(result["arena_projection_status"], "reference_arena_match")
             self.assertEqual(result["position_status"], "candidate_only")
             self.assertEqual(result["tft_patch"], "18.3")

@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Small server command for Agente TFT trainer status; no secret is printed."""
+from __future__ import annotations
+
+import json
+import sys
+import time
+from datetime import datetime
+from urllib.error import URLError
+from urllib.request import urlopen
+
+METRICS_URL = "http://127.0.0.1:8801/v1/training/dashboard-metrics"
+
+
+def render(data: dict) -> str:
+    def number(value, digits=1):
+        return "medindo" if value is None else f"{value:.{digits}f}"
+
+    jobs = data["jobs_by_status"]
+    resources = data.get("resources") or {}
+    host = resources.get("host") or {}
+    container = resources.get("container") or {}
+    simulator = "ativo" if data["simulator_ready"] else "ainda não ativo"
+    neural = ("treino não iniciado" if data["neural_training_status"] == "not_started"
+              else "novo candidato rejeitado por regressão" if data["neural_training_status"] == "regression_rejected"
+              else "candidato treinado; falta validação independente")
+    lines = [
+        "✦ AGENTE TFT · BigBANANA",
+        f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
+        "────────────────────────────────────────",
+        f"Simulador: {simulator}  |  Treino neural no servidor: {neural}",
+        "Visão neural no Windows: diagnóstico local; confira a sessão do Windows.",
+        f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
+        f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
+        f"Lotes: {jobs['completed']} concluídos, {jobs['running']} em execução, {jobs['failed']} falharam",
+        f"CPU BigBANANA: {number(host.get('cpu_percent')) + '%' if host.get('cpu_percent') is not None else 'medindo'}  |  "
+        f"RAM: {number((host.get('memory_used_mib') or 0) / 1024) if host.get('memory_used_mib') is not None else 'indisponível'}"
+        f"/{number((host.get('memory_total_mib') or 0) / 1024) if host.get('memory_total_mib') is not None else 'indisponível'} GiB",
+        f"CPU contêiner TFT: {number(container.get('cpu_cores_used'), 2)}"
+        f"/{number(container.get('cpu_limit_cores'))} núcleo(s)  |  "
+        f"RAM: {number(container.get('memory_used_mib'))}/{number(container.get('memory_limit_mib'))} MiB",
+        f"Tempo médio por lote: {data['mean_completed_job_ms'] / 1000:.2f} s"
+        if data["mean_completed_job_ms"] is not None else "Tempo médio por lote: sem medição",
+        "Primeira medição planejada: 50 caminhos; depois, 500 por decisão confiável.",
+        "Arquivos guardados e simulações são separados do treino neural.",
+    ]
+    imported = data.get("latest_imported_runtime")
+    if imported:
+        local = "ativa na sessão gravada" if imported["diagnostic_active"] else "não confirmada"
+        lines.append(f"Último replay Windows: visão diagnóstica {local} · "
+                     f"{imported['mapped_frames']} mapas · "
+                     f"tabuleiro validado: {'sim' if imported['board_cells_validated'] else 'não'}")
+    for candidate in data.get("neural_experiments", [])[:1]:
+        lines.append(f"Candidato {candidate['id']}: {candidate['source_frames']} imagens, "
+                     f"{candidate['optimizer_steps']} passos, banco/loja; sem avaliação independente.")
+        comparison = candidate.get("comparison")
+        if candidate["status"] == "regression_rejected" and comparison:
+            lines.append(f"Loja no mesmo replay: modelo anterior {comparison['previous'].get('shop:proposal', 0)}/"
+                         f"{comparison['frames']}; novo {comparison['candidate'].get('shop:proposal', 0)}/"
+                         f"{comparison['frames']}. Novo modelo não instalado.")
+    lines.extend(("", "Execuções recentes (atualização a cada 5 s):",
+                  "  início    lote                 modo              feitas/pedidas  estado"))
+    if not data["recent_jobs"]:
+        lines.append("  Nenhuma simulação iniciada.")
+    for job in data["recent_jobs"][:8]:
+        started = datetime.fromtimestamp(job['accepted_at_ms'] / 1000).strftime('%H:%M:%S')
+        lines.append(f"  {started}  {job['job_id'][:20]:20} {job['mode'][:17]:17} "
+                     f"{job['completed_paths']:4}/{job['requested_paths']:<7} "
+                     f"{job['status']}" + (f" ({job['error']})" if job['error'] else ""))
+    return "\n".join(lines)
+
+
+def fetch() -> dict:
+    with urlopen(METRICS_URL, timeout=3) as response:
+        return json.load(response)
+
+
+def main() -> int:
+    command = sys.argv[1] if len(sys.argv) > 1 else "status"
+    if command in ("web", "navegador"):
+        print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
+        return 0
+    if command not in ("status", "acompanhar", "watch", "painel", "panel"):
+        print("Uso: tft [status|painel|web]", file=sys.stderr)
+        return 2
+    try:
+        while True:
+            if command != "status" and sys.stdout.isatty():
+                print("\033[2J\033[H", end="")
+            print(render(fetch()), flush=True)
+            if command == "status":
+                return 0
+            time.sleep(5)
+    except KeyboardInterrupt:
+        return 0
+    except (URLError, TimeoutError, OSError, ValueError) as exc:
+        print(f"Agente TFT indisponível: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

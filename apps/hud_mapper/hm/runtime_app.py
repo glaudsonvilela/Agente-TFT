@@ -2,11 +2,13 @@
 from __future__ import annotations
 from pathlib import Path
 from datetime import datetime
+from collections import deque
 import argparse, json, os, queue, statistics, sys, threading, time
 from .core import crop_box, valid_box
 from .runtime_session import RuntimeSession, HM4RuntimeSession
 from .session import Options
 from .capture_source import list_targets
+from .process_memory import current_process_memory
 
 def runtime_paths():
     root=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[3]))
@@ -81,8 +83,21 @@ class App:
         import tkinter as tk
         from tkinter import ttk
         self.root=root;self.mode=mode;self.hm4=mode=="hm4";self.session=None;self.selection=None;self.last={};self.current=None
-        self.photo=self.zoom_photo=None;self.freeze=False;self.finalizing=False;self.final_result=None
+        self.vm_core=self.hm4 and (Path(sys.executable).resolve().parent/"core/core-package.json").is_file()
+        self.photo=self.zoom_photo=None;self.photo_size=None;self.freeze=False;self.finalizing=False;self.final_result=None
         self.last_finished=None;self.closing=False;self.displayed=0;self.smoke=False;self.smoke_output=None
+        self.native_preview=None;self.preview_backend="tk_photo"
+        if os.name=="nt":
+            from .native_preview import NativePreview
+            self.native_preview=NativePreview()
+        self.canvas_image=None;self._table_key=None;self._next_metrics_ns=0;self._next_perf_log_ns=0
+        self.tip_history=deque(maxlen=100);self.tip_label=None
+        self._next_preview_ns=0
+        self.render_ms=deque(maxlen=120);self.preview_times=deque(maxlen=120)
+        self.voice=None
+        if self.hm4:
+            from .voice import VoiceCoach
+            self.voice=VoiceCoach()
         root.title("Agente TFT — "+("Revisão de replay" if self.hm4 else "HM3 Runtime"));root.geometry("1500x950" if self.hm4 else "1440x900");root.minsize(1120,760);root.configure(bg="#f6f3ff" if self.hm4 else "#101820")
         style=ttk.Style(root);style.theme_use("clam")
         if self.hm4:
@@ -103,15 +118,17 @@ class App:
             style.configure("TButton",padding=5)
         self.model=tk.StringVar();self.dest=tk.StringVar();self.ref=tk.StringVar();self.controls=tk.StringVar()
         self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-replay-screen" if self.hm4 else "hud-live-01")
-        self.map_hz=tk.StringVar(value="8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
-        self.replay_review=tk.BooleanVar(value=False)
+        self.map_hz=tk.StringVar(value="2" if self.hm4 else "8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
+        self.replay_review=tk.BooleanVar(value=self.hm4)
+        self.voice_enabled=tk.BooleanVar(value=bool(self.voice and self.voice.voices and os.name=="nt"))
+        self.voice_choice=tk.StringVar(value=self.voice.voices.get(self.voice.voice_id, "Sem vozes instaladas") if self.voice else "")
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         outer=ttk.Frame(root,padding=12);outer.pack(fill="both",expand=True)
         if self.hm4:
             from PIL import Image
             hero_path=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[1]))/"assets/hm4-replay-hero-v1.png"
             self.hero_source=Image.open(hero_path).convert("RGB") if hero_path.is_file() else None
-            self.hero=tk.Canvas(outer,height=185,bg="#eee8ff",highlightthickness=0)
+            self.hero=tk.Canvas(outer,height=155,bg="#eee8ff",highlightthickness=0)
             self.hero.pack(fill="x",pady=(0,10))
             self.hero.bind("<Configure>",self.render_hero)
         else:
@@ -125,8 +142,16 @@ class App:
         line=ttk.Frame(outer);line.pack(fill="x",pady=4)
         if self.hm4:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
-            ttk.Label(line,text=("Modelo para revisão: "+Path(auto).parent.name if auto else "Modelo neural não encontrado: captura + leitores nativos continuam ativos.")).pack(side="left")
-            ttk.Checkbutton(line,text="Revisar vídeo encerrado (HUB + dicas)",variable=self.replay_review).pack(side="left",padx=8)
+            ttk.Label(line,text=("Visão neural diagnóstica: "+Path(auto).parent.name if auto else "Visão neural indisponível; leitores nativos ativos.")).pack(side="left")
+            ttk.Checkbutton(line,text="Analisar replay (HUB + orientações)",variable=self.replay_review).pack(side="left",padx=8)
+            ttk.Checkbutton(line,text="Narrar orientações",variable=self.voice_enabled,
+                            command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
+            ttk.Label(line,text="Voz").pack(side="left")
+            self.voice_picker=ttk.Combobox(line,textvariable=self.voice_choice,state="readonly",width=21,
+                                          values=tuple(self.voice.voices.values()))
+            self.voice_picker.pack(side="left",padx=3)
+            self.voice_picker.bind("<<ComboboxSelected>>",self.choose_voice)
+            ttk.Button(line,text="Testar voz",command=self.test_voice).pack(side="left",padx=2)
             ttk.Button(line,text="Calibrar tabuleiro",command=self.calibrate_board).pack(side="right",padx=4)
             ttk.Button(line,text="INICIAR",command=self.start).pack(side="right",padx=8)
             ttk.Button(line,text="ENCERRAR",command=self.stop).pack(side="right")
@@ -140,17 +165,34 @@ class App:
             ttk.Button(line,text="INICIAR MAPEAMENTO",command=self.start).pack(side="left",padx=8)
             ttk.Button(line,text="Encerrar e salvar",command=self.stop).pack(side="left")
         self.status=ttk.Label(outer,text=("Escolha um monitor/janela. A seleção ainda não inicia captura." if self.hm4 else "A seleção não inicia captura. Escolha a fonte, modelo e destino."));self.status.pack(anchor="w",pady=5)
-        tabs=ttk.Notebook(outer);tabs.pack(fill="both",expand=True)
+        if self.hm4:
+            coach=tk.Frame(outer,bg="#241746",padx=18,pady=10)
+            coach.pack(fill="x",pady=(2,8))
+            self.coach_header=tk.Label(coach,text="AGENTE  /  ORIENTAÇÃO EM TEMPO REAL",
+                                       bg="#241746",fg="#bda8ff",font=("Segoe UI",9,"bold"),anchor="w")
+            self.coach_header.pack(fill="x")
+            self.tip_label=tk.Label(coach,text="Aguardando captura e leituras confiáveis.",
+                                    bg="#241746",fg="#ffffff",font=("Segoe UI",15,"bold"),
+                                    anchor="w",justify="left",wraplength=1300)
+            self.tip_label.pack(fill="x",pady=(4,2))
+            self.coach_meta=tk.Label(coach,text="As leituras mostram fatos; ações exigem evidência suficiente.",
+                                     bg="#241746",fg="#c9bde8",font=("Segoe UI",9),anchor="w")
+            self.coach_meta.pack(fill="x")
+            coach.bind("<Configure>",lambda event:self.tip_label.configure(wraplength=max(300,event.width-36)))
+        tabs=ttk.Notebook(outer);tabs.pack(fill="both",expand=True);self.tabs=tabs
         mapping=ttk.Frame(tabs);performance=ttk.Frame(tabs);data=ttk.Frame(tabs)
+        self.mapping_tab=mapping
         tabs.add(mapping,text="HUD ao vivo / geometria");tabs.add(performance,text="Performance");tabs.add(data,text="Dados coletados")
+        if self.hm4:
+            history=ttk.Frame(tabs);tabs.add(history,text="Histórico de orientações")
+            self.tip_log=tk.Text(history,bg="#ffffff",fg="#252045",wrap="word",font=("Segoe UI",11),state="disabled")
+            self.tip_log.pack(fill="both",expand=True,padx=8,pady=8)
         bar=ttk.Frame(mapping);bar.pack(fill="x")
         for label,value in (("Captura bruta","capture"),("Mapa neural + geometria","map"),("Leituras / OCR","reader"),("Tabuleiro / itens","hub")):
             ttk.Radiobutton(bar,text=label,variable=self.which,value=value,command=self.repaint).pack(side="left",padx=3)
         ttk.Checkbutton(bar,text="Overlays",variable=self.overlays,command=self.repaint).pack(side="left",padx=8)
         ttk.Button(bar,text="Congelar inspeção",command=self.toggle_freeze).pack(side="right")
         self.caption=ttk.Label(mapping,text="A imagem, os recortes e as caixas exibidos pertencem ao mesmo frame_id.");self.caption.pack(anchor="w")
-        self.tip_label=ttk.Label(mapping,text="Dicas de revisão: aguardando vídeo e leituras.",wraplength=1200)
-        if self.hm4:self.tip_label.pack(anchor="w",pady=3)
         split=ttk.Panedwindow(mapping,orient="horizontal");split.pack(fill="both",expand=True)
         left=ttk.Frame(split);right=ttk.Frame(split);split.add(left,weight=3);split.add(right,weight=2)
         self.canvas=tk.Canvas(left,bg="#e6def9" if self.hm4 else "#060c10",highlightthickness=0,width=900,height=520);self.canvas.pack(fill="both",expand=True)
@@ -167,7 +209,11 @@ class App:
         ttk.Label(data,text="O hot path trabalha em memória. PNGs/recortes são amostras assíncronas e limitadas; previsões não viram ground truth.",justify="left").pack(anchor="w",pady=10)
         self.data_text=tk.Text(data,height=18,bg="#ffffff" if self.hm4 else "#172934",fg="#252045" if self.hm4 else "#dce7ef",wrap="word");self.data_text.pack(fill="both",expand=True)
         ttk.Button(data,text="Abrir última sessão",command=self.open_output).pack(anchor="w",pady=5)
-        root.protocol("WM_DELETE_WINDOW",self.close);root.after(30,self.tick)
+        if self.voice_enabled.get():
+            self.voice.set_enabled(True)
+        root.protocol("WM_DELETE_WINDOW",self.close)
+        root.after(30,self.tick)
+        if self.hm4:root.after(16,self.preview_tick)
 
     def render_hero(self,_=None):
         if not self.hm4:return
@@ -232,6 +278,12 @@ class App:
             if not self.hm4 and not self.model.get():raise ValueError("Selecione deployment-candidate.json.")
             if not self.dest.get():raise ValueError("Escolha pasta de resultados.")
             if self.hm4 and not self.model.get():self.model.set(discover_model())
+            if self.hm4:
+                self.voice.set_enabled(self.voice_enabled.get())
+                self._shown_tip_key=None
+                self.coach_header.configure(text="AGENTE  /  "+("REVISÃO ATIVA" if self.replay_review.get() else "REVISÃO DESATIVADA"))
+                self.tip_label.configure(text=("Aguardando leituras confiáveis do replay." if self.replay_review.get()
+                                               else "Ative Analisar replay para receber orientações."))
             message=target_label(self.selection)+"\n\nAutoriza registrar imagens desta fonte para mapear a HUD?\n"
             if self.hm4 and self.replay_review.get():
                 message += "Confirme que a fonte exibirá um vídeo de partida já encerrada. As dicas de revisão usam apenas leituras observadas."
@@ -246,16 +298,37 @@ class App:
             selected_model=self.model.get() if (not self.hm4 or self.replay_review.get()) else ""
             self.session=cls(Options(**p,video=uri,model=selected_model,output=output,
                 seconds=float(self.seconds.get()),map_hz=float(self.map_hz.get()),reader_hz=float(self.reader_hz.get()),
-                sample_hz=float(self.sample_hz.get()),scenario=self.scenario.get(),controls=self.controls.get() or None,
+                sample_hz=0.2 if self.vm_core else float(self.sample_hz.get()),
+                scenario=self.scenario.get(),controls=self.controls.get() or None,
                 board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
                 replay_review=self.hm4 and self.replay_review.get(),
                 board_hub_enabled=self.hm4 and self.replay_review.get(),
+                vm_core=self.vm_core,preview_hz=30,
+                preview_width=max(160,min(1280,self.canvas.winfo_width()-8)),
+                preview_height=max(90,min(720,self.canvas.winfo_height()-8)),
+                max_samples=90 if self.vm_core else 600,
+                max_bytes=384*1024**2 if self.vm_core else 1024**3,
                 capture_consent=True,capture_expected=self.selection)).start()
-            self.last={};self.current=None;self.freeze=False
+            self.last={};self.current=None;self.freeze=False;self._table_key=None
+            self._last_voice_state=None
+            self.render_ms.clear();self.preview_times.clear();self._next_metrics_ns=0;self._next_preview_ns=0;self._next_perf_log_ns=0
         except Exception as exc:messagebox.showerror("HM4" if self.hm4 else "HM3",str(exc))
 
     def stop(self):
         if self.session and not self.session.done.is_set():self.session.request_stop()
+    def test_voice(self):
+        if not self.voice.voices:
+            self.status.configure(text="Este pacote não contém vozes locais. Use o instalador HM4.5 com vozes.")
+            return
+        self.voice_enabled.set(True)
+        self.voice.set_enabled(True)
+        self.voice.say("Agente TFT pronto para a revisão.",0,force=True)
+    def choose_voice(self,event=None):
+        selected=self.voice_choice.get()
+        for voice_id,label in self.voice.voices.items():
+            if label==selected:
+                self.voice.set_voice(voice_id)
+                return
     def calibrate_board(self):
         from tkinter import messagebox
         try:
@@ -266,6 +339,7 @@ class App:
         except Exception as exc:messagebox.showerror("Calibrar tabuleiro",str(exc))
     def close(self):
         self.closing=True;self.stop()
+        if self.voice:self.voice.close()
         if (not self.session or self.session.finished) and not self.finalizing:self.root.destroy()
     def toggle_freeze(self):self.freeze=not self.freeze;self.repaint()
 
@@ -280,33 +354,81 @@ class App:
         item=self.current if self.freeze and self.current else self.last.get(self.which.get())
         if not item:return
         from PIL import Image,ImageTk,ImageDraw
+        started=time.perf_counter_ns()
         previous=self.current;self.current=item;f=item["frame"];view=item.get("view_kind");regions=self._shown_regions(item)
-        if previous is None or previous["frame"].id!=f.id:
+        if (previous is None or previous.get("view_kind")!=view or
+                (view!="capture" and previous["frame"].id!=f.id)):
             self.crop_label.configure(image="",text="Selecione uma região.");self.details.delete("1.0","end")
-        im=Image.frombytes("RGB",(f.width,f.height),f.rgb)
-        if self.overlays.get() and view!="capture":
-            draw=ImageDraw.Draw(im)
-            for reg in regions:
-                for cell in reg.get("guide_points",[]):
-                    x,y=cell["screen"];draw.ellipse((x-4,y-4,x+4,y+4),outline="#bb91ff",width=2)
-                b=reg.get("box")
-                if not b or not valid_box(b,f.width,f.height):continue
-                status=str(reg.get("status"))
-                if str(reg["id"]).startswith("neural."):color="#ffca55"
-                elif status in ("observed","accepted","coarse_candidate","offer_text_readable"):color="#57df93"
-                elif "incompatible" in status or status in ("unknown","unavailable"):color="#ff6868"
-                else:color="#5ad7dc"
-                draw.rectangle(b,outline=color,width=2);draw.text((b[0]+2,max(0,b[1]-13)),reg["id"],fill=color)
-        w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8);im.thumbnail((w,h),Image.Resampling.BILINEAR)
-        self.photo=ImageTk.PhotoImage(im);self.canvas.delete("all");self.canvas.create_image(w//2,h//2,image=self.photo,anchor="center")
+        small=getattr(f,"ui_preview",None) if view!="capture" else None
+        image_width,image_height,image_rgb=small[:3] if small else (f.width,f.height,f.rgb)
+        pixel_format=(small[3] if len(small)>3 else "RGB8") if small else (getattr(f,"capture",None) or {}).get("pixel_format","RGB8")
+        native_drawn=False
+        if self.native_preview and view=="capture" and pixel_format=="BGRA8":
+            if self.canvas_image is not None:
+                self.canvas.delete(self.canvas_image);self.canvas_image=None;self.photo=None
+            try:
+                shown_w,shown_h=self.native_preview.draw(self.canvas,image_width,image_height,image_rgb)
+                self.preview_backend="windows_dib_bgra"
+                native_drawn=True
+            except (OSError,ValueError) as exc:
+                self.native_preview=None
+                if self.session:
+                    self.session.store.emit('telemetry',dict(event='preview_renderer_fallback',error=str(exc)))
+        if not native_drawn:
+            im=Image.frombytes("RGB",(image_width,image_height),image_rgb,"raw","BGRX" if pixel_format=="BGRA8" else "RGB")
+            w=max(100,self.canvas.winfo_width()-8);h=max(100,self.canvas.winfo_height()-8)
+            w=min(w,1280);h=min(h,720)
+            im.thumbnail((w,h),Image.Resampling.BILINEAR)
+            scale_x=im.width/f.width;scale_y=im.height/f.height
+            if self.overlays.get() and view!="capture":
+                draw=ImageDraw.Draw(im)
+                for reg in regions:
+                    for cell in reg.get("guide_points",[]):
+                        x,y=cell["screen"];x*=scale_x;y*=scale_y
+                        draw.ellipse((x-4,y-4,x+4,y+4),outline="#bb91ff",width=2)
+                    b=reg.get("box")
+                    if not b or not valid_box(b,f.width,f.height):continue
+                    status=str(reg.get("status"))
+                    if str(reg["id"]).startswith("neural."):color="#ffca55"
+                    elif status in ("observed","accepted","coarse_candidate","offer_text_readable"):color="#57df93"
+                    elif "incompatible" in status or status in ("unknown","unavailable"):color="#ff6868"
+                    else:color="#5ad7dc"
+                    box=(b[0]*scale_x,b[1]*scale_y,b[2]*scale_x,b[3]*scale_y)
+                    draw.rectangle(box,outline=color,width=2)
+                    draw.text((box[0]+2,max(0,box[1]-13)),reg["id"],fill=color)
+            if self.photo is not None and self.photo_size==im.size:
+                self.photo.paste(im)
+            else:
+                self.photo=ImageTk.PhotoImage(im);self.photo_size=im.size
+            center=(self.canvas.winfo_width()//2,self.canvas.winfo_height()//2)
+            if self.canvas_image is None:
+                self.canvas_image=self.canvas.create_image(*center,image=self.photo,anchor="center")
+            else:
+                self.canvas.itemconfigure(self.canvas_image,image=self.photo)
+                self.canvas.coords(self.canvas_image,*center)
+            shown_w,shown_h=im.size
+            self.preview_backend="tk_photo"
         source="CAPTURA";cap=getattr(f,"capture",None)
         age=(time.perf_counter_ns()-f.due_ns)/1e6
-        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {f.width}×{f.height} · idade {age:.1f} ms · geometria {f.epoch}')
-        self.table.delete(*self.table.get_children());self.row_data={}
-        for i,reg in enumerate(regions):
-            rid=str(i);self.row_data[rid]=reg;value=reg.get("value")
-            self.table.insert("","end",iid=rid,values=(reg["id"],reg.get("status"),"" if value is None else str(value)[:90]))
+        physical = f'{cap["source_width"]}×{cap["source_height"]} capturado · ' if cap and cap.get('type')=='preview' else ''
+        self.caption.configure(text=f'{"INSPEÇÃO CONGELADA · " if self.freeze else ""}{source} frame {f.id} · +{f.pts_ms/1000:.3f}s · {physical}{f.width}×{f.height} analisado → {shown_w}×{shown_h} exibido · idade {age:.1f} ms · geometria {f.epoch}')
+        table_key=(view,None if view=="capture" else f.id)
+        if table_key!=self._table_key:
+            self._table_key=table_key
+            self.table.delete(*self.table.get_children());self.row_data={}
+            for i,reg in enumerate(regions):
+                rid=str(i);self.row_data[rid]=reg;value=reg.get("value")
+                self.table.insert("","end",iid=rid,values=(reg["id"],reg.get("status"),"" if value is None else str(value)[:90]))
         self.displayed+=1
+        if self.vm_core:
+            elapsed=(time.perf_counter_ns()-started)/1e6
+            self.render_ms.append(elapsed)
+            if view=="capture":
+                self.preview_times.append(time.perf_counter_ns())
+                if self.session and (self.displayed%20)==0:
+                    self.session.store.emit('telemetry',dict(event='preview_render',frame_id=f.id,
+                        render_ms=elapsed,source_age_ms=(time.perf_counter_ns()-f.due_ns)/1e6,
+                        preview_size=[shown_w,shown_h],renderer=self.preview_backend,source_size=[f.width,f.height]))
 
     def selected(self,_=None):
         if not self.current or not self.table.selection():return
@@ -329,6 +451,18 @@ class App:
         cap=None
         raw=self.last.get("capture")
         if raw:cap=getattr(raw["frame"],"capture",None)
+        preview_fps=None
+        if len(self.preview_times)>1:
+            span=(self.preview_times[-1]-self.preview_times[0])/1e9
+            if span>0:preview_fps=round((len(self.preview_times)-1)/span,1)
+        transports={}
+        for name,group in (("map",maps),("reader",reads),("hp",hps),("hub",hubs)):
+            rows=[x["vm_transport"] for x in group if x.get("vm_transport")]
+            if rows:
+                transports[name]=dict(n=len(rows),encode_p95_ms=pct([x.get("encode_ms",0) for x in rows],.95),
+                    roundtrip_p95_ms=pct([x["roundtrip_ms"] for x in rows],.95),
+                    core_p95_ms=pct([x["core_ms"] for x in rows],.95),
+                    wire_p95_bytes=pct([x["wire_bytes"] for x in rows],.95))
         return dict(
           source_frames=s.counts["source_frames"],mapped=s.counts["mapped_frames"],reader_results=s.counts["read_frames"],
           reader_native_runs=s.counts["reader_native_runs"],reader_exact_cache_hits=s.counts["reader_exact_cache_hits"],
@@ -346,39 +480,125 @@ class App:
                    source_to_result_p95_ms=pct([x["total_ms"] for x in hubs],.95),
                    processing_p95_ms=pct([x["processing_ms"] for x in hubs],.95),
                    board_reference_status=s.versions.get("board_reference_status")),
-          tips=dict(emitted=s.counts["replay_tips"],mode="replay_review_only" if s.options.replay_review else "disabled"),
-          capture=cap,samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"])
+          tips=dict(actionable=s.counts["replay_tips"],coach_updates=s.counts["coach_updates"],
+                    mode="replay_review_only" if s.options.replay_review else "disabled"),
+          capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,renderer=self.preview_backend,
+                                   capture_device_kind=(getattr(s.source,'ready',None) or {}).get('device_kind'),
+                                   native_received=getattr(s.source,'preview_received',0),
+                                   native_queue_replaced=getattr(getattr(s.source,'preview_frames',None),'replaced',0),
+                                   render_p50_ms=pct(self.render_ms,.5),
+                                   render_p95_ms=pct(self.render_ms,.95),max_size=[1280,720] if self.vm_core else None),
+          samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"],
+          process_memory=current_process_memory(),
+          voice=dict(enabled=bool(self.voice and self.voice.enabled),
+                     process_memory=(self.voice.engine_process.memory
+                         if self.voice and self.voice.engine_process else None),
+                     isolated=bool(self.voice and self.voice.isolated),
+                     ready=bool(self.voice and self.voice.ready),
+                     selected=self.voice.voice_id if self.voice else None,
+                     fallback_from=self.voice.fallback_from if self.voice else None,
+                     synthesis_ms=self.voice.last_generation_ms if self.voice else None,
+                     error=self.voice.error if self.voice else None,
+                     queued=self.voice.queued_count if self.voice else 0,
+                     played=self.voice.played_count if self.voice else 0,
+                     stale_dropped=self.voice.stale_dropped_count if self.voice else 0))
+
+    def preview_tick(self):
+        tick_started=time.perf_counter_ns()
+        if self.closing:return
+        s=self.session
+        if s and not s.finished and not self.finalizing:
+            try:
+                f=s.preview.get(0)
+                self.last["capture"]=dict(frame=f,record=dict(regions=[]),ready_ns=f.ready_ns,view_kind="capture")
+                if (not self.freeze and self.which.get()=="capture"
+                        and self.tabs.select()==str(self.mapping_tab)):
+                    self.repaint()
+            except queue.Empty:
+                pass
+        elapsed_ms=(time.perf_counter_ns()-tick_started)/1e6
+        self.root.after(max(1,int(16-elapsed_ms)),self.preview_tick)
 
     def tick(self):
         s=self.session
         if s and not s.finished and not self.finalizing:
-            try:
-                f=s.preview.get(.001);self.last["capture"]=dict(frame=f,record=dict(regions=[]),ready_ns=f.ready_ns,view_kind="capture")
-                if not self.freeze and self.which.get()=="capture":self.repaint()
-            except queue.Empty:pass
             for name,q in (("map",s.map_results),("reader",s.native_results),("hub",s.hub_results)):
                 try:
-                    item=q.get(.001);item["view_kind"]=name;self.last[name]=item
-                    if not self.freeze and self.which.get()==name:self.repaint();s.acknowledge(item,name)
+                    item=q.get(0);item["view_kind"]=name;self.last[name]=item
+                    if (not self.freeze and self.which.get()==name
+                            and self.tabs.select()==str(self.mapping_tab)):
+                        self.repaint();s.acknowledge(item,name)
                 except queue.Empty:pass
             tip=getattr(s,"latest_replay_tip",None)
+            if self.voice:
+                self.voice.set_context(tip.get('decision_key') if tip and tip.get('actionable') else None)
+                while self.voice.events:
+                    s.store.emit('telemetry',self.voice.events.popleft())
             if tip:
-                key=(tip.get("frame_id"),tip.get("text"))
+                key=((tip.get("frame_id"),tip.get("text")) if tip.get("actionable")
+                     else (tip.get("status"),tip.get("text")))
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
-                    self.tip_label.configure(text=f'Dica de revisão · frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms: {tip["text"]}')
-                    s.store.emit('telemetry',dict(event='replay_tip_ui_applied',frame_id=tip['frame_id'],
+                    label='DICA' if tip.get('actionable') else 'ANÁLISE EM ANDAMENTO'
+                    self.coach_header.configure(text=f'AGENTE  /  {label}',
+                                                fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
+                    self.tip_label.configure(text=tip['text'])
+                    self.coach_meta.configure(text=f'Frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms · evidência: {", ".join(tip.get("basis") or []) or "insuficiente"}')
+                    if tip.get('actionable'):
+                        self.tip_history.appendleft(f'{label} · +{tip["source_ms"]/1000:.1f}s · atraso ~{age:.0f} ms\n{tip["text"]}\n')
+                        self.tip_log.configure(state='normal');self.tip_log.delete('1.0','end')
+                        self.tip_log.insert('1.0','\n'.join(self.tip_history));self.tip_log.configure(state='disabled')
+                    speech_queued=bool(tip.get('actionable') and self.voice and tip.get('speech_text') and
+                                       self.voice.say(tip['speech_text'],age,
+                                           decision_key=tip.get('decision_key'),
+                                           max_age_ms=tip.get('speech_max_age_ms',3000)))
+                    s.store.emit('telemetry',dict(event='coach_ui_applied',frame_id=tip['frame_id'],
                         source_age_ms=age,ui_queue_ms=(time.perf_counter_ns()-tip['ready_ns'])/1e6,
-                        physical_display_measured=False,tip_status=tip['status']))
+                        physical_display_measured=False,tip_status=tip['status'],
+                        actionable=tip.get('actionable',False),speech_queued=speech_queued))
                     with s.lock:
-                        s.traces.append(dict(kind='tip_ui',frame_id=tip['frame_id'],total_ms=age,
+                        s.traces.append(dict(kind='tip_ui' if tip.get('actionable') else 'coach_ui',
+                                             frame_id=tip['frame_id'],total_ms=age,
                                              physical_display_measured=False))
-            perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
-            self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
-              sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
-              note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
-            self.status.configure(text=f'Mapeando HUD · captura {s.counts["source_frames"]} · OCR HUD/loja {s.counts["reader_native_runs"]} · HUB {s.counts["hub_results"]} · dicas {s.counts["replay_tips"]} · HP {s.counts["hp_results"]} · PNG {s.store.counts["samples_saved"]}')
+            now=time.perf_counter_ns()
+            if not self.vm_core or now>=self._next_metrics_ns:
+                self._next_metrics_ns=now+1_000_000_000
+                perf=self._performance(s);self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(perf,ensure_ascii=False,indent=2))
+                if now>=self._next_perf_log_ns:
+                    self._next_perf_log_ns=now+5_000_000_000
+                    s.store.emit("telemetry",dict(event="ui_performance",preview=perf["preview"],
+                        voice=perf["voice"],process_memory=perf["process_memory"],
+                        coach_updates=s.counts["coach_updates"],
+                        actionable_tips=s.counts["replay_tips"]))
+                if self.voice:
+                    current_label=self.voice.voices.get(self.voice.voice_id)
+                    if current_label and self.voice_choice.get()!=current_label:
+                        self.voice_choice.set(current_label)
+                    voice_state=(self.voice.enabled,self.voice.ready,self.voice.error,self.voice.queued_count,
+                                 self.voice.played_count,self.voice.stale_dropped_count,
+                                 self.voice.voice_id,self.voice.fallback_from)
+                    if voice_state!=getattr(self,"_last_voice_state",None):
+                        self._last_voice_state=voice_state
+                        s.store.emit("telemetry",dict(event="voice_state",enabled=voice_state[0],
+                            ready=voice_state[1],error=voice_state[2],queued=voice_state[3],
+                            played=voice_state[4],stale_dropped=voice_state[5],
+                            selected=voice_state[6],fallback_from=voice_state[7]))
+                self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
+                  sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
+                  note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
+                voice_label=("voz erro: "+self.voice.error if self.voice and self.voice.error else
+                             ("voz Dii (reserva) · reproduzida "+str(self.voice.played_count) if self.voice and self.voice.fallback_from and self.voice.enabled and self.voice.ready else
+                              ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
+                               ("voz carregando" if self.voice and self.voice.enabled else "voz desligada"))))
+                decision_reason=getattr(s,"latest_decision_reason",None)
+                pending={"OWNED_UNITS_UNVERIFIED":"campeões do tabuleiro ainda não confirmados",
+                         "OWNED_UNITS_STALE":"leitura do tabuleiro antiga",
+                         "GOLD_UNVERIFIED":"ouro ainda não confirmado",
+                         "SHOP_STALE":"loja desatualizada",
+                         "NO_VERIFIED_UPGRADE":"nenhuma melhoria de unidade confirmada"}.get(decision_reason)
+                self.status.configure(text=f'Replay {"ativo" if s.options.replay_review else "desligado"} · visão neural {"diagnóstica" if s.options.model else "indisponível"} · {voice_label} · OCR {s.counts["reader_native_runs"]} · vínculos loja {s.counts["catalog_bound_offers"]} · HUB {s.counts["hub_results"]} · leituras {s.counts["coach_updates"]} · dicas {s.counts["replay_tips"]}'+
+                                      (f' · aguardando: {pending}' if pending else ''))
             if s.done.is_set() and s.map_results.empty() and s.native_results.empty() and s.hub_results.empty():
                 self.finalizing=True;self.status.configure(text="Selando telemetria e amostras…")
                 def finish():
@@ -392,7 +612,7 @@ class App:
             self.status.configure(text=label+" · "+self.last_finished)
             if self.smoke or self.closing:self.root.destroy();return
         elif self.closing and (not s or s.finished) and not self.finalizing:self.root.destroy();return
-        self.root.after(30,self.tick)
+        self.root.after(10 if self.vm_core else 30,self.tick)
 
     def open_output(self):
         if not self.last_finished:return
@@ -404,8 +624,29 @@ def main(mode="hm3"):
     p.add_argument("--capture");p.add_argument("--capture-consent",action="store_true");p.add_argument("--headless",action="store_true")
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
     p.add_argument("--replay-review",action="store_true")
+    p.add_argument("--voice-smoke-output")
+    p.add_argument("--replay-voice-validation")
     p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=2 if mode=="hm4" else 1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
+    if a.replay_voice_validation:
+        if not hm4 or not a.output:p.error('HM4 and output required')
+        from .replay_voice_validation import run
+        run(Path(a.replay_voice_validation),Path(a.output),runtime_paths())
+        return 0
+    if a.voice_smoke_output:
+        if not hm4:p.error("Voice smoke is HM4 only")
+        from .voice import _synthesize, available_voices, voice_assets
+        import io, wave
+        voices=available_voices()
+        if set(voices)!={'supertonic-f1','dii','cadu','faber'}:raise RuntimeError('Pacote de vozes incompleto')
+        checks={}
+        for voice_id in voices:
+            wav,_=_synthesize('Compre a unidade agora.',voice_id,voice_assets())
+            with wave.open(io.BytesIO(wav),'rb') as audio:
+                checks[voice_id]=dict(bytes=len(wav),rate=audio.getframerate(),frames=audio.getnframes())
+                if audio.getnframes()==0:raise RuntimeError('Voz vazia: '+voice_id)
+        Path(a.voice_smoke_output).write_text(json.dumps(checks),encoding='utf-8')
+        return
     if a.headless or a.ui_smoke:
         required=all((a.capture,a.capture_consent,a.output)) and (hm4 or bool(a.model))
         if not required:p.error("capture, consent, output"+("" if hm4 else ", model")+" são obrigatórios")

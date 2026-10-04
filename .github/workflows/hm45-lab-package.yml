@@ -1,0 +1,170 @@
+name: HM4.5 VM laboratory package
+
+on:
+  push:
+    branches:
+      - work/hm45-vm-performance
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download the pinned diagnostic model
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p build/hm4-live-assets/models
+          gh release download hub-l3-shadow-20261003 --dir build/hm4-live-assets/models --pattern candidate-model.onnx --pattern deployment-candidate.json
+      - name: Verify model and official item artwork
+        run: python3 scripts/prepare_hm4_live_assets.py
+      - name: Build and self-test the WSL root filesystem
+        run: python3 scripts/build_hm45_core.py
+      - name: Verify on a two-core, 768 MiB VM budget
+        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.1 self-test --version 0.6.1
+      - name: Exercise the host client through local IP
+        run: |
+          python3 -m pip install Pillow==12.1.0
+          PYTHONPATH=apps/hud_mapper:apps/e1_replay:. python3 apps/hud_mapper/tests/hm45_vm_e2e.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HM45-Linux-Core
+          path: |
+            build/hm45-core/AgenteTFT-Core-v2.tar
+            build/hm45-core/core-package.json
+            hm45-vm-e2e.json
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+
+  windows-installer:
+    needs: linux-core
+    runs-on: windows-latest
+    timeout-minutes: 55
+    env:
+      PYTHONPATH: apps/hud_mapper;apps/e1_replay;experiments/ui-map-lite-l2/training
+      OMP_THREAD_LIMIT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v4
+        with:
+          name: HM45-Linux-Core
+          path: .
+      - name: Verify artifact layout before Windows compilation
+        shell: pwsh
+        run: |
+          if (-not (Test-Path build/hm45-core/AgenteTFT-Core-v2.tar)) { throw 'Linux rootfs missing at expected path' }
+          if (-not (Test-Path build/hm45-core/core-package.json)) { throw 'Linux manifest missing at expected path' }
+      - name: Install Windows build dependencies
+        shell: pwsh
+        run: |
+          choco install tesseract innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Windows build dependencies failed' }
+          'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          python -m pip install -r apps/hud_mapper/requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime dependencies failed' }
+          python -m pip install sherpa-onnx==1.13.8
+          if ($LASTEXITCODE -ne 0) { throw 'Offline voice dependency failed' }
+          python -m pip install supertonic==1.3.1
+          if ($LASTEXITCODE -ne 0) { throw 'Supertonic F1 dependency failed' }
+          python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging dependencies failed' }
+      - name: Verify HM4.5 protocol and setup
+        shell: pwsh
+        run: |
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_*.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 contracts failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 runtime contracts failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_capture.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Native capture protocol failed' }
+      - name: Build native Rust capture and readers
+        shell: pwsh
+        run: |
+          cargo build --locked --release --manifest-path tools/hm-capture-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Rust capture failed' }
+          cargo build --locked --release --manifest-path tools/e1-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Rust reader failed' }
+          cargo build --locked --release --manifest-path tools/hm-hp-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Rust HP failed' }
+      - name: Prepare the matching Windows model and official artwork
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force -Path build/hm4-live-assets/models | Out-Null
+          gh release download hub-l3-shadow-20261003 --dir build/hm4-live-assets/models --pattern candidate-model.onnx --pattern deployment-candidate.json
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned model download failed' }
+          python scripts/prepare_hm4_live_assets.py
+          if ($LASTEXITCODE -ne 0) { throw 'Asset verification failed' }
+      - name: Verify and stage offline Brazilian Portuguese voices
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force -Path build/hm45-voice-downloads | Out-Null
+          gh release download tts-models --repo k2-fsa/sherpa-onnx --dir build/hm45-voice-downloads --pattern 'vits-piper-pt_BR-dii-high-int8.tar.bz2' --pattern 'vits-piper-pt_BR-cadu-medium-int8.tar.bz2' --pattern 'vits-piper-pt_BR-faber-medium-int8.tar.bz2'
+          if ($LASTEXITCODE -ne 0) { throw 'Offline voice download failed' }
+          python scripts/prepare_hm45_voices.py
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned voice verification failed' }
+          python scripts/prepare_hm45_supertonic.py
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned Supertonic F1 verification failed' }
+      - name: Build Windows app and guided VM installer
+        shell: pwsh
+        run: |
+          python scripts/build_hud_mapper_hm4_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'Windows app build failed' }
+          python scripts/build_hm45_installer_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
+          python scripts/build_hm45_online_installer_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 online installer build failed' }
+      - name: Run voices from the packaged Windows app
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
+          $smoke = Join-Path (Get-Location).Path 'build\hm45-voice-smoke.json'
+          $process = Start-Process -FilePath $app -ArgumentList @('--voice-smoke-output', $smoke) -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 80 }
+            throw "Packaged offline voice failed with exit code $($process.ExitCode)"
+          }
+          if (!(Test-Path $smoke)) { throw 'Packaged voice smoke did not write its result' }
+          $result = Get-Content $smoke -Raw | ConvertFrom-Json
+          if ($result.'supertonic-f1'.frames -le 0 -or $result.dii.frames -le 0 -or $result.cadu.frames -le 0 -or $result.faber.frames -le 0) { throw 'Packaged voice produced empty audio' }
+      - name: Recorded replay pixels to decision and isolated F1 voice
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
+          $fixturePath = (Resolve-Path tests/fixtures/replay-economy).Path
+          $output = Join-Path (Get-Location).Path 'build\hm45-replay-voice'
+          $process = Start-Process -FilePath $app -ArgumentList @('--replay-voice-validation', $fixturePath, '--output', $output) -PassThru
+          if (!$process.WaitForExit(120000)) { Stop-Process -Id $process.Id -Force; throw 'Replay voice pipeline timed out' }
+          if ($process.ExitCode -ne 0 -or !(Test-Path "$output\report.json")) {
+            Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 3 | ForEach-Object { Get-Content $_.FullName -Tail 60 }
+            throw 'Recorded replay did not produce its expected spoken decision'
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AgenteTFT-HM45-Setup-LAB-Windows-x64
+          path: |
+            dist/AgenteTFT-HM45-Setup.exe
+            dist/HM45_INSTALLER_REPORT.json
+            dist/AgenteTFT-HM45-Online-Setup.exe
+            dist/HM45_ONLINE_REPORT.json
+            build/hm45-voice-smoke.json
+            build/hm45-replay-voice/report.json
+            build/hm45-replay-voice/decision.wav
+          retention-days: 14
+          if-no-files-found: error

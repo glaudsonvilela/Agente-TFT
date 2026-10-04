@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "active-knowledge-release-v1",
+  "set_key": "TFTSet18",
+  "tft_patch": "18.3",
+  "reference": "knowledge/releases/TFTSet18/18.3/0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "strategy_ready": false
+}

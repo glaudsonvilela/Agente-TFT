@@ -1,7 +1,7 @@
 //! Spatial text uses the same process/backend as numeric HUD; no season vocabulary.
 use agente_tft_image_preprocess::GrayImage;
 use super::TesseractOcr;
-#[cfg(windows)]
+#[cfg(any(windows,target_os="linux"))]
 use super::ResidentTesseractOcr;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -34,7 +34,7 @@ impl TextBlockOcrEngine for TesseractOcr {
     }
 }
 
-#[cfg(windows)]
+#[cfg(any(windows,target_os="linux"))]
 impl TextBlockOcrEngine for ResidentTesseractOcr {
     fn recognize_text_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>{
         if image.width as u64 * image.height as u64 > 4_000_000 {

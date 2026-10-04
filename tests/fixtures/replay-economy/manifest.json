@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "source": "hm4-20261004-035734-676421",
+  "privacy": "Only unmodified HUD and control crops; other pixels blacked out. Not a full-frame perception benchmark.",
+  "preserved_rectangles": [
+    [
+      740,
+      0,
+      810,
+      38
+    ],
+    [
+      330,
+      870,
+      540,
+      1080
+    ],
+    [
+      998,
+      875,
+      1065,
+      920
+    ],
+    [
+      1490,
+      875,
+      1550,
+      920
+    ]
+  ],
+  "frames": [
+    {
+      "id": 6210,
+      "source_ms": 296831,
+      "image": "6210.png",
+      "sha256": "e70bc745709ecf79aaed4dd7f687160a89f1b429471107f17d8704712004882b",
+      "original_sha256": "af3217ebdc8d230bd64e07e8eb32d3f618f62fa41500d9ab7bccb270e860396e"
+    },
+    {
+      "id": 6300,
+      "source_ms": 302040,
+      "image": "6300.png",
+      "sha256": "5346a0b62dd428cbbbc6878886cbdf03a7a7c78a3d0d7c4a756bfb0b18989111",
+      "original_sha256": "6883bf6c13a9f566cacaf3eace9e2d55c2292eb406a40922c3f07699dae05d93"
+    }
+  ],
+  "expected_action": {
+    "type": "buy_xp",
+    "target_level": 4,
+    "gold_cost": 4
+  }
+}

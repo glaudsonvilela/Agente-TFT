@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agente TFT — Laboratório no BigBANANA</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, "Segoe UI", system-ui, sans-serif; color: #211944; background: #f4f1fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 76% -8%, #d8cef9 0, transparent 38%), linear-gradient(125deg, #faf9ff, #ede8fa); }
+    main { max-width: 1160px; margin: auto; padding: 34px 24px 70px; }
+    header { display: flex; align-items: start; justify-content: space-between; gap: 20px; margin-bottom: 35px; }
+    .eyebrow { font-size: 11px; font-weight: 750; letter-spacing: .24em; text-transform: uppercase; color: #7060a9; }
+    h1 { margin: 10px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: 1; letter-spacing: -.05em; }
+    h1 span { color: #7155c4; }
+    .sub { color: #635b7c; font-size: 15px; max-width: 680px; line-height: 1.5; }
+    .star { color: #7c61cb; font-size: 42px; margin-right: 10px; vertical-align: middle; }
+    .badge { margin-top: 7px; white-space: nowrap; border: 1px solid #dacff5; background: #ffffffb9; padding: 10px 14px; border-radius: 99px; color: #584997; font-size: 12px; font-weight: 750; }
+    .badge::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; background: #b4a6d5; }
+    .badge.active::before { background: #26a77b; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .card, .wide { border: 1px solid #ded7ef; background: #ffffffd9; border-radius: 20px; box-shadow: 0 10px 30px #3d2c6a0b; }
+    .card { padding: 23px; min-height: 145px; }
+    .label { color: #766c91; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .value { font-size: 38px; font-weight: 750; letter-spacing: -.05em; margin-top: 16px; }
+    .note { color: #736b88; font-size: 12px; line-height: 1.4; margin-top: 5px; }
+    .lower { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; margin-top: 14px; }
+    .wide { padding: 26px; }
+    h2 { font-size: 18px; letter-spacing: -.02em; margin: 0 0 18px; }
+    .status { display: inline-flex; align-items: center; padding: 7px 10px; border-radius: 8px; background: #f2ecfc; color: #69549b; font-size: 12px; font-weight: 700; }
+    .status.ready { background: #e8f7f1; color: #197b5e; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid #eeeaf6; padding: 13px 0; font-size: 14px; }
+    .row:first-of-type { border-top: 0; }
+    .row small { color: #746c89; }
+    .bar { height: 10px; overflow: hidden; border-radius: 30px; background: #ede7f8; margin: 18px 0 8px; }
+    .bar > div { height: 100%; width: 0; background: linear-gradient(90deg, #7958d1, #b39bf5); transition: width .4s ease; }
+    .meta { display: flex; justify-content: space-between; color: #706783; font-size: 12px; }
+    .jobs { margin-top: 14px; }
+    .job { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 12px 0; border-top: 1px solid #eeeaf6; font-size: 13px; }
+    .job strong { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .job small { grid-column: 1 / -1; color: #80768e; }
+    .footer { color: #7d7392; font-size: 12px; line-height: 1.5; margin-top: 22px; }
+    .error { color: #a12e54; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 11px 9px; text-align: left; border-bottom: 1px solid #eeeaf6; white-space: nowrap; }
+    th { color: #766c91; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    td:nth-child(2) { max-width: 230px; overflow: hidden; text-overflow: ellipsis; }
+    .resource-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+    @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } .lower { grid-template-columns: 1fr; } }
+    @media (max-width: 530px) { main { padding: 24px 15px 50px; } header { display: block; } .badge { display: inline-block; } .grid { grid-template-columns: 1fr 1fr; } .card { padding: 16px; min-height: 125px; } .value { font-size: 31px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="eyebrow">BigBANANA / contêiner separado / dados reais</div>
+      <h1><span class="star">✦</span> AGENTE <span>TFT</span></h1>
+      <div class="sub">Acompanhe o que foi recebido, o que foi simulado e o que a rede realmente aprendeu. Os números são atualizados a cada cinco segundos.</div>
+    </div>
+    <div class="badge" id="connection">Conectando ao servidor</div>
+  </header>
+
+  <section class="grid" aria-label="Indicadores">
+    <div class="card"><div class="label">Arquivos guardados</div><div class="value" id="evidence">—</div><div class="note">Diagnósticos e vídeos autorizados</div></div>
+    <div class="card"><div class="label">Sessões</div><div class="value" id="sessions">—</div><div class="note">Sessões enviadas ao treinador</div></div>
+    <div class="card"><div class="label">Caminhos simulados</div><div class="value" id="paths">—</div><div class="note">Somente resultados concluídos</div></div>
+    <div class="card"><div class="label">Lotes concluídos</div><div class="value" id="completed">—</div><div class="note" id="job-status">Aguardando dados</div></div>
+  </section>
+
+  <section class="lower">
+    <div class="wide">
+      <h2>Simulação e aprendizagem</h2>
+      <div class="row"><span>Simulador</span><span class="status" id="simulator">Verificando</span></div>
+      <div class="row"><span>Treino neural no servidor</span><span class="status" id="neural">Verificando</span></div>
+      <div class="row"><span>Visão neural no último replay</span><strong id="local-vision">Aguardando sessão</strong></div>
+      <div class="row"><span>Último candidato</span><strong id="neural-candidate">—</strong></div>
+      <div class="row"><span>Tempo médio por lote concluído</span><strong id="duration">—</strong></div>
+      <div class="row"><span>Versão do simulador</span><strong id="sim-version">—</strong></div>
+      <div class="row"><span>Versão da política</span><strong id="policy-version">—</strong></div>
+      <div class="bar" aria-hidden="true"><div id="bar-fill"></div></div>
+      <div class="meta"><span>Execução: <strong id="progress">0 / 0</strong> caminhos solicitados</span><span>Primeira medição: 50 · alvo: 500</span></div>
+    </div>
+    <div class="wide">
+      <h2>Uso do BigBANANA</h2>
+      <div class="row"><span>CPU do servidor</span><span class="resource-value" id="host-cpu">Medindo…</span></div>
+      <div class="row"><span>RAM do servidor</span><span class="resource-value" id="host-memory">—</span></div>
+      <div class="row"><span>CPU do contêiner TFT</span><span class="resource-value" id="container-cpu">Medindo…</span></div>
+      <div class="row"><span>RAM do contêiner TFT</span><span class="resource-value" id="container-memory">—</span></div>
+      <div class="note">O contêiner mede só o Agente TFT; o servidor inclui os outros serviços.</div>
+    </div>
+  </section>
+  <section class="wide" style="margin-top:14px" aria-label="Tabela de simulações">
+    <h2>Execuções recentes</h2>
+    <div class="note" id="running-summary">Aguardando dados do servidor.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Início</th><th>Lote</th><th>Modo</th><th>Solicitadas</th><th>Concluídas</th><th>Estado</th><th>Duração</th></tr></thead>
+      <tbody id="recent-jobs"><tr><td colspan="7">Nenhuma execução iniciada.</td></tr></tbody>
+    </table></div>
+  </section>
+  <div class="footer" id="last-update">Conectando…</div>
+</main>
+<script>
+  const set = (id, value) => { document.getElementById(id).textContent = value; };
+  const fmt = n => new Intl.NumberFormat("pt-BR").format(n);
+  const decimal = n => new Intl.NumberFormat("pt-BR", {maximumFractionDigits: 1}).format(n);
+  async function refresh() {
+    try {
+      const response = await fetch("/v1/training/dashboard-metrics", { cache: "no-store" });
+      if (!response.ok) throw new Error("servidor indisponível");
+      const m = await response.json();
+      const status = m.jobs_by_status;
+      set("evidence", fmt(m.evidence_files));
+      set("sessions", fmt(m.sessions));
+      set("paths", fmt(m.paths_completed));
+      set("completed", fmt(status.completed));
+      set("job-status", fmt(status.running) + " em execução · " + fmt(status.failed) + " falharam");
+      set("simulator", m.simulator_ready ? "Ativo" : "Ainda não ativo");
+      document.getElementById("simulator").classList.toggle("ready", m.simulator_ready);
+      set("neural", m.neural_training_status === "not_started" ? "Treino não iniciado" :
+          m.neural_training_status === "regression_rejected" ? "Novo modelo rejeitado · detecção da loja piorou" :
+          "Candidato treinado · falta validação independente");
+      const runtime = m.latest_imported_runtime;
+      set("local-vision", runtime ? (runtime.diagnostic_active ? "Diagnóstico ativo · " : "Não confirmado · ") + fmt(runtime.mapped_frames) + " mapas" : "Nenhum ZIP de sessão importado");
+      const candidate = (m.neural_experiments || [])[0];
+      set("neural-candidate", candidate ? fmt(candidate.source_frames) + " imagens · " + fmt(candidate.optimizer_steps) + " passos · banco/loja" +
+          (candidate.comparison ? " · loja " + fmt(candidate.comparison.candidate["shop:proposal"] || 0) + "/" + fmt(candidate.comparison.frames) + " (anterior " + fmt(candidate.comparison.previous["shop:proposal"] || 0) + ")" : "") : "Nenhum");
+      set("duration", m.mean_completed_job_ms == null ? "Sem medição" : (m.mean_completed_job_ms / 1000).toFixed(2) + " s");
+      set("sim-version", m.latest_simulator_version || "Sem resultado");
+      set("policy-version", m.latest_policy_version || "Sem resultado");
+      set("progress", fmt(m.paths_completed) + " / " + fmt(m.paths_requested));
+      document.getElementById("bar-fill").style.width = Math.min(100, m.paths_requested ? 100 * m.paths_completed / m.paths_requested : 0) + "%";
+      const resources = m.resources || {};
+      const host = resources.host || {};
+      const containerUse = resources.container || {};
+      set("host-cpu", host.cpu_percent == null ? "Medindo…" : decimal(host.cpu_percent) + "%");
+      set("host-memory", host.memory_used_mib == null ? "Indisponível" : decimal(host.memory_used_mib / 1024) + " / " + decimal(host.memory_total_mib / 1024) + " GiB");
+      set("container-cpu", containerUse.cpu_cores_used == null ? "Medindo…" : decimal(containerUse.cpu_cores_used) + " / " + (containerUse.cpu_limit_cores == null ? "?" : decimal(containerUse.cpu_limit_cores)) + " núcleo(s)" + (containerUse.cpu_percent_of_limit == null ? "" : " · " + decimal(containerUse.cpu_percent_of_limit) + "% do limite"));
+      set("container-memory", containerUse.memory_used_mib == null ? "Indisponível" : decimal(containerUse.memory_used_mib) + " / " + (containerUse.memory_limit_mib == null ? "?" : decimal(containerUse.memory_limit_mib)) + " MiB");
+      set("running-summary", fmt(status.running) + " lote(s) em execução · " + fmt(m.paths_in_running_jobs) + " caminhos solicitados nesses lotes · " + fmt(m.paths_completed) + " caminhos realmente concluídos.");
+      const container = document.getElementById("recent-jobs");
+      container.replaceChildren();
+      if (!m.recent_jobs.length) {
+        const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 7;
+        cell.textContent = "Nenhuma simulação iniciada. O simulador ainda não está ativo."; row.append(cell); container.append(row);
+      }
+      for (const job of m.recent_jobs) {
+        const row = document.createElement("tr");
+        const values = [new Date(job.accepted_at_ms).toLocaleTimeString("pt-BR"), job.job_id,
+          job.mode, fmt(job.requested_paths), fmt(job.completed_paths),
+          job.error ? job.status + " · " + job.error : job.status,
+          job.status === "running" ? "Em curso" : decimal(Math.max(0, job.updated_at_ms - job.accepted_at_ms) / 1000) + " s"];
+        for (const value of values) { const cell = document.createElement("td"); cell.textContent = value; row.append(cell); }
+        container.append(row);
+      }
+      set("connection", "Servidor conectado");
+      document.getElementById("connection").classList.add("active");
+      set("last-update", "Atualizado em " + new Date(m.generated_at_ms).toLocaleTimeString("pt-BR") + ". O candidato neural ainda não controla as dicas; simulações seguem separadas.");
+    } catch (error) {
+      set("connection", "Sem conexão");
+      document.getElementById("connection").classList.remove("active");
+      set("last-update", "Não foi possível atualizar. Tentando novamente em cinco segundos.");
+    }
+  }
+  refresh(); setInterval(refresh, 5000);
+</script>
+</body>
+</html>

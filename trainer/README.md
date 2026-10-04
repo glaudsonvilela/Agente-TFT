@@ -2,6 +2,45 @@
 
 O servidor BigBANANA funcionará como **Agente 2 / plano remoto de treinamento**.
 
+O arquivo `compose.example.yml` define um contêiner próprio
+`agente-tft-trainer` com dados em `./data`, limite de 1,5 CPU e 1 GiB.
+A porta 8801 fica restrita ao loopback do servidor para acesso por túnel
+autenticado. Defina `TRAINER_API_TOKEN` no `.env` do diretório do serviço.
+`TRAINER_DB_PATH` ativa SQLite com WAL para sessões, pedidos e resultados.
+O endpoint `/v1/training/health` informa `storage` e `simulator_ready`.
+No estado atual, `simulator_ready=false`: o backend padrão preserva pedidos,
+mas falha explicitamente com `simulator_not_configured` em vez de inventar
+500 resultados. Consulte `docs/HM45_SIMULATION_STORAGE.md` para o caminho de
+integração e os critérios das dicas.
+
+## Painel e comando no BigBANANA
+
+O quarto contêiner serve um painel leve em /dashboard. Ele mostra arquivos
+guardados, sessões, caminhos solicitados e realmente concluídos, uma tabela
+de até 12 execuções recentes, CPU e RAM do contêiner TFT e do servidor,
+tempo por lote e versões de simulador/política. CPU é medida pela diferença
+entre duas atualizações; a primeira leitura aparece como "medindo". Valores
+indisponíveis são exibidos como tal, sem presumir zero. O estado da rede neural permanece
+"treinamento não iniciado" até existir um processo real de aprendizagem.
+O painel atualiza a cada cinco segundos, sem bibliotecas externas.
+
+No servidor, o comando tft mostra um resumo; tft painel (ou tft acompanhar)
+atualiza o próprio terminal a cada cinco segundos, incluindo CPU, RAM e a
+tabela das execuções recentes. tft web mostra o endereço
+da página caso o servidor tenha navegador.
+O executável está em trainer/scripts/tft e pode ser ligado a
+~/.local/bin/tft. O nome visual "!TFT" pode ser usado na interface, mas
+no Bash o ponto de exclamação aciona a expansão do histórico; o comando
+digitável é tft.
+
+Como a porta só escuta no próprio servidor, abra um túnel SSH no computador
+de onde verá o painel e depois visite http://localhost:8801/dashboard.
+A autenticação é a do SSH; a API que recebe sessões e jobs continua
+exigindo o token privado.
+No Ubuntu de teste, trainer/scripts/tft-painel-ubuntu abre o túnel e a
+página em um só comando; quando ligado a ~/.local/bin/tft-painel, basta
+digitar tft-painel.
+
 ## Endpoints planejados
 
 ```text

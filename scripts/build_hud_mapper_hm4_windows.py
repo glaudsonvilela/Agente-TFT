@@ -6,11 +6,15 @@ root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
     raise SystemExit('Windows build host required')
 live_assets = root / 'build/hm4-live-assets'
+voice_assets = root / 'build/hm45-voice-assets'
+has_voices = (voice_assets / 'VOICE_REPORT.json').is_file()
 asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
 if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
     raise SystemExit('Replay-screen assets were not verified')
-live_plan = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
+live_plan = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
 reference = root / live_plan['reference']
+knowledge_plan = json.loads((root / 'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
+knowledge_reference = root / knowledge_plan['reference']
 
 stage = root / 'build/hm4-tools'
 stage.mkdir(parents=True, exist_ok=False)
@@ -52,6 +56,7 @@ args = [
     '--add-data', f'{root / "configs"};configs',
     '--add-data', f'{root / "apps/hud_mapper/assets"};assets',
     '--add-data', f'{reference};{live_plan["reference"]}',
+    '--add-data', f'{knowledge_reference};{knowledge_plan["reference"]}',
     '--add-data', f'{live_assets / "models"};models',
     '--add-data', f'{live_assets / live_plan["icon_dir"]};{live_plan["icon_dir"]}',
     '--add-data', f'{td};tesseract',
@@ -62,9 +67,20 @@ args = [
     '--hidden-import', 'more_itertools',
     '--hidden-import', 'hm.board_hub_live',
     '--hidden-import', 'hm.replay_coach',
+    '--hidden-import', 'hm.replay_decision',
+    '--hidden-import', 'hm.voice',
     '--hidden-import', 'hm45_setup',
     '--hidden-import', 'hm45_setup_core',
+    '--hidden-import', 'hm45_vm_client',
+    '--hidden-import', 'hm45_protocol',
+    '--hidden-import', 'hm.vm_bridge',
 ]
+if has_voices:
+    voice_report = json.loads((voice_assets / 'VOICE_REPORT.json').read_text(encoding='utf-8'))
+    if set(voice_report.get('voices', {})) != {'supertonic-f1', 'dii', 'cadu', 'faber'}:
+        raise SystemExit('All pinned pt-BR voices are required')
+    args += ['--add-data', f'{voice_assets};voices', '--collect-all', 'sherpa_onnx',
+             '--collect-all', 'supertonic']
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
 for module in ('torch', 'torchvision', 'torchaudio', 'hm.train', 'hm.seeds',
@@ -85,13 +101,18 @@ licenses.mkdir()
 for p in tess.rglob('*'):
     if p.is_file() and p.stat().st_size < 1024**2 and any(n in p.name.lower() for n in ('license', 'copying', 'copyright')):
         shutil.copy2(p, licenses / ('tesseract-' + '-'.join(p.relative_to(tess).parts)))
-for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.text', 'jaraco.context', 'jaraco.functools'):
+for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.text', 'jaraco.context', 'jaraco.functools') + (('sherpa-onnx', 'sherpa-onnx-core', 'supertonic') if has_voices else ()):
     distribution = importlib.metadata.distribution(package)
     for name in distribution.files or []:
         if any(n in str(name).lower() for n in ('license', 'copying', 'copyright')):
             p = Path(distribution.locate_file(name))
             if p.is_file() and p.stat().st_size < 1024**2:
                 shutil.copy2(p, licenses / (package + '-' + str(name).replace('/', '-').replace('\\', '-')))
+if has_voices:
+    shutil.copy2(voice_assets / 'supertonic-f1/LICENSE', licenses / 'voice-supertonic-f1-LICENSE.txt')
+    for key in ('dii', 'cadu', 'faber'):
+        card = 'README.md' if key == 'dii' else 'MODEL_CARD'
+        shutil.copy2(voice_assets / key / card, licenses / f'voice-{key}-{card}.txt')
 
 forbidden = ('ffmpeg', 'ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn')
 bad = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and any(x in p.name.lower() for x in forbidden)]
@@ -121,6 +142,7 @@ manifest = dict(
     board_hub_reference_sha256=asset_report['reference_sha256'],
     board_hub_candidate_only=True,
     replay_screen_review_prompts=True,
+    offline_voice_options=list(voice_report['voices']) if has_voices else [],
     live_strategy_enabled=False,
     signed=False,
     files=files,

@@ -1,2 +1,4 @@
 # Pinned Riot snapshots are verified by byte hash on every platform.
 knowledge/riot-ddragon/** -text
+# Versioned releases use canonical LF bytes for hashes across Windows and Linux.
+knowledge/releases/**/*.json text eol=lf

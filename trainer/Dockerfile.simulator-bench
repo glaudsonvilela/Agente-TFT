@@ -1,0 +1,7 @@
+# Isolated CPU benchmark; never inserted into the live preview/UI process.
+FROM python:3.12-slim
+ENV NUMBA_NUM_THREADS=2 OPENBLAS_NUM_THREADS=1
+RUN python -m pip install --no-cache-dir --only-binary=:all: numpy==1.26.4 numba==0.61.2
+WORKDIR /experiment
+COPY simulation /experiment/simulation
+CMD ["python", "-m", "simulation.rollout_stats"]

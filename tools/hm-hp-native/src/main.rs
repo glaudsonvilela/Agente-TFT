@@ -1,7 +1,10 @@
 //! Resident HP1 baseline adapter. Own stdin RGB, no capture/process inspection.
 use std::{io::{self,BufRead,Read,Write},path::Path,time::Instant};
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat};
+#[cfg(not(target_os="linux"))]
 use agente_tft_ocr_tesseract::{TesseractConfig,TesseractOcr};
+#[cfg(target_os="linux")]
+use agente_tft_ocr_tesseract::ResidentTesseractOcr;
 use agente_tft_perception_player_list::{BadgeProfile,read_player_hp};
 use serde_json::{Value,json};
 fn header(r:&mut impl BufRead)->Result<Option<Value>,String>{
@@ -27,9 +30,16 @@ fn run()->Result<(),String>{
  let bytes=std::fs::read(&p).map_err(|e|e.to_string())?;
  if bytes.len()>2*1024*1024{return Err("profile byte budget".into())}
  let profile:BadgeProfile=serde_json::from_slice(&bytes).map_err(|e|e.to_string())?;profile.validate()?;
+ #[cfg(target_os="linux")]
+ let mut ocr=ResidentTesseractOcr::from_cli_path(args.get(2).cloned().unwrap_or("tesseract".into()),"eng")?.with_numeric_gray();
+ #[cfg(not(target_os="linux"))]
  let mut ocr=TesseractOcr::new(TesseractConfig{binary:args.get(2).cloned().unwrap_or("tesseract".into()),language:"eng".into()}).with_numeric_gray();
+ #[cfg(target_os="linux")]
+ let available=true;
+ #[cfg(not(target_os="linux"))]
+ let available=ocr.available();
  let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
- writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":ocr.available(),"pid":std::process::id(),"profile":"HP1_baseline"})).map_err(|e|e.to_string())?;
+ writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":available,"pid":std::process::id(),"profile":"HP1_baseline"})).map_err(|e|e.to_string())?;
  output.flush().map_err(|e|e.to_string())?;
  while let Some(h)=header(&mut input)?{
   if h["op"]=="stop"{break}

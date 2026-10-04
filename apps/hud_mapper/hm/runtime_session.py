@@ -130,6 +130,23 @@ class RuntimeSession(Session):
         self._next_shop_ms = 0.0
         self._latest_hp = None
 
+    def _publish_coach(self, tip, frame, ready_ns):
+        if tip is None:return
+        tip = dict(tip, frame_id=frame.id, source_ms=frame.pts_ms,
+                   source_due_ns=frame.due_ns, ready_ns=ready_ns,
+                   input_kind='previously_recorded_video_on_screen',
+                   ground_truth=False, game_state_updated=False)
+        with self.lock:
+            if (tip['text']==getattr(self,'_last_replay_tip',None)
+                    and frame.pts_ms<getattr(self,'_next_tip_ms',0)):
+                return
+            self._last_replay_tip=tip['text']
+            self._next_tip_ms=frame.pts_ms+5000
+            self.latest_replay_tip=tip
+            self.counts['coach_updates']+=1
+            if tip.get('actionable'):self.counts['replay_tips']+=1
+        self.store.emit('replay-tips',tip)
+
 
     def _hp_loop(self):
         try:
@@ -168,7 +185,8 @@ class RuntimeSession(Session):
                                             queue_ms=(start-frame.ready_ns)/1e6,
                                             total_ms=(end-frame.due_ns)/1e6,
                                             native_ms=float(response.get('native_ms') or 0.0),
-                                            native_executed=executed,input_transform=plan))
+                                            native_executed=executed,input_transform=plan,
+                                            vm_transport=response.get('vm_transport')))
                 self.counts['hp_results'] += 1
                 if executed:
                     self.counts['hp_native_runs'] += 1
@@ -177,8 +195,8 @@ class RuntimeSession(Session):
             self.stop()
 
     def _native_loop(self):
-        next_save = -1
-        interval = max(2000, self.options.seconds * 1000 / max(1, self.options.max_samples // 4))
+        next_save = next_log = -1
+        interval = 30000 if self.options.vm_core else max(2000, self.options.seconds * 1000 / max(1, self.options.max_samples // 4))
         try:
             while not self.cancel.is_set():
                 try:
@@ -278,6 +296,13 @@ class RuntimeSession(Session):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
                     answer['reader_input_transform'] = plan
+                    decision_engine = getattr(self, 'decision_engine', None)
+                    if decision_engine and answer.get('origin') == 'observed_pixels':
+                        answer = decision_engine.evaluate(answer)
+                        self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
+                        self.latest_decision_reason = answer['decision']['evidence'][0]['code']
+                        if answer['decision']['action']['type'] == 'wait':
+                            self.counts['decision_abstentions'] += 1
                     canonical_regions = native_regions(answer, self.registry,
                                                        reader_frame.width, reader_frame.height)
                     regions = regions_to_source(canonical_regions, frame, plan)
@@ -309,26 +334,18 @@ class RuntimeSession(Session):
                                             signature_ms=compare_ms, normalize_ms=normalize_ms,
                                             input_transform=plan,
                                             cache_exact_hit=hit, native_executed=executed,
-                                            spans=spans))
+                                            spans=spans,vm_transport=answer.get('vm_transport')))
                 save = frame.pts_ms >= next_save
                 if save:
                     next_save = frame.pts_ms + interval
-                self.store.emit('roi-observations', record, frame, save)
+                if save or frame.pts_ms >= next_log:
+                    next_log = frame.pts_ms + (5000 if self.options.vm_core else 0)
+                    self.store.emit('roi-observations', record, frame, save)
                 self.native_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['read_frames'] += 1
                 if self.options.replay_review:
-                    from .replay_coach import economy_prompt
-                    tip = economy_prompt(answer)
-                    tip.update(frame_id=frame.id, source_ms=frame.pts_ms,
-                               source_due_ns=frame.due_ns, ready_ns=end,
-                               input_kind='previously_recorded_video_on_screen',
-                               ground_truth=False, game_state_updated=False)
-                    if tip['text'] != getattr(self, '_last_replay_tip', None) or frame.pts_ms >= getattr(self, '_next_tip_ms', 0):
-                        self._last_replay_tip = tip['text']
-                        self._next_tip_ms = frame.pts_ms + 5000
-                        self.store.emit('replay-tips', tip)
-                        self.latest_replay_tip = tip
-                        self.counts['replay_tips'] += 1
+                    from .replay_coach import coach_prompt
+                    self._publish_coach(coach_prompt(answer),frame,end)
                 if self.options.board_hub_enabled and plan.get('supported') and not hit:
                     next_hub = getattr(self, '_next_hub_ms', -1)
                     if frame.pts_ms >= next_hub:
@@ -354,6 +371,15 @@ class HM4RuntimeSession(RuntimeSession):
         super().__init__(options)
         self.board_reference_requested = threading.Event()
         self.latest_replay_tip = None
+        self.latest_decision_reason = None
+        self.decision_engine = None
+        if options.replay_review:
+            from .replay_decision import ReplayDecisionEngine
+            self.decision_engine = ReplayDecisionEngine(options.configs)
+            self.versions['replay_decision_policy'] = 'verified_third_copy_v1'
+            self.versions['replay_catalog_set'] = self.decision_engine.set_key
+            self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
+            self.versions['replay_patch_basis'] = 'reported_replay_patch'
 
     def request_board_reference(self):
         if not self.options.board_hub_enabled or self.done.is_set():
@@ -362,9 +388,13 @@ class HM4RuntimeSession(RuntimeSession):
 
     def _hub_loop(self):
         try:
-            from .board_hub_live import BoardHubLive
             from .replay_coach import inventory_prompt
-            observer = BoardHubLive(self.options.configs)
+            if self.core:
+                from hm45_vm_client import RemoteBoardHub
+                observer = RemoteBoardHub(self.core)
+            else:
+                from .board_hub_live import BoardHubLive
+                observer = BoardHubLive(self.options.configs)
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
             self.versions['board_hub_set_key'] = observer.manifest['set_key']
             self.versions['board_hub_mode'] = 'replay_screen_candidate_only'
@@ -393,19 +423,12 @@ class HM4RuntimeSession(RuntimeSession):
                     self.traces.append(dict(kind='hub', frame_id=frame.id,
                         source_due_ns=frame.due_ns, ready_ns=end,
                         total_ms=record['source_to_hub_ms'],
-                        processing_ms=record['hub_processing_ms']))
+                        processing_ms=record['hub_processing_ms'],
+                        vm_transport=observed.get('vm_transport')))
                 self.store.emit('board-hub-observations', record)
                 self.hub_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['hub_results'] += 1
-                tip = inventory_prompt(observed['snapshot'])
-                if tip is not None:
-                    tip.update(frame_id=frame.id, source_ms=frame.pts_ms,
-                               source_due_ns=frame.due_ns, ready_ns=end,
-                               input_kind='previously_recorded_video_on_screen',
-                               ground_truth=False, game_state_updated=False)
-                    self.store.emit('replay-tips', tip)
-                    self.latest_replay_tip = tip
-                    self.counts['replay_tips'] += 1
+                self._publish_coach(inventory_prompt(observed['snapshot']),frame,end)
         except Exception as exc:
             self.error = str(exc)
             self.stop()
