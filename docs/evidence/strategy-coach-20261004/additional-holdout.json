@@ -1,0 +1,33 @@
+{
+  "scope": "synthetic_attribute_objective_full_candidates",
+  "states": 500,
+  "seed_start": 2026100420000,
+  "seed_end": 2026100420499,
+  "candidates": 81757,
+  "per_family": {
+    "composition": {
+      "states": 500,
+      "mean_regret": 1.51275915877112e-05,
+      "max_regret": 0.007563795793855466
+    },
+    "position": {
+      "states": 500,
+      "mean_regret": 0.0,
+      "max_regret": 0.0
+    },
+    "equip": {
+      "states": 385,
+      "mean_regret": 1.7367869728224347e-05,
+      "max_regret": 0.0030726339838650363
+    },
+    "roll": {
+      "states": 115,
+      "mean_regret": 0.0005705702791774184,
+      "max_regret": 0.020102324269311023
+    }
+  },
+  "new_optimizer_steps": 0,
+  "human_demonstrations": 0,
+  "real_tft_improvement_proven": false,
+  "passed": true
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "verified_structured_state_experimental_coach",
+  "tests": {
+    "passed": 36,
+    "skipped": 1,
+    "subtests_passed": 9
+  },
+  "package_probe": {
+    "isolated_standard_python_import": true,
+    "torch_required": false,
+    "numpy_required": false
+  },
+  "capture_neural_identity_deferred_by_user": true,
+  "live_vision_connected": false,
+  "windows_installer_built": false,
+  "physical_audio_tested": false,
+  "remote_training": {
+    "server": "BigBANANA",
+    "isolated_container": "tft-strategy-training-20261004-r2",
+    "cpu_quota": 1.5,
+    "memory_limit_mib": 1280,
+    "network": "none",
+    "read_only_root": true,
+    "container_exit_code": 0
+  },
+  "r1_disposition": "superseded_after_own_copy_limit_validation",
+  "r2_split_limit": "Modulo-10 split interacts with forced-pair seed parity. Additional disjoint both-parity full-candidate audit covers rolling."
+}

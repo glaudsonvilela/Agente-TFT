@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "catalog": {
+    "path": "configs/coaching/TFTSet18/18.3B-20260928/catalog.json",
+    "sha256": "c0732148b48bced8474af1335abf95cd5a494c49689150c70ee5f4fd7fcb768f"
+  },
+  "model": {
+    "path": "configs/coaching/TFTSet18/18.3B-20260928/weights.json",
+    "sha256": "a02715cc28d0fa893f736b7d6b9a6359a11e88f6babd789563bae3599a4a63f2"
+  },
+  "vision_state_required": "verified complete self board; candidates are not accepted",
+  "scope": "attribute_planning_without_abilities",
+  "activation": "experimental_ranker_for_verified_structured_states"
+}

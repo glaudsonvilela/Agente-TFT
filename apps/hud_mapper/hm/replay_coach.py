@@ -1,5 +1,7 @@
 """Evidence-bound messages for a previously recorded match shown on screen."""
 from __future__ import annotations
+import hashlib
+import json
 
 
 def _hud_value(answer: dict, field: str):
@@ -18,7 +20,7 @@ def economy_prompt(answer: dict) -> dict:
     code=diagnostic.get('code')
     messages={
         'HUD_VALUES_INCONSISTENT':'Leitura de nível ou XP inconsistente. Mantenha a HUD inteira visível.',
-        'NO_LEVEL_RULE_FOR_STAGE':'Não há regra de evolução para este estágio nesta versão. Dicas de rolagem ainda não estão implementadas.',
+        'NO_LEVEL_RULE_FOR_STAGE':'Não há regra de evolução para este estágio. Consulte a leitura do tabuleiro para as demais recomendações.',
         'LEVEL_WINDOW_NOT_APPLICABLE':'A regra de evolução deste estágio não se aplica ao nível atual.',
         'ECONOMY_CONFIRMING':'Confirmando nível e XP em duas leituras consecutivas.',
         'XP_CONTROLS_STALE':'Leitura do botão de XP desatualizada; aguardando leitura nova.',
@@ -54,6 +56,17 @@ def coach_prompt(answer: dict) -> dict:
     """Allow a buy only when a future engine decision matches a current catalog offer."""
     decision = answer.get('decision') or {}
     action = decision.get('action') or {}
+    if (answer.get('origin') == 'observed_pixels' and decision.get('policy') == 'attribute_coach_v1'
+            and action.get('type') in ('roll', 'composition', 'position', 'equip')):
+        recommendations = (answer.get('strategic_coaching') or {}).get('recommendations', [])
+        selected = next((r for r in recommendations if r.get('action') == action), None)
+        if selected and selected.get('evidence_id') and selected.get('text') == decision.get('text'):
+            key = hashlib.sha256(json.dumps(action, sort_keys=True).encode()).hexdigest()[:20]
+            return dict(status='action', actionable=True, text=decision['text'],
+                speech_text=decision['text'], decision_key='strategy:'+key, speech_max_age_ms=2000,
+                basis=['verified_board_state', 'attribute_coach_v1'],
+                strategy_basis=decision['scope'], learned_ranker=decision['learned_ranker'],
+                recommendations=recommendations)
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'hold_econ'
             and decision.get('policy') == 'resource_budget_v1'
             and (decision.get('evidence') or [{}])[0].get('code') == 'SAVE_FOR_LEVEL_RESERVE'):

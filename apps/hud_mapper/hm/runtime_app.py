@@ -652,16 +652,24 @@ class App:
             if tip:
                 key=((tip.get("decision_key") or tip.get('speech_text'),tip.get("text")) if tip.get("actionable")
                      else (tip.get("status"),tip.get("text")))
+                key = (key, tuple(row.get('text') for row in tip.get('recommendations') or []))
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
                     label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'DIAGNÓSTICO'
+                    if tip.get('strategy_basis') == 'attribute_planning_without_abilities':
+                        label = 'DICA · ATRIBUTOS / SEM HABILIDADES'
                     self.coach_header.configure(text=f'AGENTE  /  {label}',
                                                 fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
                     self.tip_label.configure(text=tip['text'])
                     self.coach_meta.configure(text=f'Frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms · evidência: {", ".join(tip.get("basis") or []) or "insuficiente"}')
                     if tip.get('actionable'):
-                        self.tip_history.appendleft(f'{label} · +{tip["source_ms"]/1000:.1f}s · atraso ~{age:.0f} ms\n{tip["text"]}\n')
+                        alternatives = tip.get('recommendations') or []
+                        families = {'roll':'Rolagem', 'composition':'Composição', 'position':'Posicionamento', 'equip':'Equipamentos'}
+                        detail = ('\nAlternativas para este tabuleiro — reavalie após cada ação:\n' +
+                            '\n'.join(f'{families.get(row["family"], row["family"])}: {row["text"]}'
+                                      for row in alternatives)) if alternatives else ''
+                        self.tip_history.appendleft(f'{label} · +{tip["source_ms"]/1000:.1f}s · atraso ~{age:.0f} ms\n{tip["text"]}{detail}\n')
                         self.tip_log.configure(state='normal');self.tip_log.delete('1.0','end')
                         self.tip_log.insert('1.0','\n'.join(self.tip_history));self.tip_log.configure(state='disabled')
                     s.store.emit('telemetry',dict(event='coach_ui_applied',frame_id=tip['frame_id'],

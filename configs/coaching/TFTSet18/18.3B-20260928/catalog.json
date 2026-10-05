@@ -1,0 +1,3191 @@
+{
+  "champions": {
+    "DA_18_Ahri": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 100,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 40.0,
+        "range": 4.0
+      },
+      "cost": 4,
+      "name": "Ahri",
+      "pool_identity": "DA_18_Ahri",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_18_Akali_AD": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "initial_mana": 0,
+        "mana": 25.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 35.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Akali",
+      "pool_identity": "DA_18_Akali_AD",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Inferno",
+        "DA_18_Adaptor",
+        "DA_18_Slayer"
+      ]
+    },
+    "DA_18_Alistar": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          950.0,
+          1710.0,
+          3078.0
+        ],
+        "mr": 45.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Alistar",
+      "pool_identity": "DA_18_Alistar",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Brawler"
+      ]
+    },
+    "DA_18_Alune": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 45.0,
+        "range": 4.0
+      },
+      "cost": 5,
+      "name": "Alune",
+      "pool_identity": "DA_18_Alune",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_AluneUniqueTrait18",
+        "DA_18_Lunar",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_18_Aphelios": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          60.0,
+          90.0,
+          135.0
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "mr": 40.0,
+        "range": 4.0
+      },
+      "cost": 4,
+      "name": "Aphelios",
+      "pool_identity": "DA_18_Aphelios",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Lunar",
+        "DA_18_Rapidfire"
+      ]
+    },
+    "DA_18_Ashe": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          75.0,
+          112.5,
+          168.75
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Ashe",
+      "pool_identity": "DA_18_Ashe",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_Hunter"
+      ]
+    },
+    "DA_18_Azir": {
+      "combat": {
+        "ad": [
+          30.0,
+          45.0,
+          67.5
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "initial_mana": 0,
+        "mana": 35.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 35.0,
+        "range": 4.0
+      },
+      "cost": 3,
+      "name": "Azir",
+      "pool_identity": "DA_18_Azir",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Executioner",
+        "DA_18_Summoner"
+      ]
+    },
+    "DA_18_Caitlyn": {
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 30.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          550.0,
+          990.0,
+          1782.0000000000002
+        ],
+        "initial_mana": 0,
+        "mana": 3.0,
+        "mana_per_attack": 0,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 30.0,
+        "range": 4.0
+      },
+      "cost": 2,
+      "name": "Caitlyn",
+      "pool_identity": "DA_18_Caitlyn",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Coven",
+        "DA_18_Hunter"
+      ]
+    },
+    "DA_18_Camille": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          700.0,
+          1260.0,
+          2268.0
+        ],
+        "initial_mana": 0,
+        "mana": 25.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Camille",
+      "pool_identity": "DA_18_Camille",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Coven",
+        "DA_18_Slayer"
+      ]
+    },
+    "DA_18_Cassiopeia": {
+      "combat": {
+        "ad": [
+          30.0,
+          45.0,
+          67.5
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "initial_mana": 0,
+        "mana": 30.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 35.0,
+        "range": 4.0
+      },
+      "cost": 3,
+      "name": "Cassiopeia",
+      "pool_identity": "DA_18_Cassiopeia",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Coven",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_18_Diana": {
+      "combat": {
+        "ad": [
+          30.0,
+          45.0,
+          67.5
+        ],
+        "ap": 100,
+        "armor": 50.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "initial_mana": 0,
+        "mana": 30.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 50.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Diana",
+      "pool_identity": "DA_18_Diana",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Lunar",
+        "DA_18_Slayer",
+        "DA_18_Vanguard"
+      ]
+    },
+    "DA_18_ElderDragon": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          125.0,
+          187.5,
+          281.25
+        ],
+        "ap": 100,
+        "armor": 75.0,
+        "attack_speed": 0.5,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1800.0,
+          3240.0,
+          5832.0
+        ],
+        "mr": 75.0,
+        "range": 2.0
+      },
+      "cost": 5,
+      "name": "Dragão Ancião",
+      "pool_identity": "DA_18_ElderDragon",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_ApexPredator",
+        "DA_Riftbeast18"
+      ]
+    },
+    "DA_18_Elise": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          20.0,
+          30.0,
+          45.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 45.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Elise",
+      "pool_identity": "DA_18_Elise",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Coven",
+        "DA_18_Vanguard"
+      ]
+    },
+    "DA_18_Ezreal": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          45.0,
+          67.5,
+          101.25
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "mr": 40.0,
+        "range": 4.0
+      },
+      "cost": 4,
+      "name": "Ezreal",
+      "pool_identity": "DA_18_Ezreal",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Executioner"
+      ]
+    },
+    "DA_18_GnarSmall": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          100.0,
+          150.0,
+          225.0
+        ],
+        "ap": 100,
+        "armor": 55.0,
+        "attack_speed": 0.8999999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 55.0,
+        "range": 2.0
+      },
+      "cost": 5,
+      "name": "Gnar",
+      "pool_identity": "DA_18_GnarSmall",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Sprykin",
+        "DA_18_Brawler"
+      ]
+    },
+    "DA_18_Hecarim": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 50.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1100.0,
+          1980.0,
+          3564.0000000000005
+        ],
+        "mr": 50.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Hecarim",
+      "pool_identity": "DA_18_Hecarim",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Vanguard"
+      ]
+    },
+    "DA_18_Ivern": {
+      "combat": {
+        "ad": [
+          60.0,
+          90.0,
+          135.0
+        ],
+        "ap": 100,
+        "armor": 55.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1000.0,
+          1800.0,
+          3240.0
+        ],
+        "initial_mana": 50.0,
+        "mana": 80.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 55.0,
+        "range": 3.0
+      },
+      "cost": 5,
+      "name": "Ivern",
+      "pool_identity": "DA_18_Ivern",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Greenfather"
+      ]
+    },
+    "DA_18_Kennen": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.8500000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1200.0,
+          2160.0,
+          3888.0000000000005
+        ],
+        "mr": 60.0,
+        "range": 2.0
+      },
+      "cost": 5,
+      "name": "Kennen",
+      "pool_identity": "DA_18_Kennen",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Inferno",
+        "DA_18_Executioner"
+      ]
+    },
+    "DA_18_KhaZix": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 55.0,
+        "attack_speed": 0.8500000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          950.0,
+          1710.0,
+          3078.0
+        ],
+        "mr": 55.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Kha'Zix",
+      "pool_identity": "DA_18_KhaZix",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Rival"
+      ]
+    },
+    "DA_18_Kobuko": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          55.0,
+          82.5,
+          123.75
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          700.0,
+          1260.0,
+          2268.0
+        ],
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Kobuko",
+      "pool_identity": "DA_18_Kobuko",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Sprykin",
+        "DA_18_Brawler"
+      ]
+    },
+    "DA_18_LeBlanc": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          30.0,
+          45.0,
+          67.5
+        ],
+        "ap": 100,
+        "armor": 30.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          550.0,
+          990.0,
+          1782.0000000000002
+        ],
+        "mr": 30.0,
+        "range": 4.0
+      },
+      "cost": 2,
+      "name": "LeBlanc",
+      "pool_identity": "DA_18_LeBlanc",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_18_Leona": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          750.0,
+          1350.0,
+          2430.0
+        ],
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Leona",
+      "pool_identity": "DA_18_Leona",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Solar",
+        "DA_18_Defender"
+      ]
+    },
+    "DA_18_Lillia": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1300.0,
+          2340.0,
+          4212.0
+        ],
+        "mr": 60.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Lillia",
+      "pool_identity": "DA_18_Lillia",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Fae",
+        "DA_18_Defender"
+      ]
+    },
+    "DA_18_Lux_Coven": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Congregação das Bruxas)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Coven",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Lux_Elderwood": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Sabugueiro)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Lux_Fae": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Feérica)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Fae",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Lux_Inferno": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Inferno)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Inferno",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Lux_Moonbeam": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Lunar)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Lunar",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Lux_Primal": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Primordial)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Primal18",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Lux_Sunbeam": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Solar)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Solar",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_18_Malphite": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          70.0,
+          105.0,
+          157.5
+        ],
+        "ap": 100,
+        "armor": 70.0,
+        "attack_speed": 0.550000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1300.0,
+          2340.0,
+          4212.0
+        ],
+        "mr": 70.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Malphite",
+      "pool_identity": "DA_18_Malphite",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Battlemage"
+      ]
+    },
+    "DA_18_Maokai": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          80.0,
+          120.0,
+          180.0
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1150.0,
+          2070.0,
+          3726.0000000000005
+        ],
+        "mr": 60.0,
+        "range": 1.0
+      },
+      "cost": 5,
+      "name": "Maokai",
+      "pool_identity": "DA_18_Maokai",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Maokai_UniqueTrait",
+        "DA_Juggernaut18"
+      ]
+    },
+    "DA_18_MasterYi_AD": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          62.0,
+          93.0,
+          139.5
+        ],
+        "ap": 100,
+        "armor": 55.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "mr": 55.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Master Yi",
+      "pool_identity": "DA_18_MasterYi_AD",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_Adaptor"
+      ]
+    },
+    "DA_18_Morgana": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          45.0,
+          67.5,
+          101.25
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1100.0,
+          1980.0,
+          3564.0000000000005
+        ],
+        "mr": 60.0,
+        "range": 2.0
+      },
+      "cost": 4,
+      "name": "Morgana",
+      "pool_identity": "DA_18_Morgana",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Coven",
+        "DA_18_Invoker"
+      ]
+    },
+    "DA_18_Ornn": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          700.0,
+          1260.0,
+          2268.0
+        ],
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Ornn",
+      "pool_identity": "DA_18_Ornn",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Defender"
+      ]
+    },
+    "DA_18_Rakan": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          45.0,
+          67.5,
+          101.25
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          700.0,
+          1260.0,
+          2268.0
+        ],
+        "mr": 35.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Rakan",
+      "pool_identity": "DA_18_Rakan",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Fae",
+        "DA_Juggernaut18",
+        "DA_18_Vanguard"
+      ]
+    },
+    "DA_18_Rammus": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 50.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1100.0,
+          1980.0,
+          3564.0000000000005
+        ],
+        "mr": 50.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Rammus",
+      "pool_identity": "DA_18_Rammus",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Sprykin",
+        "DA_18_Defender"
+      ]
+    },
+    "DA_18_RekSai": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.550000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          700.0,
+          1260.0,
+          2268.0
+        ],
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Rek'Sai",
+      "pool_identity": "DA_18_RekSai",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Brawler"
+      ]
+    },
+    "DA_18_Rengar": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          60.0,
+          90.0,
+          135.0
+        ],
+        "ap": 100,
+        "armor": 55.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 55.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Rengar",
+      "pool_identity": "DA_18_Rengar",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Rival"
+      ]
+    },
+    "DA_18_Sejuani": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 45.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Sejuani",
+      "pool_identity": "DA_18_Sejuani",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Solar",
+        "DA_Juggernaut18"
+      ]
+    },
+    "DA_18_Sentry": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          35.0,
+          52.5,
+          78.75
+        ],
+        "ap": 100,
+        "armor": 25.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          500.0,
+          900.0,
+          1620.0
+        ],
+        "mr": 25.0,
+        "range": 4.0
+      },
+      "cost": 1,
+      "name": "Cascalho",
+      "pool_identity": "DA_18_Sentry",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Invoker"
+      ]
+    },
+    "DA_18_Sett": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          80.0,
+          120.0,
+          180.0
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1200.0,
+          2160.0,
+          3888.0000000000005
+        ],
+        "mr": 60.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Sett",
+      "pool_identity": "DA_18_Sett",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_Brawler"
+      ]
+    },
+    "DA_18_Shen": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 45.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Shen",
+      "pool_identity": "DA_18_Shen",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Inferno",
+        "DA_18_Defender"
+      ]
+    },
+    "DA_18_Sivir": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "mr": 40.0,
+        "range": 4.0
+      },
+      "cost": 4,
+      "name": "Sivir",
+      "pool_identity": "DA_18_Sivir",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Primal18",
+        "DA_18_Hunter"
+      ]
+    },
+    "DA_18_Soraka": {
+      "combat": {
+        "ad": [
+          30.0,
+          45.0,
+          67.5
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "initial_mana": 0,
+        "mana": 30.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 40.0,
+        "range": 4.0
+      },
+      "cost": 4,
+      "name": "Soraka",
+      "pool_identity": "DA_18_Soraka",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_FloraFatalis18",
+        "DA_18_Executioner"
+      ]
+    },
+    "DA_18_Teemo": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          35.0,
+          52.5,
+          78.75
+        ],
+        "ap": 100,
+        "armor": 30.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          550.0,
+          990.0,
+          1782.0000000000002
+        ],
+        "mr": 30.0,
+        "range": 4.0
+      },
+      "cost": 2,
+      "name": "Teemo",
+      "pool_identity": "DA_18_Teemo",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Sprykin",
+        "DA_18_Invoker"
+      ]
+    },
+    "DA_18_Tristana": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          55.0,
+          82.5,
+          123.75
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "mr": 35.0,
+        "range": 4.0
+      },
+      "cost": 3,
+      "name": "Tristana",
+      "pool_identity": "DA_18_Tristana",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Fae",
+        "DA_18_Sprykin",
+        "DA_18_Hunter"
+      ]
+    },
+    "DA_18_Varus": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 25.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          500.0,
+          900.0,
+          1620.0
+        ],
+        "initial_mana": 30.0,
+        "mana": 120.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 25.0,
+        "range": 4.0
+      },
+      "cost": 1,
+      "name": "Varus",
+      "pool_identity": "DA_18_Varus",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Inferno",
+        "DA_18_Rapidfire"
+      ]
+    },
+    "DA_18_Veigar": {
+      "combat": {
+        "ad": [
+          25.0,
+          37.5,
+          56.25
+        ],
+        "ap": 100,
+        "armor": 25.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          500.0,
+          900.0,
+          1620.0
+        ],
+        "initial_mana": 0,
+        "mana": 30.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 25.0,
+        "range": 4.0
+      },
+      "cost": 1,
+      "name": "Veigar",
+      "pool_identity": "DA_18_Veigar",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Sprykin",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_18_Warwick": {
+      "combat": {
+        "ad": [
+          45.0,
+          67.5,
+          101.25
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          750.0,
+          1350.0,
+          2430.0
+        ],
+        "initial_mana": 0,
+        "mana": 40.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 45.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Warwick",
+      "pool_identity": "DA_18_Warwick",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blackthorn",
+        "DA_18_Slayer"
+      ]
+    },
+    "DA_18_Xayah": {
+      "combat": {
+        "ad": [
+          45.0,
+          67.5,
+          101.25
+        ],
+        "ap": 100,
+        "armor": 25.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          450.0,
+          810.0,
+          1458.0
+        ],
+        "initial_mana": 0,
+        "mana": 50.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 25.0,
+        "range": 4.0
+      },
+      "cost": 1,
+      "name": "Xayah",
+      "pool_identity": "DA_18_Xayah",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Elderwood",
+        "DA_18_Fae",
+        "DA_18_Rapidfire"
+      ]
+    },
+    "DA_18_Yorick": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "mr": 35.0,
+        "range": 1.0
+      },
+      "cost": 1,
+      "name": "Yorick",
+      "pool_identity": "DA_18_Yorick",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_Juggernaut18",
+        "DA_18_Summoner"
+      ]
+    },
+    "DA_18_Yunara": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          42.0,
+          63.0,
+          94.5
+        ],
+        "ap": 100,
+        "armor": 30.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          550.0,
+          990.0,
+          1782.0000000000002
+        ],
+        "mr": 30.0,
+        "range": 4.0
+      },
+      "cost": 2,
+      "name": "Yunara",
+      "pool_identity": "DA_18_Yunara",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_Executioner"
+      ]
+    },
+    "DA_18_Zyra": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "mr": 40.0,
+        "range": 4.0
+      },
+      "cost": 4,
+      "name": "Zyra",
+      "pool_identity": "DA_18_Zyra",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_ZyraUniqueTrait",
+        "DA_18_Summoner"
+      ]
+    },
+    "DA_Amumu18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          70.0,
+          105.0,
+          157.5
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1300.0,
+          2340.0,
+          4212.0
+        ],
+        "mr": 60.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Amumu",
+      "pool_identity": "DA_Amumu18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Inferno",
+        "DA_Juggernaut18"
+      ]
+    },
+    "DA_Brambleback18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          120.0,
+          180.0,
+          270.0
+        ],
+        "ap": 100,
+        "armor": 65.0,
+        "attack_speed": 0.550000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1100.0,
+          1980.0,
+          3564.0000000000005
+        ],
+        "mr": 65.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Rubrivira",
+      "pool_identity": "DA_Brambleback18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Slayer"
+      ]
+    },
+    "DA_Cinderling18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 25.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          500.0,
+          900.0,
+          1620.0
+        ],
+        "mr": 25.0,
+        "range": 4.0
+      },
+      "cost": 1,
+      "name": "Rubrivirim",
+      "pool_identity": "DA_Cinderling18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Hunter"
+      ]
+    },
+    "DA_CrimsonRaptor18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          55.0,
+          82.5,
+          123.75
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "mr": 35.0,
+        "range": 4.0
+      },
+      "cost": 3,
+      "name": "Mamãe Bicuda",
+      "pool_identity": "DA_CrimsonRaptor18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Summoner",
+        "DA_18_Rapidfire"
+      ]
+    },
+    "DA_Draven18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          48.0,
+          72.0,
+          108.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.8500000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Draven",
+      "pool_identity": "DA_Draven18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_DravenUniqueTrait18"
+      ]
+    },
+    "DA_Fiddlesticks18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 55.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1000.0,
+          1800.0,
+          3240.0
+        ],
+        "mr": 55.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Fiddlesticks",
+      "pool_identity": "DA_Fiddlesticks18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_FloraFatalis18",
+        "DA_18_Defender",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_Gromp18_AP": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          30.0,
+          45.0,
+          67.5
+        ],
+        "ap": 100,
+        "armor": 30.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          550.0,
+          990.0,
+          1782.0000000000002
+        ],
+        "mr": 30.0,
+        "range": 4.0
+      },
+      "cost": 2,
+      "name": "Grompe",
+      "pool_identity": "DA_Gromp18_AP",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Adaptor"
+      ]
+    },
+    "DA_Karma18": {
+      "combat": {
+        "ad": [
+          25.0,
+          37.5,
+          56.25
+        ],
+        "ap": 100,
+        "armor": 25.0,
+        "attack_speed": 0.699999988079071,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          500.0,
+          900.0,
+          1620.0
+        ],
+        "initial_mana": 0,
+        "mana": 40.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 25.0,
+        "range": 4.0
+      },
+      "cost": 1,
+      "name": "Karma",
+      "pool_identity": "DA_Karma18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_Spellweaver"
+      ]
+    },
+    "DA_KogMaw18_AD": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 35.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          650.0,
+          1170.0,
+          2106.0
+        ],
+        "mr": 35.0,
+        "range": 4.0
+      },
+      "cost": 3,
+      "name": "Kog'Maw",
+      "pool_identity": "DA_KogMaw18_AD",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Caustic",
+        "DA_18_Adaptor",
+        "DA_18_Invoker"
+      ]
+    },
+    "DA_Krug18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          55.0,
+          82.5,
+          123.75
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1100.0,
+          1980.0,
+          3564.0000000000005
+        ],
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Krugue",
+      "pool_identity": "DA_Krug18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Brawler"
+      ]
+    },
+    "DA_Lux18_Base": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 40.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": "Lux form selection must be bound before purchase",
+      "traits": [
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_Lux18_Blackthorn": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Espinhos Negros)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blackthorn",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_Lux18_Blossom": {
+      "combat": {
+        "ad": [
+          40.0,
+          60.0,
+          90.0
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          900.0,
+          1620.0,
+          2916.0
+        ],
+        "initial_mana": 20.0,
+        "mana": 70.0,
+        "mana_per_attack": 7,
+        "mana_per_damage": 0,
+        "mana_per_second": 2,
+        "mr": 45.0,
+        "range": 6.0
+      },
+      "cost": 5,
+      "name": "Lux (Florescer)",
+      "pool_identity": "DA_Lux18_Base",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_18_Blossom",
+        "DA_18_LuxUniqueTrait"
+      ]
+    },
+    "DA_Murkwolf18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 40.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          700.0,
+          1260.0,
+          2268.0
+        ],
+        "mr": 40.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Lobo Trevoguari",
+      "pool_identity": "DA_Murkwolf18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Slayer"
+      ]
+    },
+    "DA_Nidalee18_AP": {
+      "combat": {
+        "ad": [
+          35.0,
+          52.5,
+          78.75
+        ],
+        "ap": 100,
+        "armor": 30.0,
+        "attack_speed": 0.800000011920929,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          850.0,
+          1530.0,
+          2754.0
+        ],
+        "initial_mana": 0,
+        "mana": 45.0,
+        "mana_per_attack": 10,
+        "mana_per_damage": 0,
+        "mana_per_second": 0,
+        "mr": 30.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Nidalee",
+      "pool_identity": "DA_Nidalee18_AP",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Primal18",
+        "DA_18_Adaptor"
+      ]
+    },
+    "DA_Scuttlecrab18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          50.0,
+          75.0,
+          112.5
+        ],
+        "ap": 100,
+        "armor": 45.0,
+        "attack_speed": 0.6499999761581421,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          950.0,
+          1710.0,
+          3078.0
+        ],
+        "mr": 45.0,
+        "range": 1.0
+      },
+      "cost": 2,
+      "name": "Aronguejo",
+      "pool_identity": "DA_Scuttlecrab18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_Juggernaut18"
+      ]
+    },
+    "DA_Sentinel18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          75.0,
+          112.5,
+          168.75
+        ],
+        "ap": 100,
+        "armor": 60.0,
+        "attack_speed": 0.6000000238418579,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1300.0,
+          2340.0,
+          4212.0
+        ],
+        "mr": 60.0,
+        "range": 1.0
+      },
+      "cost": 4,
+      "name": "Azuporã",
+      "pool_identity": "DA_Sentinel18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Riftbeast18",
+        "DA_18_Vanguard",
+        "DA_18_Invoker"
+      ]
+    },
+    "DA_Taric18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          55.0,
+          82.5,
+          123.75
+        ],
+        "ap": 100,
+        "armor": 65.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1300.0,
+          2340.0,
+          4212.0
+        ],
+        "mr": 65.0,
+        "range": 1.0
+      },
+      "cost": 5,
+      "name": "Taric",
+      "pool_identity": "DA_Taric18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Emerald18",
+        "DA_18_Vanguard"
+      ]
+    },
+    "DA_Vi18": {
+      "attribute_source": "sealed_base_catalog_18.3",
+      "combat": {
+        "ad": [
+          45.0,
+          67.5,
+          101.25
+        ],
+        "ap": 100,
+        "armor": 50.0,
+        "attack_speed": 0.75,
+        "crit_chance": 0.25,
+        "crit_multiplier": 1.399999976158142,
+        "hp": [
+          1100.0,
+          1980.0,
+          3564.0000000000005
+        ],
+        "mr": 50.0,
+        "range": 1.0
+      },
+      "cost": 3,
+      "name": "Vi",
+      "pool_identity": "DA_Vi18",
+      "purchase_blocker": null,
+      "traits": [
+        "DA_Primal18",
+        "DA_Juggernaut18"
+      ]
+    }
+  },
+  "economy": {
+    "allow_inventory_combine": false,
+    "inventory_slots": 10,
+    "pool_by_cost": {
+      "1": 30,
+      "2": 25,
+      "3": 18,
+      "4": 10,
+      "5": 9
+    },
+    "reroll_cost": 2,
+    "sale_prices_by_cost": {
+      "1": {
+        "1": 1
+      },
+      "2": {
+        "1": 2
+      },
+      "3": {
+        "1": 3
+      },
+      "4": {
+        "1": 4
+      },
+      "5": {
+        "1": 5
+      }
+    },
+    "shop_odds": {
+      "1": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "10": [
+        0.05,
+        0.1,
+        0.2,
+        0.4,
+        0.25
+      ],
+      "2": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "3": [
+        0.75,
+        0.25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "4": [
+        0.55,
+        0.3,
+        0.15,
+        0.0,
+        0.0
+      ],
+      "5": [
+        0.45,
+        0.33,
+        0.2,
+        0.02,
+        0.0
+      ],
+      "6": [
+        0.3,
+        0.4,
+        0.25,
+        0.05,
+        0.0
+      ],
+      "7": [
+        0.16,
+        0.3,
+        0.43,
+        0.1,
+        0.01
+      ],
+      "8": [
+        0.15,
+        0.2,
+        0.32,
+        0.3,
+        0.03
+      ],
+      "9": [
+        0.1,
+        0.17,
+        0.25,
+        0.33,
+        0.15
+      ]
+    },
+    "xp_amount": 4,
+    "xp_cost": 4,
+    "xp_to_next": {
+      "1": 2,
+      "2": 2,
+      "3": 6,
+      "4": 10,
+      "5": 20,
+      "6": 36,
+      "7": 56,
+      "8": 68,
+      "9": 68
+    }
+  },
+  "excluded_champions": {
+    "DA_18_Kayle": "missing numerical base attribute"
+  },
+  "items": {
+    "TFT_Item_ArchangelsStaff": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 30.0
+        },
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 1.0
+        }
+      ],
+      "name": "Cajado do Arcanjo",
+      "unique": false
+    },
+    "TFT_Item_BFSword": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.10000000149011612
+        }
+      ],
+      "name": "Espada G.p.C.",
+      "unique": false
+    },
+    "TFT_Item_Bloodthirster": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.18
+        },
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 18
+        },
+        {
+          "mode": "flat",
+          "stat": "mr",
+          "value": 20.0
+        },
+        {
+          "mode": "flat",
+          "stat": "omnivamp",
+          "value": 0.20000000298023224
+        }
+      ],
+      "name": "Sedenta por Sangue",
+      "unique": false
+    },
+    "TFT_Item_BlueBuff": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.15000000596046448
+        },
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 15.0
+        },
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 5.0
+        },
+        {
+          "mode": "bonus_pct",
+          "stat": "ad",
+          "value": 0.10000000149011612
+        },
+        {
+          "mode": "bonus_pct",
+          "stat": "ap",
+          "value": 0.10000000149011612
+        }
+      ],
+      "name": "Efeito Azul",
+      "unique": false
+    },
+    "TFT_Item_ChainVest": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "armor",
+          "value": 20.0
+        }
+      ],
+      "name": "Cota de Malha",
+      "unique": false
+    },
+    "TFT_Item_Crownguard": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 20.0
+        },
+        {
+          "mode": "flat",
+          "stat": "armor",
+          "value": 20.0
+        },
+        {
+          "mode": "flat",
+          "stat": "hp",
+          "value": 100.0
+        }
+      ],
+      "name": "Stemmaguarda",
+      "unique": false
+    },
+    "TFT_Item_Deathblade": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.550000011920929
+        },
+        {
+          "mode": "flat",
+          "stat": "damage_amp",
+          "value": 0.10000000149011612
+        }
+      ],
+      "name": "Lâmina Mortal",
+      "unique": false
+    },
+    "TFT_Item_FrozenHeart": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 1.0
+        },
+        {
+          "mode": "flat",
+          "stat": "armor",
+          "value": 25.0
+        },
+        {
+          "mode": "flat",
+          "stat": "mr",
+          "value": 25.0
+        }
+      ],
+      "name": "Juramento do Protetor",
+      "unique": false
+    },
+    "TFT_Item_FryingPan": {
+      "component": true,
+      "modifiers": [],
+      "name": "Frigideira",
+      "unique": false
+    },
+    "TFT_Item_GiantsBelt": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "hp",
+          "value": 150.0
+        }
+      ],
+      "name": "Cinto do Gigante",
+      "unique": false
+    },
+    "TFT_Item_GuinsoosRageblade": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 10.0
+        },
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.1
+        }
+      ],
+      "name": "Lâmina da Fúria de Guinsoo",
+      "unique": false
+    },
+    "TFT_Item_LastWhisper": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.15000000596046448
+        },
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.2
+        },
+        {
+          "mode": "flat",
+          "stat": "crit_chance",
+          "value": 0.2
+        }
+      ],
+      "name": "Último Sussurro",
+      "unique": false
+    },
+    "TFT_Item_Leviathan": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 15.0
+        },
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.1
+        },
+        {
+          "mode": "flat",
+          "stat": "hp",
+          "value": 150.0
+        },
+        {
+          "mode": "flat",
+          "stat": "crit_chance",
+          "value": 0.2
+        }
+      ],
+      "name": "Dente de Na'Shor",
+      "unique": false
+    },
+    "TFT_Item_NeedlesslyLargeRod": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 10.0
+        }
+      ],
+      "name": "Bastão Desnecessariamente Grande",
+      "unique": false
+    },
+    "TFT_Item_NegatronCloak": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "mr",
+          "value": 20.0
+        }
+      ],
+      "name": "Capa Negatron",
+      "unique": false
+    },
+    "TFT_Item_NightHarvester": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "armor",
+          "value": 20.0
+        },
+        {
+          "mode": "flat",
+          "stat": "hp",
+          "value": 250.0
+        },
+        {
+          "mode": "flat",
+          "stat": "crit_chance",
+          "value": 0.2
+        },
+        {
+          "mode": "flat",
+          "stat": "durability",
+          "value": 0.05000000074505806,
+          "when": {
+            "hp_at_most": 0.5
+          }
+        },
+        {
+          "mode": "flat",
+          "stat": "durability",
+          "value": 0.15000000596046448,
+          "when": {
+            "hp_above": 0.5
+          }
+        }
+      ],
+      "name": "Coração Inabalável",
+      "unique": false
+    },
+    "TFT_Item_Quicksilver": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.15
+        },
+        {
+          "mode": "flat",
+          "stat": "mr",
+          "value": 20.0
+        },
+        {
+          "mode": "flat",
+          "stat": "crit_chance",
+          "value": 0.2
+        }
+      ],
+      "name": "Mercúrio",
+      "unique": false
+    },
+    "TFT_Item_RabadonsDeathcap": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 55.0
+        },
+        {
+          "mode": "flat",
+          "stat": "damage_amp",
+          "value": 0.15000000596046448
+        }
+      ],
+      "name": "Capuz da Morte de Rabadon",
+      "unique": false
+    },
+    "TFT_Item_RecurveBow": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.1
+        }
+      ],
+      "name": "Arco Recurvo",
+      "unique": false
+    },
+    "TFT_Item_RunaansHurricane": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.10000000149011612
+        },
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.1
+        },
+        {
+          "mode": "flat",
+          "stat": "mr",
+          "value": 20.0
+        }
+      ],
+      "name": "Fúria do Cráquem",
+      "unique": false
+    },
+    "TFT_Item_SparringGloves": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "crit_chance",
+          "value": 0.2
+        }
+      ],
+      "name": "Luvas do Pugilista",
+      "unique": false
+    },
+    "TFT_Item_SpearOfShojin": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.15000000596046448
+        },
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 15.0
+        },
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 1.0
+        },
+        {
+          "mode": "flat",
+          "stat": "mana_per_attack",
+          "value": 5.0
+        }
+      ],
+      "name": "Lança de Shojin",
+      "unique": false
+    },
+    "TFT_Item_StatikkShiv": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 35.0
+        },
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.15
+        },
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 1.0
+        }
+      ],
+      "name": "Cajado do Vazio",
+      "unique": false
+    },
+    "TFT_Item_TearOfTheGoddess": {
+      "component": true,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 1.0
+        }
+      ],
+      "name": "Lágrima da Deusa",
+      "unique": false
+    },
+    "TFT_Item_TitansResolve": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "base_pct",
+          "stat": "attack_speed",
+          "value": 0.1
+        },
+        {
+          "mode": "flat",
+          "stat": "armor",
+          "value": 20.0
+        }
+      ],
+      "name": "Determinação Titânica",
+      "unique": false
+    },
+    "TFT_Item_UnstableConcoction": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "mana_per_second",
+          "value": 1.0
+        },
+        {
+          "mode": "flat",
+          "stat": "crit_chance",
+          "value": 0.2
+        },
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.18
+        },
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 18
+        },
+        {
+          "mode": "flat",
+          "stat": "omnivamp",
+          "value": 0.15
+        },
+        {
+          "mode": "base_pct",
+          "stat": "ad",
+          "value": 0.18,
+          "when": {
+            "hp_above": 0.5
+          }
+        },
+        {
+          "mode": "flat",
+          "stat": "ap",
+          "value": 18,
+          "when": {
+            "hp_above": 0.5
+          }
+        },
+        {
+          "mode": "flat",
+          "stat": "omnivamp",
+          "value": 0.15,
+          "when": {
+            "hp_below": 0.5
+          }
+        }
+      ],
+      "name": "Mão da Justiça",
+      "unique": false
+    },
+    "TFT_Item_WarmogsArmor": {
+      "component": false,
+      "modifiers": [
+        {
+          "mode": "flat",
+          "stat": "hp",
+          "value": 500.0
+        },
+        {
+          "mode": "bonus_pct",
+          "stat": "hp",
+          "value": 0.18000000715255737
+        }
+      ],
+      "name": "Armadura de Warmog",
+      "unique": false
+    }
+  },
+  "limitations": [
+    "Attribute utility is a designed objective, not a combat win probability.",
+    "No champion abilities, augment interactions, seasonal rewards or hidden opponent state.",
+    "Only bound item handlers and recipes are considered."
+  ],
+  "patch": "18.3",
+  "recipes": {
+    "TFT_Item_BFSword+TFT_Item_BFSword": "TFT_Item_Deathblade",
+    "TFT_Item_BFSword+TFT_Item_NegatronCloak": "TFT_Item_Bloodthirster",
+    "TFT_Item_BFSword+TFT_Item_TearOfTheGoddess": "TFT_Item_SpearOfShojin",
+    "TFT_Item_ChainVest+TFT_Item_NeedlesslyLargeRod": "TFT_Item_Crownguard",
+    "TFT_Item_ChainVest+TFT_Item_RecurveBow": "TFT_Item_TitansResolve",
+    "TFT_Item_ChainVest+TFT_Item_SparringGloves": "TFT_Item_NightHarvester",
+    "TFT_Item_ChainVest+TFT_Item_TearOfTheGoddess": "TFT_Item_FrozenHeart",
+    "TFT_Item_GiantsBelt+TFT_Item_GiantsBelt": "TFT_Item_WarmogsArmor",
+    "TFT_Item_GiantsBelt+TFT_Item_RecurveBow": "TFT_Item_Leviathan",
+    "TFT_Item_NeedlesslyLargeRod+TFT_Item_NeedlesslyLargeRod": "TFT_Item_RabadonsDeathcap",
+    "TFT_Item_NeedlesslyLargeRod+TFT_Item_RecurveBow": "TFT_Item_GuinsoosRageblade",
+    "TFT_Item_NeedlesslyLargeRod+TFT_Item_TearOfTheGoddess": "TFT_Item_ArchangelsStaff",
+    "TFT_Item_NegatronCloak+TFT_Item_RecurveBow": "TFT_Item_RunaansHurricane",
+    "TFT_Item_NegatronCloak+TFT_Item_SparringGloves": "TFT_Item_Quicksilver",
+    "TFT_Item_RecurveBow+TFT_Item_SparringGloves": "TFT_Item_LastWhisper",
+    "TFT_Item_RecurveBow+TFT_Item_TearOfTheGoddess": "TFT_Item_StatikkShiv",
+    "TFT_Item_SparringGloves+TFT_Item_TearOfTheGoddess": "TFT_Item_UnstableConcoction",
+    "TFT_Item_TearOfTheGoddess+TFT_Item_TearOfTheGoddess": "TFT_Item_BlueBuff"
+  },
+  "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+  "revision": "18.3B-20260928",
+  "schema_version": 1,
+  "scope": "attribute_planning_without_abilities",
+  "set_key": "TFTSet18",
+  "shop_champions": {
+    "DA_18_Ahri": {
+      "cost": 4
+    },
+    "DA_18_Akali_AD": {
+      "cost": 1
+    },
+    "DA_18_Alistar": {
+      "cost": 2
+    },
+    "DA_18_Alune": {
+      "cost": 5
+    },
+    "DA_18_Aphelios": {
+      "cost": 4
+    },
+    "DA_18_Ashe": {
+      "cost": 5
+    },
+    "DA_18_Azir": {
+      "cost": 3
+    },
+    "DA_18_Caitlyn": {
+      "cost": 2
+    },
+    "DA_18_Camille": {
+      "cost": 1
+    },
+    "DA_18_Cassiopeia": {
+      "cost": 3
+    },
+    "DA_18_Diana": {
+      "cost": 3
+    },
+    "DA_18_ElderDragon": {
+      "cost": 5
+    },
+    "DA_18_Elise": {
+      "cost": 2
+    },
+    "DA_18_Ezreal": {
+      "cost": 4
+    },
+    "DA_18_GnarSmall": {
+      "cost": 5
+    },
+    "DA_18_Hecarim": {
+      "cost": 3
+    },
+    "DA_18_Ivern": {
+      "cost": 5
+    },
+    "DA_18_Kayle": {
+      "cost": 2
+    },
+    "DA_18_Kennen": {
+      "cost": 5
+    },
+    "DA_18_KhaZix": {
+      "cost": 3
+    },
+    "DA_18_Kobuko": {
+      "cost": 1
+    },
+    "DA_18_LeBlanc": {
+      "cost": 2
+    },
+    "DA_18_Leona": {
+      "cost": 1
+    },
+    "DA_18_Lillia": {
+      "cost": 4
+    },
+    "DA_18_Malphite": {
+      "cost": 4
+    },
+    "DA_18_Maokai": {
+      "cost": 5
+    },
+    "DA_18_MasterYi_AD": {
+      "cost": 3
+    },
+    "DA_18_Morgana": {
+      "cost": 4
+    },
+    "DA_18_Ornn": {
+      "cost": 1
+    },
+    "DA_18_Rakan": {
+      "cost": 1
+    },
+    "DA_18_Rammus": {
+      "cost": 3
+    },
+    "DA_18_RekSai": {
+      "cost": 1
+    },
+    "DA_18_Rengar": {
+      "cost": 3
+    },
+    "DA_18_Sejuani": {
+      "cost": 2
+    },
+    "DA_18_Sentry": {
+      "cost": 1
+    },
+    "DA_18_Sett": {
+      "cost": 4
+    },
+    "DA_18_Shen": {
+      "cost": 2
+    },
+    "DA_18_Sivir": {
+      "cost": 4
+    },
+    "DA_18_Soraka": {
+      "cost": 4
+    },
+    "DA_18_Teemo": {
+      "cost": 2
+    },
+    "DA_18_Tristana": {
+      "cost": 3
+    },
+    "DA_18_Varus": {
+      "cost": 1
+    },
+    "DA_18_Veigar": {
+      "cost": 1
+    },
+    "DA_18_Warwick": {
+      "cost": 2
+    },
+    "DA_18_Xayah": {
+      "cost": 1
+    },
+    "DA_18_Yorick": {
+      "cost": 1
+    },
+    "DA_18_Yunara": {
+      "cost": 2
+    },
+    "DA_18_Zyra": {
+      "cost": 4
+    },
+    "DA_Amumu18": {
+      "cost": 4
+    },
+    "DA_Brambleback18": {
+      "cost": 4
+    },
+    "DA_Cinderling18": {
+      "cost": 1
+    },
+    "DA_CrimsonRaptor18": {
+      "cost": 3
+    },
+    "DA_Draven18": {
+      "cost": 5
+    },
+    "DA_Fiddlesticks18": {
+      "cost": 3
+    },
+    "DA_Gromp18_AP": {
+      "cost": 2
+    },
+    "DA_Karma18": {
+      "cost": 1
+    },
+    "DA_KogMaw18_AD": {
+      "cost": 3
+    },
+    "DA_Krug18": {
+      "cost": 3
+    },
+    "DA_Murkwolf18": {
+      "cost": 2
+    },
+    "DA_Nidalee18_AP": {
+      "cost": 4
+    },
+    "DA_Scuttlecrab18": {
+      "cost": 2
+    },
+    "DA_Sentinel18": {
+      "cost": 4
+    },
+    "DA_Taric18": {
+      "cost": 5
+    },
+    "DA_Vi18": {
+      "cost": 3
+    }
+  },
+  "source_content_sha256": "612c5eecd4c52eb5aa9b79080efd54440b723f90b1e544d93f4f86f0e33b65e3"
+}

@@ -1,5 +1,14 @@
 # Simulação e treinamento da política
 
+## Coach sem habilidades — etapa separada
+
+O [experimento por atributos](COACH_ATTRIBUTE_POLICY.md) acrescenta alternativas
+de rolagem, composição, posição e equipamentos e uma rede pequena para ordená-las.
+Seu treino é destilação de um objetivo explícito em estados sintéticos, com
+teste reservado; não equivale a partidas completas ou ao PPO descrito abaixo.
+A confirmação visual foi adiada por solicitação do usuário e ainda é necessária
+para entregar essas quatro categorias automaticamente sobre a captura.
+
 ## Validação das dependências
 
 A [validação de 04/10/2026](DEPENDENCY_VALIDATION.md) corrigiu falhas na sequência

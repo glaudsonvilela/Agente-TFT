@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 import unicodedata
 from .economy_budget import EconomyBudget
+from .strategic_coach import StrategicCoach
 
 
 def _key(value: str) -> str:
@@ -71,12 +72,17 @@ class ReplayDecisionEngine:
             raise ValueError("Economy policy belongs to another patch")
         self._economy_previous = None
         self.resource_engine = EconomyBudget(root, patch=self.patch, set_key=self.set_key)
+        self.strategic_coach = StrategicCoach(root)
+        if (self.strategic_coach.catalog['patch'], self.strategic_coach.catalog['set_key'],
+                self.strategic_coach.catalog['release_sha256']) != (self.patch, self.set_key, self.knowledge_release):
+            raise ValueError('Strategic coach and observed catalog context differ')
 
-    def evaluate(self, answer: dict, owned: dict | None = None) -> dict:
+    def evaluate(self, answer: dict, owned: dict | None = None, strategy_state: dict | None = None) -> dict:
         """Return a new answer; never turn a candidate icon into a owned unit."""
         output = copy.deepcopy(answer)
         output["decision_capabilities"] = dict(level="conditional_economy", buy="verified_roster_required",
-                                                roll="not_implemented", position="not_implemented", equip="not_implemented")
+                                                roll="verified_state_required", composition="verified_state_required",
+                                                position="verified_state_required", equip="verified_state_required")
         output["decision_capabilities"].update(
             resource_engine="resource_budget_v1", scope="economy_only",
             learned_policy=False, abilities_used=False)
@@ -107,6 +113,26 @@ class ReplayDecisionEngine:
             "knowledge_release": self.knowledge_release,
             "basis": "reported_replay_patch_and_unique_ocr_name",
             "bound_offers": bound}
+        strategy = self.strategic_coach.evaluate(strategy_state)
+        observed_gold = _gold(output)
+        if strategy_state and observed_gold is not None and observed_gold != strategy_state.get('gold'):
+            strategy['recommendations'] = []
+            strategy['blockers'] = ['BOARD_RESOURCE_FRAME_MISMATCH']
+        output["strategic_coaching"] = strategy
+        output['decision_capabilities'].update(strategic_scope=strategy['scope'],
+            learned_ranker_loaded=strategy['learned_ranker'],
+            structured_state_accepted=bool(strategy.get('candidates_evaluated')
+                and 'BOARD_RESOURCE_FRAME_MISMATCH' not in strategy['blockers']))
+        if strategy["recommendations"]:
+            output['decision_capabilities'].update(scope=strategy['scope'],
+                learned_policy=strategy['learned_ranker'])
+            chosen = strategy["recommendations"][0]
+            output["decision"] = dict(action=chosen["action"], text=chosen["text"],
+                policy="attribute_coach_v1", confidence=.9,
+                confidence_basis="verified_inputs_not_action_success", scope=strategy["scope"],
+                learned_ranker=strategy["learned_ranker"],
+                evidence=[dict(code="OBSERVED_ATTRIBUTE_ALTERNATIVE", detail=chosen["evidence_id"])])
+            return output
         # The present B4 observer is candidate-only. Its rows cannot establish
         # a roster; a future validated observer must pass this explicit shape.
         verified = ((owned or {}).get("verified") is True and

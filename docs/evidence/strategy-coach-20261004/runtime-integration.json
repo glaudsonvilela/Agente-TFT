@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic_structured_state_to_text_and_voice_payload",
+  "states": 100,
+  "counts": {
+    "actionable": 100,
+    "speech_payloads": 100
+  },
+  "families": {
+    "composition": 99,
+    "equip": 74,
+    "position": 100,
+    "roll": 3
+  },
+  "example_text": {
+    "composition": "Coloque Yunara no tabuleiro para preencher a vaga disponível.",
+    "equip": "Equipe Efeito Azul em Tristana.",
+    "position": "Mova Lux (Florescer) para a linha 4, coluna 2, contando da frente e da esquerda.",
+    "roll": "Role até 5 vezes procurando Dragão Ancião. Pare ao encontrar ou ao chegar a 35 de ouro; reserve 5 para comprar. Confira a disputa antes de gastar."
+  },
+  "model_identity": "run",
+  "latency_ms": {
+    "p50": 30.1021019986365,
+    "p95": 72.90088800073136,
+    "max": 85.92317899820046
+  },
+  "torch_imported": false,
+  "numpy_imported": false,
+  "neural_ranker_loaded": true,
+  "live_vision_connected": false,
+  "physical_audio_tested": false,
+  "windows_field_test": false
+}

@@ -300,7 +300,17 @@ class RuntimeSession(Session):
                     answer['reader_input_transform'] = plan
                     decision_engine = getattr(self, 'decision_engine', None)
                     if decision_engine and answer.get('origin') == 'observed_pixels':
-                        answer = decision_engine.evaluate(answer)
+                        with self.lock:
+                            strategy_entry = copy.deepcopy(getattr(self, '_latest_strategy_state', None))
+                        strategy_state = None
+                        if strategy_entry and strategy_entry['epoch'] == frame.epoch:
+                            strategy_state = strategy_entry['state']
+                            strategy_state['age_ms'] = max(
+                                frame.pts_ms - strategy_entry['source_ms'],
+                                (time.perf_counter_ns() - strategy_entry['due_ns']) / 1e6)
+                            if frame.pts_ms < strategy_entry['source_ms']:
+                                strategy_state = None
+                        answer = decision_engine.evaluate(answer, strategy_state=strategy_state)
                         self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
                         self.latest_decision_reason = (answer['decision'].get('economy') or {}).get('code') or answer['decision']['evidence'][0]['code']
                         if answer['decision']['action']['type'] == 'wait':
@@ -374,6 +384,7 @@ class HM4RuntimeSession(RuntimeSession):
         self.board_reference_requested = threading.Event()
         self.latest_replay_tip = None
         self.latest_decision_reason = None
+        self._latest_strategy_state = None
         self.decision_engine = None
         if options.replay_review:
             from .replay_decision import ReplayDecisionEngine
@@ -382,6 +393,9 @@ class HM4RuntimeSession(RuntimeSession):
             self.versions['resource_engine'] = 'resource_budget_v1'
             self.versions['resource_engine_identity'] = self.decision_engine.resource_engine.identity
             self.versions['resource_engine_learned_policy'] = False
+            self.versions['strategic_coach_scope'] = self.decision_engine.strategic_coach.catalog['scope']
+            self.versions['strategic_ranker_loaded'] = self.decision_engine.strategic_coach.model is not None
+            self.versions['strategic_vision_state'] = 'pending_verified_observer'
             self.versions['replay_catalog_set'] = self.decision_engine.set_key
             self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
             self.versions['replay_patch_basis'] = 'reported_replay_patch'
@@ -413,6 +427,13 @@ class HM4RuntimeSession(RuntimeSession):
                     continue
                 started = time.perf_counter_ns()
                 observed = observer.observe(reader_frame, board_read)
+                # The present observer does not produce this contract. Keep the
+                # explicit boundary for a future calibrated identity observer;
+                # candidate icons are never converted into verified units here.
+                with self.lock:
+                    state = observed['snapshot'].get('verified_state')
+                    self._latest_strategy_state = (dict(state=copy.deepcopy(state), epoch=frame.epoch,
+                        source_ms=frame.pts_ms, due_ns=frame.due_ns) if state else None)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
                 neural_items=observed['snapshot'].get('neural_items') or {}
                 self.versions['item_neural_active']=neural_items.get('active',False)

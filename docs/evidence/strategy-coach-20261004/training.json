@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "scope": "attribute_planning_without_abilities",
+  "status": "completed",
+  "objective": "synthetic_attribute_teacher_distillation",
+  "requested_states": 10000,
+  "engine": {
+    "apps/hud_mapper/hm/strategic_coach.py": "005dc2fdc8ca18d42b7f292b3fb3cbfc784052fee8dcb46fe3a1520298173ce4",
+    "training/strategy_ranker_lab.py": "98af7ba5f7f320e933b2a0a2ed316f95cd59836a16e2d0f96a51cb45e01d430f"
+  },
+  "train_states": 8000,
+  "validation_states": 1000,
+  "test_states": 1000,
+  "training_candidates": 202765,
+  "optimizer_steps": 15880,
+  "epochs": 40,
+  "changed_parameter_tensors": 4,
+  "parameters": 545,
+  "seed": 20261004,
+  "initial_validation": {
+    "states": 1000,
+    "mean_regret": 1.3990682368711458,
+    "p95_regret": 3.7982388425634985,
+    "agreement_within_001": 0.015,
+    "mean_objective": -0.1460518672692326,
+    "hold_baseline": 0,
+    "uniform_random_mean_objective": 0.1634030429018685,
+    "selected_families": {
+      "position": 920,
+      "composition": 78,
+      "equip": 2
+    },
+    "per_family": {
+      "roll": {
+        "states": 411,
+        "mean_regret": 0.15375452401197046
+      },
+      "composition": {
+        "states": 1000,
+        "mean_regret": 0.6633984119794473
+      },
+      "position": {
+        "states": 1000,
+        "mean_regret": 0.7070884821186099
+      },
+      "equip": {
+        "states": 757,
+        "mean_regret": 0.07412620045277411
+      }
+    }
+  },
+  "final_validation": {
+    "states": 1000,
+    "mean_regret": 6.053274377427656e-06,
+    "p95_regret": 0.0,
+    "agreement_within_001": 1.0,
+    "mean_objective": 1.2530103163275357,
+    "hold_baseline": 0,
+    "uniform_random_mean_objective": 0.1634030429018685,
+    "selected_families": {
+      "equip": 35,
+      "composition": 734,
+      "position": 217,
+      "roll": 14
+    },
+    "per_family": {
+      "roll": {
+        "states": 411,
+        "mean_regret": 0.00024399664989794927
+      },
+      "composition": {
+        "states": 1000,
+        "mean_regret": 5.062202757769008e-06
+      },
+      "position": {
+        "states": 1000,
+        "mean_regret": 0.0
+      },
+      "equip": {
+        "states": 757,
+        "mean_regret": 4.618732080048436e-05
+      }
+    }
+  },
+  "test": {
+    "states": 1000,
+    "mean_regret": 2.0169854881712525e-06,
+    "p95_regret": 0.0,
+    "agreement_within_001": 1.0,
+    "mean_objective": 1.423886298011572,
+    "hold_baseline": 0,
+    "uniform_random_mean_objective": 0.18986559657382218,
+    "selected_families": {
+      "composition": 814,
+      "equip": 37,
+      "position": 147,
+      "roll": 2
+    },
+    "per_family": {
+      "roll": {
+        "states": 41,
+        "mean_regret": 0.00022663228790178878
+      },
+      "composition": {
+        "states": 1000,
+        "mean_regret": 1.780500889358754e-05
+      },
+      "position": {
+        "states": 1000,
+        "mean_regret": 0.0
+      },
+      "equip": {
+        "states": 785,
+        "mean_regret": 7.658625738066405e-06
+      }
+    }
+  },
+  "evaluation_passed": true,
+  "portable_max_absolute_error": 3.880710304493551e-07,
+  "catalog_sha256": "c0732148b48bced8474af1335abf95cd5a494c49689150c70ee5f4fd7fcb768f",
+  "weights_sha256": "a02715cc28d0fa893f736b7d6b9a6359a11e88f6babd789563bae3599a4a63f2",
+  "dataset_sha256": "1622dac28352f64ef25dd3b78a5d0eeb0e15ecaa7ec68d9735afb0a5f29d8565",
+  "elapsed_seconds": 455.56323079700815,
+  "peak_rss_mib": 640.41796875,
+  "real_tft_improvement_proven": false,
+  "complete_matches": 0,
+  "human_demonstrations": 0,
+  "runtime_promoted": false,
+  "abilities_used": false
+}

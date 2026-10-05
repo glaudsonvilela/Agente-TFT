@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-04",
+  "method": "read_creator_transcript_and_source_pages",
+  "human_demonstration_labels_added": 0,
+  "sources": [
+    {
+      "id": "dpei-positioning",
+      "url": "https://www.youtube.com/watch?v=TXhQgEB6NS4",
+      "title": "TFT Positioning Explained And Why You’re Doing It Wrong | TFT Fundamentals",
+      "access": "full_auto_generated_english_transcript",
+      "transcript_sha256": "525ab8db108dc79469d6b2d46bcb1ce93691874b7af49de12769663eedf95ee7",
+      "reviewed_transcript_seconds": [
+        0,
+        581
+      ],
+      "duration_seconds": 583,
+      "full_video_watched": false,
+      "principles": [
+        "Protect the carry with a frontline.",
+        "Frontline coverage depends on the side occupied by the carry.",
+        "Counter-positioning needs enemy observations."
+      ],
+      "scope": "fundamentals_only_not_current_patch_demonstration"
+    },
+    {
+      "id": "dpei-twitch",
+      "url": "https://www.twitch.tv/dpeitft/videos",
+      "identified_vod": "https://www.twitch.tv/videos/2885789930",
+      "access": "subscriber_only_metadata_reviewed",
+      "video_watched": false,
+      "training_labels": 0
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hTk3_j_GLx8",
+      "access": "metadata_only_transcript_unavailable",
+      "training_labels": 0
+    },
+    {
+      "url": "https://deepmind.google/blog/alphastar-mastering-the-real-time-strategy-game-starcraft-ii/",
+      "access": "primary_methodology_reference",
+      "algorithm_reproduced": false
+    }
+  ]
+}
