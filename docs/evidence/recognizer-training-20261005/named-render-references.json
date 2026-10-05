@@ -1,0 +1,461 @@
+{
+  "retrieved_at": "2026-10-05",
+  "purpose": "Assistant label review only; not training pixels; exact live patch appearance must be checked against source game frames",
+  "references": [
+    {
+      "alias": "da_18_ahri_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_ahri_ue&id=0",
+      "title": "3D Model - Ahri (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_ahri_ue/0/og/default.webp?v2",
+      "sha256": "0302b896cb75a0e6998cca17c203d043fbe05889d5e5997acaf491db3d4d9b61"
+    },
+    {
+      "alias": "da_18_akali_ad_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_akali_ad_ue&id=0",
+      "title": "3D Model - Akali (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_akali_ad_ue/0/og/default.webp?v2",
+      "sha256": "fc3297b85d15cdd91ce14d55c1a592bd99c790159e6a252b22a7502603beec98"
+    },
+    {
+      "alias": "da_18_alistar_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_alistar_ue&id=0",
+      "title": "3D Model - Alistar (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_alistar_ue/0/og/default.webp?v2",
+      "sha256": "4d7e7ff1d7c763c21ea776ae4b7692ae1b9928007c590ad0c78a6fdc25c98844"
+    },
+    {
+      "alias": "da_18_alune_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_alune_ue&id=0",
+      "title": "3D Model - Alune (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_alune_ue/0/og/default.webp?v2",
+      "sha256": "df0cfb16c22844abbbc33b610d46b7aed7977fb43152d140441bc440099a253d"
+    },
+    {
+      "alias": "da_amumu18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_amumu18_ue&id=0",
+      "title": "3D Model - Amumu (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_amumu18_ue/0/og/default.webp?v2",
+      "sha256": "74b2745ad39edf6c481138ea7ba0ea8230ed6d87c2183f1cca21aa4fe17b4766"
+    },
+    {
+      "alias": "da_18_aphelios_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_aphelios_ue&id=0",
+      "title": "3D Model - Aphelios (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_aphelios_ue/0/og/default.webp?v2",
+      "sha256": "5b0ac15399f3b23e361826b5f6315264664ddf36aa3acb463c4179aa32b98f7c"
+    },
+    {
+      "alias": "da_18_ashe_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_ashe_ue&id=0",
+      "title": "3D Model - Ashe (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_ashe_ue/0/og/default.webp?v2",
+      "sha256": "96431d5ddb002b3a88daa714bd44a3d459d6f7d90df1733baadf58c9b7ef3d8d"
+    },
+    {
+      "alias": "da_18_azir_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_azir_ue&id=0",
+      "title": "3D Model - Azir (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_azir_ue/0/og/default.webp?v2",
+      "sha256": "641e9973fe8bc58dd684b64fa07b20b2561bfbf345d14e915c9d7be4b2bb2a5b"
+    },
+    {
+      "alias": "da_brambleback18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_brambleback18_ue&id=0",
+      "title": "3D Model - Brambleback (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_brambleback18_ue/0/og/default.webp?v2",
+      "sha256": "05183a2b9331d0435348fe48b91742a88ea0c48ff587cc50d0240aeae387643e"
+    },
+    {
+      "alias": "da_18_caitlyn_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_caitlyn_ue&id=0",
+      "title": "3D Model - Caitlyn (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_caitlyn_ue/0/og/default.webp?v2",
+      "sha256": "b140aa779f51d2e56b24f2f19b134e55bbcae768b04762eaf06413beb0b6bc08"
+    },
+    {
+      "alias": "da_18_camille_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_camille_ue&id=0",
+      "title": "3D Model - Camille (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_camille_ue/0/og/default.webp?v2",
+      "sha256": "f1a694bc0d9c11aae4d6f1ed500ef6f7975fb63861bd4748ed3fde999541659e"
+    },
+    {
+      "alias": "da_18_cassiopeia_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_cassiopeia_ue&id=0",
+      "title": "3D Model - Cassiopeia (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_cassiopeia_ue/0/og/default.webp?v2",
+      "sha256": "d1b779bab688fa4e9275bac9872527a23551ed2e7779d1ade4e8c82bf9d9db8f"
+    },
+    {
+      "alias": "da_cinderling18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_cinderling18_ue&id=0",
+      "title": "3D Model - Cinderling (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_cinderling18_ue/0/og/default.webp?v2",
+      "sha256": "888341bcfb50a14ed0c905720237175b85636b33bc8ea1549984f0e7fd485eeb"
+    },
+    {
+      "alias": "da_18_diana_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_diana_ue&id=0",
+      "title": "3D Model - Diana (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_diana_ue/0/og/default.webp?v2",
+      "sha256": "635588d1fb7c261586ed6689b00348a4e9d8f1b52437d4a7690b8658c890c917"
+    },
+    {
+      "alias": "da_draven18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_draven18_ue&id=0",
+      "title": "3D Model - Draven (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_draven18_ue/0/og/default.webp?v2",
+      "sha256": "7f418998f67ef6e9f36ab36559db329389e58e2beeeafd90513c048f3e1641b1"
+    },
+    {
+      "alias": "da_18_elderdragon_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_elderdragon_ue&id=0",
+      "title": "3D Model - Elder Dragon (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_elderdragon_ue/0/og/default.webp?v2",
+      "sha256": "cfe68d03447ea88f72dcade214cedf8cc66d17514b1c06473ac8542b31d8c905"
+    },
+    {
+      "alias": "da_18_elise_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_elise_ue&id=0",
+      "title": "3D Model - Elise (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_elise_ue/0/og/default.webp?v2",
+      "sha256": "83e4303c423aed79ddc6273aadefbb48fc2f149d54adae34612c8a6a8c7fbbdf"
+    },
+    {
+      "alias": "da_18_ezreal_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_ezreal_ue&id=0",
+      "title": "3D Model - Ezreal (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_ezreal_ue/0/og/default.webp?v2",
+      "sha256": "de6bcbe682be03951c5c4ae63b4c8c44c00f877568cd3c93c9d59de6d78cd8aa"
+    },
+    {
+      "alias": "da_fiddlesticks18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_fiddlesticks18_ue&id=0",
+      "title": "3D Model - Fiddlesticks (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_fiddlesticks18_ue/0/og/default.webp?v2",
+      "sha256": "a71cd7621d975aa40e11d9cdb0f5834183c3fb94116d8b96b273422a6f212d96"
+    },
+    {
+      "alias": "da_18_gnar_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_gnar_ue&id=0",
+      "title": "3D Model - Gnar (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_gnar_ue/0/og/default.webp?v2",
+      "sha256": "fe9b1298fc27e6184e6552816bc8c3a3066851bcce4ef39c23d86cfa2717c002"
+    },
+    {
+      "alias": "da_18_gromp_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_gromp_ue&id=0",
+      "title": "3D Model - Gromp (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_gromp_ue/0/og/default.webp?v2",
+      "sha256": "4cd8481afe713c3e161f2fdb6f548a0b6d4b435e799a943ff47986a6f86d1384"
+    },
+    {
+      "alias": "da_18_hecarim_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_hecarim_ue&id=0",
+      "title": "3D Model - Hecarim (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_hecarim_ue/0/og/default.webp?v2",
+      "sha256": "b02b679018cf2e9e403b17c420300a18360ee836c506b4ffbf6e93fe25374926"
+    },
+    {
+      "alias": "da_18_ivern_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_ivern_ue&id=0",
+      "title": "3D Model - Ivern (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_ivern_ue/0/og/default.webp?v2",
+      "sha256": "7fbec43af1c83091d0d90f61d0d832af53b31878bc39abe83a7fa697a8371be2"
+    },
+    {
+      "alias": "da_karma18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_karma18_ue&id=0",
+      "title": "3D Model - Karma (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_karma18_ue/0/og/default.webp?v2",
+      "sha256": "4ab3738491fd864646906e215e4565687ff8f18f2d9034b59b2edab82530d521"
+    },
+    {
+      "alias": "da_18_kayle_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_kayle_ue&id=0",
+      "title": "3D Model - Kayle (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_kayle_ue/0/og/default.webp?v2",
+      "sha256": "2eaedd470dd5c1694a36063f6eee0d57b6a2f4c5d99045c5a81aa3756cb925ab"
+    },
+    {
+      "alias": "da_18_kennen_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_kennen_ue&id=0",
+      "title": "3D Model - Kennen (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_kennen_ue/0/og/default.webp?v2",
+      "sha256": "2655184df0d9e89e36683ed1321dc2599a03a4fa946d127867500df2182d30af"
+    },
+    {
+      "alias": "da_18_khazix_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_khazix_ue&id=0",
+      "title": "3D Model - Kha'Zix (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_khazix_ue/0/og/default.webp?v2",
+      "sha256": "35a2f941592b1da95d816d390333302a3ae45c023ea5f6e5fb12a51441f21c18"
+    },
+    {
+      "alias": "da_18_kobuko_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_kobuko_ue&id=0",
+      "title": "3D Model - Kobuko (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_kobuko_ue/0/og/default.webp?v2",
+      "sha256": "e4fc829003b159007a22d946e4546b3e23dbfc09c4371c5b90889ad667cd4768"
+    },
+    {
+      "alias": "da_18_kogmaw_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_kogmaw_ue&id=0",
+      "title": "3D Model - Kog'Maw (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_kogmaw_ue/0/og/default.webp?v2",
+      "sha256": "7640bedaf33da2cef5282f240c179e0b5ad27d58bf6aac18e6488899b9758519"
+    },
+    {
+      "alias": "da_krug18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_krug18_ue&id=0",
+      "title": "3D Model - Krug (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_krug18_ue/0/og/default.webp?v2",
+      "sha256": "c34abfd7b34555dafcabc8e9fd837f3c630f54eb153599e7ac18f89116b47b6b"
+    },
+    {
+      "alias": "da_18_leblanc_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_leblanc_ue&id=0",
+      "title": "3D Model - LeBlanc (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_leblanc_ue/0/og/default.webp?v2",
+      "sha256": "ad527977227b9bf80dedee10a3aa372b752875da9e90e66ed4f1be776195fbd0"
+    },
+    {
+      "alias": "da_18_leona_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_leona_ue&id=0",
+      "title": "3D Model - Leona (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_leona_ue/0/og/default.webp?v2",
+      "sha256": "ee846fa2b6aa69f27d02fb4782fadd1c6c040f722a97c751a752076d8aeef478"
+    },
+    {
+      "alias": "da_18_lillia_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_lillia_ue&id=0",
+      "title": "3D Model - Lillia (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_lillia_ue/0/og/default.webp?v2",
+      "sha256": "0d18f80e877df0fd53d72cb601b89c1707660597c7155089b394db8cc4f36632"
+    },
+    {
+      "alias": "da_lux18_base_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_lux18_base_ue&id=0",
+      "title": "3D Model - Lux (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_lux18_base_ue/0/og/default.webp?v2",
+      "sha256": "12b5e62794589661bab96f4138fc3ee52b77dd7c7360fd42d4c04e4f6c86ab5f"
+    },
+    {
+      "alias": "da_18_malphite_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_malphite_ue&id=0",
+      "title": "3D Model - Malphite (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_malphite_ue/0/og/default.webp?v2",
+      "sha256": "eab6ce581c1c05dacd6033d6f452c5ca7a988ec1177a4c428d390bdd1c0cca32"
+    },
+    {
+      "alias": "da_18_raptor_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_raptor_ue&id=0",
+      "title": "3D Model - Mama Beak (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_raptor_ue/0/og/default.webp?v2",
+      "sha256": "1bd2c5b0044a59181fa7897e0debe5bd3bbc41f308dd59b75620a0d4100a921e"
+    },
+    {
+      "alias": "da_18_maokai_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_maokai_ue&id=0",
+      "title": "3D Model - Maokai (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_maokai_ue/0/og/default.webp?v2",
+      "sha256": "696bc52f9f336bfd09565cdab2950d8fe292528260b6d0c282dc331d3aff20d3"
+    },
+    {
+      "alias": "da_18_masteryi_ad_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_masteryi_ad_ue&id=0",
+      "title": "3D Model - Master Yi (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_masteryi_ad_ue/0/og/default.webp?v2",
+      "sha256": "928111d720f891de3f632a2f6471c2c22696d2059ed7f6bacc365109f0588401"
+    },
+    {
+      "alias": "da_18_morgana_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_morgana_ue&id=0",
+      "title": "3D Model - Morgana (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_morgana_ue/0/og/default.webp?v2",
+      "sha256": "04853e9568e1fe8cb922cdeb68d54a971dce478b7737990ed366ae89cdfceed4"
+    },
+    {
+      "alias": "da_murkwolf18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_murkwolf18_ue&id=0",
+      "title": "3D Model - Murkwolf (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_murkwolf18_ue/0/og/default.webp?v2",
+      "sha256": "f7ec97e692f569cec358ad7fae1370ddbc3ded821ef1a56185f8e9d0b7383a63"
+    },
+    {
+      "alias": "da_18_nidalee_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_nidalee_ue&id=0",
+      "title": "3D Model - Nidalee (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_nidalee_ue/0/og/default.webp?v2",
+      "sha256": "4c8ae991ca547930e0b74ae22bc7e8950683f07b415114b38308a4db1503a56b"
+    },
+    {
+      "alias": "da_18_ornn_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_ornn_ue&id=0",
+      "title": "3D Model - Ornn (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_ornn_ue/0/og/default.webp?v2",
+      "sha256": "35c985ad95f556eca32e74d270d78dd70d2ccde0522241aaf5f5f3de599e8a41"
+    },
+    {
+      "alias": "da_18_sentry_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_sentry_ue&id=0",
+      "title": "3D Model - Pebbles (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_sentry_ue/0/og/default.webp?v2",
+      "sha256": "d973e5e2069fe62cee13c9ced7e774564f6700192814c32f999214a24981278d"
+    },
+    {
+      "alias": "da_18_rakan_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_rakan_ue&id=0",
+      "title": "3D Model - Rakan (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_rakan_ue/0/og/default.webp?v2",
+      "sha256": "296dad328b056616900763f0b8f56c0ff8d60e20c5234907900146a7f54c0d79"
+    },
+    {
+      "alias": "da_18_rammus_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_rammus_ue&id=0",
+      "title": "3D Model - Rammus (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_rammus_ue/0/og/default.webp?v2",
+      "sha256": "b0f145354656373f2ed057a567915bfe5211848a92096e17dea8cdae22e11ba7"
+    },
+    {
+      "alias": "da_18_reksai_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_reksai_ue&id=0",
+      "title": "3D Model - Rek'Sai (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_reksai_ue/0/og/default.webp?v2",
+      "sha256": "da3bf89e861bd631913a8cdded6b3234660882a26209cfe57dd3aad3307d095e"
+    },
+    {
+      "alias": "da_18_rengar_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_rengar_ue&id=0",
+      "title": "3D Model - Rengar (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_rengar_ue/0/og/default.webp?v2",
+      "sha256": "7ecf0d6a60ad4a9f2eef90923b975bc902ecd12ac730fede0d641a4a2c16b546"
+    },
+    {
+      "alias": "da_scuttlecrab18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_scuttlecrab18_ue&id=0",
+      "title": "3D Model - Scuttlecrab (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_scuttlecrab18_ue/0/og/default.webp?v2",
+      "sha256": "3e7b2a372e976bb1529ea9f8019ee965600712c9d972901f516001d94c9c1189"
+    },
+    {
+      "alias": "da_18_sejuani_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_sejuani_ue&id=0",
+      "title": "3D Model - Sejuani (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_sejuani_ue/0/og/default.webp?v2",
+      "sha256": "2e49b97d7343b53f5322e70df824a5f89961a1ebbc838df672440fa3d013e83b"
+    },
+    {
+      "alias": "da_sentinel18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_sentinel18_ue&id=0",
+      "title": "3D Model - Sentinel (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_sentinel18_ue/0/og/default.webp?v2",
+      "sha256": "2dab30e9ba2ec93b987959bd4f074cab3d781638ff136bffdf3939da7f3acd5f"
+    },
+    {
+      "alias": "da_18_sett_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_sett_ue&id=0",
+      "title": "3D Model - Sett (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_sett_ue/0/og/default.webp?v2",
+      "sha256": "88f3525a7f85c028d8d85d5670ef37e4bcc843187f4b96d42987c13ca5ea4c73"
+    },
+    {
+      "alias": "da_18_shen_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_shen_ue&id=0",
+      "title": "3D Model - Shen (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_shen_ue/0/og/default.webp?v2",
+      "sha256": "ff23e16e77207084a0be8331c4644a125a4d606ba14587f2463faa3655ae85f2"
+    },
+    {
+      "alias": "da_18_sivir_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_sivir_ue&id=0",
+      "title": "3D Model - Sivir (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_sivir_ue/0/og/default.webp?v2",
+      "sha256": "2465afc830d409151fbbc0e038632ef948c7e6c1ea29aac9ce84beae0836bca7"
+    },
+    {
+      "alias": "da_18_soraka_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_soraka_ue&id=0",
+      "title": "3D Model - Soraka (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_soraka_ue/0/og/default.webp?v2",
+      "sha256": "1b4ecb76b74e30c3172b2e89067e15383eeda0dd14480c7d49443b5ffbe253cd"
+    },
+    {
+      "alias": "da_taric18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_taric18_ue&id=0",
+      "title": "3D Model - Taric (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_taric18_ue/0/og/default.webp?v2",
+      "sha256": "1142b4cb5dc7e46ca2492f6672f9d4732715bd26fcc28535339122a9637fd7db"
+    },
+    {
+      "alias": "da_18_teemo_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_teemo_ue&id=0",
+      "title": "3D Model - Teemo (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_teemo_ue/0/og/default.webp?v2",
+      "sha256": "22af13c5f5e8a3a87b4f583f0446f8e6ef8192e22602e910da27d4f077ea4cef"
+    },
+    {
+      "alias": "da_18_tristana_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_tristana_ue&id=0",
+      "title": "3D Model - Tristana (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_tristana_ue/0/og/default.webp?v2",
+      "sha256": "913302e052198d4a4152bb2082e5065bd03e58228acb78cc601e36a7d73794af"
+    },
+    {
+      "alias": "da_18_varus_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_varus_ue&id=0",
+      "title": "3D Model - Varus (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_varus_ue/0/og/default.webp?v2",
+      "sha256": "911d18e0add59b41c71916ccd5dd29a4ac3ad80cd721a9daec437bce56dc3bfb"
+    },
+    {
+      "alias": "da_18_veigar_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_veigar_ue&id=0",
+      "title": "3D Model - Veigar (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_veigar_ue/0/og/default.webp?v2",
+      "sha256": "2afd7c625689c8b2bbb0a4f8d2dfd8f11f5efb5626bf6e2139a938180ce9ec35"
+    },
+    {
+      "alias": "da_vi18_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_vi18_ue&id=0",
+      "title": "3D Model - Vi (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_vi18_ue/0/og/default.webp?v2",
+      "sha256": "5137f25623290a67d718fc03b7daf3796dc9c9d2cec9a68bcb077ed50cabe60b"
+    },
+    {
+      "alias": "da_18_warwick_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_warwick_ue&id=0",
+      "title": "3D Model - Warwick (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_warwick_ue/0/og/default.webp?v2",
+      "sha256": "9a83934162f1f687d8978f6c6c431d2ce1240114f4661f73bea1c14a024b3747"
+    },
+    {
+      "alias": "da_18_xayah_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_xayah_ue&id=0",
+      "title": "3D Model - Xayah (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_xayah_ue/0/og/default.webp?v2",
+      "sha256": "5c49b870e2154800e6ea9e83a6dd786b59339b758b82735048412938134f606e"
+    },
+    {
+      "alias": "da_18_yorick_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_yorick_ue&id=0",
+      "title": "3D Model - Yorick (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_yorick_ue/0/og/default.webp?v2",
+      "sha256": "fc44c3585607e807a27091c2bbec7e94279d09518a59ae925e3ea0824c5e3c8e"
+    },
+    {
+      "alias": "da_18_yunara_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_yunara_ue&id=0",
+      "title": "3D Model - Yunara (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_yunara_ue/0/og/default.webp?v2",
+      "sha256": "9536e4aa40e28255272c340c01d1f0e20922a7ed9eb7f7f35faa4a5cdfabf2a3"
+    },
+    {
+      "alias": "da_18_zyra_ue",
+      "page": "https://modelviewer.lol/model-viewer?group=extras&alias=da_18_zyra_ue&id=0",
+      "title": "3D Model - Zyra (TFT Set 18) - Khada",
+      "url": "https://cdn.modelviewer.lol/extras/models/da_18_zyra_ue/0/og/default.webp?v2",
+      "sha256": "d3996822a11f1da82083d5c77add80f92ab07eda03d96c4928ee75d9231cf129"
+    }
+  ]
+}

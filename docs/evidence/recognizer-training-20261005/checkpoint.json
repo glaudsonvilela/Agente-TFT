@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T05:10:23.810Z",
+  "recorded_at": "2026-10-05T05:19:58.022Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -366,11 +366,17 @@
     }
   ],
   "pending": [
-    "Audit seasonal appearance labels with named model references and in-game panels; new source labels pending",
-    "Review explicit tooltip labels and crop associations",
-    "Investigate arena transfer and champion localization",
-    "Broaden independent validation and class coverage",
-    "Do not activate low-accuracy model"
+    "Increase coverage of 17 missing IDs and improve scarce classes",
+    "Expand validation beyond three named examples",
+    "Improve cross-source accuracy and reject ambiguous localization",
+    "Collect a fresh final holdout before promotion"
   ],
-  "runtime_approved": false
+  "runtime_approved": false,
+  "latest_annotations": "configs/training/unit-gallery-arena-20261005.json",
+  "latest_model_private": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/arena-training-20261005/arena-heads/dino-head.json",
+  "latest_development_audit": {
+    "correct": 46,
+    "reviewed": 107,
+    "independent_human_ground_truth": false
+  }
 }

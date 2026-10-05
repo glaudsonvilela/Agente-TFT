@@ -1,0 +1,1063 @@
+{
+  "schema_version": 1,
+  "source_id": "twitch:2883698368",
+  "partition": "evaluation",
+  "model_predictions_used_as_labels": false,
+  "selection": "Every 600 seconds across six hours; visually reviewable subset of 137 proposals; excluded ambiguous cases listed, not random accuracy population",
+  "labels": [
+    {
+      "source_seconds": 0,
+      "marker_id": 3,
+      "pixel_sha256": "bea3a4d1dcbead1047723275418a0f2b0d24f0b7c826a046ba9e62185e0f4ade",
+      "unit_id": "DA_18_Caitlyn",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 0,
+      "pixel_sha256": "1125e52cc55ee3d44f1a0b41a17eff891d189705220e84038e86699b943c46f8",
+      "unit_id": "DA_18_Ornn",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 1,
+      "pixel_sha256": "56106ffbd70c20df2f0188c6327f08818c09503ff0a2f1ffeaaefce12692ad84",
+      "unit_id": "DA_18_Shen",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 2,
+      "pixel_sha256": "bb6925687fde242d2931e45d811125c8ebc10bafb9bc807f681db7a4b27dcc8d",
+      "unit_id": "DA_18_Camille",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 3,
+      "pixel_sha256": "28d8ffd2edea5a51a45e040a7b15ccd8373b1adfb70f49efd1eece58b9e9f087",
+      "unit_id": "DA_18_Varus",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 4,
+      "pixel_sha256": "94016d5a69cb84bf9dbb8db1365f88bf51026cfe408a7eae6bd445a71199c818",
+      "unit_id": "DA_18_Soraka",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 5,
+      "pixel_sha256": "d0b0740819961276766da7e1868ab34f0abcd6b56b44f0ee271e4f1a183d4468",
+      "unit_id": "DA_18_Akali_AD",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 6,
+      "pixel_sha256": "45d97bcd106075f48d0447060e163fb40e6a58e6d680cd1ea045a0ed6c4c108b",
+      "unit_id": "DA_Fiddlesticks18",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 600,
+      "marker_id": 7,
+      "pixel_sha256": "5a0217417442ea46a282cb132360df5c82981cbba9211a07488bb26ad75d0767",
+      "unit_id": "DA_18_Shen",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 1200,
+      "marker_id": 1,
+      "pixel_sha256": "51f4a985b0becb3641a5e1ea7651b556c9b2bbea885fb428871dbed4b730daf2",
+      "unit_id": "DA_18_Zyra",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 1800,
+      "marker_id": 1,
+      "pixel_sha256": "f9aba6d6b2793246169f266b83cf3a0142c8743d2f9308baee76b4314ee0c3fc",
+      "unit_id": "DA_18_Zyra",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 2400,
+      "marker_id": 0,
+      "pixel_sha256": "6e62d3727cb340c726f8e6711689499f132b43b632f70c55f4c192b89e10e24a",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Nonunit loading/HUD fragment"
+    },
+    {
+      "source_seconds": 3000,
+      "marker_id": 3,
+      "pixel_sha256": "2326086f734a38820d1890fd287aa5a19e58fe935c5abc9abe03ba5cb55d67a0",
+      "unit_id": "DA_18_Caitlyn",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 3600,
+      "marker_id": 3,
+      "pixel_sha256": "6fda549046914087d90cfadb33a9d587d0e6f4cf8d64511861b694055eb81cb9",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 3600,
+      "marker_id": 4,
+      "pixel_sha256": "e56274a9cd059f9c4662d3ac44d04492d272c56dcc8d1ee0fc0ba203cdf7fbe7",
+      "unit_id": "DA_18_Zyra",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 3600,
+      "marker_id": 5,
+      "pixel_sha256": "f7425a5e6cad0b85082650a04a39547dac4d344a4407d417fbbc7edaafcbc93d",
+      "unit_id": "DA_18_Yorick",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 3600,
+      "marker_id": 6,
+      "pixel_sha256": "1009145c32ec8e6c920a9abe06b4b5c726cf892588c410f375d496da70064390",
+      "unit_id": "DA_18_Azir",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 5400,
+      "marker_id": 0,
+      "pixel_sha256": "013a630e6b6bf6e6c7c7f7367d95e5011099a2c312a051209d6fa5f2856d30ec",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Nonunit loading/HUD fragment"
+    },
+    {
+      "source_seconds": 5400,
+      "marker_id": 2,
+      "pixel_sha256": "a3a3df7d67df42539ec09ed23f8c48f4f6c6c866c4b18e2bd8d775af0da4e138",
+      "unit_id": "DA_18_Sejuani",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 0,
+      "pixel_sha256": "9c4d222986c62f1872f848b34114906e36ae75e860dd16c0f491ccc88f99b1b9",
+      "unit_id": "DA_18_Sejuani",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 1,
+      "pixel_sha256": "399b2e716f7d5e7168552157da32044da7199e431c1fe72359548b6a4b068d61",
+      "unit_id": "DA_18_Leona",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 2,
+      "pixel_sha256": "bbf98ba6c0b12735e66324ef66838cb4a6ffb8d0f0720d1a982874e72b698c0d",
+      "unit_id": "DA_18_Yorick",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 4,
+      "pixel_sha256": "8b844eb2ba2b60ea316705296f411945630d6384e5d8b9ea11e2cbab3f238a7a",
+      "unit_id": "DA_18_Kayle",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 6,
+      "pixel_sha256": "5e7878e73c1bc1cee5d3c851f252cd91c0f90faac237fafb041b46f005ce6fa0",
+      "unit_id": "DA_18_Kennen",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 7,
+      "pixel_sha256": "0b16685068adab3dfe55806dcb6e2d7982fde8da3d8ad27a1317d58adc8c3f91",
+      "unit_id": "DA_18_Azir",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 8,
+      "pixel_sha256": "e84c379d38780432edc5b4c8b48ee9f5467bae4c1fdb82e33a08ef7b0eb54be0",
+      "unit_id": "DA_18_Ezreal",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 6600,
+      "marker_id": 0,
+      "pixel_sha256": "29d5291bfbbf25cdac7f5cdadaa5ec9c41ab26e5097d75cb1146dbb1738cbf57",
+      "unit_id": "DA_18_Kennen",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 9000,
+      "marker_id": 2,
+      "pixel_sha256": "4bee06021ba6ff50f7a980e6db53e7bb44706b9cc7319909da1f011886558090",
+      "unit_id": "DA_Gromp18_AP",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 9000,
+      "marker_id": 3,
+      "pixel_sha256": "6db03d40ce2b3b74a71ad1f912d31e86788469dd973d66e7eeae8d74868fd6c9",
+      "unit_id": "DA_18_Leona",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 9000,
+      "marker_id": 5,
+      "pixel_sha256": "31cbd4b75ee646900f4fc5370380b987402f31c165017057b5011a1d9388f500",
+      "unit_id": "DA_18_Camille",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 9000,
+      "marker_id": 6,
+      "pixel_sha256": "5e91cd4fb70102253cd4d71c36d60d273908254fa9cc057fb3cf62ddf2a2690c",
+      "unit_id": "DA_18_Akali_AD",
+      "review": "assistant_visual_review",
+      "basis": "Visual appearance reviewed against source context and seasonal reference gallery; no independent human confirmation"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 0,
+      "pixel_sha256": "999ad20f173e846338a0ba1b9f2d20d8460c5d67765210118ddfbb9868170070",
+      "unit_id": "DA_18_Ornn",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 1,
+      "pixel_sha256": "60d3d9cdc1f5a8684d240dde68a53984e98ef13606eb895420c87e6bde04b13b",
+      "unit_id": "DA_18_Rammus",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 2,
+      "pixel_sha256": "c361413bf9b834022fbcb213fe3731c2c1c006674ac223638481932960e79947",
+      "unit_id": "DA_Fiddlesticks18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 3,
+      "pixel_sha256": "4cb77e9dca8ca3ee7ed9dad1fbae129ef59c32820b99ab5d577a53b9aeb3fe36",
+      "unit_id": "DA_18_Shen",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 4,
+      "pixel_sha256": "691020d128f59f0b5be2f55de581f02a4785575e89d1dc9756824f189cfa10a3",
+      "unit_id": "DA_18_Cassiopeia",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 5,
+      "pixel_sha256": "501925267a94881f603b139e4f388c1494a6088b49c48df6b67072225f7bf817",
+      "unit_id": "DA_Fiddlesticks18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 6,
+      "pixel_sha256": "7cffb058e032c37285fe62d5625a62776477c3b88663f422a6a7538c8c2df55b",
+      "unit_id": "DA_18_Leona",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 7,
+      "pixel_sha256": "e31e4edfcf0c138c7dd876de5c579b5a28c9ef49f9625dd098aae580c3270d22",
+      "unit_id": "DA_18_Shen",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 8,
+      "pixel_sha256": "bfb7b98d38e81a4aff50066c861e7d5c1bdafeec0dcb692820deed95b913357f",
+      "unit_id": "DA_18_Cassiopeia",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 9,
+      "pixel_sha256": "fb39da49b846d3da75cd759c9ef4bf66b45617f10925a8f78a504ff64275a57c",
+      "unit_id": "DA_18_Rammus",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 10,
+      "pixel_sha256": "3fcd42a72025921cee185e486b305990b468995de193e5e8ee0ef3c41adc6d97",
+      "unit_id": "DA_18_Rammus",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10200,
+      "marker_id": 11,
+      "pixel_sha256": "ca2f2b55e0e1d870e7e3c217a5256733882ae92f1b46c5eddca4b06f45692a97",
+      "unit_id": "DA_18_Cassiopeia",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 10800,
+      "marker_id": 0,
+      "pixel_sha256": "c8245b8ee90f608febcb2771ef6121fc326573d07fc29630371cf3e2259e3322",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 11400,
+      "marker_id": 0,
+      "pixel_sha256": "e19c7d794ff9bef5e67df33c625dafd2d1555d888a4b16a5a94968e2a93d290b",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 11400,
+      "marker_id": 1,
+      "pixel_sha256": "061b1491eb1e2fe56b5f78623be0217fca48822cbafb63edd63fe83c913eca92",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 11400,
+      "marker_id": 2,
+      "pixel_sha256": "d2ac44adc46f00185047685357b01fc08f3b8fe9565a909daf6a938e0cfe23d7",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 11400,
+      "marker_id": 3,
+      "pixel_sha256": "1f55160468bcc6937b04b0b5a8d8e0216a3908e70cb7ac82ac2032008ce423b0",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 11400,
+      "marker_id": 4,
+      "pixel_sha256": "b04ecf92d3715703bb9a1094fb95065ea65d7cd0e9acebe0a6a813a39d178262",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 0,
+      "pixel_sha256": "24f2006811095a80226bd355cec456accd41f87c37b4843510851e9b9b7c71ae",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 1,
+      "pixel_sha256": "7818b47ccc41e635ae0ff33e8bb5b32a4d21724901bdc29f53cc744d951619cf",
+      "unit_id": "DA_18_Diana",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 2,
+      "pixel_sha256": "26d524d4dea592c021e4a918af9e3f0ddc75d63f782caaf89b33a24cad844515",
+      "unit_id": "DA_18_Rakan",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 3,
+      "pixel_sha256": "8a6af7d151b495c8dc39aa5db30fcb5f0cb4c1a824bb9e07434ddcd1d2668a35",
+      "unit_id": "DA_18_Yorick",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 4,
+      "pixel_sha256": "7ef39b93a4380fd8e97737a1a1298ff7d7e108eadcd0c44c0ef493e023275709",
+      "unit_id": "DA_18_Diana",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 5,
+      "pixel_sha256": "eb85ed81548dbbb1f46551888e65db70c15f06b63305327ad49bf735fb222f97",
+      "unit_id": "DA_18_Aphelios",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 6,
+      "pixel_sha256": "8c049c7d1f493b980b22384f2de57258f43a2918831615b9502893b8e8f81e10",
+      "unit_id": "DA_18_Varus",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 7,
+      "pixel_sha256": "93b8bbabea8afcdf503346e169be255f7fa63d5b3e9e1d9ec878b7bb07cafe8b",
+      "unit_id": "DA_18_Rengar",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 8,
+      "pixel_sha256": "17abcd642fa6b26c1f914bafe8a40f5f469391913678c7b82bd6aa8ce3da1c66",
+      "unit_id": "DA_18_Aphelios",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 10,
+      "pixel_sha256": "c7cb6645842014d5eb10b8a5d38b06fb59ddf4c297338b7e2d7488b7602804c4",
+      "unit_id": "DA_18_Sivir",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 12,
+      "pixel_sha256": "b56be9d6a7825c81f5fb7757b03ddab4ee031ddfd5fbe22d35b3d3028e422096",
+      "unit_id": "DA_CrimsonRaptor18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 13800,
+      "marker_id": 2,
+      "pixel_sha256": "36821b0eb2c85a30bcbbd841acd7cbfb19f393271806eef363c00fc9c4e22a25",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 13800,
+      "marker_id": 3,
+      "pixel_sha256": "bf7c7cefa96fcca4d2cac0df9f64abb124a04e306695041fe80145651ab85241",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 13800,
+      "marker_id": 4,
+      "pixel_sha256": "cd10cd206e741f9d1d005882c4b2ec407ea53393bf97c38ed72e992c931d5fae",
+      "unit_id": "DA_18_Zyra",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 0,
+      "pixel_sha256": "a9c018cb84fe805593e650b199886b7ff6544f1e8eab0792824d2bbc3740c34f",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 1,
+      "pixel_sha256": "543ac747b780a5e2805d58d4ed91ec00447dd96f46749288568f5a61c7b821d4",
+      "unit_id": "DA_18_Rengar",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 2,
+      "pixel_sha256": "3be20e727ea70a78acef5f47284947f54b989566725d816a525384271b89645f",
+      "unit_id": "DA_18_Yorick",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 3,
+      "pixel_sha256": "7cde9834bafa1bc0669cca3095458a8db8107e53ccb8c2e3443e599fe7437582",
+      "unit_id": "DA_Scuttlecrab18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 4,
+      "pixel_sha256": "b62ab3ee5401136c33f9df6d8ed0e3a1b96f2bf9e68a004ba7f6318dc5a9abc0",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 5,
+      "pixel_sha256": "f8c33378e534e5230d419d059851520f74fb9dc9abece14ffe87b42be8d3cf2e",
+      "unit_id": "DA_18_Zyra",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 6,
+      "pixel_sha256": "90fdf2db2ef73d6dbf5b23fbd773ace250ef08ad684ee6f453fc6b58a7105f19",
+      "unit_id": "DA_18_Akali_AD",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 7,
+      "pixel_sha256": "fcf182c1d6365bdd0ca7b4b23d50890b8f8efe4c84dd93d9fdda40bf2b52c23a",
+      "unit_id": "DA_18_Ahri",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 8,
+      "pixel_sha256": "c1e7ccf1a367f323ed7efed71162369f1162dddf6e13a6386003db0cfddabc4c",
+      "unit_id": "DA_18_Sett",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 14400,
+      "marker_id": 9,
+      "pixel_sha256": "6a0af4b7bcf0e93353f324a5ad0074dae6b36fc528d5998f6776a38e3c95fb34",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 0,
+      "pixel_sha256": "5b30add8fd4905463d21525519e38ebcc23fe576ca96c075decff0988e4872bc",
+      "unit_id": "DA_Taric18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 1,
+      "pixel_sha256": "ddaf75bd4151d8e84da3bc862abeef734badc74886acf4ec0050d699b3f5bc8c",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 2,
+      "pixel_sha256": "5f91db953e17a0dba8f2c686152d25b6d66db7f2a2170061b667cff842b90bd3",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 3,
+      "pixel_sha256": "62f6b66443b2733903b723fc5e701443a46a6b0acb22322f86f328dad43449f4",
+      "unit_id": "DA_18_Kennen",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 4,
+      "pixel_sha256": "636ef215a086096caef4b52193393f34419161852db2e7e4958bf0e920ff944e",
+      "unit_id": "DA_18_Ashe",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 5,
+      "pixel_sha256": "b4d615c140531edc469505b08380bfd961fca669266ea3ed63bcc65dcdd7f416",
+      "unit_id": "DA_18_LeBlanc",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 6,
+      "pixel_sha256": "47f791bc4cbb8cc84ca9de88285e33460feae10ab41339debe0e2f9a260ba546",
+      "unit_id": "DA_18_Ivern",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 8,
+      "pixel_sha256": "46be0a62095996acbb4f971120bd86287d7fe2ba8675c40b881f96950c7dc5e3",
+      "unit_id": "DA_18_Maokai",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 9,
+      "pixel_sha256": "d48a116f4a85e3d00e31e418f41a478aaf0c88f85ea1893e9d13456893dacb01",
+      "unit_id": "DA_Taric18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 15600,
+      "marker_id": 0,
+      "pixel_sha256": "7d5810422ea41c964ba8263d0bb1cfee9c11f540a54f2c4c19e40d0ef053928f",
+      "unit_id": "__unknown__",
+      "review": "assistant_visual_review",
+      "basis": "Empty terrain or HUD crop without a unit"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 0,
+      "pixel_sha256": "2a9adea01095b93dca1b9a81d1841219f3293b2131ec7051fb0792df51ff7e02",
+      "unit_id": "DA_Sentinel18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 1,
+      "pixel_sha256": "bfdd72ee9028f504b0fd2e9cc760a0aa537effa75f03e336b89e389eefcb4e58",
+      "unit_id": "DA_18_Elise",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 2,
+      "pixel_sha256": "37e4c6cb9a6d6ff67c005e57d08e712163da86d0a2724ea8471030d0cec84dac",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 3,
+      "pixel_sha256": "7e53e1ed4323561b812d7c7396384e70efa8b44846d05ae383aa790c2fabb36c",
+      "unit_id": "DA_18_Camille",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 4,
+      "pixel_sha256": "798300d1fbd5b8111a8cafa7033761c83c7a88c35a633b65ef657ed80c93d9d6",
+      "unit_id": "DA_18_Caitlyn",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 5,
+      "pixel_sha256": "8f6b57dba40f75c2c0f898c9d33e68c243572ac1d9da3345b1688465a03e1917",
+      "unit_id": "DA_18_Rengar",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 6,
+      "pixel_sha256": "8bf00958215468943e57b908630c0b7af4389cfff3eb3f774b56555d11194e1e",
+      "unit_id": "DA_18_Cassiopeia",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 16800,
+      "marker_id": 7,
+      "pixel_sha256": "15d6e807b4aaee0922e3b5c61a17baabe2489187e93fedfd559c23f362fa416f",
+      "unit_id": "DA_18_Camille",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 17400,
+      "marker_id": 1,
+      "pixel_sha256": "b9a84db2153c2dbcaddb06c6a452d5aa27c21e2475c135abd4b8e6d835b62f36",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 17400,
+      "marker_id": 2,
+      "pixel_sha256": "5c9ecf303040210a01e8c0f90e74a1f6a47c6908170b09dff3941d74b923c38d",
+      "unit_id": "DA_18_Sivir",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 17400,
+      "marker_id": 3,
+      "pixel_sha256": "52bb5e35cf15c12d5e52cde7db95043683353eaaac5df827dfcdaa764a6f2b3e",
+      "unit_id": "DA_18_Ashe",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 0,
+      "pixel_sha256": "af609bfb9e5de5c3b0c8b4ca7ab3a834109ea047135591abbf2bc9b79fc00454",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 1,
+      "pixel_sha256": "fdf069ddf1ed150e326491ff02ef3886a215c5c95e300d77e16da5d0887b82b1",
+      "unit_id": "DA_Amumu18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 3,
+      "pixel_sha256": "a35a6d30100c14f0ff1d8b1987e29dbf0fad02ad68b76873d48840f3ec83a219",
+      "unit_id": "DA_18_Rakan",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 4,
+      "pixel_sha256": "810e49fe7bf3989f57658cb752cf89b5171ac9b9239a8c7738dbe4f8f721424f",
+      "unit_id": "DA_18_Diana",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 5,
+      "pixel_sha256": "d7166de238a2e5b4308a949b12250940ab4057f41983b41d7bf5f69712bcfaa2",
+      "unit_id": "DA_18_Aphelios",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 6,
+      "pixel_sha256": "ef7735bc402e601965b971501576ed48c88ac4b8092faef72347f3f5d16d4567",
+      "unit_id": "DA_18_Rakan",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 7,
+      "pixel_sha256": "ccedc8c2e2d71ad3e1bdae4fe4a5d9f0ec721243e66092c954e697981f449e8d",
+      "unit_id": "DA_KogMaw18_AD",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 8,
+      "pixel_sha256": "e52bddc25060c90a9224532d67a53b0504e91016eedace2f90f5703ec4101776",
+      "unit_id": "DA_18_Rakan",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 4,
+      "pixel_sha256": "89f69f19dea08e3e855dd33f7a7f5560bd72186b90902ddf5d74e158f643d01e",
+      "unit_id": "DA_Vi18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 8,
+      "pixel_sha256": "b16d86d56d18579593ffd7d003a7c920bf72f6e76063c98bd73a9a7b0809c30c",
+      "unit_id": "DA_Sentinel18",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 9,
+      "pixel_sha256": "0b82dd6d8465eecd63e98fe8472cec8f912be91a75f6154221398cb755317fc4",
+      "unit_id": "DA_18_Aphelios",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 10,
+      "pixel_sha256": "c92109070844605d224007cd5a1d729f1418101ecd0b0177c141dcac050e3296",
+      "unit_id": "DA_KogMaw18_AD",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 11,
+      "pixel_sha256": "7fa655fe64d5b13be5c1a37d58929671361a1423a6f66cc3592a439f6db56fee",
+      "unit_id": "DA_18_Varus",
+      "review": "assistant_visual_review",
+      "basis": "Visual morphology and seasonal reference examples, without model prediction labels; not independently human verified"
+    }
+  ],
+  "excluded": [
+    {
+      "source_seconds": 0,
+      "marker_id": 0,
+      "pixel_sha256": "b320b49b613152b3f23805e3dede808ac40a955e9bc99d7263598166c358bde1",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 0,
+      "marker_id": 1,
+      "pixel_sha256": "e7c7147ddfecac986ed6136e5199d7e535eb845232f2adb30d22662bffa5de43",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 0,
+      "marker_id": 4,
+      "pixel_sha256": "1422aa05f07a51282b5f6a45cea81efc3cf8e26783007bc746f48b50ddfd489d",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 1200,
+      "marker_id": 0,
+      "pixel_sha256": "43240122bc04e04e1fb3dee3cc3724e1adffa0c6568d44d947fdb729a9b303d7",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 1800,
+      "marker_id": 2,
+      "pixel_sha256": "2d12fc6c28465910b03e653a75e0198cd36cd7a61c7da94d0197223bf1bccbcc",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 1800,
+      "marker_id": 3,
+      "pixel_sha256": "0ba023fb8cca665b1b89c28a97a8bda43aeae6a8922dac5b386cd3f326c4547f",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 1800,
+      "marker_id": 4,
+      "pixel_sha256": "d535290c129d236b1eafe0e86e63badcee5fafa7b368c7418b092938b1f996ac",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 3000,
+      "marker_id": 0,
+      "pixel_sha256": "b27d6db2034c3002ee82095187a30e53ef5c13591c65cfc671b549c542da6856",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 3000,
+      "marker_id": 1,
+      "pixel_sha256": "8be53185ffd22f6c7f656849987c29ed38d6c279d3021ae8b2e8e86a7e9b17be",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 3000,
+      "marker_id": 2,
+      "pixel_sha256": "1bd1bbea34c35420ce5aae64cda5fbe9e7cc031fde7cd9cfbe14030e591503c3",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 3600,
+      "marker_id": 2,
+      "pixel_sha256": "5527d6c4b658ca2465ca2e61ba5db2552d1141778f8528f7a4bcd5bb76183afc",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 3600,
+      "marker_id": 7,
+      "pixel_sha256": "5dec56b5a42cf1adee93ac8a3cb681077c12f85c61e6b8cac43937f3a2a4ee7d",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 5400,
+      "marker_id": 1,
+      "pixel_sha256": "da4a4cf4d55e8eb4a19c4b716431a0b43932d4abae1a8bc9f4d5268e280d5e0f",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 3,
+      "pixel_sha256": "f8bef39c72395cb85d9f2ca08122b5de158f9128f7cd257a78e860161be6fbb9",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 6000,
+      "marker_id": 5,
+      "pixel_sha256": "5a71474d8a736eb5644de3bde83427bc7c7e12c5353a787f76f48213cef7c762",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 6600,
+      "marker_id": 1,
+      "pixel_sha256": "996ae317e35ee3a7ec81bb5c59271f17d230d6fdbf9dde153093c9f0ee8d0a2e",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 7800,
+      "marker_id": 0,
+      "pixel_sha256": "eb858d56b93bc1fc2861714fe539e5714a3adca5a215e1ebe582e88a8b8d2632",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 7800,
+      "marker_id": 1,
+      "pixel_sha256": "50badad19fd8c0b5fe18fe4bd9bc1a58f8b655d45fe220f22ffb1d26e242f3d5",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 7800,
+      "marker_id": 2,
+      "pixel_sha256": "da4f29421e3ceed70d94229824799d9a83d67dfb94efec2c76aa6f36c7997cda",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 7800,
+      "marker_id": 3,
+      "pixel_sha256": "63a1eb6519e8f094b00c3dd26e74157c5d36cd7fc6658fa628a1c623a5dca0c0",
+      "reason": "identity ambiguous or crop occluded; excluded from accuracy denominator"
+    },
+    {
+      "source_seconds": 9600,
+      "marker_id": 1,
+      "pixel_sha256": "d0d47f197a0ff742f560372d7e0df986715f06c6f1d4f3e9047b1ce231fd6643",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 9600,
+      "marker_id": 2,
+      "pixel_sha256": "01d8d160437dd4ca4378c452c6d6b2ec17fc49e3138796f4c7d7223f0562a471",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 9,
+      "pixel_sha256": "c316b55dacc5c3c43bde02c42092fab33ce969b69d2d0a5c39159f4136f899e8",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 12000,
+      "marker_id": 11,
+      "pixel_sha256": "89cc34d6be0a8da78a1036e209ac03f7c44b7b6b2aeb259ba61eab94424d3c33",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 15000,
+      "marker_id": 7,
+      "pixel_sha256": "ad00cbecab75db89db04bc765ef37d5c35ee00c5d7d98ced4a2ca88b9d36ce04",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 17400,
+      "marker_id": 0,
+      "pixel_sha256": "d831182bd76a255ee3661674b6b14a8118a397aede8712a06451f4fa9e6a7fd4",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 19200,
+      "marker_id": 2,
+      "pixel_sha256": "c11e4a93166008981494bfe37e9e1399913e3df88df3b6d4485920e6e3e93e69",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 5,
+      "pixel_sha256": "db01cada072068dc66ade5f3998d5f82e3e10eca47fc921f79909f0515c3ce7c",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    },
+    {
+      "source_seconds": 19800,
+      "marker_id": 7,
+      "pixel_sha256": "dbbdd16589aa9729b8c934e85a52f048eb1d074f3a611f043daefb8a3d164036",
+      "reason": "ambiguous identity, heavy occlusion or ambiguous crop-to-unit association"
+    }
+  ],
+  "revision": "20261005-named-render-reconciliation",
+  "corrections": [
+    {
+      "pixel_sha256": "5b30add8fd4905463d21525519e38ebcc23fe576ca96c075decff0988e4872bc",
+      "previous_id": "DA_18_Ezreal",
+      "corrected_id": "DA_Taric18",
+      "basis": "Named Set18 model reference comparison; leaf armor and long blond hair identify Taric; branch staff and green outfit identify LeBlanc. Assistant reviewed, not independent ground truth"
+    },
+    {
+      "pixel_sha256": "d48a116f4a85e3d00e31e418f41a478aaf0c88f85ea1893e9d13456893dacb01",
+      "previous_id": "DA_18_Ezreal",
+      "corrected_id": "DA_Taric18",
+      "basis": "Named Set18 model reference comparison; leaf armor and long blond hair identify Taric; branch staff and green outfit identify LeBlanc. Assistant reviewed, not independent ground truth"
+    },
+    {
+      "pixel_sha256": "b4d615c140531edc469505b08380bfd961fca669266ea3ed63bcc65dcdd7f416",
+      "previous_id": "DA_Fiddlesticks18",
+      "corrected_id": "DA_18_LeBlanc",
+      "basis": "Named Set18 model reference comparison; leaf armor and long blond hair identify Taric; branch staff and green outfit identify LeBlanc. Assistant reviewed, not independent ground truth"
+    }
+  ],
+  "previous_audit": "six-hours-audit.json"
+}

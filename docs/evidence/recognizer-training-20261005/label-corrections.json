@@ -1,0 +1,409 @@
+{
+  "reviewed": 348,
+  "references": [
+    "https://modelviewer.lol/extras",
+    "https://docs.modelviewer.lol/tft-unreal-extraction"
+  ],
+  "corrections": [
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-1",
+      "box": [
+        1220,
+        506,
+        1348,
+        650
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_18_Akali_AD",
+      "corrected_id": "DA_18_Shen",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-4",
+      "box": [
+        1224,
+        497,
+        1352,
+        641
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_18_Aphelios",
+      "corrected_id": "DA_18_Rengar",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-10",
+      "box": [
+        342,
+        710,
+        470,
+        854
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_18_Aphelios",
+      "corrected_id": "DA_18_Varus",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-2",
+      "box": [
+        1300,
+        562,
+        1428,
+        706
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_18_Camille",
+      "corrected_id": "DA_18_Akali_AD",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-4",
+      "box": [
+        1166,
+        628,
+        1294,
+        772
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_18_Camille",
+      "corrected_id": "DA_KogMaw18_AD",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/001020.png",
+      "key": "marker-4",
+      "box": [
+        1285,
+        420,
+        1413,
+        564
+      ],
+      "source_sha256": "1e17fb71f67e14061d734948957a3f222ed40030d2463bea7ab488f2d1fa776f",
+      "previous_id": "DA_18_Cassiopeia",
+      "corrected_id": "DA_18_Camille",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-5",
+      "box": [
+        1167,
+        550,
+        1295,
+        694
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_18_Diana",
+      "corrected_id": "DA_18_Aphelios",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007920.png",
+      "key": "marker-0",
+      "box": [
+        898,
+        162,
+        1026,
+        306
+      ],
+      "source_sha256": "29c5b52ac239852ee18e9cbd046a2a35c3bef3bafc5015aa4231312e3077582a",
+      "previous_id": "DA_18_Diana",
+      "corrected_id": null,
+      "action": "exclude_ambiguous",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007920.png",
+      "key": "marker-5",
+      "box": [
+        448,
+        481,
+        576,
+        625
+      ],
+      "source_sha256": "29c5b52ac239852ee18e9cbd046a2a35c3bef3bafc5015aa4231312e3077582a",
+      "previous_id": "DA_18_Diana",
+      "corrected_id": "DA_18_Aphelios",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/13185.png",
+      "key": "marker-6",
+      "box": [
+        1078,
+        360,
+        1206,
+        504
+      ],
+      "source_sha256": "bc6b85c8b67d05ae373ea8cb2cebeac2d247357dfa509080fd860fa11da8a28f",
+      "previous_id": "DA_18_Sett",
+      "corrected_id": "DA_18_Rakan",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-0",
+      "box": [
+        959,
+        329,
+        1087,
+        473
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_18_Shen",
+      "corrected_id": "DA_18_Leona",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-5",
+      "box": [
+        340,
+        686,
+        468,
+        830
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_18_Shen",
+      "corrected_id": "DA_18_Camille",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-7",
+      "box": [
+        586,
+        707,
+        714,
+        851
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_18_Varus",
+      "corrected_id": "DA_Gromp18_AP",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-7",
+      "box": [
+        1313,
+        582,
+        1441,
+        726
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_18_Varus",
+      "corrected_id": null,
+      "action": "exclude_ambiguous",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-9",
+      "box": [
+        1034,
+        610,
+        1162,
+        754
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_18_Varus",
+      "corrected_id": "DA_KogMaw18_AD",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/001020.png",
+      "key": "marker-5",
+      "box": [
+        1301,
+        608,
+        1429,
+        752
+      ],
+      "source_sha256": "1e17fb71f67e14061d734948957a3f222ed40030d2463bea7ab488f2d1fa776f",
+      "previous_id": "DA_18_Yorick",
+      "corrected_id": "DA_18_Cassiopeia",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-2",
+      "box": [
+        775,
+        421,
+        903,
+        565
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_Amumu18",
+      "corrected_id": "DA_Taric18",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/09900.png",
+      "key": "marker-12",
+      "box": [
+        689,
+        732,
+        817,
+        876
+      ],
+      "source_sha256": "0ecbbe615fc7a683003fd7903a7a8ae4d62163ace1f91ffd1ec35d97afb54918",
+      "previous_id": "DA_Cinderling18",
+      "corrected_id": "DA_Amumu18",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-6",
+      "box": [
+        467,
+        704,
+        595,
+        848
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_Gromp18_AP",
+      "corrected_id": "DA_18_Shen",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/006720.png",
+      "key": "marker-3",
+      "box": [
+        1033,
+        572,
+        1161,
+        716
+      ],
+      "source_sha256": "eeeaf69f51cb9e097a5cfe257cc69e65ba3094cf395362b4619e2b15c5d2c72c",
+      "previous_id": "DA_KogMaw18_AD",
+      "corrected_id": "DA_18_Camille",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-8",
+      "box": [
+        502,
+        595,
+        630,
+        739
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_KogMaw18_AD",
+      "corrected_id": "DA_18_Varus",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007020.png",
+      "key": "marker-3",
+      "box": [
+        840,
+        323,
+        968,
+        467
+      ],
+      "source_sha256": "9481f1a8609b3092cc891f707cfa92f1c298b0cfb4c9f72c8915f04acbd55ce3",
+      "previous_id": "DA_Vi18",
+      "corrected_id": "DA_18_Rengar",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-3",
+      "box": [
+        900,
+        450,
+        1028,
+        594
+      ],
+      "source_sha256": "b3af55778d45cc4c7ebd5febfad6b6251442ad50d54e6a060af66d0abbbaf540",
+      "previous_id": "DA_Vi18",
+      "corrected_id": "DA_Amumu18",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007920.png",
+      "key": "marker-1",
+      "box": [
+        725,
+        199,
+        853,
+        343
+      ],
+      "source_sha256": "29c5b52ac239852ee18e9cbd046a2a35c3bef3bafc5015aa4231312e3077582a",
+      "previous_id": "DA_Vi18",
+      "corrected_id": "DA_Sentinel18",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/09900.png",
+      "key": "marker-7",
+      "box": [
+        806,
+        710,
+        934,
+        854
+      ],
+      "source_sha256": "0ecbbe615fc7a683003fd7903a7a8ae4d62163ace1f91ffd1ec35d97afb54918",
+      "previous_id": "DA_Vi18",
+      "corrected_id": "DA_18_Sett",
+      "action": "relabel",
+      "basis": "Assistant re-review of exact crop, full frame and named Set18 renders; no model predictions used",
+      "independent_human_ground_truth": false
+    }
+  ]
+}

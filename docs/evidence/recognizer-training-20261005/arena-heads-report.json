@@ -1,0 +1,3795 @@
+{
+  "backbone_finetuned": false,
+  "checkpoint_selection": "validation_macro_recall_then_loss",
+  "elapsed_seconds": 16.557458925,
+  "embedding_cache_hit_batches": 91,
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "implementation": "rust_native",
+  "learning_rate": 2.0,
+  "limitations": [
+    "Existing small assistant-reviewed dataset; no independent human ground truth.",
+    "A supervised classification head is trained; frozen DINO weights are unchanged.",
+    "Spatial color histograms contain some background; not a segmentation mask.",
+    "Softmax scores are uncalibrated; no identity confirmation or coaching activation.",
+    "Held-out source separation is enforced; repeated development test use still limits generalization claims.",
+    "The new six-hour VOD is not used as training data or automatic labels."
+  ],
+  "max_epochs": 800,
+  "runtime_approved": false,
+  "schema_version": 1,
+  "source_samples": 419,
+  "spec_sha256": "f3ce7ac98fa312eb750f9ed6b304c9138857dae1f9ed6b215decf499a175f707",
+  "synthetic_training_views": 0,
+  "training_algorithm": "class_balanced_multiclass_softmax_gradient_descent",
+  "training_performed": true,
+  "variants": {
+    "dino": {
+      "artifact_bytes": 453916,
+      "artifact_sha256": "08bcfae33a5962b06a3941993fd803ca3bae3c2d3155302232e91e9037e76373",
+      "checkpoints": [
+        {
+          "epoch": 50,
+          "validation_loss": 3.988349437713623,
+          "validation_macro_recall": 0.5
+        },
+        {
+          "epoch": 100,
+          "validation_loss": 3.877713884626116,
+          "validation_macro_recall": 0.5
+        },
+        {
+          "epoch": 200,
+          "validation_loss": 3.7027694497789656,
+          "validation_macro_recall": 1.0
+        },
+        {
+          "epoch": 400,
+          "validation_loss": 3.513103553227016,
+          "validation_macro_recall": 1.0
+        },
+        {
+          "epoch": 800,
+          "validation_loss": 3.3665169307163785,
+          "validation_macro_recall": 1.0
+        }
+      ],
+      "evaluation": {
+        "test": {
+          "confusions": {
+            "DA_18_Alistar -> DA_Sentinel18": 2,
+            "DA_18_Camille -> DA_18_RekSai": 2,
+            "DA_18_RekSai -> DA_Scuttlecrab18": 1,
+            "DA_18_Veigar -> DA_18_Teemo": 1,
+            "DA_Cinderling18 -> DA_18_Teemo": 1,
+            "DA_Krug18 -> DA_18_Aphelios": 1,
+            "__unknown__ -> DA_18_Kobuko": 2
+          },
+          "cross_entropy": 3.10922340039284,
+          "named": 29,
+          "named_macro_recall": 0.7166666666666667,
+          "named_top1_correct": 21,
+          "per_class": {
+            "DA_18_Alistar": [
+              2,
+              0
+            ],
+            "DA_18_Camille": [
+              4,
+              2
+            ],
+            "DA_18_Cassiopeia": [
+              3,
+              3
+            ],
+            "DA_18_RekSai": [
+              5,
+              4
+            ],
+            "DA_18_Sentry": [
+              2,
+              2
+            ],
+            "DA_18_Veigar": [
+              2,
+              1
+            ],
+            "DA_18_Warwick": [
+              1,
+              1
+            ],
+            "DA_18_Yorick": [
+              1,
+              1
+            ],
+            "DA_Cinderling18": [
+              5,
+              4
+            ],
+            "DA_Karma18": [
+              2,
+              2
+            ],
+            "DA_Krug18": [
+              1,
+              0
+            ],
+            "DA_Vi18": [
+              1,
+              1
+            ],
+            "__unknown__": [
+              2,
+              0
+            ]
+          },
+          "predictions": [
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-0",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.08947823941707611
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-1",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.20164790749549866
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-2",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.05929355323314667
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-3",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.04986311495304108
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-4",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.0514645129442215
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-5",
+              "label": "__unknown__",
+              "predicted": "DA_18_Kobuko",
+              "softmax_score_uncalibrated": 0.052884846925735474
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/193.png",
+              "key": "marker-6",
+              "label": "__unknown__",
+              "predicted": "DA_18_Kobuko",
+              "softmax_score_uncalibrated": 0.050782471895217896
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/204.png",
+              "key": "marker-0",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.04692155122756958
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/204.png",
+              "key": "marker-1",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.0866798460483551
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/204.png",
+              "key": "marker-2",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.2536875009536743
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/204.png",
+              "key": "marker-3",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.05705199018120766
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/204.png",
+              "key": "marker-4",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.053414005786180496
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/04500.png",
+              "key": "marker-2",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.04284559562802315
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/04500.png",
+              "key": "marker-4",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.054174263030290604
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/05700.png",
+              "key": "marker-2",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.05485311150550842
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/05700.png",
+              "key": "marker-3",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.04240152984857559
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06900.png",
+              "key": "marker-6",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.03215527534484863
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06900.png",
+              "key": "marker-7",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.06087759882211685
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/10500.png",
+              "key": "marker-2",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.03771532326936722
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/04480.png",
+              "key": "marker-1",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.04210324212908745
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/04480.png",
+              "key": "marker-4",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.032654691487550735
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/04480.png",
+              "key": "marker-5",
+              "label": "DA_Krug18",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.03400601074099541
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/04480.png",
+              "key": "marker-6",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.05424636974930763
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-0",
+              "label": "DA_18_Warwick",
+              "predicted": "DA_18_Warwick",
+              "softmax_score_uncalibrated": 0.055410757660865784
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.03468482196331024
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-2",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.056963834911584854
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-3",
+              "label": "DA_18_Yorick",
+              "predicted": "DA_18_Yorick",
+              "softmax_score_uncalibrated": 0.04691113159060478
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-4",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.04402440786361694
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-5",
+              "label": "DA_18_Veigar",
+              "predicted": "DA_18_Veigar",
+              "softmax_score_uncalibrated": 0.0409606508910656
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/06880.png",
+              "key": "marker-6",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.06427276879549026
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-subzero-20261004/10480.png",
+              "key": "marker-6",
+              "label": "DA_18_Veigar",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.058398179709911346
+            }
+          ],
+          "samples": 31
+        },
+        "train": {
+          "confusions": {
+            "DA_18_Ahri -> __unknown__": 1,
+            "DA_18_Akali_AD -> DA_18_Elise": 1,
+            "DA_18_Aphelios -> DA_18_Varus": 1,
+            "DA_18_Azir -> DA_18_Ezreal": 1,
+            "DA_18_Camille -> DA_18_Aphelios": 1,
+            "DA_18_Camille -> DA_18_Ashe": 1,
+            "DA_18_Camille -> DA_18_Caitlyn": 1,
+            "DA_18_Camille -> DA_18_KhaZix": 1,
+            "DA_18_Camille -> DA_18_Lillia": 1,
+            "DA_18_Camille -> DA_18_MasterYi_AD": 1,
+            "DA_18_Camille -> DA_18_Sentry": 1,
+            "DA_18_Camille -> DA_18_Teemo": 1,
+            "DA_18_Camille -> DA_Amumu18": 1,
+            "DA_18_Camille -> DA_Fiddlesticks18": 1,
+            "DA_18_Camille -> DA_Karma18": 1,
+            "DA_18_Camille -> DA_Murkwolf18": 1,
+            "DA_18_Cassiopeia -> DA_18_LeBlanc": 1,
+            "DA_18_Diana -> DA_Amumu18": 1,
+            "DA_18_Diana -> DA_Brambleback18": 1,
+            "DA_18_Ezreal -> DA_Sentinel18": 1,
+            "DA_18_Leona -> DA_18_Sejuani": 1,
+            "DA_18_Leona -> DA_18_Teemo": 1,
+            "DA_18_Rakan -> DA_18_Elise": 1,
+            "DA_18_Rengar -> DA_18_Elise": 1,
+            "DA_18_Shen -> DA_18_Ahri": 1,
+            "DA_18_Shen -> DA_Taric18": 1,
+            "DA_18_Soraka -> DA_18_Caitlyn": 1,
+            "DA_18_Soraka -> DA_KogMaw18_AD": 1,
+            "DA_18_Varus -> DA_18_Sett": 1,
+            "DA_Cinderling18 -> DA_18_Elise": 1,
+            "DA_KogMaw18_AD -> DA_18_GnarSmall": 1,
+            "DA_KogMaw18_AD -> DA_18_Sivir": 1,
+            "DA_KogMaw18_AD -> DA_Cinderling18": 1,
+            "DA_Sentinel18 -> DA_KogMaw18_AD": 1,
+            "DA_Vi18 -> DA_18_Teemo": 1,
+            "__unknown__ -> DA_18_Teemo": 1
+          },
+          "cross_entropy": 2.225331232460152,
+          "named": 366,
+          "named_macro_recall": 0.941064841591157,
+          "named_top1_correct": 331,
+          "per_class": {
+            "DA_18_Ahri": [
+              8,
+              7
+            ],
+            "DA_18_Akali_AD": [
+              9,
+              8
+            ],
+            "DA_18_Alistar": [
+              5,
+              5
+            ],
+            "DA_18_Aphelios": [
+              6,
+              5
+            ],
+            "DA_18_Ashe": [
+              5,
+              5
+            ],
+            "DA_18_Azir": [
+              7,
+              6
+            ],
+            "DA_18_Caitlyn": [
+              6,
+              6
+            ],
+            "DA_18_Camille": [
+              25,
+              13
+            ],
+            "DA_18_Cassiopeia": [
+              13,
+              12
+            ],
+            "DA_18_Diana": [
+              5,
+              3
+            ],
+            "DA_18_Elise": [
+              1,
+              1
+            ],
+            "DA_18_Ezreal": [
+              8,
+              7
+            ],
+            "DA_18_GnarSmall": [
+              1,
+              1
+            ],
+            "DA_18_Hecarim": [
+              2,
+              2
+            ],
+            "DA_18_Ivern": [
+              4,
+              4
+            ],
+            "DA_18_Kayle": [
+              1,
+              1
+            ],
+            "DA_18_KhaZix": [
+              2,
+              2
+            ],
+            "DA_18_Kobuko": [
+              2,
+              2
+            ],
+            "DA_18_LeBlanc": [
+              5,
+              5
+            ],
+            "DA_18_Leona": [
+              9,
+              7
+            ],
+            "DA_18_Lillia": [
+              2,
+              2
+            ],
+            "DA_18_Malphite": [
+              3,
+              3
+            ],
+            "DA_18_Maokai": [
+              1,
+              1
+            ],
+            "DA_18_MasterYi_AD": [
+              3,
+              3
+            ],
+            "DA_18_Ornn": [
+              14,
+              14
+            ],
+            "DA_18_Rakan": [
+              5,
+              4
+            ],
+            "DA_18_Rammus": [
+              2,
+              2
+            ],
+            "DA_18_RekSai": [
+              18,
+              18
+            ],
+            "DA_18_Rengar": [
+              14,
+              13
+            ],
+            "DA_18_Sejuani": [
+              2,
+              2
+            ],
+            "DA_18_Sentry": [
+              17,
+              17
+            ],
+            "DA_18_Sett": [
+              1,
+              1
+            ],
+            "DA_18_Shen": [
+              10,
+              8
+            ],
+            "DA_18_Sivir": [
+              5,
+              5
+            ],
+            "DA_18_Soraka": [
+              7,
+              5
+            ],
+            "DA_18_Teemo": [
+              2,
+              2
+            ],
+            "DA_18_Varus": [
+              15,
+              14
+            ],
+            "DA_18_Veigar": [
+              3,
+              3
+            ],
+            "DA_18_Warwick": [
+              5,
+              5
+            ],
+            "DA_18_Xayah": [
+              1,
+              1
+            ],
+            "DA_18_Yorick": [
+              5,
+              5
+            ],
+            "DA_18_Yunara": [
+              1,
+              1
+            ],
+            "DA_18_Zyra": [
+              6,
+              6
+            ],
+            "DA_Amumu18": [
+              5,
+              5
+            ],
+            "DA_Brambleback18": [
+              5,
+              5
+            ],
+            "DA_Cinderling18": [
+              5,
+              4
+            ],
+            "DA_CrimsonRaptor18": [
+              7,
+              7
+            ],
+            "DA_Fiddlesticks18": [
+              14,
+              14
+            ],
+            "DA_Gromp18_AP": [
+              9,
+              9
+            ],
+            "DA_Karma18": [
+              12,
+              12
+            ],
+            "DA_KogMaw18_AD": [
+              15,
+              12
+            ],
+            "DA_Krug18": [
+              5,
+              5
+            ],
+            "DA_Murkwolf18": [
+              3,
+              3
+            ],
+            "DA_Scuttlecrab18": [
+              5,
+              5
+            ],
+            "DA_Sentinel18": [
+              7,
+              6
+            ],
+            "DA_Taric18": [
+              1,
+              1
+            ],
+            "DA_Vi18": [
+              7,
+              6
+            ],
+            "__unknown__": [
+              15,
+              14
+            ]
+          },
+          "predictions": [
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-0",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.1430158168077469
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-1",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_18_Alistar",
+              "softmax_score_uncalibrated": 0.2550466060638428
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.10479432344436646
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-3",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.09672565013170242
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-4",
+              "label": "DA_18_Teemo",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.5092883706092834
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-5",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.3594171404838562
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "marker-6",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.22653134167194366
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.5808244943618774
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/029.png",
+              "key": "negative-1",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.3620443642139435
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/041.png",
+              "key": "marker-0",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.1485515534877777
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/041.png",
+              "key": "marker-1",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_18_Alistar",
+              "softmax_score_uncalibrated": 0.24820005893707275
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/041.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.11749257892370224
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/041.png",
+              "key": "marker-3",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.09922332316637039
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/041.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.5761463046073914
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/041.png",
+              "key": "negative-1",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.35050055384635925
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-0",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.10341811180114746
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-1",
+              "label": "DA_18_Kayle",
+              "predicted": "DA_18_Kayle",
+              "softmax_score_uncalibrated": 0.4922269880771637
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-2",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.16575656831264496
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.154743492603302
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-4",
+              "label": "DA_18_Rakan",
+              "predicted": "DA_18_Rakan",
+              "softmax_score_uncalibrated": 0.05137155205011368
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-5",
+              "label": "DA_18_Veigar",
+              "predicted": "DA_18_Veigar",
+              "softmax_score_uncalibrated": 0.14010924100875854
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "marker-6",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.26173871755599976
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.5651489496231079
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/064.png",
+              "key": "negative-1",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.2418709546327591
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "marker-0",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.3215135335922241
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.09855426847934723
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.21705302596092224
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.2554537057876587
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "marker-4",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.2815071940422058
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "marker-5",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.22647494077682495
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.5665267705917358
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/076.png",
+              "key": "negative-1",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.3226716220378876
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "marker-0",
+              "label": "DA_18_Caitlyn",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.1429518759250641
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "marker-1",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.08466942608356476
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "marker-2",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.09557139873504639
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "marker-3",
+              "label": "DA_18_MasterYi_AD",
+              "predicted": "DA_18_MasterYi_AD",
+              "softmax_score_uncalibrated": 0.2093460112810135
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "marker-4",
+              "label": "DA_18_MasterYi_AD",
+              "predicted": "DA_18_MasterYi_AD",
+              "softmax_score_uncalibrated": 0.15914593636989594
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.571640133857727
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/143.png",
+              "key": "negative-1",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.381943941116333
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-0",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.18180598318576813
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-1",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_18_Alistar",
+              "softmax_score_uncalibrated": 0.2306423783302307
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.08342760056257248
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-3",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.10634949058294296
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-4",
+              "label": "DA_18_Teemo",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.4772787392139435
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-5",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.33249714970588684
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/031.png",
+              "key": "marker-6",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.22767193615436554
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/049.png",
+              "key": "marker-0",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.17266738414764404
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/049.png",
+              "key": "marker-1",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_18_Alistar",
+              "softmax_score_uncalibrated": 0.2702047526836395
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/049.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.10115426778793335
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/049.png",
+              "key": "marker-3",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.1174834817647934
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/049.png",
+              "key": "marker-4",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.09883764386177063
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/065.png",
+              "key": "marker-0",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.04263634979724884
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/065.png",
+              "key": "marker-1",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.06710754334926605
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/065.png",
+              "key": "marker-2",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.22042123973369598
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/069.png",
+              "key": "marker-0",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.09980247169733047
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/069.png",
+              "key": "marker-1",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.15671515464782715
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/069.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.2513127326965332
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/069.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.2330680638551712
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/069.png",
+              "key": "marker-4",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.23051485419273376
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/069.png",
+              "key": "marker-5",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.2308146357536316
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/074.png",
+              "key": "marker-0",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.1614881306886673
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/074.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.06261996924877167
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/074.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.23425330221652985
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/074.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.25301772356033325
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/074.png",
+              "key": "marker-4",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.2603292167186737
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/074.png",
+              "key": "marker-5",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.2499304860830307
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/078.png",
+              "key": "marker-0",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.3780533969402313
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/078.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.06135566905140877
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/078.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.2645399272441864
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/078.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.27130523324012756
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/078.png",
+              "key": "marker-4",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.26959148049354553
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/080.png",
+              "key": "marker-0",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.36759477853775024
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/080.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.09954249858856201
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/080.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.18878677487373352
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/080.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.32666927576065063
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/080.png",
+              "key": "marker-4",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.3141205906867981
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/083.png",
+              "key": "marker-0",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.38268759846687317
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/083.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.07837758213281631
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/083.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.20331428945064545
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/083.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.31750616431236267
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/083.png",
+              "key": "marker-4",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.242934450507164
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/083.png",
+              "key": "marker-5",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.17070148885250092
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/089.png",
+              "key": "marker-0",
+              "label": "DA_Krug18",
+              "predicted": "DA_Krug18",
+              "softmax_score_uncalibrated": 0.3199034631252289
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/089.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.10698170959949493
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/089.png",
+              "key": "marker-2",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.15180030465126038
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/089.png",
+              "key": "marker-3",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.3286377191543579
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/089.png",
+              "key": "marker-4",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.27928805351257324
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/091.png",
+              "key": "marker-0",
+              "label": "DA_Krug18",
+              "predicted": "DA_Krug18",
+              "softmax_score_uncalibrated": 0.345431387424469
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/091.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.09617684781551361
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/091.png",
+              "key": "marker-3",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.16043375432491302
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/091.png",
+              "key": "marker-4",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.2735463082790375
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/091.png",
+              "key": "marker-5",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.32612279057502747
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/091.png",
+              "key": "marker-6",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.19220459461212158
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/094.png",
+              "key": "marker-2",
+              "label": "DA_18_Camille",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.05323692038655281
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/094.png",
+              "key": "marker-3",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.07294871658086777
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/094.png",
+              "key": "marker-4",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.17482207715511322
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/094.png",
+              "key": "marker-5",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.11407102644443512
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/094.png",
+              "key": "marker-6",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.12887327373027802
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/095.png",
+              "key": "marker-0",
+              "label": "DA_Krug18",
+              "predicted": "DA_Krug18",
+              "softmax_score_uncalibrated": 0.3177091181278229
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/095.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.10057534277439117
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/095.png",
+              "key": "marker-3",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.152777299284935
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/095.png",
+              "key": "marker-4",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_18_GnarSmall",
+              "softmax_score_uncalibrated": 0.04707019031047821
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/095.png",
+              "key": "marker-5",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.1643717885017395
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/095.png",
+              "key": "marker-6",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.03480512648820877
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-0",
+              "label": "DA_Krug18",
+              "predicted": "DA_Krug18",
+              "softmax_score_uncalibrated": 0.21449416875839233
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.05179222673177719
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-2",
+              "label": "DA_Brambleback18",
+              "predicted": "DA_Brambleback18",
+              "softmax_score_uncalibrated": 0.21438030898571014
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-5",
+              "label": "DA_Karma18",
+              "predicted": "DA_Karma18",
+              "softmax_score_uncalibrated": 0.15310633182525635
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-6",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.14940819144248962
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-7",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.05697561800479889
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/098.png",
+              "key": "marker-9",
+              "label": "DA_CrimsonRaptor18",
+              "predicted": "DA_CrimsonRaptor18",
+              "softmax_score_uncalibrated": 0.18804924190044403
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/137.png",
+              "key": "marker-0",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.07973619550466537
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/137.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.03939365595579147
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/139.png",
+              "key": "marker-0",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_MasterYi_AD",
+              "softmax_score_uncalibrated": 0.07215631008148193
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/139.png",
+              "key": "marker-1",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.08877058327198029
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/139.png",
+              "key": "marker-2",
+              "label": "DA_18_MasterYi_AD",
+              "predicted": "DA_18_MasterYi_AD",
+              "softmax_score_uncalibrated": 0.14305594563484192
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/146.png",
+              "key": "marker-1",
+              "label": "DA_18_Caitlyn",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.11459531635046005
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/146.png",
+              "key": "marker-2",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.081924669444561
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/151.png",
+              "key": "marker-2",
+              "label": "DA_18_Caitlyn",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.08015169948339462
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/00600.png",
+              "key": "marker-0",
+              "label": "DA_18_Hecarim",
+              "predicted": "DA_18_Hecarim",
+              "softmax_score_uncalibrated": 0.3553716838359833
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/04200.png",
+              "key": "marker-0",
+              "label": "DA_18_Elise",
+              "predicted": "DA_18_Elise",
+              "softmax_score_uncalibrated": 0.5263387560844421
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/04200.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_Murkwolf18",
+              "softmax_score_uncalibrated": 0.05537618696689606
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/04200.png",
+              "key": "marker-2",
+              "label": "DA_18_Caitlyn",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.13160942494869232
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/04200.png",
+              "key": "marker-3",
+              "label": "DA_18_Warwick",
+              "predicted": "DA_18_Warwick",
+              "softmax_score_uncalibrated": 0.09426656365394592
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/04200.png",
+              "key": "marker-4",
+              "label": "DA_18_Rakan",
+              "predicted": "DA_18_Rakan",
+              "softmax_score_uncalibrated": 0.08294586092233658
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-0",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Elise",
+              "softmax_score_uncalibrated": 0.046087510883808136
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-1",
+              "label": "DA_18_Warwick",
+              "predicted": "DA_18_Warwick",
+              "softmax_score_uncalibrated": 0.09148570150136948
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-3",
+              "label": "DA_18_Malphite",
+              "predicted": "DA_18_Malphite",
+              "softmax_score_uncalibrated": 0.07232900708913803
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-4",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.09986237436532974
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-6",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Azir",
+              "softmax_score_uncalibrated": 0.1157560721039772
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-7",
+              "label": "DA_18_Sett",
+              "predicted": "DA_18_Sett",
+              "softmax_score_uncalibrated": 0.4751700162887573
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-8",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.07170325517654419
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-9",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.07337117940187454
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-10",
+              "label": "DA_18_Veigar",
+              "predicted": "DA_18_Veigar",
+              "softmax_score_uncalibrated": 0.13023532927036285
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/09900.png",
+              "key": "marker-12",
+              "label": "DA_Amumu18",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.1353590190410614
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/11400.png",
+              "key": "marker-2",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.10407915711402893
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/11400.png",
+              "key": "marker-3",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_KhaZix",
+              "softmax_score_uncalibrated": 0.04115791246294975
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/11400.png",
+              "key": "marker-4",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.040696386247873306
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/11400.png",
+              "key": "marker-5",
+              "label": "DA_Murkwolf18",
+              "predicted": "DA_Murkwolf18",
+              "softmax_score_uncalibrated": 0.24271747469902039
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/11400.png",
+              "key": "marker-9",
+              "label": "DA_18_Kobuko",
+              "predicted": "DA_18_Kobuko",
+              "softmax_score_uncalibrated": 0.31067249178886414
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-1",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.10159317404031754
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Elise",
+              "softmax_score_uncalibrated": 0.20738793909549713
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-3",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.040382396429777145
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-4",
+              "label": "DA_18_KhaZix",
+              "predicted": "DA_18_KhaZix",
+              "softmax_score_uncalibrated": 0.17686712741851807
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-5",
+              "label": "DA_18_Rakan",
+              "predicted": "DA_18_Elise",
+              "softmax_score_uncalibrated": 0.09418614953756332
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-6",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.07003361731767654
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-8",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.09391379356384277
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-youtube-20261004/15900.png",
+              "key": "marker-9",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Sett",
+              "softmax_score_uncalibrated": 0.09344173222780228
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-0",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.09234993904829025
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-1",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.07799345254898071
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-2",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.07918114215135574
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-3",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.08593212068080902
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-4",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.07636509090662003
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-5",
+              "label": "DA_18_LeBlanc",
+              "predicted": "DA_18_LeBlanc",
+              "softmax_score_uncalibrated": 0.09196659177541733
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-6",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.2348712831735611
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-7",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.23077775537967682
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-8",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.06895893067121506
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-9",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.08142029494047165
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/01200.png",
+              "key": "marker-10",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.06486545503139496
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04800.png",
+              "key": "marker-7",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.08632279187440872
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04800.png",
+              "key": "marker-8",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.04757222905755043
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04800.png",
+              "key": "marker-9",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.04750760272145271
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/06600.png",
+              "key": "marker-5",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.1257481873035431
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/06600.png",
+              "key": "marker-6",
+              "label": "DA_Murkwolf18",
+              "predicted": "DA_Murkwolf18",
+              "softmax_score_uncalibrated": 0.16333726048469543
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10200.png",
+              "key": "marker-0",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.048562534153461456
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10200.png",
+              "key": "marker-3",
+              "label": "DA_18_Aphelios",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.047910626977682114
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10200.png",
+              "key": "marker-4",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.07634277641773224
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/12000.png",
+              "key": "marker-1",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.0523734875023365
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13200.png",
+              "key": "marker-10",
+              "label": "DA_18_Sivir",
+              "predicted": "DA_18_Sivir",
+              "softmax_score_uncalibrated": 0.11162661761045456
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13200.png",
+              "key": "marker-11",
+              "label": "DA_18_Zyra",
+              "predicted": "DA_18_Zyra",
+              "softmax_score_uncalibrated": 0.06809870898723602
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13200.png",
+              "key": "marker-12",
+              "label": "DA_18_Ashe",
+              "predicted": "DA_18_Ashe",
+              "softmax_score_uncalibrated": 0.07633061707019806
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-0",
+              "label": "DA_18_Malphite",
+              "predicted": "DA_18_Malphite",
+              "softmax_score_uncalibrated": 0.23669329285621643
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-1",
+              "label": "DA_18_Yorick",
+              "predicted": "DA_18_Yorick",
+              "softmax_score_uncalibrated": 0.09451562166213989
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-3",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.0766901820898056
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-4",
+              "label": "DA_18_Ivern",
+              "predicted": "DA_18_Ivern",
+              "softmax_score_uncalibrated": 0.1493813693523407
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-5",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.22624075412750244
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-6",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.05623990297317505
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-7",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Azir",
+              "softmax_score_uncalibrated": 0.14535987377166748
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-8",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_18_Soraka",
+              "softmax_score_uncalibrated": 0.05831769108772278
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/04780.png",
+              "key": "marker-9",
+              "label": "DA_18_Zyra",
+              "predicted": "DA_18_Zyra",
+              "softmax_score_uncalibrated": 0.06400803476572037
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-1",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.10717374086380005
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-2",
+              "label": "DA_Amumu18",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.07081376761198044
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-3",
+              "label": "DA_18_Diana",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.04724742844700813
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-4",
+              "label": "DA_Scuttlecrab18",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.1319740116596222
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-5",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.07218348234891891
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-6",
+              "label": "DA_Brambleback18",
+              "predicted": "DA_Brambleback18",
+              "softmax_score_uncalibrated": 0.10966866463422775
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-7",
+              "label": "DA_18_Aphelios",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.06681807339191437
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-8",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.04896477609872818
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-9",
+              "label": "DA_Brambleback18",
+              "predicted": "DA_Brambleback18",
+              "softmax_score_uncalibrated": 0.19890238344669342
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-10",
+              "label": "DA_Brambleback18",
+              "predicted": "DA_Brambleback18",
+              "softmax_score_uncalibrated": 0.2590610980987549
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-11",
+              "label": "DA_18_Diana",
+              "predicted": "DA_18_Diana",
+              "softmax_score_uncalibrated": 0.06663244217634201
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-12",
+              "label": "DA_18_Aphelios",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.05925557017326355
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-13",
+              "label": "DA_18_Sivir",
+              "predicted": "DA_18_Sivir",
+              "softmax_score_uncalibrated": 0.122444286942482
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/10170.png",
+              "key": "marker-14",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.06158518046140671
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-0",
+              "label": "DA_18_Maokai",
+              "predicted": "DA_18_Maokai",
+              "softmax_score_uncalibrated": 0.28105688095092773
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-2",
+              "label": "DA_Amumu18",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.08968474715948105
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-3",
+              "label": "DA_18_Sejuani",
+              "predicted": "DA_18_Sejuani",
+              "softmax_score_uncalibrated": 0.3440096974372864
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-4",
+              "label": "DA_18_Yorick",
+              "predicted": "DA_18_Yorick",
+              "softmax_score_uncalibrated": 0.07202982157468796
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-5",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.058148302137851715
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-6",
+              "label": "DA_18_Rakan",
+              "predicted": "DA_18_Rakan",
+              "softmax_score_uncalibrated": 0.07463151961565018
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-7",
+              "label": "DA_18_Zyra",
+              "predicted": "DA_18_Zyra",
+              "softmax_score_uncalibrated": 0.06515183299779892
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-8",
+              "label": "DA_18_Sivir",
+              "predicted": "DA_18_Sivir",
+              "softmax_score_uncalibrated": 0.13375794887542725
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-twitch-20261004/13185.png",
+              "key": "marker-10",
+              "label": "DA_Vi18",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.04821815714240074
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-1",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.10261587053537369
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-2",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.0655018612742424
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-3",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.07383894920349121
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-4",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.11133403331041336
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-6",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.07511249929666519
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-7",
+              "label": "DA_18_LeBlanc",
+              "predicted": "DA_18_LeBlanc",
+              "softmax_score_uncalibrated": 0.1364395022392273
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-8",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.29795897006988525
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-9",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.2835911214351654
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-10",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.22886380553245544
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-11",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.09024618566036224
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-12",
+              "label": "DA_18_LeBlanc",
+              "predicted": "DA_18_LeBlanc",
+              "softmax_score_uncalibrated": 0.14873890578746796
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-13",
+              "label": "DA_18_LeBlanc",
+              "predicted": "DA_18_LeBlanc",
+              "softmax_score_uncalibrated": 0.1759440302848816
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-14",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.056201670318841934
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001380.png",
+              "key": "marker-16",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_LeBlanc",
+              "softmax_score_uncalibrated": 0.07124081999063492
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001980.png",
+              "key": "marker-1",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.06370381265878677
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001980.png",
+              "key": "marker-6",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.04511604458093643
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001980.png",
+              "key": "marker-10",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.06252909451723099
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001980.png",
+              "key": "marker-12",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.03661084920167923
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001980.png",
+              "key": "marker-13",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.07735191285610199
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001980.png",
+              "key": "marker-14",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_18_Soraka",
+              "softmax_score_uncalibrated": 0.05003140866756439
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002580.png",
+              "key": "marker-0",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.05035015940666199
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002580.png",
+              "key": "marker-1",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.05601326748728752
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002580.png",
+              "key": "marker-8",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.03996296972036362
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002580.png",
+              "key": "marker-10",
+              "label": "DA_18_Ivern",
+              "predicted": "DA_18_Ivern",
+              "softmax_score_uncalibrated": 0.17013737559318542
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002580.png",
+              "key": "marker-11",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.0668049082159996
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002580.png",
+              "key": "marker-12",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_18_Soraka",
+              "softmax_score_uncalibrated": 0.07113055884838104
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004380.png",
+              "key": "marker-2",
+              "label": "DA_18_Ahri",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.12540407478809357
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004380.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.12980113923549652
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004380.png",
+              "key": "negative-1",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.09426447749137878
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/005580.png",
+              "key": "marker-0",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.08419428765773773
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/005580.png",
+              "key": "marker-1",
+              "label": "DA_18_Ashe",
+              "predicted": "DA_18_Ashe",
+              "softmax_score_uncalibrated": 0.06611976027488708
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/005580.png",
+              "key": "marker-2",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Azir",
+              "softmax_score_uncalibrated": 0.07881877571344376
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-0",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.04263965040445328
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-1",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.04703134670853615
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-2",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Sejuani",
+              "softmax_score_uncalibrated": 0.04731893539428711
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-3",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.07977169752120972
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-4",
+              "label": "DA_18_Camille",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.04298606887459755
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-5",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.041305530816316605
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-6",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.24195457994937897
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-7",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.15303194522857666
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-8",
+              "label": "DA_18_LeBlanc",
+              "predicted": "DA_18_LeBlanc",
+              "softmax_score_uncalibrated": 0.08508069068193436
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-9",
+              "label": "DA_18_Yorick",
+              "predicted": "DA_18_Yorick",
+              "softmax_score_uncalibrated": 0.08466584235429764
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-10",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.08337363600730896
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001020.png",
+              "key": "marker-11",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.18545910716056824
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/001920.png",
+              "key": "marker-2",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.05308007076382637
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-1",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.08263934403657913
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-3",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.08832979947328568
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-4",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.08853065967559814
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-5",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.05662015825510025
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-6",
+              "label": "DA_18_Lillia",
+              "predicted": "DA_18_Lillia",
+              "softmax_score_uncalibrated": 0.19089311361312866
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-7",
+              "label": "DA_18_Rammus",
+              "predicted": "DA_18_Rammus",
+              "softmax_score_uncalibrated": 0.33768948912620544
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002220.png",
+              "key": "marker-8",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.09196296334266663
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-0",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.06715177744626999
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-2",
+              "label": "DA_18_Ornn",
+              "predicted": "DA_18_Ornn",
+              "softmax_score_uncalibrated": 0.1540648639202118
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-3",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.0974498987197876
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-4",
+              "label": "DA_18_Lillia",
+              "predicted": "DA_18_Lillia",
+              "softmax_score_uncalibrated": 0.11927945166826248
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-5",
+              "label": "DA_18_Rammus",
+              "predicted": "DA_18_Rammus",
+              "softmax_score_uncalibrated": 0.3303457498550415
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-6",
+              "label": "DA_18_Ivern",
+              "predicted": "DA_18_Ivern",
+              "softmax_score_uncalibrated": 0.24769999086856842
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-7",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.045860741287469864
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002520.png",
+              "key": "marker-8",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_18_Soraka",
+              "softmax_score_uncalibrated": 0.07162349671125412
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/002820.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.09913414716720581
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/003420.png",
+              "key": "marker-2",
+              "label": "DA_18_Alistar",
+              "predicted": "DA_18_Alistar",
+              "softmax_score_uncalibrated": 0.18030153214931488
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/003420.png",
+              "key": "marker-3",
+              "label": "DA_18_Kobuko",
+              "predicted": "DA_18_Kobuko",
+              "softmax_score_uncalibrated": 0.2694709897041321
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/003420.png",
+              "key": "marker-4",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.1535220742225647
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/003420.png",
+              "key": "marker-5",
+              "label": "DA_18_Hecarim",
+              "predicted": "DA_18_Hecarim",
+              "softmax_score_uncalibrated": 0.2625620663166046
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/003420.png",
+              "key": "marker-6",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.06859969347715378
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/003420.png",
+              "key": "marker-7",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.15669183433055878
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-0",
+              "label": "DA_18_Malphite",
+              "predicted": "DA_18_Malphite",
+              "softmax_score_uncalibrated": 0.22372883558273315
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-1",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.14016510546207428
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-3",
+              "label": "DA_18_Ivern",
+              "predicted": "DA_18_Ivern",
+              "softmax_score_uncalibrated": 0.14566217362880707
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-4",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.1508670449256897
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-6",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.04247899726033211
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-7",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.10609856247901917
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-9",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.08455754071474075
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-10",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Azir",
+              "softmax_score_uncalibrated": 0.12247217446565628
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004320.png",
+              "key": "marker-11",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.04664374887943268
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004620.png",
+              "key": "marker-1",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.11442509293556213
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004620.png",
+              "key": "marker-5",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Azir",
+              "softmax_score_uncalibrated": 0.06918574124574661
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004920.png",
+              "key": "marker-7",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.05665312334895134
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004920.png",
+              "key": "marker-8",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.07720008492469788
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004920.png",
+              "key": "marker-9",
+              "label": "DA_18_Ashe",
+              "predicted": "DA_18_Ashe",
+              "softmax_score_uncalibrated": 0.06360753625631332
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004920.png",
+              "key": "marker-10",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.1282583773136139
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004920.png",
+              "key": "marker-11",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_18_Soraka",
+              "softmax_score_uncalibrated": 0.0441601425409317
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/004920.png",
+              "key": "marker-12",
+              "label": "DA_Fiddlesticks18",
+              "predicted": "DA_Fiddlesticks18",
+              "softmax_score_uncalibrated": 0.08490545302629471
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/005520.png",
+              "key": "marker-0",
+              "label": "DA_18_Ahri",
+              "predicted": "DA_18_Ahri",
+              "softmax_score_uncalibrated": 0.09740127623081207
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/005520.png",
+              "key": "marker-1",
+              "label": "DA_18_Ashe",
+              "predicted": "DA_18_Ashe",
+              "softmax_score_uncalibrated": 0.10473081469535828
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/005520.png",
+              "key": "marker-2",
+              "label": "DA_18_Azir",
+              "predicted": "DA_18_Azir",
+              "softmax_score_uncalibrated": 0.05379671975970268
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006120.png",
+              "key": "marker-2",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Lillia",
+              "softmax_score_uncalibrated": 0.04299920052289963
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006420.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.04044746235013008
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006420.png",
+              "key": "marker-2",
+              "label": "DA_18_Shen",
+              "predicted": "DA_Taric18",
+              "softmax_score_uncalibrated": 0.06382464617490768
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006420.png",
+              "key": "marker-3",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.06334351003170013
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-0",
+              "label": "DA_18_Leona",
+              "predicted": "DA_18_Leona",
+              "softmax_score_uncalibrated": 0.07164838165044785
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-1",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.03893061354756355
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.07866177707910538
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-3",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.04970582574605942
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-4",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.1670268028974533
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-5",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.0452735461294651
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-6",
+              "label": "DA_18_Shen",
+              "predicted": "DA_18_Shen",
+              "softmax_score_uncalibrated": 0.07007730007171631
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-7",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.24331583082675934
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/006720.png",
+              "key": "marker-8",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.10479844361543655
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-3",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.0445181205868721
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-5",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.0948529988527298
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-6",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.0535697266459465
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-8",
+              "label": "DA_Scuttlecrab18",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.17451220750808716
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-9",
+              "label": "DA_Murkwolf18",
+              "predicted": "DA_Murkwolf18",
+              "softmax_score_uncalibrated": 0.08103787899017334
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-10",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.07288771122694016
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007020.png",
+              "key": "marker-11",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.20839567482471466
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-0",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.11628899723291397
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-1",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.06135871261358261
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-2",
+              "label": "DA_Taric18",
+              "predicted": "DA_Taric18",
+              "softmax_score_uncalibrated": 0.5303030014038086
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-3",
+              "label": "DA_Amumu18",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.14531809091567993
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-4",
+              "label": "DA_18_Rengar",
+              "predicted": "DA_18_Rengar",
+              "softmax_score_uncalibrated": 0.05117768421769142
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-5",
+              "label": "DA_18_Aphelios",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.07195095717906952
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-8",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.07741967588663101
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-9",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.1378573477268219
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007620.png",
+              "key": "marker-10",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.06674794107675552
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007920.png",
+              "key": "marker-1",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.0626317635178566
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007920.png",
+              "key": "marker-3",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.06502625346183777
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007920.png",
+              "key": "marker-4",
+              "label": "DA_18_Aphelios",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.058215219527482986
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007920.png",
+              "key": "marker-5",
+              "label": "DA_18_Aphelios",
+              "predicted": "DA_18_Aphelios",
+              "softmax_score_uncalibrated": 0.05925252288579941
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007920.png",
+              "key": "marker-6",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.11232654005289078
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/007920.png",
+              "key": "marker-7",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.05801652371883392
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/008820.png",
+              "key": "marker-1",
+              "label": "DA_18_Warwick",
+              "predicted": "DA_18_Warwick",
+              "softmax_score_uncalibrated": 0.06466620415449142
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-long-training-20261005/008820.png",
+              "key": "marker-2",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.04435734823346138
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/000120.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "__unknown__",
+              "softmax_score_uncalibrated": 0.15142391622066498
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-0",
+              "label": "DA_Amumu18",
+              "predicted": "DA_Amumu18",
+              "softmax_score_uncalibrated": 0.06698216497898102
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-1",
+              "label": "DA_Krug18",
+              "predicted": "DA_Krug18",
+              "softmax_score_uncalibrated": 0.14834952354431152
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-2",
+              "label": "DA_18_Yorick",
+              "predicted": "DA_18_Yorick",
+              "softmax_score_uncalibrated": 0.07960815727710724
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-3",
+              "label": "DA_18_GnarSmall",
+              "predicted": "DA_18_GnarSmall",
+              "softmax_score_uncalibrated": 0.39280739426612854
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-4",
+              "label": "DA_18_Zyra",
+              "predicted": "DA_18_Zyra",
+              "softmax_score_uncalibrated": 0.062213290482759476
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-5",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.038795340806245804
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-6",
+              "label": "DA_18_Yunara",
+              "predicted": "DA_18_Yunara",
+              "softmax_score_uncalibrated": 0.38977673649787903
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001320.png",
+              "key": "marker-7",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.09675267338752747
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001920.png",
+              "key": "marker-3",
+              "label": "DA_18_Warwick",
+              "predicted": "DA_18_Warwick",
+              "softmax_score_uncalibrated": 0.07331030070781708
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001920.png",
+              "key": "marker-4",
+              "label": "DA_18_Ezreal",
+              "predicted": "DA_18_Ezreal",
+              "softmax_score_uncalibrated": 0.06604108959436417
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001920.png",
+              "key": "marker-6",
+              "label": "DA_18_Zyra",
+              "predicted": "DA_18_Zyra",
+              "softmax_score_uncalibrated": 0.0727139264345169
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/001920.png",
+              "key": "marker-7",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.058203015476465225
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/002520.png",
+              "key": "marker-6",
+              "label": "DA_18_Zyra",
+              "predicted": "DA_18_Zyra",
+              "softmax_score_uncalibrated": 0.04489897936582565
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-0",
+              "label": "DA_18_Yorick",
+              "predicted": "DA_18_Yorick",
+              "softmax_score_uncalibrated": 0.08129192143678665
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-1",
+              "label": "DA_18_Rakan",
+              "predicted": "DA_18_Rakan",
+              "softmax_score_uncalibrated": 0.06304755806922913
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-2",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Ashe",
+              "softmax_score_uncalibrated": 0.036489542573690414
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-3",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.05716663971543312
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-4",
+              "label": "DA_18_Xayah",
+              "predicted": "DA_18_Xayah",
+              "softmax_score_uncalibrated": 0.4177492558956146
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-5",
+              "label": "DA_18_Varus",
+              "predicted": "DA_18_Varus",
+              "softmax_score_uncalibrated": 0.06242668256163597
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-6",
+              "label": "DA_18_Sejuani",
+              "predicted": "DA_18_Sejuani",
+              "softmax_score_uncalibrated": 0.3607959747314453
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-7",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.0812554731965065
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003120.png",
+              "key": "marker-8",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.24572142958641052
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-4",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_Sentinel18",
+              "softmax_score_uncalibrated": 0.10137172043323517
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-5",
+              "label": "DA_Scuttlecrab18",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.10856013000011444
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-6",
+              "label": "DA_18_Diana",
+              "predicted": "DA_18_Diana",
+              "softmax_score_uncalibrated": 0.05600350350141525
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-7",
+              "label": "DA_18_Diana",
+              "predicted": "DA_18_Diana",
+              "softmax_score_uncalibrated": 0.07357428222894669
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-8",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_18_Elise",
+              "softmax_score_uncalibrated": 0.05077454075217247
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-9",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.06486956030130386
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/003720.png",
+              "key": "marker-10",
+              "label": "DA_18_Soraka",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.2020641267299652
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004320.png",
+              "key": "marker-1",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_18_Sivir",
+              "softmax_score_uncalibrated": 0.03718307241797447
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004320.png",
+              "key": "marker-2",
+              "label": "DA_Sentinel18",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.04240395873785019
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-0",
+              "label": "DA_Brambleback18",
+              "predicted": "DA_Brambleback18",
+              "softmax_score_uncalibrated": 0.05829235911369324
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-1",
+              "label": "DA_18_Diana",
+              "predicted": "DA_Brambleback18",
+              "softmax_score_uncalibrated": 0.09137798100709915
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-2",
+              "label": "DA_18_Sivir",
+              "predicted": "DA_18_Sivir",
+              "softmax_score_uncalibrated": 0.07408253848552704
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-4",
+              "label": "DA_Scuttlecrab18",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.18886420130729675
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-5",
+              "label": "DA_Vi18",
+              "predicted": "DA_Vi18",
+              "softmax_score_uncalibrated": 0.06010884791612625
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-7",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.12598349153995514
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-8",
+              "label": "DA_18_Ashe",
+              "predicted": "DA_18_Ashe",
+              "softmax_score_uncalibrated": 0.054434195160865784
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/004920.png",
+              "key": "marker-9",
+              "label": "DA_18_Sivir",
+              "predicted": "DA_18_Sivir",
+              "softmax_score_uncalibrated": 0.18396078050136566
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/006120.png",
+              "key": "marker-0",
+              "label": "DA_Scuttlecrab18",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.16560636460781097
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/006120.png",
+              "key": "marker-1",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.06594495475292206
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/006120.png",
+              "key": "marker-2",
+              "label": "DA_18_Caitlyn",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.14461149275302887
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/006120.png",
+              "key": "marker-3",
+              "label": "DA_Cinderling18",
+              "predicted": "DA_Cinderling18",
+              "softmax_score_uncalibrated": 0.0580810122191906
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/006120.png",
+              "key": "marker-4",
+              "label": "DA_18_Caitlyn",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.12731948494911194
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/006120.png",
+              "key": "marker-5",
+              "label": "DA_18_RekSai",
+              "predicted": "DA_18_RekSai",
+              "softmax_score_uncalibrated": 0.12295853346586227
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/007320.png",
+              "key": "marker-0",
+              "label": "DA_18_KhaZix",
+              "predicted": "DA_18_KhaZix",
+              "softmax_score_uncalibrated": 0.1659306287765503
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/007320.png",
+              "key": "marker-1",
+              "label": "DA_KogMaw18_AD",
+              "predicted": "DA_KogMaw18_AD",
+              "softmax_score_uncalibrated": 0.1326518952846527
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/007320.png",
+              "key": "marker-2",
+              "label": "DA_18_Akali_AD",
+              "predicted": "DA_18_Akali_AD",
+              "softmax_score_uncalibrated": 0.03967976197600365
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/009120.png",
+              "key": "marker-2",
+              "label": "DA_18_Warwick",
+              "predicted": "DA_18_Warwick",
+              "softmax_score_uncalibrated": 0.05383419990539551
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/009120.png",
+              "key": "marker-3",
+              "label": "DA_Gromp18_AP",
+              "predicted": "DA_Gromp18_AP",
+              "softmax_score_uncalibrated": 0.129133939743042
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/009120.png",
+              "key": "marker-4",
+              "label": "DA_18_Cassiopeia",
+              "predicted": "DA_18_Cassiopeia",
+              "softmax_score_uncalibrated": 0.07143043726682663
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/010920.png",
+              "key": "negative-0",
+              "label": "__unknown__",
+              "predicted": "DA_18_Teemo",
+              "softmax_score_uncalibrated": 0.04704632982611656
+            },
+            {
+              "identity_verified": false,
+              "image": "unit-gallery-arena-training-20261005/012120.png",
+              "key": "marker-2",
+              "label": "DA_18_Veigar",
+              "predicted": "DA_18_Veigar",
+              "softmax_score_uncalibrated": 0.13725507259368896
+            }
+          ],
+          "samples": 381
+        },
+        "validation": {
+          "confusions": {
+            "__unknown__ -> DA_18_Caitlyn": 2,
+            "__unknown__ -> DA_18_Rammus": 1,
+            "__unknown__ -> DA_Scuttlecrab18": 1
+          },
+          "cross_entropy": 3.3665169307163785,
+          "named": 3,
+          "named_macro_recall": 1.0,
+          "named_top1_correct": 3,
+          "per_class": {
+            "DA_18_Camille": [
+              1,
+              1
+            ],
+            "DA_18_Sentry": [
+              2,
+              2
+            ],
+            "__unknown__": [
+              4,
+              0
+            ]
+          },
+          "predictions": [
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-0",
+              "label": "__unknown__",
+              "predicted": "DA_Scuttlecrab18",
+              "softmax_score_uncalibrated": 0.10178375989198685
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-1",
+              "label": "DA_18_Camille",
+              "predicted": "DA_18_Camille",
+              "softmax_score_uncalibrated": 0.06457077711820602
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-2",
+              "label": "__unknown__",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.05339909717440605
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-3",
+              "label": "__unknown__",
+              "predicted": "DA_18_Rammus",
+              "softmax_score_uncalibrated": 0.10960212349891663
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-4",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.1303485631942749
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-5",
+              "label": "__unknown__",
+              "predicted": "DA_18_Caitlyn",
+              "softmax_score_uncalibrated": 0.04627727344632149
+            },
+            {
+              "identity_verified": false,
+              "image": "review-20261004/167.png",
+              "key": "marker-6",
+              "label": "DA_18_Sentry",
+              "predicted": "DA_18_Sentry",
+              "softmax_score_uncalibrated": 0.17877197265625
+            }
+          ],
+          "samples": 7
+        }
+      },
+      "selected_epoch": 800
+    }
+  },
+  "weight_decay": 0.001
+}

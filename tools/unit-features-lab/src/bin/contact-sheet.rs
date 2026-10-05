@@ -1,5 +1,36 @@
 //! Dataset inspection only; image transformations remain native Rust.
 use std::{fs, path::PathBuf};
+fn number(sheet: &mut image::RgbImage, value: usize, x: u32, y: u32) {
+    const DIGITS: [[u8; 5]; 10] = [
+        [7, 5, 5, 5, 7],
+        [2, 6, 2, 2, 7],
+        [7, 1, 7, 4, 7],
+        [7, 1, 7, 1, 7],
+        [5, 5, 7, 1, 1],
+        [7, 4, 7, 1, 7],
+        [7, 4, 7, 5, 7],
+        [7, 1, 1, 1, 1],
+        [7, 5, 7, 5, 7],
+        [7, 5, 7, 1, 7],
+    ];
+    for (i, d) in value.to_string().bytes().enumerate() {
+        for (dy, bits) in DIGITS[(d - b'0') as usize].iter().enumerate() {
+            for dx in 0..3 {
+                if bits & (1 << (2 - dx)) != 0 {
+                    for sy in 0..2 {
+                        for sx in 0..2 {
+                            sheet.put_pixel(
+                                x + i as u32 * 8 + dx * 2 + sx,
+                                y + dy as u32 * 2 + sy,
+                                image::Rgb([255, 255, 255]),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = std::env::args().collect();
     if a.len() != 3 {
@@ -12,7 +43,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     fs::create_dir_all(&out)?;
     for (page, chunk) in rows.chunks(24).enumerate() {
-        let mut sheet = image::RgbImage::new(128 * 6, 144 * 4);
+        let mut sheet = image::RgbImage::new(128 * 6, 158 * 4);
         for (i, row) in chunk.iter().enumerate() {
             let mut rgb = image::open(row["path"].as_str().ok_or("path")?)?.to_rgb8();
             // Reference renders can declare a display-only region. This never
@@ -45,7 +76,18 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             if rgb.width() != 128 || rgb.height() != 144 {
                 return Err("expected native unit crop".into());
             }
-            image::imageops::replace(&mut sheet, &rgb, (i % 6 * 128) as i64, (i / 6 * 144) as i64);
+            number(
+                &mut sheet,
+                page * 24 + i,
+                (i % 6 * 128 + 2) as u32,
+                (i / 6 * 158 + 2) as u32,
+            );
+            image::imageops::replace(
+                &mut sheet,
+                &rgb,
+                (i % 6 * 128) as i64,
+                (i / 6 * 158 + 14) as i64,
+            );
         }
         sheet.save(out.join(format!("page-{page}.png")))?;
         fs::write(

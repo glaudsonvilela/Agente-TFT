@@ -138,3 +138,51 @@ Os contratos nativos do primeiro checkpoint passaram em Linux e Windows no CI.
 Dois jobs gerais de Windows expuseram uma falha anterior de checksum das tabelas
 econômicas causada por conversão de fim de linha. `.gitattributes` fixa LF para
 JSON de configuração; a verificação de hash continua exigida.
+
+## Terceira fonte e reconciliação dos rótulos
+
+A terceira coleta (`twitch:2891052706`, k3soju) terminou: 3 h 37 min,
+651 quadros, 2.615 recortes propostos. Não são 2.615 exemplos rotulados.
+Uma revisão por grade temporal adicionou 52 unidades e 2 negativos de 13
+quadros; 18 propostas ambíguas da grade ficaram excluídas. O conjunto atualizado
+está em `configs/training/unit-gallery-arena-20261005.json`: 366 unidades de
+treino, 57 dos 74 IDs e 17 IDs ainda sem exemplo. A fonte inteira fica em treino;
+o VOD de seis horas continua separado.
+
+Uma nova revisão dos 348 recortes nomeados anteriores encontrou 23 rótulos
+incorretos e excluiu 2 casos ambíguos. Exemplos: Amumu/Cinderling, Camille/Kog'Maw
+e Leona/Shen. Isso é um defeito do conjunto de dados, não uma melhoria do encoder.
+Os oito exemplos antigos de Ahri estavam corretos; Yunara com esferas douradas
+aparece na terceira fonte. O histórico de cada correção inclui imagem, caixa,
+chave, hash e rótulos anterior/novo em `label-corrections.json`.
+
+Usamos os [renders nomeados do Set 18](https://modelviewer.lol/extras) como
+referência adicional de aparência, confrontados com os quadros e painéis do
+jogo. Eles não entram como imagens de treino. A documentação do visualizador
+descreve [diferenças entre os assets antigos e os modelos do Set 18](https://docs.modelviewer.lol/tft-unreal-extraction).
+Referências visuais ajudam a revisar; não substituem validação independente.
+
+Também corrigimos três rótulos do desafio: duas imagens de Taric anteriormente
+marcadas Ezreal e uma LeBlanc marcada Fiddlesticks. A avaliação reconciliada
+continua com 107 recortes. Todos os modelos comparados foram reavaliados nela:
+
+| Modelo | Acertos / 107 |
+|---|---:|
+| Galeria original | 25 |
+| Classificador inicial | 33 |
+| Classificador ampliado anterior | 38 |
+| Apenas correções de rótulos | 41 |
+| Correções + terceira fonte | 46 |
+
+No teste antigo de 29 unidades, o último modelo acertou 21; o ampliado anterior
+acertava 22. Não há melhora uniforme. A validação usada para selecionar épocas
+ainda tem somente três unidades e precisa ser ampliada. O desafio de seis horas
+já foi consultado repetidamente: é evidência de desenvolvimento, não um teste
+final intocado. Todos os rótulos continuam sendo revisão do assistente, sem
+confirmação humana independente. Nenhum modelo foi aprovado para uso nas dicas.
+
+Para reduzir erros de associação, as folhas de revisão agora exibem o índice
+global de cada recorte. Novos rótulos trazem o hash dos pixels do recorte;
+o carregador Rust recusa vínculos incompatíveis entre identidade e recorte.
+Os exemplos incertos são excluídos, nunca convertidos em negativos só porque
+a identidade não pôde ser determinada.

@@ -1,0 +1,430 @@
+{
+  "annotations": "configs/training/unit-gallery-arena-20261005.json",
+  "named_training_crops": 366,
+  "covered_ids": 57,
+  "catalog_ids": 74,
+  "missing_ids": [
+    "DA_18_Alune",
+    "DA_18_ElderDragon",
+    "DA_18_Kennen",
+    "DA_18_Lux_Coven",
+    "DA_18_Lux_Elderwood",
+    "DA_18_Lux_Fae",
+    "DA_18_Lux_Inferno",
+    "DA_18_Lux_Moonbeam",
+    "DA_18_Lux_Primal",
+    "DA_18_Lux_Sunbeam",
+    "DA_18_Morgana",
+    "DA_18_Tristana",
+    "DA_Draven18",
+    "DA_Lux18_Base",
+    "DA_Lux18_Blackthorn",
+    "DA_Lux18_Blossom",
+    "DA_Nidalee18_AP"
+  ],
+  "counts": {
+    "DA_18_RekSai": {
+      "crops": 18,
+      "sources": [
+        "1f0938fe7952419283f8544b8e5115df",
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Alistar": {
+      "crops": 5,
+      "sources": [
+        "1f0938fe7952419283f8544b8e5115df",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Akali_AD": {
+      "crops": 9,
+      "sources": [
+        "1f0938fe7952419283f8544b8e5115df",
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Varus": {
+      "crops": 15,
+      "sources": [
+        "1f0938fe7952419283f8544b8e5115df",
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Teemo": {
+      "crops": 2,
+      "sources": [
+        "1f0938fe7952419283f8544b8e5115df"
+      ]
+    },
+    "DA_18_Camille": {
+      "crops": 25,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "9acfd9afbd074a4582aaa20fa3e86db4",
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Kayle": {
+      "crops": 1,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c"
+      ]
+    },
+    "DA_Gromp18_AP": {
+      "crops": 9,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Sentry": {
+      "crops": 17,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Rakan": {
+      "crops": 5,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Veigar": {
+      "crops": 3,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "youtube:af1zvuCmr58",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_Karma18": {
+      "crops": 12,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c"
+      ]
+    },
+    "DA_Cinderling18": {
+      "crops": 5,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Caitlyn": {
+      "crops": 6,
+      "sources": [
+        "9acfd9afbd074a4582aaa20fa3e86db4",
+        "youtube:af1zvuCmr58",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Ornn": {
+      "crops": 14,
+      "sources": [
+        "9acfd9afbd074a4582aaa20fa3e86db4",
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_Vi18": {
+      "crops": 7,
+      "sources": [
+        "9acfd9afbd074a4582aaa20fa3e86db4",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_MasterYi_AD": {
+      "crops": 3,
+      "sources": [
+        "9acfd9afbd074a4582aaa20fa3e86db4"
+      ]
+    },
+    "DA_KogMaw18_AD": {
+      "crops": 15,
+      "sources": [
+        "1f0938fe7952419283f8544b8e5115df",
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_CrimsonRaptor18": {
+      "crops": 7,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c"
+      ]
+    },
+    "DA_Krug18": {
+      "crops": 5,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_Brambleback18": {
+      "crops": 5,
+      "sources": [
+        "6f784a17a03f40c592bdeb9fb7ceef7c",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Hecarim": {
+      "crops": 2,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Elise": {
+      "crops": 1,
+      "sources": [
+        "youtube:af1zvuCmr58"
+      ]
+    },
+    "DA_18_Warwick": {
+      "crops": 5,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Rengar": {
+      "crops": 14,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Malphite": {
+      "crops": 3,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Azir": {
+      "crops": 7,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Sett": {
+      "crops": 1,
+      "sources": [
+        "youtube:af1zvuCmr58"
+      ]
+    },
+    "DA_18_Shen": {
+      "crops": 10,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_Amumu18": {
+      "crops": 5,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_Fiddlesticks18": {
+      "crops": 14,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_Murkwolf18": {
+      "crops": 3,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Kobuko": {
+      "crops": 2,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_KhaZix": {
+      "crops": 2,
+      "sources": [
+        "youtube:af1zvuCmr58",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Leona": {
+      "crops": 9,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Cassiopeia": {
+      "crops": 13,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_LeBlanc": {
+      "crops": 5,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Ahri": {
+      "crops": 8,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Ezreal": {
+      "crops": 8,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Aphelios": {
+      "crops": 6,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Sivir": {
+      "crops": 5,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Zyra": {
+      "crops": 6,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Ashe": {
+      "crops": 5,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Yorick": {
+      "crops": 5,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Ivern": {
+      "crops": 4,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Soraka": {
+      "crops": 7,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_Sentinel18": {
+      "crops": 7,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Diana": {
+      "crops": 5,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_Scuttlecrab18": {
+      "crops": 5,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Maokai": {
+      "crops": 1,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Sejuani": {
+      "crops": 2,
+      "sources": [
+        "twitch:2891050468",
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Lillia": {
+      "crops": 2,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_Rammus": {
+      "crops": 2,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_Taric18": {
+      "crops": 1,
+      "sources": [
+        "twitch:2891050468"
+      ]
+    },
+    "DA_18_GnarSmall": {
+      "crops": 1,
+      "sources": [
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Yunara": {
+      "crops": 1,
+      "sources": [
+        "twitch:2891052706"
+      ]
+    },
+    "DA_18_Xayah": {
+      "crops": 1,
+      "sources": [
+        "twitch:2891052706"
+      ]
+    }
+  },
+  "independent_human_ground_truth": false
+}

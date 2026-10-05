@@ -166,8 +166,14 @@ pub fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sa
             if label != "__unknown__" && !ids.contains(label) {
                 return Err("unit absent from catalog".into());
             }
+            let crop = UnitCrop::from_frame(&f, rect)?;
+            if let Some(expected) = entity.get("crop_pixel_sha256") {
+                if expected.as_str() != Some(hash(&crop.rgb).as_str()) {
+                    return Err("reviewed identity/crop pixel binding mismatch".into());
+                }
+            }
             result.push(Sample {
-                crop: UnitCrop::from_frame(&f, rect)?,
+                crop,
                 label: label.into(),
                 split: split.into(),
                 image: relative.into(),
