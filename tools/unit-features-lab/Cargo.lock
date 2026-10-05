@@ -17,6 +17,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "agente-tft-contracts"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "agente-tft-image-preprocess"
 version = "0.1.0"
 dependencies = [
@@ -24,11 +33,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "agente-tft-perception-board"
+version = "0.1.0"
+dependencies = [
+ "agente-tft-contracts",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "agente-tft-unit-features-lab"
 version = "0.1.0"
 dependencies = [
  "agente-tft-capture-core",
+ "agente-tft-contracts",
  "agente-tft-image-preprocess",
+ "agente-tft-perception-board",
  "image",
  "ort",
  "serde",

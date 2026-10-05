@@ -1,0 +1,56 @@
+{
+  "recorded_at": "2026-10-05T04:27:48.670Z",
+  "status": "in_progress",
+  "sources": [
+    {
+      "url": "https://www.twitch.tv/videos/2883698368",
+      "partition": "evaluation_unlabeled",
+      "local_private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/long-vod-20261005",
+      "downloaded_segments": 2153,
+      "downloaded_bytes": 17250142288,
+      "downloaded_seconds": 21608.099999999995,
+      "progress": {
+        "accepted_candidates": 49,
+        "accuracy_measured": false,
+        "analysis_ms_p50": 280.467137,
+        "analysis_ms_p95": 754.340814,
+        "elapsed_seconds": 582.045557031,
+        "frames": 1500,
+        "frames_without_green_proposals": 423,
+        "source_seconds_covered": 15000,
+        "status": "running",
+        "target_frames": 2160,
+        "unit_crops": 6793
+      }
+    },
+    {
+      "url": "https://www.twitch.tv/videos/2891050468",
+      "partition": "training_pool_unlabeled",
+      "local_private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/long-vod-training-20261005",
+      "downloaded_segments": 1373,
+      "downloaded_bytes": 10993572224,
+      "downloaded_seconds": 13746.316000000003,
+      "progress": {
+        "accepted_candidates": 115,
+        "accuracy_measured": false,
+        "analysis_ms_p50": 366.483075,
+        "analysis_ms_p95": 993.528591,
+        "elapsed_seconds": 180.155313358,
+        "frames": 220,
+        "frames_without_green_proposals": 76,
+        "source_seconds_covered": 4400,
+        "status": "running",
+        "target_frames": 687,
+        "unit_crops": 1113
+      }
+    }
+  ],
+  "pending": [
+    "Finish both native collections",
+    "Review additional labels without model predictions",
+    "Expand supervised training on reviewed training source",
+    "Evaluate new head on separate VOD",
+    "Persist final per-class coverage and failure report"
+  ],
+  "runtime_approved": false
+}
