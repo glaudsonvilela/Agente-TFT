@@ -31,8 +31,8 @@ DEFAULT_ANNOTATIONS = Path(
     "configs/training/unit-gallery-transfer-reviewed-expanded-20261005.json"
 )
 DEFAULT_REFERENCE = Path(
-    "knowledge/releases/TFTSet18/18.3/"
-    "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299"
+    "knowledge/riot-ddragon/16.19.1/pt_BR/TFTSet18/"
+    "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f"
 )
 DEFAULT_PRIVATE_ROOT = Path(
     "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005"
@@ -353,7 +353,7 @@ def main() -> int:
     if not (reference / "reference.json").is_file() or not (
         reference / "champions.json"
     ).is_file():
-        die(f"invalid sealed reference directory: {reference}")
+        die(f"invalid visual reference directory: {reference}")
 
     images = locate_images_root(args.images, annotations_doc, repo, private_root)
 
