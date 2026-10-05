@@ -524,3 +524,63 @@ localização inicial e UI.
 
 Evidências: `docs/evidence/vector-blur-mono-20261005/`; prévias no SSD privado.
 Reprodução pelo mesmo laboratório com diretório de saída novo.
+
+## DINOv2 INT8 no laboratório Rust — 05/10/2026
+
+Atendendo à escolha do usuário, executado o DINOv2 ViT-S/14 completo com
+12 blocos, entrada 140 × 140 e vetor de 384 dimensões, usando o mesmo
+laboratório nativo Rust. Reutilizado o ONNX de 25.000.912 bytes com SHA-256
+`5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35`.
+É a versão com quantização dinâmica QInt8 por canal nas operações MatMul/Gemm;
+nem todas as operações são INT8 e entrada/saída continuam float32.
+O modelo foi exportado anteriormente; esta execução não invocou Python,
+não quantizou novamente o artefato e não treinou novos pesos.
+
+Mesmas 14 variantes, galeria e partições, critérios 0,8/0,08 e uma thread CPU.
+O arquivo `experiment.json` registra o artefato e a execução; é um manifesto
+de evidência, não uma configuração de ativação no aplicativo.
+
+| Entrada DINO INT8 | Primeira opção correta / 29 | Aceitos / errados | VOD: acertos / 19 | Mediana / p95 por 12 recortes |
+| --- | ---: | ---: | ---: | ---: |
+| RGB original | 20 | 2 / 0 | 12 | 569,3 / 581,2 ms |
+| Cinza | 16 | 2 / 0 | 9 | 575,9 / 612,9 ms |
+| Fundo neutralizado | 8 | 1 / 0 | 4 | 565,0 / 621,9 ms |
+| RGB + contorno desenhado | 9 | 2 / 0 | 4 | 578,6 / 603,7 ms |
+| Vetores RGB + contorno 80/20 | 17 | 2 / 0 | 10 | 612,0 / 677,5 ms |
+| Fundo desfocado colorido | 10 | 2 / 0 | 3 | 587,3 / 627,7 ms |
+| Fundo desfocado colorido + contorno | 5 | 2 / 0 | 2 | 587,3 / 614,1 ms |
+| Fundo desfocado cinza | 6 | 1 / 0 | 0 | 601,5 / 618,4 ms |
+| Fundo desfocado cinza + contorno | 7 | 2 / 0 | 3 | 595,6 / 612,0 ms |
+| Desfoque com recorte inteiro cinza | 5 | 1 / 0 | 2 | 571,5 / 575,8 ms |
+
+O RGB original teve o melhor resultado exploratório de primeira opção do DINO
+nesta comparação. Não houve candidatos aceitos no VOD separado em nenhuma
+variante, portanto 20/29 não significa 20 identidades confirmadas. Os dois
+aceitos são do conjunto local; ainda falta cobertura de confiança. Na pequena
+validação, RGB acertou 3/3 e aceitou 2/3, sem erro. Os controles de gradiente
+continuam sem rede neural e não são resultados do DINO; seus números completos,
+incluindo um falso aceite na validação, constam no relatório.
+
+O MobileNet RGB nativo havia acertado 12/29, com custo próximo de 59 ms por
+12 recortes no último ensaio, contra 569 ms aqui. Essa comparação muda a
+arquitetura e a resolução de entrada; não isola o efeito da quantização.
+O antigo resultado DINO INT8 de 18/29 usava redimensionamento bicúbico em outro
+pipeline, portanto não prova melhoria de pesos ou aprendizado nesta execução.
+
+Tempos incluem preparação na memória, encoder e comparação, excluindo captura,
+localização inicial, UI e voz. A medição é Linux em CPU compartilhada, não FPS
+do Windows. A galeria DINO de 203 vetores ocupa 311.808 bytes, além do modelo
+e runtime. Tamanho do arquivo não representa RAM utilizada.
+
+Não houve alteração no aplicativo, instalador ou limites de confiança.
+O candidato INT8 foi efetivamente avaliado no Rust e permanece em laboratório;
+continuam necessárias diversidade de exemplos, calibração independente e
+validação do tabuleiro completo. Escolher um filtro usando estes resultados
+exigirá outro conjunto de validação antes de liberação.
+
+Reprodução: mesmo comando de `agente-tft-unit-features-lab`, substituindo
+`--encoder` pelo artefato INT8 cujo hash está acima e `--size` por `140`.
+Usar diretório de saída novo. Relatório, previsões e manifesto em
+`docs/evidence/dino-int8-filters-20261005/`; encoder, imagens e galerias binárias
+permanecem no SSD privado. Execução concluída das 14 variantes e verificação
+do hash do encoder; esta iteração altera somente documentação/evidências.

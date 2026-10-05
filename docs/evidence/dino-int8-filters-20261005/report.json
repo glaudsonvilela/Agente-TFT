@@ -1,0 +1,850 @@
+{
+  "annotations_sha256": "8f0141230ff446cc2226376d795f47b882eff064a5c644fec9bf2e7e3722ad32",
+  "batch": 12,
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "implementation": "rust_native_onnxruntime",
+  "input_size": 140,
+  "limitations": [
+    "Reused development images with assistant-reviewed labels; no independent human ground truth.",
+    "Border-color connected flood mask is a heuristic, NOT GrabCut or a trained segmenter.",
+    "Contours are inner mask boundaries, not verified character outlines; board lines and occlusion remain.",
+    "Fusion uses fixed 80/20 color/contour weights, with unchanged uncalibrated threshold/margin; no test-based parameter selection.",
+    "Native bilinear resize is not pixel-identical to the old Pillow bicubic pipeline; use this run's native RGB baseline.",
+    "Timings include in-memory crop preprocessing, vector extraction and ranking, exclude screen capture and localization.",
+    "Gradient histogram is an untrained nearest-gallery descriptor, not canonical HOG/SVM.",
+    "No temporal identity memory or automatic model promotion."
+  ],
+  "margin": 0.08,
+  "new_training_performed": false,
+  "opencv_required": false,
+  "python_required": false,
+  "runtime_approved": false,
+  "schema_version": 1,
+  "threads": 1,
+  "threshold": 0.8,
+  "variants": {
+    "encoder-blur_background_mono": {
+      "empty_features": 1,
+      "filter": {
+        "background_blur_radius": 5,
+        "exclude_foreground_from_blur": true,
+        "grayscale_scope": "estimated_background",
+        "mask_from_original_rgb": true,
+        "outline": false
+      },
+      "gallery_bytes": 311808,
+      "gallery_sha256": "fb3cc5f3f2db917e26bb0a4f99d0e506e71d352f74c1c1620f4cce622cd818f5",
+      "test": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 6,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.5006685000000175,
+          "p95": 2.5742338499999624
+        },
+        "preparation": {
+          "median": 7.9345775,
+          "p95": 8.34221615
+        },
+        "total": {
+          "median": 601.5327374999999,
+          "p95": 618.3938555499999
+        },
+        "vector_extraction": {
+          "median": 591.0103185,
+          "p95": 608.0067213
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 2,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-blur_background_mono_outline": {
+      "empty_features": 1,
+      "filter": {
+        "background_blur_radius": 5,
+        "exclude_foreground_from_blur": true,
+        "grayscale_scope": "estimated_background",
+        "mask_from_original_rgb": true,
+        "outline": true
+      },
+      "gallery_bytes": 311808,
+      "gallery_sha256": "97c10bf569f9d56157eb16e93db085048b9d89529dcdc6631070a4e6b1076689",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 7,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.3628589999999576,
+          "p95": 3.2427844500000393
+        },
+        "preparation": {
+          "median": 7.9495805,
+          "p95": 8.401843200000002
+        },
+        "total": {
+          "median": 595.6404640000001,
+          "p95": 611.99398985
+        },
+        "vector_extraction": {
+          "median": 585.1793175,
+          "p95": 601.6973463
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 2,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-blur_gray": {
+      "empty_features": 1,
+      "filter": {
+        "background_blur_radius": 5,
+        "exclude_foreground_from_blur": true,
+        "grayscale_scope": "whole_crop",
+        "mask_from_original_rgb": true,
+        "outline": false
+      },
+      "gallery_bytes": 311808,
+      "gallery_sha256": "08c79b99661c62af55981172962ca499d4acd9ce7fb75748c20f2e7a4ad04897",
+      "test": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 5,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 2,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.354249500000037,
+          "p95": 2.569626849999952
+        },
+        "preparation": {
+          "median": 7.814509,
+          "p95": 8.0056521
+        },
+        "total": {
+          "median": 571.5149054999999,
+          "p95": 575.7642239000002
+        },
+        "vector_extraction": {
+          "median": 561.2690319999999,
+          "p95": 565.6008769000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-blur_rgb": {
+      "empty_features": 1,
+      "filter": {
+        "background_blur_radius": 5,
+        "exclude_foreground_from_blur": true,
+        "grayscale_scope": "none",
+        "mask_from_original_rgb": true,
+        "outline": false
+      },
+      "gallery_bytes": 311808,
+      "gallery_sha256": "c72296c35cf05244a0cbad8cf839c14da18e9a4fab7b7d4df04713869e018eac",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 10,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.3558194999999955,
+          "p95": 2.4318801999999264
+        },
+        "preparation": {
+          "median": 7.5366295,
+          "p95": 7.697350800000001
+        },
+        "total": {
+          "median": 587.332107,
+          "p95": 627.68323105
+        },
+        "vector_extraction": {
+          "median": 577.3249195000001,
+          "p95": 617.7094863000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-blur_rgb_outline": {
+      "empty_features": 1,
+      "filter": {
+        "background_blur_radius": 5,
+        "exclude_foreground_from_blur": true,
+        "grayscale_scope": "none",
+        "mask_from_original_rgb": true,
+        "outline": true
+      },
+      "gallery_bytes": 311808,
+      "gallery_sha256": "cdd1d5f993b4811861ab191dcd252ff07c6da7c3cfaa528909cca23afc322dc3",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 5,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 2,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.480660000000057,
+          "p95": 2.550539749999962
+        },
+        "preparation": {
+          "median": 7.728690500000001,
+          "p95": 8.295646900000001
+        },
+        "total": {
+          "median": 587.3380055,
+          "p95": 614.08074605
+        },
+        "vector_extraction": {
+          "median": 576.863615,
+          "p95": 604.17884355
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-gray": {
+      "empty_features": 0,
+      "gallery_bytes": 311808,
+      "gallery_sha256": "eb1db1c353d88a058f355b06afee484dd67d6e757e72b2919d6088428d5a56ce",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 16,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 9,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.50936200000001,
+          "p95": 2.701302100000021
+        },
+        "preparation": {
+          "median": 0.434552,
+          "p95": 0.5347025000000001
+        },
+        "total": {
+          "median": 575.9316429999999,
+          "p95": 612.9306904500002
+        },
+        "vector_extraction": {
+          "median": 573.1413315,
+          "p95": 610.0407960499999
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-mask_gray": {
+      "empty_features": 1,
+      "gallery_bytes": 311808,
+      "gallery_sha256": "a35e29c2d385d084cb21655b116c60ab486fbde58ff68a0dad536056b42dea77",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 9,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 4,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.428457499999979,
+          "p95": 2.8078045000000658
+        },
+        "preparation": {
+          "median": 4.632934499999999,
+          "p95": 5.1606926500000005
+        },
+        "total": {
+          "median": 614.822306,
+          "p95": 850.58020975
+        },
+        "vector_extraction": {
+          "median": 607.5237345,
+          "p95": 843.3833042000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 2,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-mask_rgb": {
+      "empty_features": 1,
+      "gallery_bytes": 311808,
+      "gallery_sha256": "ff0c1b76af952e4492d496c775bc0dbd05ad317cb7a122fa9054e880fd7b736b",
+      "test": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 8,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 4,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.451216499999987,
+          "p95": 2.519809399999997
+        },
+        "preparation": {
+          "median": 4.291886999999999,
+          "p95": 4.506617499999999
+        },
+        "total": {
+          "median": 564.9832550000001,
+          "p95": 621.8533852
+        },
+        "vector_extraction": {
+          "median": 558.056155,
+          "p95": 615.15288795
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-mask_rgb_outline": {
+      "empty_features": 1,
+      "gallery_bytes": 311808,
+      "gallery_sha256": "824a18369ed36b8cd1a12738ef71edbf72fbe80f9923d592089f95e9f6d45d99",
+      "test": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 6,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 2,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.393794499999956,
+          "p95": 2.4890412499999686
+        },
+        "preparation": {
+          "median": 4.725667,
+          "p95": 4.8676327
+        },
+        "total": {
+          "median": 597.5572420000001,
+          "p95": 608.448617
+        },
+        "vector_extraction": {
+          "median": 590.4360644999999,
+          "p95": 601.3748832000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 1,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-rgb": {
+      "empty_features": 0,
+      "gallery_bytes": 311808,
+      "gallery_sha256": "cddc7258f8895a4d79342bbbd9518a90678c8a3c758bea89df577e2aca1207c8",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 20,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 12,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.445816000000036,
+          "p95": 2.5681608500000266
+        },
+        "preparation": {
+          "median": 0.073412,
+          "p95": 0.11739405000000001
+        },
+        "total": {
+          "median": 569.2862685,
+          "p95": 581.18819895
+        },
+        "vector_extraction": {
+          "median": 566.7707660000001,
+          "p95": 578.67464385
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "encoder-rgb_contour_fused": {
+      "empty_features": 0,
+      "fusion_weights": {
+        "color": 0.8,
+        "contour": 0.2
+      },
+      "gallery_bytes": 837984,
+      "gallery_sha256": "a36184618c312f24f4b3098f802362e6a1043ba87ff322e64b80a9d7d74077e2",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 17,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 10,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 6.188826000000006,
+          "p95": 9.238720849999908
+        },
+        "preparation": {
+          "median": 0.07215250000000001,
+          "p95": 0.08677095000000001
+        },
+        "total": {
+          "median": 611.996266,
+          "p95": 677.4822551499999
+        },
+        "vector_extraction": {
+          "median": 605.806188,
+          "p95": 669.1446660000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 1032
+    },
+    "encoder-rgb_outline": {
+      "empty_features": 1,
+      "gallery_bytes": 311808,
+      "gallery_sha256": "83a510a6f0af13d35bc31d2007bbfdc31b666ee338a9d59f9a105266fde6b2e6",
+      "test": {
+        "all": {
+          "accepted": 2,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 9,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 4,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 2.3574389999999994,
+          "p95": 2.8303848499999336
+        },
+        "preparation": {
+          "median": 4.645469,
+          "p95": 5.053463650000001
+        },
+        "total": {
+          "median": 578.58082,
+          "p95": 603.7378266000001
+        },
+        "vector_extraction": {
+          "median": 571.6324510000001,
+          "p95": 596.8609607000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 384
+    },
+    "gradient-gray": {
+      "empty_features": 0,
+      "gallery_bytes": 526176,
+      "gallery_sha256": "4795d49d5f1a1cd4d73776b2514e84c89ed8c103d2415713f8be0c55e0793088",
+      "test": {
+        "all": {
+          "accepted": 3,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 9,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 3,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 3.787749,
+          "p95": 4.2220124
+        },
+        "preparation": {
+          "median": 0.420335,
+          "p95": 0.46037575000000003
+        },
+        "total": {
+          "median": 13.0209845,
+          "p95": 13.40120485
+        },
+        "vector_extraction": {
+          "median": 8.785097,
+          "p95": 8.989000650000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 1,
+          "wrong_accepted": 1
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 648
+    },
+    "gradient-mask_gray": {
+      "empty_features": 1,
+      "gallery_bytes": 526176,
+      "gallery_sha256": "b3da609513e588bf2a89a6b0e1a8266dbc96db1f6f784e0d568a8102b175db52",
+      "test": {
+        "all": {
+          "accepted": 1,
+          "accepted_on_unreviewed": 0,
+          "named": 29,
+          "top1_correct": 10,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 19,
+          "top1_correct": 5,
+          "wrong_accepted": 0
+        }
+      },
+      "timing_ms": {
+        "comparison": {
+          "median": 3.860246000000001,
+          "p95": 4.113340450000001
+        },
+        "preparation": {
+          "median": 4.5879975,
+          "p95": 4.8651599
+        },
+        "total": {
+          "median": 13.929001,
+          "p95": 14.355758500000002
+        },
+        "vector_extraction": {
+          "median": 5.400215000000001,
+          "p95": 5.638949950000001
+        }
+      },
+      "validation": {
+        "all": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 3,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        },
+        "separate_vod": {
+          "accepted": 0,
+          "accepted_on_unreviewed": 0,
+          "named": 0,
+          "top1_correct": 0,
+          "wrong_accepted": 0
+        }
+      },
+      "vector_dimensions": 648
+    }
+  }
+}

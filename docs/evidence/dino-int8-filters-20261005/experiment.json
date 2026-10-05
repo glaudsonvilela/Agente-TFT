@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "purpose": "User-requested DINOv2 INT8 comparison of native Rust crop filters",
+  "backbone": "dinov2_vits14",
+  "transformer_blocks": 12,
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "encoder_bytes": 25000912,
+  "input_size": 140,
+  "input_dtype": "float32",
+  "output_dimensions": 384,
+  "quantization": {
+    "method": "dynamic",
+    "weight_type": "QInt8",
+    "per_channel": true,
+    "operator_types": ["MatMul", "Gemm"],
+    "all_operators_int8": false
+  },
+  "execution": {
+    "implementation": "Rust with native ONNX Runtime",
+    "provider": "CPU",
+    "intra_threads": 1,
+    "inter_threads": 1,
+    "spinning": false,
+    "python_used_for_this_evaluation": false
+  },
+  "annotations": "configs/training/unit-gallery-challenge-20261004.json",
+  "new_training_performed": false,
+  "runtime_approved": false,
+  "notes": [
+    "Reuses the existing previously exported INT8 artifact; no model export or retraining in this iteration.",
+    "The native runtime library is loaded from the SSD laboratory environment; the Python interpreter is not invoked.",
+    "Filters and confidence gates are unchanged from the MobileNet experiment; no selection of parameters using test labels.",
+    "Comparison against MobileNet changes model architecture and input size, not only numeric precision.",
+    "Evidence manifest only; not an application activation configuration."
+  ]
+}
