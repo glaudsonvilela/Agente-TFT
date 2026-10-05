@@ -1,0 +1,51 @@
+{
+  "recorded_at": "2026-10-05T11:45:00-03:00",
+  "status": "autonomous_supervision_required",
+  "objective": "Remove human review from the critical path of recognizer learning.",
+  "principles": [
+    "The neural classifier must never self-confirm a label from its own confidence alone.",
+    "Training labels are admitted only from independent game-derived signals or conservative multi-model/temporal consensus.",
+    "Ambiguous evidence becomes unknown, never a guessed class.",
+    "Human inspection is optional audit only and cannot be required for progress."
+  ],
+  "label_tiers": {
+    "gold_auto": {
+      "admitted": true,
+      "sources": [
+        "Exact unique on-screen unit name OCR with strong selected-unit association and temporal repetition.",
+        "Exact shop name plus disappearance/purchase transition plus unique new bench unit and temporal identity propagation.",
+        "Exact seasonal Lux form name/trait text plus selected-unit association and temporal repetition."
+      ],
+      "weight": 1
+    },
+    "silver_auto": {
+      "admitted": "only after calibration on gold_auto anchors",
+      "sources": [
+        "Frozen classifier + independent retrieval/reference model agreement + temporal consistency.",
+        "Teacher/student agreement across augmentations with open-set rejection."
+      ],
+      "weight": "<1.0"
+    },
+    "unknown": {
+      "admitted": false,
+      "sources": [
+        "Any disagreement, generic Lux name, weak OCR, weak association, isolated model confidence, source-title-only hints"
+      ]
+    }
+  },
+  "current_implementation": {
+    "ocr_catalog_aliases": "tools/unit-features-lab/src/ocr_names.rs",
+    "tooltip_miner": "tools/unit-features-lab/src/bin/mine-tooltip-labels.rs",
+    "tooltip_consensus": "scripts/autolabel_tooltip_temporal_consensus.py",
+    "frozen_visual_prioritizer": "tools/unit-features-lab/src/bin/prioritize-annotation-collection.rs"
+  },
+  "next": [
+    "Run tooltip mining on Elder Dragon targeted source.",
+    "Generate gold_auto tooltip-temporal anchors.",
+    "If anchors exist, propagate labels temporally with frozen embeddings.",
+    "Add shop-transition autonomous anchors with dense lightweight shop-strip extraction.",
+    "Calibrate silver_auto thresholds from gold_auto anchors before semi-supervised retraining."
+  ],
+  "human_review_required": false,
+  "runtime_approved": false
+}
