@@ -652,3 +652,24 @@ passaram. O relatório `shop-transition-review.json` registra a revisão feita
 pelo assistente. Este pequeno caso conhecido não mede precisão ou revocação em
 novas partidas. O próximo passo é ampliar a mineração em fontes de treino e
 reduzir o custo da coleta para anotação, evitando embeddings desnecessários.
+
+## Coleta de anotação sem inferência
+
+O coletor Rust aceita `collection_mode: "annotation_only"`. Esse modo dispensa
+encoder, galeria e ONNX Runtime; conserva quadros, barras, recortes, hashes e origem.
+Não grava embeddings nem candidatos de identidade. O modo padrão continua com
+inferência. Cinco testes do coletor passaram, incluindo ausência de dependência
+de modelo no modo de anotação e rejeição de modos inválidos.
+
+Nos mesmos 40 quadros, os 434 recortes, marcadores e hashes foram idênticos:
+**6,71 s** no modo de anotação contra **22,64 s** na execução anterior com DINO.
+As execuções ocorreram em momentos diferentes; o fator observado de 3,38× não é
+um benchmark controlado nem mede FPS no Windows. Uma regressão de um quadro com
+12 recortes confirmou os mesmos bytes de embeddings e previsões no modo padrão.
+
+A coleta de 23 minutos da fonte de treino `youtube:nxSUNW1yZqI` terminou em
+105,36 s: **1.380 quadros e 14.049 propostas**, sem rótulos automáticos. O auxiliar
+de loja agora reutiliza OCR de pixels preparados idênticos, com limite de 1.024
+entradas. No trecho de 40 quadros, evitou oito chamadas, preservando todas as
+observações e as duas propostas. A revisão das compras na fonte completa ainda
+está em andamento; nenhum peso neural foi alterado por esta coleta.

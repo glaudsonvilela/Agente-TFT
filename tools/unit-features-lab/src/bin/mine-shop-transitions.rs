@@ -6,7 +6,7 @@ use agente_tft_unit_features_lab::{
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::{fs, path::PathBuf, process::Command};
+use std::{collections::HashMap, fs, path::PathBuf, process::Command};
 
 fn slot_words(tsv: &str) -> Vec<Vec<(String, f32)>> {
     let mut slots = vec![Vec::new(); 5];
@@ -85,6 +85,9 @@ fn run() -> Result<()> {
     let catalog: Value = serde_json::from_slice(&catalog_bytes)?;
     let (names, families) = name_indexes(&catalog)?;
     fs::create_dir_all(output.join("shop-strips"))?;
+    let mut ocr_cache = HashMap::<String, String>::new();
+    let mut ocr_calls = 0u64;
+    let started = std::time::Instant::now();
     let mut frames = Vec::new();
     let mut transitions = Vec::new();
     let mut previous: Option<(
@@ -126,15 +129,29 @@ fn run() -> Result<()> {
         let strip = image::imageops::resize(&mask, 2004, 78, image::imageops::FilterType::Triangle);
         let path = output.join(format!("shop-strips/{time}.png"));
         strip.save(&path)?;
-        let result = Command::new("tesseract")
-            .arg(path)
-            .args(["stdout", "-l", "eng", "--psm", "6", "tsv"])
-            .env("OMP_THREAD_LIMIT", "1")
-            .output()?;
-        if !result.status.success() {
-            return Err("shop OCR failed".into());
-        }
-        let words = slot_words(&String::from_utf8(result.stdout)?);
+        // Identical prepared pixels imply identical OCR input. Reuse text only;
+        // timestamps, neighboring cards and bench proposals remain frame-local.
+        let strip_sha = format!("{:x}", Sha256::digest(strip.as_raw()));
+        let tsv = if let Some(tsv) = ocr_cache.get(&strip_sha) {
+            tsv.clone()
+        } else {
+            let result = Command::new("tesseract")
+                .arg(&path)
+                .args(["stdout", "-l", "eng", "--psm", "6", "tsv"])
+                .env("OMP_THREAD_LIMIT", "1")
+                .output()?;
+            if !result.status.success() {
+                return Err("shop OCR failed".into());
+            }
+            let tsv = String::from_utf8(result.stdout)?;
+            if ocr_cache.len() >= 1024 {
+                ocr_cache.clear();
+            }
+            ocr_cache.insert(strip_sha, tsv.clone());
+            ocr_calls += 1;
+            tsv
+        };
+        let words = slot_words(&tsv);
         let matched: Vec<_> = words
             .iter()
             .map(|w| match_name(w, &names, &families))
@@ -184,6 +201,15 @@ fn run() -> Result<()> {
         }
         frames.push(json!({"source_seconds":time,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"cards":cards}));
         previous = Some((time, identities, anchors, frame));
+        if frames.len() % 100 == 0 {
+            let progress = json!({"status":"running", "frames":frames.len(), "ocr_calls":ocr_calls,
+                "transition_proposals":transitions.len(), "elapsed_seconds":started.elapsed().as_secs_f64()});
+            fs::write(
+                output.join("progress.json"),
+                serde_json::to_vec_pretty(&progress)?,
+            )?;
+            println!("{progress}");
+        }
     }
     fs::write(
         output.join("shop-observations.json"),
@@ -193,13 +219,17 @@ fn run() -> Result<()> {
         output.join("transition-proposals.json"),
         serde_json::to_vec_pretty(&transitions)?,
     )?;
-    let summary = json!({"source_id":report["source_id"],"partition":report["partition"],"frames":frames.len(),"transition_proposals":transitions.len(),"automatically_labeled":0,
+    let summary = json!({"status":"complete","ocr_cache_capacity":1024,"ocr_calls":ocr_calls,"ocr_cache_hits":frames.len() as u64-ocr_calls,"elapsed_seconds":started.elapsed().as_secs_f64(),"source_id":report["source_id"],"partition":report["partition"],"frames":frames.len(),"transition_proposals":transitions.len(),"automatically_labeled":0,
         "catalog_sha256":format!("{:x}",Sha256::digest(catalog_bytes)),"runtime_approved":false,
         "limitations":["Fixed 1920x1080 full-HUD shop geometry and English OCR; zoom, translated names and overlays can miss cards.",
         "Disappearance can be OCR failure or occlusion, not a purchase. Three other recognized slots must remain unchanged and gap must be at most two seconds.",
         "New bench proposals are positional cues only; merges and detector misses require manual review.","Generic Lux retains every catalog variant; no image is labeled automatically."]});
     fs::write(
         output.join("report.json"),
+        serde_json::to_vec_pretty(&summary)?,
+    )?;
+    fs::write(
+        output.join("progress.json"),
         serde_json::to_vec_pretty(&summary)?,
     )?;
     println!("{summary}");

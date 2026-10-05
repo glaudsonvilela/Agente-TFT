@@ -48,6 +48,84 @@ fn percentile(values: &[f64], p: f64) -> f64 {
     v.sort_by(f64::total_cmp);
     v[((v.len() - 1) as f64 * p).round() as usize]
 }
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum CollectionMode {
+    Embeddings,
+    AnnotationOnly,
+}
+impl CollectionMode {
+    fn parse(spec: &Value) -> Result<Self> {
+        match spec.get("collection_mode") {
+            None => Ok(Self::Embeddings),
+            Some(Value::String(mode)) if mode == "embeddings" => Ok(Self::Embeddings),
+            Some(Value::String(mode)) if mode == "annotation_only" => Ok(Self::AnnotationOnly),
+            _ => Err("invalid collection_mode".into()),
+        }
+    }
+    fn name(self) -> &'static str {
+        match self {
+            Self::Embeddings => "embeddings",
+            Self::AnnotationOnly => "annotation_only",
+        }
+    }
+}
+struct Inference {
+    labels: Vec<String>,
+    gallery: Vec<Vec<f32>>,
+    dim: usize,
+    size: usize,
+    session: Session,
+}
+fn load_inference(spec: &Value, mode: CollectionMode) -> Result<Option<Inference>> {
+    if mode == CollectionMode::AnnotationOnly {
+        return Ok(None);
+    }
+    let meta: Value = serde_json::from_slice(&sealed(
+        string(&spec, "gallery_metadata")?,
+        string(&spec, "gallery_metadata_sha256")?,
+    )?)?;
+    let labels: Vec<String> = serde_json::from_value(meta["labels"].clone())?;
+    let dim = meta["dimensions"].as_u64().ok_or("dimension")? as usize;
+    if !(1..=4096).contains(&dim) || !(2..=4096).contains(&labels.len()) {
+        return Err("gallery budget".into());
+    }
+    let raw = sealed(string(&spec, "gallery")?, string(&spec, "gallery_sha256")?)?;
+    if raw.len() != labels.len() * dim * 4 {
+        return Err("gallery shape".into());
+    }
+    let gallery: Vec<Vec<f32>> = raw
+        .chunks_exact(dim * 4)
+        .map(|b| {
+            b.chunks_exact(4)
+                .map(|v| f32::from_le_bytes(v.try_into().unwrap()))
+                .collect()
+        })
+        .collect();
+    if gallery.iter().flatten().any(|v| !v.is_finite()) {
+        return Err("nonfinite gallery".into());
+    }
+    sealed(string(&spec, "encoder")?, string(&spec, "encoder_sha256")?)?;
+    ort::init_from(string(&spec, "onnxruntime")?).commit()?;
+    let session = Session::builder()?
+        .with_intra_threads(1)?
+        .with_inter_threads(1)?
+        .with_intra_op_spinning(false)?
+        .with_inter_op_spinning(false)?
+        .commit_from_file(string(&spec, "encoder")?)?;
+    let size = spec["input_size"].as_u64().ok_or("input size")? as usize;
+    if !(64..=224).contains(&size) {
+        return Err("encoder input budget".into());
+    }
+    Ok(Some(Inference {
+        labels,
+        gallery,
+        dim,
+        size,
+        session,
+    }))
+}
+
 fn run() -> Result<()> {
     let args: Vec<_> = std::env::args().collect();
     if args.len() != 3 || args[1] != "--spec" {
@@ -80,50 +158,11 @@ fn run() -> Result<()> {
     if out.exists() {
         return Err("new output directory required".into());
     }
-    let meta: Value = serde_json::from_slice(&sealed(
-        string(&spec, "gallery_metadata")?,
-        string(&spec, "gallery_metadata_sha256")?,
-    )?)?;
-    let labels: Vec<String> = serde_json::from_value(meta["labels"].clone())?;
-    let dim = meta["dimensions"].as_u64().ok_or("dimension")? as usize;
-    if !(1..=4096).contains(&dim) || !(2..=4096).contains(&labels.len()) {
-        return Err("gallery budget".into());
-    }
-    let raw = sealed(string(&spec, "gallery")?, string(&spec, "gallery_sha256")?)?;
-    if raw.len() != labels.len() * dim * 4 {
-        return Err("gallery shape".into());
-    }
-    let gallery: Vec<Vec<f32>> = raw
-        .chunks_exact(dim * 4)
-        .map(|b| {
-            b.chunks_exact(4)
-                .map(|v| f32::from_le_bytes(v.try_into().unwrap()))
-                .collect()
-        })
-        .collect();
-    if gallery.iter().flatten().any(|v| !v.is_finite()) {
-        return Err("nonfinite gallery".into());
-    }
-    let references: Vec<_> = labels
-        .iter()
-        .zip(&gallery)
-        .map(|(l, v)| (l.as_str(), v))
-        .collect();
-    sealed(string(&spec, "encoder")?, string(&spec, "encoder_sha256")?)?;
-    ort::init_from(string(&spec, "onnxruntime")?).commit()?;
-    let mut session = Session::builder()?
-        .with_intra_threads(1)?
-        .with_inter_threads(1)?
-        .with_intra_op_spinning(false)?
-        .with_inter_op_spinning(false)?
-        .commit_from_file(string(&spec, "encoder")?)?;
+    let mode = CollectionMode::parse(&spec)?;
+    let mut inference = load_inference(&spec, mode)?;
     let profile_bytes = fs::read(string(&spec, "board_profile")?)?;
     let spatial: profile::Profile = serde_json::from_slice(&profile_bytes)?;
     spatial.validate()?;
-    let size = spec["input_size"].as_u64().ok_or("input size")? as usize;
-    if !(64..=224).contains(&size) {
-        return Err("encoder input budget".into());
-    }
     let probe = Command::new("ffprobe")
         .args([
             "-v",
@@ -147,7 +186,13 @@ fn run() -> Result<()> {
     fs::create_dir_all(out.join("crops"))?;
     fs::create_dir_all(out.join("frames"))?;
     let mut ledger = BufWriter::new(fs::File::create(out.join("observations.jsonl"))?);
-    let mut vectors = BufWriter::new(fs::File::create(out.join("embeddings.f32le"))?);
+    let mut vectors = if inference.is_some() {
+        Some(BufWriter::new(fs::File::create(
+            out.join("embeddings.f32le"),
+        )?))
+    } else {
+        None
+    };
     let mut html = BufWriter::new(fs::File::create(out.join("review.html"))?);
     writeln!(html,"<!doctype html><meta charset=utf-8><title>VOD — revisão</title><style>body{{background:#171328;color:#eee;font:15px sans-serif}}img{{max-width:100%}}section{{margin:20px}}.crops img{{width:128px;height:144px}}</style><h1>Revisão de VOD — previsões não são rótulos</h1>")?;
     let stderr = fs::File::create(out.join("decoder.log"))?;
@@ -262,19 +307,37 @@ fn run() -> Result<()> {
         }
         let detector_ms = t.elapsed().as_secs_f64() * 1000.;
         let mut features = Vec::new();
-        for chunk in crops.chunks(4) {
-            let batch: Vec<_> = chunk.iter().map(|(_, _, c)| (c.clone(), true)).collect();
-            features.extend(laboratory::embeddings(
-                &mut session,
-                &batch,
-                size,
-                false,
-                false,
-            )?);
+        if let Some(engine) = inference.as_mut() {
+            for chunk in crops.chunks(4) {
+                let batch: Vec<_> = chunk.iter().map(|(_, _, c)| (c.clone(), true)).collect();
+                features.extend(laboratory::embeddings(
+                    &mut engine.session,
+                    &batch,
+                    engine.size,
+                    false,
+                    false,
+                )?);
+            }
         }
+        let references: Vec<_> = inference
+            .as_ref()
+            .map(|engine| {
+                engine
+                    .labels
+                    .iter()
+                    .zip(&engine.gallery)
+                    .map(|(label, vector)| (label.as_str(), vector))
+                    .collect()
+            })
+            .unwrap_or_default();
         let mut rows = Vec::new();
-        for ((marker_id, rect, crop), vector) in crops.iter().zip(&features) {
-            let mut row = laboratory::rank(vector, &references);
+        for (index, (marker_id, rect, crop)) in crops.iter().enumerate() {
+            let mut row = if inference.is_some() {
+                laboratory::rank(&features[index], &references)
+            } else {
+                json!({"candidates":[], "candidate_id":null})
+            };
+            row["inference_performed"] = json!(inference.is_some());
             let digest = hash(&crop.rgb);
             let file = format!("crops/{digest}.png");
             if !out.join(&file).exists() {
@@ -286,9 +349,12 @@ fn run() -> Result<()> {
             row["pixel_sha256"] = json!(digest);
             row["human_label"] = Value::Null;
             row["training_label_allowed"] = json!(false);
-            row["embedding_row"] = json!(proposals + rows.len() as u64);
-            for value in vector {
-                vectors.write_all(&value.to_le_bytes())?;
+            row["embedding_row"] = Value::Null;
+            if let Some(vectors) = vectors.as_mut() {
+                row["embedding_row"] = json!(proposals + rows.len() as u64);
+                for value in &features[index] {
+                    vectors.write_all(&value.to_le_bytes())?;
+                }
             }
             if let Some(id) = row["candidates"][0]["unit_id"].as_str() {
                 *top_ids.entry(id.into()).or_default() += 1;
@@ -335,7 +401,7 @@ fn run() -> Result<()> {
             "timestamp_basis":"ffmpeg_fps_grid_not_original_frame_pts","decode_mode":decode_mode,"frame_pixel_sha256":frame_sha,
             "exact_duplicate_frame":duplicate,"markers":markers,"units":rows,"review_frame":full_frame,
             "detection_ms":detector_ms,"analysis_and_crop_save_ms":analysis_ms,"decoder_wait_ms":decode_wait.last(),
-            "partition":spec["partition"],"ground_truth":false,"training_label_allowed":false})
+            "collection_mode":mode.name(),"partition":spec["partition"],"ground_truth":false,"training_label_allowed":false})
         )?;
         frames += 1;
         if frames % 20 == 0 || frames == target {
@@ -354,23 +420,42 @@ fn run() -> Result<()> {
     }
     drop(input);
     let status = child.0.wait()?;
-    vectors.flush()?;
+    if let Some(vectors) = vectors.as_mut() {
+        vectors.flush()?;
+    }
     ledger.flush()?;
     html.flush()?;
     let complete = status.success() && frames == target;
-    let report = json!({"schema_version":1,"status":if complete{"complete"}else{"incomplete"},"decoder_success":status.success(),
+    let embeddings_sha = if inference.is_some() {
+        Some(hash(&fs::read(out.join("embeddings.f32le"))?))
+    } else {
+        None
+    };
+    let encoder_sha = if inference.is_some() {
+        spec["encoder_sha256"].clone()
+    } else {
+        Value::Null
+    };
+    let gallery_sha = if inference.is_some() {
+        spec["gallery_sha256"].clone()
+    } else {
+        Value::Null
+    };
+    let mut report = json!({"schema_version":1,"status":if complete{"complete"}else{"incomplete"},"decoder_success":status.success(),
         "source_id":spec["source_id"],"source_url":spec["source_url"],"start_seconds":offset,"requested_seconds":seconds,
         "sample_interval_seconds":interval,"review_interval_seconds":review_interval,"frames":frames,"target_frames":target,"unit_crops":proposals,
         "accepted_candidates":accepted,"frames_without_green_proposals":no_markers,"green_markers":green_total,
         "unique_frame_hashes":hashes.len(),"saved_review_frames":review_frames,"top1_distribution":top_ids,"accepted_distribution":accept_ids,
         "elapsed_seconds":start.elapsed().as_secs_f64(),"analysis_ms_p50":percentile(&timings,0.5),"analysis_ms_p95":percentile(&timings,0.95),
-        "decoder_wait_ms_p95":percentile(&decode_wait,0.95),"encoder_sha256":spec["encoder_sha256"],"gallery_sha256":spec["gallery_sha256"],
-        "threshold":0.8,"margin":0.08,"accuracy_measured":false,"human_labeled_crops":0,
+        "decoder_wait_ms_p95":percentile(&decode_wait,0.95),"encoder_sha256":encoder_sha,"gallery_sha256":gallery_sha,
+        "threshold":inference.is_some().then_some(0.8),"margin":inference.is_some().then_some(0.08),"accuracy_measured":false,"human_labeled_crops":0,
         "runtime_approved":false,"training_performed":false,"partition":spec["partition"],
         "board_profile_sha256":hash(&profile_bytes),"allow_dense_ticks":spatial.bars.allow_dense_ticks,
-        "decode_mode":decode_mode,"embedding_dimensions":dim,"embedding_rows":proposals,
-        "embeddings_sha256":hash(&fs::read(out.join("embeddings.f32le"))?),
+        "decode_mode":decode_mode,"embedding_dimensions":inference.as_ref().map(|e|e.dim),"embedding_rows":if inference.is_some(){proposals}else{0},
+        "embeddings_sha256":embeddings_sha,
         "limitations":["Structural green-bar proposals with the recorded profile; no-proposal frames may be menu, combat, overlay or missed units.","Counts of model candidates are not precision/recall or catalog coverage.","Consecutive or duplicate crops are correlated; no pseudolabels enter training.","Sampling does not run inference on every decoded video frame.","Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."]});
+    report["collection_mode"] = json!(mode.name());
+    report["inference_performed"] = json!(inference.is_some());
     fs::write(out.join("report.json"), serde_json::to_vec_pretty(&report)?)?;
     fs::write(
         out.join("progress.json"),
@@ -386,5 +471,27 @@ fn main() {
     if let Err(e) = run() {
         eprintln!("VOD_COLLECTOR_ERROR: {e}");
         std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn annotation_collection_needs_no_encoder_or_runtime() {
+        assert!(load_inference(&json!({}), CollectionMode::AnnotationOnly)
+            .unwrap()
+            .is_none());
+        assert!(load_inference(&json!({}), CollectionMode::Embeddings).is_err());
+    }
+    #[test]
+    fn collection_mode_is_explicit_and_strict() {
+        assert!(CollectionMode::parse(&json!({})).unwrap() == CollectionMode::Embeddings);
+        assert!(
+            CollectionMode::parse(&json!({"collection_mode":"annotation_only"})).unwrap()
+                == CollectionMode::AnnotationOnly
+        );
+        assert!(CollectionMode::parse(&json!({"collection_mode":"typo"})).is_err());
+        assert!(CollectionMode::parse(&json!({"collection_mode":null})).is_err());
     }
 }

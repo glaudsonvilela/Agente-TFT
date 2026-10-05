@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T08:11:33.304Z",
+  "recorded_at": "2026-10-05T08:20:37.838Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1234,5 +1234,17 @@
     "tests_passed": 4,
     "next": "Scale purchase-sequence mining across training VODs without running DINO on every annotation frame; manually review identity and seasonal form before admitting examples.",
     "runtime_approved": false
+  },
+  "latest_annotation_collection": {
+    "status": "complete_shop_mining_running",
+    "source_id": "youtube:nxSUNW1yZqI",
+    "private_collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/morgana-annotation-1s",
+    "private_miner_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/morgana-shop-transitions",
+    "collection_frames": 1380,
+    "proposed_crops": 14049,
+    "labels_added": 0,
+    "report": "docs/evidence/recognizer-training-20261005/morgana-dense-annotation-collection.json",
+    "parity_report": "docs/evidence/recognizer-training-20261005/annotation-only-parity.json",
+    "next": "Review purchase transitions with before/after frames; keep ambiguous identity or seasonal form excluded."
   }
 }

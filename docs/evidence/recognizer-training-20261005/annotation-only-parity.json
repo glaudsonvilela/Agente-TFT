@@ -1,0 +1,30 @@
+{
+  "frames": 40,
+  "crops": 434,
+  "all_frame_pixels_markers_and_crop_hashes_identical": true,
+  "no_model_or_onnxruntime_in_spec": true,
+  "embedding_file_created": false,
+  "old_elapsed_seconds": 22.643272253,
+  "annotation_elapsed_seconds": 6.705201493,
+  "speedup_observed": 3.3769711882094517,
+  "limitations": [
+    "Single offline sequence; runs made at different times, not a controlled repeated performance benchmark.",
+    "Does not measure Windows capture or display FPS."
+  ],
+  "runtime_approved": false,
+  "shop_transitions_identical": true,
+  "shop_transition_count": 2,
+  "default_embedding_regression": {
+    "frames": 1,
+    "crops": 12,
+    "all_predictions_identical": true,
+    "embedding_bytes_identical": true
+  },
+  "ocr_cache_regression": {
+    "observations_identical": true,
+    "transitions_identical": true,
+    "calls": 32,
+    "hits": 8,
+    "capacity": 1024
+  }
+}
