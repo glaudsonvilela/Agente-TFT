@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T10:35:00-03:00",
+  "recorded_at": "2026-10-05T10:40:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,9 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "ready_for_visual_review_pack",
+    "status": "awaiting_visual_review",
     "protocol": "docs/evidence/recognizer-training-20261005/new-image-review-protocol.json",
-    "queue_runner": "scripts/build_new_ssd_review_queue.py",
-    "review_pack_runner": "scripts/build_new_ssd_review_pack.py",
-    "default_queue_root": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005",
+    "review_pack": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005/review-pack-v1",
     "automatic_labels": false,
     "training_performed": false,
     "runtime_approved": false
@@ -1387,5 +1385,16 @@
     ],
     "training_performed": false,
     "runtime_approved": false
+  },
+  "latest_ssd_review_pack": {
+    "status": "complete",
+    "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005/review-pack-v1",
+    "crop_candidates": 126,
+    "crop_sheet_pages": 6,
+    "lux_context_frames": 39,
+    "lux_sheet_pages": 10,
+    "training_performed": false,
+    "runtime_approved": false,
+    "next": "Visually review numbered crop and Lux sheets; record only confirmed identities/forms. No training before review decisions are sealed."
   }
 }
