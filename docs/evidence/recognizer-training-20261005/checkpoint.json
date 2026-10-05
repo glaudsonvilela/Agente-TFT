@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:10:00-03:00",
+  "recorded_at": "2026-10-05T11:15:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1357,7 +1357,11 @@
     "automatic_labels": false,
     "inference_performed": false,
     "training_performed": false,
-    "runtime_approved": false
+    "runtime_approved": false,
+    "acquisition_runner": "scripts/acquire_targeted_video_1080p.sh",
+    "collection_runner": "scripts/collect_targeted_annotation_source.py",
+    "destination": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou",
+    "required_resolution": "1920x1080"
   },
   "latest_ssd_inventory": {
     "status": "complete",
