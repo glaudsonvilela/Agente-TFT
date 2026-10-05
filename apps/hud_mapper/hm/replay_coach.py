@@ -24,6 +24,7 @@ def economy_prompt(answer: dict) -> dict:
         'XP_CONTROLS_STALE':'Leitura do botão de XP desatualizada; aguardando leitura nova.',
         'XP_BUTTON_UNVERIFIED':'Não foi possível reconhecer o botão de compra de XP.',
         'XP_PRICE_UNVERIFIED':'Não foi possível confirmar o preço de compra de XP.',
+        'XP_RULE_MISMATCH':'A leitura de XP não corresponde às regras carregadas. Verifique o patch e a leitura.',
         'LEVEL_RESERVE_NOT_MET':'O ouro disponível não atende à reserva exigida pela regra de evolução.'}
     if code=='HUD_FIELDS_UNVERIFIED':
         names={'gold':'ouro','stage':'estágio','level':'nível','xp':'XP'}
@@ -53,6 +54,18 @@ def coach_prompt(answer: dict) -> dict:
     """Allow a buy only when a future engine decision matches a current catalog offer."""
     decision = answer.get('decision') or {}
     action = decision.get('action') or {}
+    if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'hold_econ'
+            and decision.get('policy') == 'resource_budget_v1'
+            and (decision.get('evidence') or [{}])[0].get('code') == 'SAVE_FOR_LEVEL_RESERVE'):
+        target,level=action['target_gold'],action['target_level']
+        return {'status':'action','actionable':True,
+                'text':f'Guarde até {target} de ouro para subir ao nível {level} mantendo a reserva.',
+                'speech_text':f'Guarde até {target} de ouro para subir ao nível {level}.',
+                'basis':['decision.hold_econ','hud.gold','hud.level','hud.xp'],
+                'confidence':decision['confidence'],
+                'strategy_basis':decision['strategy_basis'],
+                'decision_key':f'save:level:{level}:gold:{target}',
+                'speech_max_age_ms':8000}
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'buy_xp'
             and decision.get('policy') == 'replay_standard_tempo_v1'
             and (decision.get('evidence') or [{}])[0].get('code') == 'LEVEL_WITH_RESERVE'):

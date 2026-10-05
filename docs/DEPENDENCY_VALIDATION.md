@@ -1,5 +1,27 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
+## Resultado atual — 10 mil cenários no BigBANANA e integração econômica
+
+O usuário reiterou que **habilidades ficam fora desta versão** e autorizou prosseguir com testes dos sistemas restantes. Executamos **10.000 cenários de recursos**, com **zero falhas**, em **127,468 segundos**, pico de **26,83 MiB de RAM** do processo Python. São 8.000 cenários de Wisps, 1.000 de loja/equipamento/venda e 1.000 de recompensa através de carrossel. Cada cenário usa uma semente distinta. Os 27 Wisps passam por quatro políticas de Blossom, totalizando 108 combinações cobertas. Resultados de combate são entradas de teste declaradas.
+
+O [registro de execução](evidence/seasonal-stress-10000-20261004/progress.json), os [10 mil registros comprimidos](evidence/seasonal-stress-10000-20261004/cases.jsonl.gz) e a [verificação](evidence/seasonal-stress-10000-20261004/validation.json) permitem auditar o lote. Os primeiros 150 registros reproduziram exatamente o piloto local entre Python 3.12 e 3.13. Um erro interrompe o executor e registra índice/semente; repetir o comando na mesma pasta não apaga a execução anterior.
+
+### Integração ao código do aplicativo
+
+- `hm/economy_budget.py` reutiliza os cálculos de XP e juros do simulador, com manifesto e hashes das tabelas. A curva de XP é conferida contra o denominador observado; nenhuma leitura incompatível gera compra.
+- `ReplayDecisionEngine` devolve custo de evolução, XP remanescente, ouro restante, reserva e juros antes/depois. Quando a meta de evolução configurada exige mais ouro, emite uma decisão explícita de guardar até a quantia necessária. A escolha da meta continua sendo a regra de ritmo existente; **não é uma política neural aprendida**.
+- `replay_coach.py` transforma a decisão em texto e frase para a fila de voz já existente. Exemplo verificado: “Guarde até 24 de ouro para subir ao nível 5.” Ao atingir 24, com leituras atuais e consistentes, passa à orientação de evolução por 4 de ouro, preservando 20.
+- Tabelas carregam uma vez na inicialização; os testes proíbem leituras de arquivo durante a avaliação de quadros. O pacote WSL inclui os quatro módulos comuns necessários, sem dependência de tensor para esse cálculo. Importação foi testada em pacote mínimo isolado.
+- [Ensaio da integração](evidence/seasonal-stress-10000-20261004/runtime-integration.json): 2.000 observações sintéticas, 1.000 orientações de evolução e 1.000 de economia; mediana 0,098 ms e p95 0,132 ms para decisão mais formatação. **Exclui captura, OCR, API e áudio físico**, portanto não mede o atraso total no Windows.
+
+Validação adicional: três testes do executor passaram localmente e no servidor; quatro testes do adaptador passaram; a suíte do runtime executou 21 testes, com 20 aprovados e um ignorado. O arquivo `progress.json` do lote permanece no servidor em `/home/glaudsonvilela/agente-tft-trainer/data/stress-01d571f1976a/run-10000/`.
+
+### Limites desta entrega
+
+O lote verifica consistência da implementação candidata, não fidelidade integral ao jogo. **Zero partidas completas simuladas, zero novos pesos neurais treinados.** O cérebro estratégico, rótulos de decisões, resgates de Coven, aprimoramentos, distribuição completa e loot automático não são habilitados pelo sucesso desses testes. A integração econômica está no código; não foi gerado um novo instalador nem feito teste físico no Windows nesta etapa. Não se marcou nenhuma habilidade como implementada ou necessária para aprovar este lote restrito.
+
+## Histórico da integração anterior
+
 ## Revisão atual — elegibilidade, preços e lojas dos Wisps
 
 **Não está pronto para instalar um novo cérebro.** Esta revisão corrige dependências do simulador; não gerou uma política treinada nem executou partidas completas. [Validação](evidence/seasonal-offers-20261004/validation.json) e [checagem no BigBANANA](evidence/seasonal-offers-20261004/bigbanana-preflight.json).

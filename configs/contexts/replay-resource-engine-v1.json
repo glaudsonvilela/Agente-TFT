@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "resource_budget_v1",
+  "set_key": "TFTSet18",
+  "tft_patch": "18.3",
+  "scope": "economy_only",
+  "abilities_used": false,
+  "learned_policy": false,
+  "components": {
+    "round_economy": {
+      "path": "configs/simulation/core/standard-economy-v2.json",
+      "sha256": "6ded56aaf05fc374858da56c9cf7d86b6f2b92c9fe5a3ee3db5a817da3dbe110"
+    },
+    "profile": {
+      "path": "configs/simulation/seasons/TFTSet18/18.3/profile.json",
+      "sha256": "c48741a8c645c228d58ff779886eb82475f3e146925cef1b5981312408c4d468"
+    }
+  }
+}

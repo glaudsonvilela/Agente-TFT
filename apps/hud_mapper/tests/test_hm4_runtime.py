@@ -31,7 +31,10 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertEqual(decision['decision']['action']['gold_cost'],4)
         self.assertTrue(coach_prompt(decision)['actionable'])
         answer['source_ms']=2000;answer['hud'][1]['value']=2
-        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        saving=engine.evaluate(answer)
+        self.assertEqual(saving['decision']['action']['type'],'hold_econ')
+        self.assertEqual(saving['decision']['action']['target_gold'],4)
+        self.assertTrue(coach_prompt(saving)['actionable'])
         answer['source_ms']=2500;answer['hud'][1]['value']=6
         answer['controls']['cadence_delivery']['fresh']=False
         self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])

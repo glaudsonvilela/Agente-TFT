@@ -1,0 +1,21 @@
+{
+  "kind": "resource_runtime_integration",
+  "scope": "synthetic parsed HUD; excludes capture, OCR, network and physical voice",
+  "observations": 2000,
+  "action_counts": {
+    "buy_xp": 1000,
+    "hold_econ": 1000
+  },
+  "p50_ms": 0.0976235,
+  "p95_ms": 0.132376,
+  "isolated_minimal_package_import": true,
+  "new_neural_weights": false,
+  "windows_field_test": false,
+  "installer_built": false,
+  "files_sha256": {
+    "apps/hud_mapper/hm/economy_budget.py": "ffa69d55c79e9596e1a2a5c2e89a299287d338ee497f352ee4f7c27112161606",
+    "apps/hud_mapper/hm/replay_decision.py": "5d4829d9d270006a78c4ac5389dc7eb3dc311f341ae9e2b900577d7932465d0d",
+    "apps/hud_mapper/hm/replay_coach.py": "d1e0b8a60b458f6782f994ad5b1b97064b7564b3eb06cb35fe3b0a1f65cfeae9",
+    "configs/contexts/replay-resource-engine-v1.json": "4a60c6881e33bfdeba96451cb0b306ba42bb5f05d019e3f210a9f36c6afb621d"
+  }
+}

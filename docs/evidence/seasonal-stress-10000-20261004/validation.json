@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "executed_resource_test_batch",
+  "server": "BigBANANA",
+  "server_staging": "/var/lib/agente-tft-trainer/stress-01d571f1976a",
+  "command": "python -m training.seasonal_stress --content candidate-18.3B.json --output run-10000 --cases 10000 --seed 20261004",
+  "cases": 10000,
+  "failures": 0,
+  "distinct_seeds": 10000,
+  "wisp_policy_combinations": 108,
+  "cross_python_reproduced_cases": 150,
+  "raw_bytes": 3629581,
+  "raw_sha256": "09a6c26a12fee008c3fd4b7a27ed8c9e950c11be32f6be0981b0996c89560f3e",
+  "gzip_bytes": 655369,
+  "gzip_sha256": "e3abad387b155aeb2949aefae05e2eb063dbdecfd97cabe7b71c7ad0e4f2a335",
+  "wall_seconds": 127.46752493898384,
+  "cpu_seconds": 127.358382258,
+  "peak_rss_mib": 26.828125,
+  "runner_unit_tests": {
+    "local_passed": 3,
+    "server_passed": 3
+  },
+  "runtime_tests": {
+    "resource_adapter_passed": 4,
+    "hm4_total": 21,
+    "hm4_passed": 20,
+    "hm4_skipped": 1
+  },
+  "complete_matches": 0,
+  "neural_training_started": false,
+  "abilities_in_scope": false,
+  "installer_built": false,
+  "windows_field_test": false
+}

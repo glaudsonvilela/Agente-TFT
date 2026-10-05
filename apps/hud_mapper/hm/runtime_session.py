@@ -379,6 +379,9 @@ class HM4RuntimeSession(RuntimeSession):
             from .replay_decision import ReplayDecisionEngine
             self.decision_engine = ReplayDecisionEngine(options.configs)
             self.versions['replay_decision_policy'] = 'verified_third_copy_v1'
+            self.versions['resource_engine'] = 'resource_budget_v1'
+            self.versions['resource_engine_identity'] = self.decision_engine.resource_engine.identity
+            self.versions['resource_engine_learned_policy'] = False
             self.versions['replay_catalog_set'] = self.decision_engine.set_key
             self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
             self.versions['replay_patch_basis'] = 'reported_replay_patch'

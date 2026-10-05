@@ -14,6 +14,7 @@ import math
 import re
 from pathlib import Path
 import unicodedata
+from .economy_budget import EconomyBudget
 
 
 def _key(value: str) -> str:
@@ -69,12 +70,16 @@ class ReplayDecisionEngine:
         if (self.economy_policy['set_key'], self.economy_policy['tft_patch']) != (self.set_key, self.patch):
             raise ValueError("Economy policy belongs to another patch")
         self._economy_previous = None
+        self.resource_engine = EconomyBudget(root, patch=self.patch, set_key=self.set_key)
 
     def evaluate(self, answer: dict, owned: dict | None = None) -> dict:
         """Return a new answer; never turn a candidate icon into a owned unit."""
         output = copy.deepcopy(answer)
         output["decision_capabilities"] = dict(level="conditional_economy", buy="verified_roster_required",
                                                 roll="not_implemented", position="not_implemented", equip="not_implemented")
+        output["decision_capabilities"].update(
+            resource_engine="resource_budget_v1", scope="economy_only",
+            learned_policy=False, abilities_used=False)
         shop = output.get("shop") or {}
         bound = 0
         for slot in shop.get("slots") or []:
@@ -202,9 +207,22 @@ class ReplayDecisionEngine:
                 and r.get('status')=='observed' and float(r.get('confidence') or 0)>=.9]
         if len(prices)!=1 or prices[0].get('value')!=4:
             return self._economy_block('XP_PRICE_UNVERIFIED')
-        clicks=math.ceil((int(match[2])-xp)/self.economy_policy['xp_per_purchase']);cost=clicks*4
-        if gold-cost<window['reserve_gold']:
-            return self._economy_block('LEVEL_RESERVE_NOT_MET',cost=cost,reserve=window['reserve_gold'])
+        try:
+            quote=self.resource_engine.level_quote(gold=gold,level=level,xp=xp,
+                observed_threshold=int(match[2]),reserve=window['reserve_gold'])
+        except ValueError:
+            return self._economy_block('XP_RULE_MISMATCH')
+        cost=quote['gold_cost'];clicks=quote['purchases']
+        if not quote['reserve_met']:
+            return {'schema_version':'0.1.0',
+                    'action':{'type':'hold_econ','target_gold':quote['required_gold'],
+                              'missing_gold':quote['missing_gold'],'target_level':quote['target_level']},
+                    'confidence':min(r['confidence'] for r in rows.values()),
+                    'evidence':[{'code':'SAVE_FOR_LEVEL_RESERVE','stage':stage,
+                                 'consecutive_consistent_observations':2}],
+                    'resource_quote':quote,'policy':'resource_budget_v1',
+                    'strategy_basis':'explicit_tempo_goal_with_exact_resource_cost',
+                    'combat_outcome_predicted':False,'patch':self.patch}
         return {'schema_version':'0.1.0',
                 'action':{'type':'buy_xp','target_level':level+1,'gold_cost':cost,
                           'purchases':clicks,'gold_after':gold-cost},
@@ -213,6 +231,7 @@ class ReplayDecisionEngine:
                              'observed_xp':rows['xp']['text'],'reserve_gold':window['reserve_gold'],
                              'consecutive_consistent_observations':2}],
                 'policy':self.economy_policy['id'],'strategy_basis':'explicit_heuristic',
+                'resource_quote':quote,
                 'combat_outcome_predicted':False,'patch':self.patch}
 
     @staticmethod

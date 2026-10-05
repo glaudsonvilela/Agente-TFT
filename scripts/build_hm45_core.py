@@ -55,6 +55,9 @@ def main() -> None:
     copy(ROOT / "training", APP / "training")
     copy(ROOT / "ingestion", APP / "ingestion")
     copy(ROOT / "configs", APP / "configs")
+    # Shared resource arithmetic only; no neural trainer or tensor dependency.
+    for name in ("__init__.py", "economy.py", "round_economy.py", "state.py"):
+        copy(ROOT / "trainer/simulation" / name, APP / "trainer/simulation" / name)
     copy(assets / "models", APP / "models")
     copy(assets / catalog["icon_dir"], APP / catalog["icon_dir"])
     copy(ROOT / catalog["reference"], APP / catalog["reference"])
