@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "mode": "development_comparison",
+  "metrics": {
+    "validation": {
+      "crops": 7,
+      "named_crops": 3,
+      "named_top1_correct": 3,
+      "named_candidates_accepted": 2,
+      "named_wrong_candidates_accepted": 0,
+      "unreviewed_crops": 4,
+      "candidates_on_unreviewed_crops": 0
+    },
+    "test": {
+      "crops": 12,
+      "named_crops": 10,
+      "named_top1_correct": 8,
+      "named_candidates_accepted": 1,
+      "named_wrong_candidates_accepted": 0,
+      "unreviewed_crops": 2,
+      "candidates_on_unreviewed_crops": 0
+    }
+  },
+  "gallery_champions": 16,
+  "gallery_samples": 39,
+  "catalog_champions": 74,
+  "encoder_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+  "encoder_bytes": 3717890,
+  "inference_ms": {
+    "batch": 12,
+    "threads": 1,
+    "median": 37.69786950033449,
+    "p95": 41.94481749818805
+  },
+  "torch_imported": false,
+  "runtime_approved": false,
+  "independent_human_ground_truth": false,
+  "reused_test_partition": true,
+  "strategic_state_verified": false
+}

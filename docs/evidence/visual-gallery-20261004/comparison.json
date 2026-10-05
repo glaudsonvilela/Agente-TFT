@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "decision": "MobileNet gallery for local diagnostic recognition; DINOv2 as offline reference comparison",
+  "comparison_scope": "Same development match split as previous CNN. Ten named test crops; two other crops have unresolved labels. Not a new blind test.",
+  "backbones": [
+    {
+      "name": "Previous small CNN",
+      "known_test_top1_correct": 3,
+      "known_test_crops": 10,
+      "onnx_bytes": 56244
+    },
+    {
+      "name": "MobileNetV3-Small frozen",
+      "known_test_top1_correct": 8,
+      "known_test_crops": 10,
+      "onnx_bytes": 3717890,
+      "batch12_p95_ms": 41.945
+    },
+    {
+      "name": "DINOv2-S/14 140px INT8",
+      "known_test_top1_correct": 9,
+      "known_test_crops": 10,
+      "onnx_bytes": 25000912,
+      "batch12_p95_ms": 557.69005144939
+    },
+    {
+      "name": "DINOv2-S/14 224px PyTorch",
+      "known_test_top1_correct": 10,
+      "known_test_crops": 10,
+      "checkpoint_bytes": 88283115,
+      "per_crop_median_ms": 96.83316800146713
+    }
+  ],
+  "gallery_known_ids": 16,
+  "catalog_ids": 74,
+  "review_basis": "Assistant labels from gameplay frames; no independent human labels",
+  "model_finetuning_performed": false,
+  "gameplay_gallery_sources": "Training partition only, 29 named unit crops + 10 HUD negatives",
+  "weights_and_raw_images_in_git": false,
+  "runtime_approved": false,
+  "windows_installer_built": false,
+  "sources": [
+    {
+      "url": "https://github.com/facebookresearch/dinov2",
+      "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+      "use": "Frozen ViT-S/14 inference and model comparison"
+    },
+    {
+      "url": "https://pytorch.org/blog/torchvision-mobilenet-v3-implementation/",
+      "use": "Lightweight pretrained encoder architecture"
+    },
+    {
+      "url": "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth",
+      "use": "Official pretrained MobileNet weights"
+    },
+    {
+      "url": "https://github.com/jfd02/TFT-OCR-BOT",
+      "use": "Architecture research only; no code or automation imported"
+    }
+  ],
+  "checkpoints": {
+    "dinov2_vits14_pretrain.pth": "b938bf1bc15cd2ec0feacfe3a1bb553fe8ea9ca46a7e1d8d00217f29aef60cd9",
+    "mobilenet_v3_small-047dcff4.pth": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f"
+  },
+  "limitations": [
+    "Only 16 catalog IDs represented",
+    "Top-1 correctness is not acceptance or calibration: only 1/10 named test crops passed the fixed 0.8 cosine/0.08 class-margin gate",
+    "Equipped item review covers two visible icons in one frame, not whole-catalog accuracy",
+    "Marker association is geometric and frame-local; ownership, stars and ground cells remain unverified",
+    "CPU measurements are Linux local inference, not Windows capture-to-voice latency"
+  ]
+}

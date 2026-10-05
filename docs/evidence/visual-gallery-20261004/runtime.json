@@ -1,0 +1,1114 @@
+[
+  {
+    "image": "193.png",
+    "processing_ms": 107.59620200042264,
+    "verified_state_present": false,
+    "units": {
+      "active": true,
+      "records": [
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0709492564201355,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Elise",
+              "similarity": 0.8416827321052551
+            },
+            {
+              "unit_id": "DA_18_Veigar",
+              "similarity": 0.7707334756851196
+            },
+            {
+              "unit_id": "DA_18_Rakan",
+              "similarity": 0.7681986093521118
+            }
+          ],
+          "marker_id": 0,
+          "box": [
+            840,
+            345,
+            968,
+            489
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.03634899854660034,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.8055841326713562
+            },
+            {
+              "unit_id": "DA_18_Alistar",
+              "similarity": 0.7692351341247559
+            },
+            {
+              "unit_id": "DA_Karma18",
+              "similarity": 0.7171764373779297
+            }
+          ],
+          "marker_id": 1,
+          "box": [
+            723,
+            379,
+            851,
+            523
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.05185830593109131,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.7294985055923462
+            },
+            {
+              "unit_id": "DA_Karma18",
+              "similarity": 0.6776401996612549
+            },
+            {
+              "unit_id": "DA_Gromp18_AP",
+              "similarity": 0.666458249092102
+            }
+          ],
+          "marker_id": 2,
+          "box": [
+            501,
+            593,
+            629,
+            737
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0437009334564209,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Alistar",
+              "similarity": 0.8064174652099609
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.76271653175354
+            },
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.7549641132354736
+            }
+          ],
+          "marker_id": 3,
+          "box": [
+            989,
+            670,
+            1117,
+            814
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0069748759269714355,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.7924304008483887
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.7854555249214172
+            },
+            {
+              "unit_id": "DA_Cinderling18",
+              "similarity": 0.7656378149986267
+            }
+          ],
+          "marker_id": 4,
+          "box": [
+            1064,
+            728,
+            1192,
+            872
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.003791332244873047,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_Gromp18_AP",
+              "similarity": 0.7333991527557373
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.7296078205108643
+            },
+            {
+              "unit_id": "DA_18_Rakan",
+              "similarity": 0.7196731567382812
+            }
+          ],
+          "marker_id": 5,
+          "box": [
+            586,
+            729,
+            714,
+            873
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.041397809982299805,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Rakan",
+              "similarity": 0.729068398475647
+            },
+            {
+              "unit_id": "DA_Gromp18_AP",
+              "similarity": 0.6876705884933472
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.6758217811584473
+            }
+          ],
+          "marker_id": 6,
+          "box": [
+            826,
+            729,
+            954,
+            873
+          ],
+          "candidate_name": null
+        }
+      ],
+      "model_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+      "processing_ms": 35.18596600042656,
+      "recognizer": "frozen_encoder_gameplay_gallery",
+      "mode": "diagnostic_candidates",
+      "scores_are_calibrated": false,
+      "game_state_write_allowed": false,
+      "trained_champions": 16,
+      "catalog_champions": 74
+    },
+    "equipment": [
+      {
+        "marker_id": 0,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0709492564201355,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Elise",
+              "similarity": 0.8416827321052551
+            },
+            {
+              "unit_id": "DA_18_Veigar",
+              "similarity": 0.7707334756851196
+            },
+            {
+              "unit_id": "DA_18_Rakan",
+              "similarity": 0.7681986093521118
+            }
+          ],
+          "marker_id": 0,
+          "box": [
+            840,
+            345,
+            968,
+            489
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 1,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.03634899854660034,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.8055841326713562
+            },
+            {
+              "unit_id": "DA_18_Alistar",
+              "similarity": 0.7692351341247559
+            },
+            {
+              "unit_id": "DA_Karma18",
+              "similarity": 0.7171764373779297
+            }
+          ],
+          "marker_id": 1,
+          "box": [
+            723,
+            379,
+            851,
+            523
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 2,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.05185830593109131,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.7294985055923462
+            },
+            {
+              "unit_id": "DA_Karma18",
+              "similarity": 0.6776401996612549
+            },
+            {
+              "unit_id": "DA_Gromp18_AP",
+              "similarity": 0.666458249092102
+            }
+          ],
+          "marker_id": 2,
+          "box": [
+            501,
+            593,
+            629,
+            737
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 3,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0437009334564209,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Alistar",
+              "similarity": 0.8064174652099609
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.76271653175354
+            },
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.7549641132354736
+            }
+          ],
+          "marker_id": 3,
+          "box": [
+            989,
+            670,
+            1117,
+            814
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 4,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0069748759269714355,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.7924304008483887
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.7854555249214172
+            },
+            {
+              "unit_id": "DA_Cinderling18",
+              "similarity": 0.7656378149986267
+            }
+          ],
+          "marker_id": 4,
+          "box": [
+            1064,
+            728,
+            1192,
+            872
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 5,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.003791332244873047,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_Gromp18_AP",
+              "similarity": 0.7333991527557373
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.7296078205108643
+            },
+            {
+              "unit_id": "DA_18_Rakan",
+              "similarity": 0.7196731567382812
+            }
+          ],
+          "marker_id": 5,
+          "box": [
+            586,
+            729,
+            714,
+            873
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 6,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.041397809982299805,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Rakan",
+              "similarity": 0.729068398475647
+            },
+            {
+              "unit_id": "DA_Gromp18_AP",
+              "similarity": 0.6876705884933472
+            },
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.6758217811584473
+            }
+          ],
+          "marker_id": 6,
+          "box": [
+            826,
+            729,
+            954,
+            873
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      }
+    ],
+    "inventory": [
+      {
+        "slot": 1,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      },
+      {
+        "slot": 2,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      },
+      {
+        "slot": 3,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      },
+      {
+        "slot": 4,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      },
+      {
+        "slot": 5,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      }
+    ]
+  },
+  {
+    "image": "204.png",
+    "processing_ms": 68.3106630021939,
+    "verified_state_present": false,
+    "units": {
+      "active": true,
+      "records": [
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.07626712322235107,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Elise",
+              "similarity": 0.8672175407409668
+            },
+            {
+              "unit_id": "DA_18_Soraka",
+              "similarity": 0.7909504175186157
+            },
+            {
+              "unit_id": "DA_18_Caitlyn",
+              "similarity": 0.7895461320877075
+            }
+          ],
+          "marker_id": 0,
+          "box": [
+            840,
+            323,
+            968,
+            467
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.06437593698501587,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.8724300265312195
+            },
+            {
+              "unit_id": "DA_18_Soraka",
+              "similarity": 0.8080540895462036
+            },
+            {
+              "unit_id": "DA_18_Elise",
+              "similarity": 0.7877013087272644
+            }
+          ],
+          "marker_id": 1,
+          "box": [
+            723,
+            357,
+            851,
+            501
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": "DA_18_Sentry",
+          "status": "identity_candidate",
+          "similarity_margin": 0.1588379144668579,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.9826887845993042
+            },
+            {
+              "unit_id": "DA_18_Varus",
+              "similarity": 0.8238508701324463
+            },
+            {
+              "unit_id": "DA_18_Soraka",
+              "similarity": 0.7616211175918579
+            }
+          ],
+          "marker_id": 2,
+          "box": [
+            501,
+            593,
+            629,
+            737
+          ],
+          "candidate_name": "Cascalho"
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0003933906555175781,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_Cinderling18",
+              "similarity": 0.7914526462554932
+            },
+            {
+              "unit_id": "DA_18_Alistar",
+              "similarity": 0.7910592555999756
+            },
+            {
+              "unit_id": "DA_Karma18",
+              "similarity": 0.7784713506698608
+            }
+          ],
+          "marker_id": 3,
+          "box": [
+            1295,
+            614,
+            1423,
+            758
+          ],
+          "candidate_name": null
+        },
+        {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0015431046485900879,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_Cinderling18",
+              "similarity": 0.8179485201835632
+            },
+            {
+              "unit_id": "DA_18_Teemo",
+              "similarity": 0.8164054155349731
+            },
+            {
+              "unit_id": "DA_18_Varus",
+              "similarity": 0.7600560188293457
+            }
+          ],
+          "marker_id": 4,
+          "box": [
+            1301,
+            728,
+            1429,
+            872
+          ],
+          "candidate_name": null
+        }
+      ],
+      "model_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+      "processing_ms": 21.92213700254797,
+      "recognizer": "frozen_encoder_gameplay_gallery",
+      "mode": "diagnostic_candidates",
+      "scores_are_calibrated": false,
+      "game_state_write_allowed": false,
+      "trained_champions": 16,
+      "catalog_champions": 74
+    },
+    "equipment": [
+      {
+        "marker_id": 0,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.07626712322235107,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Elise",
+              "similarity": 0.8672175407409668
+            },
+            {
+              "unit_id": "DA_18_Soraka",
+              "similarity": 0.7909504175186157
+            },
+            {
+              "unit_id": "DA_18_Caitlyn",
+              "similarity": 0.7895461320877075
+            }
+          ],
+          "marker_id": 0,
+          "box": [
+            840,
+            323,
+            968,
+            467
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": "TFT_Item_BFSword",
+            "candidate_name": "Espada G.p.C.",
+            "identity_verified": false,
+            "status": "item_candidate",
+            "rms": 17.704,
+            "gap_rms": 36.528
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 1,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.06437593698501587,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_RekSai",
+              "similarity": 0.8724300265312195
+            },
+            {
+              "unit_id": "DA_18_Soraka",
+              "similarity": 0.8080540895462036
+            },
+            {
+              "unit_id": "DA_18_Elise",
+              "similarity": 0.7877013087272644
+            }
+          ],
+          "marker_id": 1,
+          "box": [
+            723,
+            357,
+            851,
+            501
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": "TFT_Item_FrozenHeart",
+            "candidate_name": "Juramento do Protetor",
+            "identity_verified": false,
+            "status": "item_candidate",
+            "rms": 20.504,
+            "gap_rms": 39.30799999999999
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 2,
+        "unit_candidate": {
+          "candidate_id": "DA_18_Sentry",
+          "status": "identity_candidate",
+          "similarity_margin": 0.1588379144668579,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_18_Sentry",
+              "similarity": 0.9826887845993042
+            },
+            {
+              "unit_id": "DA_18_Varus",
+              "similarity": 0.8238508701324463
+            },
+            {
+              "unit_id": "DA_18_Soraka",
+              "similarity": 0.7616211175918579
+            }
+          ],
+          "marker_id": 2,
+          "box": [
+            501,
+            593,
+            629,
+            737
+          ],
+          "candidate_name": "Cascalho"
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 3,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0003933906555175781,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_Cinderling18",
+              "similarity": 0.7914526462554932
+            },
+            {
+              "unit_id": "DA_18_Alistar",
+              "similarity": 0.7910592555999756
+            },
+            {
+              "unit_id": "DA_Karma18",
+              "similarity": 0.7784713506698608
+            }
+          ],
+          "marker_id": 3,
+          "box": [
+            1295,
+            614,
+            1423,
+            758
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      },
+      {
+        "marker_id": 4,
+        "unit_candidate": {
+          "candidate_id": null,
+          "status": "unknown",
+          "similarity_margin": 0.0015431046485900879,
+          "identity_verified": false,
+          "candidates": [
+            {
+              "unit_id": "DA_Cinderling18",
+              "similarity": 0.8179485201835632
+            },
+            {
+              "unit_id": "DA_18_Teemo",
+              "similarity": 0.8164054155349731
+            },
+            {
+              "unit_id": "DA_18_Varus",
+              "similarity": 0.7600560188293457
+            }
+          ],
+          "marker_id": 4,
+          "box": [
+            1301,
+            728,
+            1429,
+            872
+          ],
+          "candidate_name": null
+        },
+        "equipped": [
+          {
+            "slot": 0,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 1,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          },
+          {
+            "slot": 2,
+            "candidate_id": null,
+            "candidate_name": null,
+            "identity_verified": false,
+            "status": "unknown"
+          }
+        ],
+        "association": "same_frame_bar_geometry",
+        "association_verified": false
+      }
+    ],
+    "inventory": [
+      {
+        "slot": 1,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      },
+      {
+        "slot": 2,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      },
+      {
+        "slot": 3,
+        "candidate_id": null,
+        "candidate_name": null,
+        "identity_verified": false,
+        "status": "unknown"
+      }
+    ]
+  }
+]

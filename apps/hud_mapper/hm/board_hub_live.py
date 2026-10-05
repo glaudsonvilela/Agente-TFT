@@ -65,7 +65,14 @@ class BoardHubLive:
                 self.item_neural_error=str(exc)
         self.unit_neural = None
         self.unit_neural_error = 'unit_model_not_installed'
-        if (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
+        if (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
+            try:
+                from .unit_gallery import UnitGalleryObserver
+                self.unit_neural = UnitGalleryObserver(root)
+                self.unit_neural_error = None
+            except (OSError, ValueError, ImportError, RuntimeError) as exc:
+                self.unit_neural_error = str(exc)
+        elif (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
             try:
                 from .unit_identity import UnitIdentityObserver
                 self.unit_neural = UnitIdentityObserver(root)
@@ -113,6 +120,11 @@ class BoardHubLive:
             for slot in marker['equipped_slots']:
                 for candidate in slot['candidates']:
                     self._bind_exact_attribute_ids(candidate)
+        from .equipment_identity import associate_equipment, item_candidate
+        snapshot['unit_equipment_candidates'] = associate_equipment(
+            snapshot['observed_markers'], unit_records)
+        snapshot['inventory_identity_candidates'] = [
+            item_candidate(row) for row in snapshot['inventory']['candidate_slots']]
         snapshot['knowledge_release'] = self.knowledge_release
         snapshot['item_attributes_patch'] = self.knowledge_patch
         # A live recording has no verified patch binding or semantic labels.

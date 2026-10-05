@@ -1,0 +1,16 @@
+{
+  "hud_tests_run": 147,
+  "hud_tests_passed": 142,
+  "hud_tests_skipped": 5,
+  "targeted_pytest_passed": 44,
+  "targeted_pytest_skipped": 1,
+  "targeted_subtests_passed": 9,
+  "structural_audit_errors": 0,
+  "autocrlf_true_catalog_and_ranker_load": true,
+  "actual_onnx_hub_frames_tested": [
+    193,
+    204
+  ],
+  "physical_windows_test": false,
+  "ci_windows_rerun": "pending"
+}

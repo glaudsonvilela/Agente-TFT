@@ -173,3 +173,51 @@ Windows, latência de voz, nem precisão do estado completo. Ainda faltam exempl
 variados por campeão, rejeição confiável de desconhecidos, estrelas, associação
 ao hexágono, itens confirmados e perspectiva/fase. Não foi produzido novo
 instalador nem habilitado o cérebro estratégico a partir desse modelo reprovado.
+
+### Alternativa com reconhecedores separados — 2026-10-04
+
+Foi comparado um extrator visual pré-treinado com uma galeria de recortes reais
+dos campeões. A galeria usa somente a partição de treino: 29 unidades nomeadas,
+dez recortes negativos de HUD e 16 IDs. Inserir exemplos por temporada passa a
+ser uma atualização da galeria versionada. Não houve ajuste dos pesos desses
+extratores para TFT nesta comparação.
+
+No mesmo conjunto de desenvolvimento, entre os dez recortes de teste com nome
+revisado, a primeira opção acertou 3/10 com a CNN anterior, 8/10 com MobileNetV3,
+9/10 com DINOv2 a 140 pixels e INT8, e 10/10 com DINOv2 a 224 pixels. Os outros
+dois recortes continuam sem identidade revisada e não contam como negativos
+confirmados. A reutilização dessa partição impede tratá-la como novo teste cego.
+
+O MobileNetV3 exportado tem 3.717.890 bytes e executou 12 recortes em mediana
+37,7 ms, p95 41,9 ms, com uma thread de CPU e sem importar PyTorch. O DINOv2
+INT8 tem 25 MB e levou p95 557,7 ms no mesmo tamanho de lote. Os valores são
+inferência Linux local, sem captura, transporte ou voz. A opção leve está
+integrada como reconhecedor diagnóstico opcional em `hm/unit_gallery.py`.
+Nenhuma configuração ativa dessa galeria foi adicionada ao pacote distribuído.
+
+O limiar fixo de similaridade 0,8 e margem entre classes 0,08 aceitou somente
+1/10 unidades nomeadas no teste MobileNet, sem aceitar os dois erros. Portanto,
+**8/10 primeiras opções corretas não equivalem a 8 unidades confirmadas**.
+Ainda são necessárias mais vistas, cobertura dos outros 58 IDs e validação
+independente de rejeição de desconhecidos, propriedade, estrelas e posição.
+
+Itens usam seu banco de ícones próprio. `hm/equipment_identity.py` resolve
+aliases somente quando há um único ID exato no catálogo de atributos ativo;
+exige separação entre os dois melhores resultados e mantém itens ambíguos sem
+ID. A associação à unidade vale apenas para a barra no mesmo quadro, sem
+herdar o índice do marcador de outro quadro. No quadro 204, os candidatos
+equipados foram Espada G.p.C. e Juramento do Protetor. Isso não constitui uma
+avaliação de todos os itens. A análise integrada das imagens 193 e 204 levou
+107,6 e 68,3 ms, respectivamente, com geometria previamente extraída dessas
+mesmas imagens. Não foi emitido `verified_state` nem orientação estratégica.
+
+Reprodução: `python -m training.export_unit_encoder --help` exporta os recursos
+oficiais; `python -m training.evaluate_unit_gallery --help` prepara a galeria,
+verifica a separação das partidas, mede a inferência e grava os hashes. Pesos e
+imagens ficam no laboratório do SSD. Relatórios e fontes estão em
+`docs/evidence/visual-gallery-20261004`.
+
+Também foram corrigidas duas incompatibilidades vistas no CI Windows: os JSON
+do catálogo/pesos de coaching devem preservar LF para os hashes conferirem, e
+os leitores desta etapa especificam UTF-8 para nomes multilíngues. A verificação
+de integridade dos arquivos permanece obrigatória.

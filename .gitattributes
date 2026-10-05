@@ -2,3 +2,5 @@
 knowledge/riot-ddragon/** -text
 # Versioned releases use canonical LF bytes for hashes across Windows and Linux.
 knowledge/releases/**/*.json text eol=lf
+# Coaching catalogs and neural weights are also checked by their exact bytes.
+configs/coaching/**/*.json text eol=lf

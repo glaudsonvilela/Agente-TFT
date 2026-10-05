@@ -109,7 +109,9 @@ def run(args):
     require(not args.output.exists(), "use a new output directory")
     doc_bytes = args.annotations.read_bytes()
     document = json.loads(doc_bytes)
-    reference = json.loads((args.reference / "reference.json").read_text())
+    reference = json.loads(
+        (args.reference / "reference.json").read_text(encoding="utf-8")
+    )
     raw_catalog = (args.reference / "champions.json").read_bytes()
     require(
         hashlib.sha256(raw_catalog).hexdigest()

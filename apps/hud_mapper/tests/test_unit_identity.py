@@ -95,13 +95,19 @@ class UnitIdentityContracts(unittest.TestCase):
 
     def test_reviewed_matches_may_not_leak_across_splits(self):
         document = json.loads(
-            (ROOT / "configs/training/unit-identity-review-20261004.json").read_text()
+            (ROOT / "configs/training/unit-identity-review-20261004.json").read_text(
+                encoding="utf-8"
+            )
         )
         reference = json.loads(
-            (ROOT / "configs/catalog/active-visual-reference-v1.json").read_text()
+            (ROOT / "configs/catalog/active-visual-reference-v1.json").read_text(
+                encoding="utf-8"
+            )
         )
         catalog = json.loads(
-            (ROOT / reference["reference"] / "champions.json").read_text()
+            (ROOT / reference["reference"] / "champions.json").read_text(
+                encoding="utf-8"
+            )
         )
         rows = samples(document, None, catalog, "reference")
         self.assertEqual(len(rows["test"]), 12)

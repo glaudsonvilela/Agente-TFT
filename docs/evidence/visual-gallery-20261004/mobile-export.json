@@ -1,0 +1,11 @@
+{
+  "backbone": "mobilenet_v3_small",
+  "input_size": 224,
+  "source": "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth",
+  "encoder_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+  "bytes": 3717890,
+  "parameters": 927008,
+  "export_max_abs_error": 2.5331974029541016e-07,
+  "training_performed": false,
+  "runtime_approved": false
+}

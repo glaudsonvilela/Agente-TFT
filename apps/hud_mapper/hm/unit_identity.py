@@ -91,7 +91,9 @@ class UnitIdentityObserver:
         import onnxruntime as ort
 
         plan = json.loads(
-            (root / "configs/catalog/active-unit-identity-v1.json").read_text()
+            (root / "configs/catalog/active-unit-identity-v1.json").read_text(
+                encoding="utf-8"
+            )
         )
         if plan.get("mode") != "diagnostic_candidates":
             raise ValueError("Unit identity release is not approved for semantic state")
@@ -105,12 +107,16 @@ class UnitIdentityObserver:
             raw = path.read_bytes()
             if hashlib.sha256(raw).hexdigest() != digest:
                 raise ValueError("Unit model checksum/budget mismatch")
-        self.metadata = json.loads((folder / "metadata.json").read_text())
+        self.metadata = json.loads(
+            (folder / "metadata.json").read_text(encoding="utf-8")
+        )
         visual = json.loads(
-            (root / "configs/catalog/active-visual-reference-v1.json").read_text()
+            (root / "configs/catalog/active-visual-reference-v1.json").read_text(
+                encoding="utf-8"
+            )
         )
         reference = json.loads(
-            (root / visual["reference"] / "reference.json").read_text()
+            (root / visual["reference"] / "reference.json").read_text(encoding="utf-8")
         )
         raw = (root / visual["reference"] / "champions.json").read_bytes()
         if (

@@ -431,7 +431,9 @@ def roll_alternatives(state, catalog, before):
 class StrategicCoach:
     def __init__(self, root):
         self.root = Path(root)
-        manifest = json.loads((self.root / "configs/coaching/active.json").read_text())
+        manifest = json.loads(
+            (self.root / "configs/coaching/active.json").read_text(encoding="utf-8")
+        )
         raw = self._read(manifest["catalog"])
         self.catalog = json.loads(raw)
         self.catalog_sha256 = hashlib.sha256(raw).hexdigest()
