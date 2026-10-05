@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:15:00-03:00",
+  "recorded_at": "2026-10-05T11:20:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1347,21 +1347,14 @@
   },
   "next_image_gate": {
     "status": "ready_for_elder_dragon_annotation_collection",
-    "source_id": "youtube:Ot358nhRJl0",
-    "source_url": "https://www.youtube.com/watch?v=Ot358nhRJl0",
-    "target": "DA_18_ElderDragon",
     "runner": "scripts/collect_targeted_annotation_source.py",
-    "collection_mode": "annotation_only",
+    "input": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/source.mp4",
+    "output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/annotation-2s",
     "sample_interval_seconds": 2,
     "review_interval_seconds": 10,
-    "automatic_labels": false,
     "inference_performed": false,
     "training_performed": false,
-    "runtime_approved": false,
-    "acquisition_runner": "scripts/acquire_targeted_video_1080p.sh",
-    "collection_runner": "scripts/collect_targeted_annotation_source.py",
-    "destination": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou",
-    "required_resolution": "1920x1080"
+    "runtime_approved": false
   },
   "latest_ssd_inventory": {
     "status": "complete",
@@ -1465,6 +1458,17 @@
       "DA_18_Kayle"
     ],
     "policy": "Acquire annotation-only first; candidate title is not a label; source authorization must cover training; no Minjo/KH reuse.",
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "targeted_elder_dragon_acquisition": {
+    "status": "complete",
+    "source_id": "youtube:Ot358nhRJl0",
+    "source_url": "https://www.youtube.com/watch?v=Ot358nhRJl0",
+    "private_video": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/source.mp4",
+    "video_sha256": "cc9bda304120aff5033e69783fae7b48076ab5f8a721a8f3fe0e162d11cea9ec",
+    "resolution": "1920x1080",
+    "duration_seconds": 2300.041,
     "training_performed": false,
     "runtime_approved": false
   }
