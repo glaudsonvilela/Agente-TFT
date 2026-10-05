@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T06:54:36.667Z",
+  "recorded_at": "2026-10-05T07:05:48.159Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -993,18 +993,64 @@
     {
       "source": "https://www.youtube.com/watch?v=Jmi5fbZiFGU",
       "creator": "KH-Teamfight Tactics TFT",
-      "status": "collection_complete_review_pending",
+      "status": "review_training_evaluation_complete",
       "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-seven-pool-20s",
       "purpose": "Review seven-Sprykin mounted appearances; source title is not a label.",
       "frames": 62,
-      "proposed_crops": 479
+      "proposed_crops": 479,
+      "named_labels_added": 41
     },
     {
       "source": "https://www.youtube.com/watch?v=CQhg2_6tzcM",
       "creator": "shurkou",
-      "status": "download_complete_collection_running",
+      "status": "two_interrupted_prefixes_and_completed_final_segment",
       "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-pool-20s",
-      "purpose": "Review Lux appearance and visible seasonal form binding; source title is not a label."
+      "purpose": "Review Lux appearance and visible seasonal form binding; source title is not a label.",
+      "parts": [
+        {
+          "path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-pool-20s",
+          "status": "interrupted_exit_143",
+          "complete_observations": 76,
+          "last_source_seconds": 1500,
+          "truncated_final_record": true
+        },
+        {
+          "path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-resumed-20s",
+          "status": "interrupted_exit_143",
+          "complete_observations": 13,
+          "last_source_seconds": 1760
+        },
+        {
+          "path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-final-20s",
+          "status": "complete",
+          "complete_observations": 17,
+          "start_source_seconds": 1780,
+          "last_source_seconds": 2100
+        }
+      ],
+      "interruption_cause": "not_confirmed",
+      "training_labels_added": 0,
+      "final_segment_tooltip_proposals": 0
     }
-  ]
+  ],
+  "latest_sprykin_seven": {
+    "status": "training_and_evaluation_complete",
+    "annotations": "configs/training/unit-gallery-sprykin-seven-expanded-20261005.json",
+    "head_sha256": "35eb0fce3a55bd75a9a129b4ab82b79002389f4b6246b1ae56208a0a88f77774",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-seven-head/dino-head.json",
+    "training_units": 610,
+    "catalog_coverage": 64,
+    "catalog_total": 74,
+    "validation_correct": 19,
+    "validation_samples": 32,
+    "development_correct": 66,
+    "development_samples": 107,
+    "tristana_correct": 31,
+    "tristana_samples": 35,
+    "mounted_correct": 1,
+    "mounted_samples": 3,
+    "crop_transform": "upper_88x80_v1",
+    "embedding_batch_size": 1,
+    "runtime_approved": false
+  }
 }

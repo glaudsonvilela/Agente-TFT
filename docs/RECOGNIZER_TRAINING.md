@@ -512,3 +512,22 @@ confiança. A associação entre painel e recorte continua exigindo revisão vis
 A coleta KH com sete Sprykin terminou com 62 quadros e 479 propostas. O quadro
 1.120 s confirma visualmente sete Sprykin e Rammus na montaria com galhadas douradas.
 Foram preparadas 53 propostas para revisão; ainda não são rótulos de treino.
+
+## Fonte com sete Sprykin e retomada de Lux
+
+A revisão KH acrescentou 41 identidades de 53 propostas, incluindo seis casos
+montados de três campeões. O quadro de 960 s confirma sete Sprykin e Tristana na
+montaria dourada. A base resultante tem 610 unidades nomeadas e 64/74 IDs.
+Treino e avaliação usam a região superior e lote 1, sem alterar os quadros de teste.
+O resultado foi 19/32 na validação, 66/107 no desafio e 31/35 na fonte Minjo:
+30/32 comuns e 1/3 montados. O artefato permanece sem promoção; os dois erros de
+montaria e os dois recortes com zoom continuam abertos.
+
+A coleta Lux sofreu dois encerramentos com código 143, sem causa confirmada.
+Preservamos os arquivos originais e os prefixos de registros completos; a última
+linha truncada não foi tratada como observação válida. As retomadas começaram em
+1.520 s e 1.780 s, após confirmação de término do processo anterior. O segmento
+final completou 17 quadros e 150 propostas. Os prefixos anteriores contêm 76 e 13
+registros completos; seus arquivos de embeddings não são declarados íntegros.
+O auxiliar OCR não encontrou painéis válidos no segmento final. Nenhuma identidade
+Lux foi adicionada com base somente no título, cor ou nome genérico.

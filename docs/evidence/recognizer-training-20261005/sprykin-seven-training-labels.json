@@ -1,0 +1,304 @@
+{
+  "review": {
+    "source_id": "youtube:Jmi5fbZiFGU",
+    "source_url": "https://www.youtube.com/watch?v=Jmi5fbZiFGU",
+    "creator": "KH-Teamfight Tactics TFT",
+    "authorization_basis": "User states creator authorization for project training",
+    "proposed_review_crops": 53,
+    "named_added": 41,
+    "negatives_added": 0,
+    "excluded_ambiguous_or_redundant": 12,
+    "independent_human_ground_truth": false,
+    "mounted_examples": 6,
+    "distinct_mounted_champions": 3
+  },
+  "labels": [
+    {
+      "index": 0,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "2f62c467293d69b423bd7a4d832669aeb8513f1dec44ea5c46521d1f7e424b38",
+      "label": "DA_Brambleback18"
+    },
+    {
+      "index": 1,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "a4ab7793a354e5923b99ff41b35af85f86235f85fdad87c66f405e458a46ba87",
+      "label": "DA_18_Kobuko"
+    },
+    {
+      "index": 2,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "db714dd96b6dd68d193f49f6226b484ee083ee8d73daa2aa07474928fd095fa2",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 4,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "97fd1ddc7df8087168a92009aba9404b42bf58b6fdf6e49d5c91ca6cdc36e2e8",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 5,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "1d6b85b61495b25ce805ab684e5cb3e17f96315d79c60588ee5f1229713ed1e7",
+      "label": "DA_Krug18"
+    },
+    {
+      "index": 6,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "14e0922a32507746eb9def9c60269bbf601562b216be2aa929b79378751f1545",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 7,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "c070d2b11b2a6ef15099efd03e4678cb7ab8f53553b56f0989341dc2b40275c5",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 10,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-10",
+      "crop_pixel_sha256": "9813b5c6b51bb189112e9bb4f941e2391fe83c18887e0d62e7bdecfe9802dce8",
+      "label": "DA_18_Kennen"
+    },
+    {
+      "index": 12,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-12",
+      "crop_pixel_sha256": "b7f5f8f52fc150a45b9bad69d0c72966f789de0d01aad87a053d84e0df6abfc2",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 15,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000480.png",
+      "key": "marker-15",
+      "crop_pixel_sha256": "4f51b91a0b8be98766f2696baff1dab56629ee912a5bfc9fe4432cfb18352038",
+      "label": "DA_18_Kobuko"
+    },
+    {
+      "index": 17,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000720.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "a11b0221c489d75817fe2e5a4699b3ffd2916f89e785e452080696c465cfad79",
+      "label": "DA_Brambleback18"
+    },
+    {
+      "index": 18,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000720.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "a0668cb5b476a14552c0e3160eb1bd45b9d343ad628e8ce8cb6c005f0bcd0e0e",
+      "label": "DA_18_Kennen"
+    },
+    {
+      "index": 19,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000720.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "cc208a42f92c60bb2cbfcc4fcb7bf4560fdc2c289cfc19f5a3a59140d022beb9",
+      "label": "DA_18_Kobuko"
+    },
+    {
+      "index": 20,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000720.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "e172a56ab79431f437f425e26dd8b3adf493cc913610527b869f526442ea277a",
+      "label": "DA_18_GnarSmall"
+    },
+    {
+      "index": 22,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000720.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "0568f975b491f32a8e294b6f49c0371d715fd129d7a4a184cbb574833172bdd3",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 23,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000720.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "ae6122114bfb123f531ab52f100d13e9976f00e22909a5fe712fa0f0ef6efc9c",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 25,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000840.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "54b48f25def5ac6bf541c1a3a01413b39935add791cfc06ea20d71cf28519381",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 26,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "0771c41c65d337cce52e9270571c519ab077a9a44402fd6953fd84b776e5787c",
+      "label": "DA_Brambleback18"
+    },
+    {
+      "index": 27,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "68a2624ea25df71de2b46c64845ebc1b2c2a1e1e901f29ff645266df88fe0bbe",
+      "label": "DA_Taric18"
+    },
+    {
+      "index": 28,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "597fabc167caf059782778febd48f5661942a8d127fc5d10efa3d7febbb9d85f",
+      "label": "DA_18_Kennen"
+    },
+    {
+      "index": 29,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "8fa362bda531df8813fd9759fcca3ebed225f85ca226fbcf227f7e4e20b427ff",
+      "label": "DA_18_Kobuko"
+    },
+    {
+      "index": 30,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "3837162f176cedaf46be1e2ed5fa4c8f8086292782c994a3c0fd5becab6bbb5f",
+      "label": "DA_18_GnarSmall"
+    },
+    {
+      "index": 31,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "ff08d07e48aea705b9a38e39295690568bd85c7b833432015c5f903a4fa7ae37",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 32,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "65865d4651256037ff18461f64875d1160196225237bab7c99008211c348753a",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 33,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "1d9e05ddef82bdfc4f50711d57efbe7e6a046d2ea73fd942a298717c8cf8e957",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 34,
+      "image": "unit-gallery-sprykin-seven-training-20261005/000960.png",
+      "key": "marker-8",
+      "crop_pixel_sha256": "92cd87a428d67689a94f5932a58a645010c85e38fd3c952bcad45cc8e3ee5846",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 35,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001080.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "8cee5d396132f9ecaf32b227669a8162641a5de5b22a74daad0300bbba4ef2c4",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 37,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001080.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "e8de0accf77815df379759195fe933cc0160cec1badee5d318625bdb896d80b5",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 38,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001080.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "160feead94148e8db6777b89da4206ffad2562ae2b3fe5d44b947bb53176b1bc",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 39,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "b34bfcdd309e9b02a1456974d723a9ce12a49d5ec6c9a3038eca75b15caa8a9a",
+      "label": "DA_Taric18"
+    },
+    {
+      "index": 40,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "dd638acec969d653e6b5f56577d3d895b42c4181de978f24a29f489193ac75b6",
+      "label": "DA_Brambleback18"
+    },
+    {
+      "index": 41,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "7961d17437a98376a031945dab4f7e22242e88fa487bdc63e9e2ebf19b76c146",
+      "label": "DA_18_Kobuko"
+    },
+    {
+      "index": 42,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "af0680570ed7e67a832a39fe226e05a1cb673912e34bdc3d54557fc7e03fdd98",
+      "label": "DA_18_GnarSmall"
+    },
+    {
+      "index": 43,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "517993933b22be0f5d33a76ecb1e918c9eed772f89be6e2e3ddc0cbd3ea176bd",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 44,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "45083fae71997c691d840bea5b1c9b730cab5c29b17a601cd6ae053e228dad1f",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 45,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "0f37ad8e3960847ee7a3dd514e4ff7a376ecb089ce09911068a2efec4f15cb9f",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 46,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "5d88b0013cf983cb40d17253c77246d0109bc7ee8d2f92111c68268887dcaf7e",
+      "label": "DA_18_Alune"
+    },
+    {
+      "index": 47,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-8",
+      "crop_pixel_sha256": "bc1a1edf97bc37256b0cc088d7d3a8b3db0ce0b68eb5c8e9d8a0aaae0a499f76",
+      "label": "DA_18_Kennen"
+    },
+    {
+      "index": 48,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-9",
+      "crop_pixel_sha256": "a97262608ab216da468552bf9dc1c878d23e3c7eeec4c308a90a7e9a0714511c",
+      "label": "DA_Krug18"
+    },
+    {
+      "index": 51,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-12",
+      "crop_pixel_sha256": "b6a8e96defcccc1210ec6f6d6804f3dba54b00c3072f23f5f48b9f9c79e6b059",
+      "label": "DA_Vi18"
+    },
+    {
+      "index": 52,
+      "image": "unit-gallery-sprykin-seven-training-20261005/001200.png",
+      "key": "marker-13",
+      "crop_pixel_sha256": "e4b3c60175aa25485c215741d1fb68b521ffe16d607b242ccc158a09217412be",
+      "label": "DA_18_GnarSmall"
+    }
+  ]
+}
