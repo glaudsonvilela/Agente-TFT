@@ -1,0 +1,38 @@
+{
+  "recorded_at": "2026-10-05T10:12:37-03:00",
+  "status": "complete_selection_frozen",
+  "protocol": "docs/evidence/recognizer-training-20261005/optimizer-study-protocol.json",
+  "private_output_root": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/optimizer-study-resume-20261005-101237",
+  "arms": {
+    "optimizer-default-parity": {
+      "selected_epoch": 800,
+      "validation_named": 32,
+      "validation_correct": 21,
+      "validation_macro_recall": 0.6893939393939393,
+      "validation_cross_entropy": 3.196618214249611,
+      "test_named": 127,
+      "test_correct": 79
+    },
+    "optimizer-l2-1e4": {
+      "selected_epoch": 400,
+      "validation_named": 32,
+      "validation_macro_recall": 0.6439393939393939,
+      "validation_cross_entropy": 3.1800321638584137,
+      "test_named": 127,
+      "test_correct": 77
+    },
+    "optimizer-l2-1e5": {
+      "selected_epoch": 400,
+      "validation_named": 32,
+      "validation_macro_recall": 0.6439393939393939,
+      "validation_cross_entropy": 3.1505271792411804,
+      "test_named": 127,
+      "test_correct": 78
+    }
+  },
+  "selected_arm": "optimizer-default-parity",
+  "selection_reason": "Both lower-L2 challengers had lower validation named macro recall than the reproduced transfer-vertical baseline. Per the pre-registered rule, the existing baseline is retained.",
+  "minjo_kh_evaluated_after_selection": false,
+  "independent_final_holdout": false,
+  "runtime_approved": false
+}
