@@ -1,0 +1,115 @@
+{
+  "recorded_at": "2026-10-05T11:05:00-03:00",
+  "status": "targeted_new_source_acquisition_planned",
+  "reason": "Corrected SSD review queue contains zero new-source candidates for priority identities.",
+  "policy": {
+    "automatic_training_labels": false,
+    "minjo_kh_allowed_in_training": false,
+    "same_source_sample_count_not_primary_goal": true,
+    "candidate_video_title_is_not_a_label": true,
+    "creator_authorization_must_cover_training_use": true,
+    "runtime_approved": false
+  },
+  "candidates": [
+    {
+      "priority": "high",
+      "target_ids": [
+        "DA_18_ElderDragon"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=Ot358nhRJl0",
+      "title": "They added The ELDER DRAGON to TFT Set 18 so I tried it. It's absolutely insane.",
+      "published": "2026-07-30",
+      "authorization_basis": "Creator already appears in project sources with user-stated authorization; verify same authorization scope for this video before admission.",
+      "use": "training-source candidate; review actual frames before labeling"
+    },
+    {
+      "priority": "high",
+      "target_ids": [
+        "DA_18_Lux_Sunbeam"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=Rh4Y7SU8Z8c",
+      "title": "I hit TFT Set 18's Easter Egg. EIGHT 4 Star Champions with Solar!",
+      "published": "2026-07-29",
+      "authorization_basis": "Same creator already used in authorized project source; verify scope.",
+      "use": "Solar Lux/Sunbeam candidate; title/description are retrieval hints only"
+    },
+    {
+      "priority": "high",
+      "target_ids": [
+        "DA_18_Lux_Sunbeam"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=nTq4xIaypIA",
+      "title": "This gave ma a Lvl 7 SOLAR Lux so I tried the HIDDEN Easter Egg Trait. It's absolutely insane.",
+      "published": "2026-08-28",
+      "authorization_basis": "Same creator already used in authorized project source; verify scope.",
+      "use": "second Solar Lux/Sunbeam candidate source"
+    },
+    {
+      "priority": "high",
+      "target_ids": [
+        "DA_Lux18_Blossom"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=UQX6T4vCg_I",
+      "title": "I had a Blossom Emblem & PERFECT Lux Items. Then I hit HER Gamba Augment, the rest is history.",
+      "published": "2026-08-26",
+      "authorization_basis": "Same creator already used in authorized project source; verify scope.",
+      "use": "Blossom-related Lux candidate; must visually bind exact Lux form before training"
+    },
+    {
+      "priority": "medium",
+      "target_ids": [
+        "DA_18_Lux_Coven"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=Ng9UA8NGMn8",
+      "title": "I was about to get a HUGE Coven Cash Out. Then I hit Dark Ritual.",
+      "published": "2026-09-03",
+      "authorization_basis": "Same creator already used in authorized project source; verify scope.",
+      "use": "Coven-related candidate; do not assume Lux is present until reviewed"
+    },
+    {
+      "priority": "high",
+      "target_ids": [
+        "DA_18_MasterYi_AD"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=EqzfikhXbSk",
+      "title": "I completely BROKE Master Yi in the New TFT Set.",
+      "published": "2026-08-04",
+      "authorization_basis": "Same creator already used in authorized project source; verify scope.",
+      "use": "second-source candidate for Master Yi"
+    },
+    {
+      "priority": "high",
+      "target_ids": [
+        "DA_18_Kayle"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=upjeA6TMcGA",
+      "title": "Set 18 FISHBONES Kayle hits the ENTIRE BOARD!",
+      "published": "2026-08-02",
+      "authorization_basis": "Same creator already used in authorized project source; verify scope.",
+      "use": "second-source candidate for Kayle"
+    }
+  ],
+  "unresolved_without_targeted_candidate": [
+    "DA_18_Lux_Fae",
+    "DA_18_Lux_Inferno",
+    "DA_18_Lux_Moonbeam",
+    "DA_18_Lux_Primal",
+    "DA_Lux18_Base",
+    "DA_Lux18_Blackthorn",
+    "DA_18_KhaZix",
+    "DA_18_Lux_Elderwood",
+    "DA_18_Morgana",
+    "DA_18_Xayah",
+    "DA_CrimsonRaptor18",
+    "DA_Karma18",
+    "DA_Murkwolf18"
+  ],
+  "next": "Acquire one candidate source at a time into a fresh private directory, collect annotation-only frames first, visually bind identity/form, then admit only reviewed training examples."
+}
