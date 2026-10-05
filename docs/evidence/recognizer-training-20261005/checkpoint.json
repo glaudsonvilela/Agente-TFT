@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T06:35:06.727Z",
+  "recorded_at": "2026-10-05T06:44:31.865Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -936,8 +936,41 @@
     "source": "https://www.youtube.com/watch?v=bJF34u5fkGw",
     "creator": "Padado",
     "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-padado-pool-10s",
-    "status": "collection_running",
-    "planned_seconds": 2180,
-    "training_labels_added": 0
+    "status": "collection_review_training_evaluation_complete",
+    "frames": 218,
+    "proposed_crops": 1166,
+    "training_labels_added": 30,
+    "mounted_training_labels": 5
+  },
+  "latest_identity_reconciliation": {
+    "corrected": 14,
+    "quarantined": 11,
+    "annotations": "configs/training/unit-gallery-identity-reconciled-20261005.json",
+    "training_status": "complete",
+    "validation_correct": 19,
+    "validation_samples": 32,
+    "development_correct": 62,
+    "development_samples": 107,
+    "tristana_correct": 22,
+    "tristana_samples": 35
+  },
+  "current_candidate": {
+    "annotations": "configs/training/unit-gallery-sprykin-expanded-20261005.json",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-expanded-head/dino-head.json",
+    "head_sha256": "3acc7baf0af11921ecb0d9d42dab5938389728d3664917ca73af88ca71abdcc8",
+    "training_units": 569,
+    "catalog_ids": 64,
+    "catalog_total": 74,
+    "single_source_ids": 13,
+    "validation_correct": 17,
+    "validation_samples": 32,
+    "development_correct": 64,
+    "development_samples": 107,
+    "tristana_correct": 22,
+    "tristana_samples": 35,
+    "tristana_mounted_correct": 0,
+    "tristana_mounted_samples": 3,
+    "embedding_batch_size": 1,
+    "runtime_approved": false
   }
 }

@@ -1,0 +1,1116 @@
+{
+  "annotations_sha256": "38f5a3c5700b5833f45f7c0ed79073a9384197d4a1f5dea56f5fb80ce57a18d9",
+  "batch": 1,
+  "batch_matches_training": true,
+  "crop_transform": "center_88x120_v1",
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "evaluation": {
+    "confusions": {
+      "DA_18_Kobuko -> DA_18_GnarSmall": 1,
+      "DA_18_Kobuko -> DA_Draven18": 1,
+      "DA_18_Lillia -> DA_18_Ashe": 1,
+      "DA_18_Lillia -> DA_18_Morgana": 1,
+      "DA_18_Teemo -> DA_18_Ahri": 1,
+      "DA_18_Teemo -> DA_Cinderling18": 1,
+      "DA_18_Teemo -> __unknown__": 1,
+      "DA_18_Tristana -> DA_18_Maokai": 1,
+      "DA_18_Tristana -> DA_Draven18": 3,
+      "DA_18_Veigar -> DA_18_Alune": 1,
+      "DA_KogMaw18_AD -> DA_Draven18": 1
+    },
+    "cross_entropy": 3.2051824535642353,
+    "named": 35,
+    "named_macro_recall": 0.6365079365079365,
+    "named_top1_correct": 22,
+    "per_class": {
+      "DA_18_Caitlyn": [
+        2,
+        2
+      ],
+      "DA_18_GnarSmall": [
+        3,
+        3
+      ],
+      "DA_18_Kobuko": [
+        4,
+        2
+      ],
+      "DA_18_Lillia": [
+        2,
+        0
+      ],
+      "DA_18_Rammus": [
+        4,
+        4
+      ],
+      "DA_18_Teemo": [
+        4,
+        1
+      ],
+      "DA_18_Tristana": [
+        7,
+        3
+      ],
+      "DA_18_Veigar": [
+        4,
+        3
+      ],
+      "DA_KogMaw18_AD": [
+        5,
+        4
+      ]
+    },
+    "predictions": [
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000150.png",
+        "key": "marker-0",
+        "label": "DA_18_Veigar",
+        "predicted": "DA_18_Alune",
+        "softmax_score_uncalibrated": 0.033580079674720764
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+        "key": "marker-5",
+        "label": "DA_18_Rammus",
+        "predicted": "DA_18_Rammus",
+        "softmax_score_uncalibrated": 0.11555364727973938
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+        "key": "marker-6",
+        "label": "DA_18_Kobuko",
+        "predicted": "DA_18_Kobuko",
+        "softmax_score_uncalibrated": 0.07229218631982803
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+        "key": "marker-7",
+        "label": "DA_KogMaw18_AD",
+        "predicted": "DA_KogMaw18_AD",
+        "softmax_score_uncalibrated": 0.14631767570972443
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+        "key": "marker-8",
+        "label": "DA_18_Teemo",
+        "predicted": "__unknown__",
+        "softmax_score_uncalibrated": 0.043179407715797424
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+        "key": "marker-9",
+        "label": "DA_18_Veigar",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.03567378595471382
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+        "key": "marker-7",
+        "label": "DA_18_Rammus",
+        "predicted": "DA_18_Rammus",
+        "softmax_score_uncalibrated": 0.049456968903541565
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+        "key": "marker-8",
+        "label": "DA_18_Kobuko",
+        "predicted": "DA_18_Kobuko",
+        "softmax_score_uncalibrated": 0.04171989485621452
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+        "key": "marker-9",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_18_Maokai",
+        "softmax_score_uncalibrated": 0.04278646409511566
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+        "key": "marker-10",
+        "label": "DA_KogMaw18_AD",
+        "predicted": "DA_KogMaw18_AD",
+        "softmax_score_uncalibrated": 0.19272564351558685
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+        "key": "marker-11",
+        "label": "DA_18_Teemo",
+        "predicted": "DA_18_Ahri",
+        "softmax_score_uncalibrated": 0.03933754563331604
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+        "key": "marker-12",
+        "label": "DA_18_Veigar",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.04512638971209526
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-0",
+        "label": "DA_18_Rammus",
+        "predicted": "DA_18_Rammus",
+        "softmax_score_uncalibrated": 0.07677348703145981
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-1",
+        "label": "DA_18_Kobuko",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.037620849907398224
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-2",
+        "label": "DA_18_GnarSmall",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.06458860635757446
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-3",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_Draven18",
+        "softmax_score_uncalibrated": 0.050791770219802856
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-4",
+        "label": "DA_18_Caitlyn",
+        "predicted": "DA_18_Caitlyn",
+        "softmax_score_uncalibrated": 0.1352853924036026
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-5",
+        "label": "DA_18_Teemo",
+        "predicted": "DA_18_Teemo",
+        "softmax_score_uncalibrated": 0.03645143657922745
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-6",
+        "label": "DA_KogMaw18_AD",
+        "predicted": "DA_KogMaw18_AD",
+        "softmax_score_uncalibrated": 0.04204140976071358
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-7",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_18_Tristana",
+        "softmax_score_uncalibrated": 0.04599669948220253
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-8",
+        "label": "DA_18_Veigar",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.0411248579621315
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-9",
+        "label": "DA_18_Rammus",
+        "predicted": "DA_18_Rammus",
+        "softmax_score_uncalibrated": 0.05122438073158264
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+        "key": "marker-10",
+        "label": "DA_KogMaw18_AD",
+        "predicted": "DA_Draven18",
+        "softmax_score_uncalibrated": 0.043228428810834885
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+        "key": "marker-1",
+        "label": "DA_18_Kobuko",
+        "predicted": "DA_Draven18",
+        "softmax_score_uncalibrated": 0.03633655980229378
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+        "key": "marker-4",
+        "label": "DA_18_Caitlyn",
+        "predicted": "DA_18_Caitlyn",
+        "softmax_score_uncalibrated": 0.10420297831296921
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+        "key": "marker-5",
+        "label": "DA_18_Teemo",
+        "predicted": "DA_Cinderling18",
+        "softmax_score_uncalibrated": 0.03611692041158676
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000360.png",
+        "key": "marker-7",
+        "label": "DA_18_Lillia",
+        "predicted": "DA_18_Ashe",
+        "softmax_score_uncalibrated": 0.034179478883743286
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+        "key": "marker-0",
+        "label": "DA_18_GnarSmall",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.03495217487215996
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+        "key": "marker-1",
+        "label": "DA_18_GnarSmall",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.04125351086258888
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+        "key": "marker-2",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_Draven18",
+        "softmax_score_uncalibrated": 0.04642203822731972
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+        "key": "marker-3",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_18_Tristana",
+        "softmax_score_uncalibrated": 0.055686965584754944
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+        "key": "marker-4",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_18_Tristana",
+        "softmax_score_uncalibrated": 0.08794111758470535
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000450.png",
+        "key": "marker-1",
+        "label": "DA_KogMaw18_AD",
+        "predicted": "DA_KogMaw18_AD",
+        "softmax_score_uncalibrated": 0.0859922468662262
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000480.png",
+        "key": "marker-0",
+        "label": "DA_18_Tristana",
+        "predicted": "DA_Draven18",
+        "softmax_score_uncalibrated": 0.07310647517442703
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-tristana-evaluation-20261005/000540.png",
+        "key": "marker-3",
+        "label": "DA_18_Lillia",
+        "predicted": "DA_18_Morgana",
+        "softmax_score_uncalibrated": 0.03368254378437996
+      }
+    ],
+    "samples": 35
+  },
+  "head_sha256": "baaf1e6a5286faa58f9f5decb4ea2fb72487008f5058d79decb11ade796150da",
+  "inference_seconds": 1.644952951,
+  "limitations": [
+    "Assistant-reviewed labels, not independent human ground truth.",
+    "Legible proposed crops only; missed or ambiguous units are not recognition successes.",
+    "No Windows capture/display or end-to-end latency measurement.",
+    "After inspection this source is development evidence, not an untouched final holdout."
+  ],
+  "new_source_relative_to_training_manifest": true,
+  "runtime_approved": false,
+  "schema_version": 1,
+  "spec_sha256": "7ccf10862b0f5361c82f902f57ac55456839c296d4e92e562477ebd3cbede9d8",
+  "strata": {
+    "appearance:ordinary": {
+      "confusions": {
+        "DA_18_Kobuko -> DA_18_GnarSmall": 1,
+        "DA_18_Kobuko -> DA_Draven18": 1,
+        "DA_18_Lillia -> DA_18_Ashe": 1,
+        "DA_18_Lillia -> DA_18_Morgana": 1,
+        "DA_18_Teemo -> DA_18_Ahri": 1,
+        "DA_18_Teemo -> DA_Cinderling18": 1,
+        "DA_18_Teemo -> __unknown__": 1,
+        "DA_18_Tristana -> DA_Draven18": 1,
+        "DA_18_Veigar -> DA_18_Alune": 1,
+        "DA_KogMaw18_AD -> DA_Draven18": 1
+      },
+      "cross_entropy": 3.0687075816094875,
+      "named": 32,
+      "named_macro_recall": 0.6722222222222222,
+      "named_top1_correct": 22,
+      "per_class": {
+        "DA_18_Caitlyn": [
+          2,
+          2
+        ],
+        "DA_18_GnarSmall": [
+          3,
+          3
+        ],
+        "DA_18_Kobuko": [
+          4,
+          2
+        ],
+        "DA_18_Lillia": [
+          2,
+          0
+        ],
+        "DA_18_Rammus": [
+          4,
+          4
+        ],
+        "DA_18_Teemo": [
+          4,
+          1
+        ],
+        "DA_18_Tristana": [
+          4,
+          3
+        ],
+        "DA_18_Veigar": [
+          4,
+          3
+        ],
+        "DA_KogMaw18_AD": [
+          5,
+          4
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000150.png",
+          "key": "marker-0",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Alune",
+          "softmax_score_uncalibrated": 0.033580079674720764
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-5",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.11555364727973938
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-6",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_Kobuko",
+          "softmax_score_uncalibrated": 0.07229218631982803
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-7",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.14631767570972443
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-8",
+          "label": "DA_18_Teemo",
+          "predicted": "__unknown__",
+          "softmax_score_uncalibrated": 0.043179407715797424
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-9",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.03567378595471382
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-7",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.049456968903541565
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-8",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_Kobuko",
+          "softmax_score_uncalibrated": 0.04171989485621452
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-10",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.19272564351558685
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-11",
+          "label": "DA_18_Teemo",
+          "predicted": "DA_18_Ahri",
+          "softmax_score_uncalibrated": 0.03933754563331604
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-12",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.04512638971209526
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-0",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.07677348703145981
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-1",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.037620849907398224
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-2",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.06458860635757446
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-4",
+          "label": "DA_18_Caitlyn",
+          "predicted": "DA_18_Caitlyn",
+          "softmax_score_uncalibrated": 0.1352853924036026
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-5",
+          "label": "DA_18_Teemo",
+          "predicted": "DA_18_Teemo",
+          "softmax_score_uncalibrated": 0.03645143657922745
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-6",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.04204140976071358
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-7",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.04599669948220253
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-8",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.0411248579621315
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-9",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.05122438073158264
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-10",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.043228428810834885
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+          "key": "marker-1",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.03633655980229378
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+          "key": "marker-4",
+          "label": "DA_18_Caitlyn",
+          "predicted": "DA_18_Caitlyn",
+          "softmax_score_uncalibrated": 0.10420297831296921
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+          "key": "marker-5",
+          "label": "DA_18_Teemo",
+          "predicted": "DA_Cinderling18",
+          "softmax_score_uncalibrated": 0.03611692041158676
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000360.png",
+          "key": "marker-7",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Ashe",
+          "softmax_score_uncalibrated": 0.034179478883743286
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-0",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.03495217487215996
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-1",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.04125351086258888
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-2",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.04642203822731972
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-3",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.055686965584754944
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-4",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.08794111758470535
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000450.png",
+          "key": "marker-1",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.0859922468662262
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000540.png",
+          "key": "marker-3",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Morgana",
+          "softmax_score_uncalibrated": 0.03368254378437996
+        }
+      ],
+      "samples": 32
+    },
+    "appearance:sprykin_mounted": {
+      "confusions": {
+        "DA_18_Tristana -> DA_18_Maokai": 1,
+        "DA_18_Tristana -> DA_Draven18": 2
+      },
+      "cross_entropy": 4.660914421081543,
+      "named": 3,
+      "named_macro_recall": 0.0,
+      "named_top1_correct": 0,
+      "per_class": {
+        "DA_18_Tristana": [
+          3,
+          0
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-9",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Maokai",
+          "softmax_score_uncalibrated": 0.04278646409511566
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-3",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.050791770219802856
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000480.png",
+          "key": "marker-0",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.07310647517442703
+        }
+      ],
+      "samples": 3
+    },
+    "framing:editorial_zoom_verified": {
+      "confusions": {
+        "DA_18_Lillia -> DA_18_Ashe": 1,
+        "DA_18_Lillia -> DA_18_Morgana": 1
+      },
+      "cross_entropy": 3.513388514518738,
+      "named": 2,
+      "named_macro_recall": 0.0,
+      "named_top1_correct": 0,
+      "per_class": {
+        "DA_18_Lillia": [
+          2,
+          0
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000360.png",
+          "key": "marker-7",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Ashe",
+          "softmax_score_uncalibrated": 0.034179478883743286
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000540.png",
+          "key": "marker-3",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Morgana",
+          "softmax_score_uncalibrated": 0.03368254378437996
+        }
+      ],
+      "samples": 2
+    },
+    "framing:full_hud_verified": {
+      "confusions": {
+        "DA_18_Kobuko -> DA_Draven18": 1,
+        "DA_18_Teemo -> DA_18_Ahri": 1,
+        "DA_18_Teemo -> DA_Cinderling18": 1,
+        "DA_18_Tristana -> DA_18_Maokai": 1
+      },
+      "cross_entropy": 3.365424911181132,
+      "named": 9,
+      "named_macro_recall": 0.6428571428571429,
+      "named_top1_correct": 5,
+      "per_class": {
+        "DA_18_Caitlyn": [
+          1,
+          1
+        ],
+        "DA_18_Kobuko": [
+          2,
+          1
+        ],
+        "DA_18_Rammus": [
+          1,
+          1
+        ],
+        "DA_18_Teemo": [
+          2,
+          0
+        ],
+        "DA_18_Tristana": [
+          1,
+          0
+        ],
+        "DA_18_Veigar": [
+          1,
+          1
+        ],
+        "DA_KogMaw18_AD": [
+          1,
+          1
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-7",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.049456968903541565
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-8",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_Kobuko",
+          "softmax_score_uncalibrated": 0.04171989485621452
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-9",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Maokai",
+          "softmax_score_uncalibrated": 0.04278646409511566
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-10",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.19272564351558685
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-11",
+          "label": "DA_18_Teemo",
+          "predicted": "DA_18_Ahri",
+          "softmax_score_uncalibrated": 0.03933754563331604
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+          "key": "marker-12",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.04512638971209526
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+          "key": "marker-1",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.03633655980229378
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+          "key": "marker-4",
+          "label": "DA_18_Caitlyn",
+          "predicted": "DA_18_Caitlyn",
+          "softmax_score_uncalibrated": 0.10420297831296921
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+          "key": "marker-5",
+          "label": "DA_18_Teemo",
+          "predicted": "DA_Cinderling18",
+          "softmax_score_uncalibrated": 0.03611692041158676
+        }
+      ],
+      "samples": 9
+    },
+    "framing:not_reviewed": {
+      "confusions": {
+        "DA_18_Kobuko -> DA_18_GnarSmall": 1,
+        "DA_18_Teemo -> __unknown__": 1,
+        "DA_18_Tristana -> DA_Draven18": 3,
+        "DA_18_Veigar -> DA_18_Alune": 1,
+        "DA_KogMaw18_AD -> DA_Draven18": 1
+      },
+      "cross_entropy": 3.1194076935450235,
+      "named": 24,
+      "named_macro_recall": 0.7395833333333334,
+      "named_top1_correct": 17,
+      "per_class": {
+        "DA_18_Caitlyn": [
+          1,
+          1
+        ],
+        "DA_18_GnarSmall": [
+          3,
+          3
+        ],
+        "DA_18_Kobuko": [
+          2,
+          1
+        ],
+        "DA_18_Rammus": [
+          3,
+          3
+        ],
+        "DA_18_Teemo": [
+          2,
+          1
+        ],
+        "DA_18_Tristana": [
+          6,
+          3
+        ],
+        "DA_18_Veigar": [
+          3,
+          2
+        ],
+        "DA_KogMaw18_AD": [
+          4,
+          3
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000150.png",
+          "key": "marker-0",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Alune",
+          "softmax_score_uncalibrated": 0.033580079674720764
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-5",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.11555364727973938
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-6",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_Kobuko",
+          "softmax_score_uncalibrated": 0.07229218631982803
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-7",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.14631767570972443
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-8",
+          "label": "DA_18_Teemo",
+          "predicted": "__unknown__",
+          "softmax_score_uncalibrated": 0.043179407715797424
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+          "key": "marker-9",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.03567378595471382
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-0",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.07677348703145981
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-1",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.037620849907398224
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-2",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.06458860635757446
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-3",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.050791770219802856
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-4",
+          "label": "DA_18_Caitlyn",
+          "predicted": "DA_18_Caitlyn",
+          "softmax_score_uncalibrated": 0.1352853924036026
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-5",
+          "label": "DA_18_Teemo",
+          "predicted": "DA_18_Teemo",
+          "softmax_score_uncalibrated": 0.03645143657922745
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-6",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.04204140976071358
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-7",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.04599669948220253
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-8",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.0411248579621315
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-9",
+          "label": "DA_18_Rammus",
+          "predicted": "DA_18_Rammus",
+          "softmax_score_uncalibrated": 0.05122438073158264
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+          "key": "marker-10",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.043228428810834885
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-0",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.03495217487215996
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-1",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.04125351086258888
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-2",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.04642203822731972
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-3",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.055686965584754944
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+          "key": "marker-4",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.08794111758470535
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000450.png",
+          "key": "marker-1",
+          "label": "DA_KogMaw18_AD",
+          "predicted": "DA_KogMaw18_AD",
+          "softmax_score_uncalibrated": 0.0859922468662262
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-tristana-evaluation-20261005/000480.png",
+          "key": "marker-0",
+          "label": "DA_18_Tristana",
+          "predicted": "DA_Draven18",
+          "softmax_score_uncalibrated": 0.07310647517442703
+        }
+      ],
+      "samples": 24
+    }
+  },
+  "threads": 1,
+  "training_batch": 1,
+  "training_performed": false
+}

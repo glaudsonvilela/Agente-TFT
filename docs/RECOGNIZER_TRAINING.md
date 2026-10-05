@@ -430,3 +430,49 @@ treino foi 511/550; esse número não comprova generalização. Na validação f
 19/32, no desafio 62/107. A avaliação de Tristana está registrada integralmente
 em `tristana-label-reconciled-evaluation.json`. Os pesos permanecem privados no
 SSD e não foram ativados no Windows.
+
+## Segunda revisão e exemplos montados de outra partida
+
+A conferência seguinte examinou os 39 erros restantes no treino e cruzou os 14
+exemplos rotulados como Morgana. Encontrou oito outras identidades incorretas e
+um erro desta expansão: seis exemplos novos do vídeo de Elise eram Camille,
+não Morgana. A referência em tamanho completo mostra suas pernas em lâmina e a
+coroa; Morgana usa vestido longo e capuz. Corrigimos esses seis exemplos e os oito
+outros casos, e colocamos 11 recortes ambíguos em quarentena. Os registros anteriores
+permanecem como histórico, não como a versão ativa dos rótulos.
+
+`unit-gallery-identity-reconciled-20261005.json` contém 539 unidades nomeadas de
+treino. Com lote 1 e encoder congelado, a cabeça obteve 19/32 na validação, 62/107
+no desafio e 22/35 na partida de Tristana. A anotação continua sendo revisão do
+assistente, sem confirmação humana independente; a inspeção por erro de treino
+ajuda a localizar problemas, mas não certifica os demais rótulos.
+
+A coleta Padado terminou: 218 quadros, 1.166 propostas e 109 imagens completas de
+revisão, em 2.180 segundos de vídeo. Selecionamos seis instantes previamente à
+avaliação; quatro tinham propostas, totalizando 43 recortes. Trinta identidades
+legíveis foram adicionadas, incluindo três Tristana montadas e dois Rammus montados.
+Treze propostas ficaram de fora por ambiguidade ou redundância. Um dos recortes
+vem da barra inferior da mesma montaria e foi registrado como duplicata, sem
+contar outro campeão. A deduplicação dessas barras ainda não está implementada
+no aplicativo.
+
+O manifesto `unit-gallery-sprykin-expanded-20261005.json` contém essa expansão.
+Todos os quadros de validação e teste foram comparados e permanecem idênticos aos
+da versão anterior. O vídeo Minjo usado na avaliação não entra no treino.
+
+O treino com os 30 exemplos adicionais terminou com 569 unidades nomeadas e 13
+classes presentes em apenas uma fonte de treino. Foram 17/32 na validação,
+64/107 no desafio e 22/35 na avaliação Minjo. Os três recortes montados dessa
+avaliação continuam errados (0/3); portanto, não declaramos a lacuna resolvida.
+A validação piorou de 19 para 17 acertos e impede tratar a expansão como melhora
+uniforme. `sprykin-expanded-report.json` e
+`tristana-sprykin-expanded-evaluation.json` registram todos os resultados.
+
+Há uma diferença visível que precisa de controle no próximo experimento: a
+interface do quadro Padado em 2.000 s mostra cinco Sprykin; a interface Minjo em
+300 s mostra sete. Os recortes montados de Minjo também têm galhadas douradas e
+outra orientação, enquanto os exemplos de Padado mostram a frente da montaria
+com galhadas cinza/azul. Isso documenta condições distintas, sem atribuir toda a
+falha a uma causa única. Precisamos de outra fonte com a aparência correspondente
+ou de uma representação que preserve melhor o próprio cavaleiro. Nenhum artefato
+foi promovido; aumentar o número de recortes, sozinho, não comprovou transferência.

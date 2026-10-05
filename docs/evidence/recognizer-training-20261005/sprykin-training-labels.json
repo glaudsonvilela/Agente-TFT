@@ -1,0 +1,399 @@
+{
+  "review": {
+    "source_id": "youtube:bJF34u5fkGw",
+    "source_url": "https://www.youtube.com/watch?v=bJF34u5fkGw",
+    "creator": "Padado",
+    "authorization_basis": "User states creator authorization for project training",
+    "proposed_review_crops": 43,
+    "named_added": 30,
+    "negatives_added": 0,
+    "excluded_ambiguous_or_redundant": 13,
+    "independent_human_ground_truth": false,
+    "mounted_examples": 5,
+    "distinct_mounted_champions": 2,
+    "runtime_mount_deduplication_implemented": false
+  },
+  "labels": [
+    {
+      "index": 0,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "316a0d425b451a83b7bb41ff00fee988449b2b2fb182ba7d9ad24211208ce86d",
+      "label": "DA_18_Kobuko"
+    },
+    {
+      "index": 1,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "eda85e89b4165ddd19772f56689202fffe21b1bc0a12738343ba4cc8954e4f2d",
+      "label": "DA_18_Zyra"
+    },
+    {
+      "index": 2,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "12af7177c77e4e4cb04053fcb2381f490039050b2216de54fc6dcc48c8bafca9",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 3,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "3a60405d43fe60f058e3a6e02cbb0aa22baa19debe8cc5467cff68e28aaf37ad",
+      "label": "DA_18_Yunara"
+    },
+    {
+      "index": 4,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "022701c88793a53853d5e8efd4b2c36ceb97a3ed44b70e3004ab04327aae8603",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 5,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "633bdfc2262c24bc7ba16c33cdddfada67c285108dec470d19ee3f377bb2a28f",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 7,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "11e43d3d3b3704b786156906b02a78b201a249c08877720df957ecf4e228331e",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 9,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-9",
+      "crop_pixel_sha256": "1ca2702e502463b5ceedcbc91b58499621146462c15605f857da4a54510fbb9d",
+      "label": "DA_18_Rengar"
+    },
+    {
+      "index": 10,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-10",
+      "crop_pixel_sha256": "53ef34941e810d959464a14910d39625d928891cf0cd174649e1ab674551e4d0",
+      "label": "DA_18_Cassiopeia"
+    },
+    {
+      "index": 12,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-12",
+      "crop_pixel_sha256": "1572fe60327098a963c4dc2ca8fbcdf510be1c37a7177e3600331accba1c262c",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 13,
+      "image": "unit-gallery-sprykin-training-20261005/001440.png",
+      "key": "marker-13",
+      "crop_pixel_sha256": "45b2740113ecd80a991f9594ab1e40c26dac35e018c1e6b8db44ed217af67c85",
+      "label": "DA_KogMaw18_AD"
+    },
+    {
+      "index": 19,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "49f93875a7e1819c84eec0a1a6ba2cbf539f318e1b784a3503670407a0df6ce7",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 20,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "ebbead4c16b185b26929121968d226d524662a523c551fcab5046f841dadb9c8",
+      "label": "DA_18_Sett"
+    },
+    {
+      "index": 21,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "79d9fc651b67e9824d1810be3d8df07ed803fd2677c0aaeb52c276c18af81c5b",
+      "label": "DA_18_GnarSmall"
+    },
+    {
+      "index": 22,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "f7ddf4b4182be7d04e6fc214dda615d6dbcbe95d387f9175dcd3f9554236efb1",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 23,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "9a766db0452992a16693a8b0826d2df7993f8b0675e0962e8a129fc2f8e94f1c",
+      "label": "DA_18_Yunara"
+    },
+    {
+      "index": 24,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "01333e21e5bbd507a1c2e919e3346b30275457648bf47066ac36da88a902027a",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 25,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "9860f7584f436827885577260eb494b39374cfb17b1c44148eea8faeb9ee6d5d",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 26,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "c09857793f3c32e70821aa00f3ec2db0c4a8729b8d2dd8f0bec835034e5a6e32",
+      "label": "DA_18_Zyra"
+    },
+    {
+      "index": 29,
+      "image": "unit-gallery-sprykin-training-20261005/001920.png",
+      "key": "marker-10",
+      "crop_pixel_sha256": "19d00c959b6a7b12346f519e917290bb6bb52ce5c708725c04ffac14b202583e",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 31,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "624246a33b017b8c2142d8bed5e9022d3cafd7cefb6dc81e36dfe9259b2ecb5f",
+      "label": "DA_18_Rammus"
+    },
+    {
+      "index": 32,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "e7b6eca968e174d2e678a4fdf3427b7178a58c6618fe484096cc5e0c8c893133",
+      "label": "DA_18_Sett"
+    },
+    {
+      "index": 33,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "83c03525cda2d952721a021de56d2ccd3e67fd26bd4399c0276aa3f1b894368b",
+      "label": "DA_18_GnarSmall"
+    },
+    {
+      "index": 34,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "55cc0c7e31f61ae2907229fe4ae274eb0a58b220c495ec82d88617e8d47bcba0",
+      "label": "DA_18_Tristana"
+    },
+    {
+      "index": 36,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "31d57c9899d8e0f49392e571bfd2e563d0f47dc605c74243bf15a9f9b378e693",
+      "label": "DA_18_Yunara"
+    },
+    {
+      "index": 37,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "3cddb96b73898dad7b0bb5a8dc2c55846b142ee32e5330947c7ac604e3129046",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 38,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "d97d9800b305a630e6ca3bf84c2f6709fc71d00de7fcbab70d9385d1a2c80e48",
+      "label": "DA_18_Teemo"
+    },
+    {
+      "index": 39,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-8",
+      "crop_pixel_sha256": "2adeea617a78753b926d6957b9764b09aace391c0e47c58925a61180942fe3ef",
+      "label": "DA_18_Ahri"
+    },
+    {
+      "index": 40,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-9",
+      "crop_pixel_sha256": "79968d553b9d7a15931b5b730568dc12bc55300b168f1609857602e65b7fe53a",
+      "label": "DA_18_GnarSmall"
+    },
+    {
+      "index": 41,
+      "image": "unit-gallery-sprykin-training-20261005/002000.png",
+      "key": "marker-10",
+      "crop_pixel_sha256": "181a18bc8f359289bf861c39a886e8be40a34f3ba317e67df628ff7d9199f1a7",
+      "label": "DA_18_Tristana"
+    }
+  ],
+  "excluded": [
+    {
+      "index": 6,
+      "source_seconds": 1440,
+      "marker_id": 6,
+      "box": [
+        824,
+        697,
+        952,
+        841
+      ],
+      "crop_pixel_sha256": "6dfcd763390a5ee3d68927123a1cf361ebfbeea7ec999950aae8d0e03a59e44d",
+      "reason": "Ambiguous or partially obscured identity; not assigned a model label."
+    },
+    {
+      "index": 8,
+      "source_seconds": 1440,
+      "marker_id": 8,
+      "box": [
+        1301,
+        713,
+        1429,
+        857
+      ],
+      "crop_pixel_sha256": "42274ba9cc3174e1db7a7244ef772a345ad21bf69c1962c0b727f62ff71a8717",
+      "reason": "Redundant same-source instance not added."
+    },
+    {
+      "index": 11,
+      "source_seconds": 1440,
+      "marker_id": 11,
+      "box": [
+        583,
+        730,
+        711,
+        874
+      ],
+      "crop_pixel_sha256": "c63345064812908dbc028d078818a1120cacda6267aeeece3d6547768836ca4d",
+      "reason": "Redundant same-source instance not added."
+    },
+    {
+      "index": 14,
+      "source_seconds": 1680,
+      "marker_id": 0,
+      "box": [
+        594,
+        348,
+        722,
+        492
+      ],
+      "crop_pixel_sha256": "0438022091f33a61aea43255cfa2cea0791ecb3b4617650b0825e79ab815155c",
+      "reason": "Ambiguous or partially obscured identity; not assigned a model label."
+    },
+    {
+      "index": 15,
+      "source_seconds": 1680,
+      "marker_id": 2,
+      "box": [
+        493,
+        478,
+        621,
+        622
+      ],
+      "crop_pixel_sha256": "4d9dce048e53c0be8a5a6e6f53f4da51f2b54472fa7de12ae97ba78397a8a030",
+      "reason": "Ambiguous or partially obscured identity; not assigned a model label."
+    },
+    {
+      "index": 16,
+      "source_seconds": 1680,
+      "marker_id": 3,
+      "box": [
+        1169,
+        562,
+        1297,
+        706
+      ],
+      "crop_pixel_sha256": "beb673f1a94dddd10f67a4dda3d3fe2c168cffcb5e6a1fa0cfe5e1fe939477ae",
+      "reason": "Ambiguous or partially obscured identity; not assigned a model label."
+    },
+    {
+      "index": 17,
+      "source_seconds": 1680,
+      "marker_id": 4,
+      "box": [
+        772,
+        599,
+        900,
+        743
+      ],
+      "crop_pixel_sha256": "b1cc9caa127375f0af58311201ba231ba64783f901468948797e229441095c0f",
+      "reason": "Ambiguous or partially obscured identity; not assigned a model label."
+    },
+    {
+      "index": 18,
+      "source_seconds": 1680,
+      "marker_id": 5,
+      "box": [
+        1297,
+        604,
+        1425,
+        748
+      ],
+      "crop_pixel_sha256": "046959de19bcdd615e50f1cfbf352fa2669b08f34868fe4127989ae56dde0734",
+      "reason": "Ambiguous or partially obscured identity; not assigned a model label."
+    },
+    {
+      "index": 27,
+      "source_seconds": 1920,
+      "marker_id": 8,
+      "box": [
+        1067,
+        695,
+        1195,
+        839
+      ],
+      "crop_pixel_sha256": "d2e69b47ea0421ffab50f1a46394a01849dc11a2b8f6edd95c0a054aae816ea0",
+      "reason": "Redundant same-source instance not added."
+    },
+    {
+      "index": 28,
+      "source_seconds": 1920,
+      "marker_id": 9,
+      "box": [
+        945,
+        708,
+        1073,
+        852
+      ],
+      "crop_pixel_sha256": "d60b63756d9eb126cc2eb70db0751a29a5fbbb7d6e0baaad55689f82693073ee",
+      "reason": "Redundant same-source instance not added."
+    },
+    {
+      "index": 30,
+      "source_seconds": 1920,
+      "marker_id": 11,
+      "box": [
+        1182,
+        713,
+        1310,
+        857
+      ],
+      "crop_pixel_sha256": "cbd8e78bbfdf81f7bc864215dab0d9b184915c7e18a398b94067082c89c0d984",
+      "reason": "Redundant same-source instance not added."
+    },
+    {
+      "index": 35,
+      "source_seconds": 2000,
+      "marker_id": 4,
+      "box": [
+        489,
+        522,
+        617,
+        666
+      ],
+      "crop_pixel_sha256": "ce066560019a7709e53318fc1882d3ead92f3ef606cac2211c432de1b77d84b0",
+      "reason": "Lower mount bar duplicates the same visible rider as index 34; excluded from champion training and counting."
+    },
+    {
+      "index": 42,
+      "source_seconds": 2000,
+      "marker_id": 11,
+      "box": [
+        1182,
+        713,
+        1310,
+        857
+      ],
+      "crop_pixel_sha256": "ed7b2b65a925bab095fb553f08f13111b6854089db73d1ebeadb61124ad70ff3",
+      "reason": "Redundant same-source instance not added."
+    }
+  ]
+}

@@ -1,0 +1,337 @@
+{
+  "review": {
+    "missed_training_crops_reviewed": 39,
+    "morgana_training_crops_crosschecked": 14,
+    "corrected": 14,
+    "quarantined": 11,
+    "training_only": true,
+    "independent_human_ground_truth": false
+  },
+  "changes": [
+    {
+      "image": "unit-gallery-arena-training-20261005/003720.png",
+      "key": "marker-8",
+      "box": [
+        902,
+        580,
+        1030,
+        724
+      ],
+      "old_id": "DA_Cinderling18",
+      "new_id": "DA_18_Diana",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-arena-training-20261005/003720.png",
+      "key": "marker-9",
+      "box": [
+        1038,
+        604,
+        1166,
+        748
+      ],
+      "old_id": "DA_KogMaw18_AD",
+      "new_id": "DA_Cinderling18",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-arena-training-20261005/004320.png",
+      "key": "marker-2",
+      "box": [
+        902,
+        585,
+        1030,
+        729
+      ],
+      "old_id": "DA_Sentinel18",
+      "new_id": "DA_KogMaw18_AD",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-arena-training-20261005/004920.png",
+      "key": "marker-0",
+      "box": [
+        840,
+        310,
+        968,
+        454
+      ],
+      "old_id": "DA_Brambleback18",
+      "new_id": "DA_Sentinel18",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-five-cost-training-20261005/000590.png",
+      "key": "marker-2",
+      "box": [
+        484,
+        338,
+        612,
+        482
+      ],
+      "old_id": "DA_18_Caitlyn",
+      "new_id": "DA_18_Ashe",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-five-cost-training-20261005/000590.png",
+      "key": "marker-9",
+      "box": [
+        906,
+        567,
+        1034,
+        711
+      ],
+      "old_id": "DA_18_Caitlyn",
+      "new_id": "DA_18_Zyra",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-rare-training-20261005/twitch-2891052706-009600.png",
+      "key": "rare-0",
+      "box": [
+        839,
+        306,
+        967,
+        450
+      ],
+      "old_id": "DA_18_Camille",
+      "new_id": "DA_18_Elise",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-7",
+      "box": [
+        500,
+        569,
+        628,
+        713
+      ],
+      "old_id": "DA_18_Cassiopeia",
+      "new_id": "DA_18_Elise",
+      "reason": "Named render and visible morphology contradict previous label; human-form Elise has multiple shoulder appendages, Caitlyn/Ashe/Zyra have distinct weapons; source crop binding inspected. Not a model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/004380.png",
+      "key": "marker-2",
+      "box": [
+        1232,
+        506,
+        1360,
+        650
+      ],
+      "old_id": "DA_18_Ahri",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/001020.png",
+      "key": "marker-0",
+      "box": [
+        865,
+        337,
+        993,
+        481
+      ],
+      "old_id": "DA_18_Rengar",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/001020.png",
+      "key": "marker-4",
+      "box": [
+        1285,
+        420,
+        1413,
+        564
+      ],
+      "old_id": "DA_18_Camille",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/004920.png",
+      "key": "marker-7",
+      "box": [
+        1095,
+        458,
+        1223,
+        602
+      ],
+      "old_id": "DA_18_Ezreal",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-1",
+      "box": [
+        310,
+        315,
+        438,
+        459
+      ],
+      "old_id": "DA_18_Ezreal",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-long-training-20261005/007920.png",
+      "key": "marker-1",
+      "box": [
+        725,
+        199,
+        853,
+        343
+      ],
+      "old_id": "DA_Sentinel18",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-arena-training-20261005/004320.png",
+      "key": "marker-1",
+      "box": [
+        500,
+        562,
+        628,
+        706
+      ],
+      "old_id": "DA_KogMaw18_AD",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-five-cost-training-20261005/000050.png",
+      "key": "marker-9",
+      "box": [
+        747,
+        579,
+        875,
+        723
+      ],
+      "old_id": "DA_18_Alune",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-rare-training-20261005/twitch-2891052706-011460.png",
+      "key": "rare-4",
+      "box": [
+        759,
+        469,
+        887,
+        613
+      ],
+      "old_id": "DA_18_Veigar",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-rare-training-20261005/twitch-2891050468-004860.png",
+      "key": "rare-9",
+      "box": [
+        501,
+        573,
+        629,
+        717
+      ],
+      "old_id": "DA_Cinderling18",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-rare-training-20261005/twitch-2891050468-013200.png",
+      "key": "rare-5",
+      "box": [
+        948,
+        355,
+        1076,
+        499
+      ],
+      "old_id": "DA_18_Soraka",
+      "new_id": null,
+      "reason": "Crop target obscured by HUD, effects or adjacent units, or visually ambiguous; no replacement identity or negative label assigned."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-1",
+      "box": [
+        725,
+        337,
+        853,
+        481
+      ],
+      "old_id": "DA_18_Morgana",
+      "new_id": "DA_18_Camille",
+      "reason": "Correcting this turn's new source labels: pointed blade legs and purple/red crown match named Camille render. Named Morgana render and original Morgana source show a long gown and hood. Full-size reference inspected; no model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-1",
+      "box": [
+        725,
+        337,
+        853,
+        481
+      ],
+      "old_id": "DA_18_Morgana",
+      "new_id": "DA_18_Camille",
+      "reason": "Correcting this turn's new source labels: pointed blade legs and purple/red crown match named Camille render. Named Morgana render and original Morgana source show a long gown and hood. Full-size reference inspected; no model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-2",
+      "box": [
+        725,
+        337,
+        853,
+        481
+      ],
+      "old_id": "DA_18_Morgana",
+      "new_id": "DA_18_Camille",
+      "reason": "Correcting this turn's new source labels: pointed blade legs and purple/red crown match named Camille render. Named Morgana render and original Morgana source show a long gown and hood. Full-size reference inspected; no model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-1",
+      "box": [
+        725,
+        337,
+        853,
+        481
+      ],
+      "old_id": "DA_18_Morgana",
+      "new_id": "DA_18_Camille",
+      "reason": "Correcting this turn's new source labels: pointed blade legs and purple/red crown match named Camille render. Named Morgana render and original Morgana source show a long gown and hood. Full-size reference inspected; no model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-3",
+      "box": [
+        725,
+        337,
+        853,
+        481
+      ],
+      "old_id": "DA_18_Morgana",
+      "new_id": "DA_18_Camille",
+      "reason": "Correcting this turn's new source labels: pointed blade legs and purple/red crown match named Camille render. Named Morgana render and original Morgana source show a long gown and hood. Full-size reference inspected; no model pseudolabel."
+    },
+    {
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-2",
+      "box": [
+        725,
+        337,
+        853,
+        481
+      ],
+      "old_id": "DA_18_Morgana",
+      "new_id": "DA_18_Camille",
+      "reason": "Correcting this turn's new source labels: pointed blade legs and purple/red crown match named Camille render. Named Morgana render and original Morgana source show a long gown and hood. Full-size reference inspected; no model pseudolabel."
+    }
+  ]
+}
