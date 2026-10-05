@@ -396,3 +396,37 @@ Também concluímos a coleta de `youtube:T0KVjZtR3GY` (Void TFT, Elise): 66 quad
 237 propostas em 660 segundos e 89 propostas em uma grade de revisão de 30 segundos.
 Nenhuma proposta dessa fonte foi ainda adicionada como rótulo. Vídeo, recortes e
 pesos ficam no SSD; os relatórios e manifestos são versionados no Git.
+
+## Elise e revisão de identidades antigas
+
+A revisão de 89 propostas do vídeo de Elise acrescentou 44 unidades nomeadas e
+sete recortes sem unidade; 38 propostas ambíguas ou redundantes ficaram de fora.
+Oito exemplos são de Elise em forma humana. Sua forma de aranha permanece sem
+cobertura revisada. Os renders nomeados permitiram distinguir Elise de Morgana;
+nenhuma sugestão do classificador foi promovida automaticamente a rótulo.
+
+A versão intermediária passou a 556 unidades de treino e 64/74 IDs. Os dez IDs
+faltantes são variantes de Lux. O artefato com lote 1 acertou 19/32 na validação,
+60/107 no desafio de desenvolvimento e 20/35 na partida de Tristana. A expansão
+não demonstra melhora generalizada: os resultados variam entre as amostras.
+`elise-expanded-report.json` preserva essa execução, sem promoção ao aplicativo.
+
+Também revisamos 63 exemplos de quatro classes com baixo acerto no próprio treino.
+A inspeção visual encontrou 11 identidades incorretas: oito Alune marcadas como
+Diana, uma Caitlyn marcada como Diana, um Brambleback marcado como Diana e um
+Kog'Maw marcado como Soraka. Seis outros recortes ficaram em quarentena porque
+oclusão ou aparência conflitante não permitem confirmar a identidade. A revisão
+atinge somente treino; validação e testes não foram alterados. O novo manifesto
+`unit-gallery-label-reconciled-20261005.json` e o registro
+`low-fit-label-corrections.json` conservam as mudanças e seus motivos.
+
+Uma segunda partida com Sprykin, do canal Padado (`youtube:bJF34u5fkGw`), foi
+baixada para procurar aparências montadas fora da partida reservada à avaliação.
+A coleta nativa está em execução. Nenhum recorte dessa nova fonte entrou no treino.
+
+Após a reconciliação, o novo treino terminou com 550 unidades nomeadas, 64 IDs
+cobertos e 15 classes sustentadas por uma única fonte de treino. O acerto no próprio
+treino foi 511/550; esse número não comprova generalização. Na validação foram
+19/32, no desafio 62/107. A avaliação de Tristana está registrada integralmente
+em `tristana-label-reconciled-evaluation.json`. Os pesos permanecem privados no
+SSD e não foram ativados no Windows.

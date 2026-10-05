@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T06:25:26.903Z",
+  "recorded_at": "2026-10-05T06:35:06.727Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -908,7 +908,36 @@
     "frames": 66,
     "proposed_crops": 237,
     "review_candidates": 89,
-    "status": "collection_complete_visual_review_pending",
+    "named_training_added": 44,
+    "negative_training_added": 7,
+    "appearance": "Elise humanoid only; spider not yet labeled",
+    "status": "labels_audited_and_training_complete"
+  },
+  "latest_label_reconciliation": {
+    "reviewed_training_crops": 63,
+    "corrected_identities": 11,
+    "quarantined": 6,
+    "annotations": "configs/training/unit-gallery-label-reconciled-20261005.json",
+    "training_status": "complete",
+    "private_model_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/label-reconciled-head",
+    "head_sha256": "4ed7b30ad5da4d4f3a0dd76300a9d83f4625328015ffe8a9a47f294d1a1bc145",
+    "training_examples": 550,
+    "catalog_ids_covered": 64,
+    "catalog_ids_total": 74,
+    "validation_correct": 19,
+    "validation_samples": 32,
+    "development_audit_correct": 62,
+    "development_audit_samples": 107,
+    "tristana_correct": 21,
+    "tristana_samples": 35,
+    "runtime_approved": false
+  },
+  "sprykin_training_source": {
+    "source": "https://www.youtube.com/watch?v=bJF34u5fkGw",
+    "creator": "Padado",
+    "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-padado-pool-10s",
+    "status": "collection_running",
+    "planned_seconds": 2180,
     "training_labels_added": 0
   }
 }

@@ -1,0 +1,373 @@
+{
+  "review": {
+    "source_id": "youtube:T0KVjZtR3GY",
+    "source_url": "https://www.youtube.com/watch?v=T0KVjZtR3GY",
+    "creator": "Void TFT",
+    "authorization_basis": "User states creator authorization for project training",
+    "proposed_review_crops": 89,
+    "named_added": 44,
+    "negatives_added": 7,
+    "excluded_ambiguous_or_redundant": 38,
+    "independent_human_ground_truth": false,
+    "spider_form_coverage": false
+  },
+  "labels": [
+    {
+      "index": 0,
+      "image": "unit-gallery-elise-training-20261005/000000.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "8023bbe84f5ced5b4c6f52d1fe9e18a94b762dcb09ab491d497883ee3bad71d8",
+      "label": "__unknown__"
+    },
+    {
+      "index": 1,
+      "image": "unit-gallery-elise-training-20261005/000000.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "d887b1d735a1f942fdbb819fc3b9c41189318b3ecd64ec673d761b75e74d8555",
+      "label": "__unknown__"
+    },
+    {
+      "index": 2,
+      "image": "unit-gallery-elise-training-20261005/000030.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "65afa557cfbd20eeb7741e8488f48b51b2cd879b1ee9dadbe5f6988dc0e64fcd",
+      "label": "__unknown__"
+    },
+    {
+      "index": 3,
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "cce09fa576adaee0998bf7d862e04d46854c5e17569dd83a19dc646030be256a",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 4,
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "7ace24b3565d682a5b7b5f5bc37542151debb65d1886d3daf1aab41f729154a1",
+      "label": "DA_18_Morgana"
+    },
+    {
+      "index": 5,
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "fadfef74beae04b71ed4443a84a0035609d7c6bd79b3c6e9a5e0a1b4a1435cf6",
+      "label": "DA_Brambleback18"
+    },
+    {
+      "index": 7,
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "898ceadc3b8cf91faf2e844bfeb04c96db5388794e38b9e5b7e66d944c0f3aba",
+      "label": "DA_18_Caitlyn"
+    },
+    {
+      "index": 8,
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "e75caa91959a00f4fb5e12f408a17753e821398dcef7ed07b186f10c12af3d4a",
+      "label": "DA_18_Veigar"
+    },
+    {
+      "index": 11,
+      "image": "unit-gallery-elise-training-20261005/000090.png",
+      "key": "marker-8",
+      "crop_pixel_sha256": "4d8626f9dfd5d1b52b95b07a7532d4736a01841889a34fea703aacad61282acc",
+      "label": "DA_18_Ahri"
+    },
+    {
+      "index": 12,
+      "image": "unit-gallery-elise-training-20261005/000120.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "eb252e85737d8fdbdf2cbb900c9e5d6047e283281178de0d349156090492d407",
+      "label": "__unknown__"
+    },
+    {
+      "index": 13,
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "aabc5812b483939259b9972e5d46ecc55882ea084a7b41d90a8074e6865dd863",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 14,
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "7db64c9385701c44369df7a407515379808dee83f95628f90e564740bf131138",
+      "label": "DA_18_Morgana"
+    },
+    {
+      "index": 15,
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "10ae4aeb5a6971b5620ad934add959f7641c3ebe9bb4b1958ac09ce467b2b3ed",
+      "label": "DA_Brambleback18"
+    },
+    {
+      "index": 16,
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "4dd3d1ab73eb092a6c44351312b885f252f271678efc35c4dab364b4eb2b39fa",
+      "label": "DA_18_Hecarim"
+    },
+    {
+      "index": 17,
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "51bbf85193ffc64912ee1276b8f606e77048687785842554013e37666071676c",
+      "label": "DA_18_Caitlyn"
+    },
+    {
+      "index": 20,
+      "image": "unit-gallery-elise-training-20261005/000150.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "a8f49a4f423c38ee9f3f3c8ffa27faf38d9f2362cfe5ccaaf5de44662bb4e161",
+      "label": "DA_18_Diana"
+    },
+    {
+      "index": 21,
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "63efe3b9f4154b5a38c338a5cb738124c200029c7699068dea70b13974d48b57",
+      "label": "__unknown__"
+    },
+    {
+      "index": 22,
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "803841d81fdf73d495b0c10aa2e3c3ae553ea36afcb42746edb089cfacff4684",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 23,
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "875e556dd54047dfb370b0addb3cc1fd1ef05b1d4fc157aadf425952d57d2398",
+      "label": "DA_18_Morgana"
+    },
+    {
+      "index": 24,
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "6bb61a9c9933c8dfebd4f11d5ac272bd535f75b0a4af21fa5be7be483dc427ae",
+      "label": "DA_18_Diana"
+    },
+    {
+      "index": 25,
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "65bae0141ab8e76366959b3f4281fec972062bfb9dd5d8e499ae8dd0cd7fbaf6",
+      "label": "DA_18_Hecarim"
+    },
+    {
+      "index": 27,
+      "image": "unit-gallery-elise-training-20261005/000180.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "d6846c8e2fedd7b3e5ca82bec3b4a25a1731e61cc957fec5b652513c415c82a9",
+      "label": "DA_18_Caitlyn"
+    },
+    {
+      "index": 28,
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "f72f44cbc88a8a79386f4c7c47bb84b8ee2bea9157b74076996e4f20709cdcf7",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 29,
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "3750210f30d43457399b53000c96522649b0ae8da2f14a46ea02f291d58acd77",
+      "label": "DA_18_Morgana"
+    },
+    {
+      "index": 30,
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "987fbc0379badbdc03fdb2e9f590a1120670f71278c7378b5c8fbee54a7087b7",
+      "label": "DA_18_Diana"
+    },
+    {
+      "index": 31,
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "b10e58cddbe30fde672ea11bed9264814209d57506788f094692e3617872fe64",
+      "label": "DA_18_Hecarim"
+    },
+    {
+      "index": 33,
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "49eeb141b0ae1ecc1b72903a83896a097904a7e5f6afbfe13669c2767c3c58bf",
+      "label": "DA_18_Caitlyn"
+    },
+    {
+      "index": 38,
+      "image": "unit-gallery-elise-training-20261005/000240.png",
+      "key": "marker-10",
+      "crop_pixel_sha256": "2d081ca50def9329607fd6e2f44a663e4781ca440793bef2f3faac0e321316f0",
+      "label": "DA_18_Cassiopeia"
+    },
+    {
+      "index": 39,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "0a35e6d57d32c860a244f713828543589a6f399a95361ccc942782239f094de4",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 40,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "c7dc72ae819d9629fe7f51d5e7f25b99bade4c256c26a70315bfeeda6a35b7ee",
+      "label": "DA_18_Hecarim"
+    },
+    {
+      "index": 42,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "7811cab17394ee73a416bad846f829403c4a25e4fab3ee7b77e343ab59a33acf",
+      "label": "DA_18_Morgana"
+    },
+    {
+      "index": 44,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-5",
+      "crop_pixel_sha256": "331ede3a278eafb7c3cf3661bd7656a7266bd48cf1e55f364a0629e19feb7780",
+      "label": "DA_18_Caitlyn"
+    },
+    {
+      "index": 46,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "ef402a1eaa5ee8be84487d2e7dc089f5d258523b894de8098fb76b63963b0d5c",
+      "label": "DA_18_Cassiopeia"
+    },
+    {
+      "index": 48,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-9",
+      "crop_pixel_sha256": "c5046e98822e4f1040a7d24e03c095ee7d228325c1fd91f694c9b7c6bb308176",
+      "label": "DA_18_Diana"
+    },
+    {
+      "index": 52,
+      "image": "unit-gallery-elise-training-20261005/000330.png",
+      "key": "marker-13",
+      "crop_pixel_sha256": "c08af2f51b39ae1a3f904c253e1b031efd632ed26887ecacc6d589d16f52091c",
+      "label": "DA_18_Cassiopeia"
+    },
+    {
+      "index": 53,
+      "image": "unit-gallery-elise-training-20261005/000360.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "52d2019c5038d25c12739e484548e35912486e4fd382030822a8092a3469cde7",
+      "label": "__unknown__"
+    },
+    {
+      "index": 54,
+      "image": "unit-gallery-elise-training-20261005/000480.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "5119c15496e56bc06c39134ea17b0a5ac5c2353e7b8b24f734b13570c73f175d",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 57,
+      "image": "unit-gallery-elise-training-20261005/000480.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "f7d289a2e3afb836503f2e89d1bf8e1dd2469527225955bb4c9329f7464adb1c",
+      "label": "DA_18_Diana"
+    },
+    {
+      "index": 60,
+      "image": "unit-gallery-elise-training-20261005/000480.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "4ae9ff3e3a78a66f02aca292f072798a780398a1443c087e5a0c880c313a75f7",
+      "label": "DA_18_Cassiopeia"
+    },
+    {
+      "index": 61,
+      "image": "unit-gallery-elise-training-20261005/000480.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "b21f752d3c952fc4f8631de07b2ae413c2a7d8d279f02e31c10b458f43992902",
+      "label": "DA_18_Hecarim"
+    },
+    {
+      "index": 64,
+      "image": "unit-gallery-elise-training-20261005/000540.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "4e7bf1b320672771d4638456ee5372cab74b66fcfbec0ce891d07ee52216e524",
+      "label": "__unknown__"
+    },
+    {
+      "index": 65,
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "423c9b91f008c5fbede9a51b03d797771fa55d0019ed8ee787d5417c247e22ee",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 66,
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "1c3919b4b7bd72e6c63281415a488bfbf3cc94516ec35bde668c405870f9bb24",
+      "label": "DA_Sentinel18"
+    },
+    {
+      "index": 67,
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-2",
+      "crop_pixel_sha256": "38a050cde2eafb9092ae199ee86bb429edd768af7755c9a828807c88cd4e716d",
+      "label": "DA_18_Morgana"
+    },
+    {
+      "index": 71,
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-6",
+      "crop_pixel_sha256": "915b909358adb9852cc9013e30bb330bc0e04a53d9243a368c2663b4d19a84d5",
+      "label": "DA_18_Caitlyn"
+    },
+    {
+      "index": 72,
+      "image": "unit-gallery-elise-training-20261005/000570.png",
+      "key": "marker-7",
+      "crop_pixel_sha256": "620ec98145394860781e2a4d3b6977eb05c294ce00beecd379ef28f5eebe993c",
+      "label": "DA_18_Cassiopeia"
+    },
+    {
+      "index": 76,
+      "image": "unit-gallery-elise-training-20261005/000600.png",
+      "key": "marker-0",
+      "crop_pixel_sha256": "c0e8ee7d61d1722b67cdb28fbc9862213fce14b105ad3fa8ff2551f0d2f34baf",
+      "label": "DA_18_Elise"
+    },
+    {
+      "index": 77,
+      "image": "unit-gallery-elise-training-20261005/000600.png",
+      "key": "marker-1",
+      "crop_pixel_sha256": "9d241cd47e16169db50b02e33fc0c79c2f3565df196a43aae194f40ee31e21fe",
+      "label": "DA_Sentinel18"
+    },
+    {
+      "index": 79,
+      "image": "unit-gallery-elise-training-20261005/000600.png",
+      "key": "marker-3",
+      "crop_pixel_sha256": "df88b629c121a8340b0c1c4affbcb251d84ca6644bd670c4d6141c909f10ea4e",
+      "label": "DA_18_Hecarim"
+    },
+    {
+      "index": 80,
+      "image": "unit-gallery-elise-training-20261005/000600.png",
+      "key": "marker-4",
+      "crop_pixel_sha256": "adfe8740b03d4a04cc16d3581bcd014f2e8090747ff56097fcfaa6ef9dab085e",
+      "label": "DA_18_Diana"
+    },
+    {
+      "index": 84,
+      "image": "unit-gallery-elise-training-20261005/000600.png",
+      "key": "marker-8",
+      "crop_pixel_sha256": "70f62d20beb9f90c9afa9ea9bce07f1d60926741abe84cc667c33174c0a66fac",
+      "label": "DA_18_Cassiopeia"
+    }
+  ]
+}

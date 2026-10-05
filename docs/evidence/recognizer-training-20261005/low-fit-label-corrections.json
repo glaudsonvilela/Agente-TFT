@@ -1,0 +1,249 @@
+{
+  "review": {
+    "reviewed": 63,
+    "corrected": 11,
+    "excluded": 6,
+    "training_only": true,
+    "independent_human_ground_truth": false
+  },
+  "changes": [
+    {
+      "index": 3,
+      "image": "unit-gallery-arena-training-20261005/003720.png",
+      "key": "marker-7",
+      "box": [
+        503,
+        542,
+        631,
+        686
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Caitlyn",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 4,
+      "image": "unit-gallery-arena-training-20261005/004920.png",
+      "key": "marker-1",
+      "box": [
+        1039,
+        543,
+        1167,
+        687
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_Brambleback18",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 6,
+      "image": "unit-gallery-five-cost-training-20261005/000530.png",
+      "key": "marker-6",
+      "box": [
+        339,
+        677,
+        467,
+        821
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 7,
+      "image": "unit-gallery-five-cost-training-20261005/000530.png",
+      "key": "marker-7",
+      "box": [
+        460,
+        677,
+        588,
+        821
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 8,
+      "image": "unit-gallery-morgana-training-20261005/000480.png",
+      "key": "marker-11",
+      "box": [
+        944,
+        679,
+        1072,
+        823
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 9,
+      "image": "unit-gallery-morgana-training-20261005/000720.png",
+      "key": "marker-0",
+      "box": [
+        480,
+        335,
+        608,
+        479
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 10,
+      "image": "unit-gallery-morgana-training-20261005/000840.png",
+      "key": "marker-4",
+      "box": [
+        498,
+        563,
+        626,
+        707
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 11,
+      "image": "unit-gallery-morgana-training-20261005/001080.png",
+      "key": "marker-8",
+      "box": [
+        496,
+        553,
+        624,
+        697
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 12,
+      "image": "unit-gallery-morgana-training-20261005/001200.png",
+      "key": "marker-2",
+      "box": [
+        560,
+        471,
+        688,
+        615
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 13,
+      "image": "unit-gallery-morgana-training-20261005/001320.png",
+      "key": "marker-13",
+      "box": [
+        332,
+        669,
+        460,
+        813
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": "DA_18_Alune",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 38,
+      "image": "unit-gallery-arena-training-20261005/003720.png",
+      "key": "marker-10",
+      "box": [
+        652,
+        605,
+        780,
+        749
+      ],
+      "old_id": "DA_18_Soraka",
+      "new_id": "DA_KogMaw18_AD",
+      "reason": "Assistant visual re-review against named renders and full frame; former label contradicted by visible morphology. Model predictions not used as new label."
+    },
+    {
+      "index": 2,
+      "image": "unit-gallery-arena-training-20261005/003720.png",
+      "key": "marker-6",
+      "box": [
+        769,
+        541,
+        897,
+        685
+      ],
+      "old_id": "DA_18_Diana",
+      "new_id": null,
+      "reason": "Target identity is not sufficiently clear in the reviewed crop; occlusion or conflicting morphology. No replacement identity assigned."
+    },
+    {
+      "index": 27,
+      "image": "unit-gallery-long-training-20261005/001980.png",
+      "key": "marker-6",
+      "box": [
+        1126,
+        285,
+        1254,
+        429
+      ],
+      "old_id": "DA_18_Leona",
+      "new_id": null,
+      "reason": "Target identity is not sufficiently clear in the reviewed crop; occlusion or conflicting morphology. No replacement identity assigned."
+    },
+    {
+      "index": 28,
+      "image": "unit-gallery-long-training-20261005/002580.png",
+      "key": "marker-8",
+      "box": [
+        1070,
+        347,
+        1198,
+        491
+      ],
+      "old_id": "DA_18_Leona",
+      "new_id": null,
+      "reason": "Target identity is not sufficiently clear in the reviewed crop; occlusion or conflicting morphology. No replacement identity assigned."
+    },
+    {
+      "index": 54,
+      "image": "unit-gallery-long-training-20261005/002580.png",
+      "key": "marker-0",
+      "box": [
+        726,
+        222,
+        854,
+        366
+      ],
+      "old_id": "DA_18_Rengar",
+      "new_id": null,
+      "reason": "Target identity is not sufficiently clear in the reviewed crop; occlusion or conflicting morphology. No replacement identity assigned."
+    },
+    {
+      "index": 55,
+      "image": "unit-gallery-long-training-20261005/002580.png",
+      "key": "marker-1",
+      "box": [
+        681,
+        253,
+        809,
+        397
+      ],
+      "old_id": "DA_18_Rengar",
+      "new_id": null,
+      "reason": "Target identity is not sufficiently clear in the reviewed crop; occlusion or conflicting morphology. No replacement identity assigned."
+    },
+    {
+      "index": 60,
+      "image": "unit-gallery-long-training-20261005/007620.png",
+      "key": "marker-4",
+      "box": [
+        1224,
+        497,
+        1352,
+        641
+      ],
+      "old_id": "DA_18_Rengar",
+      "new_id": null,
+      "reason": "Target identity is not sufficiently clear in the reviewed crop; occlusion or conflicting morphology. No replacement identity assigned."
+    }
+  ]
+}
