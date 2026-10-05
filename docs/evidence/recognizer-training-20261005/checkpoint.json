@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T10:40:00-03:00",
+  "recorded_at": "2026-10-05T10:56:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "awaiting_visual_review",
-    "protocol": "docs/evidence/recognizer-training-20261005/new-image-review-protocol.json",
-    "review_pack": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005/review-pack-v1",
-    "automatic_labels": false,
+    "status": "rerun_review_queue_after_source_policy_fix",
+    "fix_commit": "dac2ad00509376915be781404e2f52fc3300b939",
+    "queue_runner": "scripts/build_new_ssd_review_queue.py",
+    "note": "Use a new output directory because the previous queue is preserved as audit evidence.",
     "training_performed": false,
     "runtime_approved": false
   },
@@ -1367,7 +1367,7 @@
     "runtime_approved": false
   },
   "latest_ssd_review_queue": {
-    "status": "complete",
+    "status": "superseded_by_checkpoint_source_policy_fix",
     "evidence": "docs/evidence/recognizer-training-20261005/new-ssd-review-queue-result.json",
     "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005",
     "review_crop_candidates": 126,
@@ -1384,7 +1384,14 @@
       "DA_Murkwolf18"
     ],
     "training_performed": false,
-    "runtime_approved": false
+    "runtime_approved": false,
+    "source_policy_bug": "queue builder trusted collector report.partition and admitted youtube:qkG10NeqM3A although checkpoint marks it unlabeled_appearance_review_only",
+    "invalidated_new_source_candidates": {
+      "DA_18_KhaZix": 1,
+      "DA_Karma18": 2
+    },
+    "manual_review": "docs/evidence/recognizer-training-20261005/review-pack-v1-manual-pass1.json",
+    "admitted_training_examples": 0
   },
   "latest_ssd_review_pack": {
     "status": "complete",
