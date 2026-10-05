@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T10:12:37-03:00",
+  "recorded_at": "2026-10-05T10:15:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1316,7 +1316,7 @@
     "next": "Increase source diversity for remaining single-source IDs and resolve missing Lux forms; improve identity transfer and unknown rejection, then validate on a source not used to guide development."
   },
   "latest_optimizer_experiment": {
-    "status": "complete_selection_frozen",
+    "status": "complete_frozen_development_evaluation",
     "protocol": "docs/evidence/recognizer-training-20261005/optimizer-study-protocol.json",
     "result": "docs/evidence/recognizer-training-20261005/optimizer-study-result.json",
     "private_output_root": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/optimizer-study-resume-20261005-101237",
@@ -1328,6 +1328,21 @@
     "minjo_kh_evaluated_after_selection": false,
     "independent_final_holdout": false,
     "runtime_approved": false,
-    "next": "Evaluate only the frozen selected arm on Minjo and KH without fitting or using their outcomes to tune hyperparameters."
+    "next": "Inventory genuinely new SSD images, exclude any image/source/pixel already present in train/validation/test manifests, create a review-only queue, then add only manually reviewed training-side examples.",
+    "frozen_development_evaluation": "docs/evidence/recognizer-training-20261005/optimizer-frozen-development-evaluation.json",
+    "minjo": {
+      "correct": 30,
+      "named": 35,
+      "named_macro_recall": 0.829365079365,
+      "prediction_parity": true
+    },
+    "kh": {
+      "correct": 24,
+      "named": 35,
+      "named_macro_recall": 0.735897435897,
+      "prediction_parity": true
+    },
+    "training_performed": false,
+    "selection_changed_after_evaluation": false
   }
 }
