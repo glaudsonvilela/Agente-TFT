@@ -86,3 +86,55 @@ compatível com a avaliação linear descrita no
 [repositório DINOv2](https://github.com/facebookresearch/dinov2/blob/main/dinov2/eval/linear.py).
 Aqui usamos uma implementação própria pequena em Rust, com protocolo e dados
 TFT; não reproduzimos os resultados publicados do DINOv2.
+
+## Segundo checkpoint: coleta concluída e desafio maior
+
+As duas coletas terminaram:
+
+| Fonte | Duração amostrada | Quadros | Recortes propostos |
+|---|---:|---:|---:|
+| k3soju, avaliação | 6 h | 2.160 | 9.554 |
+| Dishsoap, treino | 3 h 49 min | 687 | 3.345 |
+
+São propostas do detector de barras, não unidades todas corretamente localizadas.
+A revisão adicionou 123 unidades e 3 negativos de 22 quadros da fonte de treino.
+O conjunto passa a 316 recortes nomeados de treino e 53 dos 74 IDs do catálogo.
+21 IDs ainda não têm exemplo nomeado. Formas sazonais contam separadamente.
+
+No VOD independente, uma grade de revisão a cada dez minutos produziu 137
+propostas: 107 recortes únicos revisáveis, 29 ambíguos excluídos e uma repetição.
+Dos 107, 98 são unidades e 9 são recortes sem unidade. São rótulos revisados
+pelo assistente, sem confirmação humana independente. A exclusão dos ambíguos
+favorece exemplos legíveis, portanto não é acurácia de todos os 9.554 recortes.
+
+| Método | Acertos nos 107 revisados |
+|---|---:|
+| Galeria DINO original, vizinho mais próximo | 25 |
+| Classificador inicial | 33 |
+| Classificador com os 123 novos exemplos | 38 |
+| Classificador ampliado com variações sintéticas | 37 |
+
+As variações sintéticas são espelhamento, brilho 0,75/1,25 e máscara aproximada
+de fundo, aplicadas exclusivamente ao treino. Não representam novos vídeos nem
+uma segmentação confirmada. Essa tentativa não resolveu a diferença entre fontes.
+
+**O modelo permanece inadequado para ativação nas dicas.** A avaliação maior
+expôs erros que o conjunto antigo pequeno escondia. Há ganhos em Rammus e
+Rengar e regressões em Camille/Shen. O custo da camada classificadora é cerca
+de 0,04 ms por recorte nesta CPU, excluindo DINO, captura e localização.
+O custo mediano do caminho completo do coletor foi ~276 ms/quadro; inclui PNG,
+não mede a janela ao vivo do Windows. Não confundir esses dois tempos.
+
+O treino agora aceita cache de embeddings por encoder, pré-processamento,
+tamanho e **lote ordenado**: quantização dinâmica pode depender dos demais
+exemplos no lote. Isso evita reutilização incorreta por hash de pixel isolado.
+
+Próxima investigação: associação entre recorte e unidade, diferença de arena,
+cobertura e confiabilidade dos rótulos. `mine-tooltip-labels` procura nomes
+explícitos nos painéis do próprio jogo e sugere recortes com contorno ciano
+para revisão; essa associação não vira rótulo automaticamente.
+
+Os contratos nativos do primeiro checkpoint passaram em Linux e Windows no CI.
+Dois jobs gerais de Windows expuseram uma falha anterior de checksum das tabelas
+econômicas causada por conversão de fim de linha. `.gitattributes` fixa LF para
+JSON de configuração; a verificação de hash continua exigida.

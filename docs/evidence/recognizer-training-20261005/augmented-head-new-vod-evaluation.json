@@ -1,0 +1,1067 @@
+{
+  "audit": [
+    {
+      "classifier": "DA_18_Caitlyn",
+      "crop": "crops/bea3a4d1dcbead1047723275418a0f2b0d24f0b7c826a046ba9e62185e0f4ade.png",
+      "label": "DA_18_Caitlyn",
+      "nearest_gallery": "DA_18_Caitlyn",
+      "pixel_sha256": "bea3a4d1dcbead1047723275418a0f2b0d24f0b7c826a046ba9e62185e0f4ade",
+      "source_seconds_nominal": 0
+    },
+    {
+      "classifier": "DA_18_Ornn",
+      "crop": "crops/1125e52cc55ee3d44f1a0b41a17eff891d189705220e84038e86699b943c46f8.png",
+      "label": "DA_18_Ornn",
+      "nearest_gallery": "DA_18_Ornn",
+      "pixel_sha256": "1125e52cc55ee3d44f1a0b41a17eff891d189705220e84038e86699b943c46f8",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_18_Diana",
+      "crop": "crops/56106ffbd70c20df2f0188c6327f08818c09503ff0a2f1ffeaaefce12692ad84.png",
+      "label": "DA_18_Shen",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "56106ffbd70c20df2f0188c6327f08818c09503ff0a2f1ffeaaefce12692ad84",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_Karma18",
+      "crop": "crops/bb6925687fde242d2931e45d811125c8ebc10bafb9bc807f681db7a4b27dcc8d.png",
+      "label": "DA_18_Camille",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "bb6925687fde242d2931e45d811125c8ebc10bafb9bc807f681db7a4b27dcc8d",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_18_Veigar",
+      "crop": "crops/28d8ffd2edea5a51a45e040a7b15ccd8373b1adfb70f49efd1eece58b9e9f087.png",
+      "label": "DA_18_Varus",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "28d8ffd2edea5a51a45e040a7b15ccd8373b1adfb70f49efd1eece58b9e9f087",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/94016d5a69cb84bf9dbb8db1365f88bf51026cfe408a7eae6bd445a71199c818.png",
+      "label": "DA_18_Soraka",
+      "nearest_gallery": "DA_18_Zyra",
+      "pixel_sha256": "94016d5a69cb84bf9dbb8db1365f88bf51026cfe408a7eae6bd445a71199c818",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_18_LeBlanc",
+      "crop": "crops/d0b0740819961276766da7e1868ab34f0abcd6b56b44f0ee271e4f1a183d4468.png",
+      "label": "DA_18_Akali_AD",
+      "nearest_gallery": "DA_18_Diana",
+      "pixel_sha256": "d0b0740819961276766da7e1868ab34f0abcd6b56b44f0ee271e4f1a183d4468",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/45d97bcd106075f48d0447060e163fb40e6a58e6d680cd1ea045a0ed6c4c108b.png",
+      "label": "DA_Fiddlesticks18",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "45d97bcd106075f48d0447060e163fb40e6a58e6d680cd1ea045a0ed6c4c108b",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_18_Hecarim",
+      "crop": "crops/5a0217417442ea46a282cb132360df5c82981cbba9211a07488bb26ad75d0767.png",
+      "label": "DA_18_Shen",
+      "nearest_gallery": "DA_18_Shen",
+      "pixel_sha256": "5a0217417442ea46a282cb132360df5c82981cbba9211a07488bb26ad75d0767",
+      "source_seconds_nominal": 600
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/51f4a985b0becb3641a5e1ea7651b556c9b2bbea885fb428871dbed4b730daf2.png",
+      "label": "DA_18_Zyra",
+      "nearest_gallery": "DA_18_Shen",
+      "pixel_sha256": "51f4a985b0becb3641a5e1ea7651b556c9b2bbea885fb428871dbed4b730daf2",
+      "source_seconds_nominal": 1200
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/f9aba6d6b2793246169f266b83cf3a0142c8743d2f9308baee76b4314ee0c3fc.png",
+      "label": "DA_18_Zyra",
+      "nearest_gallery": "DA_18_Caitlyn",
+      "pixel_sha256": "f9aba6d6b2793246169f266b83cf3a0142c8743d2f9308baee76b4314ee0c3fc",
+      "source_seconds_nominal": 1800
+    },
+    {
+      "classifier": "__unknown__",
+      "crop": "crops/6e62d3727cb340c726f8e6711689499f132b43b632f70c55f4c192b89e10e24a.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_18_Sentry",
+      "pixel_sha256": "6e62d3727cb340c726f8e6711689499f132b43b632f70c55f4c192b89e10e24a",
+      "source_seconds_nominal": 2400
+    },
+    {
+      "classifier": "DA_18_Zyra",
+      "crop": "crops/2326086f734a38820d1890fd287aa5a19e58fe935c5abc9abe03ba5cb55d67a0.png",
+      "label": "DA_18_Caitlyn",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "2326086f734a38820d1890fd287aa5a19e58fe935c5abc9abe03ba5cb55d67a0",
+      "source_seconds_nominal": 3000
+    },
+    {
+      "classifier": "DA_Vi18",
+      "crop": "crops/6fda549046914087d90cfadb33a9d587d0e6f4cf8d64511861b694055eb81cb9.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "6fda549046914087d90cfadb33a9d587d0e6f4cf8d64511861b694055eb81cb9",
+      "source_seconds_nominal": 3600
+    },
+    {
+      "classifier": "DA_18_Ivern",
+      "crop": "crops/e56274a9cd059f9c4662d3ac44d04492d272c56dcc8d1ee0fc0ba203cdf7fbe7.png",
+      "label": "DA_18_Zyra",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "e56274a9cd059f9c4662d3ac44d04492d272c56dcc8d1ee0fc0ba203cdf7fbe7",
+      "source_seconds_nominal": 3600
+    },
+    {
+      "classifier": "DA_18_Lillia",
+      "crop": "crops/f7425a5e6cad0b85082650a04a39547dac4d344a4407d417fbbc7edaafcbc93d.png",
+      "label": "DA_18_Yorick",
+      "nearest_gallery": "DA_18_Zyra",
+      "pixel_sha256": "f7425a5e6cad0b85082650a04a39547dac4d344a4407d417fbbc7edaafcbc93d",
+      "source_seconds_nominal": 3600
+    },
+    {
+      "classifier": "DA_18_Kayle",
+      "crop": "crops/1009145c32ec8e6c920a9abe06b4b5c726cf892588c410f375d496da70064390.png",
+      "label": "DA_18_Azir",
+      "nearest_gallery": "DA_18_Kayle",
+      "pixel_sha256": "1009145c32ec8e6c920a9abe06b4b5c726cf892588c410f375d496da70064390",
+      "source_seconds_nominal": 3600
+    },
+    {
+      "classifier": "DA_Brambleback18",
+      "crop": "crops/013a630e6b6bf6e6c7c7f7367d95e5011099a2c312a051209d6fa5f2856d30ec.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_Brambleback18",
+      "pixel_sha256": "013a630e6b6bf6e6c7c7f7367d95e5011099a2c312a051209d6fa5f2856d30ec",
+      "source_seconds_nominal": 5400
+    },
+    {
+      "classifier": "DA_18_Sejuani",
+      "crop": "crops/a3a3df7d67df42539ec09ed23f8c48f4f6c6c866c4b18e2bd8d775af0da4e138.png",
+      "label": "DA_18_Sejuani",
+      "nearest_gallery": "DA_18_Sejuani",
+      "pixel_sha256": "a3a3df7d67df42539ec09ed23f8c48f4f6c6c866c4b18e2bd8d775af0da4e138",
+      "source_seconds_nominal": 5400
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/9c4d222986c62f1872f848b34114906e36ae75e860dd16c0f491ccc88f99b1b9.png",
+      "label": "DA_18_Sejuani",
+      "nearest_gallery": "DA_18_Maokai",
+      "pixel_sha256": "9c4d222986c62f1872f848b34114906e36ae75e860dd16c0f491ccc88f99b1b9",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/399b2e716f7d5e7168552157da32044da7199e431c1fe72359548b6a4b068d61.png",
+      "label": "DA_18_Leona",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "399b2e716f7d5e7168552157da32044da7199e431c1fe72359548b6a4b068d61",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_18_Warwick",
+      "crop": "crops/bbf98ba6c0b12735e66324ef66838cb4a6ffb8d0f0720d1a982874e72b698c0d.png",
+      "label": "DA_18_Yorick",
+      "nearest_gallery": "DA_Amumu18",
+      "pixel_sha256": "bbf98ba6c0b12735e66324ef66838cb4a6ffb8d0f0720d1a982874e72b698c0d",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/8b844eb2ba2b60ea316705296f411945630d6384e5d8b9ea11e2cbab3f238a7a.png",
+      "label": "DA_18_Kayle",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "8b844eb2ba2b60ea316705296f411945630d6384e5d8b9ea11e2cbab3f238a7a",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/5e7878e73c1bc1cee5d3c851f252cd91c0f90faac237fafb041b46f005ce6fa0.png",
+      "label": "DA_18_Kennen",
+      "nearest_gallery": "DA_18_Alistar",
+      "pixel_sha256": "5e7878e73c1bc1cee5d3c851f252cd91c0f90faac237fafb041b46f005ce6fa0",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/0b16685068adab3dfe55806dcb6e2d7982fde8da3d8ad27a1317d58adc8c3f91.png",
+      "label": "DA_18_Azir",
+      "nearest_gallery": "DA_18_MasterYi_AD",
+      "pixel_sha256": "0b16685068adab3dfe55806dcb6e2d7982fde8da3d8ad27a1317d58adc8c3f91",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_18_Hecarim",
+      "crop": "crops/e84c379d38780432edc5b4c8b48ee9f5467bae4c1fdb82e33a08ef7b0eb54be0.png",
+      "label": "DA_18_Ezreal",
+      "nearest_gallery": "DA_18_Diana",
+      "pixel_sha256": "e84c379d38780432edc5b4c8b48ee9f5467bae4c1fdb82e33a08ef7b0eb54be0",
+      "source_seconds_nominal": 6000
+    },
+    {
+      "classifier": "DA_Cinderling18",
+      "crop": "crops/29d5291bfbbf25cdac7f5cdadaa5ec9c41ab26e5097d75cb1146dbb1738cbf57.png",
+      "label": "DA_18_Kennen",
+      "nearest_gallery": "DA_18_Alistar",
+      "pixel_sha256": "29d5291bfbbf25cdac7f5cdadaa5ec9c41ab26e5097d75cb1146dbb1738cbf57",
+      "source_seconds_nominal": 6600
+    },
+    {
+      "classifier": "DA_18_Sentry",
+      "crop": "crops/c8245b8ee90f608febcb2771ef6121fc326573d07fc29630371cf3e2259e3322.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_18_Zyra",
+      "pixel_sha256": "c8245b8ee90f608febcb2771ef6121fc326573d07fc29630371cf3e2259e3322",
+      "source_seconds_nominal": 8520
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/4bee06021ba6ff50f7a980e6db53e7bb44706b9cc7319909da1f011886558090.png",
+      "label": "DA_Gromp18_AP",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "4bee06021ba6ff50f7a980e6db53e7bb44706b9cc7319909da1f011886558090",
+      "source_seconds_nominal": 9000
+    },
+    {
+      "classifier": "DA_KogMaw18_AD",
+      "crop": "crops/6db03d40ce2b3b74a71ad1f912d31e86788469dd973d66e7eeae8d74868fd6c9.png",
+      "label": "DA_18_Leona",
+      "nearest_gallery": "DA_18_Alistar",
+      "pixel_sha256": "6db03d40ce2b3b74a71ad1f912d31e86788469dd973d66e7eeae8d74868fd6c9",
+      "source_seconds_nominal": 9000
+    },
+    {
+      "classifier": "DA_18_Warwick",
+      "crop": "crops/31cbd4b75ee646900f4fc5370380b987402f31c165017057b5011a1d9388f500.png",
+      "label": "DA_18_Camille",
+      "nearest_gallery": "DA_18_Caitlyn",
+      "pixel_sha256": "31cbd4b75ee646900f4fc5370380b987402f31c165017057b5011a1d9388f500",
+      "source_seconds_nominal": 9000
+    },
+    {
+      "classifier": "DA_18_Akali_AD",
+      "crop": "crops/5e91cd4fb70102253cd4d71c36d60d273908254fa9cc057fb3cf62ddf2a2690c.png",
+      "label": "DA_18_Akali_AD",
+      "nearest_gallery": "DA_18_Akali_AD",
+      "pixel_sha256": "5e91cd4fb70102253cd4d71c36d60d273908254fa9cc057fb3cf62ddf2a2690c",
+      "source_seconds_nominal": 9000
+    },
+    {
+      "classifier": "DA_18_Ornn",
+      "crop": "crops/999ad20f173e846338a0ba1b9f2d20d8460c5d67765210118ddfbb9868170070.png",
+      "label": "DA_18_Ornn",
+      "nearest_gallery": "DA_18_Ornn",
+      "pixel_sha256": "999ad20f173e846338a0ba1b9f2d20d8460c5d67765210118ddfbb9868170070",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Rammus",
+      "crop": "crops/60d3d9cdc1f5a8684d240dde68a53984e98ef13606eb895420c87e6bde04b13b.png",
+      "label": "DA_18_Rammus",
+      "nearest_gallery": "DA_18_Alistar",
+      "pixel_sha256": "60d3d9cdc1f5a8684d240dde68a53984e98ef13606eb895420c87e6bde04b13b",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/c361413bf9b834022fbcb213fe3731c2c1c006674ac223638481932960e79947.png",
+      "label": "DA_Fiddlesticks18",
+      "nearest_gallery": "DA_Fiddlesticks18",
+      "pixel_sha256": "c361413bf9b834022fbcb213fe3731c2c1c006674ac223638481932960e79947",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_RekSai",
+      "crop": "crops/4cb77e9dca8ca3ee7ed9dad1fbae129ef59c32820b99ab5d577a53b9aeb3fe36.png",
+      "label": "DA_18_Shen",
+      "nearest_gallery": "DA_18_Akali_AD",
+      "pixel_sha256": "4cb77e9dca8ca3ee7ed9dad1fbae129ef59c32820b99ab5d577a53b9aeb3fe36",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Cassiopeia",
+      "crop": "crops/691020d128f59f0b5be2f55de581f02a4785575e89d1dc9756824f189cfa10a3.png",
+      "label": "DA_18_Cassiopeia",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "691020d128f59f0b5be2f55de581f02a4785575e89d1dc9756824f189cfa10a3",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/501925267a94881f603b139e4f388c1494a6088b49c48df6b67072225f7bf817.png",
+      "label": "DA_Fiddlesticks18",
+      "nearest_gallery": "DA_Fiddlesticks18",
+      "pixel_sha256": "501925267a94881f603b139e4f388c1494a6088b49c48df6b67072225f7bf817",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Leona",
+      "crop": "crops/7cffb058e032c37285fe62d5625a62776477c3b88663f422a6a7538c8c2df55b.png",
+      "label": "DA_18_Leona",
+      "nearest_gallery": "DA_18_Leona",
+      "pixel_sha256": "7cffb058e032c37285fe62d5625a62776477c3b88663f422a6a7538c8c2df55b",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Shen",
+      "crop": "crops/e31e4edfcf0c138c7dd876de5c579b5a28c9ef49f9625dd098aae580c3270d22.png",
+      "label": "DA_18_Shen",
+      "nearest_gallery": "DA_18_Shen",
+      "pixel_sha256": "e31e4edfcf0c138c7dd876de5c579b5a28c9ef49f9625dd098aae580c3270d22",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Azir",
+      "crop": "crops/bfb7b98d38e81a4aff50066c861e7d5c1bdafeec0dcb692820deed95b913357f.png",
+      "label": "DA_18_Cassiopeia",
+      "nearest_gallery": "DA_18_Zyra",
+      "pixel_sha256": "bfb7b98d38e81a4aff50066c861e7d5c1bdafeec0dcb692820deed95b913357f",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Rammus",
+      "crop": "crops/fb39da49b846d3da75cd759c9ef4bf66b45617f10925a8f78a504ff64275a57c.png",
+      "label": "DA_18_Rammus",
+      "nearest_gallery": "DA_18_Alistar",
+      "pixel_sha256": "fb39da49b846d3da75cd759c9ef4bf66b45617f10925a8f78a504ff64275a57c",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_Rammus",
+      "crop": "crops/3fcd42a72025921cee185e486b305990b468995de193e5e8ee0ef3c41adc6d97.png",
+      "label": "DA_18_Rammus",
+      "nearest_gallery": "DA_18_Aphelios",
+      "pixel_sha256": "3fcd42a72025921cee185e486b305990b468995de193e5e8ee0ef3c41adc6d97",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_18_LeBlanc",
+      "crop": "crops/ca2f2b55e0e1d870e7e3c217a5256733882ae92f1b46c5eddca4b06f45692a97.png",
+      "label": "DA_18_Cassiopeia",
+      "nearest_gallery": "DA_18_Shen",
+      "pixel_sha256": "ca2f2b55e0e1d870e7e3c217a5256733882ae92f1b46c5eddca4b06f45692a97",
+      "source_seconds_nominal": 10200
+    },
+    {
+      "classifier": "DA_Krug18",
+      "crop": "crops/e19c7d794ff9bef5e67df33c625dafd2d1555d888a4b16a5a94968e2a93d290b.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_Krug18",
+      "pixel_sha256": "e19c7d794ff9bef5e67df33c625dafd2d1555d888a4b16a5a94968e2a93d290b",
+      "source_seconds_nominal": 11400
+    },
+    {
+      "classifier": "DA_Murkwolf18",
+      "crop": "crops/061b1491eb1e2fe56b5f78623be0217fca48822cbafb63edd63fe83c913eca92.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_18_Shen",
+      "pixel_sha256": "061b1491eb1e2fe56b5f78623be0217fca48822cbafb63edd63fe83c913eca92",
+      "source_seconds_nominal": 11400
+    },
+    {
+      "classifier": "__unknown__",
+      "crop": "crops/d2ac44adc46f00185047685357b01fc08f3b8fe9565a909daf6a938e0cfe23d7.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_18_Ezreal",
+      "pixel_sha256": "d2ac44adc46f00185047685357b01fc08f3b8fe9565a909daf6a938e0cfe23d7",
+      "source_seconds_nominal": 11400
+    },
+    {
+      "classifier": "DA_18_KhaZix",
+      "crop": "crops/1f55160468bcc6937b04b0b5a8d8e0216a3908e70cb7ac82ac2032008ce423b0.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_18_KhaZix",
+      "pixel_sha256": "1f55160468bcc6937b04b0b5a8d8e0216a3908e70cb7ac82ac2032008ce423b0",
+      "source_seconds_nominal": 11400
+    },
+    {
+      "classifier": "__unknown__",
+      "crop": "crops/b04ecf92d3715703bb9a1094fb95065ea65d7cd0e9acebe0a6a813a39d178262.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "b04ecf92d3715703bb9a1094fb95065ea65d7cd0e9acebe0a6a813a39d178262",
+      "source_seconds_nominal": 11400
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/24f2006811095a80226bd355cec456accd41f87c37b4843510851e9b9b7c71ae.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_Amumu18",
+      "pixel_sha256": "24f2006811095a80226bd355cec456accd41f87c37b4843510851e9b9b7c71ae",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_Diana",
+      "crop": "crops/7818b47ccc41e635ae0ff33e8bb5b32a4d21724901bdc29f53cc744d951619cf.png",
+      "label": "DA_18_Diana",
+      "nearest_gallery": "DA_18_Diana",
+      "pixel_sha256": "7818b47ccc41e635ae0ff33e8bb5b32a4d21724901bdc29f53cc744d951619cf",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/26d524d4dea592c021e4a918af9e3f0ddc75d63f782caaf89b33a24cad844515.png",
+      "label": "DA_18_Rakan",
+      "nearest_gallery": "DA_Amumu18",
+      "pixel_sha256": "26d524d4dea592c021e4a918af9e3f0ddc75d63f782caaf89b33a24cad844515",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/8a6af7d151b495c8dc39aa5db30fcb5f0cb4c1a824bb9e07434ddcd1d2668a35.png",
+      "label": "DA_18_Yorick",
+      "nearest_gallery": "DA_Scuttlecrab18",
+      "pixel_sha256": "8a6af7d151b495c8dc39aa5db30fcb5f0cb4c1a824bb9e07434ddcd1d2668a35",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_Diana",
+      "crop": "crops/7ef39b93a4380fd8e97737a1a1298ff7d7e108eadcd0c44c0ef493e023275709.png",
+      "label": "DA_18_Diana",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "7ef39b93a4380fd8e97737a1a1298ff7d7e108eadcd0c44c0ef493e023275709",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/eb85ed81548dbbb1f46551888e65db70c15f06b63305327ad49bf735fb222f97.png",
+      "label": "DA_18_Aphelios",
+      "nearest_gallery": "DA_18_Cassiopeia",
+      "pixel_sha256": "eb85ed81548dbbb1f46551888e65db70c15f06b63305327ad49bf735fb222f97",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_Varus",
+      "crop": "crops/8c049c7d1f493b980b22384f2de57258f43a2918831615b9502893b8e8f81e10.png",
+      "label": "DA_18_Varus",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "8c049c7d1f493b980b22384f2de57258f43a2918831615b9502893b8e8f81e10",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_Rengar",
+      "crop": "crops/93b8bbabea8afcdf503346e169be255f7fa63d5b3e9e1d9ec878b7bb07cafe8b.png",
+      "label": "DA_18_Rengar",
+      "nearest_gallery": "DA_18_Alistar",
+      "pixel_sha256": "93b8bbabea8afcdf503346e169be255f7fa63d5b3e9e1d9ec878b7bb07cafe8b",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/17abcd642fa6b26c1f914bafe8a40f5f469391913678c7b82bd6aa8ce3da1c66.png",
+      "label": "DA_18_Aphelios",
+      "nearest_gallery": "DA_Vi18",
+      "pixel_sha256": "17abcd642fa6b26c1f914bafe8a40f5f469391913678c7b82bd6aa8ce3da1c66",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_18_Sivir",
+      "crop": "crops/c7cb6645842014d5eb10b8a5d38b06fb59ddf4c297338b7e2d7488b7602804c4.png",
+      "label": "DA_18_Sivir",
+      "nearest_gallery": "DA_18_Sivir",
+      "pixel_sha256": "c7cb6645842014d5eb10b8a5d38b06fb59ddf4c297338b7e2d7488b7602804c4",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_CrimsonRaptor18",
+      "crop": "crops/b56be9d6a7825c81f5fb7757b03ddab4ee031ddfd5fbe22d35b3d3028e422096.png",
+      "label": "DA_CrimsonRaptor18",
+      "nearest_gallery": "DA_CrimsonRaptor18",
+      "pixel_sha256": "b56be9d6a7825c81f5fb7757b03ddab4ee031ddfd5fbe22d35b3d3028e422096",
+      "source_seconds_nominal": 12000
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/36821b0eb2c85a30bcbbd841acd7cbfb19f393271806eef363c00fc9c4e22a25.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_18_Shen",
+      "pixel_sha256": "36821b0eb2c85a30bcbbd841acd7cbfb19f393271806eef363c00fc9c4e22a25",
+      "source_seconds_nominal": 13800
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/bf7c7cefa96fcca4d2cac0df9f64abb124a04e306695041fe80145651ab85241.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_18_Ezreal",
+      "pixel_sha256": "bf7c7cefa96fcca4d2cac0df9f64abb124a04e306695041fe80145651ab85241",
+      "source_seconds_nominal": 13800
+    },
+    {
+      "classifier": "DA_18_Ezreal",
+      "crop": "crops/cd10cd206e741f9d1d005882c4b2ec407ea53393bf97c38ed72e992c931d5fae.png",
+      "label": "DA_18_Zyra",
+      "nearest_gallery": "DA_18_Maokai",
+      "pixel_sha256": "cd10cd206e741f9d1d005882c4b2ec407ea53393bf97c38ed72e992c931d5fae",
+      "source_seconds_nominal": 13800
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/a9c018cb84fe805593e650b199886b7ff6544f1e8eab0792824d2bbc3740c34f.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_18_Caitlyn",
+      "pixel_sha256": "a9c018cb84fe805593e650b199886b7ff6544f1e8eab0792824d2bbc3740c34f",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_18_Rengar",
+      "crop": "crops/543ac747b780a5e2805d58d4ed91ec00447dd96f46749288568f5a61c7b821d4.png",
+      "label": "DA_18_Rengar",
+      "nearest_gallery": "DA_18_Rengar",
+      "pixel_sha256": "543ac747b780a5e2805d58d4ed91ec00447dd96f46749288568f5a61c7b821d4",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_18_Yorick",
+      "crop": "crops/3be20e727ea70a78acef5f47284947f54b989566725d816a525384271b89645f.png",
+      "label": "DA_18_Yorick",
+      "nearest_gallery": "DA_Vi18",
+      "pixel_sha256": "3be20e727ea70a78acef5f47284947f54b989566725d816a525384271b89645f",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/7cde9834bafa1bc0669cca3095458a8db8107e53ccb8c2e3443e599fe7437582.png",
+      "label": "DA_Scuttlecrab18",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "7cde9834bafa1bc0669cca3095458a8db8107e53ccb8c2e3443e599fe7437582",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_CrimsonRaptor18",
+      "crop": "crops/b62ab3ee5401136c33f9df6d8ed0e3a1b96f2bf9e68a004ba7f6318dc5a9abc0.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_18_Cassiopeia",
+      "pixel_sha256": "b62ab3ee5401136c33f9df6d8ed0e3a1b96f2bf9e68a004ba7f6318dc5a9abc0",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_Karma18",
+      "crop": "crops/f8c33378e534e5230d419d059851520f74fb9dc9abece14ffe87b42be8d3cf2e.png",
+      "label": "DA_18_Zyra",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "f8c33378e534e5230d419d059851520f74fb9dc9abece14ffe87b42be8d3cf2e",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/90fdf2db2ef73d6dbf5b23fbd773ace250ef08ad684ee6f453fc6b58a7105f19.png",
+      "label": "DA_18_Akali_AD",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "90fdf2db2ef73d6dbf5b23fbd773ace250ef08ad684ee6f453fc6b58a7105f19",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_18_Ahri",
+      "crop": "crops/fcf182c1d6365bdd0ca7b4b23d50890b8f8efe4c84dd93d9fdda40bf2b52c23a.png",
+      "label": "DA_18_Ahri",
+      "nearest_gallery": "DA_18_Caitlyn",
+      "pixel_sha256": "fcf182c1d6365bdd0ca7b4b23d50890b8f8efe4c84dd93d9fdda40bf2b52c23a",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_18_Hecarim",
+      "crop": "crops/c1e7ccf1a367f323ed7efed71162369f1162dddf6e13a6386003db0cfddabc4c.png",
+      "label": "DA_18_Sett",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "c1e7ccf1a367f323ed7efed71162369f1162dddf6e13a6386003db0cfddabc4c",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_Vi18",
+      "crop": "crops/6a0af4b7bcf0e93353f324a5ad0074dae6b36fc528d5998f6776a38e3c95fb34.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_Vi18",
+      "pixel_sha256": "6a0af4b7bcf0e93353f324a5ad0074dae6b36fc528d5998f6776a38e3c95fb34",
+      "source_seconds_nominal": 14400
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/5b30add8fd4905463d21525519e38ebcc23fe576ca96c075decff0988e4872bc.png",
+      "label": "DA_18_Ezreal",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "5b30add8fd4905463d21525519e38ebcc23fe576ca96c075decff0988e4872bc",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_Krug18",
+      "crop": "crops/ddaf75bd4151d8e84da3bc862abeef734badc74886acf4ec0050d699b3f5bc8c.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_Krug18",
+      "pixel_sha256": "ddaf75bd4151d8e84da3bc862abeef734badc74886acf4ec0050d699b3f5bc8c",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/5f91db953e17a0dba8f2c686152d25b6d66db7f2a2170061b667cff842b90bd3.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "5f91db953e17a0dba8f2c686152d25b6d66db7f2a2170061b667cff842b90bd3",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_18_Malphite",
+      "crop": "crops/62f6b66443b2733903b723fc5e701443a46a6b0acb22322f86f328dad43449f4.png",
+      "label": "DA_18_Kennen",
+      "nearest_gallery": "DA_18_Malphite",
+      "pixel_sha256": "62f6b66443b2733903b723fc5e701443a46a6b0acb22322f86f328dad43449f4",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_18_RekSai",
+      "crop": "crops/636ef215a086096caef4b52193393f34419161852db2e7e4958bf0e920ff944e.png",
+      "label": "DA_18_Ashe",
+      "nearest_gallery": "DA_Karma18",
+      "pixel_sha256": "636ef215a086096caef4b52193393f34419161852db2e7e4958bf0e920ff944e",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_18_RekSai",
+      "crop": "crops/b4d615c140531edc469505b08380bfd961fca669266ea3ed63bcc65dcdd7f416.png",
+      "label": "DA_Fiddlesticks18",
+      "nearest_gallery": "DA_18_Ivern",
+      "pixel_sha256": "b4d615c140531edc469505b08380bfd961fca669266ea3ed63bcc65dcdd7f416",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/47f791bc4cbb8cc84ca9de88285e33460feae10ab41339debe0e2f9a260ba546.png",
+      "label": "DA_18_Ivern",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "47f791bc4cbb8cc84ca9de88285e33460feae10ab41339debe0e2f9a260ba546",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_18_Ornn",
+      "crop": "crops/46be0a62095996acbb4f971120bd86287d7fe2ba8675c40b881f96950c7dc5e3.png",
+      "label": "DA_18_Maokai",
+      "nearest_gallery": "DA_18_RekSai",
+      "pixel_sha256": "46be0a62095996acbb4f971120bd86287d7fe2ba8675c40b881f96950c7dc5e3",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/d48a116f4a85e3d00e31e418f41a478aaf0c88f85ea1893e9d13456893dacb01.png",
+      "label": "DA_18_Ezreal",
+      "nearest_gallery": "DA_Vi18",
+      "pixel_sha256": "d48a116f4a85e3d00e31e418f41a478aaf0c88f85ea1893e9d13456893dacb01",
+      "source_seconds_nominal": 15000
+    },
+    {
+      "classifier": "DA_18_Akali_AD",
+      "crop": "crops/7d5810422ea41c964ba8263d0bb1cfee9c11f540a54f2c4c19e40d0ef053928f.png",
+      "label": "__unknown__",
+      "nearest_gallery": "DA_CrimsonRaptor18",
+      "pixel_sha256": "7d5810422ea41c964ba8263d0bb1cfee9c11f540a54f2c4c19e40d0ef053928f",
+      "source_seconds_nominal": 15550
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/2a9adea01095b93dca1b9a81d1841219f3293b2131ec7051fb0792df51ff7e02.png",
+      "label": "DA_Sentinel18",
+      "nearest_gallery": "DA_Sentinel18",
+      "pixel_sha256": "2a9adea01095b93dca1b9a81d1841219f3293b2131ec7051fb0792df51ff7e02",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/bfdd72ee9028f504b0fd2e9cc760a0aa537effa75f03e336b89e389eefcb4e58.png",
+      "label": "DA_18_Elise",
+      "nearest_gallery": "DA_Amumu18",
+      "pixel_sha256": "bfdd72ee9028f504b0fd2e9cc760a0aa537effa75f03e336b89e389eefcb4e58",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_Veigar",
+      "crop": "crops/37e4c6cb9a6d6ff67c005e57d08e712163da86d0a2724ea8471030d0cec84dac.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_CrimsonRaptor18",
+      "pixel_sha256": "37e4c6cb9a6d6ff67c005e57d08e712163da86d0a2724ea8471030d0cec84dac",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_Camille",
+      "crop": "crops/7e53e1ed4323561b812d7c7396384e70efa8b44846d05ae383aa790c2fabb36c.png",
+      "label": "DA_18_Camille",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "7e53e1ed4323561b812d7c7396384e70efa8b44846d05ae383aa790c2fabb36c",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_Caitlyn",
+      "crop": "crops/798300d1fbd5b8111a8cafa7033761c83c7a88c35a633b65ef657ed80c93d9d6.png",
+      "label": "DA_18_Caitlyn",
+      "nearest_gallery": "DA_Vi18",
+      "pixel_sha256": "798300d1fbd5b8111a8cafa7033761c83c7a88c35a633b65ef657ed80c93d9d6",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_Rengar",
+      "crop": "crops/8f6b57dba40f75c2c0f898c9d33e68c243572ac1d9da3345b1688465a03e1917.png",
+      "label": "DA_18_Rengar",
+      "nearest_gallery": "DA_18_Rengar",
+      "pixel_sha256": "8f6b57dba40f75c2c0f898c9d33e68c243572ac1d9da3345b1688465a03e1917",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_Cassiopeia",
+      "crop": "crops/8bf00958215468943e57b908630c0b7af4389cfff3eb3f774b56555d11194e1e.png",
+      "label": "DA_18_Cassiopeia",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "8bf00958215468943e57b908630c0b7af4389cfff3eb3f774b56555d11194e1e",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_MasterYi_AD",
+      "crop": "crops/15d6e807b4aaee0922e3b5c61a17baabe2489187e93fedfd559c23f362fa416f.png",
+      "label": "DA_18_Camille",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "15d6e807b4aaee0922e3b5c61a17baabe2489187e93fedfd559c23f362fa416f",
+      "source_seconds_nominal": 16800
+    },
+    {
+      "classifier": "DA_18_Varus",
+      "crop": "crops/b9a84db2153c2dbcaddb06c6a452d5aa27c21e2475c135abd4b8e6d835b62f36.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_18_Varus",
+      "pixel_sha256": "b9a84db2153c2dbcaddb06c6a452d5aa27c21e2475c135abd4b8e6d835b62f36",
+      "source_seconds_nominal": 17400
+    },
+    {
+      "classifier": "DA_18_Caitlyn",
+      "crop": "crops/5c9ecf303040210a01e8c0f90e74a1f6a47c6908170b09dff3941d74b923c38d.png",
+      "label": "DA_18_Sivir",
+      "nearest_gallery": "DA_Vi18",
+      "pixel_sha256": "5c9ecf303040210a01e8c0f90e74a1f6a47c6908170b09dff3941d74b923c38d",
+      "source_seconds_nominal": 17400
+    },
+    {
+      "classifier": "DA_18_Kayle",
+      "crop": "crops/52bb5e35cf15c12d5e52cde7db95043683353eaaac5df827dfcdaa764a6f2b3e.png",
+      "label": "DA_18_Ashe",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "52bb5e35cf15c12d5e52cde7db95043683353eaaac5df827dfcdaa764a6f2b3e",
+      "source_seconds_nominal": 17400
+    },
+    {
+      "classifier": "DA_Gromp18_AP",
+      "crop": "crops/af609bfb9e5de5c3b0c8b4ca7ab3a834109ea047135591abbf2bc9b79fc00454.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "af609bfb9e5de5c3b0c8b4ca7ab3a834109ea047135591abbf2bc9b79fc00454",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_Scuttlecrab18",
+      "crop": "crops/fdf069ddf1ed150e326491ff02ef3886a215c5c95e300d77e16da5d0887b82b1.png",
+      "label": "DA_Amumu18",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "fdf069ddf1ed150e326491ff02ef3886a215c5c95e300d77e16da5d0887b82b1",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_18_Ashe",
+      "crop": "crops/a35a6d30100c14f0ff1d8b1987e29dbf0fad02ad68b76873d48840f3ec83a219.png",
+      "label": "DA_18_Rakan",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "a35a6d30100c14f0ff1d8b1987e29dbf0fad02ad68b76873d48840f3ec83a219",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_18_Diana",
+      "crop": "crops/810e49fe7bf3989f57658cb752cf89b5171ac9b9239a8c7738dbe4f8f721424f.png",
+      "label": "DA_18_Diana",
+      "nearest_gallery": "DA_18_Diana",
+      "pixel_sha256": "810e49fe7bf3989f57658cb752cf89b5171ac9b9239a8c7738dbe4f8f721424f",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_18_Diana",
+      "crop": "crops/d7166de238a2e5b4308a949b12250940ab4057f41983b41d7bf5f69712bcfaa2.png",
+      "label": "DA_18_Aphelios",
+      "nearest_gallery": "DA_18_Diana",
+      "pixel_sha256": "d7166de238a2e5b4308a949b12250940ab4057f41983b41d7bf5f69712bcfaa2",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_18_Ashe",
+      "crop": "crops/ef7735bc402e601965b971501576ed48c88ac4b8092faef72347f3f5d16d4567.png",
+      "label": "DA_18_Rakan",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "ef7735bc402e601965b971501576ed48c88ac4b8092faef72347f3f5d16d4567",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_KogMaw18_AD",
+      "crop": "crops/ccedc8c2e2d71ad3e1bdae4fe4a5d9f0ec721243e66092c954e697981f449e8d.png",
+      "label": "DA_KogMaw18_AD",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "ccedc8c2e2d71ad3e1bdae4fe4a5d9f0ec721243e66092c954e697981f449e8d",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_18_Hecarim",
+      "crop": "crops/e52bddc25060c90a9224532d67a53b0504e91016eedace2f90f5703ec4101776.png",
+      "label": "DA_18_Rakan",
+      "nearest_gallery": "DA_18_Camille",
+      "pixel_sha256": "e52bddc25060c90a9224532d67a53b0504e91016eedace2f90f5703ec4101776",
+      "source_seconds_nominal": 19200
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/89f69f19dea08e3e855dd33f7a7f5560bd72186b90902ddf5d74e158f643d01e.png",
+      "label": "DA_Vi18",
+      "nearest_gallery": "DA_18_Zyra",
+      "pixel_sha256": "89f69f19dea08e3e855dd33f7a7f5560bd72186b90902ddf5d74e158f643d01e",
+      "source_seconds_nominal": 19800
+    },
+    {
+      "classifier": "DA_Sentinel18",
+      "crop": "crops/b16d86d56d18579593ffd7d003a7c920bf72f6e76063c98bd73a9a7b0809c30c.png",
+      "label": "DA_Sentinel18",
+      "nearest_gallery": "DA_18_Ornn",
+      "pixel_sha256": "b16d86d56d18579593ffd7d003a7c920bf72f6e76063c98bd73a9a7b0809c30c",
+      "source_seconds_nominal": 19800
+    },
+    {
+      "classifier": "DA_Fiddlesticks18",
+      "crop": "crops/0b82dd6d8465eecd63e98fe8472cec8f912be91a75f6154221398cb755317fc4.png",
+      "label": "DA_18_Aphelios",
+      "nearest_gallery": "DA_18_Warwick",
+      "pixel_sha256": "0b82dd6d8465eecd63e98fe8472cec8f912be91a75f6154221398cb755317fc4",
+      "source_seconds_nominal": 19800
+    },
+    {
+      "classifier": "DA_KogMaw18_AD",
+      "crop": "crops/c92109070844605d224007cd5a1d729f1418101ecd0b0177c141dcac050e3296.png",
+      "label": "DA_KogMaw18_AD",
+      "nearest_gallery": "DA_KogMaw18_AD",
+      "pixel_sha256": "c92109070844605d224007cd5a1d729f1418101ecd0b0177c141dcac050e3296",
+      "source_seconds_nominal": 19800
+    },
+    {
+      "classifier": "DA_Brambleback18",
+      "crop": "crops/7fa655fe64d5b13be5c1a37d58929671361a1423a6f66cc3592a439f6db56fee.png",
+      "label": "DA_18_Varus",
+      "nearest_gallery": "DA_18_Ezreal",
+      "pixel_sha256": "7fa655fe64d5b13be5c1a37d58929671361a1423a6f66cc3592a439f6db56fee",
+      "source_seconds_nominal": 19800
+    }
+  ],
+  "disagreements": 6533,
+  "frames": 2160,
+  "gallery_correct": 25,
+  "head_correct": 37,
+  "head_inference_mean_ms": 0.04512942840695,
+  "head_inference_total_ms": 431.1665590000003,
+  "head_sha256": "f0a29fa35732fad609c4dc2e6cd3964407c81bdccd6db7ca4740a00c64ef3b03",
+  "limitations": [
+    "Assistant visual audit is not independent human ground truth.",
+    "Audit metrics apply only to reviewed crops, not all VOD crops.",
+    "The queue favors disagreement and is not a random accuracy sample.",
+    "Uncalibrated classifier outputs are candidates; no coaching activation."
+  ],
+  "per_class_counts_total_head_gallery": {
+    "DA_18_Ahri": [
+      1,
+      1,
+      0
+    ],
+    "DA_18_Akali_AD": [
+      3,
+      1,
+      1
+    ],
+    "DA_18_Aphelios": [
+      4,
+      0,
+      0
+    ],
+    "DA_18_Ashe": [
+      2,
+      0,
+      0
+    ],
+    "DA_18_Azir": [
+      2,
+      0,
+      0
+    ],
+    "DA_18_Caitlyn": [
+      3,
+      2,
+      1
+    ],
+    "DA_18_Camille": [
+      4,
+      1,
+      3
+    ],
+    "DA_18_Cassiopeia": [
+      4,
+      2,
+      0
+    ],
+    "DA_18_Diana": [
+      3,
+      3,
+      2
+    ],
+    "DA_18_Elise": [
+      1,
+      0,
+      0
+    ],
+    "DA_18_Ezreal": [
+      3,
+      0,
+      0
+    ],
+    "DA_18_Ivern": [
+      1,
+      0,
+      0
+    ],
+    "DA_18_Kayle": [
+      1,
+      0,
+      0
+    ],
+    "DA_18_Kennen": [
+      3,
+      0,
+      0
+    ],
+    "DA_18_Leona": [
+      3,
+      1,
+      1
+    ],
+    "DA_18_Maokai": [
+      1,
+      0,
+      0
+    ],
+    "DA_18_Ornn": [
+      2,
+      2,
+      2
+    ],
+    "DA_18_Rakan": [
+      4,
+      0,
+      0
+    ],
+    "DA_18_Rammus": [
+      3,
+      3,
+      0
+    ],
+    "DA_18_Rengar": [
+      3,
+      3,
+      2
+    ],
+    "DA_18_Sejuani": [
+      2,
+      1,
+      1
+    ],
+    "DA_18_Sett": [
+      1,
+      0,
+      0
+    ],
+    "DA_18_Shen": [
+      4,
+      1,
+      2
+    ],
+    "DA_18_Sivir": [
+      2,
+      1,
+      1
+    ],
+    "DA_18_Soraka": [
+      1,
+      0,
+      0
+    ],
+    "DA_18_Varus": [
+      3,
+      1,
+      1
+    ],
+    "DA_18_Yorick": [
+      4,
+      1,
+      0
+    ],
+    "DA_18_Zyra": [
+      5,
+      0,
+      0
+    ],
+    "DA_Amumu18": [
+      7,
+      0,
+      1
+    ],
+    "DA_CrimsonRaptor18": [
+      1,
+      1,
+      1
+    ],
+    "DA_Fiddlesticks18": [
+      4,
+      3,
+      2
+    ],
+    "DA_Gromp18_AP": [
+      1,
+      0,
+      0
+    ],
+    "DA_KogMaw18_AD": [
+      2,
+      2,
+      2
+    ],
+    "DA_Scuttlecrab18": [
+      1,
+      1,
+      0
+    ],
+    "DA_Sentinel18": [
+      2,
+      2,
+      1
+    ],
+    "DA_Vi18": [
+      7,
+      1,
+      1
+    ],
+    "__unknown__": [
+      9,
+      3,
+      0
+    ]
+  },
+  "review_queue": 1000,
+  "reviewed_unique_crops": 107,
+  "runtime_approved": false,
+  "schema_version": 1,
+  "source_id": "twitch:2883698368",
+  "timing_excludes_encoder_capture_and_decode": true,
+  "unit_crops": 9554
+}

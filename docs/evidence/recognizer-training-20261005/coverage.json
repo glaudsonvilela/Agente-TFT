@@ -1,0 +1,203 @@
+{
+  "named_training_crops": 316,
+  "catalog_ids": 74,
+  "covered_ids": 53,
+  "counts": {
+    "DA_18_RekSai": 13,
+    "DA_18_Alistar": 5,
+    "DA_18_Akali_AD": 8,
+    "DA_18_Varus": 15,
+    "DA_18_Teemo": 2,
+    "DA_18_Camille": 22,
+    "DA_18_Kayle": 1,
+    "DA_Gromp18_AP": 8,
+    "DA_18_Sentry": 17,
+    "DA_18_Rakan": 3,
+    "DA_18_Veigar": 2,
+    "DA_Karma18": 12,
+    "DA_Cinderling18": 4,
+    "DA_18_Caitlyn": 4,
+    "DA_18_Ornn": 14,
+    "DA_Vi18": 10,
+    "DA_18_MasterYi_AD": 3,
+    "DA_KogMaw18_AD": 11,
+    "DA_CrimsonRaptor18": 7,
+    "DA_Krug18": 4,
+    "DA_Brambleback18": 4,
+    "DA_18_Hecarim": 2,
+    "DA_18_Elise": 1,
+    "DA_18_Warwick": 3,
+    "DA_18_Rengar": 12,
+    "DA_18_Malphite": 3,
+    "DA_18_Azir": 7,
+    "DA_18_Shen": 10,
+    "DA_Fiddlesticks18": 14,
+    "DA_Murkwolf18": 3,
+    "DA_18_Kobuko": 2,
+    "DA_18_KhaZix": 1,
+    "DA_18_Leona": 8,
+    "DA_18_Cassiopeia": 12,
+    "DA_18_LeBlanc": 5,
+    "DA_18_Ahri": 8,
+    "DA_18_Ezreal": 6,
+    "DA_18_Aphelios": 6,
+    "DA_18_Sivir": 3,
+    "DA_18_Zyra": 3,
+    "DA_18_Ashe": 4,
+    "DA_18_Yorick": 4,
+    "DA_18_Ivern": 4,
+    "DA_18_Soraka": 5,
+    "DA_Sentinel18": 4,
+    "DA_Amumu18": 3,
+    "DA_18_Diana": 5,
+    "DA_Scuttlecrab18": 2,
+    "DA_18_Maokai": 1,
+    "DA_18_Sejuani": 1,
+    "DA_18_Sett": 1,
+    "DA_18_Lillia": 2,
+    "DA_18_Rammus": 2
+  },
+  "source_counts": {
+    "DA_18_RekSai": 4,
+    "DA_18_Alistar": 2,
+    "DA_18_Akali_AD": 3,
+    "DA_18_Varus": 3,
+    "DA_18_Teemo": 1,
+    "DA_18_Camille": 4,
+    "DA_18_Kayle": 1,
+    "DA_Gromp18_AP": 2,
+    "DA_18_Sentry": 2,
+    "DA_18_Rakan": 2,
+    "DA_18_Veigar": 2,
+    "DA_Karma18": 1,
+    "DA_Cinderling18": 2,
+    "DA_18_Caitlyn": 2,
+    "DA_18_Ornn": 3,
+    "DA_Vi18": 3,
+    "DA_18_MasterYi_AD": 1,
+    "DA_KogMaw18_AD": 3,
+    "DA_CrimsonRaptor18": 1,
+    "DA_Krug18": 1,
+    "DA_Brambleback18": 2,
+    "DA_18_Hecarim": 2,
+    "DA_18_Elise": 1,
+    "DA_18_Warwick": 2,
+    "DA_18_Rengar": 2,
+    "DA_18_Malphite": 2,
+    "DA_18_Azir": 2,
+    "DA_18_Shen": 2,
+    "DA_Fiddlesticks18": 2,
+    "DA_Murkwolf18": 2,
+    "DA_18_Kobuko": 2,
+    "DA_18_KhaZix": 1,
+    "DA_18_Leona": 1,
+    "DA_18_Cassiopeia": 1,
+    "DA_18_LeBlanc": 1,
+    "DA_18_Ahri": 1,
+    "DA_18_Ezreal": 1,
+    "DA_18_Aphelios": 1,
+    "DA_18_Sivir": 1,
+    "DA_18_Zyra": 1,
+    "DA_18_Ashe": 1,
+    "DA_18_Yorick": 1,
+    "DA_18_Ivern": 1,
+    "DA_18_Soraka": 1,
+    "DA_Sentinel18": 1,
+    "DA_Amumu18": 1,
+    "DA_18_Diana": 1,
+    "DA_Scuttlecrab18": 1,
+    "DA_18_Maokai": 1,
+    "DA_18_Sejuani": 1,
+    "DA_18_Sett": 1,
+    "DA_18_Lillia": 1,
+    "DA_18_Rammus": 1
+  },
+  "missing": [
+    {
+      "id": "DA_18_Alune",
+      "name": "Alune"
+    },
+    {
+      "id": "DA_18_ElderDragon",
+      "name": "Dragão Ancião"
+    },
+    {
+      "id": "DA_18_GnarSmall",
+      "name": "Gnar"
+    },
+    {
+      "id": "DA_18_Kennen",
+      "name": "Kennen"
+    },
+    {
+      "id": "DA_18_Lux_Coven",
+      "name": "Lux (Congregação das Bruxas)"
+    },
+    {
+      "id": "DA_18_Lux_Elderwood",
+      "name": "Lux (Sabugueiro)"
+    },
+    {
+      "id": "DA_18_Lux_Fae",
+      "name": "Lux (Feérica)"
+    },
+    {
+      "id": "DA_18_Lux_Inferno",
+      "name": "Lux (Inferno)"
+    },
+    {
+      "id": "DA_18_Lux_Moonbeam",
+      "name": "Lux (Lunar)"
+    },
+    {
+      "id": "DA_18_Lux_Primal",
+      "name": "Lux (Primordial)"
+    },
+    {
+      "id": "DA_18_Lux_Sunbeam",
+      "name": "Lux (Solar)"
+    },
+    {
+      "id": "DA_18_Morgana",
+      "name": "Morgana"
+    },
+    {
+      "id": "DA_18_Tristana",
+      "name": "Tristana"
+    },
+    {
+      "id": "DA_18_Xayah",
+      "name": "Xayah"
+    },
+    {
+      "id": "DA_18_Yunara",
+      "name": "Yunara"
+    },
+    {
+      "id": "DA_Draven18",
+      "name": "Draven"
+    },
+    {
+      "id": "DA_Lux18_Base",
+      "name": "Lux"
+    },
+    {
+      "id": "DA_Lux18_Blackthorn",
+      "name": "Lux (Espinhos Negros)"
+    },
+    {
+      "id": "DA_Lux18_Blossom",
+      "name": "Lux (Florescer)"
+    },
+    {
+      "id": "DA_Nidalee18_AP",
+      "name": "Nidalee"
+    },
+    {
+      "id": "DA_Taric18",
+      "name": "Taric"
+    }
+  ],
+  "annotations_sha256": "50039d5d50c5a55deeec5cdc2007e8b47cfd6af5b3691ed72f2bcd697831df35",
+  "independent_human_ground_truth": false
+}

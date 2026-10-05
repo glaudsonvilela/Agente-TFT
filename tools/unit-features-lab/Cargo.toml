@@ -5,6 +5,7 @@ name = "agente-tft-unit-features-lab"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.88"
+default-run = "agente-tft-unit-features-lab"
 
 [dependencies]
 agente-tft-image-preprocess = { path = "../../rust/crates/image-preprocess" }

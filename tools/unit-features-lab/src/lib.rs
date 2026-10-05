@@ -176,7 +176,9 @@ pub fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sa
         }
         if let Some(negatives) = frame["identity_negatives"].as_array() {
             for (i, n) in negatives.iter().enumerate() {
-                if n["basis"] != "assistant_reviewed_nonunit_hud" {
+                if n["basis"] != "assistant_reviewed_nonunit_hud"
+                    && n["basis"] != "assistant_reviewed_nonunit_crop"
+                {
                     return Err("unreviewed negative".into());
                 }
                 result.push(Sample {

@@ -4,6 +4,47 @@ use serde::{Deserialize, Serialize};
 
 const COLOR_DIM: usize = 4 * 52;
 
+fn augment_training(samples: &mut Vec<Sample>) -> Result<usize> {
+    let originals: Vec<_> = samples
+        .iter()
+        .filter(|s| s.split == "train")
+        .cloned()
+        .collect();
+    let mut added = 0;
+    for original in originals {
+        for mode in ["mirror", "dim", "bright", "mask"] {
+            let mut s = original.clone();
+            match mode {
+                "mirror" => {
+                    for y in 0..HEIGHT {
+                        for x in 0..WIDTH {
+                            for c in 0..3 {
+                                s.crop.rgb[(y * WIDTH + x) * 3 + c] =
+                                    original.crop.rgb[(y * WIDTH + WIDTH - 1 - x) * 3 + c];
+                            }
+                        }
+                    }
+                }
+                "mask" => {
+                    if s.crop.foreground()?.empty {
+                        continue;
+                    }
+                }
+                _ => {
+                    let scale = if mode == "dim" { 0.75 } else { 1.25 };
+                    for v in &mut s.crop.rgb {
+                        *v = (*v as f32 * scale).round().clamp(0., 255.) as u8;
+                    }
+                }
+            }
+            s.key = format!("{}@augmentation:{mode}", s.key);
+            samples.push(s);
+            added += 1;
+        }
+    }
+    Ok(added)
+}
+
 /// Spatial HSV histogram with separate achromatic bins. Square-root frequencies
 /// give a Hellinger embedding. This describes the central crop, not a true mask.
 pub fn colors(crop: &UnitCrop) -> Vec<f32> {
@@ -206,11 +247,17 @@ pub fn run_cli() -> Result<()> {
     if out.exists() {
         return Err("new output directory required".into());
     }
-    let samples = load_samples(
+    let mut samples = load_samples(
         Path::new(str_field(&spec, "annotations")?),
         Path::new(str_field(&spec, "images")?),
         Path::new(str_field(&spec, "reference")?),
     )?;
+    let source_samples = samples.len();
+    let augmented = match spec["augmentation"].as_str().unwrap_or("none") {
+        "none" => 0,
+        "native_domain_v1" => augment_training(&mut samples)?,
+        _ => return Err("unknown augmentation policy".into()),
+    };
     let encoder_bytes = fs::read(str_field(&spec, "encoder")?)?;
     if hash(&encoder_bytes) != str_field(&spec, "encoder_sha256")? {
         return Err("encoder hash mismatch".into());
@@ -229,9 +276,54 @@ pub fn run_cli() -> Result<()> {
     fs::create_dir_all(&out)?;
     let start = Instant::now();
     let mut neural = Vec::new();
+    let cache = spec["embedding_cache"].as_str().map(PathBuf::from);
+    if let Some(p) = &cache {
+        fs::create_dir_all(p)?;
+    }
+    let mut cache_hits = 0;
     for chunk in samples.chunks(4) {
         let crops: Vec<_> = chunk.iter().map(|s| (s.crop.clone(), true)).collect();
-        neural.extend(embeddings(&mut session, &crops, side, false, false)?);
+        // Dynamic quantization can depend on the other batch members. Cache
+        // the entire ordered batch, not individual pixels under a false key.
+        let key = hash(
+            format!(
+                "rgb-bilinear-imagenet-v1:{}:{side}:{}",
+                spec["encoder_sha256"],
+                chunk
+                    .iter()
+                    .map(|s| hash(&s.crop.rgb))
+                    .collect::<Vec<_>>()
+                    .join(":")
+            )
+            .as_bytes(),
+        );
+        let cache_path = cache.as_ref().map(|p| p.join(format!("{key}.json")));
+        let features = if let Some(p) = cache_path.as_ref().filter(|p| p.exists()) {
+            let value: Value = serde_json::from_slice(&fs::read(p)?)?;
+            let vectors: Vec<Vec<f32>> = serde_json::from_value(value["vectors"].clone())?;
+            let encoded = serde_json::to_vec(&vectors)?;
+            if value["sha256"] != hash(&encoded)
+                || vectors.len() != chunk.len()
+                || vectors
+                    .iter()
+                    .any(|v| v.is_empty() || v.iter().any(|x| !x.is_finite()))
+            {
+                return Err("invalid embedding cache".into());
+            }
+            cache_hits += 1;
+            vectors
+        } else {
+            let vectors = embeddings(&mut session, &crops, side, false, false)?;
+            if let Some(p) = cache_path {
+                let sha = hash(&serde_json::to_vec(&vectors)?);
+                fs::write(
+                    p,
+                    serde_json::to_vec(&json!({"sha256":sha,"vectors":vectors}))?,
+                )?;
+            }
+            vectors
+        };
+        neural.extend(features);
     }
     let color: Vec<_> = samples.iter().map(|s| colors(&s.crop)).collect();
     let combined: Vec<Vec<f32>> = neural
@@ -250,6 +342,9 @@ pub fn run_cli() -> Result<()> {
         ("dino", &neural),
         ("dino_colors", &combined),
     ] {
+        if spec["only_dino"] == true && name != "dino" {
+            continue;
+        }
         let (head, epoch, history) = fit(&samples, features)?;
         let mut evaluation = BTreeMap::new();
         for split in ["train", "validation", "test"] {
@@ -262,7 +357,7 @@ pub fn run_cli() -> Result<()> {
         }
         let model = json!({"schema_version":1,"feature_mode":name,"head":head,"selected_epoch":epoch,
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
-            "input_size":side,"runtime_approved":false,"probabilities_calibrated":false});
+            "input_size":side,"runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -278,6 +373,7 @@ pub fn run_cli() -> Result<()> {
         "backbone_finetuned":false,"training_algorithm":"class_balanced_multiclass_softmax_gradient_descent",
         "learning_rate":2.0,"weight_decay":0.001,"max_epochs":800,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
+        "source_samples":source_samples,"synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
         "encoder_sha256":spec["encoder_sha256"],"runtime_approved":false,
         "limitations":["Existing small assistant-reviewed dataset; no independent human ground truth.",
         "A supervised classification head is trained; frozen DINO weights are unchanged.",
@@ -322,5 +418,24 @@ mod tests {
         let p = head.probabilities(&[1., 0.]).unwrap();
         assert!(p[0] > p[1]);
         assert!((p.iter().sum::<f32>() - 1.).abs() < 1e-6);
+    }
+
+    #[test]
+    fn augmentation_cannot_modify_validation_or_test() {
+        let sample = |split: &str| Sample {
+            crop: UnitCrop {
+                rgb: [30, 70, 120].repeat(WIDTH * HEIGHT),
+            },
+            label: "a".into(),
+            split: split.into(),
+            image: split.into(),
+            key: "one".into(),
+        };
+        let mut samples = vec![sample("train"), sample("validation"), sample("test")];
+        let before = samples[1].crop.clone();
+        let n = augment_training(&mut samples).unwrap();
+        assert!(n >= 3);
+        assert_eq!(samples[1].crop, before);
+        assert!(samples[3..].iter().all(|s| s.split == "train"));
     }
 }
