@@ -1,5 +1,7 @@
 use agente_tft_capture_core::{CaptureError, PixelFormat, RoiFrame};
 
+pub mod unit_features;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GrayImage {
     pub width: u32,

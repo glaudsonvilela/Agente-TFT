@@ -299,3 +299,94 @@ Relatórios, previsões, cobertura por ID, códigos e fontes estão em
 
 Referência técnica de compactação:
 [quantização no ONNX Runtime](https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html).
+
+## Recortes e vetores em Rust — 05/10/2026
+
+Por solicitação do usuário, esta nova implementação é nativa em Rust.
+`image-preprocess::unit_features` extrai regiões RGB/RGBA/BGRA com validação
+de limites e stride, redimensiona, produz escala de cinza, calcula uma hipótese
+de primeiro plano e compara vetores. Não contém IDs ou regras sazonais.
+`tools/unit-features-lab` carrega o encoder pelo ONNX Runtime nativo, gera
+vetores e grava a galeria em float32 little-endian com IDs em JSON.
+Não usa interpretador Python nem OpenCV. A biblioteca ONNX Runtime é uma
+dependência nativa carregada explicitamente, não está embutida no executável.
+
+O fluxo é: quadro → região do personagem → preparação → encoder → vetor →
+comparação com referências. Os vetores das referências são calculados uma vez;
+cada novo recorte ainda precisa ser processado. Isso é reconhecimento por
+características, não igualdade de pixels. O método de
+[DINOv2](https://arxiv.org/abs/2304.07193) é uma referência para representações
+visuais aprendidas. O descritor de gradientes experimental é inspirado em
+[HOG](https://lear.inrialpes.fr/people/triggs/pubs/Dalal-cvpr05.pdf), mas não
+implementa o detector HOG/SVM do artigo.
+
+A máscara Rust remove cores semelhantes às bordas somente quando conectadas
+às bordas. É uma aproximação, não segmentação semântica nem GrabCut. A inspeção
+dos recortes mostrou linhas do tabuleiro preservadas e partes de personagens
+removidas. O estudo preliminar anterior com GrabCut executava C++ através de
+Python; os números desse algoritmo não medem a implementação Rust atual.
+Mudar a linguagem, isoladamente, não comprova redução do custo de segmentação.
+
+### Avaliação nativa
+
+Mesma galeria de 193 recortes nomeados + 10 negativos, 51 IDs; 29 recortes
+nomeados de teste, incluindo os 19 do VOD separado. Limiar 0,8 e margem 0,08
+mantidos, sem ajuste aos resultados. Sem atualização de pesos. Rótulos revisados
+pelo assistente, sem validação humana independente.
+
+| Preparação e vetor | Primeira opção correta | Aceitos / errados no teste | Mediana / p95 para 12 recortes |
+| --- | ---: | ---: | ---: |
+| RGB + MobileNet | 12/29 | 3 / 0 | 54,6 / 60,4 ms |
+| Cinza + MobileNet | 10/29 | 4 / 0 | 54,7 / 55,8 ms |
+| Máscara colorida + MobileNet | 14/29 | 3 / 0 | 68,2 / 99,8 ms |
+| Máscara cinza + MobileNet | 8/29 | 4 / 1 | 60,1 / 61,5 ms |
+| Gradientes cinza | 9/29 | 3 / 0 | 13,0 / 13,6 ms |
+| Gradientes com máscara | 10/29 | 1 / 0 | 14,1 / 14,4 ms |
+
+RGB e máscara colorida não aceitaram nenhuma identidade no VOD separado.
+Na validação pequena de três recortes, máscara colorida caiu de 3/3 para 2/3
+em relação ao RGB; gradientes sem máscara aceitaram uma identidade errada.
+Portanto, a máscara não demonstrou melhoria robusta e os gradientes não podem
+substituir o encoder neste estado. Cinza ainda alimenta três canais do modelo,
+portanto não reduz automaticamente seu custo neural.
+
+Medição em CPU Linux, uma thread, dez repetições após aquecimento. Inclui
+preparação dos recortes já na memória, extração dos vetores e comparação.
+Exclui captura, localização/extração inicial dos recortes, transporte, voz e
+renderização. Não é FPS do Windows. O redimensionamento Rust é bilinear;
+o baseline anterior usava bicúbico do Pillow. Comparações de preparações devem
+usar a linha RGB desta execução, não atribuir diferenças à linguagem.
+
+A galeria neural contém 203 × 576 floats: 467.712 bytes, sem contar encoder,
+metadados ou memória do runtime. A máscara colorida levou mediana de 5,2 ms
+para 12 recortes; a maior parte do custo permaneceu na extração neural.
+
+O módulo é reutilizável pela captura nativa, mas esta entrega é um laboratório
+executável: não altera o observador ativo nem conecta novas identidades às
+dicas. Todos os candidatos continuam `identity_verified=false`.
+Ainda faltam localização robusta, segmentação validada, cobertura/diversidade
+de personagens, associação de itens e confirmação temporal.
+
+### Reprodução e evidências
+
+Compilar com Rust >= 1.88:
+
+```sh
+cargo build --locked --release --manifest-path tools/unit-features-lab/Cargo.toml
+```
+
+Executar `agente-tft-unit-features-lab` com os argumentos obrigatórios:
+`--annotations configs/training/unit-gallery-challenge-20261004.json`,
+`--images datasets`, `--reference <diretório do catálogo selado>`,
+`--encoder <encoder.onnx MobileNet>`, `--onnxruntime <biblioteca nativa>`,
+`--size 224` e `--output <diretório novo>`.
+No Windows, fornecer o caminho da DLL compatível do ONNX Runtime.
+O laboratório verifica hashes das imagens, pixels e catálogo, regiões válidas
+e separação de fontes entre treino, validação e teste.
+
+Relatório e previsões: `docs/evidence/vector-segmentation-20261004/`.
+Imagens, encoder e galerias binárias permanecem no SSD privado.
+Nove testes da biblioteca e dois do laboratório passaram localmente.
+O workflow `Native unit features` executa esses contratos em Linux e Windows;
+esses testes não dependem dos modelos ou dos vídeos privados e não substituem
+uma medição de inferência/captura no Windows.

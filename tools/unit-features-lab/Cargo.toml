@@ -1,0 +1,16 @@
+[workspace]
+
+[package]
+name = "agente-tft-unit-features-lab"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+
+[dependencies]
+agente-tft-image-preprocess = { path = "../../rust/crates/image-preprocess" }
+agente-tft-capture-core = { path = "../../rust/crates/capture-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+image = { version = "=0.25.10", default-features = false, features = ["png"] }
+ort = { version = "=2.0.0-rc.10", default-features = false, features = ["load-dynamic"] }

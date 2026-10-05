@@ -1,0 +1,4826 @@
+{
+  "encoder-gray": {
+    "test": [
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.9889921545982361,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8332563638687134,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7702195048332214,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8040081858634949,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7961739897727966,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7779895067214966,
+            "unit_id": "DA_CrimsonRaptor18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.781110405921936,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7675618529319763,
+            "unit_id": "DA_Scuttlecrab18"
+          },
+          {
+            "similarity": 0.7643849849700928,
+            "unit_id": "DA_18_Sentry"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7625927925109863,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.7586411237716675,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7584405541419983,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8420794010162354,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.817786455154419,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.8172119855880737,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8246505856513977,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7869964241981506,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7832074165344238,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7399098873138428,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.7390630841255188,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7350252866744995,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-6",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.9171398878097534,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8268244862556458,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.8174580335617065,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": "DA_18_RekSai",
+        "candidates": [
+          {
+            "similarity": 0.9077870845794678,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.818342924118042,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.8046901822090149,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9925907254219055,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.8340215086936951,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7715502381324768,
+            "unit_id": "DA_18_Leona"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8016666173934937,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7989285588264465,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7972022891044617,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8281219005584717,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.8257293105125427,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.8096114993095398,
+            "unit_id": "DA_KogMaw18_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7959312200546265,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7914101481437683,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.786999523639679,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-2",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8157641291618347,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7843751907348633,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7841351628303528,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-4",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8100035786628723,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7913417816162109,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.7895801663398743,
+            "unit_id": "DA_18_Ezreal"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-2",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.778033435344696,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.7717295289039612,
+            "unit_id": "DA_18_Kayle"
+          },
+          {
+            "similarity": 0.7703302502632141,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-3",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7370200157165527,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.7280541062355042,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.7147255539894104,
+            "unit_id": "DA_18_Hecarim"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-6",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7700547575950623,
+            "unit_id": "DA_18_Alistar"
+          },
+          {
+            "similarity": 0.7647579312324524,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7571685910224915,
+            "unit_id": "DA_18_Aphelios"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-7",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8061368465423584,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8049873113632202,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7959011793136597,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10500.png",
+        "key": "marker-2",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8237755298614502,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.8086687326431274,
+            "unit_id": "DA_18_Sejuani"
+          },
+          {
+            "similarity": 0.7974967360496521,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-1",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8155674338340759,
+            "unit_id": "DA_Brambleback18"
+          },
+          {
+            "similarity": 0.8141691088676453,
+            "unit_id": "DA_18_Rengar"
+          },
+          {
+            "similarity": 0.8015444278717041,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7983313202857971,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.793052077293396,
+            "unit_id": "DA_18_Ivern"
+          },
+          {
+            "similarity": 0.7919635772705078,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-5",
+        "label": "DA_Krug18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8310800790786743,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.8143932223320007,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7942522764205933,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-6",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8325103521347046,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.8057992458343506,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.80189448595047,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-0",
+        "label": "DA_18_Warwick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7076517343521118,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7074686288833618,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.6160027384757996,
+            "unit_id": "DA_18_LeBlanc"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.851780116558075,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7809750437736511,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7667058110237122,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-2",
+        "label": "DA_Vi18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8112040162086487,
+            "unit_id": "DA_Scuttlecrab18"
+          },
+          {
+            "similarity": 0.7760233283042908,
+            "unit_id": "DA_18_Rengar"
+          },
+          {
+            "similarity": 0.7731606960296631,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-3",
+        "label": "DA_18_Yorick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8023802638053894,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7951416969299316,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7873826622962952,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-4",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8135895729064941,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7586417198181152,
+            "unit_id": "DA_18_Teemo"
+          },
+          {
+            "similarity": 0.7571076154708862,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-5",
+        "label": "DA_18_Veigar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7969488501548767,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7450838088989258,
+            "unit_id": "DA_18_Kobuko"
+          },
+          {
+            "similarity": 0.7445002198219299,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-6",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.776299774646759,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7635790109634399,
+            "unit_id": "DA_18_Ivern"
+          },
+          {
+            "similarity": 0.7456081509590149,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10480.png",
+        "key": "marker-6",
+        "label": "DA_18_Veigar"
+      }
+    ],
+    "validation": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8093903064727783,
+            "unit_id": "DA_18_Sejuani"
+          },
+          {
+            "similarity": 0.7947180867195129,
+            "unit_id": "DA_Krug18"
+          },
+          {
+            "similarity": 0.7915074229240417,
+            "unit_id": "DA_Scuttlecrab18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-0",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.9439202547073364,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8222390413284302,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.813706636428833,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8760159611701965,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.839188814163208,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.8279353380203247,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-2",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7460355758666992,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7300167083740234,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7298266887664795,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-3",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.8870465159416199,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7905078530311584,
+            "unit_id": "DA_18_Ahri"
+          },
+          {
+            "similarity": 0.7854239344596863,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8594059944152832,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.8496222496032715,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.8298643827438354,
+            "unit_id": "DA_18_Leona"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8221473097801208,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7924996614456177,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.7827934622764587,
+            "unit_id": "DA_18_Teemo"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry"
+      }
+    ]
+  },
+  "encoder-mask_gray": {
+    "test": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8941097855567932,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8673094511032104,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.8559375405311584,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8262314796447754,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7485659718513489,
+            "unit_id": "DA_18_Ahri"
+          },
+          {
+            "similarity": 0.7410263419151306,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7370157837867737,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7267943024635315,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.6998658776283264,
+            "unit_id": "DA_18_Ahri"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7365565896034241,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7290312647819519,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7246377468109131,
+            "unit_id": "DA_18_MasterYi_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.856604814529419,
+            "unit_id": "DA_18_Diana"
+          },
+          {
+            "similarity": 0.8400244116783142,
+            "unit_id": "DA_18_Kobuko"
+          },
+          {
+            "similarity": 0.8380944132804871,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6550836563110352,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.6523177027702332,
+            "unit_id": "DA_Amumu18"
+          },
+          {
+            "similarity": 0.6491950154304504,
+            "unit_id": "DA_18_Malphite"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7167243957519531,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7020986676216125,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7000426650047302,
+            "unit_id": "DA_Scuttlecrab18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-6",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.915221095085144,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8816543221473694,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.8750491738319397,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": "DA_18_RekSai",
+        "candidates": [
+          {
+            "similarity": 0.8924276232719421,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7667639255523682,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7472621202468872,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9690152406692505,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.8304033875465393,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7892419099807739,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8884220123291016,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8775840997695923,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.8687489032745361,
+            "unit_id": "DA_18_Yorick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.863445520401001,
+            "unit_id": "DA_18_MasterYi_AD"
+          },
+          {
+            "similarity": 0.836735725402832,
+            "unit_id": "DA_18_Sett"
+          },
+          {
+            "similarity": 0.8327023386955261,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8532169461250305,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.834367573261261,
+            "unit_id": "DA_Sentinel18"
+          },
+          {
+            "similarity": 0.8279743194580078,
+            "unit_id": "DA_18_Rengar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-2",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.853285014629364,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.81046062707901,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.7914444208145142,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-4",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": "DA_18_Zyra",
+        "candidates": [
+          {
+            "similarity": 0.8914912939071655,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.7967057824134827,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.7954620718955994,
+            "unit_id": "DA_18_Soraka"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-2",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9097734689712524,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.9036299586296082,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.8730842471122742,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-3",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8975183963775635,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.8909253478050232,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.8861883282661438,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-6",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7818122506141663,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7813122868537903,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7570441365242004,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-7",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8430057764053345,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7970964312553406,
+            "unit_id": "DA_18_MasterYi_AD"
+          },
+          {
+            "similarity": 0.7935377359390259,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10500.png",
+        "key": "marker-2",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8160063624382019,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7824373841285706,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7713786959648132,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-1",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8099446296691895,
+            "unit_id": "DA_18_Maokai"
+          },
+          {
+            "similarity": 0.7635824084281921,
+            "unit_id": "DA_Gromp18_AP"
+          },
+          {
+            "similarity": 0.753963053226471,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8273813724517822,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.8208007216453552,
+            "unit_id": "DA_18_Diana"
+          },
+          {
+            "similarity": 0.8066831827163696,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-5",
+        "label": "DA_Krug18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8625362515449524,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.8493966460227966,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.841042160987854,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-6",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8618233799934387,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.8328915238380432,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7995026111602783,
+            "unit_id": "DA_Scuttlecrab18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-0",
+        "label": "DA_18_Warwick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9288533329963684,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.9273031949996948,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.8946076035499573,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9361515641212463,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.9072025418281555,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.9051966667175293,
+            "unit_id": "DA_18_Yorick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-2",
+        "label": "DA_Vi18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8910266160964966,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.8892267346382141,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.8889446258544922,
+            "unit_id": "DA_Murkwolf18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-3",
+        "label": "DA_18_Yorick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9029959440231323,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8987709879875183,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.8968284726142883,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-4",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8873871564865112,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.883230984210968,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.8692304491996765,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-5",
+        "label": "DA_18_Veigar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9152989387512207,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.9030510187149048,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.8890150189399719,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-6",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": "DA_18_Veigar",
+        "candidates": [
+          {
+            "similarity": 0.8599539399147034,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.6950244903564453,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.6767497658729553,
+            "unit_id": "DA_18_LeBlanc"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10480.png",
+        "key": "marker-6",
+        "label": "DA_18_Veigar"
+      }
+    ],
+    "validation": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8113285899162292,
+            "unit_id": "DA_Gromp18_AP"
+          },
+          {
+            "similarity": 0.8075889348983765,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.8005548119544983,
+            "unit_id": "DA_18_Maokai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-0",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8896877765655518,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8804843425750732,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.872665286064148,
+            "unit_id": "DA_KogMaw18_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.835611879825592,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.8245170712471008,
+            "unit_id": "DA_18_Diana"
+          },
+          {
+            "similarity": 0.8032325506210327,
+            "unit_id": "DA_18_Akali_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-2",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7449020147323608,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7196447849273682,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7177256941795349,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-3",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.8341348767280579,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7450907826423645,
+            "unit_id": "DA_18_Maokai"
+          },
+          {
+            "similarity": 0.7450392842292786,
+            "unit_id": "DA_18_Warwick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8743292689323425,
+            "unit_id": "DA_18_Diana"
+          },
+          {
+            "similarity": 0.8669462203979492,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.8468891382217407,
+            "unit_id": "DA_18_Rakan"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9057302474975586,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7841126918792725,
+            "unit_id": "DA_18_Teemo"
+          },
+          {
+            "similarity": 0.7644603848457336,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry"
+      }
+    ]
+  },
+  "encoder-mask_rgb": {
+    "test": [
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.8876668214797974,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8044038414955139,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.800172746181488,
+            "unit_id": "DA_18_MasterYi_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8410846590995789,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7919670343399048,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.7665345072746277,
+            "unit_id": "DA_18_Malphite"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6949024200439453,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.6758120656013489,
+            "unit_id": "DA_Amumu18"
+          },
+          {
+            "similarity": 0.6721353530883789,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7675514221191406,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7406819462776184,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.7367284297943115,
+            "unit_id": "DA_18_MasterYi_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7961136698722839,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7863687872886658,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.7853215932846069,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7088648080825806,
+            "unit_id": "DA_Amumu18"
+          },
+          {
+            "similarity": 0.6828344464302063,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.6778982281684875,
+            "unit_id": "DA_KogMaw18_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7432237863540649,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.7423393130302429,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.7338667511940002,
+            "unit_id": "DA_Amumu18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-6",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8437564969062805,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8399412631988525,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.8359927535057068,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": "DA_18_RekSai",
+        "candidates": [
+          {
+            "similarity": 0.8927043676376343,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.8075781464576721,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.8021655678749084,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9684121608734131,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.831176221370697,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7886236906051636,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8371978402137756,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.8035934567451477,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.7964149117469788,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8776772022247314,
+            "unit_id": "DA_18_MasterYi_AD"
+          },
+          {
+            "similarity": 0.8702173829078674,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.8442022204399109,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8563967347145081,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.8546810746192932,
+            "unit_id": "DA_18_Sejuani"
+          },
+          {
+            "similarity": 0.831786036491394,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-2",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8059162497520447,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.7981019020080566,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.7734394073486328,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-4",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.754150927066803,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.752653956413269,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7297682166099548,
+            "unit_id": "DA_18_Maokai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-2",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.870235800743103,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.8517147898674011,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8430531024932861,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-3",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8632378578186035,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.8378881216049194,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8138203024864197,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-6",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7997882962226868,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7820072174072266,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7778623700141907,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-7",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8275917768478394,
+            "unit_id": "DA_18_Alistar"
+          },
+          {
+            "similarity": 0.8219037652015686,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.8127588033676147,
+            "unit_id": "DA_18_Rengar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10500.png",
+        "key": "marker-2",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8140701651573181,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.8071184158325195,
+            "unit_id": "DA_18_Sejuani"
+          },
+          {
+            "similarity": 0.7960041165351868,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-1",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8008278012275696,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7991214394569397,
+            "unit_id": "DA_18_Maokai"
+          },
+          {
+            "similarity": 0.7656323313713074,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7896365523338318,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7863936424255371,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.7813875079154968,
+            "unit_id": "DA_Krug18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-5",
+        "label": "DA_Krug18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.842941403388977,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.8392660617828369,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.8351856470108032,
+            "unit_id": "DA_18_Zyra"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-6",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8410711288452148,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.8068365454673767,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7964829802513123,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-0",
+        "label": "DA_18_Warwick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9002248048782349,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8439460396766663,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.8156968355178833,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8293023109436035,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.7681236863136292,
+            "unit_id": "DA_18_Kobuko"
+          },
+          {
+            "similarity": 0.7657150030136108,
+            "unit_id": "DA_18_KhaZix"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-2",
+        "label": "DA_Vi18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9167628288269043,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.8716540932655334,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.815955400466919,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-3",
+        "label": "DA_18_Yorick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8533608913421631,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.841537594795227,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.8078253269195557,
+            "unit_id": "DA_18_Yorick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-4",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8390536308288574,
+            "unit_id": "DA_18_Sett"
+          },
+          {
+            "similarity": 0.8268678784370422,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.8090388178825378,
+            "unit_id": "DA_18_Yorick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-5",
+        "label": "DA_18_Veigar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.875275194644928,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.8180491924285889,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.8078826069831848,
+            "unit_id": "DA_Murkwolf18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-6",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7698525786399841,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7517966628074646,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.7443751692771912,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10480.png",
+        "key": "marker-6",
+        "label": "DA_18_Veigar"
+      }
+    ],
+    "validation": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8019917011260986,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7795342206954956,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.7792364358901978,
+            "unit_id": "DA_18_Rengar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-0",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8388378024101257,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.775310754776001,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7571831345558167,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8036981225013733,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7899167537689209,
+            "unit_id": "DA_Fiddlesticks18"
+          },
+          {
+            "similarity": 0.7842966318130493,
+            "unit_id": "DA_18_Diana"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-2",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7490270137786865,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7177242040634155,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7150217890739441,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-3",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7942344546318054,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.7909564971923828,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.790445864200592,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8577194213867188,
+            "unit_id": "DA_Fiddlesticks18"
+          },
+          {
+            "similarity": 0.8255260586738586,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.8182446360588074,
+            "unit_id": "DA_18_MasterYi_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.8765539526939392,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7662094235420227,
+            "unit_id": "DA_Krug18"
+          },
+          {
+            "similarity": 0.7482606768608093,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry"
+      }
+    ]
+  },
+  "encoder-rgb": {
+    "test": [
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.9904668927192688,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7858487963676453,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.7848732471466064,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8392931818962097,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8053200840950012,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7632695436477661,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7725063562393188,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7357450127601624,
+            "unit_id": "DA_Amumu18"
+          },
+          {
+            "similarity": 0.733712375164032,
+            "unit_id": "DA_18_Sentry"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8011850714683533,
+            "unit_id": "DA_18_Alistar"
+          },
+          {
+            "similarity": 0.7804365158081055,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.7739278078079224,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.829177975654602,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.801708996295929,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.8002293705940247,
+            "unit_id": "DA_18_Sentry"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8061121106147766,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7840791940689087,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.781001627445221,
+            "unit_id": "DA_18_Leona"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.762419581413269,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.7467091679573059,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7357655763626099,
+            "unit_id": "DA_18_Rakan"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-6",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.9081882834434509,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.8335727453231812,
+            "unit_id": "DA_18_LeBlanc"
+          },
+          {
+            "similarity": 0.8327129483222961,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": "DA_18_RekSai",
+        "candidates": [
+          {
+            "similarity": 0.9041275978088379,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.8185092210769653,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.8102617859840393,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9929540157318115,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.8597732186317444,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.8113691806793213,
+            "unit_id": "DA_18_Zyra"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8026217818260193,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7942879796028137,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7925324440002441,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8185660243034363,
+            "unit_id": "DA_18_Teemo"
+          },
+          {
+            "similarity": 0.8050165176391602,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7966199517250061,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8055748343467712,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.8020941615104675,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.7808133363723755,
+            "unit_id": "DA_18_Sejuani"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-2",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8211329579353333,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7802143692970276,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.777480959892273,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-4",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8192057013511658,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7819194793701172,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.7619039416313171,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-2",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7955130934715271,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7889207601547241,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7806808352470398,
+            "unit_id": "DA_18_Rakan"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-3",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7347100973129272,
+            "unit_id": "DA_Fiddlesticks18"
+          },
+          {
+            "similarity": 0.7197721600532532,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7085800766944885,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-6",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7966561913490295,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7780488133430481,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7726448178291321,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-7",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8058135509490967,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.8013802766799927,
+            "unit_id": "DA_18_KhaZix"
+          },
+          {
+            "similarity": 0.8013277649879456,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10500.png",
+        "key": "marker-2",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8146495223045349,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.8102615475654602,
+            "unit_id": "DA_18_Sejuani"
+          },
+          {
+            "similarity": 0.8043302893638611,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-1",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7877600789070129,
+            "unit_id": "DA_18_Rengar"
+          },
+          {
+            "similarity": 0.7855050563812256,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7842421531677246,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7948496341705322,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7901557087898254,
+            "unit_id": "DA_18_Maokai"
+          },
+          {
+            "similarity": 0.7788306474685669,
+            "unit_id": "DA_Krug18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-5",
+        "label": "DA_Krug18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8396688103675842,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7878073453903198,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.785956859588623,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-6",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8494052886962891,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.8312228918075562,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.7919356226921082,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-0",
+        "label": "DA_18_Warwick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7672169208526611,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.6501173377037048,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.6413800716400146,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.782619833946228,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7393893599510193,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7392228841781616,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-2",
+        "label": "DA_Vi18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7935569882392883,
+            "unit_id": "DA_Scuttlecrab18"
+          },
+          {
+            "similarity": 0.7660271525382996,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7599403262138367,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-3",
+        "label": "DA_18_Yorick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7608305811882019,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7499419450759888,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7496137022972107,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-4",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7843966484069824,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7351894378662109,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7188786268234253,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-5",
+        "label": "DA_18_Veigar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7188211679458618,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.6956921815872192,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.6886520385742188,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-6",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.788794755935669,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7570781707763672,
+            "unit_id": "DA_18_Ivern"
+          },
+          {
+            "similarity": 0.7530127167701721,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10480.png",
+        "key": "marker-6",
+        "label": "DA_18_Veigar"
+      }
+    ],
+    "validation": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.810418426990509,
+            "unit_id": "DA_Scuttlecrab18"
+          },
+          {
+            "similarity": 0.7900072336196899,
+            "unit_id": "DA_Gromp18_AP"
+          },
+          {
+            "similarity": 0.7861587405204773,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-0",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.9184046387672424,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.80804443359375,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7934696078300476,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8037691116333008,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.7822611927986145,
+            "unit_id": "DA_18_Leona"
+          },
+          {
+            "similarity": 0.7719844579696655,
+            "unit_id": "DA_18_Sivir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-2",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6951875686645508,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.6681321263313293,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.652669370174408,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-3",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.880623996257782,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7718895673751831,
+            "unit_id": "DA_Gromp18_AP"
+          },
+          {
+            "similarity": 0.7584484815597534,
+            "unit_id": "DA_18_Ahri"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8060270547866821,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.7997460961341858,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7867321372032166,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8317667245864868,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7660953402519226,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7570657730102539,
+            "unit_id": "DA_18_Teemo"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry"
+      }
+    ]
+  },
+  "gradient-gray": {
+    "test": [
+      {
+        "candidate_id": "DA_18_Camille",
+        "candidates": [
+          {
+            "similarity": 0.9756945967674255,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7901098132133484,
+            "unit_id": "DA_18_Diana"
+          },
+          {
+            "similarity": 0.744206428527832,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7729695439338684,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.7578096985816956,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7433412671089172,
+            "unit_id": "DA_18_Rakan"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.8407471776008606,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7557870745658875,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7172800898551941,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6801077127456665,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.6710584163665771,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6588806509971619,
+            "unit_id": "DA_18_Alistar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6839734315872192,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6768507957458496,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.6727547645568848,
+            "unit_id": "DA_18_Rakan"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8104469776153564,
+            "unit_id": "DA_18_Cassiopeia"
+          },
+          {
+            "similarity": 0.7868161797523499,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7419928312301636,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8002834916114807,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7251788377761841,
+            "unit_id": "DA_18_Veigar"
+          },
+          {
+            "similarity": 0.7047537565231323,
+            "unit_id": "DA_CrimsonRaptor18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-6",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7734211683273315,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7698678374290466,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7273687720298767,
+            "unit_id": "DA_18_Caitlyn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8155604004859924,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7669405341148376,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.7546106576919556,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9900568127632141,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.8851892352104187,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7420927882194519,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8083823919296265,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7415333390235901,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7411317825317383,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7110589742660522,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.6975679397583008,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.6946203708648682,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.741549015045166,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.7387734055519104,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7352231740951538,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-2",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7426483035087585,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7308869957923889,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7300894856452942,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-4",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.755948007106781,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.737700343132019,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.737021267414093,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-2",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6881718039512634,
+            "unit_id": "DA_Murkwolf18"
+          },
+          {
+            "similarity": 0.6844469308853149,
+            "unit_id": "DA_18_Hecarim"
+          },
+          {
+            "similarity": 0.6749296188354492,
+            "unit_id": "DA_18_Akali_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-3",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.693344235420227,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.6897079944610596,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.6818640828132629,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-6",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7273267507553101,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7159197926521301,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7092320919036865,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-7",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.743966281414032,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7347671389579773,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.733476459980011,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10500.png",
+        "key": "marker-2",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7538228034973145,
+            "unit_id": "DA_18_Alistar"
+          },
+          {
+            "similarity": 0.7433202266693115,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.7400057315826416,
+            "unit_id": "DA_18_Akali_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-1",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7332390546798706,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.7280282378196716,
+            "unit_id": "DA_18_Malphite"
+          },
+          {
+            "similarity": 0.7187267541885376,
+            "unit_id": "DA_Krug18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7313395738601685,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7114665508270264,
+            "unit_id": "DA_Gromp18_AP"
+          },
+          {
+            "similarity": 0.6979531645774841,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-5",
+        "label": "DA_Krug18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7595544457435608,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.729870617389679,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.7251688241958618,
+            "unit_id": "DA_Sentinel18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-6",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7403223514556885,
+            "unit_id": "DA_18_Warwick"
+          },
+          {
+            "similarity": 0.7226851582527161,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.7125884294509888,
+            "unit_id": "DA_Brambleback18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-0",
+        "label": "DA_18_Warwick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7413648962974548,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7374334931373596,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7204744219779968,
+            "unit_id": "DA_18_Akali_AD"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.739459753036499,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7302745580673218,
+            "unit_id": "DA_18_LeBlanc"
+          },
+          {
+            "similarity": 0.7269737720489502,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-2",
+        "label": "DA_Vi18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.753176212310791,
+            "unit_id": "DA_18_Rengar"
+          },
+          {
+            "similarity": 0.7531662583351135,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7316042184829712,
+            "unit_id": "DA_18_Yorick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-3",
+        "label": "DA_18_Yorick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7731489539146423,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.7462370991706848,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7176456451416016,
+            "unit_id": "DA_18_Leona"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-4",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7751480937004089,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.7656193971633911,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.7636205554008484,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-5",
+        "label": "DA_18_Veigar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7339379191398621,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.7322601675987244,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7319468855857849,
+            "unit_id": "DA_Cinderling18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-6",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7347283959388733,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.7337079048156738,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.7241896986961365,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10480.png",
+        "key": "marker-6",
+        "label": "DA_18_Veigar"
+      }
+    ],
+    "validation": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.760682225227356,
+            "unit_id": "DA_Gromp18_AP"
+          },
+          {
+            "similarity": 0.7302880883216858,
+            "unit_id": "DA_Brambleback18"
+          },
+          {
+            "similarity": 0.7289724946022034,
+            "unit_id": "DA_Karma18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-0",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7842686772346497,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7794842720031738,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.7601318359375,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.8087483048439026,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7905482649803162,
+            "unit_id": "DA_Fiddlesticks18"
+          },
+          {
+            "similarity": 0.7796392440795898,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-2",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7406991720199585,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.7340935468673706,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.7329087853431702,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-3",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7602025270462036,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.7410774230957031,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.7350565791130066,
+            "unit_id": "DA_Gromp18_AP"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7535772919654846,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.751337468624115,
+            "unit_id": "DA_18_Aphelios"
+          },
+          {
+            "similarity": 0.7320922017097473,
+            "unit_id": "DA_18_Leona"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": "DA_18_Sivir",
+        "candidates": [
+          {
+            "similarity": 0.8049366474151611,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.7083606719970703,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.7013940215110779,
+            "unit_id": "DA_18_Aphelios"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry"
+      }
+    ]
+  },
+  "gradient-mask_gray": {
+    "test": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7788416147232056,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.543918788433075,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.5276246666908264,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6553637385368347,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6459552049636841,
+            "unit_id": "DA_Scuttlecrab18"
+          },
+          {
+            "similarity": 0.6401272416114807,
+            "unit_id": "DA_Amumu18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5920601487159729,
+            "unit_id": "DA_KogMaw18_AD"
+          },
+          {
+            "similarity": 0.5596250295639038,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.5468234419822693,
+            "unit_id": "DA_18_Zyra"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5750933885574341,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.5511027574539185,
+            "unit_id": "DA_18_Ivern"
+          },
+          {
+            "similarity": 0.5396983623504639,
+            "unit_id": "DA_18_Rengar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6378348469734192,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.5465478301048279,
+            "unit_id": "DA_18_MasterYi_AD"
+          },
+          {
+            "similarity": 0.5250623226165771,
+            "unit_id": "DA_Vi18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6084570288658142,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6020235419273376,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.5935296416282654,
+            "unit_id": "DA_18_Cassiopeia"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7048057317733765,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6633927822113037,
+            "unit_id": "DA_18_Rakan"
+          },
+          {
+            "similarity": 0.6276077032089233,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/193.png",
+        "key": "marker-6",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6097113490104675,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.5898216366767883,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.5830140709877014,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-0",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7580229043960571,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6367549896240234,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6167678236961365,
+            "unit_id": "DA_Krug18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-1",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": "DA_18_Sentry",
+        "candidates": [
+          {
+            "similarity": 0.9368529319763184,
+            "unit_id": "DA_18_Sentry"
+          },
+          {
+            "similarity": 0.602364182472229,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.56223064661026,
+            "unit_id": "DA_18_Yorick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-2",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5221428871154785,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.5079989433288574,
+            "unit_id": "DA_Brambleback18"
+          },
+          {
+            "similarity": 0.49991375207901,
+            "unit_id": "DA_Fiddlesticks18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-3",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5666595101356506,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.5219436883926392,
+            "unit_id": "DA_Brambleback18"
+          },
+          {
+            "similarity": 0.5106686949729919,
+            "unit_id": "DA_Krug18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/204.png",
+        "key": "marker-4",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7012104988098145,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6619061231613159,
+            "unit_id": "DA_Sentinel18"
+          },
+          {
+            "similarity": 0.64891117811203,
+            "unit_id": "DA_18_Ezreal"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-2",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.670887291431427,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.6340961456298828,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.6331062316894531,
+            "unit_id": "DA_18_Kayle"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04500.png",
+        "key": "marker-4",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6376900672912598,
+            "unit_id": "DA_Karma18"
+          },
+          {
+            "similarity": 0.6072045564651489,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.6027364730834961,
+            "unit_id": "DA_18_Kayle"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-2",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.4380265772342682,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.4257712960243225,
+            "unit_id": "DA_18_Zyra"
+          },
+          {
+            "similarity": 0.4128890931606293,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/05700.png",
+        "key": "marker-3",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6075968146324158,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.5428229570388794,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.5316756963729858,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-6",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5928390026092529,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.5664774179458618,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.5530323386192322,
+            "unit_id": "DA_18_Ashe"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06900.png",
+        "key": "marker-7",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6619975566864014,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.6511417627334595,
+            "unit_id": "DA_18_Varus"
+          },
+          {
+            "similarity": 0.6477813124656677,
+            "unit_id": "DA_Brambleback18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10500.png",
+        "key": "marker-2",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7055383920669556,
+            "unit_id": "DA_Scuttlecrab18"
+          },
+          {
+            "similarity": 0.6854345798492432,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6792131662368774,
+            "unit_id": "DA_18_RekSai"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-1",
+        "label": "DA_18_Alistar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6110592484474182,
+            "unit_id": "DA_18_Azir"
+          },
+          {
+            "similarity": 0.6105157136917114,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6102004647254944,
+            "unit_id": "DA_18_Sejuani"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6788586378097534,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6716940402984619,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6673892736434937,
+            "unit_id": "DA_18_Azir"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-5",
+        "label": "DA_Krug18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6477731466293335,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.647670567035675,
+            "unit_id": "DA_Krug18"
+          },
+          {
+            "similarity": 0.6324101090431213,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/04480.png",
+        "key": "marker-6",
+        "label": "DA_18_Cassiopeia"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6781334280967712,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.657622754573822,
+            "unit_id": "DA_18_RekSai"
+          },
+          {
+            "similarity": 0.6551823616027832,
+            "unit_id": "DA_18_Ornn"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-0",
+        "label": "DA_18_Warwick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.7309800386428833,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.6530420184135437,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.6008445024490356,
+            "unit_id": "DA_18_Varus"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6151198148727417,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.6106728911399841,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.5736961364746094,
+            "unit_id": "DA_CrimsonRaptor18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-2",
+        "label": "DA_Vi18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6699055433273315,
+            "unit_id": "DA_18_Yorick"
+          },
+          {
+            "similarity": 0.6692495346069336,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.6667520999908447,
+            "unit_id": "DA_18_Rengar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-3",
+        "label": "DA_18_Yorick"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6080760955810547,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.5516365170478821,
+            "unit_id": "DA_Vi18"
+          },
+          {
+            "similarity": 0.5364139080047607,
+            "unit_id": "DA_Murkwolf18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-4",
+        "label": "DA_Karma18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5175572037696838,
+            "unit_id": "DA_Fiddlesticks18"
+          },
+          {
+            "similarity": 0.5017186999320984,
+            "unit_id": "DA_18_Alistar"
+          },
+          {
+            "similarity": 0.5001781582832336,
+            "unit_id": "DA_18_Warwick"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-5",
+        "label": "DA_18_Veigar"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6559414267539978,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.5842232704162598,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.5795152187347412,
+            "unit_id": "DA_18_Rengar"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/06880.png",
+        "key": "marker-6",
+        "label": "DA_Cinderling18"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5800891518592834,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.5623414516448975,
+            "unit_id": "DA_18_Alistar"
+          },
+          {
+            "similarity": 0.5067349672317505,
+            "unit_id": "DA_Murkwolf18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "unit-gallery-subzero-20261004/10480.png",
+        "key": "marker-6",
+        "label": "DA_18_Veigar"
+      }
+    ],
+    "validation": [
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6560088992118835,
+            "unit_id": "DA_18_Ornn"
+          },
+          {
+            "similarity": 0.6352401971817017,
+            "unit_id": "DA_Krug18"
+          },
+          {
+            "similarity": 0.6223637461662292,
+            "unit_id": "DA_18_Ashe"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-0",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5201805830001831,
+            "unit_id": "DA_18_Ezreal"
+          },
+          {
+            "similarity": 0.4964093267917633,
+            "unit_id": "DA_18_Rengar"
+          },
+          {
+            "similarity": 0.4900211691856384,
+            "unit_id": "DA_18_Shen"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5401815176010132,
+            "unit_id": "DA_18_Caitlyn"
+          },
+          {
+            "similarity": 0.5326528549194336,
+            "unit_id": "DA_18_Camille"
+          },
+          {
+            "similarity": 0.5187425017356873,
+            "unit_id": "DA_CrimsonRaptor18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-2",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.6474706530570984,
+            "unit_id": "DA_CrimsonRaptor18"
+          },
+          {
+            "similarity": 0.5848450660705566,
+            "unit_id": "DA_Cinderling18"
+          },
+          {
+            "similarity": 0.5709766745567322,
+            "unit_id": "DA_18_Kayle"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-3",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5224675536155701,
+            "unit_id": "DA_18_Shen"
+          },
+          {
+            "similarity": 0.5054134726524353,
+            "unit_id": "DA_18_Akali_AD"
+          },
+          {
+            "similarity": 0.4899711310863495,
+            "unit_id": "DA_18_Camille"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.5393709540367126,
+            "unit_id": "DA_18_Rengar"
+          },
+          {
+            "similarity": 0.5318997502326965,
+            "unit_id": "DA_Brambleback18"
+          },
+          {
+            "similarity": 0.5263848304748535,
+            "unit_id": "DA_18_Aphelios"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-5",
+        "label": "__unknown__"
+      },
+      {
+        "candidate_id": null,
+        "candidates": [
+          {
+            "similarity": 0.576707661151886,
+            "unit_id": "DA_18_Sivir"
+          },
+          {
+            "similarity": 0.4881878197193146,
+            "unit_id": "DA_18_Soraka"
+          },
+          {
+            "similarity": 0.48291799426078796,
+            "unit_id": "DA_Krug18"
+          }
+        ],
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry"
+      }
+    ]
+  }
+}
