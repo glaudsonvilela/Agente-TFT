@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-05T10:15:00-03:00",
+  "status": "complete_frozen_development_evaluation",
+  "selection_source": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/optimizer-study-resume-20261005-101237/optimizer-study-selection.json",
+  "selected_arm": "optimizer-default-parity",
+  "training_performed": false,
+  "selection_changed_after_evaluation": false,
+  "development_sources_used_for_hyperparameter_tuning": false,
+  "results": {
+    "minjo": {
+      "correct": 30,
+      "named": 35,
+      "named_macro_recall": 0.829365079365,
+      "historical_prediction_parity": true
+    },
+    "kh": {
+      "correct": 24,
+      "named": 35,
+      "named_macro_recall": 0.735897435897,
+      "historical_prediction_parity": true
+    }
+  },
+  "independent_final_holdout": false,
+  "runtime_approved": false,
+  "next": "Use only new training-side images to improve source diversity and unknown rejection. Minjo/KH remain development-only and must not be used for retuning."
+}
