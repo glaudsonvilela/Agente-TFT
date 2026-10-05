@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:30:00-03:00",
+  "recorded_at": "2026-10-05T11:35:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,20 +1346,14 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "prioritize_targeted_collection_with_frozen_model",
-    "goal": "Use the frozen transfer-vertical/optimizer-default-parity model only to rank review candidates from the new Elder Dragon source. Predictions remain unverified suggestions.",
-    "target_ids": [
-      "DA_18_ElderDragon",
-      "DA_18_Kayle",
-      "DA_18_KhaZix",
-      "DA_18_MasterYi_AD",
-      "DA_18_Morgana",
-      "DA_18_Xayah",
-      "DA_CrimsonRaptor18",
-      "DA_Karma18",
-      "DA_Murkwolf18"
-    ],
+    "status": "ready_for_frozen_model_prioritization",
     "source_id": "youtube:Ot358nhRJl0",
+    "collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/annotation-2s",
+    "runner": "scripts/prioritize_targeted_annotation_collection.py",
+    "native_binary": "prioritize-annotation-collection",
+    "frozen_model": "optimizer-default-parity / transfer-vertical",
+    "predictions_are_labels": false,
+    "automatic_labels": false,
     "training_performed": false,
     "runtime_approved": false
   },
