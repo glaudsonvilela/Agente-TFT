@@ -114,6 +114,7 @@ fn run() -> Result<()> {
     let mut previous: Option<(
         u64,
         Vec<Option<Vec<String>>>,
+        Vec<Option<f32>>,
         Vec<Option<Vec<String>>>,
         Vec<f32>,
         Value,
@@ -183,6 +184,10 @@ fn run() -> Result<()> {
             .iter()
             .map(|m| m.as_ref().map(|(ids, _)| ids.clone()))
             .collect();
+        let confidences: Vec<_> = matched
+            .iter()
+            .map(|m| m.as_ref().map(|(_, confidence)| *confidence))
+            .collect();
         // Untranslated text can establish an unchanged neighboring card. It
         // cannot supply an identity for the disappearing card itself.
         let anchors: Vec<_> = words
@@ -208,7 +213,7 @@ fn run() -> Result<()> {
             })
             .collect();
         let cards:Vec<_>=matched.iter().zip(&words).enumerate().map(|(slot,(m,w))|json!({"slot":slot,"unit_candidates":m.as_ref().map(|x|&x.0),"ocr_name_confidence":m.as_ref().map(|x|x.1),"ocr_words":w})).collect();
-        if let Some((old_time, old_ids, old_anchors, old_portraits, old_frame)) = &previous {
+        if let Some((old_time, old_ids, old_confidences, old_anchors, old_portraits, old_frame)) = &previous {
             let gap = time
                 .checked_sub(*old_time)
                 .ok_or("nonmonotonic source times")?;
@@ -220,12 +225,14 @@ fn run() -> Result<()> {
                 }
                 transitions.push(json!({"source_id":report["source_id"],"before_seconds":old_time,"after_seconds":time,
                     "before_frame":old_frame["review_frame"],"after_frame":file,"before_pixel_sha256":old_frame["frame_pixel_sha256"],"after_pixel_sha256":frame["frame_pixel_sha256"],
-                    "shop_slot":slot,"portrait_brightness_before":old_portraits[slot],"portrait_brightness_after":portrait_brightness[slot],"shop_unit_candidates":old_ids[slot],"new_bench_proposals":new_bench_proposals(old_frame,&frame),
+                    "shop_slot":slot,"portrait_brightness_before":old_portraits[slot],"portrait_brightness_after":portrait_brightness[slot],
+                    "shop_unit_candidates":old_ids[slot],"shop_ocr_name_confidence":old_confidences[slot],
+                    "new_bench_proposals":new_bench_proposals(old_frame,&frame),
                     "purchase_confirmed":false,"crop_identity_confirmed":false,"review_required":true,"training_label":null}));
             }
         }
         frames.push(json!({"source_seconds":time,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"portrait_brightness":portrait_brightness,"cards":cards}));
-        previous = Some((time, identities, anchors, portrait_brightness, frame));
+        previous = Some((time, identities, confidences, anchors, portrait_brightness, frame));
         if frames.len() % 100 == 0 {
             let progress = json!({"status":"running", "frames":frames.len(), "ocr_calls":ocr_calls,
                 "transition_proposals":transitions.len(), "elapsed_seconds":started.elapsed().as_secs_f64()});
@@ -248,7 +255,8 @@ fn run() -> Result<()> {
         "catalog_sha256":format!("{:x}",Sha256::digest(catalog_bytes)),"runtime_approved":false,
         "limitations":["Fixed 1920x1080 full-HUD shop geometry and English OCR; zoom, translated names and overlays can miss cards.",
         "Three neighboring OCR names must remain unchanged within two seconds and portrait brightness must fall from at least 10% to at most 2%; overlays can still imitate an empty card.",
-        "New bench proposals are positional cues only; merges and detector misses require manual review.","Generic Lux retains every catalog variant; no image is labeled automatically."]});
+        "New bench proposals remain evidence cues until autonomous consensus proves a unique purchase-to-bench binding.",
+        "Generic Lux retains every catalog variant; ambiguous variants remain unknown."]});
     fs::write(
         output.join("report.json"),
         serde_json::to_vec_pretty(&summary)?,
