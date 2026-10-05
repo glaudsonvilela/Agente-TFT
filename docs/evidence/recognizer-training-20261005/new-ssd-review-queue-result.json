@@ -1,0 +1,42 @@
+{
+  "recorded_at": "2026-10-05T10:30:00-03:00",
+  "status": "review_queue_complete",
+  "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005",
+  "collections_found": 20,
+  "allowed_training_collections": 14,
+  "blocked_collections": 6,
+  "collections_with_new_observations": 14,
+  "review_crop_candidates": 126,
+  "lux_context_frames": 39,
+  "targets_represented_in_queue": {
+    "DA_18_Kayle": 3,
+    "DA_18_KhaZix": 28,
+    "DA_18_MasterYi_AD": 6,
+    "DA_CrimsonRaptor18": 39,
+    "DA_Karma18": 50
+  },
+  "targets_with_new_source_candidates": {
+    "DA_18_KhaZix": 1,
+    "DA_Karma18": 2
+  },
+  "missing_target_suggestions": [
+    "DA_18_ElderDragon",
+    "DA_18_Lux_Elderwood",
+    "DA_18_Morgana",
+    "DA_18_Xayah",
+    "DA_Murkwolf18"
+  ],
+  "missing_lux_forms_still_require_manual_context_review": [
+    "DA_18_Lux_Coven",
+    "DA_18_Lux_Fae",
+    "DA_18_Lux_Inferno",
+    "DA_18_Lux_Moonbeam",
+    "DA_18_Lux_Primal",
+    "DA_18_Lux_Sunbeam",
+    "DA_Lux18_Base",
+    "DA_Lux18_Blackthorn",
+    "DA_Lux18_Blossom"
+  ],
+  "training_performed": false,
+  "runtime_approved": false
+}
