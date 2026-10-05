@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T06:15:21.091Z",
+  "recorded_at": "2026-10-05T06:25:26.903Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -870,5 +870,45 @@
   "native_evaluation_tests": {
     "library_passed": 12,
     "source_isolation_passed": 2
+  },
+  "latest_batch_policy_experiment": {
+    "schema_version": 1,
+    "head_sha256": "bc10972cc02a039615976313dfb3deeedc07f8b01b71b826f607298950eb72f6",
+    "policy": "one_crop_per_embedding_call_in_training_and_evaluation",
+    "compared_samples": 35,
+    "changed_predictions": 0,
+    "max_top1_probability_delta": 0,
+    "forward_annotations_sha256": "38f5a3c5700b5833f45f7c0ed79073a9384197d4a1f5dea56f5fb80ce57a18d9",
+    "reversed_annotations_sha256": "b597ccf4e2721b8fe4259d4fb2617fb8db041ac6d88279d199456f11e2d8ae48",
+    "training_batch": 1,
+    "evaluation_batch": 1,
+    "validation": {
+      "named": 32,
+      "correct": 17
+    },
+    "development_audit": {
+      "samples": 107,
+      "correct": 62
+    },
+    "new_source": {
+      "samples": 35,
+      "correct": 20
+    },
+    "runtime_approved": false,
+    "limitations": [
+      "Order invariance tested on these 35 reviewed crops only.",
+      "Accuracy remains insufficient; this policy addresses batch coupling, not identity coverage.",
+      "No Windows runtime or capture/display benchmark."
+    ],
+    "model_private_path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/batch1-seasonal-head/dino-head.json"
+  },
+  "elise_source_collection": {
+    "source": "https://www.youtube.com/watch?v=T0KVjZtR3GY",
+    "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/elise-pool-10s",
+    "frames": 66,
+    "proposed_crops": 237,
+    "review_candidates": 89,
+    "status": "collection_complete_visual_review_pending",
+    "training_labels_added": 0
   }
 }

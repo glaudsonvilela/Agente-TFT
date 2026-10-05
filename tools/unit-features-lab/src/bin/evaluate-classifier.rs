@@ -1,7 +1,7 @@
 //! Evaluate a sealed, frozen head on reviewed images without fitting any weights.
 use agente_tft_unit_features_lab::{
     crop_transform::CropTransform,
-    embeddings, load_evaluation_samples,
+    embedding_batch_size, embeddings, load_evaluation_samples,
     training::{metrics, Head},
     Result,
 };
@@ -110,12 +110,10 @@ fn run() -> Result<()> {
         return Err("input size budget".into());
     }
     let head: Head = serde_json::from_value(model["head"].clone())?;
+    let trained_batch = embedding_batch_size(model.get("embedding_batch_size"))?;
     let batch = match spec.get("batch_size") {
-        Some(v) => v
-            .as_u64()
-            .filter(|n| (1..=4).contains(n))
-            .ok_or("batch size must be 1..4")? as usize,
-        None => 4,
+        Some(v) => embedding_batch_size(Some(v))?,
+        None => trained_batch,
     };
     ort::init_from(string(&spec, "onnxruntime")?).commit()?;
     let mut session = Session::builder()?
@@ -168,7 +166,8 @@ fn run() -> Result<()> {
     }
     let report = json!({"schema_version":1,"training_performed":false,"head_sha256":hash(&model_bytes),
         "annotations_sha256":hash(&annotations_bytes),"spec_sha256":hash(&spec_bytes),"encoder_sha256":hash(&encoder_bytes),
-        "crop_transform":transform.name(),"batch":batch,"threads":1,"new_source_relative_to_training_manifest":new_source,
+        "crop_transform":transform.name(),"batch":batch,"training_batch":trained_batch,
+        "batch_matches_training":batch==trained_batch,"threads":1,"new_source_relative_to_training_manifest":new_source,
         "evaluation":result,"strata":strata,"inference_seconds":start.elapsed().as_secs_f64(),"runtime_approved":false,
         "limitations":["Assistant-reviewed labels, not independent human ground truth.","Legible proposed crops only; missed or ambiguous units are not recognition successes.","No Windows capture/display or end-to-end latency measurement.","After inspection this source is development evidence, not an untouched final holdout."]});
     fs::write(output, serde_json::to_vec_pretty(&report)?)?;

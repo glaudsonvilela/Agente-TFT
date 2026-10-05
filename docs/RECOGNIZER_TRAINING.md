@@ -372,3 +372,27 @@ levaram cerca de 1,62 s cada para os 35 recortes, sem captura, carregamento ou
 exibição. Não é uma medida de FPS do HUD. Essa dependência do lote no encoder
 INT8 exige uma política explícita e idêntica no treino e na inferência; o próximo
 experimento usará um recorte por lote para retirar a influência dos vizinhos.
+
+## Política explícita de um recorte por chamada INT8
+
+O treinador Rust agora registra `embedding_batch_size` no artefato e no relatório.
+O avaliador usa esse valor por padrão; substituições experimentais ficam explícitas
+no relatório. Artefatos históricos sem o campo mantêm a interpretação original de
+lote 4. Valores inválidos são rejeitados. Quinze testes passaram.
+
+Retreinamos a mesma cabeça linear e o mesmo conjunto corrigido, sem acrescentar
+rótulos, com lote 1. O encoder permanece congelado. O resultado foi 17/32 na
+validação, 62/107 no desafio de desenvolvimento e 20/35 na fonte Tristana.
+A política foi escolhida para eliminar a influência de outros recortes; esses
+resultados não demonstram melhora de precisão.
+
+Executamos novamente as 35 imagens de Tristana com quadros e entidades em ordem
+inversa. Com o mesmo artefato, as 35 previsões e suas pontuações máximas foram
+idênticas (diferença máxima zero). `batch1-order-invariance.json` registra os hashes
+comparados. Isso valida a invariância nessa amostra; não é uma avaliação de captura,
+FPS ou execução no Windows. O artefato continua sem autorização para promoção.
+
+Também concluímos a coleta de `youtube:T0KVjZtR3GY` (Void TFT, Elise): 66 quadros,
+237 propostas em 660 segundos e 89 propostas em uma grade de revisão de 30 segundos.
+Nenhuma proposta dessa fonte foi ainda adicionada como rótulo. Vídeo, recortes e
+pesos ficam no SSD; os relatórios e manifestos são versionados no Git.

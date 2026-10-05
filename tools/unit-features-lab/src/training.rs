@@ -289,7 +289,8 @@ pub fn run_cli() -> Result<()> {
         fs::create_dir_all(p)?;
     }
     let mut cache_hits = 0;
-    for chunk in samples.chunks(4) {
+    let embedding_batch_size = embedding_batch_size(spec.get("embedding_batch_size"))?;
+    for chunk in samples.chunks(embedding_batch_size) {
         let crops: Vec<_> = chunk.iter().map(|s| (s.crop.clone(), true)).collect();
         // Dynamic quantization can depend on the other batch members. Cache
         // the entire ordered batch, not individual pixels under a false key.
@@ -365,7 +366,8 @@ pub fn run_cli() -> Result<()> {
         }
         let model = json!({"schema_version":1,"feature_mode":name,"head":head,"selected_epoch":epoch,
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
-            "input_size":side,"crop_transform":crop_transform,"runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
+            "input_size":side,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
+            "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -381,7 +383,8 @@ pub fn run_cli() -> Result<()> {
         "backbone_finetuned":false,"training_algorithm":"class_balanced_multiclass_softmax_gradient_descent",
         "learning_rate":2.0,"weight_decay":0.001,"max_epochs":800,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
-        "source_samples":source_samples,"crop_transform":crop_transform,"synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
+        "source_samples":source_samples,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
+        "synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
         "encoder_sha256":spec["encoder_sha256"],"runtime_approved":false,
         "limitations":["Existing small assistant-reviewed dataset; no independent human ground truth.",
         "A supervised classification head is trained; frozen DINO weights are unchanged.",

@@ -13,6 +13,18 @@ use std::{
     time::Instant,
 };
 pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
+/// Historical datasets used four crops per dynamic INT8 encoder call.
+/// New candidates can explicitly select one to avoid cross-crop batch coupling.
+pub fn embedding_batch_size(value: Option<&Value>) -> Result<usize> {
+    match value {
+        None => Ok(4),
+        Some(v) => {
+            Ok(v.as_u64()
+                .filter(|n| (1..=4).contains(n))
+                .ok_or("embedding batch size must be an integer in 1..4")? as usize)
+        }
+    }
+}
 pub mod crop_transform;
 mod live;
 pub mod training;
@@ -584,6 +596,14 @@ pub fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn embedding_batch_policy_is_explicit_and_bounded() {
+        assert_eq!(embedding_batch_size(None).unwrap(), 4);
+        assert_eq!(embedding_batch_size(Some(&json!(1))).unwrap(), 1);
+        for value in [json!(0), json!(5), json!(1.5), json!("1"), Value::Null] {
+            assert!(embedding_batch_size(Some(&value)).is_err());
+        }
+    }
     #[test]
     fn standalone_evaluation_does_not_relax_training_split_requirements() {
         let test_only = HashSet::from(["test"]);
