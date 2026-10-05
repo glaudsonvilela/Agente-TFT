@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-05T06:48:57.372Z",
+  "question": "Does a tighter upper-body region improve validation with the same reviewed source split?",
+  "annotations": "configs/training/unit-gallery-sprykin-expanded-20261005.json",
+  "annotations_sha256": "cb9d70099eb7f64b2795de3fa4e85de99e5fec0b247c619e9e3a6efd21080e0b",
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "embedding_batch_size": 1,
+  "variants": [
+    "raw",
+    "center_88x120_v1",
+    "upper_88x80_v1"
+  ],
+  "checkpoint_selection": "validation_macro_recall_then_cross_entropy",
+  "variant_selection": "validation_macro_recall_then_cross_entropy",
+  "development_evaluation_policy": "Evaluate the selected variant without refitting; existing inspected development sources are not untouched final holdouts.",
+  "runtime_approved": false
+}

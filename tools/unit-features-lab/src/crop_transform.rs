@@ -11,6 +11,8 @@ pub enum CropTransform {
     Raw,
     #[serde(rename = "center_88x120_v1")]
     Center88x120V1,
+    #[serde(rename = "upper_88x80_v1")]
+    Upper88x80V1,
 }
 
 impl CropTransform {
@@ -18,6 +20,7 @@ impl CropTransform {
         match self {
             Self::Raw => "raw",
             Self::Center88x120V1 => "center_88x120_v1",
+            Self::Upper88x80V1 => "upper_88x80_v1",
         }
     }
 
@@ -44,7 +47,10 @@ impl CropTransform {
                 x: 20,
                 y: 24,
                 width: 88,
-                height: 120,
+                height: match self {
+                    Self::Upper88x80V1 => 80,
+                    _ => 120,
+                },
             },
         )?)
     }
@@ -76,6 +82,24 @@ mod tests {
         let crop = UnitCrop { rgb: vec![0; 7] };
         assert!(CropTransform::Raw.apply(&crop).is_err());
         assert!(CropTransform::Center88x120V1.apply(&crop).is_err());
+        assert!(CropTransform::Upper88x80V1.apply(&crop).is_err());
         assert!(serde_json::from_str::<CropTransform>("\"center_v99\"").is_err());
+    }
+
+    #[test]
+    fn upper_region_excludes_the_lower_body_without_reintroducing_item_strip() {
+        let mut crop = UnitCrop {
+            rgb: [255, 0, 0].repeat(WIDTH * HEIGHT),
+        };
+        for y in 24..104 {
+            for x in 20..108 {
+                crop.rgb[(y * WIDTH + x) * 3..(y * WIDTH + x) * 3 + 3]
+                    .copy_from_slice(&[0, 200, 0]);
+            }
+        }
+        let upper = CropTransform::Upper88x80V1.apply(&crop).unwrap();
+        assert!(upper.rgb.chunks_exact(3).all(|p| p == [0, 200, 0]));
+        let center = CropTransform::Center88x120V1.apply(&crop).unwrap();
+        assert!(center.rgb.chunks_exact(3).any(|p| p == [255, 0, 0]));
     }
 }

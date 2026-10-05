@@ -476,3 +476,39 @@ com galhadas cinza/azul. Isso documenta condições distintas, sem atribuir toda
 falha a uma causa única. Precisamos de outra fonte com a aparência correspondente
 ou de uma representação que preserve melhor o próprio cavaleiro. Nenhum artefato
 foi promovido; aumentar o número de recortes, sozinho, não comprovou transferência.
+
+## Comparação de regiões com a mesma base
+
+Comparados três enquadramentos nativos, mantendo os mesmos 569 exemplos, as
+mesmas divisões, encoder congelado e lote 1. A região `upper_88x80_v1` usa x=20,
+y=24, largura=88 e altura=80 do recorte original 128×144. O treinamento e o
+avaliador usam a mesma implementação versionada; o gerador de folhas de revisão
+também pode mostrar a transformação efetiva. Nenhuma imagem original é alterada.
+
+| Região | Validação | Desafio de desenvolvimento | Fonte Tristana |
+|---|---:|---:|---:|
+| Inteira (`raw`) | 14/32 | Relatório integral preservado | Não executado |
+| Central 88×120 | 17/32 | 64/107 | 22/35 |
+| Superior 88×80 | 18/32 | 63/107 | 27/35 |
+
+A seleção seguiu macro recall de validação, com entropia cruzada como desempate,
+registrada em `region-experiment-protocol.json`. A fonte Tristana foi avaliada
+após selecionar a região superior. Os três casos montados continuam errados;
+os 27 acertos estão entre os 32 recortes comuns. Uma única imagem a mais na
+validação pequena não comprova superioridade geral. A inferência dos 35 recortes
+levou aproximadamente 1,61 s nesta execução, sem captura ou exibição do Windows.
+Os 16 testes da biblioteca e do avaliador passaram. O artefato continua sem promoção.
+
+A busca por sete Sprykin encontrou outra partida KH (`youtube:Jmi5fbZiFGU`), e
+uma partida shurkou com Lux (`youtube:CQhg2_6tzcM`) foi baixada. Ambas estão em
+coleta nativa, sem rótulos automáticos. O título do vídeo não confirma identidade.
+
+O auxiliar OCR de revisão também recebeu uma correção: a palavra genérica Lux
+não pode identificar automaticamente `DA_Lux18_Base`. Agora conserva todos os IDs
+da família e exige revisão da variante; nomes compostos são comparados completos.
+Um teste cobre Lux genérica, variante explícita, nome composto, texto extra e baixa
+confiança. A associação entre painel e recorte continua exigindo revisão visual.
+
+A coleta KH com sete Sprykin terminou com 62 quadros e 479 propostas. O quadro
+1.120 s confirma visualmente sete Sprykin e Rammus na montaria com galhadas douradas.
+Foram preparadas 53 propostas para revisão; ainda não são rótulos de treino.

@@ -1,4 +1,6 @@
 //! Dataset inspection only; image transformations remain native Rust.
+use agente_tft_image_preprocess::unit_features::UnitCrop;
+use agente_tft_unit_features_lab::crop_transform::CropTransform;
 use std::{fs, path::PathBuf};
 fn number(sheet: &mut image::RgbImage, value: usize, x: u32, y: u32) {
     const DIGITS: [[u8; 5]; 10] = [
@@ -75,6 +77,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
             if rgb.width() != 128 || rgb.height() != 144 {
                 return Err("expected native unit crop".into());
+            }
+            if let Some(value) = row.get("crop_transform") {
+                let transform: CropTransform = serde_json::from_value(value.clone())?;
+                let prepared = transform.apply(&UnitCrop {
+                    rgb: rgb.into_raw(),
+                })?;
+                rgb = image::RgbImage::from_raw(128, 144, prepared.rgb)
+                    .ok_or("prepared crop dimensions")?;
             }
             number(
                 &mut sheet,

@@ -9,6 +9,51 @@ fn canonical(s: &str) -> String {
         .flat_map(char::to_lowercase)
         .collect()
 }
+type Names = BTreeMap<String, Vec<String>>;
+fn name_indexes(catalog: &Value) -> Result<(Names, Names)> {
+    let mut exact = Names::new();
+    let mut families = Names::new();
+    for unit in catalog["entries"].as_array().ok_or("catalog entries")? {
+        let name = unit["name"].as_str().ok_or("name")?;
+        let id = unit["id"].as_str().ok_or("id")?;
+        exact.entry(canonical(name)).or_default().push(id.into());
+        let root = name.split('(').next().ok_or("name root")?.trim();
+        families.entry(canonical(root)).or_default().push(id.into());
+    }
+    Ok((exact, families))
+}
+
+fn match_name(
+    words: &[(String, f32)],
+    exact: &Names,
+    families: &Names,
+) -> Option<(Vec<String>, f32)> {
+    for n in (1..=words.len()).rev() {
+        if words[..n].iter().any(|(_, c)| *c < 70. || !c.is_finite())
+            || words[n..]
+                .iter()
+                .any(|(s, _)| !s.chars().all(|c| c.is_ascii_digit()))
+        {
+            continue;
+        }
+        let name = canonical(
+            &words[..n]
+                .iter()
+                .map(|(s, _)| s.as_str())
+                .collect::<Vec<_>>()
+                .join(" "),
+        );
+        let Some(ids) = exact.get(&name) else {
+            continue;
+        };
+        // A generic name such as Lux cannot identify its seasonal form even
+        // when the catalog happens to contain one entry literally named Lux.
+        let ids = families.get(&name).unwrap_or(ids);
+        let confidence = words[..n].iter().map(|(_, c)| *c).fold(100., f32::min);
+        return Some((ids.clone(), confidence));
+    }
+    None
+}
 fn run() -> Result<()> {
     let a: Vec<_> = std::env::args().collect();
     if a.len() != 4 {
@@ -24,14 +69,7 @@ fn run() -> Result<()> {
         return Err("complete source required".into());
     }
     let catalog: Value = serde_json::from_slice(&fs::read(&a[2])?)?;
-    let mut names: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    for unit in catalog["entries"].as_array().ok_or("catalog entries")? {
-        let name = canonical(unit["name"].as_str().ok_or("name")?);
-        names
-            .entry(name)
-            .or_default()
-            .push(unit["id"].as_str().ok_or("id")?.into());
-    }
+    let (names, families) = name_indexes(&catalog)?;
     fs::create_dir_all(out.join("rois"))?;
     let mut proposals = Vec::new();
     let mut scanned = 0;
@@ -83,17 +121,7 @@ fn run() -> Result<()> {
         }
         let found: Vec<_> = lines
             .values()
-            .filter_map(|words| {
-                let (word, confidence) = words.first()?;
-                if *confidence < 70. {
-                    return None;
-                }
-                let ids = names.get(&canonical(word))?;
-                if ids.len() != 1 {
-                    return None;
-                }
-                Some((ids[0].clone(), *confidence))
-            })
+            .filter_map(|words| match_name(words, &names, &families))
             .collect();
         if found.len() != 1 {
             continue;
@@ -111,7 +139,9 @@ fn run() -> Result<()> {
         }
         units.sort_by(|a, b| b["cyan_pixels"].as_u64().cmp(&a["cyan_pixels"].as_u64()));
         proposals.push(json!({"source_id":report["source_id"],"source_seconds_nominal":frame["source_seconds_nominal"],
-            "frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"tooltip_unit_id":found[0].0,"ocr_name_confidence":found[0].1,
+            "frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],
+            "tooltip_unit_id":if found[0].0.len()==1 {Some(&found[0].0[0])} else {None},
+            "tooltip_unit_candidates":found[0].0,"identity_requires_variant_review":found[0].0.len()!=1,"ocr_name_confidence":found[0].1,
             "tooltip_text":text,"association_candidates":units,"crop_identity_confirmed":false,
             "review_required":true,"training_label":null}));
         println!(
@@ -131,10 +161,45 @@ fn run() -> Result<()> {
         out.join("report.json"),
         serde_json::to_vec_pretty(&json!({"source_id":report["source_id"],"scanned":scanned,
         "proposals":proposals.len(),"automatically_labeled":0,"limitations":["OCR names require review; cyan pixel count is not semantic selection detection.",
-        "Portuguese catalog names are matched literally; English aliases and multiword names can be missed.",
+        "Catalog names are matched literally; untranslated aliases can be missed. Generic seasonal names retain every candidate ID.",
         "This is annotation assistance, not a runtime recognition or coaching decision."]}))?,
     )?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn generic_lux_does_not_become_base_form_and_multiword_names_are_complete() {
+        let catalog = json!({"entries":[
+            {"id":"base","name":"Lux"},{"id":"elderwood","name":"Lux (Sabugueiro)"},
+            {"id":"yi","name":"Master Yi"}]});
+        let (exact, families) = name_indexes(&catalog).unwrap();
+        let words = |s: &str| {
+            s.split_whitespace()
+                .map(|s| (s.to_owned(), 95.))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            match_name(&words("Lux 5"), &exact, &families).unwrap().0,
+            vec!["base", "elderwood"]
+        );
+        assert_eq!(
+            match_name(&words("Lux (Sabugueiro)"), &exact, &families)
+                .unwrap()
+                .0,
+            vec!["elderwood"]
+        );
+        assert_eq!(
+            match_name(&words("Master Yi 4"), &exact, &families)
+                .unwrap()
+                .0,
+            vec!["yi"]
+        );
+        assert!(match_name(&words("Lux player"), &exact, &families).is_none());
+        assert!(match_name(&[("Lux".into(), 65.)], &exact, &families).is_none());
+    }
 }
 fn main() {
     if let Err(e) = run() {

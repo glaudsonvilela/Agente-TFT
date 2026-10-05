@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T06:44:31.865Z",
+  "recorded_at": "2026-10-05T06:54:36.667Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -972,5 +972,39 @@
     "tristana_mounted_samples": 3,
     "embedding_batch_size": 1,
     "runtime_approved": false
-  }
+  },
+  "current_region_experiment": {
+    "protocol": "docs/evidence/recognizer-training-20261005/region-experiment-protocol.json",
+    "selection": "docs/evidence/recognizer-training-20261005/region-experiment-selection.json",
+    "selected_transform": "upper_88x80_v1",
+    "head_sha256": "c78eb7a64278910b531f4a96f719784dcb01412397cee7fa3d40b0b2c13ec3e6",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-upper-head/dino-head.json",
+    "validation_correct": 18,
+    "validation_samples": 32,
+    "development_correct": 63,
+    "development_samples": 107,
+    "tristana_correct": 27,
+    "tristana_samples": 35,
+    "tristana_mounted_correct": 0,
+    "tristana_mounted_samples": 3,
+    "runtime_approved": false
+  },
+  "pending_sources": [
+    {
+      "source": "https://www.youtube.com/watch?v=Jmi5fbZiFGU",
+      "creator": "KH-Teamfight Tactics TFT",
+      "status": "collection_complete_review_pending",
+      "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-seven-pool-20s",
+      "purpose": "Review seven-Sprykin mounted appearances; source title is not a label.",
+      "frames": 62,
+      "proposed_crops": 479
+    },
+    {
+      "source": "https://www.youtube.com/watch?v=CQhg2_6tzcM",
+      "creator": "shurkou",
+      "status": "download_complete_collection_running",
+      "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-pool-20s",
+      "purpose": "Review Lux appearance and visible seasonal form binding; source title is not a label."
+    }
+  ]
 }
