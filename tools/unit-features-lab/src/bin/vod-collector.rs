@@ -69,6 +69,13 @@ fn run() -> Result<()> {
     if !(1..=43200).contains(&seconds) || !(1..=60).contains(&interval) {
         return Err("video time budget".into());
     }
+    let review_interval = match spec.get("review_interval_seconds") {
+        Some(value) => value.as_u64().ok_or("review interval")?,
+        None => 60,
+    };
+    if !(interval..=3600).contains(&review_interval) || review_interval % interval != 0 {
+        return Err("review interval must be a bounded multiple of sampling interval".into());
+    }
     let out = PathBuf::from(string(&spec, "output")?);
     if out.exists() {
         return Err("new output directory required".into());
@@ -295,8 +302,8 @@ fn run() -> Result<()> {
         let analysis_ms = t.elapsed().as_secs_f64() * 1000.;
         timings.push(analysis_ms);
         proposals += rows.len() as u64;
-        // One full frame/minute, independent of model confidence, for blind audit.
-        let review = source_s % 60 == 0;
+        // Fixed review cadence, independent of model confidence (default: 60 s).
+        let review = (source_s - offset) % review_interval == 0;
         let full_frame = if review {
             let file = format!("frames/{source_s:06}.png");
             image::save_buffer(
@@ -353,7 +360,7 @@ fn run() -> Result<()> {
     let complete = status.success() && frames == target;
     let report = json!({"schema_version":1,"status":if complete{"complete"}else{"incomplete"},"decoder_success":status.success(),
         "source_id":spec["source_id"],"source_url":spec["source_url"],"start_seconds":offset,"requested_seconds":seconds,
-        "sample_interval_seconds":interval,"frames":frames,"target_frames":target,"unit_crops":proposals,
+        "sample_interval_seconds":interval,"review_interval_seconds":review_interval,"frames":frames,"target_frames":target,"unit_crops":proposals,
         "accepted_candidates":accepted,"frames_without_green_proposals":no_markers,"green_markers":green_total,
         "unique_frame_hashes":hashes.len(),"saved_review_frames":review_frames,"top1_distribution":top_ids,"accepted_distribution":accept_ids,
         "elapsed_seconds":start.elapsed().as_secs_f64(),"analysis_ms_p50":percentile(&timings,0.5),"analysis_ms_p95":percentile(&timings,0.95),

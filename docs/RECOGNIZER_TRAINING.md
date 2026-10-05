@@ -186,3 +186,33 @@ global de cada recorte. Novos rótulos trazem o hash dos pixels do recorte;
 o carregador Rust recusa vínculos incompatíveis entre identidade e recorte.
 Os exemplos incertos são excluídos, nunca convertidos em negativos só porque
 a identidade não pôde ser determinada.
+
+## Validação ampliada e estudo do recorte
+
+O vídeo `youtube:af1zvuCmr58` inteiro passou de treino para validação: agora são
+32 unidades de validação, em vez de 3, e 337 unidades de treino. Essa fonte já
+participou de treinos anteriores, portanto não é um novo teste final. Os dois
+classificadores deste estudo foram treinados novamente, com o encoder DINO fixo.
+Os 107 exemplos revisados do VOD de seis horas continuam fora do treino e da
+seleção de época; foram incorporados ao manifesto de avaliação para medir
+transformações do recorte sem reutilizar embeddings incompatíveis.
+
+| Entrada do encoder | Validação / 32 | Desafio de desenvolvimento / 107 |
+|---|---:|---:|
+| Recorte original 128 × 144 | 11 | 40 |
+| Centro 88 × 120, redimensionado | 15 | 55 |
+
+O centro remove a faixa superior dos itens e parte das laterais; pode também
+cortar armas e unidades grandes. Não é segmentação do personagem. A comparação
+40 → 55 usa a mesma divisão ampliada; o resultado anterior de 46 usava mais
+exemplos de treino e outra validação. Há melhora neste estudo, mas a precisão
+continua insuficiente. Os relatórios completos e hashes ficam em
+`docs/evidence/recognizer-training-20261005/feature-study-*.json`.
+O artefato identifica a transformação; a avaliação de VOD recusa usar a cabeça
+centralizada com o cache antigo de recortes completos. Nenhuma foi ativada.
+
+Uma quarta fonte, `youtube:UcztPIRD1m0` (Lemuria TFT), foi coletada em 1080p:
+330 quadros amostrados em 660 segundos e 66 quadros completos para revisão.
+É um vídeo anterior ao patch atual, com unidades de custo cinco; os nomes dos
+capítulos são pistas de revisão, não rótulos automáticos. Aparências e variantes
+precisam ser reconciliadas antes de adicionar exemplos ao treino.

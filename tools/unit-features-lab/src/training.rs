@@ -252,6 +252,34 @@ pub fn run_cli() -> Result<()> {
         Path::new(str_field(&spec, "images")?),
         Path::new(str_field(&spec, "reference")?),
     )?;
+    let crop_transform = spec["crop_transform"].as_str().unwrap_or("raw");
+    match crop_transform {
+        "raw" => {}
+        "center_88x120_v1" => {
+            for sample in &mut samples {
+                let frame = FrameEnvelope {
+                    frame_id: 0,
+                    captured_at_ms: 0,
+                    width: WIDTH as u32,
+                    height: HEIGHT as u32,
+                    stride_bytes: WIDTH as u32 * 3,
+                    pixel_format: PixelFormat::Rgb8,
+                    source_id: sample.image.clone(),
+                    pixels: sample.crop.rgb.clone(),
+                };
+                sample.crop = UnitCrop::from_frame(
+                    &frame,
+                    PixelRect {
+                        x: 20,
+                        y: 24,
+                        width: 88,
+                        height: 120,
+                    },
+                )?;
+            }
+        }
+        _ => return Err("unsupported crop transform".into()),
+    }
     let source_samples = samples.len();
     let augmented = match spec["augmentation"].as_str().unwrap_or("none") {
         "none" => 0,
@@ -287,7 +315,7 @@ pub fn run_cli() -> Result<()> {
         // the entire ordered batch, not individual pixels under a false key.
         let key = hash(
             format!(
-                "rgb-bilinear-imagenet-v1:{}:{side}:{}",
+                "rgb-bilinear-imagenet-v1:{crop_transform}:{}:{side}:{}",
                 spec["encoder_sha256"],
                 chunk
                     .iter()
@@ -357,7 +385,7 @@ pub fn run_cli() -> Result<()> {
         }
         let model = json!({"schema_version":1,"feature_mode":name,"head":head,"selected_epoch":epoch,
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
-            "input_size":side,"runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
+            "input_size":side,"crop_transform":crop_transform,"runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -373,7 +401,7 @@ pub fn run_cli() -> Result<()> {
         "backbone_finetuned":false,"training_algorithm":"class_balanced_multiclass_softmax_gradient_descent",
         "learning_rate":2.0,"weight_decay":0.001,"max_epochs":800,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
-        "source_samples":source_samples,"synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
+        "source_samples":source_samples,"crop_transform":crop_transform,"synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
         "encoder_sha256":spec["encoder_sha256"],"runtime_approved":false,
         "limitations":["Existing small assistant-reviewed dataset; no independent human ground truth.",
         "A supervised classification head is trained; frozen DINO weights are unchanged.",

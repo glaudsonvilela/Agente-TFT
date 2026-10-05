@@ -28,6 +28,7 @@ fn run() -> Result<()> {
     if report["status"] != "complete"
         || model["feature_mode"] != "dino"
         || model["encoder_sha256"] != report["encoder_sha256"]
+        || model["crop_transform"].as_str().unwrap_or("raw") != "raw"
     {
         return Err("incomplete collection or incompatible encoder/head".into());
     }

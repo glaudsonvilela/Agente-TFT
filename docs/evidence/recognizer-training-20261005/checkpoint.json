@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T05:19:58.022Z",
+  "recorded_at": "2026-10-05T05:34:17.427Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -367,9 +367,9 @@
   ],
   "pending": [
     "Increase coverage of 17 missing IDs and improve scarce classes",
-    "Expand validation beyond three named examples",
     "Improve cross-source accuracy and reject ambiguous localization",
-    "Collect a fresh final holdout before promotion"
+    "Collect a fresh final holdout before promotion",
+    "Verify dense health-bar localization; annotate missing units in the targeted older-patch video"
   ],
   "runtime_approved": false,
   "latest_annotations": "configs/training/unit-gallery-arena-20261005.json",
@@ -378,5 +378,24 @@
     "correct": 46,
     "reviewed": 107,
     "independent_human_ground_truth": false
-  }
+  },
+  "feature_study": {
+    "raw": {
+      "validation_correct": 11,
+      "validation_named": 32,
+      "development_reviewed": 107,
+      "development_correct": 40,
+      "selected_epoch": 400,
+      "artifact_sha256": "e84ac275ddedbc67c41bd48abac88ecac92b0e39171a451fb2edf0646bbfbf9b"
+    },
+    "center_88x120_v1": {
+      "validation_correct": 15,
+      "validation_named": 32,
+      "development_reviewed": 107,
+      "development_correct": 55,
+      "selected_epoch": 800,
+      "artifact_sha256": "4f09725a7057605d61a3eda4cdbc9462313493efb1dd041a97cd83a2696e4438"
+    }
+  },
+  "feature_study_notes": "337 named training units; 32 validation units. A previously trained source was reassigned to validation. Models retrained from scratch with frozen DINO; this is development evidence, not a fresh final holdout."
 }
