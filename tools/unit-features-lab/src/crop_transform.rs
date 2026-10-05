@@ -28,6 +28,21 @@ impl CropTransform {
     }
 
     pub fn apply(self, crop: &UnitCrop) -> Result<UnitCrop> {
+        self.apply_at_vertical_offset(crop, 0)
+    }
+
+    /// Training-only variation of the fixed upper region, entirely inside the
+    /// original pixels. It neither fabricates borders nor changes runtime input.
+    pub fn vertical_training_view(self, crop: &UnitCrop, offset: i32) -> Result<UnitCrop> {
+        if self != Self::Upper88x80V1 || ![-12, 12].contains(&offset) {
+            return Err(
+                "vertical training views require upper_88x80_v1 and offset -12 or 12".into(),
+            );
+        }
+        self.apply_at_vertical_offset(crop, offset)
+    }
+
+    fn apply_at_vertical_offset(self, crop: &UnitCrop, offset: i32) -> Result<UnitCrop> {
         if crop.rgb.len() != WIDTH * HEIGHT * 3 {
             return Err("invalid native unit crop size".into());
         }
@@ -48,7 +63,11 @@ impl CropTransform {
             &frame,
             PixelRect {
                 x: 20,
-                y: if self == Self::Top88x104V1 { 0 } else { 24 },
+                y: if self == Self::Top88x104V1 {
+                    0
+                } else {
+                    (24 + offset) as u32
+                },
                 width: 88,
                 height: match self {
                     Self::Upper88x80V1 => 80,
@@ -64,6 +83,34 @@ impl CropTransform {
 mod tests {
     use super::*;
 
+    #[test]
+    fn vertical_views_use_original_pixels_without_mutating_the_source() {
+        let mut crop = UnitCrop {
+            rgb: vec![0; WIDTH * HEIGHT * 3],
+        };
+        for y in 0..HEIGHT {
+            for x in 0..WIDTH {
+                crop.rgb[(y * WIDTH + x) * 3..(y * WIDTH + x) * 3 + 3].fill(y as u8);
+            }
+        }
+        let before = crop.clone();
+        let up = CropTransform::Upper88x80V1
+            .vertical_training_view(&crop, -12)
+            .unwrap();
+        let down = CropTransform::Upper88x80V1
+            .vertical_training_view(&crop, 12)
+            .unwrap();
+        assert!(up.rgb.iter().all(|v| (12..92).contains(v)));
+        assert!(down.rgb.iter().all(|v| (36..116).contains(v)));
+        assert_ne!(up, down);
+        assert_eq!(crop, before);
+        assert!(CropTransform::Raw
+            .vertical_training_view(&crop, 12)
+            .is_err());
+        assert!(CropTransform::Upper88x80V1
+            .vertical_training_view(&crop, 24)
+            .is_err());
+    }
     #[test]
     fn removes_top_item_strip_and_side_context_without_mutating_original() {
         let mut crop = UnitCrop {

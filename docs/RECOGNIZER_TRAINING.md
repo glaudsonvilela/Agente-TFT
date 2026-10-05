@@ -722,3 +722,47 @@ A cópia da validação usada pelo avaliador continua sendo desenvolvimento conh
 sem alegação de novo teste independente. Passaram 18 testes da biblioteca e dois
 de isolamento do avaliador. O próximo experimento investigará variação vertical
 do recorte de treino, mantendo validação e inferência com o preparo fixo.
+
+## Variação vertical no treino e cobertura entre fontes
+
+Implementamos `vertical_alignment_v1` em Rust: além do recorte superior fixo,
+o treino recebe duas regiões deslocadas em −12 e +12 pixels na vertical, sempre
+dentro dos pixels originais. Validação, teste e inferência mantêm exatamente
+`upper_88x80_v1`. Não há nova inferência por recorte no runtime. Vinte testes
+da biblioteca passaram, incluindo preservação das imagens e exclusividade das
+variações para o split de treino.
+
+Com os 634 exemplos nomeados, a validação subiu de 19/32 para **20/32**; o acerto
+adicional foi Murkwolf. A avaliação de desenvolvimento mudou de 23/35 para 24/35
+em KH e de 31/35 para 30/35 em Minjo. Isso é uma troca de erros entre fontes,
+sem melhora consistente demonstrada.
+
+Em paralelo, revisamos oito recortes adicionais no VOD da arena azul. Azir,
+Leona e Shen ganharam uma segunda fonte de treino; também acrescentamos aparições
+de Akali. A revisão comparou cenas completas e renders nomeados. Sugestões do
+classificador foram usadas apenas para localizar propostas. O conjunto agora
+tem **642 exemplos nomeados**, 31 negativos explícitos, 65/74 IDs e **10 IDs com
+uma única fonte**. A auditoria verificou pixels, rótulos e separação de partidas.
+Os exemplos permanecem correlacionados dentro de cada fonte e não substituem
+uma revisão humana independente.
+
+O protocolo `transfer-training-protocol.json` foi registrado antes de comparar
+as duas configurações com os mesmos dados novos:
+
+| Treino com 642 exemplos nomeados | Validação | Macro-revocação | Perda |
+|---|---:|---:|---:|
+| Recorte fixo | 19/32 | 0,5985 | 3,1636 |
+| Variação vertical | **21/32** | **0,6894** | 3,1966 |
+
+O critério prioriza macro-revocação e usa perda para desempate. A escolha da
+variação vertical foi registrada antes das avaliações Minjo/KH. O modelo
+selecionado obteve **79/127** unidades nomeadas no teste antigo, **30/35 Minjo**
+e **24/35 KH**. A melhor validação não eliminou a regressão de um exemplo em
+Minjo em relação à referência anterior. Não há ativação no HUD nem prova de
+qualidade suficiente para orientar uma partida.
+
+Os 1.346 recortes sintéticos deste último treino são duas vistas dos 673 recortes
+originais de treino (642 nomeados e 31 negativos), não novas unidades ou partidas.
+O encoder DINO continua congelado, o lote permanece 1 e todos os escores seguem
+sem calibração. Faltam as nove formas Lux, cobertura mais diversa das dez
+identidades com uma fonte e avaliação final realmente independente.

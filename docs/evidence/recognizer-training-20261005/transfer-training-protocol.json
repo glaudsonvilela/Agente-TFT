@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-05T08:47:21.309Z",
+  "annotations": "configs/training/unit-gallery-transfer-reviewed-expanded-20261005.json",
+  "training_named": 642,
+  "added_reviewed": 8,
+  "synthetic_examples_are_not_new_observations": true,
+  "arms": [
+    "none",
+    "vertical_alignment_v1"
+  ],
+  "same_frozen_encoder": true,
+  "same_optimizer": true,
+  "validation_named": 32,
+  "supervision_policy": "known_identity_or_explicit_reviewed_nonunit_v1",
+  "selection": "Highest validation named macro recall, then lowest cross entropy; compare with existing candidates. Do not select from development test outcomes.",
+  "reason": "Separate the contribution of eight reviewed cross-source examples from vertical training augmentation.",
+  "runtime_approved": false
+}

@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-05T08:42:04.317Z",
+  "hypothesis": "Small vertical changes in training crops improve transfer across item rows and bar offsets.",
+  "training_annotations": "configs/training/unit-gallery-shop-reviewed-expanded-20261005.json",
+  "training_named": 634,
+  "training_negatives": 31,
+  "augmentation": "vertical_alignment_v1",
+  "vertical_offsets_pixels": [
+    -12,
+    12
+  ],
+  "original_region": {
+    "x": 20,
+    "y": 24,
+    "width": 88,
+    "height": 80
+  },
+  "validation_and_inference_transform": "upper_88x80_v1",
+  "backbone": "frozen DINO INT8",
+  "embedding_batch_size": 1,
+  "selection": "Compare validation named macro recall, then cross entropy under corrected supervision. Must improve over both retained 618-example head and unaugmented 634-example head. Ties retain baseline.",
+  "evaluation_sources_remain_out_of_training": true,
+  "independent_final_holdout": false,
+  "runtime_approved": false
+}

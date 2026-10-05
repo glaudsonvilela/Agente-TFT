@@ -1,0 +1,128 @@
+{
+  "review": {
+    "named_added": 8,
+    "new_source_for_ids": [
+      "DA_18_Azir",
+      "DA_18_Leona",
+      "DA_18_Shen"
+    ],
+    "independent_new_video_sources": 0,
+    "independent_human_ground_truth": false,
+    "model_predictions_used_as_labels": false,
+    "source_id": "twitch:2891052706"
+  },
+  "labels": [
+    {
+      "review_set": "single-source",
+      "review_index": 0,
+      "image": "unit-gallery-transfer-review-20261005/1680.png",
+      "key": "marker-6",
+      "label": "DA_18_Azir",
+      "box": [
+        1034,
+        573,
+        1162,
+        717
+      ],
+      "crop_pixel_sha256": "49ada8a95f6bb7446bd7a00bc691a9566aa7e753e38a535339d8caa6b53aad60"
+    },
+    {
+      "review_set": "single-source",
+      "review_index": 14,
+      "image": "unit-gallery-transfer-review-20261005/8760.png",
+      "key": "marker-4",
+      "label": "DA_18_Leona",
+      "box": [
+        944,
+        696,
+        1072,
+        840
+      ],
+      "crop_pixel_sha256": "3ca0e3d9118c730736785daba63e6dc5bfd2e9d4c767abafc8d9427b5a10db8a"
+    },
+    {
+      "review_set": "single-source",
+      "review_index": 16,
+      "image": "unit-gallery-transfer-review-20261005/9060.png",
+      "key": "marker-8",
+      "label": "DA_18_Leona",
+      "box": [
+        459,
+        696,
+        587,
+        840
+      ],
+      "crop_pixel_sha256": "278a00c6336bc63df2346608d26f129ecca1b90f1a2b0224936d33d7f319a6e7"
+    },
+    {
+      "review_set": "single-source",
+      "review_index": 17,
+      "image": "unit-gallery-transfer-review-20261005/9240.png",
+      "key": "marker-6",
+      "label": "DA_18_Leona",
+      "box": [
+        459,
+        696,
+        587,
+        840
+      ],
+      "crop_pixel_sha256": "3bafee359d2be2e867bb2a1205066b2505a589e75fe0c5dae6ed89f37eec75d8"
+    },
+    {
+      "review_set": "inferno-context",
+      "review_index": 3,
+      "image": "unit-gallery-transfer-review-20261005/3360.png",
+      "key": "marker-3",
+      "label": "DA_18_Akali_AD",
+      "box": [
+        1166,
+        593,
+        1294,
+        737
+      ],
+      "crop_pixel_sha256": "fef06cc69d7f0e50b7e979aa7372d766e19db77f4f3d9f5bece4fb3520a21689"
+    },
+    {
+      "review_set": "inferno-context",
+      "review_index": 27,
+      "image": "unit-gallery-rare-training-20261005/twitch-2891052706-006780.png",
+      "key": "marker-7",
+      "label": "DA_18_Shen",
+      "box": [
+        579,
+        697,
+        707,
+        841
+      ],
+      "crop_pixel_sha256": "b57e07e3e5186587c4ddf89ba323a3c02d94bf9554580d561db0124c788b4539"
+    },
+    {
+      "review_set": "inferno-context",
+      "review_index": 44,
+      "image": "unit-gallery-rare-training-20261005/twitch-2891052706-006960.png",
+      "key": "marker-6",
+      "label": "DA_18_Akali_AD",
+      "box": [
+        1166,
+        593,
+        1294,
+        737
+      ],
+      "crop_pixel_sha256": "91d333cbbfa70b6b8de2f4153cbbe310f342672aef28491d00756f623d814319"
+    },
+    {
+      "review_set": "inferno-context",
+      "review_index": 49,
+      "image": "unit-gallery-rare-training-20261005/twitch-2891052706-006960.png",
+      "key": "marker-11",
+      "label": "DA_18_Akali_AD",
+      "box": [
+        1308,
+        701,
+        1436,
+        845
+      ],
+      "crop_pixel_sha256": "e263d8778b961d1971520b7179bbd743dc4a0d6778f2b77327f0a6e1f9fef042"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T08:40:28.506Z",
+  "recorded_at": "2026-10-05T08:51:21.287Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1286,7 +1286,33 @@
     "runtime_approved": false
   },
   "next_experiment": {
-    "status": "planned",
-    "hypothesis": "Train small vertical crop variations to reduce sensitivity to head/item-row alignment; preserve fixed preprocessing at evaluation and do not add held-out frames to training."
+    "status": "completed_selected_experimental_candidate",
+    "protocol": "docs/evidence/recognizer-training-20261005/transfer-training-protocol.json",
+    "selection": "docs/evidence/recognizer-training-20261005/transfer-selection.json"
+  },
+  "latest_transfer_experiment": {
+    "status": "complete_mixed_cross_source_results",
+    "annotations": "configs/training/unit-gallery-transfer-reviewed-expanded-20261005.json",
+    "training_named": 642,
+    "training_explicit_negatives": 31,
+    "catalog_ids": 65,
+    "catalog_total": 74,
+    "single_source_ids": 10,
+    "augmentation": "vertical_alignment_v1",
+    "validation_correct": 21,
+    "validation_named": 32,
+    "validation_macro_recall": 0.6893939393939393,
+    "old_test_correct": 79,
+    "old_test_named": 127,
+    "minjo_correct": 30,
+    "minjo_named": 35,
+    "kh_correct": 24,
+    "kh_named": 35,
+    "model_private_path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/transfer-vertical-head/dino-head.json",
+    "head_sha256": "0fd97d6495d474c88cc7a34ed25184ffae4cf2b9c6169646404d6fa86ba81878",
+    "runtime_approved": false,
+    "independent_final_holdout": false,
+    "tests_passed": 20,
+    "next": "Increase source diversity for remaining single-source IDs and resolve missing Lux forms; improve identity transfer and unknown rejection, then validate on a source not used to guide development."
   }
 }

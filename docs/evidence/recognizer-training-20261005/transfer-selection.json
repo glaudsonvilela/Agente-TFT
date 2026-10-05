@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-05T08:49:55.634Z",
+  "selected": "transfer-vertical",
+  "selected_head_sha256": "0fd97d6495d474c88cc7a34ed25184ffae4cf2b9c6169646404d6fa86ba81878",
+  "selection_basis": "Validation named macro recall then cross entropy, before the selected head is evaluated on Minjo and KH.",
+  "candidates": {
+    "transfer-fixed": {
+      "correct": 19,
+      "named": 32,
+      "named_macro_recall": 0.5984848484848485,
+      "cross_entropy": 3.1635766103863716
+    },
+    "transfer-vertical": {
+      "correct": 21,
+      "named": 32,
+      "named_macro_recall": 0.6893939393939393,
+      "cross_entropy": 3.196618214249611
+    }
+  },
+  "previous_vertical_validation": {
+    "correct": 20,
+    "named": 32,
+    "named_macro_recall": 0.6439393939393939
+  },
+  "independent_final_holdout": false,
+  "runtime_approved": false
+}

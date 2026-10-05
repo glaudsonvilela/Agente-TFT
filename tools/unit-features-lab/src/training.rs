@@ -45,6 +45,24 @@ fn augment_training(samples: &mut Vec<Sample>) -> Result<usize> {
     Ok(added)
 }
 
+fn augment_vertical_alignment(
+    samples: &mut Vec<Sample>,
+    originals: &[Sample],
+    transform: crate::crop_transform::CropTransform,
+) -> Result<usize> {
+    let mut added = 0;
+    for original in originals.iter().filter(|s| s.split == "train") {
+        for offset in [-12, 12] {
+            let mut view = original.clone();
+            view.crop = transform.vertical_training_view(&original.crop, offset)?;
+            view.key = format!("{}@augmentation:vertical:{offset}", view.key);
+            samples.push(view);
+            added += 1;
+        }
+    }
+    Ok(added)
+}
+
 /// Spatial HSV histogram with separate achromatic bins. Square-root frequencies
 /// give a Hellinger embedding. This describes the central crop, not a true mask.
 pub fn colors(crop: &UnitCrop) -> Vec<f32> {
@@ -273,6 +291,15 @@ pub fn run_cli() -> Result<()> {
         None => Default::default(),
     };
     let crop_transform = transform.name();
+    let alignment_originals: Vec<_> = if spec["augmentation"] == "vertical_alignment_v1" {
+        samples
+            .iter()
+            .filter(|s| s.split == "train")
+            .cloned()
+            .collect()
+    } else {
+        Vec::new()
+    };
     for sample in &mut samples {
         sample.crop = transform.apply(&sample.crop)?;
     }
@@ -280,6 +307,9 @@ pub fn run_cli() -> Result<()> {
     let augmented = match spec["augmentation"].as_str().unwrap_or("none") {
         "none" => 0,
         "native_domain_v1" => augment_training(&mut samples)?,
+        "vertical_alignment_v1" => {
+            augment_vertical_alignment(&mut samples, &alignment_originals, transform)?
+        }
         _ => return Err("unknown augmentation policy".into()),
     };
     let encoder_bytes = fs::read(str_field(&spec, "encoder")?)?;
@@ -458,6 +488,34 @@ mod tests {
         assert!((p.iter().sum::<f32>() - 1.).abs() < 1e-6);
     }
 
+    #[test]
+    fn vertical_augmentation_keeps_held_out_examples_and_provenance() {
+        let make = |split: &str| Sample {
+            crop: UnitCrop {
+                rgb: [10, 50, 80].repeat(WIDTH * HEIGHT),
+            },
+            label: "a".into(),
+            split: split.into(),
+            image: split.into(),
+            key: "one".into(),
+        };
+        let originals = vec![make("train"), make("validation"), make("test")];
+        let mut prepared = originals.clone();
+        assert_eq!(
+            augment_vertical_alignment(
+                &mut prepared,
+                &originals,
+                crate::crop_transform::CropTransform::Upper88x80V1
+            )
+            .unwrap(),
+            2
+        );
+        assert_eq!(prepared[1].crop, originals[1].crop);
+        assert_eq!(prepared[2].crop, originals[2].crop);
+        assert!(prepared[3..]
+            .iter()
+            .all(|s| s.split == "train" && s.image == "train" && s.label == "a"));
+    }
     #[test]
     fn augmentation_cannot_modify_validation_or_test() {
         let sample = |split: &str| Sample {
