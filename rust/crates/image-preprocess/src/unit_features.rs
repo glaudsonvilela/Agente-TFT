@@ -124,6 +124,54 @@ impl UnitCrop {
         Ok(Self { rgb })
     }
 
+    /// Blur only the estimated background, excluding foreground colors from the
+    /// box filter. Fixed radius 5; no blur or contrast changes inside foreground.
+    pub fn blur_background(&mut self, outline: bool) -> Result<MaskSummary, String> {
+        let background = self.background_mask()?;
+        let boundary = inner_boundary(&background);
+        let stride = WIDTH + 1;
+        // Integral RGB sums and sample counts: bounded ~300 KiB temporary storage.
+        let mut sums = vec![[0u32; 4]; stride * (HEIGHT + 1)];
+        for y in 0..HEIGHT {
+            let mut row = [0u32; 4];
+            for x in 0..WIDTH {
+                let i = y * WIDTH + x;
+                if background[i] {
+                    for (c, sum) in row.iter_mut().take(3).enumerate() {
+                        *sum += self.rgb[i * 3 + c] as u32;
+                    }
+                    row[3] += 1;
+                }
+                for c in 0..4 {
+                    sums[(y + 1) * stride + x + 1][c] = sums[y * stride + x + 1][c] + row[c];
+                }
+            }
+        }
+        for y in 0..HEIGHT {
+            for x in 0..WIDTH {
+                let i = y * WIDTH + x;
+                if background[i] {
+                    let (x0, y0) = (x.saturating_sub(5), y.saturating_sub(5));
+                    let (x1, y1) = ((x + 6).min(WIDTH), (y + 6).min(HEIGHT));
+                    let total = |c| {
+                        sums[y1 * stride + x1][c] + sums[y0 * stride + x0][c]
+                            - sums[y0 * stride + x1][c]
+                            - sums[y1 * stride + x0][c]
+                    };
+                    let count = total(3);
+                    if count > 0 {
+                        for c in 0..3 {
+                            self.rgb[i * 3 + c] = ((total(c) + count / 2) / count) as u8;
+                        }
+                    }
+                } else if outline && boundary[i] {
+                    self.rgb[i * 3..i * 3 + 3].fill(0);
+                }
+            }
+        }
+        Ok(mask_summary(&background))
+    }
+
     fn background_mask(&self) -> Result<Vec<bool>, String> {
         self.validate()?;
         let mut counts = [0u32; 512];
@@ -399,5 +447,33 @@ mod tests {
             rgb: vec![40; WIDTH * HEIGHT * 3],
         };
         assert!(blank.contour_view().unwrap().rgb.iter().all(|&v| v == 0));
+    }
+
+    #[test]
+    fn background_blur_preserves_foreground_and_excludes_its_colors() {
+        let mut c = UnitCrop {
+            rgb: vec![0; WIDTH * HEIGHT * 3],
+        };
+        for y in 0..HEIGHT {
+            for x in 0..WIDTH {
+                let color = if (40..90).contains(&x) && (40..100).contains(&y) {
+                    [220, 10, 10]
+                } else {
+                    [if (x + y) % 2 == 0 { 40 } else { 70 }; 3]
+                };
+                c.rgb[(y * WIDTH + x) * 3..][..3].copy_from_slice(&color);
+            }
+        }
+        let mut outlined = c.clone();
+        c.blur_background(false).unwrap();
+        let at = |c: &UnitCrop, x, y| c.rgb[(y * WIDTH + x) * 3..][..3].to_vec();
+        assert_eq!(at(&c, 40, 40), [220, 10, 10]);
+        assert_eq!(at(&c, 60, 60), [220, 10, 10]);
+        let bg = at(&c, 39, 40);
+        assert!((50..=60).contains(&bg[0]));
+        assert_eq!(bg[0], bg[1]); // No red foreground bleed into background.
+        outlined.blur_background(true).unwrap();
+        assert_eq!(at(&outlined, 40, 40), [0; 3]);
+        assert_eq!(at(&outlined, 60, 60), [220, 10, 10]);
     }
 }

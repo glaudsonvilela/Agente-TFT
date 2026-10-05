@@ -446,3 +446,46 @@ inspecionadas e permanecem no SSD privado. Reprodução pelo mesmo comando do
 laboratório, usando um diretório de saída novo. Treze testes locais passaram:
 dez da biblioteca e três do laboratório, incluindo preservação da cor interna,
 ausência de contorno em imagem uniforme e equivalência da fusão ponderada.
+
+## Filtro de fundo desfocado e contorno — 05/10/2026
+
+A pedido do usuário, o laboratório acrescenta desfoque seletivo do fundo
+estimado, com e sem contorno preto. Implementação Rust com filtro de média
+de raio 5 pixels (janela 11 × 11), somas integrais e normalização pela quantidade
+de pixels de fundo na janela. Cores do primeiro plano não entram nessa média;
+o interior do primeiro plano mantém os pixels originais. O contorno opcional
+continua vindo da máscara original, antes do desfoque. Parâmetros fixados antes
+de avaliar, sem procurar raio ou limiar nos dados de teste.
+
+O filtro usa aproximadamente 300 KiB de armazenamento temporário para somas
+e contagens, além dos buffers da imagem e máscara. Isto não mede RAM total.
+A máscara continua sendo uma heurística: regiões erradas também podem ficar
+nítidas ou desfocadas. A inspeção das prévias confirma linhas do tabuleiro
+preservadas e contornadas por esse motivo.
+
+| Variante | Primeira opção correta / 29 | Aceitos / errados | VOD: acertos / aceitos, de 19 | Mediana / p95 do lote de 12 |
+| --- | ---: | ---: | ---: | ---: |
+| Recorte RGB | 12 | 3 / 0 | 8 / 0 | 57,8 / 64,1 ms |
+| Fundo desfocado | 13 | 6 / 0 | 6 / 2 | 67,9 / 74,6 ms |
+| Fundo desfocado + contorno desenhado | 11 | 1 / 0 | 5 / 0 | 64,6 / 65,3 ms |
+| Vetores RGB + contorno, 80/20 | 15 | 2 / 0 | 7 / 0 | 70,7 / 73,8 ms |
+
+O filtro sozinho aceitou seis identidades corretas, incluindo duas no VOD
+separado; porém acertou menos primeiras opções nesse VOD que o RGB (6 vs. 8).
+O contorno desenhado sobre o desfoque piorou ambas as métricas. As duas
+variantes de desfoque acertaram e aceitaram os três recortes de validação;
+o conjunto é pequeno e reutilizado, portanto insuficiente para calibrar ou
+comprovar melhoria generalizável. Zero falso aceite observado não comprova
+ausência de falsos aceites em uso real. Nenhuma variante foi ativada no coach.
+
+O pré-processamento com desfoque e contorno levou mediana de 7,8 ms por lote
+de 12 recortes. Os tempos totais incluem o encoder e a comparação em CPU Linux,
+mas excluem captura, localização inicial e UI. A máquina não estava reservada
+exclusivamente ao benchmark; diferenças pequenas de tempo entre variantes não
+comprovam vantagem de velocidade. Mesmo encoder, galeria, partições e critérios
+do experimento anterior; sem treinamento adicional ou alteração de limiares.
+
+Relatório e previsões: `docs/evidence/vector-blur-20261005/`. Prévias no SSD
+privado. Quatorze testes locais passaram (11 da biblioteca, 3 do laboratório),
+incluindo preservação do primeiro plano e exclusão de suas cores no filtro.
+Reproduzir com o mesmo executável e argumentos, em diretório de saída novo.

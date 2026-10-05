@@ -198,7 +198,9 @@ fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sample
 fn prepare(crop: &UnitCrop, mode: &str) -> Result<(UnitCrop, bool)> {
     let mut c = crop.clone();
     let mut valid = true;
-    if mode.ends_with("outline") {
+    if mode.starts_with("blur") {
+        valid = !c.blur_background(mode.ends_with("outline"))?.empty;
+    } else if mode.ends_with("outline") {
         valid = !c.outline_overlay(mode.starts_with("mask"))?.empty;
     } else if mode.starts_with("mask") {
         valid = !c.foreground()?.empty;
@@ -339,6 +341,8 @@ fn run() -> Result<()> {
         ("rgb_outline", false),
         ("mask_rgb_outline", false),
         ("rgb_contour_fused", false),
+        ("blur_rgb", false),
+        ("blur_rgb_outline", false),
     ] {
         let contour_fusion = mode.ends_with("fused");
         let name = format!("{}-{mode}", if gradient { "gradient" } else { "encoder" });
