@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T07:54:14.392Z",
+  "recorded_at": "2026-10-05T08:11:33.304Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1221,5 +1221,18 @@
     "selection": "docs/evidence/recognizer-training-20261005/retrieval-selection.json",
     "library_and_evaluator_tests_passed": 19,
     "linear_evaluation_unchanged": true
+  },
+  "latest_annotation_miner": {
+    "status": "implemented_and_exercised_on_known_sequence",
+    "binary": "mine-shop-transitions",
+    "source_id": "youtube:CQhg2_6tzcM",
+    "frames": 40,
+    "transition_proposals": 2,
+    "automatically_labeled": 0,
+    "evidence": "docs/evidence/recognizer-training-20261005/shop-transition-review.json",
+    "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-shop-transition-filtered-review/",
+    "tests_passed": 4,
+    "next": "Scale purchase-sequence mining across training VODs without running DINO on every annotation frame; manually review identity and seasonal form before admitting examples.",
+    "runtime_approved": false
   }
 }

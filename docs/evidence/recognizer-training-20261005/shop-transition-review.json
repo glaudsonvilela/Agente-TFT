@@ -1,0 +1,43 @@
+{
+  "automatically_labeled": 0,
+  "catalog_sha256": "a9c7d76cf7d53736daa48d2bc090a6b9aa589399336b372fe4fe18a768e97a92",
+  "frames": 40,
+  "limitations": [
+    "Fixed 1920x1080 full-HUD shop geometry and English OCR; zoom, translated names and overlays can miss cards.",
+    "Disappearance can be OCR failure or occlusion, not a purchase. Three other recognized slots must remain unchanged and gap must be at most two seconds.",
+    "New bench proposals are positional cues only; merges and detector misses require manual review.",
+    "Generic Lux retains every catalog variant; no image is labeled automatically."
+  ],
+  "partition": "training_pool_unlabeled",
+  "runtime_approved": false,
+  "source_id": "youtube:CQhg2_6tzcM",
+  "transition_proposals": 2,
+  "review": {
+    "reviewer": "assistant",
+    "independent_human_ground_truth": false,
+    "scope": "40 consecutive frames from one known training sequence; not a precision/recall benchmark",
+    "transitions": [
+      {
+        "before_seconds": 1251,
+        "after_seconds": 1252,
+        "shop_slot": 2,
+        "reviewed_identity": "DA_18_Zyra",
+        "new_bench_proposals": 1,
+        "training_examples_added": 0
+      },
+      {
+        "before_seconds": 1253,
+        "after_seconds": 1254,
+        "shop_slot": 0,
+        "reviewed_identity": "DA_18_Lux_Elderwood",
+        "new_bench_proposals": 3,
+        "correct_purchase_crop_sha256": "a20a0c2c1b9919d89c1754b31eee7872a6790f42d25c4f1ebaf807d76f94c430",
+        "false_new_bench_cues": 2,
+        "reason": "Prior tooltip hid two existing Zyra bars; their reappearance is not a new purchase.",
+        "training_examples_added": 0,
+        "already_in_training": true
+      }
+    ],
+    "runtime_approved": false
+  }
+}

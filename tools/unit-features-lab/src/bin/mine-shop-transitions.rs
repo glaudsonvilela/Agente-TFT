@@ -1,0 +1,247 @@
+//! Annotation aid: visible shop names and disappearing cards are review cues,
+//! never identity labels or proof of purchase.
+use agente_tft_unit_features_lab::{
+    ocr_names::{match_name, name_indexes},
+    Result,
+};
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
+use std::{fs, path::PathBuf, process::Command};
+
+fn slot_words(tsv: &str) -> Vec<Vec<(String, f32)>> {
+    let mut slots = vec![Vec::new(); 5];
+    for row in tsv.lines().skip(1) {
+        let c: Vec<_> = row.splitn(12, '\t').collect();
+        if c.len() != 12 || c[0] != "5" || c[11].is_empty() {
+            continue;
+        }
+        if c[9].parse::<u32>().unwrap_or(0) < 18 {
+            continue; // Small cursor/price fragments, not name-height glyphs.
+        }
+        let (Ok(x), Ok(confidence)) = (c[6].parse::<u32>(), c[10].parse::<f32>()) else {
+            continue;
+        };
+        // OCR uses a 2x strip; ignore each card's right-hand price/icon area.
+        let x = x / 2;
+        let slot = (x / 202) as usize;
+        if slot < 5 && x % 202 < 165 {
+            slots[slot].push((c[11].into(), confidence));
+        }
+    }
+    slots
+}
+
+fn disappearances(
+    before: &[Option<Vec<String>>],
+    after: &[Option<Vec<String>>],
+    gap: u64,
+) -> Vec<usize> {
+    if before.len() != 5 || after.len() != 5 || !(1..=2).contains(&gap) {
+        return vec![];
+    }
+    let stable = before
+        .iter()
+        .zip(after)
+        .filter(|(a, b)| a.is_some() && a == b)
+        .count();
+    if stable < 3 {
+        return vec![];
+    }
+    (0..5)
+        .filter(|&i| before[i].is_some() && after[i].is_none())
+        .collect()
+}
+
+fn new_bench_proposals(before: &Value, after: &Value) -> Vec<Value> {
+    let units = |f: &Value| f["units"].as_array().cloned().unwrap_or_default();
+    let previous = units(before);
+    units(after).into_iter().filter(|u| {
+        let Some(b) = u["box"].as_array() else {return false;};
+        if b.len()!=4 {return false;}
+        let (Some(x),Some(y))=(b[0].as_i64(),b[1].as_i64()) else {return false;};
+        if !(300..=1450).contains(&x) || !(665..=760).contains(&y) {return false;}
+        !previous.iter().any(|p| match (p["box"][0].as_i64(),p["box"][1].as_i64()) {
+            (Some(px),Some(py)) => (x-px).abs()<40 && (y-py).abs()<40,
+            _=>false,
+        })
+    }).map(|u|json!({"crop":u["crop"],"box":u["box"],"marker_id":u["marker_id"],"pixel_sha256":u["pixel_sha256"],"identity_confirmed":false})).collect()
+}
+
+fn run() -> Result<()> {
+    let args: Vec<_> = std::env::args().collect();
+    if args.len() != 4 {
+        return Err("use COLLECTION_DIRECTORY CATALOG_JSON NEW_OUTPUT_DIRECTORY".into());
+    }
+    let root = PathBuf::from(&args[1]);
+    let output = PathBuf::from(&args[3]);
+    if output.exists() {
+        return Err("new output required".into());
+    }
+    let report: Value = serde_json::from_slice(&fs::read(root.join("report.json"))?)?;
+    if report["status"] != "complete" {
+        return Err("complete collection required".into());
+    }
+    let catalog_bytes = fs::read(&args[2])?;
+    let catalog: Value = serde_json::from_slice(&catalog_bytes)?;
+    let (names, families) = name_indexes(&catalog)?;
+    fs::create_dir_all(output.join("shop-strips"))?;
+    let mut frames = Vec::new();
+    let mut transitions = Vec::new();
+    let mut previous: Option<(
+        u64,
+        Vec<Option<Vec<String>>>,
+        Vec<Option<Vec<String>>>,
+        Value,
+    )> = None;
+    for line in fs::read_to_string(root.join("observations.jsonl"))?.lines() {
+        let frame: Value = serde_json::from_str(line)?;
+        if frame["source_id"] != report["source_id"] {
+            return Err("mixed source".into());
+        }
+        let Some(file) = frame["review_frame"].as_str() else {
+            continue;
+        };
+        let time = frame["source_seconds_nominal"]
+            .as_u64()
+            .ok_or("timestamp")?;
+        let rgb = image::open(root.join(file))?.to_rgb8();
+        if (rgb.width(), rgb.height()) != (1920, 1080)
+            || frame["frame_pixel_sha256"] != format!("{:x}", Sha256::digest(rgb.as_raw()))
+        {
+            return Err("review frame geometry/pixels mismatch".into());
+        }
+        let strip = image::imageops::crop_imm(&rgb, 552, 1039, 1002, 39).to_image();
+        // Keep pale name glyphs; card borders and price icons break OCR lines.
+        let mut mask = image::GrayImage::from_pixel(1002, 39, image::Luma([255]));
+        for y in 6..31 {
+            for x in 0..1002 {
+                let p = strip.get_pixel(x, y).0;
+                let lo = *p.iter().min().unwrap();
+                let hi = *p.iter().max().unwrap();
+                if (5..165).contains(&(x % 202)) && lo >= 130 && hi - lo <= 100 {
+                    mask.put_pixel(x, y, image::Luma([0]));
+                }
+            }
+        }
+        let strip = image::imageops::resize(&mask, 2004, 78, image::imageops::FilterType::Triangle);
+        let path = output.join(format!("shop-strips/{time}.png"));
+        strip.save(&path)?;
+        let result = Command::new("tesseract")
+            .arg(path)
+            .args(["stdout", "-l", "eng", "--psm", "6", "tsv"])
+            .env("OMP_THREAD_LIMIT", "1")
+            .output()?;
+        if !result.status.success() {
+            return Err("shop OCR failed".into());
+        }
+        let words = slot_words(&String::from_utf8(result.stdout)?);
+        let matched: Vec<_> = words
+            .iter()
+            .map(|w| match_name(w, &names, &families))
+            .collect();
+        let identities: Vec<_> = matched
+            .iter()
+            .map(|m| m.as_ref().map(|(ids, _)| ids.clone()))
+            .collect();
+        // Untranslated text can establish an unchanged neighboring card. It
+        // cannot supply an identity for the disappearing card itself.
+        let anchors: Vec<_> = words
+            .iter()
+            .map(|w| {
+                if w.is_empty() || w.iter().any(|(_, c)| !c.is_finite() || *c < 70.) {
+                    return None;
+                }
+                let text: String = w
+                    .iter()
+                    .map(|(s, _)| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+                    .chars()
+                    .filter(|c| c.is_alphanumeric())
+                    .flat_map(char::to_lowercase)
+                    .collect();
+                if text.len() < 3 {
+                    None
+                } else {
+                    Some(vec![text])
+                }
+            })
+            .collect();
+        let cards:Vec<_>=matched.iter().zip(&words).enumerate().map(|(slot,(m,w))|json!({"slot":slot,"unit_candidates":m.as_ref().map(|x|&x.0),"ocr_name_confidence":m.as_ref().map(|x|x.1),"ocr_words":w})).collect();
+        if let Some((old_time, old_ids, old_anchors, old_frame)) = &previous {
+            let gap = time
+                .checked_sub(*old_time)
+                .ok_or("nonmonotonic source times")?;
+            for slot in disappearances(old_anchors, &anchors, gap) {
+                if old_ids[slot].is_none() {
+                    continue;
+                }
+                transitions.push(json!({"source_id":report["source_id"],"before_seconds":old_time,"after_seconds":time,
+                    "before_frame":old_frame["review_frame"],"after_frame":file,"before_pixel_sha256":old_frame["frame_pixel_sha256"],"after_pixel_sha256":frame["frame_pixel_sha256"],
+                    "shop_slot":slot,"shop_unit_candidates":old_ids[slot],"new_bench_proposals":new_bench_proposals(old_frame,&frame),
+                    "purchase_confirmed":false,"crop_identity_confirmed":false,"review_required":true,"training_label":null}));
+            }
+        }
+        frames.push(json!({"source_seconds":time,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"cards":cards}));
+        previous = Some((time, identities, anchors, frame));
+    }
+    fs::write(
+        output.join("shop-observations.json"),
+        serde_json::to_vec_pretty(&frames)?,
+    )?;
+    fs::write(
+        output.join("transition-proposals.json"),
+        serde_json::to_vec_pretty(&transitions)?,
+    )?;
+    let summary = json!({"source_id":report["source_id"],"partition":report["partition"],"frames":frames.len(),"transition_proposals":transitions.len(),"automatically_labeled":0,
+        "catalog_sha256":format!("{:x}",Sha256::digest(catalog_bytes)),"runtime_approved":false,
+        "limitations":["Fixed 1920x1080 full-HUD shop geometry and English OCR; zoom, translated names and overlays can miss cards.",
+        "Disappearance can be OCR failure or occlusion, not a purchase. Three other recognized slots must remain unchanged and gap must be at most two seconds.",
+        "New bench proposals are positional cues only; merges and detector misses require manual review.","Generic Lux retains every catalog variant; no image is labeled automatically."]});
+    fs::write(
+        output.join("report.json"),
+        serde_json::to_vec_pretty(&summary)?,
+    )?;
+    println!("{summary}");
+    Ok(())
+}
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("SHOP_TRANSITION_ERROR: {e}");
+        std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn name_strip_ignores_observed_cursor_and_price_fragments() {
+        let tsv = "header\n5\t1\t1\t1\t1\t1\t20\t24\t56\t26\t96.5\tLux\n5\t1\t1\t1\t1\t2\t218\t12\t26\t14\t40.2\tad\n5\t1\t1\t1\t1\t3\t728\t46\t4\t2\t58.2\t.\n";
+        let words = slot_words(tsv);
+        assert_eq!(words[0], vec![("Lux".into(), 96.5)]);
+        assert!(words[1..].iter().all(Vec::is_empty));
+    }
+    #[test]
+    fn rerolls_sparse_time_and_insufficient_anchors_do_not_propose_purchases() {
+        let before = (0..5)
+            .map(|i| Some(vec![i.to_string()]))
+            .collect::<Vec<_>>();
+        let mut after = before.clone();
+        after[2] = None;
+        assert_eq!(disappearances(&before, &after, 1), vec![2]);
+        assert!(disappearances(&before, &after, 20).is_empty());
+        after[0] = Some(vec!["rerolled".into()]);
+        after[1] = None;
+        assert!(disappearances(&before, &after, 1).is_empty());
+        assert!(disappearances(&before, &before, 1).is_empty());
+    }
+    #[test]
+    fn moving_existing_bench_bars_are_not_new_units() {
+        let before = json!({"units":[{"box":[950,700,1078,844]}]});
+        let after = json!({"units":[{"box":[955,703,1083,847]},{"box":[1100,700,1228,844]},{"box":[1100,400,1228,544]}]});
+        let p = new_bench_proposals(&before, &after);
+        assert_eq!(p.len(), 1);
+        assert_eq!(p[0]["box"][0], 1100);
+    }
+}

@@ -632,3 +632,23 @@ Os 17 testes da biblioteca e dois testes de isolamento do avaliador passaram.
 Após compartilhar o cálculo de métricas, a avaliação linear completa de 35 recortes
 ficou idêntica, incluindo escores. O artefato de busca e seus relatórios permanecem
 como experimento; nenhuma inferência foi transformada em rótulo ou ativada no HUD.
+
+## Auxiliar Rust para localizar compras nos vídeos
+
+O binário `mine-shop-transitions` lê uma coleta concluída, verifica os hashes dos
+quadros e aplica OCR à faixa de nomes da loja. A máscara mantém os caracteres
+claros, remove bordas e preços e amplia a faixa em 2×. Os nomes vêm do catálogo;
+“Lux” continua com todas as variantes possíveis. Três cartas vizinhas precisam
+permanecer estáveis e o intervalo entre quadros deve ser de até dois segundos.
+
+Na sequência conhecida de 40 quadros, surgiram duas propostas: compra de Zyra
+em 1.251–1.252 s e de Lux em 1.253–1.254 s. A segunda trouxe três propostas de
+banco, mas duas eram Zyra já existentes, ocultas pelo tooltip anterior. Apenas a
+revisão da sequência distingue a compra real. Nenhum rótulo foi criado
+automaticamente e o exemplo correto de Lux já estava no treino.
+
+Os três testes do novo auxiliar e o teste de nomes do auxiliar de tooltip
+passaram. O relatório `shop-transition-review.json` registra a revisão feita
+pelo assistente. Este pequeno caso conhecido não mede precisão ou revocação em
+novas partidas. O próximo passo é ampliar a mineração em fontes de treino e
+reduzir o custo da coleta para anotação, evitando embeddings desnecessários.
