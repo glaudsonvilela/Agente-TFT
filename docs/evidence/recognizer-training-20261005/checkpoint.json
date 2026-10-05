@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T04:44:46.283Z",
+  "recorded_at": "2026-10-05T04:56:31.287Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -253,9 +253,28 @@
         "unique_frame_hashes": 687,
         "unit_crops": 3345
       }
+    },
+    {
+      "url": "https://www.twitch.tv/videos/2891052706",
+      "partition": "training_pool_unlabeled",
+      "local_private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/arena-training-20261005",
+      "progress": {
+        "accepted_candidates": 10,
+        "accuracy_measured": false,
+        "analysis_ms_p50": 188.84461199999998,
+        "analysis_ms_p95": 650.662707,
+        "elapsed_seconds": 259.784942644,
+        "frames": 500,
+        "frames_without_green_proposals": 156,
+        "source_seconds_covered": 10000,
+        "status": "running",
+        "target_frames": 651,
+        "unit_crops": 2088
+      }
     }
   ],
   "pending": [
+    "Finish third VOD collection and review labels before adding training examples",
     "Review explicit tooltip labels and crop associations",
     "Investigate arena transfer and champion localization",
     "Broaden independent validation and class coverage",
