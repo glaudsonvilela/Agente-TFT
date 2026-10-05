@@ -1,0 +1,1094 @@
+{
+  "review": {
+    "source_id": "youtube:nxSUNW1yZqI",
+    "reviewed_proposals": 138,
+    "visually_named_proposals": 99,
+    "retained_named_crops": 72,
+    "frames": 12,
+    "excluded_ambiguous": 39,
+    "excluded_to_limit_repetition": 27,
+    "independent_human_ground_truth": false
+  },
+  "labels": [
+    {
+      "index": 3,
+      "frame": "unit-gallery-morgana-training-20261005/000000.png",
+      "source_seconds_nominal": 0,
+      "box": [
+        1178,
+        502,
+        1306,
+        646
+      ],
+      "crop_pixel_sha256": "572fcfaa58cd56592ecf071e43bbcab96950609183fa53e36de79311d0ce2154",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 10,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        959,
+        318,
+        1087,
+        462
+      ],
+      "crop_pixel_sha256": "569b11a2b5acaf14a24c5214f9af4b29e76579249ce56b3899f17887d13e90aa",
+      "unit_id": "DA_Sentinel18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 11,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        840,
+        352,
+        968,
+        496
+      ],
+      "crop_pixel_sha256": "51824938b43d490bf86c48f0b9ccb36016c216dffe6806f77ae401e56f37a2c1",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 14,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        720,
+        355,
+        848,
+        499
+      ],
+      "crop_pixel_sha256": "a274967f72f63b01d5b686343eed149ab5d618396dcf817eb15f5739670821b1",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 15,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "88f3a9f32ff4607fd50cfa811303aa8f5bc04ffa93e9661ed85611b46654c366",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 16,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        899,
+        576,
+        1027,
+        720
+      ],
+      "crop_pixel_sha256": "e0bbfb687ca46e8908c56a58960b7b70fc73a8ec3fe68090e43356f7111b4197",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 17,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        1034,
+        580,
+        1162,
+        724
+      ],
+      "crop_pixel_sha256": "da453a6156569c2b0bc28e7c3d7ce70c69ac0ba264c442cef97e140ca6830566",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 18,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        634,
+        581,
+        762,
+        725
+      ],
+      "crop_pixel_sha256": "ee7e85cfaa5185aae48b9c1d3ed80fe557548dc36b81c32c8df1321495156639",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 19,
+      "frame": "unit-gallery-morgana-training-20261005/000120.png",
+      "source_seconds_nominal": 120,
+      "box": [
+        766,
+        584,
+        894,
+        728
+      ],
+      "crop_pixel_sha256": "fbb22f08ca370b2f6f5d5750fe96dc6ba6db89243b25c07b8b6bc9b59b3017bd",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 26,
+      "frame": "unit-gallery-morgana-training-20261005/000240.png",
+      "source_seconds_nominal": 240,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "6a3cf49e3a4b5daa7e5b68a4d78ccb8675db9c48535277d6a2308b799eef03f7",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 27,
+      "frame": "unit-gallery-morgana-training-20261005/000240.png",
+      "source_seconds_nominal": 240,
+      "box": [
+        1034,
+        575,
+        1162,
+        719
+      ],
+      "crop_pixel_sha256": "ce6b5a1945975037522cead059879671d2ba17e37d170065e963bb4df356c3cc",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 34,
+      "frame": "unit-gallery-morgana-training-20261005/000360.png",
+      "source_seconds_nominal": 360,
+      "box": [
+        1034,
+        575,
+        1162,
+        719
+      ],
+      "crop_pixel_sha256": "7781ba3df037fe2782b2d38286688c4efd066084c5cb1075897be9cab7aacee0",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 36,
+      "frame": "unit-gallery-morgana-training-20261005/000360.png",
+      "source_seconds_nominal": 360,
+      "box": [
+        634,
+        581,
+        762,
+        725
+      ],
+      "crop_pixel_sha256": "424e3a9bb74a8a9ff2c7f3996f45dbe57d2a9be2bed52ccae4cf2fa8b509e32b",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 38,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        959,
+        318,
+        1087,
+        462
+      ],
+      "crop_pixel_sha256": "0e0da6458fc636754288ed9871d270b03b93917eabaceae93fd872203e9c992a",
+      "unit_id": "DA_Sentinel18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 39,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        840,
+        352,
+        968,
+        496
+      ],
+      "crop_pixel_sha256": "5e5e920255956637d01d7103f7023b00f09482062b0ec6c6d9212cfc701573fa",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 42,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        720,
+        355,
+        848,
+        499
+      ],
+      "crop_pixel_sha256": "34eeedaa0cc3a98736c726dbd07a7e5831ad4b2f3e9ca08724f0df53e0aceca1",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 43,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "6cfdb560e99f2f21f121f8763519b1fbd290d97b8e388ad080faaf66a2ad0c84",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 44,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        776,
+        406,
+        904,
+        550
+      ],
+      "crop_pixel_sha256": "b9c74306220f5648bb560fd00b12d31e6e99c2a6cf1036ac75d002a72c430659",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 45,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        1034,
+        574,
+        1162,
+        718
+      ],
+      "crop_pixel_sha256": "448a526e799b74bde3330da8a013bd39b09dd9b883d3cbc730d4565b4dba324c",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 48,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        766,
+        584,
+        894,
+        728
+      ],
+      "crop_pixel_sha256": "9a3cac6b940ee829c7858fee670178ed4f174f32b33149201469eae68955689d",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 49,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        944,
+        679,
+        1072,
+        823
+      ],
+      "crop_pixel_sha256": "4ffafc8a32ba66dee5d5ee92e28c116e8371cf200e0be3c611f455078f355e2e",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 50,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        1186,
+        697,
+        1314,
+        841
+      ],
+      "crop_pixel_sha256": "9aaaceae729278c1d832d02d90ebbcac4721011e48a4d1b7e785fbe9b43590a8",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 51,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        1308,
+        703,
+        1436,
+        847
+      ],
+      "crop_pixel_sha256": "6fe1edccec2c3504ab7d3da13bd9fd0c366de78c704b3869ea40776423eb19d1",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 53,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        462,
+        704,
+        590,
+        848
+      ],
+      "crop_pixel_sha256": "b48ab2aef7c229e10156cafb9dd91832054ae6cbde65f930051a156d24815174",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 57,
+      "frame": "unit-gallery-morgana-training-20261005/000480.png",
+      "source_seconds_nominal": 480,
+      "box": [
+        1064,
+        716,
+        1192,
+        860
+      ],
+      "crop_pixel_sha256": "c0a2d2e80256e38220ad340f715754ee5b307473b91abb4e76d417b9c1c906b0",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 58,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        959,
+        318,
+        1087,
+        462
+      ],
+      "crop_pixel_sha256": "c5ad9e4430acc541905022646d410ace73707147aa5482c82d2952cc5e93381d",
+      "unit_id": "DA_Sentinel18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 59,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        840,
+        352,
+        968,
+        496
+      ],
+      "crop_pixel_sha256": "32bd788250101ed1f8b223c98daf94130456178019bfb71049cf1f74883c9c84",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 62,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        720,
+        355,
+        848,
+        499
+      ],
+      "crop_pixel_sha256": "28cd591612b4df31652270d332ec594f660854863abb4de7a76609b3b49055eb",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 63,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "35df745084c24a6e0bce2cc4290fe2dbdc5e998ef33660901afbcfe4778fa9e9",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 64,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        776,
+        398,
+        904,
+        542
+      ],
+      "crop_pixel_sha256": "6f2334b2999ef56b97572dbaf562ec4ef5587dbcc4e4ce3b51cb42cf28379550",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 67,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        1034,
+        574,
+        1162,
+        718
+      ],
+      "crop_pixel_sha256": "b1b739502ea2a014ab3477f97350f9cc281a2166d20dde22cbf6679cbb2bca2b",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 68,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        766,
+        584,
+        894,
+        728
+      ],
+      "crop_pixel_sha256": "afadc86710e5a3abef52d8c54642e4315ab03cfa2ba61ade6a21cccc560e8003",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 71,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        462,
+        704,
+        590,
+        848
+      ],
+      "crop_pixel_sha256": "3094d950a8d62b5b3dbfde76d6c921857c0f7c1770abc4f11f511e2d2f027580",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 73,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        580,
+        710,
+        708,
+        854
+      ],
+      "crop_pixel_sha256": "88743a33bcfdb8dc77e3f659c1e21aff5153776f4fe4632f7b802c5add37fc0a",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 74,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        1066,
+        713,
+        1194,
+        857
+      ],
+      "crop_pixel_sha256": "daf12fbbb8fdacc37a0da6a4cb963e788acf399f211500269d13e19c462b7051",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 75,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "source_seconds_nominal": 600,
+      "box": [
+        1186,
+        715,
+        1314,
+        859
+      ],
+      "crop_pixel_sha256": "190847cbf00537fb25e3275451911c543d934728d8b46945c7fc45a290dfc410",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 76,
+      "frame": "unit-gallery-morgana-training-20261005/000720.png",
+      "source_seconds_nominal": 720,
+      "box": [
+        480,
+        335,
+        608,
+        479
+      ],
+      "crop_pixel_sha256": "6ef2333f7e2242abd97c171ca388bab8bd528c8e01e86f464afe79de9f996aef",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 79,
+      "frame": "unit-gallery-morgana-training-20261005/000720.png",
+      "source_seconds_nominal": 720,
+      "box": [
+        652,
+        393,
+        780,
+        537
+      ],
+      "crop_pixel_sha256": "a7e46860eb861df4f160f6a23d861fe58f97ebe8e08737b4d21de717326d299f",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 81,
+      "frame": "unit-gallery-morgana-training-20261005/000840.png",
+      "source_seconds_nominal": 840,
+      "box": [
+        834,
+        324,
+        962,
+        468
+      ],
+      "crop_pixel_sha256": "3f2a6a9e79f6ca7342ea06bca2540dffa45440c0f8ca5c9e6f470c316c814694",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 84,
+      "frame": "unit-gallery-morgana-training-20261005/000840.png",
+      "source_seconds_nominal": 840,
+      "box": [
+        498,
+        563,
+        626,
+        707
+      ],
+      "crop_pixel_sha256": "a49d465293773885e4d2877e9fd97b1a9c3bf9edea181ddc602b6d34275e1ea3",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 86,
+      "frame": "unit-gallery-morgana-training-20261005/000840.png",
+      "source_seconds_nominal": 840,
+      "box": [
+        763,
+        584,
+        891,
+        728
+      ],
+      "crop_pixel_sha256": "4cf3c93140049512febc21a5919b52cd08373bf0657e9f2b8fa6831aef0a40a2",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 88,
+      "frame": "unit-gallery-morgana-training-20261005/000960.png",
+      "source_seconds_nominal": 960,
+      "box": [
+        840,
+        324,
+        968,
+        468
+      ],
+      "crop_pixel_sha256": "c8c8a80a278e354cdc590777609578ec08f287392ee2a9b52b687f148f9a9804",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 91,
+      "frame": "unit-gallery-morgana-training-20261005/000960.png",
+      "source_seconds_nominal": 960,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "979a9293a2f1193c1f280b7f5a8f44a35052d72742963c163acad53398018358",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 93,
+      "frame": "unit-gallery-morgana-training-20261005/000960.png",
+      "source_seconds_nominal": 960,
+      "box": [
+        966,
+        485,
+        1094,
+        629
+      ],
+      "crop_pixel_sha256": "d973f14bdc44c6fee7d1ec6889020996fb4c11ea2fdd724e0e7df21804f7f9ad",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 94,
+      "frame": "unit-gallery-morgana-training-20261005/000960.png",
+      "source_seconds_nominal": 960,
+      "box": [
+        634,
+        551,
+        762,
+        695
+      ],
+      "crop_pixel_sha256": "921ae549cf2aaf769cb1fe1c9fb3c078f51541c8886dd8405cb09f937fba1042",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 97,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        718,
+        347,
+        846,
+        491
+      ],
+      "crop_pixel_sha256": "db3ee188b7a50a358de3f419df0e0df8970bb86df385a6bcf4492ee1b8b23052",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 101,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "eeb9dcfec858b6e9e8d1b813323bdb21d1631704c6066afdf1e7c38070d370a3",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 102,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        1023,
+        420,
+        1151,
+        564
+      ],
+      "crop_pixel_sha256": "d2546241f03dd27322d9a96a9c77838bd6344bb630c883105801ce7ef24d6c28",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 104,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        496,
+        553,
+        624,
+        697
+      ],
+      "crop_pixel_sha256": "7100247837017372a4b720051a9f6b10c7031734c09f82bd58c7b5ee8b7bc734",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 105,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        765,
+        562,
+        893,
+        706
+      ],
+      "crop_pixel_sha256": "430516678b0fbbea04f9c54322ca441c59a513921420cc0a3458e5e81843bcc4",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 107,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        1066,
+        686,
+        1194,
+        830
+      ],
+      "crop_pixel_sha256": "1b802da3e1b2de12a4b45ea2b0ff06967b85fa7b5e268ba185333db414f73c5a",
+      "unit_id": "DA_18_Ashe",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 108,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        455,
+        698,
+        583,
+        842
+      ],
+      "crop_pixel_sha256": "b1d593ae48039d69fb80f763c83d76b554b9468b200355c9ec308d475b59708a",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 109,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        703,
+        699,
+        831,
+        843
+      ],
+      "crop_pixel_sha256": "f2d6dc2c521c28ce7147811eba0dbd2bf0ea95600fe98a135d43146d56e1ff29",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 110,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        1308,
+        703,
+        1436,
+        847
+      ],
+      "crop_pixel_sha256": "0a5d342be242af978fdb44069462373b3f9381fc055e1816ead3dfe6941aca18",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 111,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        323,
+        704,
+        451,
+        848
+      ],
+      "crop_pixel_sha256": "46908927853f63548b64686d11b336c00b9cfeed8c4ac694294453c12efef948",
+      "unit_id": "DA_18_Hecarim",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 112,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "source_seconds_nominal": 1080,
+      "box": [
+        822,
+        715,
+        950,
+        859
+      ],
+      "crop_pixel_sha256": "942371c8d06779a7cc0bb4da42f2d6e61bb19abd358bd2853ec09750327ea0c1",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 116,
+      "frame": "unit-gallery-morgana-training-20261005/001200.png",
+      "source_seconds_nominal": 1200,
+      "box": [
+        560,
+        471,
+        688,
+        615
+      ],
+      "crop_pixel_sha256": "155003be791437752ea1f9168e7195627f5e5b513e14ce05d5e91c8a7b2ed2d2",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 117,
+      "frame": "unit-gallery-morgana-training-20261005/001200.png",
+      "source_seconds_nominal": 1200,
+      "box": [
+        830,
+        487,
+        958,
+        631
+      ],
+      "crop_pixel_sha256": "55c77221bd72259554bc77605914dba7eea9a0f63da162be26d802da58760929",
+      "unit_id": "DA_18_Ashe",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 118,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        961,
+        284,
+        1089,
+        428
+      ],
+      "crop_pixel_sha256": "2bf63c9a8be2d9757097972ac53f36973fb847b0d57222743825478bea8898bf",
+      "unit_id": "DA_18_Maokai",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 119,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        718,
+        325,
+        846,
+        469
+      ],
+      "crop_pixel_sha256": "30146795dbc150c339a9e7ad807979365419cc0de415b847143e2dbdad3e4662",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 120,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        840,
+        352,
+        968,
+        496
+      ],
+      "crop_pixel_sha256": "db64446e8eda3f63a59b2e4e5b28d36dbc6373c079111cc813ada945fde27c3d",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 123,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        1072,
+        387,
+        1200,
+        531
+      ],
+      "crop_pixel_sha256": "624a12258566eb5c73e7956733e347890af90d3a32025ce441eac60ffc247227",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 124,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        1023,
+        398,
+        1151,
+        542
+      ],
+      "crop_pixel_sha256": "7b2f78d052d56a1bab1a58876114f0de261de7617a4a0ab44e498fe7136d6a8d",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 125,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        539,
+        414,
+        667,
+        558
+      ],
+      "crop_pixel_sha256": "5e57cabb75a48908c320726d1b3aa25764228fd8a7f2b8b2b2bae19e9d675e9c",
+      "unit_id": "DA_18_GnarSmall",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 126,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        634,
+        551,
+        762,
+        695
+      ],
+      "crop_pixel_sha256": "e1c79238cc068ff3f4fe6beb7b38a9b1226b09afb7aec6943fde3a7b955b21ee",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 128,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        1036,
+        556,
+        1164,
+        700
+      ],
+      "crop_pixel_sha256": "71fec371b6e6d2d4226eb06681f23759b5813f6ed46f1a032c3edfdfb0f1c39e",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 129,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        899,
+        567,
+        1027,
+        711
+      ],
+      "crop_pixel_sha256": "0c9e9766ab68bfbf86b426d803b75519bee9bdfa41cb43543abc31bb03ec2660",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 130,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        766,
+        570,
+        894,
+        714
+      ],
+      "crop_pixel_sha256": "7e1c6a2a26cdbf22f3bb19c23cf1642b8966416e7a29d1efc7ffe61897a2e893",
+      "unit_id": "DA_18_Ashe",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 131,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        332,
+        669,
+        460,
+        813
+      ],
+      "crop_pixel_sha256": "7a90c292d9b7bc4fddf0b81ea9bb0f8e06373a700b22b2fc7dc8fdf46d2c989a",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 132,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        1190,
+        696,
+        1318,
+        840
+      ],
+      "crop_pixel_sha256": "4f2ecdb83a15258f22731ec9521d9e56f3b3d6e24974ab586ae0fe47aa700bda",
+      "unit_id": "DA_18_Morgana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 133,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        1304,
+        699,
+        1432,
+        843
+      ],
+      "crop_pixel_sha256": "0acebf703fca5655ccd2c611875dd2e9647a4129ce7b04b6f34f8a4f11ae5eb9",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 136,
+      "frame": "unit-gallery-morgana-training-20261005/001320.png",
+      "source_seconds_nominal": 1320,
+      "box": [
+        703,
+        709,
+        831,
+        853
+      ],
+      "crop_pixel_sha256": "e61cd24d4248a742c48c8950edbb14feedb792571e63d6a651a5f4d7136f6371",
+      "unit_id": "DA_18_GnarSmall",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    }
+  ]
+}

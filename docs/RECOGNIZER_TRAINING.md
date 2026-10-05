@@ -253,3 +253,43 @@ O treino ajustou apenas a cabeça de classificação, com DINO INT8 congelado.
 Restam 14 IDs sem treino, além de erros e exemplos escassos nas classes cobertas.
 Cobertura de catálogo não significa precisão suficiente. Os pesos ficam no SSD,
 com hash e métricas no Git; continuam sem aprovação para as dicas do Windows.
+
+## Expansão de Morgana e auditoria reproduzível
+
+A quinta fonte de treino, `youtube:nxSUNW1yZqI` (KH-Teamfight Tactics TFT,
+publicada em 2026-09-08), forneceu 711 propostas em 69 quadros de 23 minutos.
+Uma grade temporal de dois minutos foi revisada: 138 propostas, 99 identidades
+visualmente nomeadas, 39 casos ambíguos excluídos. Limitamos repetições a seis
+exemplos por classe estabelecida e oito de Morgana, distribuídos ao longo do
+vídeo. Entraram 72 exemplos de 12 quadros; outros 27 ficaram fora por repetição.
+O vídeo inteiro permanece em treino. O patch exato não foi confirmado.
+
+O conjunto resultante tem 469 unidades de treino, 61/74 IDs representados e
+13 IDs ausentes. A nova cabeça centralizada obteve 17/32 na validação e 59/107
+no desafio de desenvolvimento, contra 16/32 e 62/107 anteriormente. Isso expõe
+uma regressão entre fontes; os dois artefatos foram preservados e nenhum foi
+promovido ao software. O aumento de cobertura não comprova melhora geral.
+
+`audit-dataset` revalida os hashes, vínculos de recorte e isolamento das fontes
+antes de listar cobertura por classe e divisão. A auditoria atual encontrou
+18 classes com exemplos de treino provenientes de uma única fonte. Esse número
+orienta a próxima coleta; contagens de recortes não representam partidas
+independentes. Execute com o catálogo correspondente:
+
+```sh
+cargo run --release --manifest-path tools/unit-features-lab/Cargo.toml \
+  --bin audit-dataset -- ANNOTATIONS_JSON IMAGE_ROOT REFERENCE_DIRECTORY NEW_REPORT_JSON
+```
+
+A transformação `center_88x120_v1` passou para `crop_transform.rs`, reutilizável
+pelas ferramentas nativas. Um novo treino com os mesmos dados e configuração
+produziu exatamente o mesmo artefato anterior, SHA-256
+`3d379ad94cebd588c23117e16910b9d5c250a42753c42f5c79717e99c901437f`.
+Dois testes adicionais verificam retirada da faixa superior/laterais sem mudar
+o original e rejeição de recortes corrompidos/versões desconhecidas. Isso ainda
+não equivale a integração validada no fluxo ao vivo do Windows.
+
+Também coletamos a prévia de Lux `youtube:qkG10NeqM3A`: 15 quadros e 69 propostas.
+Por ser uma prévia anterior ao PBE e não confirmar a variante na interface,
+ela não entrou no treino. A semelhança de cores não basta para vincular as
+nove formas sazonais de Lux ao ID correto.

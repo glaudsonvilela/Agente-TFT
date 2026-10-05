@@ -252,33 +252,13 @@ pub fn run_cli() -> Result<()> {
         Path::new(str_field(&spec, "images")?),
         Path::new(str_field(&spec, "reference")?),
     )?;
-    let crop_transform = spec["crop_transform"].as_str().unwrap_or("raw");
-    match crop_transform {
-        "raw" => {}
-        "center_88x120_v1" => {
-            for sample in &mut samples {
-                let frame = FrameEnvelope {
-                    frame_id: 0,
-                    captured_at_ms: 0,
-                    width: WIDTH as u32,
-                    height: HEIGHT as u32,
-                    stride_bytes: WIDTH as u32 * 3,
-                    pixel_format: PixelFormat::Rgb8,
-                    source_id: sample.image.clone(),
-                    pixels: sample.crop.rgb.clone(),
-                };
-                sample.crop = UnitCrop::from_frame(
-                    &frame,
-                    PixelRect {
-                        x: 20,
-                        y: 24,
-                        width: 88,
-                        height: 120,
-                    },
-                )?;
-            }
-        }
-        _ => return Err("unsupported crop transform".into()),
+    let transform: crate::crop_transform::CropTransform = match spec.get("crop_transform") {
+        Some(value) => serde_json::from_value(value.clone())?,
+        None => Default::default(),
+    };
+    let crop_transform = transform.name();
+    for sample in &mut samples {
+        sample.crop = transform.apply(&sample.crop)?;
     }
     let source_samples = samples.len();
     let augmented = match spec["augmentation"].as_str().unwrap_or("none") {
