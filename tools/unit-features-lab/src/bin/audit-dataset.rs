@@ -94,7 +94,7 @@ fn run() -> Result<()> {
         })
         .map(|c| c["id"].clone())
         .collect();
-    let report = json!({"schema_version":1,"set_key":catalog["set_key"],
+    let report = json!({"schema_version":1,"supervision_policy":agente_tft_unit_features_lab::SUPERVISION_POLICY,"set_key":catalog["set_key"],
         "annotations_sha256":format!("{:x}",Sha256::digest(&annotations)),
         "catalog_sha256":format!("{:x}",Sha256::digest(&catalog_bytes)),
         "pixel_and_partition_checks_passed":true,"samples":samples.len(),"counts":counts,

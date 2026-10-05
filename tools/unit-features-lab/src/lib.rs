@@ -26,9 +26,9 @@ pub fn embedding_batch_size(value: Option<&Value>) -> Result<usize> {
     }
 }
 pub mod crop_transform;
+mod live;
 pub mod ocr_names;
 pub mod retrieval;
-mod live;
 pub mod training;
 #[derive(Clone)]
 pub struct Sample {
@@ -107,6 +107,17 @@ fn validate_split_scope(splits: &HashSet<&str>, evaluation_only: bool) -> Result
     }
     Ok(())
 }
+/// Only named identities are supervised here. Non-unit negatives have a
+/// separate reviewed contract in identity_negatives, never an unknown identity.
+fn supervised_identity(identity: &Value) -> Result<Option<&str>> {
+    match identity["state"].as_str() {
+        Some("known") => Ok(Some(str_field(identity, "id")?)),
+        Some("unknown") => Ok(None),
+        _ => Err("unsupported identity state; exclude or review it explicitly".into()),
+    }
+}
+pub const SUPERVISION_POLICY: &str = "known_identity_or_explicit_reviewed_nonunit_v1";
+
 fn load_samples_with_scope(
     path: &Path,
     root: &Path,
@@ -209,19 +220,17 @@ fn load_samples_with_scope(
             {
                 return Err("crop contract mismatch".into());
             }
-            let label = if entity["identity"]["state"] == "known" {
-                str_field(&entity["identity"], "id")?
-            } else {
-                "__unknown__"
-            };
-            if label != "__unknown__" && !ids.contains(label) {
-                return Err("unit absent from catalog".into());
-            }
             let crop = UnitCrop::from_frame(&f, rect)?;
             if let Some(expected) = entity.get("crop_pixel_sha256") {
                 if expected.as_str() != Some(hash(&crop.rgb).as_str()) {
                     return Err("reviewed identity/crop pixel binding mismatch".into());
                 }
+            }
+            let Some(label) = supervised_identity(&entity["identity"])? else {
+                continue; // Pending identification is not a reviewed negative.
+            };
+            if !ids.contains(label) {
+                return Err("unit absent from catalog".into());
             }
             result.push(Sample {
                 crop,
@@ -598,6 +607,20 @@ pub fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn pending_identity_cannot_become_a_negative_label() {
+        assert_eq!(
+            supervised_identity(&json!({"state":"unknown"})).unwrap(),
+            None
+        );
+        assert_eq!(
+            supervised_identity(&json!({"state":"known","id":"unit"})).unwrap(),
+            Some("unit")
+        );
+        assert!(supervised_identity(&json!({"state":"known"})).is_err());
+        assert!(supervised_identity(&json!({"state":"unreviewed"})).is_err());
+        assert!(supervised_identity(&json!({})).is_err());
+    }
     #[test]
     fn embedding_batch_policy_is_explicit_and_bounded() {
         assert_eq!(embedding_batch_size(None).unwrap(), 4);

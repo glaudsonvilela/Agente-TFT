@@ -391,7 +391,7 @@ pub fn run_cli() -> Result<()> {
                 .collect();
             evaluation.insert(split, metrics(&head, &rows)?);
         }
-        let model = json!({"schema_version":1,"feature_mode":name,"head":head,"selected_epoch":epoch,
+        let model = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"feature_mode":name,"head":head,"selected_epoch":epoch,
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
             "input_size":side,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
             "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
@@ -406,7 +406,7 @@ pub fn run_cli() -> Result<()> {
         );
         reports.insert(name, report);
     }
-    let report = json!({"schema_version":1,"implementation":"rust_native","training_performed":true,
+    let report = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"implementation":"rust_native","training_performed":true,
         "backbone_finetuned":false,"training_algorithm":"class_balanced_multiclass_softmax_gradient_descent",
         "learning_rate":2.0,"weight_decay":0.001,"max_epochs":800,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),

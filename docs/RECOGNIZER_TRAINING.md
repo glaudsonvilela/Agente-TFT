@@ -702,3 +702,23 @@ compras conferidas de Draven e Alune e removendo o falso alarme Diana. Não há
 medição de precisão e revocação de todas as compras. O cache evitou 801 chamadas
 de OCR em 1.380 quadros (579 chamadas reais). Sobreposições ainda podem imitar
 uma carta vazia.
+
+## Identidade pendente não é exemplo negativo
+
+O carregador anterior convertia `identity.state: unknown` em `__unknown__`.
+Esses registros são unidades cuja identidade ainda não foi revisada; não são
+prova de ausência de unidade. Corrigimos a política: só identidades nomeadas e
+`identity_negatives` com revisão explícita entram no treino e nas métricas.
+Estados ausentes ou não suportados são recusados. O contrato fica registrado
+nos novos relatórios e artefatos como `known_identity_or_explicit_reviewed_nonunit_v1`.
+
+O treino atual não continha identidades pendentes: seus 634 exemplos nomeados e
+31 negativos explícitos foram preservados. Quatro pendências da validação e duas
+do teste foram excluídas da pontuação supervisionada, mantendo os nove negativos
+explícitos do teste. A reavaliação do modelo congelado manteve **19/32**, com
+previsões e escores exatamente iguais para todas as unidades nomeadas. A perda
+agregada anterior não é diretamente comparável, pois incluía aquelas pendências.
+A cópia da validação usada pelo avaliador continua sendo desenvolvimento conhecido,
+sem alegação de novo teste independente. Passaram 18 testes da biblioteca e dois
+de isolamento do avaliador. O próximo experimento investigará variação vertical
+do recorte de treino, mantendo validação e inferência com o preparo fixo.

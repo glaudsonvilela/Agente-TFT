@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T08:30:50.812Z",
+  "recorded_at": "2026-10-05T08:40:28.506Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1268,5 +1268,25 @@
     "model_private_path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/shop-reviewed-head/dino-head.json",
     "selection": "docs/evidence/recognizer-training-20261005/shop-reviewed-selection.json",
     "runtime_approved": false
+  },
+  "latest_supervision_correction": {
+    "policy": "known_identity_or_explicit_reviewed_nonunit_v1",
+    "training_known": 634,
+    "training_explicit_negatives": 31,
+    "training_pending": 0,
+    "validation_pending_excluded": 4,
+    "test_pending_excluded": 2,
+    "test_explicit_negatives_retained": 9,
+    "validation_named": 32,
+    "validation_correct": 19,
+    "named_validation_predictions_and_scores_unchanged": true,
+    "old_validation_cross_entropy": 3.3132628864712186,
+    "corrected_validation_cross_entropy": 3.178008511662483,
+    "tests_passed": 20,
+    "runtime_approved": false
+  },
+  "next_experiment": {
+    "status": "planned",
+    "hypothesis": "Train small vertical crop variations to reduce sensitivity to head/item-row alignment; preserve fixed preprocessing at evaluation and do not add held-out frames to training."
   }
 }

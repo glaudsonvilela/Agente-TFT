@@ -185,7 +185,7 @@ fn run() -> Result<()> {
             .collect();
         strata.insert(condition, metrics(&head, &subset)?);
     }
-    let report = json!({"schema_version":1,"training_performed":false,"head_sha256":hash(&model_bytes),
+    let report = json!({"schema_version":1,"supervision_policy":agente_tft_unit_features_lab::SUPERVISION_POLICY,"training_performed":false,"head_sha256":hash(&model_bytes),
         "annotations_sha256":hash(&annotations_bytes),"spec_sha256":hash(&spec_bytes),"encoder_sha256":hash(&encoder_bytes),
         "crop_transform":transform.name(),"batch":batch,"training_batch":trained_batch,
         "batch_matches_training":batch==trained_batch,"threads":1,"new_source_relative_to_training_manifest":new_source,

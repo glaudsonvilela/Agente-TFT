@@ -182,14 +182,14 @@ pub fn build_experiment(
     let validation = metrics_with_predictor(head.labels(), &validation, |x| head.probabilities(x))?;
     let hash = |b: &[u8]| format!("{:x}", Sha256::digest(b));
     let annotation_bytes = fs::read(spec["annotations"].as_str().ok_or("annotations")?)?;
-    let model = json!({"schema_version":1,"feature_mode":"dino","classifier_type":"retrieval_v1",
+    let model = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"feature_mode":"dino","classifier_type":"retrieval_v1",
         "retrieval":head,"encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&annotation_bytes),
         "input_size":spec["input_size"],"crop_transform":spec["crop_transform"],
         "embedding_batch_size":crate::embedding_batch_size(spec.get("embedding_batch_size"))?,
         "runtime_approved":false,"probabilities_calibrated":false});
     let bytes = serde_json::to_vec(&model)?;
     fs::write(output.join("retrieval-head.json"), &bytes)?;
-    let report = json!({"schema_version":1,"implementation":"rust_native","training_performed":false,
+    let report = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"implementation":"rust_native","training_performed":false,
         "supervised_index_built":true,"backbone_finetuned":false,"gradient_updates":0,
         "selection":"validation_macro_recall_then_loss","candidates":candidates,
         "selected_pooling":head.pooling,"training_support":head.vectors.len(),"training_classes":head.labels.len(),

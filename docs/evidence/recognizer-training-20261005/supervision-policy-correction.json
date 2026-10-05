@@ -1,0 +1,16 @@
+{
+  "policy": "known_identity_or_explicit_reviewed_nonunit_v1",
+  "training_known": 634,
+  "training_explicit_negatives": 31,
+  "training_pending": 0,
+  "validation_pending_excluded": 4,
+  "test_pending_excluded": 2,
+  "test_explicit_negatives_retained": 9,
+  "validation_named": 32,
+  "validation_correct": 19,
+  "named_validation_predictions_and_scores_unchanged": true,
+  "old_validation_cross_entropy": 3.3132628864712186,
+  "corrected_validation_cross_entropy": 3.178008511662483,
+  "tests_passed": 20,
+  "runtime_approved": false
+}

@@ -1,0 +1,1135 @@
+{
+  "annotations_sha256": "a580bc87a7e8a4564bdadfd6686c085ac6266b0272d8280f6f56c8f6541f3513",
+  "batch": 1,
+  "batch_matches_training": true,
+  "crop_transform": "upper_88x80_v1",
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "evaluation": {
+    "confusions": {
+      "DA_18_Akali_AD -> DA_Nidalee18_AP": 1,
+      "DA_18_Azir -> DA_18_Warwick": 1,
+      "DA_18_Camille -> DA_18_Tristana": 1,
+      "DA_18_KhaZix -> DA_18_GnarSmall": 1,
+      "DA_18_Malphite -> DA_18_Alistar": 1,
+      "DA_18_Rakan -> DA_18_Aphelios": 1,
+      "DA_18_Rakan -> DA_18_Tristana": 1,
+      "DA_18_Rengar -> DA_18_Alistar": 1,
+      "DA_18_Shen -> DA_18_Alune": 1,
+      "DA_18_Shen -> DA_18_Sivir": 1,
+      "DA_18_Warwick -> DA_18_Alistar": 1,
+      "DA_18_Warwick -> DA_18_Malphite": 1,
+      "DA_Murkwolf18 -> DA_18_Alistar": 1
+    },
+    "cross_entropy": 3.178008511662483,
+    "named": 32,
+    "named_macro_recall": 0.5984848484848485,
+    "named_top1_correct": 19,
+    "per_class": {
+      "DA_18_Akali_AD": [
+        1,
+        0
+      ],
+      "DA_18_Azir": [
+        1,
+        0
+      ],
+      "DA_18_Caitlyn": [
+        1,
+        1
+      ],
+      "DA_18_Camille": [
+        3,
+        2
+      ],
+      "DA_18_Elise": [
+        1,
+        1
+      ],
+      "DA_18_Hecarim": [
+        1,
+        1
+      ],
+      "DA_18_KhaZix": [
+        1,
+        0
+      ],
+      "DA_18_Kobuko": [
+        1,
+        1
+      ],
+      "DA_18_Malphite": [
+        1,
+        0
+      ],
+      "DA_18_Ornn": [
+        1,
+        1
+      ],
+      "DA_18_Rakan": [
+        2,
+        0
+      ],
+      "DA_18_RekSai": [
+        1,
+        1
+      ],
+      "DA_18_Rengar": [
+        1,
+        0
+      ],
+      "DA_18_Sentry": [
+        2,
+        2
+      ],
+      "DA_18_Sett": [
+        1,
+        1
+      ],
+      "DA_18_Shen": [
+        4,
+        2
+      ],
+      "DA_18_Varus": [
+        2,
+        2
+      ],
+      "DA_18_Veigar": [
+        1,
+        1
+      ],
+      "DA_18_Warwick": [
+        2,
+        0
+      ],
+      "DA_Amumu18": [
+        1,
+        1
+      ],
+      "DA_Fiddlesticks18": [
+        2,
+        2
+      ],
+      "DA_Murkwolf18": [
+        1,
+        0
+      ]
+    },
+    "predictions": [
+      {
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille",
+        "predicted": "DA_18_Camille",
+        "softmax_score_uncalibrated": 0.04904993250966072
+      },
+      {
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-4",
+        "label": "DA_18_Sentry",
+        "predicted": "DA_18_Sentry",
+        "softmax_score_uncalibrated": 0.17550131678581238
+      },
+      {
+        "identity_verified": false,
+        "image": "review-20261004/167.png",
+        "key": "marker-6",
+        "label": "DA_18_Sentry",
+        "predicted": "DA_18_Sentry",
+        "softmax_score_uncalibrated": 0.3271975517272949
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/00600.png",
+        "key": "marker-0",
+        "label": "DA_18_Hecarim",
+        "predicted": "DA_18_Hecarim",
+        "softmax_score_uncalibrated": 0.03967835381627083
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/04200.png",
+        "key": "marker-0",
+        "label": "DA_18_Elise",
+        "predicted": "DA_18_Elise",
+        "softmax_score_uncalibrated": 0.04797119274735451
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/04200.png",
+        "key": "marker-1",
+        "label": "DA_18_Camille",
+        "predicted": "DA_18_Camille",
+        "softmax_score_uncalibrated": 0.049867577850818634
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/04200.png",
+        "key": "marker-2",
+        "label": "DA_18_Caitlyn",
+        "predicted": "DA_18_Caitlyn",
+        "softmax_score_uncalibrated": 0.0689886063337326
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/04200.png",
+        "key": "marker-3",
+        "label": "DA_18_Warwick",
+        "predicted": "DA_18_Alistar",
+        "softmax_score_uncalibrated": 0.03681547939777374
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/04200.png",
+        "key": "marker-4",
+        "label": "DA_18_Rakan",
+        "predicted": "DA_18_Tristana",
+        "softmax_score_uncalibrated": 0.030637696385383606
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-0",
+        "label": "DA_18_Rengar",
+        "predicted": "DA_18_Alistar",
+        "softmax_score_uncalibrated": 0.028347041457891464
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-1",
+        "label": "DA_18_Warwick",
+        "predicted": "DA_18_Malphite",
+        "softmax_score_uncalibrated": 0.056278008967638016
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-3",
+        "label": "DA_18_Malphite",
+        "predicted": "DA_18_Alistar",
+        "softmax_score_uncalibrated": 0.049356818199157715
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-4",
+        "label": "DA_18_RekSai",
+        "predicted": "DA_18_RekSai",
+        "softmax_score_uncalibrated": 0.1440131962299347
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-6",
+        "label": "DA_18_Azir",
+        "predicted": "DA_18_Warwick",
+        "softmax_score_uncalibrated": 0.0697290301322937
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-7",
+        "label": "DA_18_Sett",
+        "predicted": "DA_18_Sett",
+        "softmax_score_uncalibrated": 0.034312378615140915
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-8",
+        "label": "DA_18_Shen",
+        "predicted": "DA_18_Alune",
+        "softmax_score_uncalibrated": 0.03244415298104286
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-9",
+        "label": "DA_18_Shen",
+        "predicted": "DA_18_Sivir",
+        "softmax_score_uncalibrated": 0.03362703695893288
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-10",
+        "label": "DA_18_Veigar",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.03466267138719559
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/09900.png",
+        "key": "marker-12",
+        "label": "DA_Amumu18",
+        "predicted": "DA_Amumu18",
+        "softmax_score_uncalibrated": 0.06893683969974518
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/11400.png",
+        "key": "marker-2",
+        "label": "DA_Fiddlesticks18",
+        "predicted": "DA_Fiddlesticks18",
+        "softmax_score_uncalibrated": 0.042352210730314255
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/11400.png",
+        "key": "marker-3",
+        "label": "DA_18_Camille",
+        "predicted": "DA_18_Tristana",
+        "softmax_score_uncalibrated": 0.03270532563328743
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/11400.png",
+        "key": "marker-4",
+        "label": "DA_18_Ornn",
+        "predicted": "DA_18_Ornn",
+        "softmax_score_uncalibrated": 0.059983398765325546
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/11400.png",
+        "key": "marker-5",
+        "label": "DA_Murkwolf18",
+        "predicted": "DA_18_Alistar",
+        "softmax_score_uncalibrated": 0.03513580933213234
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/11400.png",
+        "key": "marker-9",
+        "label": "DA_18_Kobuko",
+        "predicted": "DA_18_Kobuko",
+        "softmax_score_uncalibrated": 0.08283727616071701
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-1",
+        "label": "DA_Fiddlesticks18",
+        "predicted": "DA_Fiddlesticks18",
+        "softmax_score_uncalibrated": 0.09022451937198639
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-2",
+        "label": "DA_18_Akali_AD",
+        "predicted": "DA_Nidalee18_AP",
+        "softmax_score_uncalibrated": 0.03144354373216629
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-3",
+        "label": "DA_18_Shen",
+        "predicted": "DA_18_Shen",
+        "softmax_score_uncalibrated": 0.03966718539595604
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-4",
+        "label": "DA_18_KhaZix",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.028194235637784004
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-5",
+        "label": "DA_18_Rakan",
+        "predicted": "DA_18_Aphelios",
+        "softmax_score_uncalibrated": 0.024299290031194687
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-6",
+        "label": "DA_18_Shen",
+        "predicted": "DA_18_Shen",
+        "softmax_score_uncalibrated": 0.03348433971405029
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-8",
+        "label": "DA_18_Varus",
+        "predicted": "DA_18_Varus",
+        "softmax_score_uncalibrated": 0.04665113240480423
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-youtube-20261004/15900.png",
+        "key": "marker-9",
+        "label": "DA_18_Varus",
+        "predicted": "DA_18_Varus",
+        "softmax_score_uncalibrated": 0.04203376546502113
+      }
+    ],
+    "samples": 32
+  },
+  "head_sha256": "c9b3ba9bf7c22ffdb6e7a6096de841ab00d5a301eb8903dd6c93992367a4e31e",
+  "inference_seconds": 1.503653677,
+  "limitations": [
+    "Assistant-reviewed labels, not independent human ground truth.",
+    "Legible proposed crops only; missed or ambiguous units are not recognition successes.",
+    "No Windows capture/display or end-to-end latency measurement.",
+    "After inspection this source is development evidence, not an untouched final holdout."
+  ],
+  "new_source_relative_to_training_manifest": false,
+  "runtime_approved": false,
+  "schema_version": 1,
+  "spec_sha256": "2cc1dee462f19537f983d4c0ec20eb88e4592a76564cbcd341d1e6ff3c90c6ee",
+  "strata": {
+    "appearance:unspecified": {
+      "confusions": {
+        "DA_18_Akali_AD -> DA_Nidalee18_AP": 1,
+        "DA_18_Azir -> DA_18_Warwick": 1,
+        "DA_18_Camille -> DA_18_Tristana": 1,
+        "DA_18_KhaZix -> DA_18_GnarSmall": 1,
+        "DA_18_Malphite -> DA_18_Alistar": 1,
+        "DA_18_Rakan -> DA_18_Aphelios": 1,
+        "DA_18_Rakan -> DA_18_Tristana": 1,
+        "DA_18_Rengar -> DA_18_Alistar": 1,
+        "DA_18_Shen -> DA_18_Alune": 1,
+        "DA_18_Shen -> DA_18_Sivir": 1,
+        "DA_18_Warwick -> DA_18_Alistar": 1,
+        "DA_18_Warwick -> DA_18_Malphite": 1,
+        "DA_Murkwolf18 -> DA_18_Alistar": 1
+      },
+      "cross_entropy": 3.178008511662483,
+      "named": 32,
+      "named_macro_recall": 0.5984848484848485,
+      "named_top1_correct": 19,
+      "per_class": {
+        "DA_18_Akali_AD": [
+          1,
+          0
+        ],
+        "DA_18_Azir": [
+          1,
+          0
+        ],
+        "DA_18_Caitlyn": [
+          1,
+          1
+        ],
+        "DA_18_Camille": [
+          3,
+          2
+        ],
+        "DA_18_Elise": [
+          1,
+          1
+        ],
+        "DA_18_Hecarim": [
+          1,
+          1
+        ],
+        "DA_18_KhaZix": [
+          1,
+          0
+        ],
+        "DA_18_Kobuko": [
+          1,
+          1
+        ],
+        "DA_18_Malphite": [
+          1,
+          0
+        ],
+        "DA_18_Ornn": [
+          1,
+          1
+        ],
+        "DA_18_Rakan": [
+          2,
+          0
+        ],
+        "DA_18_RekSai": [
+          1,
+          1
+        ],
+        "DA_18_Rengar": [
+          1,
+          0
+        ],
+        "DA_18_Sentry": [
+          2,
+          2
+        ],
+        "DA_18_Sett": [
+          1,
+          1
+        ],
+        "DA_18_Shen": [
+          4,
+          2
+        ],
+        "DA_18_Varus": [
+          2,
+          2
+        ],
+        "DA_18_Veigar": [
+          1,
+          1
+        ],
+        "DA_18_Warwick": [
+          2,
+          0
+        ],
+        "DA_Amumu18": [
+          1,
+          1
+        ],
+        "DA_Fiddlesticks18": [
+          2,
+          2
+        ],
+        "DA_Murkwolf18": [
+          1,
+          0
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "review-20261004/167.png",
+          "key": "marker-1",
+          "label": "DA_18_Camille",
+          "predicted": "DA_18_Camille",
+          "softmax_score_uncalibrated": 0.04904993250966072
+        },
+        {
+          "identity_verified": false,
+          "image": "review-20261004/167.png",
+          "key": "marker-4",
+          "label": "DA_18_Sentry",
+          "predicted": "DA_18_Sentry",
+          "softmax_score_uncalibrated": 0.17550131678581238
+        },
+        {
+          "identity_verified": false,
+          "image": "review-20261004/167.png",
+          "key": "marker-6",
+          "label": "DA_18_Sentry",
+          "predicted": "DA_18_Sentry",
+          "softmax_score_uncalibrated": 0.3271975517272949
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/00600.png",
+          "key": "marker-0",
+          "label": "DA_18_Hecarim",
+          "predicted": "DA_18_Hecarim",
+          "softmax_score_uncalibrated": 0.03967835381627083
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-0",
+          "label": "DA_18_Elise",
+          "predicted": "DA_18_Elise",
+          "softmax_score_uncalibrated": 0.04797119274735451
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-1",
+          "label": "DA_18_Camille",
+          "predicted": "DA_18_Camille",
+          "softmax_score_uncalibrated": 0.049867577850818634
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-2",
+          "label": "DA_18_Caitlyn",
+          "predicted": "DA_18_Caitlyn",
+          "softmax_score_uncalibrated": 0.0689886063337326
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-3",
+          "label": "DA_18_Warwick",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.03681547939777374
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-4",
+          "label": "DA_18_Rakan",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.030637696385383606
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-0",
+          "label": "DA_18_Rengar",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.028347041457891464
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-1",
+          "label": "DA_18_Warwick",
+          "predicted": "DA_18_Malphite",
+          "softmax_score_uncalibrated": 0.056278008967638016
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-3",
+          "label": "DA_18_Malphite",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.049356818199157715
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-4",
+          "label": "DA_18_RekSai",
+          "predicted": "DA_18_RekSai",
+          "softmax_score_uncalibrated": 0.1440131962299347
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-6",
+          "label": "DA_18_Azir",
+          "predicted": "DA_18_Warwick",
+          "softmax_score_uncalibrated": 0.0697290301322937
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-7",
+          "label": "DA_18_Sett",
+          "predicted": "DA_18_Sett",
+          "softmax_score_uncalibrated": 0.034312378615140915
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-8",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Alune",
+          "softmax_score_uncalibrated": 0.03244415298104286
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-9",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Sivir",
+          "softmax_score_uncalibrated": 0.03362703695893288
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-10",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.03466267138719559
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-12",
+          "label": "DA_Amumu18",
+          "predicted": "DA_Amumu18",
+          "softmax_score_uncalibrated": 0.06893683969974518
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-2",
+          "label": "DA_Fiddlesticks18",
+          "predicted": "DA_Fiddlesticks18",
+          "softmax_score_uncalibrated": 0.042352210730314255
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-3",
+          "label": "DA_18_Camille",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.03270532563328743
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-4",
+          "label": "DA_18_Ornn",
+          "predicted": "DA_18_Ornn",
+          "softmax_score_uncalibrated": 0.059983398765325546
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-5",
+          "label": "DA_Murkwolf18",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.03513580933213234
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-9",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_Kobuko",
+          "softmax_score_uncalibrated": 0.08283727616071701
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-1",
+          "label": "DA_Fiddlesticks18",
+          "predicted": "DA_Fiddlesticks18",
+          "softmax_score_uncalibrated": 0.09022451937198639
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-2",
+          "label": "DA_18_Akali_AD",
+          "predicted": "DA_Nidalee18_AP",
+          "softmax_score_uncalibrated": 0.03144354373216629
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-3",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Shen",
+          "softmax_score_uncalibrated": 0.03966718539595604
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-4",
+          "label": "DA_18_KhaZix",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.028194235637784004
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-5",
+          "label": "DA_18_Rakan",
+          "predicted": "DA_18_Aphelios",
+          "softmax_score_uncalibrated": 0.024299290031194687
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-6",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Shen",
+          "softmax_score_uncalibrated": 0.03348433971405029
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-8",
+          "label": "DA_18_Varus",
+          "predicted": "DA_18_Varus",
+          "softmax_score_uncalibrated": 0.04665113240480423
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-9",
+          "label": "DA_18_Varus",
+          "predicted": "DA_18_Varus",
+          "softmax_score_uncalibrated": 0.04203376546502113
+        }
+      ],
+      "samples": 32
+    },
+    "framing:unspecified": {
+      "confusions": {
+        "DA_18_Akali_AD -> DA_Nidalee18_AP": 1,
+        "DA_18_Azir -> DA_18_Warwick": 1,
+        "DA_18_Camille -> DA_18_Tristana": 1,
+        "DA_18_KhaZix -> DA_18_GnarSmall": 1,
+        "DA_18_Malphite -> DA_18_Alistar": 1,
+        "DA_18_Rakan -> DA_18_Aphelios": 1,
+        "DA_18_Rakan -> DA_18_Tristana": 1,
+        "DA_18_Rengar -> DA_18_Alistar": 1,
+        "DA_18_Shen -> DA_18_Alune": 1,
+        "DA_18_Shen -> DA_18_Sivir": 1,
+        "DA_18_Warwick -> DA_18_Alistar": 1,
+        "DA_18_Warwick -> DA_18_Malphite": 1,
+        "DA_Murkwolf18 -> DA_18_Alistar": 1
+      },
+      "cross_entropy": 3.178008511662483,
+      "named": 32,
+      "named_macro_recall": 0.5984848484848485,
+      "named_top1_correct": 19,
+      "per_class": {
+        "DA_18_Akali_AD": [
+          1,
+          0
+        ],
+        "DA_18_Azir": [
+          1,
+          0
+        ],
+        "DA_18_Caitlyn": [
+          1,
+          1
+        ],
+        "DA_18_Camille": [
+          3,
+          2
+        ],
+        "DA_18_Elise": [
+          1,
+          1
+        ],
+        "DA_18_Hecarim": [
+          1,
+          1
+        ],
+        "DA_18_KhaZix": [
+          1,
+          0
+        ],
+        "DA_18_Kobuko": [
+          1,
+          1
+        ],
+        "DA_18_Malphite": [
+          1,
+          0
+        ],
+        "DA_18_Ornn": [
+          1,
+          1
+        ],
+        "DA_18_Rakan": [
+          2,
+          0
+        ],
+        "DA_18_RekSai": [
+          1,
+          1
+        ],
+        "DA_18_Rengar": [
+          1,
+          0
+        ],
+        "DA_18_Sentry": [
+          2,
+          2
+        ],
+        "DA_18_Sett": [
+          1,
+          1
+        ],
+        "DA_18_Shen": [
+          4,
+          2
+        ],
+        "DA_18_Varus": [
+          2,
+          2
+        ],
+        "DA_18_Veigar": [
+          1,
+          1
+        ],
+        "DA_18_Warwick": [
+          2,
+          0
+        ],
+        "DA_Amumu18": [
+          1,
+          1
+        ],
+        "DA_Fiddlesticks18": [
+          2,
+          2
+        ],
+        "DA_Murkwolf18": [
+          1,
+          0
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "review-20261004/167.png",
+          "key": "marker-1",
+          "label": "DA_18_Camille",
+          "predicted": "DA_18_Camille",
+          "softmax_score_uncalibrated": 0.04904993250966072
+        },
+        {
+          "identity_verified": false,
+          "image": "review-20261004/167.png",
+          "key": "marker-4",
+          "label": "DA_18_Sentry",
+          "predicted": "DA_18_Sentry",
+          "softmax_score_uncalibrated": 0.17550131678581238
+        },
+        {
+          "identity_verified": false,
+          "image": "review-20261004/167.png",
+          "key": "marker-6",
+          "label": "DA_18_Sentry",
+          "predicted": "DA_18_Sentry",
+          "softmax_score_uncalibrated": 0.3271975517272949
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/00600.png",
+          "key": "marker-0",
+          "label": "DA_18_Hecarim",
+          "predicted": "DA_18_Hecarim",
+          "softmax_score_uncalibrated": 0.03967835381627083
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-0",
+          "label": "DA_18_Elise",
+          "predicted": "DA_18_Elise",
+          "softmax_score_uncalibrated": 0.04797119274735451
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-1",
+          "label": "DA_18_Camille",
+          "predicted": "DA_18_Camille",
+          "softmax_score_uncalibrated": 0.049867577850818634
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-2",
+          "label": "DA_18_Caitlyn",
+          "predicted": "DA_18_Caitlyn",
+          "softmax_score_uncalibrated": 0.0689886063337326
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-3",
+          "label": "DA_18_Warwick",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.03681547939777374
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/04200.png",
+          "key": "marker-4",
+          "label": "DA_18_Rakan",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.030637696385383606
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-0",
+          "label": "DA_18_Rengar",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.028347041457891464
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-1",
+          "label": "DA_18_Warwick",
+          "predicted": "DA_18_Malphite",
+          "softmax_score_uncalibrated": 0.056278008967638016
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-3",
+          "label": "DA_18_Malphite",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.049356818199157715
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-4",
+          "label": "DA_18_RekSai",
+          "predicted": "DA_18_RekSai",
+          "softmax_score_uncalibrated": 0.1440131962299347
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-6",
+          "label": "DA_18_Azir",
+          "predicted": "DA_18_Warwick",
+          "softmax_score_uncalibrated": 0.0697290301322937
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-7",
+          "label": "DA_18_Sett",
+          "predicted": "DA_18_Sett",
+          "softmax_score_uncalibrated": 0.034312378615140915
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-8",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Alune",
+          "softmax_score_uncalibrated": 0.03244415298104286
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-9",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Sivir",
+          "softmax_score_uncalibrated": 0.03362703695893288
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-10",
+          "label": "DA_18_Veigar",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.03466267138719559
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/09900.png",
+          "key": "marker-12",
+          "label": "DA_Amumu18",
+          "predicted": "DA_Amumu18",
+          "softmax_score_uncalibrated": 0.06893683969974518
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-2",
+          "label": "DA_Fiddlesticks18",
+          "predicted": "DA_Fiddlesticks18",
+          "softmax_score_uncalibrated": 0.042352210730314255
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-3",
+          "label": "DA_18_Camille",
+          "predicted": "DA_18_Tristana",
+          "softmax_score_uncalibrated": 0.03270532563328743
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-4",
+          "label": "DA_18_Ornn",
+          "predicted": "DA_18_Ornn",
+          "softmax_score_uncalibrated": 0.059983398765325546
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-5",
+          "label": "DA_Murkwolf18",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.03513580933213234
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/11400.png",
+          "key": "marker-9",
+          "label": "DA_18_Kobuko",
+          "predicted": "DA_18_Kobuko",
+          "softmax_score_uncalibrated": 0.08283727616071701
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-1",
+          "label": "DA_Fiddlesticks18",
+          "predicted": "DA_Fiddlesticks18",
+          "softmax_score_uncalibrated": 0.09022451937198639
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-2",
+          "label": "DA_18_Akali_AD",
+          "predicted": "DA_Nidalee18_AP",
+          "softmax_score_uncalibrated": 0.03144354373216629
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-3",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Shen",
+          "softmax_score_uncalibrated": 0.03966718539595604
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-4",
+          "label": "DA_18_KhaZix",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.028194235637784004
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-5",
+          "label": "DA_18_Rakan",
+          "predicted": "DA_18_Aphelios",
+          "softmax_score_uncalibrated": 0.024299290031194687
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-6",
+          "label": "DA_18_Shen",
+          "predicted": "DA_18_Shen",
+          "softmax_score_uncalibrated": 0.03348433971405029
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-8",
+          "label": "DA_18_Varus",
+          "predicted": "DA_18_Varus",
+          "softmax_score_uncalibrated": 0.04665113240480423
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-youtube-20261004/15900.png",
+          "key": "marker-9",
+          "label": "DA_18_Varus",
+          "predicted": "DA_18_Varus",
+          "softmax_score_uncalibrated": 0.04203376546502113
+        }
+      ],
+      "samples": 32
+    }
+  },
+  "supervision_policy": "known_identity_or_explicit_reviewed_nonunit_v1",
+  "threads": 1,
+  "training_batch": 1,
+  "training_performed": false
+}
