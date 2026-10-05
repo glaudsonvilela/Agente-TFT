@@ -1,0 +1,5244 @@
+{
+  "schema_version": 1,
+  "frames": 872,
+  "summary": {
+    "five-cost-training-20261005": {
+      "frames": 66,
+      "legacy": 310,
+      "dense": 326,
+      "added": 19,
+      "removed": 3,
+      "changed_frames": 17
+    },
+    "long-vod-20261005": {
+      "frames": 360,
+      "legacy": 1861,
+      "dense": 1861,
+      "added": 2,
+      "removed": 2,
+      "changed_frames": 2
+    },
+    "arena-training-20261005": {
+      "frames": 217,
+      "legacy": 1109,
+      "dense": 1109,
+      "added": 0,
+      "removed": 0,
+      "changed_frames": 0
+    },
+    "long-vod-training-20261005": {
+      "frames": 229,
+      "legacy": 1350,
+      "dense": 1350,
+      "added": 1,
+      "removed": 1,
+      "changed_frames": 1
+    }
+  },
+  "review": {
+    "method": "assistant_visual_review",
+    "reviewed_changed_crops": 22,
+    "visible_units": 22,
+    "identity_labels_generated": 0,
+    "independent_human_ground_truth": false
+  },
+  "runtime_approved": false,
+  "limitations": [
+    "Counts compare proposals and box changes, not detection recall.",
+    "22 changed crops were assistant-reviewed; this does not establish detector precision over all frames.",
+    "Existing profiles default to allow_dense_ticks=false."
+  ],
+  "changed_frames": [
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000020.png",
+      "frame_pixel_sha256": "ae20fa8babca7827fbb709f0cb0d3abeadaba54c554b6520da80fcec04aec95e",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 12,
+            "x": 602,
+            "y": 186
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 367,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 877,
+            "y": 308
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 997,
+            "y": 310
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 936,
+            "y": 405
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1062,
+            "y": 412
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 669,
+            "y": 552
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1208,
+            "y": 568
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 12,
+            "x": 602,
+            "y": 186
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 367,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 877,
+            "y": 308
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 997,
+            "y": 310
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 936,
+            "y": 405
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1062,
+            "y": 412
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 65,
+            "x": 518,
+            "y": 452
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 669,
+            "y": 552
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1208,
+            "y": 568
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000030.png",
+      "frame_pixel_sha256": "8173590f1fbfa8ead691d84c73f394d4acda9fdbd19eafb27decc0774a754b4b",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 5,
+            "width": 68,
+            "x": 884,
+            "y": 134
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 29,
+            "x": 500,
+            "y": 174
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 3,
+            "width": 66,
+            "x": 880,
+            "y": 188
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 820,
+            "y": 240
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 1058,
+            "y": 260
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 68,
+            "x": 578,
+            "y": 266
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 67,
+            "x": 1274,
+            "y": 288
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 774,
+            "y": 300
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 6,
+            "width": 68,
+            "x": 872,
+            "y": 302
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 6,
+            "width": 69,
+            "x": 999,
+            "y": 342
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.875,
+          "color": "red",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 16,
+            "x": 1110,
+            "y": 392
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.875,
+          "color": "red",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 4,
+            "width": 24,
+            "x": 668,
+            "y": 456
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 6,
+            "width": 69,
+            "x": 666,
+            "y": 564
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 4,
+            "width": 21,
+            "x": 910,
+            "y": 584
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 5,
+            "width": 68,
+            "x": 884,
+            "y": 134
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 29,
+            "x": 500,
+            "y": 174
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 3,
+            "width": 66,
+            "x": 880,
+            "y": 188
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 820,
+            "y": 240
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 1058,
+            "y": 260
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 68,
+            "x": 578,
+            "y": 266
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 67,
+            "x": 1274,
+            "y": 288
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 774,
+            "y": 300
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 6,
+            "width": 68,
+            "x": 872,
+            "y": 302
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 6,
+            "width": 69,
+            "x": 999,
+            "y": 342
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.875,
+          "color": "red",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 16,
+            "x": 1110,
+            "y": 392
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.875,
+          "color": "red",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 4,
+            "width": 24,
+            "x": 668,
+            "y": 456
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 517,
+            "y": 494
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 6,
+            "width": 69,
+            "x": 666,
+            "y": 564
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 4,
+            "width": 21,
+            "x": 910,
+            "y": 584
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000050.png",
+      "frame_pixel_sha256": "cdeb85bbed20c589b9853a433a8c239e6ae990f56431dd7a13eb8c5a5e2fa210",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 0.7692307829856873,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 26,
+            "x": 1186,
+            "y": 142
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 34,
+            "x": 428,
+            "y": 201
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 77,
+            "x": 1190,
+            "y": 272
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 75,
+            "x": 799,
+            "y": 282
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 1070,
+            "y": 303
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 78,
+            "x": 518,
+            "y": 308
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 78,
+            "x": 934,
+            "y": 338
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 78,
+            "x": 1328,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "red",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 3,
+            "width": 24,
+            "x": 440,
+            "y": 475
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 15,
+            "x": 706,
+            "y": 641
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.862500011920929,
+          "color": "red",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 5,
+            "width": 80,
+            "x": 1063,
+            "y": 657
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.7575757503509521,
+          "color": "red",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 812,
+            "y": 666
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 3,
+            "width": 15,
+            "x": 954,
+            "y": 666
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 1064,
+            "y": 668
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 3,
+            "width": 13,
+            "x": 954,
+            "y": 670
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9354838728904724,
+          "color": "red",
+          "ground_point": null,
+          "id": 15,
+          "rect": {
+            "height": 3,
+            "width": 31,
+            "x": 812,
+            "y": 671
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 16,
+          "rect": {
+            "height": 5,
+            "width": 23,
+            "x": 890,
+            "y": 675
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 0.7692307829856873,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 26,
+            "x": 1186,
+            "y": 142
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 34,
+            "x": 428,
+            "y": 201
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 77,
+            "x": 1190,
+            "y": 272
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 75,
+            "x": 799,
+            "y": 282
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 1070,
+            "y": 303
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 78,
+            "x": 518,
+            "y": 308
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 78,
+            "x": 934,
+            "y": 338
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 78,
+            "x": 1328,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "red",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 3,
+            "width": 24,
+            "x": 440,
+            "y": 475
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 6,
+            "width": 77,
+            "x": 773,
+            "y": 571
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 3,
+            "width": 15,
+            "x": 706,
+            "y": 641
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.862500011920929,
+          "color": "red",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 80,
+            "x": 1063,
+            "y": 657
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.7575757503509521,
+          "color": "red",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 812,
+            "y": 666
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 3,
+            "width": 15,
+            "x": 954,
+            "y": 666
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 1064,
+            "y": 668
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 15,
+          "rect": {
+            "height": 3,
+            "width": 13,
+            "x": 954,
+            "y": 670
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9354838728904724,
+          "color": "red",
+          "ground_point": null,
+          "id": 16,
+          "rect": {
+            "height": 3,
+            "width": 31,
+            "x": 812,
+            "y": 671
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 17,
+          "rect": {
+            "height": 5,
+            "width": 23,
+            "x": 890,
+            "y": 675
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000060.png",
+      "frame_pixel_sha256": "613e3c2a20d4e92e915d77402d44c7ac3f1e70322333c748471965634b5b809f",
+      "legacy": [],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 6,
+            "width": 73,
+            "x": 751,
+            "y": 637
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000140.png",
+      "frame_pixel_sha256": "32eb54e1098cd777b6ed4b06d34cc52b35c1781c0c58bff3ae1cd28fe5a98dd5",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 16,
+            "x": 366,
+            "y": 306
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 16,
+            "x": 366,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 938,
+            "y": 381
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000150.png",
+      "frame_pixel_sha256": "741aadda365aa5a673cda044fcc591f050fab6e6c279a98c0e9252a680f7ecdd",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 68,
+            "x": 1036,
+            "y": 176
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 84,
+            "x": 656,
+            "y": 178
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 84,
+            "x": 864,
+            "y": 247
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 552,
+            "y": 254
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1314,
+            "y": 254
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 638,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9866666793823242,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 75,
+            "x": 1209,
+            "y": 442
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 68,
+            "x": 1036,
+            "y": 176
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 84,
+            "x": 656,
+            "y": 178
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 84,
+            "x": 864,
+            "y": 247
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 552,
+            "y": 254
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1314,
+            "y": 254
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 638,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9866666793823242,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 75,
+            "x": 1209,
+            "y": 442
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 933,
+            "y": 608
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000160.png",
+      "frame_pixel_sha256": "8f0ba1722240491895a5a04dcb2ef1c712ec3f1d073faeb66a6f15c6bc96721a",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 5,
+            "width": 84,
+            "x": 1374,
+            "y": 368
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 5,
+            "width": 84,
+            "x": 1374,
+            "y": 368
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 58,
+            "x": 933,
+            "y": 608
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000250.png",
+      "frame_pixel_sha256": "641ff19ffc40343f13fa29ced500e8309c89e948920aba285df2cbb805dfe105",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 367,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 875,
+            "y": 310
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 65,
+            "x": 997,
+            "y": 333
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 514,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 65,
+            "x": 1235,
+            "y": 342
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 758,
+            "y": 346
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 649,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1108,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1003,
+            "y": 448
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 529,
+            "y": 551
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 67,
+            "x": 1337,
+            "y": 562
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 804,
+            "y": 574
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9855072498321533,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 6,
+            "width": 69,
+            "x": 1203,
+            "y": 586
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1064,
+            "y": 603
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 367,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 875,
+            "y": 310
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 65,
+            "x": 997,
+            "y": 333
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 514,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 65,
+            "x": 1235,
+            "y": 342
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 758,
+            "y": 346
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 649,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1108,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 3,
+            "width": 63,
+            "x": 742,
+            "y": 424
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1003,
+            "y": 448
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 529,
+            "y": 551
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 4,
+            "width": 67,
+            "x": 1337,
+            "y": 562
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 804,
+            "y": 574
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9855072498321533,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 6,
+            "width": 69,
+            "x": 1203,
+            "y": 586
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1064,
+            "y": 603
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000260.png",
+      "frame_pixel_sha256": "daab9ae0391d0ee54ab42d1dc9984e5b192a076fa911ed24c04ea80a508adc35",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 367,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1268,
+            "y": 460
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1120,
+            "y": 489
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1064,
+            "y": 603
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 875,
+            "y": 278
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 367,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1268,
+            "y": 460
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1120,
+            "y": 489
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1064,
+            "y": 603
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000270.png",
+      "frame_pixel_sha256": "887b05e28d6f82b76a0db61bee77e46b03ea402596a685d0660b665ee667e5bd",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 83,
+            "x": 514,
+            "y": 162
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1064,
+            "y": 186
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 85,
+            "x": 930,
+            "y": 240
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1292,
+            "y": 250
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 82,
+            "x": 1140,
+            "y": 308
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 76,
+            "x": 934,
+            "y": 476
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 3,
+            "width": 68,
+            "x": 1046,
+            "y": 545
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 84,
+            "x": 636,
+            "y": 564
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 3,
+            "width": 72,
+            "x": 851,
+            "y": 608
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 83,
+            "x": 514,
+            "y": 162
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1064,
+            "y": 186
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 85,
+            "x": 930,
+            "y": 240
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1292,
+            "y": 250
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 82,
+            "x": 1140,
+            "y": 308
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 76,
+            "x": 934,
+            "y": 476
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 3,
+            "width": 68,
+            "x": 1046,
+            "y": 545
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 84,
+            "x": 636,
+            "y": 564
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 6,
+            "width": 80,
+            "x": 851,
+            "y": 598
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 72,
+            "x": 851,
+            "y": 608
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000290.png",
+      "frame_pixel_sha256": "5656dab75c3ee883c69a69eed543fe10b67259ab3a905b017bb12a8ac1dbcccf",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 70,
+            "x": 654,
+            "y": 155
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 70,
+            "x": 654,
+            "y": 155
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 69,
+            "x": 866,
+            "y": 448
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000320.png",
+      "frame_pixel_sha256": "c97b958610b781a181b6faf1306680f4835e05ef9a3dd16832b7ccb93770a3e1",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 752,
+            "y": 284
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 996,
+            "y": 351
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1310,
+            "y": 404
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 688,
+            "y": 421
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 533,
+            "y": 541
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 802,
+            "y": 558
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 669,
+            "y": 578
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1228,
+            "y": 668
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 739,
+            "y": 687
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 752,
+            "y": 284
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 996,
+            "y": 351
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1310,
+            "y": 404
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 688,
+            "y": 421
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 65,
+            "x": 1080,
+            "y": 430
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 533,
+            "y": 541
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 802,
+            "y": 558
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 669,
+            "y": 578
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1228,
+            "y": 668
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 739,
+            "y": 687
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000350.png",
+      "frame_pixel_sha256": "59584f7c1701ccf8b7dd378dece4a9ed703edb5009891c3c6c14e0ce5224025b",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 84,
+            "x": 726,
+            "y": 138
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 86,
+            "x": 468,
+            "y": 188
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 86,
+            "x": 444,
+            "y": 338
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 764,
+            "y": 362
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 85,
+            "x": 1080,
+            "y": 365
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 86,
+            "x": 1362,
+            "y": 370
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1232,
+            "y": 374
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 84,
+            "x": 726,
+            "y": 138
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 86,
+            "x": 468,
+            "y": 188
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 86,
+            "x": 444,
+            "y": 338
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 764,
+            "y": 362
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 85,
+            "x": 1080,
+            "y": 365
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 86,
+            "x": 1362,
+            "y": 370
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 1232,
+            "y": 374
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 84,
+            "x": 384,
+            "y": 611
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000390.png",
+      "frame_pixel_sha256": "ba143ea5c48c142aa99c992b7c794b4769906fcb26dbf19e3bbee9b83d0aea97",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 15,
+            "x": 366,
+            "y": 307
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 876,
+            "y": 320
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1238,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 996,
+            "y": 343
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 3,
+            "width": 66,
+            "x": 764,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1108,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8333333134651184,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 3,
+            "width": 12,
+            "x": 1324,
+            "y": 400
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 560,
+            "y": 406
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1128,
+            "y": 466
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 872,
+            "y": 476
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1336,
+            "y": 568
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1203,
+            "y": 574
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 535,
+            "y": 578
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1064,
+            "y": 603
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1342,
+            "y": 691
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 15,
+            "x": 366,
+            "y": 307
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 876,
+            "y": 320
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1238,
+            "y": 340
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 638,
+            "y": 342
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 996,
+            "y": 343
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 764,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1108,
+            "y": 348
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8333333134651184,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 3,
+            "width": 12,
+            "x": 1324,
+            "y": 400
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 560,
+            "y": 406
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1128,
+            "y": 466
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 872,
+            "y": 476
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 1336,
+            "y": 568
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1203,
+            "y": 574
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 535,
+            "y": 578
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1064,
+            "y": 603
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 15,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 1342,
+            "y": 691
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000410.png",
+      "frame_pixel_sha256": "c50ed984ed27e8ba5d21ba39bd6acafecb309d5308267f0c5a6b0e1beb597599",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 0.8461538553237915,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 13,
+            "x": 787,
+            "y": 187
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 656,
+            "y": 216
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1040,
+            "y": 296
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1249,
+            "y": 319
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 0.8461538553237915,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 13,
+            "x": 787,
+            "y": 187
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 656,
+            "y": 216
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1040,
+            "y": 296
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1249,
+            "y": 319
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 65,
+            "x": 871,
+            "y": 416
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000480.png",
+      "frame_pixel_sha256": "78fd5962c7603b6e74b11caabfa6145d0b03a47a934e022a450be58136f6da01",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 65,
+            "x": 1206,
+            "y": 168
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 706,
+            "y": 246
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 56,
+            "x": 1174,
+            "y": 246
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1056,
+            "y": 288
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 934,
+            "y": 310
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 876,
+            "y": 335
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 6,
+            "width": 67,
+            "x": 1233,
+            "y": 368
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 33,
+            "x": 1071,
+            "y": 558
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8571428656578064,
+          "color": "red",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 3,
+            "width": 28,
+            "x": 980,
+            "y": 565
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 19,
+            "x": 766,
+            "y": 829
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 4,
+            "width": 65,
+            "x": 1206,
+            "y": 168
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 706,
+            "y": 246
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 56,
+            "x": 1174,
+            "y": 246
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1056,
+            "y": 288
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 934,
+            "y": 310
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 876,
+            "y": 335
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 6,
+            "width": 67,
+            "x": 1233,
+            "y": 368
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 676,
+            "y": 453
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 6,
+            "width": 33,
+            "x": 1071,
+            "y": 558
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8571428656578064,
+          "color": "red",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 28,
+            "x": 980,
+            "y": 565
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 3,
+            "width": 19,
+            "x": 766,
+            "y": 829
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "five-cost-training-20261005",
+      "frame": "000590.png",
+      "frame_pixel_sha256": "e8366b19af31af14498e5fc3cf2b1a89cbf65e9c96082b5f4e2f6a34dbadf58d",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 754,
+            "y": 305
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 14,
+            "x": 367,
+            "y": 307
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 515,
+            "y": 330
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8181818127632141,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 876,
+            "y": 337
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 996,
+            "y": 347
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 6,
+            "width": 67,
+            "x": 1210,
+            "y": 516
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 802,
+            "y": 531
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 529,
+            "y": 536
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 65,
+            "x": 1341,
+            "y": 536
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 937,
+            "y": 559
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 668,
+            "y": 574
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1230,
+            "y": 680
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 982,
+            "y": 687
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 493,
+            "y": 690
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1105,
+            "y": 690
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 15,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 368,
+            "y": 723
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 16,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1354,
+            "y": 723
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 754,
+            "y": 305
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 14,
+            "x": 367,
+            "y": 307
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 66,
+            "x": 515,
+            "y": 330
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8181818127632141,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 876,
+            "y": 337
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 996,
+            "y": 347
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 6,
+            "width": 67,
+            "x": 1210,
+            "y": 516
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 802,
+            "y": 531
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 6,
+            "width": 66,
+            "x": 529,
+            "y": 536
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 65,
+            "x": 1341,
+            "y": 536
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 937,
+            "y": 559
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 668,
+            "y": 574
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1230,
+            "y": 680
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 12,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 982,
+            "y": 687
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 13,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 493,
+            "y": 690
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 14,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1105,
+            "y": 690
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 15,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 368,
+            "y": 723
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 16,
+          "rect": {
+            "height": 5,
+            "width": 66,
+            "x": 1354,
+            "y": 723
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "long-vod-20261005",
+      "frame": "021480.png",
+      "frame_pixel_sha256": "91bbb7630e6b1f7125c2b73333038e2cc9c1ce67af2e7b9ea6ae901fe688f574",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 63,
+            "x": 876,
+            "y": 175
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 872,
+            "y": 315
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 63,
+            "x": 932,
+            "y": 390
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 741,
+            "y": 481
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 868,
+            "y": 497
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 995,
+            "y": 519
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 990,
+            "y": 527
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1335,
+            "y": 557
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 530,
+            "y": 565
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 854,
+            "y": 662
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 376,
+            "y": 708
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 63,
+            "x": 876,
+            "y": 175
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 872,
+            "y": 315
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 4,
+            "width": 63,
+            "x": 932,
+            "y": 390
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 741,
+            "y": 481
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 868,
+            "y": 497
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 995,
+            "y": 519
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 990,
+            "y": 527
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1335,
+            "y": 557
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 530,
+            "y": 565
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 854,
+            "y": 662
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 376,
+            "y": 708
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "long-vod-20261005",
+      "frame": "021540.png",
+      "frame_pixel_sha256": "b3dc9c39941181bc9d2b0f61360a5c56466cfaa011833ff2c7b3aff2961dd439",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 0.8125,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 882,
+            "y": 137
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 984,
+            "y": 200
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 3,
+            "width": 64,
+            "x": 916,
+            "y": 242
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 893,
+            "y": 283
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 16,
+            "x": 1400,
+            "y": 386
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 934,
+            "y": 389
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 869,
+            "y": 444
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 751,
+            "y": 469
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 998,
+            "y": 496
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9166666865348816,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 24,
+            "x": 532,
+            "y": 533
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1337,
+            "y": 556
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 931,
+            "y": 571
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 0.8125,
+          "color": "red",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 3,
+            "width": 16,
+            "x": 882,
+            "y": 137
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 984,
+            "y": 200
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "red",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 3,
+            "width": 64,
+            "x": 916,
+            "y": 242
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 893,
+            "y": 283
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "red",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 4,
+            "width": 16,
+            "x": 1400,
+            "y": 386
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 934,
+            "y": 389
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 869,
+            "y": 444
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 751,
+            "y": 469
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 998,
+            "y": 496
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9166666865348816,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 24,
+            "x": 532,
+            "y": 533
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 10,
+          "rect": {
+            "height": 4,
+            "width": 64,
+            "x": 1337,
+            "y": 556
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 11,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 931,
+            "y": 571
+          },
+          "unit_id": null
+        }
+      ]
+    },
+    {
+      "source_directory": "long-vod-training-20261005",
+      "frame": "013560.png",
+      "frame_pixel_sha256": "b42664981053161a9567b30e23f4b33f33ef27764e227935e64c575d7d730fd8",
+      "legacy": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 745,
+            "y": 250
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8235294222831726,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 17,
+            "x": 366,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 63,
+            "x": 636,
+            "y": 339
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 992,
+            "y": 341
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 63,
+            "x": 872,
+            "y": 343
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 1110,
+            "y": 352
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 63,
+            "x": 1336,
+            "y": 539
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9850746393203735,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 525,
+            "y": 547
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 663,
+            "y": 550
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 20,
+            "x": 1368,
+            "y": 714
+          },
+          "unit_id": null
+        }
+      ],
+      "dense": [
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 0,
+          "rect": {
+            "height": 6,
+            "width": 64,
+            "x": 745,
+            "y": 250
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.8235294222831726,
+          "color": "green",
+          "ground_point": null,
+          "id": 1,
+          "rect": {
+            "height": 3,
+            "width": 17,
+            "x": 366,
+            "y": 306
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 2,
+          "rect": {
+            "height": 5,
+            "width": 63,
+            "x": 636,
+            "y": 339
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 3,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 992,
+            "y": 341
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 4,
+          "rect": {
+            "height": 5,
+            "width": 63,
+            "x": 872,
+            "y": 343
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 5,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 1110,
+            "y": 352
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 6,
+          "rect": {
+            "height": 5,
+            "width": 63,
+            "x": 1336,
+            "y": 539
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.9850746393203735,
+          "color": "green",
+          "ground_point": null,
+          "id": 7,
+          "rect": {
+            "height": 5,
+            "width": 67,
+            "x": 525,
+            "y": 547
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 1,
+          "color": "green",
+          "ground_point": null,
+          "id": 8,
+          "rect": {
+            "height": 5,
+            "width": 64,
+            "x": 663,
+            "y": 550
+          },
+          "unit_id": null
+        },
+        {
+          "board_cell": null,
+          "border_fraction": 0.75,
+          "color": "green",
+          "ground_point": null,
+          "id": 9,
+          "rect": {
+            "height": 3,
+            "width": 20,
+            "x": 1368,
+            "y": 714
+          },
+          "unit_id": null
+        }
+      ]
+    }
+  ]
+}

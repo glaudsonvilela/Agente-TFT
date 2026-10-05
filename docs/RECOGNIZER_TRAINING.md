@@ -216,3 +216,40 @@ Uma quarta fonte, `youtube:UcztPIRD1m0` (Lemuria TFT), foi coletada em 1080p:
 É um vídeo anterior ao patch atual, com unidades de custo cinco; os nomes dos
 capítulos são pistas de revisão, não rótulos automáticos. Aparências e variantes
 precisam ser reconciliadas antes de adicionar exemplos ao treino.
+
+## Barras com divisões densas e unidades de custo cinco
+
+Alune de três estrelas não chegava ao classificador em um quadro da quarta
+fonte: as divisões escuras da barra reduziam a fração de pixels verdes abaixo
+do limite. O detector Rust recebeu a opção experimental `allow_dense_ticks`,
+desativada por padrão. Ela exige muitas divisões internas escuras, largura
+mínima e as mesmas bordas externas; não identifica o campeão nem mede seu HP.
+
+`scan-bars` compara as duas políticas diretamente nos quadros. Em 872 quadros
+de quatro fontes, houve 22 caixas novas ou alteradas: 19 na quarta fonte,
+2 na fonte de seis horas e 1 no primeiro VOD de treino. Seis caixas anteriores
+foram substituídas, portanto o acréscimo líquido foi de 16 propostas. Os 22
+recortes alterados mostravam unidades visíveis na revisão do assistente; isso
+não mede recall nem comprova precisão global. Três regressões sintéticas
+verificam barras verdes/vermelhas, rejeição de lacunas claras e ausência de
+borda, além de preservar a barra sólida. Perfis existentes mantêm a opção
+desligada. O coletor agora registra hash do perfil e a opção utilizada.
+
+A coleta experimental completa da quarta fonte produziu 842 propostas em
+330 quadros. Uma revisão de 83 recortes selecionados adicionou 60 unidades e
+7 negativos de 12 quadros; 16 casos ficaram excluídos. Não se usaram previsões
+do modelo como rótulos. Alune, Draven, Kennen e Dragão Ancião foram vinculados
+às aparências nomeadas do catálogo. O patch exato do vídeo continua desconhecido;
+essas imagens não fornecem atributos de combate do patch atual.
+
+O manifesto `unit-gallery-five-cost-20261005.json` tem 397 unidades de treino,
+60 dos 74 IDs representados e a mesma validação de 32 unidades. Com o recorte
+centralizado, o novo classificador acertou 16/32 na validação e 62/107 no desafio
+revisado (antes: 15/32 e 55/107). Os 107 incluem 98 unidades e 9 não unidades.
+Os três exemplos de Kennen desse desafio passaram a ser reconhecidos, mas houve
+regressões em outros casos; uma Diana passou a ser confundida com Alune.
+
+O treino ajustou apenas a cabeça de classificação, com DINO INT8 congelado.
+Restam 14 IDs sem treino, além de erros e exemplos escassos nas classes cobertas.
+Cobertura de catálogo não significa precisão suficiente. Os pesos ficam no SSD,
+com hash e métricas no Git; continuam sem aprovação para as dicas do Windows.

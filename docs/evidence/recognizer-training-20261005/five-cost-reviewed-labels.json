@@ -1,0 +1,1017 @@
+{
+  "review": {
+    "source_id": "youtube:UcztPIRD1m0",
+    "named_crops": 60,
+    "negatives": 7,
+    "reviewed_frames": 12,
+    "excluded_proposals": 16,
+    "independent_human_ground_truth": false
+  },
+  "labels": [
+    {
+      "index": 0,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        544,
+        194,
+        672,
+        338
+      ],
+      "crop_pixel_sha256": "87ea333e083577f63b6c42608bc240d0c0576f984ffb164d40eceb3184873cfc",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 1,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        311,
+        314,
+        439,
+        458
+      ],
+      "crop_pixel_sha256": "d4e4130309a64044e8d8e87fb0724fb2fcbd03c7adf9198c37991002994423a0",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 2,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        846,
+        316,
+        974,
+        460
+      ],
+      "crop_pixel_sha256": "347fd219e4dd16911ac6f89a57ba0ead5d458f437d45cf01b3d5b802d0b7dc55",
+      "unit_id": "DA_Fiddlesticks18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 3,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        966,
+        318,
+        1094,
+        462
+      ],
+      "crop_pixel_sha256": "38efd08e1abe6eba4531f27c472e730b15b3465a64c674911675fdde8cccaa2e",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 4,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        905,
+        413,
+        1033,
+        557
+      ],
+      "crop_pixel_sha256": "07cc5a5b9a4c03a3a60bd91d8a17262a1812312fb8af103bf9b47806ddf77f18",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 5,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        1031,
+        420,
+        1159,
+        564
+      ],
+      "crop_pixel_sha256": "680e26c3f2962ec40f78e67b3482c6a861a18a6460a19b189743834572dc63e2",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 6,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        486,
+        460,
+        614,
+        604
+      ],
+      "crop_pixel_sha256": "d46ad16a071f2d3db58d79d1159f92497c134daad6ea0c011b11238770a175fa",
+      "unit_id": "DA_18_Alune",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 7,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        638,
+        560,
+        766,
+        704
+      ],
+      "crop_pixel_sha256": "588604db3074a3e7566fa6916a50b314bb6cd8b4202b53849fa8bdce00987e6a",
+      "unit_id": "DA_18_Aphelios",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 8,
+      "frame": "unit-gallery-five-cost-training-20261005/000020.png",
+      "source_seconds_nominal": 20,
+      "box": [
+        1177,
+        576,
+        1305,
+        720
+      ],
+      "crop_pixel_sha256": "fa46329caf58bf1a3ab150c2e717b532c2f7b690ffe7abd508f5da50538fdc55",
+      "unit_id": "DA_18_Rengar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 11,
+      "frame": "unit-gallery-five-cost-training-20261005/000030.png",
+      "source_seconds_nominal": 30,
+      "box": [
+        486,
+        502,
+        614,
+        646
+      ],
+      "crop_pixel_sha256": "40020c24dc34433d434d9b7b665913a511aea33eeccff8057d25fae3d582673f",
+      "unit_id": "DA_18_Alune",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 12,
+      "frame": "unit-gallery-five-cost-training-20261005/000030.png",
+      "source_seconds_nominal": 30,
+      "box": [
+        636,
+        572,
+        764,
+        716
+      ],
+      "crop_pixel_sha256": "bef7f984e4a934c21bf7e7bd84db937464592ff7a5a0aea7d859e46b30a366c5",
+      "unit_id": "DA_18_Aphelios",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 13,
+      "frame": "unit-gallery-five-cost-training-20261005/000050.png",
+      "source_seconds_nominal": 50,
+      "box": [
+        747,
+        579,
+        875,
+        723
+      ],
+      "crop_pixel_sha256": "e84194390cf5b1f04f4f14d7d5c9c654126bca91bc6c3c8df9de56622948d747",
+      "unit_id": "DA_18_Alune",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 14,
+      "frame": "unit-gallery-five-cost-training-20261005/000140.png",
+      "source_seconds_nominal": 140,
+      "box": [
+        310,
+        314,
+        438,
+        458
+      ],
+      "crop_pixel_sha256": "3da4d6956dd836c871be899c3081515bb7dde740d2b15546f4b099e93c0dee8a",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 15,
+      "frame": "unit-gallery-five-cost-training-20261005/000140.png",
+      "source_seconds_nominal": 140,
+      "box": [
+        907,
+        389,
+        1035,
+        533
+      ],
+      "crop_pixel_sha256": "a96afd97bc15d6f80a7ee252735ee26d4f9113780f321c0d5cbd7fb0f80bccee",
+      "unit_id": "DA_Draven18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 16,
+      "frame": "unit-gallery-five-cost-training-20261005/000150.png",
+      "source_seconds_nominal": 150,
+      "box": [
+        911,
+        616,
+        1039,
+        760
+      ],
+      "crop_pixel_sha256": "97ca8ae65dc2eb975e77f971a9cc58b9daa8a9e0da48b47aae3d24eb3c4c7840",
+      "unit_id": "DA_Draven18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 17,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        311,
+        314,
+        439,
+        458
+      ],
+      "crop_pixel_sha256": "c785ea17f2a7f622edec5f9990a727da161c54b15dbc69cbf90b45f23c1a73f4",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 18,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        844,
+        318,
+        972,
+        462
+      ],
+      "crop_pixel_sha256": "9c026810fb27ac6bddcbabd2a9b8921135c82f44595961c6ce2bce7b323eb4b3",
+      "unit_id": "DA_18_Hecarim",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 19,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        965,
+        341,
+        1093,
+        485
+      ],
+      "crop_pixel_sha256": "6610fc6c45a5668dcaec41da01f494f5be2552e10594f0ab9110f6c786ae7e17",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 20,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        483,
+        348,
+        611,
+        492
+      ],
+      "crop_pixel_sha256": "e71cba896cbd8ab706edda12712cd282a0a89cb7bf726360a5bc0b3ec912029a",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 25,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        709,
+        432,
+        837,
+        576
+      ],
+      "crop_pixel_sha256": "f08110583640af8664076cce8f64ada0d7f6c8a1519aa4371262d726365f0f49",
+      "unit_id": "DA_18_GnarSmall",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 26,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        972,
+        456,
+        1100,
+        600
+      ],
+      "crop_pixel_sha256": "249293cd5e49f815d7eb23f9303e0a7d781344df973560de3e8d948f7ee1bc53",
+      "unit_id": "DA_18_Maokai",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 27,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        498,
+        559,
+        626,
+        703
+      ],
+      "crop_pixel_sha256": "cbaece91b81daf4bcc84d72abefefbc965eadd76c19fae0ce5b98e5be8a2caec",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 28,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        1306,
+        570,
+        1434,
+        714
+      ],
+      "crop_pixel_sha256": "16bf052ce875a2cf75d44b50fb0698352d169dc5c23c61b942684e8252babd85",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 29,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        773,
+        582,
+        901,
+        726
+      ],
+      "crop_pixel_sha256": "a26d3782f50f92139696c540f4ab76aefbd58e4198d6ffa3a8836a0b3c9a62ab",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 30,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        1173,
+        594,
+        1301,
+        738
+      ],
+      "crop_pixel_sha256": "8ca4a111b70a7577a9339087f3a2d60c31d424fc6a6606dee4db03548e50b532",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 31,
+      "frame": "unit-gallery-five-cost-training-20261005/000250.png",
+      "source_seconds_nominal": 250,
+      "box": [
+        1033,
+        611,
+        1161,
+        755
+      ],
+      "crop_pixel_sha256": "6683125c8e74e74682eb1f34d923d69ceae12c7412175594fcb14583f41c9519",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 32,
+      "frame": "unit-gallery-five-cost-training-20261005/000260.png",
+      "source_seconds_nominal": 260,
+      "box": [
+        844,
+        286,
+        972,
+        430
+      ],
+      "crop_pixel_sha256": "9824d36cb1e47108854fc1fc89c743026c2bb3e40ef5a2a9ce31735f9ab084b3",
+      "unit_id": "DA_18_GnarSmall",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 33,
+      "frame": "unit-gallery-five-cost-training-20261005/000260.png",
+      "source_seconds_nominal": 260,
+      "box": [
+        311,
+        314,
+        439,
+        458
+      ],
+      "crop_pixel_sha256": "9b8afd1bac611d1a7fbb0f97d579beff8b8017b28cf0299d63b3d4777aa51495",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 34,
+      "frame": "unit-gallery-five-cost-training-20261005/000260.png",
+      "source_seconds_nominal": 260,
+      "box": [
+        1237,
+        468,
+        1365,
+        612
+      ],
+      "crop_pixel_sha256": "6d5bdd49eaf6f039ea77a40c794e1d7288b8bdc3c8f05a67b93a6013b8254128",
+      "unit_id": "DA_18_Hecarim",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 36,
+      "frame": "unit-gallery-five-cost-training-20261005/000260.png",
+      "source_seconds_nominal": 260,
+      "box": [
+        1033,
+        611,
+        1161,
+        755
+      ],
+      "crop_pixel_sha256": "2f0ba3ff6c6e3b2e8a50d44fe1a6581fb39918ac5452958dba4c8255beb2e780",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 37,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        309,
+        315,
+        437,
+        459
+      ],
+      "crop_pixel_sha256": "11227bfcc842324578e1e0475268b87e1475d210fb6ceb5a2d2570a7193455b1",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 38,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        845,
+        328,
+        973,
+        472
+      ],
+      "crop_pixel_sha256": "e424c2360678cf7fce7c4df9a0f59e115f6e68b898dfd86b394d82c705dcad28",
+      "unit_id": "DA_18_Hecarim",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 39,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        1207,
+        348,
+        1335,
+        492
+      ],
+      "crop_pixel_sha256": "ad313e626254cc291dcef076f171be55705c234411cba8343e6f66c854767491",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 41,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        965,
+        351,
+        1093,
+        495
+      ],
+      "crop_pixel_sha256": "5527ba6527c285b4f7f4dc6ffe57593670d46a1016adf362f3b8c7e53015b012",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 45,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        529,
+        414,
+        657,
+        558
+      ],
+      "crop_pixel_sha256": "ea9fe1a97e7c293d1f355c540399cb218e90be0897f3f8129d4cccad12ce5796",
+      "unit_id": "DA_18_Rengar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 46,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        1097,
+        474,
+        1225,
+        618
+      ],
+      "crop_pixel_sha256": "04b9e0881bda9bbbc375329b7a90d7546348aa519e66b8f642b65c2b21ab812c",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 47,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        841,
+        484,
+        969,
+        628
+      ],
+      "crop_pixel_sha256": "1dd755e9c29d925ab6ccbf2f4331819ced8b091796f9d49a1a2f84cacf3e4778",
+      "unit_id": "DA_18_GnarSmall",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 48,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        1305,
+        576,
+        1433,
+        720
+      ],
+      "crop_pixel_sha256": "4688a1adffb5f240029f5cb1a2a1294f759ecaab616ce397b93115e7de4362f7",
+      "unit_id": "DA_18_Ezreal",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 50,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        504,
+        586,
+        632,
+        730
+      ],
+      "crop_pixel_sha256": "b792f0b78d46759310f390c24ab1a95b586b1f8bc14fe48f816c63903cfcb98d",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 52,
+      "frame": "unit-gallery-five-cost-training-20261005/000390.png",
+      "source_seconds_nominal": 390,
+      "box": [
+        1311,
+        699,
+        1439,
+        843
+      ],
+      "crop_pixel_sha256": "ab811ca1510029bce955fd44fb4f27202d5eaf949a1c2fe441217ed46929165b",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 53,
+      "frame": "unit-gallery-five-cost-training-20261005/000400.png",
+      "source_seconds_nominal": 400,
+      "box": [
+        1207,
+        348,
+        1335,
+        492
+      ],
+      "crop_pixel_sha256": "1c7696e1e04eb948e2e41be2a8eb1c82df9b6378e39129ceba72980dcc1cd1b7",
+      "unit_id": "DA_18_Alistar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 56,
+      "frame": "unit-gallery-five-cost-training-20261005/000410.png",
+      "source_seconds_nominal": 410,
+      "box": [
+        839,
+        424,
+        967,
+        568
+      ],
+      "crop_pixel_sha256": "5df8f07e78cff2d21ffaa2664167148eeeb69346bf02b438886be2185904b3b8",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 58,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        721,
+        351,
+        849,
+        495
+      ],
+      "crop_pixel_sha256": "5666d2f8837b1339e7b6ced6bf6c1885b71bd30f025e3452b0a0977767168aa3",
+      "unit_id": "DA_18_Varus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 59,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        1152,
+        411,
+        1280,
+        555
+      ],
+      "crop_pixel_sha256": "0564abac5c7946f23e9751087a796fb66846b7e23441a72c2e3f49484b86f11c",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 60,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        1325,
+        446,
+        1453,
+        590
+      ],
+      "crop_pixel_sha256": "432195d02eae7e3a4aeee360f6f6154222d45b13ea78d8fd2f8fe5b940737b6b",
+      "unit_id": "DA_Draven18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 61,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        1220,
+        495,
+        1348,
+        639
+      ],
+      "crop_pixel_sha256": "8f5de38b9b1d6104560ebaa2450f80a8a7e81fa01289e5aa7510ad98a713fd31",
+      "unit_id": "DA_18_Kennen",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 62,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        491,
+        529,
+        619,
+        673
+      ],
+      "crop_pixel_sha256": "aa812b2042f186f067842fc9d0b950cd29f731f2b87c3bd901927f7374928450",
+      "unit_id": "DA_18_Ivern",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 63,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        339,
+        677,
+        467,
+        821
+      ],
+      "crop_pixel_sha256": "a44b0d808891b8fa86f281ddbd7aeb4e220f2e6f99901aa2e798311a30b7a295",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 64,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        460,
+        677,
+        588,
+        821
+      ],
+      "crop_pixel_sha256": "43d4b510302a77be769256283377fb352ee6a5048ce500d0c72f0452a45a5423",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 65,
+      "frame": "unit-gallery-five-cost-training-20261005/000530.png",
+      "source_seconds_nominal": 530,
+      "box": [
+        577,
+        679,
+        705,
+        823
+      ],
+      "crop_pixel_sha256": "d51c6bf6a685716991a8d309a45951794ea82abf4b2ba3c9ce1d96b3b0d5fec2",
+      "unit_id": "DA_18_Ivern",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 66,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        723,
+        313,
+        851,
+        457
+      ],
+      "crop_pixel_sha256": "8c57c9faf0a0a77d47dc20657b948a8fc52584940b7625a7c560f9375c708f40",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 67,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        310,
+        315,
+        438,
+        459
+      ],
+      "crop_pixel_sha256": "dbd321903608cf2bb7528df824551601c80c8e60b6cd00a2f417b7e58044ccdf",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 68,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        484,
+        338,
+        612,
+        482
+      ],
+      "crop_pixel_sha256": "991343e714013df7d8ab7f957cb5871c02e3e303d88388b07a660b2f9e0a80eb",
+      "unit_id": "DA_18_Caitlyn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 69,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        845,
+        345,
+        973,
+        489
+      ],
+      "crop_pixel_sha256": "39d2be4ab38149dbe8448b3520b98040ccf7d97653f541a27dae02885472fbe9",
+      "unit_id": "DA_18_Sett",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 70,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        965,
+        355,
+        1093,
+        499
+      ],
+      "crop_pixel_sha256": "c448d4fc33adc04edbea359055ed6978f52c8cfedf6485711ec7b9e5f8047b62",
+      "unit_id": "DA_18_Yorick",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 71,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        1179,
+        524,
+        1307,
+        668
+      ],
+      "crop_pixel_sha256": "f6d1f14a6f006f67fcbed6bc2e9e09f8bcde5268ad0057ef9661f06b0ab039aa",
+      "unit_id": "DA_18_Ivern",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 72,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        771,
+        539,
+        899,
+        683
+      ],
+      "crop_pixel_sha256": "e9665220f19f08ec13916905a704f8b041313a5386c29681ac70054998450f81",
+      "unit_id": "DA_18_Ahri",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 73,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        498,
+        544,
+        626,
+        688
+      ],
+      "crop_pixel_sha256": "5e6df1a8ae5a2ecee790d8674ec969441a76c01c3ab55d682c8a0719cae657f7",
+      "unit_id": "DA_Draven18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 74,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        1309,
+        544,
+        1437,
+        688
+      ],
+      "crop_pixel_sha256": "0f49879f22c1ffaaa1da50418aad7fbbaf33c313dd23edb8f4cd9089eb0aa7b1",
+      "unit_id": "DA_18_Ashe",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 75,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        906,
+        567,
+        1034,
+        711
+      ],
+      "crop_pixel_sha256": "b081899f79abe65fb5c4eb76a89d1319af1bd68d72a9fc0ac8539b3a9293f4d8",
+      "unit_id": "DA_18_Caitlyn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 76,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        637,
+        582,
+        765,
+        726
+      ],
+      "crop_pixel_sha256": "d260462244cbaee9e300db4005f474b3daee1a99b1b8f9f7f5b11d0887564619",
+      "unit_id": "DA_18_Yunara",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 77,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        1199,
+        688,
+        1327,
+        832
+      ],
+      "crop_pixel_sha256": "519073c341fcbe53084fafa7dec2a74f693fd4134ec33aa962852941e06f5801",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 78,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        951,
+        695,
+        1079,
+        839
+      ],
+      "crop_pixel_sha256": "b6bd42efd7c468d48750da96320035a9ce5806058178e8d34b139279506a873b",
+      "unit_id": "DA_18_Ashe",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 79,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        462,
+        698,
+        590,
+        842
+      ],
+      "crop_pixel_sha256": "29853a778cbb1e332de8e12a48121b78356ff846ce333fe8f0573bbca6c84a6d",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 80,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        1074,
+        698,
+        1202,
+        842
+      ],
+      "crop_pixel_sha256": "8d977d1fe9619cb0ca0b1f8ef6d3289a4a3b34a4f819c62f0be13655fcd25f0d",
+      "unit_id": "DA_Taric18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 81,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        337,
+        731,
+        465,
+        875
+      ],
+      "crop_pixel_sha256": "73bf9b8af38e12c6f16114e8162bada3940176526d21497d794201ff262af300",
+      "unit_id": "DA_18_ElderDragon",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 82,
+      "frame": "unit-gallery-five-cost-training-20261005/000590.png",
+      "source_seconds_nominal": 590,
+      "box": [
+        1323,
+        731,
+        1451,
+        875
+      ],
+      "crop_pixel_sha256": "c3bd5e9816a81aeffa08446116149a965b030ae1c1b1b8c48ee9facb0ed33292",
+      "unit_id": "DA_18_ElderDragon",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    }
+  ]
+}

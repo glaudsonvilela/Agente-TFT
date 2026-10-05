@@ -117,8 +117,8 @@ fn run() -> Result<()> {
         .with_intra_op_spinning(false)?
         .with_inter_op_spinning(false)?
         .commit_from_file(string(&spec, "encoder")?)?;
-    let spatial: profile::Profile =
-        serde_json::from_slice(&fs::read(string(&spec, "board_profile")?)?)?;
+    let profile_bytes = fs::read(string(&spec, "board_profile")?)?;
+    let spatial: profile::Profile = serde_json::from_slice(&profile_bytes)?;
     spatial.validate()?;
     let size = spec["input_size"].as_u64().ok_or("input size")? as usize;
     if !(64..=224).contains(&size) {
@@ -367,9 +367,10 @@ fn run() -> Result<()> {
         "decoder_wait_ms_p95":percentile(&decode_wait,0.95),"encoder_sha256":spec["encoder_sha256"],"gallery_sha256":spec["gallery_sha256"],
         "threshold":0.8,"margin":0.08,"accuracy_measured":false,"human_labeled_crops":0,
         "runtime_approved":false,"training_performed":false,"partition":spec["partition"],
+        "board_profile_sha256":hash(&profile_bytes),"allow_dense_ticks":spatial.bars.allow_dense_ticks,
         "decode_mode":decode_mode,"embedding_dimensions":dim,"embedding_rows":proposals,
         "embeddings_sha256":hash(&fs::read(out.join("embeddings.f32le"))?),
-        "limitations":["Same fixed green-bar detector as the app; no-proposal frames may be menu, combat, overlay or missed units.","Counts of model candidates are not precision/recall or catalog coverage.","Consecutive or duplicate crops are correlated; no pseudolabels enter training.","Sampling does not run inference on every decoded video frame.","Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."]});
+        "limitations":["Structural green-bar proposals with the recorded profile; no-proposal frames may be menu, combat, overlay or missed units.","Counts of model candidates are not precision/recall or catalog coverage.","Consecutive or duplicate crops are correlated; no pseudolabels enter training.","Sampling does not run inference on every decoded video frame.","Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."]});
     fs::write(out.join("report.json"), serde_json::to_vec_pretty(&report)?)?;
     fs::write(
         out.join("progress.json"),

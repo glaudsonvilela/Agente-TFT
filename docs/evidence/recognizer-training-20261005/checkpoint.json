@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T05:34:17.427Z",
+  "recorded_at": "2026-10-05T05:41:56.979Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -363,20 +363,129 @@
         "unique_frame_hashes": 651,
         "unit_crops": 2615
       }
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UcztPIRD1m0",
+      "partition": "training",
+      "local_private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/five-cost-training-20261005",
+      "published_date": "2026-08-23",
+      "exact_patch": null,
+      "progress": {
+        "accepted_candidates": 3,
+        "accepted_distribution": {
+          "DA_18_Ahri": 1,
+          "DA_18_LeBlanc": 1,
+          "DA_18_Maokai": 1
+        },
+        "accuracy_measured": false,
+        "analysis_ms_p50": 86.59546,
+        "analysis_ms_p95": 705.292049,
+        "decode_mode": "all",
+        "decoder_success": true,
+        "decoder_wait_ms_p95": 305.903879,
+        "elapsed_seconds": 100.889183236,
+        "embedding_dimensions": 384,
+        "embedding_rows": 842,
+        "embeddings_sha256": "c028814287cf6c4a818ba38ced5b3e6c7e53a18ac60533210379e5746a05b54f",
+        "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+        "frames": 330,
+        "frames_without_green_proposals": 134,
+        "gallery_sha256": "cddc7258f8895a4d79342bbbd9518a90678c8a3c758bea89df577e2aca1207c8",
+        "green_markers": 842,
+        "human_labeled_crops": 0,
+        "limitations": [
+          "Same fixed green-bar detector as the app; no-proposal frames may be menu, combat, overlay or missed units.",
+          "Counts of model candidates are not precision/recall or catalog coverage.",
+          "Consecutive or duplicate crops are correlated; no pseudolabels enter training.",
+          "Sampling does not run inference on every decoded video frame.",
+          "Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."
+        ],
+        "margin": 0.08,
+        "partition": "training_pool_unlabeled",
+        "requested_seconds": 660,
+        "review_interval_seconds": 10,
+        "runtime_approved": false,
+        "sample_interval_seconds": 2,
+        "saved_review_frames": 66,
+        "schema_version": 1,
+        "source_id": "youtube:UcztPIRD1m0",
+        "source_url": "https://www.youtube.com/watch?v=UcztPIRD1m0",
+        "start_seconds": 0,
+        "status": "complete",
+        "target_frames": 330,
+        "threshold": 0.8,
+        "top1_distribution": {
+          "DA_18_Ahri": 13,
+          "DA_18_Akali_AD": 4,
+          "DA_18_Alistar": 34,
+          "DA_18_Aphelios": 32,
+          "DA_18_Ashe": 4,
+          "DA_18_Azir": 7,
+          "DA_18_Caitlyn": 2,
+          "DA_18_Camille": 59,
+          "DA_18_Cassiopeia": 15,
+          "DA_18_Diana": 11,
+          "DA_18_Ezreal": 20,
+          "DA_18_Hecarim": 5,
+          "DA_18_Ivern": 15,
+          "DA_18_KhaZix": 23,
+          "DA_18_Kobuko": 1,
+          "DA_18_LeBlanc": 7,
+          "DA_18_Leona": 4,
+          "DA_18_Malphite": 14,
+          "DA_18_Maokai": 79,
+          "DA_18_Ornn": 32,
+          "DA_18_Rakan": 11,
+          "DA_18_RekSai": 35,
+          "DA_18_Rengar": 18,
+          "DA_18_Sejuani": 2,
+          "DA_18_Sentry": 18,
+          "DA_18_Sett": 2,
+          "DA_18_Shen": 11,
+          "DA_18_Sivir": 13,
+          "DA_18_Soraka": 6,
+          "DA_18_Teemo": 16,
+          "DA_18_Varus": 27,
+          "DA_18_Warwick": 20,
+          "DA_18_Yorick": 9,
+          "DA_18_Zyra": 73,
+          "DA_Amumu18": 3,
+          "DA_Brambleback18": 22,
+          "DA_Cinderling18": 1,
+          "DA_CrimsonRaptor18": 7,
+          "DA_Fiddlesticks18": 3,
+          "DA_Gromp18_AP": 2,
+          "DA_Karma18": 88,
+          "DA_KogMaw18_AD": 29,
+          "DA_Krug18": 5,
+          "DA_Murkwolf18": 1,
+          "DA_Scuttlecrab18": 4,
+          "DA_Sentinel18": 7,
+          "DA_Vi18": 24,
+          "__unknown__": 4
+        },
+        "training_performed": false,
+        "unique_frame_hashes": 330,
+        "unit_crops": 842
+      },
+      "profile_sha256": "50023142d6cc2d1a920b116f5e3e6452c5be89fbbdd3f849e37d02f23ab552c9",
+      "allow_dense_ticks": true
     }
   ],
   "pending": [
-    "Increase coverage of 17 missing IDs and improve scarce classes",
-    "Improve cross-source accuracy and reject ambiguous localization",
+    "Increase coverage of remaining 14 IDs and scarce classes across independent matches",
+    "Resolve cross-source recognition errors; calibrate rejection and broaden localization audit",
     "Collect a fresh final holdout before promotion",
-    "Verify dense health-bar localization; annotate missing units in the targeted older-patch video"
+    "Verify the same preprocessing and model artifact in Rust runtime before coaching activation"
   ],
   "runtime_approved": false,
-  "latest_annotations": "configs/training/unit-gallery-arena-20261005.json",
-  "latest_model_private": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/arena-training-20261005/arena-heads/dino-head.json",
+  "latest_annotations": "configs/training/unit-gallery-five-cost-20261005.json",
+  "latest_model_private": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/five-cost-training-20261005/trained-center_88x120_v1/dino-head.json",
   "latest_development_audit": {
-    "correct": 46,
+    "correct": 62,
     "reviewed": 107,
+    "named_units": 98,
+    "nonunits": 9,
     "independent_human_ground_truth": false
   },
   "feature_study": {
@@ -397,5 +506,38 @@
       "artifact_sha256": "4f09725a7057605d61a3eda4cdbc9462313493efb1dd041a97cd83a2696e4438"
     }
   },
-  "feature_study_notes": "337 named training units; 32 validation units. A previously trained source was reassigned to validation. Models retrained from scratch with frozen DINO; this is development evidence, not a fresh final holdout."
+  "feature_study_notes": "337 named training units; 32 validation units. A previously trained source was reassigned to validation. Models retrained from scratch with frozen DINO; this is development evidence, not a fresh final holdout.",
+  "latest_model_sha256": "3d379ad94cebd588c23117e16910b9d5c250a42753c42f5c79717e99c901437f",
+  "latest_validation": {
+    "correct": 16,
+    "named_units": 32
+  },
+  "latest_training": {
+    "named_units": 397,
+    "represented_ids": 60,
+    "catalog_ids": 74,
+    "missing_ids": [
+      "DA_18_Elise",
+      "DA_18_Lux_Coven",
+      "DA_18_Lux_Elderwood",
+      "DA_18_Lux_Fae",
+      "DA_18_Lux_Inferno",
+      "DA_18_Lux_Moonbeam",
+      "DA_18_Lux_Primal",
+      "DA_18_Lux_Sunbeam",
+      "DA_18_Morgana",
+      "DA_18_Tristana",
+      "DA_Lux18_Base",
+      "DA_Lux18_Blackthorn",
+      "DA_Lux18_Blossom",
+      "DA_Nidalee18_AP"
+    ]
+  },
+  "dense_bar_regression_tests": {
+    "passed": 3,
+    "behavior_default": "disabled",
+    "real_frames_compared": 872,
+    "changed_crops_reviewed": 22,
+    "independent_human_ground_truth": false
+  }
 }
