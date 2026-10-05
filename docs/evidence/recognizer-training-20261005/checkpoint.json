@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T10:15:00-03:00",
+  "recorded_at": "2026-10-05T10:16:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1344,5 +1344,15 @@
     },
     "training_performed": false,
     "selection_changed_after_evaluation": false
+  },
+  "next_image_gate": {
+    "status": "ready_for_ssd_inventory",
+    "protocol": "docs/evidence/recognizer-training-20261005/new-image-review-protocol.json",
+    "runner": "scripts/inventory_new_ssd_training_images.py",
+    "default_root": "/mnt/sherlock-ssd/AgenteTFT",
+    "automatic_labels": false,
+    "training_performed": false,
+    "minjo_kh_allowed_in_training": false,
+    "runtime_approved": false
   }
 }
