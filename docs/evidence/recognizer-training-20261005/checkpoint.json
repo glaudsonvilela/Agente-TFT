@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:50:00-03:00",
+  "recorded_at": "2026-10-05T12:00:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,16 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "run_autonomous_game_derived_supervision",
+    "status": "run_autonomous_shop_supervision",
     "source_id": "youtube:Ot358nhRJl0",
-    "collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/annotation-2s",
-    "runner": "scripts/run_autonomous_source_supervision.py",
-    "expected_signals": [
-      "exact catalog-backed tooltip OCR",
-      "selected-unit cyan association",
-      "temporal repetition"
-    ],
-    "fallback_if_no_gold_anchors": "autonomous shop/purchase transition evidence, then multi-model temporal consensus; never manual labeling",
+    "runner": "scripts/run_autonomous_shop_supervision.py",
+    "fallback_if_zero_gold": "Add third autonomous signal: temporal embedding tracking + multi-teacher agreement/open-set rejection. Do not request human labels.",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
@@ -1496,6 +1490,40 @@
     "human_review_required": false,
     "model_self_confidence_alone_is_label": false,
     "ambiguous_becomes_unknown": true,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_tooltip_supervision_result": {
+    "status": "complete_no_gold_anchors",
+    "source_id": "youtube:Ot358nhRJl0",
+    "tooltip_scanned": 230,
+    "tooltip_proposals": 1,
+    "strong_exact_associations": 0,
+    "gold_auto_labels": 0,
+    "excluded": {
+      "weak_selected_unit_association": 1
+    },
+    "human_review_required": false,
+    "model_prediction_used_as_label": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_shop_supervision": {
+    "status": "ready",
+    "dense_collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/annotation-2s-shop-dense",
+    "runner": "scripts/run_autonomous_shop_supervision.py",
+    "miner": "tools/unit-features-lab/src/bin/mine-shop-transitions.rs",
+    "consensus": "scripts/autolabel_shop_purchase_consensus.py",
+    "gold_auto_rule": [
+      "unique exact catalog-backed shop OCR",
+      "OCR confidence >=94",
+      "shop portrait brightness disappears",
+      "transition gap <=2s",
+      "exactly one new bench proposal",
+      "bench unit persists spatially in later dense frames"
+    ],
+    "human_review_required": false,
+    "model_prediction_used_as_label": false,
     "training_performed": false,
     "runtime_approved": false
   }
