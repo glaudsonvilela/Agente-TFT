@@ -673,3 +673,32 @@ de loja agora reutiliza OCR de pixels preparados idênticos, com limite de 1.024
 entradas. No trecho de 40 quadros, evitou oito chamadas, preservando todas as
 observações e as duas propostas. A revisão das compras na fonte completa ainda
 está em andamento; nenhum peso neural foi alterado por esta coleta.
+
+### Revisão das compras e novo treino
+
+A primeira busca na partida inteira produziu 51 transições e 67 propostas de
+banco. A revisão selecionou 16 recortes legíveis de 11 momentos. Os vínculos de
+compra de Draven (678–679 s) e Alune (1.140–1.141 s) foram conferidos com carta,
+queda de ouro e unidade que aparece no banco. Outros recortes foram identificados
+pela cena completa e referências nomeadas, sem aceitar o nome sugerido pela
+transição como rótulo. Exemplo: uma carta Diana ilegível gerou uma proposta de Ornn.
+
+O manifesto atualizado tem **634 exemplos nomeados**, ainda 65/74 IDs, e 13 IDs
+com apenas uma fonte de treino. Draven ganhou uma segunda fonte. A auditoria
+validou hashes e separação de fontes. Os 16 recortes vêm de uma partida já usada;
+portanto, não representam 16 novas partidas nem validação humana independente.
+
+O novo treino manteve **19/32 validação, 77/127 teste antigo, 31/35 Minjo e
+23/35 KH**. A macro-revocação da validação ficou igual e a entropia cruzada piorou
+ligeiramente (3,313263 → 3,313486). O modelo anterior permanece como referência;
+os novos rótulos ficam disponíveis para próximas experiências. Nenhum modelo
+foi ativado no Windows.
+
+Para reduzir falsos alarmes de OCR, o auxiliar agora exige também que o retrato
+da carta fique escuro: proporção de pixels com algum canal acima de 55 passa de
+pelo menos 10% para no máximo 2% na área interna. As duas compras conhecidas da
+sequência Lux continuam localizadas. Na partida inteira, o filtro reduziu as propostas de 51 para 23, conservando as
+compras conferidas de Draven e Alune e removendo o falso alarme Diana. Não há
+medição de precisão e revocação de todas as compras. O cache evitou 801 chamadas
+de OCR em 1.380 quadros (579 chamadas reais). Sobreposições ainda podem imitar
+uma carta vazia.

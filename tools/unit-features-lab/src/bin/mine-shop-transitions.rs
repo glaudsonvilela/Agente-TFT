@@ -52,6 +52,27 @@ fn disappearances(
         .collect()
 }
 
+// Empty cards have a dark silhouette. OCR absence alone can mean a cursor,
+// tooltip or low-confidence name; require disappearance of the portrait too.
+fn shop_portrait_brightness(frame: &image::RgbImage) -> Vec<f32> {
+    (0..5)
+        .map(|slot| {
+            let mut bright = 0;
+            for y in 941..1001 {
+                for x in (552 + slot * 202 + 35)..(552 + slot * 202 + 155) {
+                    if frame.get_pixel(x, y).0.iter().any(|v| *v > 55) {
+                        bright += 1;
+                    }
+                }
+            }
+            bright as f32 / (120 * 60) as f32
+        })
+        .collect()
+}
+fn portrait_disappeared(before: f32, after: f32) -> bool {
+    before.is_finite() && after.is_finite() && before >= 0.10 && (0.0..=0.02).contains(&after)
+}
+
 fn new_bench_proposals(before: &Value, after: &Value) -> Vec<Value> {
     let units = |f: &Value| f["units"].as_array().cloned().unwrap_or_default();
     let previous = units(before);
@@ -94,6 +115,7 @@ fn run() -> Result<()> {
         u64,
         Vec<Option<Vec<String>>>,
         Vec<Option<Vec<String>>>,
+        Vec<f32>,
         Value,
     )> = None;
     for line in fs::read_to_string(root.join("observations.jsonl"))?.lines() {
@@ -113,6 +135,7 @@ fn run() -> Result<()> {
         {
             return Err("review frame geometry/pixels mismatch".into());
         }
+        let portrait_brightness = shop_portrait_brightness(&rgb);
         let strip = image::imageops::crop_imm(&rgb, 552, 1039, 1002, 39).to_image();
         // Keep pale name glyphs; card borders and price icons break OCR lines.
         let mut mask = image::GrayImage::from_pixel(1002, 39, image::Luma([255]));
@@ -185,22 +208,24 @@ fn run() -> Result<()> {
             })
             .collect();
         let cards:Vec<_>=matched.iter().zip(&words).enumerate().map(|(slot,(m,w))|json!({"slot":slot,"unit_candidates":m.as_ref().map(|x|&x.0),"ocr_name_confidence":m.as_ref().map(|x|x.1),"ocr_words":w})).collect();
-        if let Some((old_time, old_ids, old_anchors, old_frame)) = &previous {
+        if let Some((old_time, old_ids, old_anchors, old_portraits, old_frame)) = &previous {
             let gap = time
                 .checked_sub(*old_time)
                 .ok_or("nonmonotonic source times")?;
             for slot in disappearances(old_anchors, &anchors, gap) {
-                if old_ids[slot].is_none() {
+                if old_ids[slot].is_none()
+                    || !portrait_disappeared(old_portraits[slot], portrait_brightness[slot])
+                {
                     continue;
                 }
                 transitions.push(json!({"source_id":report["source_id"],"before_seconds":old_time,"after_seconds":time,
                     "before_frame":old_frame["review_frame"],"after_frame":file,"before_pixel_sha256":old_frame["frame_pixel_sha256"],"after_pixel_sha256":frame["frame_pixel_sha256"],
-                    "shop_slot":slot,"shop_unit_candidates":old_ids[slot],"new_bench_proposals":new_bench_proposals(old_frame,&frame),
+                    "shop_slot":slot,"portrait_brightness_before":old_portraits[slot],"portrait_brightness_after":portrait_brightness[slot],"shop_unit_candidates":old_ids[slot],"new_bench_proposals":new_bench_proposals(old_frame,&frame),
                     "purchase_confirmed":false,"crop_identity_confirmed":false,"review_required":true,"training_label":null}));
             }
         }
-        frames.push(json!({"source_seconds":time,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"cards":cards}));
-        previous = Some((time, identities, anchors, frame));
+        frames.push(json!({"source_seconds":time,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"portrait_brightness":portrait_brightness,"cards":cards}));
+        previous = Some((time, identities, anchors, portrait_brightness, frame));
         if frames.len() % 100 == 0 {
             let progress = json!({"status":"running", "frames":frames.len(), "ocr_calls":ocr_calls,
                 "transition_proposals":transitions.len(), "elapsed_seconds":started.elapsed().as_secs_f64()});
@@ -222,7 +247,7 @@ fn run() -> Result<()> {
     let summary = json!({"status":"complete","ocr_cache_capacity":1024,"ocr_calls":ocr_calls,"ocr_cache_hits":frames.len() as u64-ocr_calls,"elapsed_seconds":started.elapsed().as_secs_f64(),"source_id":report["source_id"],"partition":report["partition"],"frames":frames.len(),"transition_proposals":transitions.len(),"automatically_labeled":0,
         "catalog_sha256":format!("{:x}",Sha256::digest(catalog_bytes)),"runtime_approved":false,
         "limitations":["Fixed 1920x1080 full-HUD shop geometry and English OCR; zoom, translated names and overlays can miss cards.",
-        "Disappearance can be OCR failure or occlusion, not a purchase. Three other recognized slots must remain unchanged and gap must be at most two seconds.",
+        "Three neighboring OCR names must remain unchanged within two seconds and portrait brightness must fall from at least 10% to at most 2%; overlays can still imitate an empty card.",
         "New bench proposals are positional cues only; merges and detector misses require manual review.","Generic Lux retains every catalog variant; no image is labeled automatically."]});
     fs::write(
         output.join("report.json"),
@@ -245,6 +270,13 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn unreadable_names_do_not_imply_empty_cards() {
+        assert!(portrait_disappeared(0.7, 0.0));
+        assert!(!portrait_disappeared(0.7, 0.4));
+        assert!(!portrait_disappeared(0.0, 0.0));
+        assert!(!portrait_disappeared(f32::NAN, 0.0));
+    }
     #[test]
     fn name_strip_ignores_observed_cursor_and_price_fragments() {
         let tsv = "header\n5\t1\t1\t1\t1\t1\t20\t24\t56\t26\t96.5\tLux\n5\t1\t1\t1\t1\t2\t218\t12\t26\t14\t40.2\tad\n5\t1\t1\t1\t1\t3\t728\t46\t4\t2\t58.2\t.\n";

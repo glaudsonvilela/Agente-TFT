@@ -1,0 +1,293 @@
+{
+  "review": {
+    "source_id": "youtube:nxSUNW1yZqI",
+    "named_added": 16,
+    "independent_matches_added": 0,
+    "new_source_for_ids": [
+      "DA_Draven18"
+    ],
+    "independent_human_ground_truth": false,
+    "model_predictions_used_as_labels": false,
+    "proposed_transitions": 51,
+    "proposed_bench_crops": 67,
+    "limitations": [
+      "Review shortlist is selected, not a random accuracy sample.",
+      "Disappearing OCR names do not prove card disappearance; some proposals correspond to already-present units.",
+      "Same-source examples remain correlated; no test or validation frames added."
+    ]
+  },
+  "labels": [
+    {
+      "review_index": 0,
+      "image": "unit-gallery-shop-reviewed-20261005/131.png",
+      "key": "marker-11",
+      "label": "DA_18_Ornn",
+      "box": [
+        341,
+        704,
+        469,
+        848
+      ],
+      "crop_pixel_sha256": "355fc856f55a6ee2e2226cb943440b81a8782c8b033dd9290a3a71b717976d31",
+      "shop_hint": [
+        "DA_18_Diana"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 1,
+      "image": "unit-gallery-shop-reviewed-20261005/323.png",
+      "key": "marker-12",
+      "label": "DA_18_Morgana",
+      "box": [
+        1328,
+        703,
+        1456,
+        847
+      ],
+      "crop_pixel_sha256": "8f5dbd349b275dd2624b3754199b957be516a61772223d90c956126c5965f2de",
+      "shop_hint": [
+        "DA_18_Ezreal"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 2,
+      "image": "unit-gallery-shop-reviewed-20261005/323.png",
+      "key": "marker-15",
+      "label": "DA_18_Lillia",
+      "box": [
+        944,
+        704,
+        1072,
+        848
+      ],
+      "crop_pixel_sha256": "93bf71075e75f7547009058dc062cc241d78e79c07acb44b2c62e6ef7a47b3c3",
+      "shop_hint": [
+        "DA_18_Ezreal"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 3,
+      "image": "unit-gallery-shop-reviewed-20261005/323.png",
+      "key": "marker-18",
+      "label": "DA_18_Ezreal",
+      "box": [
+        1064,
+        716,
+        1192,
+        860
+      ],
+      "crop_pixel_sha256": "2fdfd826c68a0c98cb982019c0f7eae8beacc013467e84e10789751796008f25",
+      "shop_hint": [
+        "DA_18_Ezreal"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 21,
+      "image": "unit-gallery-shop-reviewed-20261005/596.png",
+      "key": "marker-18",
+      "label": "DA_18_Soraka",
+      "box": [
+        1066,
+        713,
+        1194,
+        857
+      ],
+      "crop_pixel_sha256": "a4b215f2b4d1a18fce6628fe2238820ab25010900e0702482b109213c547a4ca",
+      "shop_hint": [
+        "DA_18_Soraka"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 24,
+      "image": "unit-gallery-shop-reviewed-20261005/679.png",
+      "key": "marker-12",
+      "label": "DA_Draven18",
+      "box": [
+        577,
+        676,
+        705,
+        820
+      ],
+      "crop_pixel_sha256": "7ed9082ec75ab053af2483aa7ed427f3ba01cc8f75cffc1137a34d1d6f521efa",
+      "shop_hint": [
+        "DA_Draven18"
+      ],
+      "label_source": "Draven shop card disappears at 678-679 s; gold 56 to 51; new matching bench unit."
+    },
+    {
+      "review_index": 25,
+      "image": "unit-gallery-shop-reviewed-20261005/805.png",
+      "key": "marker-13",
+      "label": "DA_18_Maokai",
+      "box": [
+        574,
+        675,
+        702,
+        819
+      ],
+      "crop_pixel_sha256": "3c0431ec780b1548ca19ec89837a74df97ba94259b0a75ca6327514eefb7e976",
+      "shop_hint": [
+        "DA_18_Maokai"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 27,
+      "image": "unit-gallery-shop-reviewed-20261005/805.png",
+      "key": "marker-15",
+      "label": "DA_Draven18",
+      "box": [
+        1067,
+        676,
+        1195,
+        820
+      ],
+      "crop_pixel_sha256": "b60dac16a019b9913ac70575d52ea5196ef09813ce4b709449fd98fc7d39c928",
+      "shop_hint": [
+        "DA_18_Maokai"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 28,
+      "image": "unit-gallery-shop-reviewed-20261005/805.png",
+      "key": "marker-16",
+      "label": "DA_Sentinel18",
+      "box": [
+        823,
+        682,
+        951,
+        826
+      ],
+      "crop_pixel_sha256": "b4d8d0c86b6baea473260bf107f93d16cd16c3119f5d027e6315d0136fe85753",
+      "shop_hint": [
+        "DA_18_Maokai"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 30,
+      "image": "unit-gallery-shop-reviewed-20261005/881.png",
+      "key": "marker-12",
+      "label": "DA_Draven18",
+      "box": [
+        944,
+        676,
+        1072,
+        820
+      ],
+      "crop_pixel_sha256": "144a0706936669ced73bf91e0fda7143d894915f045885c4840f2ac0779898f7",
+      "shop_hint": [
+        "DA_18_Ezreal"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 32,
+      "image": "unit-gallery-shop-reviewed-20261005/881.png",
+      "key": "marker-15",
+      "label": "DA_18_Hecarim",
+      "box": [
+        696,
+        704,
+        824,
+        848
+      ],
+      "crop_pixel_sha256": "aa62a0fc35b936de6ad19d2f2b6a433f111b27ff4bfef580a38af3a6ad5656f4",
+      "shop_hint": [
+        "DA_18_Ezreal"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 36,
+      "image": "unit-gallery-shop-reviewed-20261005/1007.png",
+      "key": "marker-16",
+      "label": "DA_Taric18",
+      "box": [
+        455,
+        698,
+        583,
+        842
+      ],
+      "crop_pixel_sha256": "90aa1639b0ef22279f818fe64d6e9f323f24d75511a39edb187d646ddea70ea4",
+      "shop_hint": [
+        "DA_Taric18"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 44,
+      "image": "unit-gallery-shop-reviewed-20261005/1141.png",
+      "key": "marker-11",
+      "label": "DA_18_Alune",
+      "box": [
+        335,
+        679,
+        463,
+        823
+      ],
+      "crop_pixel_sha256": "07a6b5aca4f05d8be3e4adacf5f7862a196c861aafda50ab317c9dd5034c6afd",
+      "shop_hint": [
+        "DA_18_Alune"
+      ],
+      "label_source": "Alune shop card disappears at 1140-1141 s; gold 8 to 3; new matching bench unit."
+    },
+    {
+      "review_index": 45,
+      "image": "unit-gallery-shop-reviewed-20261005/1156.png",
+      "key": "marker-12",
+      "label": "DA_Draven18",
+      "box": [
+        822,
+        676,
+        950,
+        820
+      ],
+      "crop_pixel_sha256": "0411359bc0293851810162e37ba10b8f42672101829f0eff87ecbc566e356275",
+      "shop_hint": [
+        "DA_Draven18"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 51,
+      "image": "unit-gallery-shop-reviewed-20261005/1264.png",
+      "key": "marker-13",
+      "label": "DA_18_Alune",
+      "box": [
+        700,
+        679,
+        828,
+        823
+      ],
+      "crop_pixel_sha256": "056feb68e828d440c2afdfb263044992c374f19082327abf4f04e07ab1543b71",
+      "shop_hint": [
+        "DA_18_Alune"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    },
+    {
+      "review_index": 60,
+      "image": "unit-gallery-shop-reviewed-20261005/1327.png",
+      "key": "marker-18",
+      "label": "DA_18_GnarSmall",
+      "box": [
+        703,
+        709,
+        831,
+        853
+      ],
+      "crop_pixel_sha256": "11489fed86f034d70c0f91d8a88c85ae5d6f3cf254804ef658d679524d84a705",
+      "shop_hint": [
+        "DA_Taric18"
+      ],
+      "label_source": "Named model appearance and full-frame context; not an automatic purchase association."
+    }
+  ]
+}

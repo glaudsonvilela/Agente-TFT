@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T08:20:37.838Z",
+  "recorded_at": "2026-10-05T08:30:50.812Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1236,15 +1236,37 @@
     "runtime_approved": false
   },
   "latest_annotation_collection": {
-    "status": "complete_shop_mining_running",
+    "status": "complete_reviewed_and_retrained",
     "source_id": "youtube:nxSUNW1yZqI",
     "private_collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/morgana-annotation-1s",
     "private_miner_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/morgana-shop-transitions",
     "collection_frames": 1380,
     "proposed_crops": 14049,
-    "labels_added": 0,
+    "labels_added": 16,
     "report": "docs/evidence/recognizer-training-20261005/morgana-dense-annotation-collection.json",
     "parity_report": "docs/evidence/recognizer-training-20261005/annotation-only-parity.json",
-    "next": "Review purchase transitions with before/after frames; keep ambiguous identity or seasonal form excluded."
+    "next": "Broaden underrepresented champion appearances from other training VODs using annotation-only collection and reviewed shop/tooltip cues; keep nine unresolved Lux forms unconfirmed and independent evaluation sources out of training.",
+    "refined_miner_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/morgana-shop-portrait-check",
+    "refined_proposals": 23,
+    "report_filter": "docs/evidence/recognizer-training-20261005/shop-portrait-filter-review.json"
+  },
+  "latest_reviewed_training": {
+    "status": "complete_baseline_retained",
+    "annotations": "configs/training/unit-gallery-shop-reviewed-expanded-20261005.json",
+    "training_named": 634,
+    "catalog_ids": 65,
+    "catalog_total": 74,
+    "single_source_ids": 13,
+    "validation_correct": 19,
+    "validation_named": 32,
+    "old_test_correct": 77,
+    "old_test_named": 127,
+    "minjo_correct": 31,
+    "minjo_named": 35,
+    "kh_correct": 23,
+    "kh_named": 35,
+    "model_private_path": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/shop-reviewed-head/dino-head.json",
+    "selection": "docs/evidence/recognizer-training-20261005/shop-reviewed-selection.json",
+    "runtime_approved": false
   }
 }

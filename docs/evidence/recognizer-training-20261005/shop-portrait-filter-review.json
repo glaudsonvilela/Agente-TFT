@@ -1,0 +1,28 @@
+{
+  "automatically_labeled": 0,
+  "catalog_sha256": "a9c7d76cf7d53736daa48d2bc090a6b9aa589399336b372fe4fe18a768e97a92",
+  "elapsed_seconds": 164.976965059,
+  "frames": 1380,
+  "limitations": [
+    "Fixed 1920x1080 full-HUD shop geometry and English OCR; zoom, translated names and overlays can miss cards.",
+    "Three neighboring OCR names must remain unchanged within two seconds and portrait brightness must fall from at least 10% to at most 2%; overlays can still imitate an empty card.",
+    "New bench proposals are positional cues only; merges and detector misses require manual review.",
+    "Generic Lux retains every catalog variant; no image is labeled automatically."
+  ],
+  "ocr_cache_capacity": 1024,
+  "ocr_cache_hits": 801,
+  "ocr_calls": 579,
+  "partition": "training_pool_unlabeled",
+  "runtime_approved": false,
+  "source_id": "youtube:nxSUNW1yZqI",
+  "status": "complete",
+  "transition_proposals": 23,
+  "regression_checks": {
+    "known_draven_purchase_retained": true,
+    "known_alune_purchase_retained": true,
+    "unreadable_diana_false_alarm_removed": true,
+    "old_transition_count": 51,
+    "new_transition_count": 23,
+    "precision_recall_measured": false
+  }
+}

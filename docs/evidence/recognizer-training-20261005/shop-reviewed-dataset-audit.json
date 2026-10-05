@@ -1,0 +1,1910 @@
+{
+  "annotations_sha256": "b7b83f003891dda753a10eccd6c408550be2caf51e693d0ab7454a6f1059455c",
+  "catalog_classes": 74,
+  "catalog_sha256": "a9c7d76cf7d53736daa48d2bc090a6b9aa589399336b372fe4fe18a768e97a92",
+  "classes": [
+    {
+      "id": "DA_18_Ahri",
+      "name": "Ahri",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 11,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:T0KVjZtR3GY",
+            "youtube:UcztPIRD1m0",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Akali_AD",
+      "name": "Akali",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 8,
+          "sources": [
+            "match-1f0938fe",
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Alistar",
+      "name": "Alistar",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 14,
+          "sources": [
+            "match-1f0938fe",
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Alune",
+      "name": "Alune",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 13,
+          "sources": [
+            "youtube:Jmi5fbZiFGU",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Aphelios",
+      "name": "Aphelios",
+      "partitions": {
+        "test": {
+          "samples": 4,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 8,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Ashe",
+      "name": "Ashe",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 11,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Azir",
+      "name": "Azir",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 6,
+          "sources": [
+            "twitch:2891050468"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Caitlyn",
+      "name": "Caitlyn",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "match-9acfd9af",
+            "twitch:2891052706",
+            "youtube:T0KVjZtR3GY"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Camille",
+      "name": "Camille",
+      "partitions": {
+        "test": {
+          "samples": 8,
+          "sources": [
+            "match-d75a3fcf",
+            "twitch:2883698368",
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 29,
+          "sources": [
+            "match-6f784a17",
+            "match-9acfd9af",
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:T0KVjZtR3GY"
+          ]
+        },
+        "validation": {
+          "samples": 3,
+          "sources": [
+            "match-c39eced3",
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Cassiopeia",
+      "name": "Cassiopeia",
+      "partitions": {
+        "test": {
+          "samples": 7,
+          "sources": [
+            "twitch:2883698368",
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 19,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:T0KVjZtR3GY",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Diana",
+      "name": "Diana",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 13,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:T0KVjZtR3GY",
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_ElderDragon",
+      "name": "Dragão Ancião",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 2,
+          "sources": [
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Elise",
+      "name": "Elise",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 10,
+          "sources": [
+            "twitch:2891052706",
+            "youtube:T0KVjZtR3GY"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Ezreal",
+      "name": "Ezreal",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 15,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_GnarSmall",
+      "name": "Gnar",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 15,
+          "sources": [
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:UcztPIRD1m0",
+            "youtube:bJF34u5fkGw",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Hecarim",
+      "name": "Hecarim",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:T0KVjZtR3GY",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Ivern",
+      "name": "Ivern",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 7,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Kayle",
+      "name": "Kayle",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 1,
+          "sources": [
+            "match-6f784a17"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Kennen",
+      "name": "Kennen",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 15,
+          "sources": [
+            "youtube:Jmi5fbZiFGU",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_KhaZix",
+      "name": "Kha'Zix",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 1,
+          "sources": [
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Kobuko",
+      "name": "Kobuko",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 9,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_LeBlanc",
+      "name": "LeBlanc",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 16,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Leona",
+      "name": "Leona",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 7,
+          "sources": [
+            "twitch:2891050468"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lillia",
+      "name": "Lillia",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 13,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Coven",
+      "name": "Lux (Congregação das Bruxas)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Elderwood",
+      "name": "Lux (Sabugueiro)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 8,
+          "sources": [
+            "youtube:CQhg2_6tzcM"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Fae",
+      "name": "Lux (Feérica)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Inferno",
+      "name": "Lux (Inferno)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Moonbeam",
+      "name": "Lux (Lunar)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Primal",
+      "name": "Lux (Primordial)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Lux_Sunbeam",
+      "name": "Lux (Solar)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Malphite",
+      "name": "Malphite",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 5,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Maokai",
+      "name": "Maokai",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 7,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_MasterYi_AD",
+      "name": "Master Yi",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 3,
+          "sources": [
+            "match-9acfd9af"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Morgana",
+      "name": "Morgana",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 9,
+          "sources": [
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Ornn",
+      "name": "Ornn",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 22,
+          "sources": [
+            "match-9acfd9af",
+            "twitch:2891050468",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Rakan",
+      "name": "Rakan",
+      "partitions": {
+        "test": {
+          "samples": 4,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 3,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 2,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Rammus",
+      "name": "Rammus",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 10,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_RekSai",
+      "name": "Rek'Sai",
+      "partitions": {
+        "test": {
+          "samples": 5,
+          "sources": [
+            "match-d75a3fcf",
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 17,
+          "sources": [
+            "match-1f0938fe",
+            "match-6f784a17",
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Rengar",
+      "name": "Rengar",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Sejuani",
+      "name": "Sejuani",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 6,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Sentry",
+      "name": "Cascalho",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "match-d75a3fcf"
+          ]
+        },
+        "train": {
+          "samples": 17,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891050468"
+          ]
+        },
+        "validation": {
+          "samples": 2,
+          "sources": [
+            "match-c39eced3"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Sett",
+      "name": "Sett",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 3,
+          "sources": [
+            "youtube:UcztPIRD1m0",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Shen",
+      "name": "Shen",
+      "partitions": {
+        "test": {
+          "samples": 4,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 6,
+          "sources": [
+            "twitch:2891050468"
+          ]
+        },
+        "validation": {
+          "samples": 4,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Sivir",
+      "name": "Sivir",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 5,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Soraka",
+      "name": "Soraka",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 15,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Teemo",
+      "name": "Teemo",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "match-1f0938fe",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Tristana",
+      "name": "Tristana",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 10,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Varus",
+      "name": "Varus",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 16,
+          "sources": [
+            "match-1f0938fe",
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 2,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Veigar",
+      "name": "Veigar",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 14,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:T0KVjZtR3GY",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Warwick",
+      "name": "Warwick",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 4,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 2,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_18_Xayah",
+      "name": "Xayah",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 1,
+          "sources": [
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Yorick",
+      "name": "Yorick",
+      "partitions": {
+        "test": {
+          "samples": 5,
+          "sources": [
+            "twitch:2883698368",
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 7,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Yunara",
+      "name": "Yunara",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 5,
+          "sources": [
+            "twitch:2891052706",
+            "youtube:UcztPIRD1m0",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_18_Zyra",
+      "name": "Zyra",
+      "partitions": {
+        "test": {
+          "samples": 5,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 9,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:UcztPIRD1m0",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Amumu18",
+      "name": "Amumu",
+      "partitions": {
+        "test": {
+          "samples": 7,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 4,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_Brambleback18",
+      "name": "Rubrivira",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 11,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:T0KVjZtR3GY"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Cinderling18",
+      "name": "Rubrivirim",
+      "partitions": {
+        "test": {
+          "samples": 5,
+          "sources": [
+            "match-d75a3fcf",
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 7,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_CrimsonRaptor18",
+      "name": "Mamãe Bicuda",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 7,
+          "sources": [
+            "match-6f784a17"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Draven18",
+      "name": "Draven",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 8,
+          "sources": [
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Fiddlesticks18",
+      "name": "Fiddlesticks",
+      "partitions": {
+        "test": {
+          "samples": 3,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 13,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:UcztPIRD1m0"
+          ]
+        },
+        "validation": {
+          "samples": 2,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_Gromp18_AP",
+      "name": "Grompe",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 10,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Karma18",
+      "name": "Karma",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "match-6f784a17"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_KogMaw18_AD",
+      "name": "Kog'Maw",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 19,
+          "sources": [
+            "match-1f0938fe",
+            "match-6f784a17",
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:bJF34u5fkGw"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Krug18",
+      "name": "Krugue",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 8,
+          "sources": [
+            "match-6f784a17",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Lux18_Base",
+      "name": "Lux",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Lux18_Blackthorn",
+      "name": "Lux (Espinhos Negros)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Lux18_Blossom",
+      "name": "Lux (Florescer)",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 0,
+          "sources": []
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Murkwolf18",
+      "name": "Lobo Trevoguari",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 2,
+          "sources": [
+            "twitch:2891050468"
+          ]
+        },
+        "validation": {
+          "samples": 1,
+          "sources": [
+            "youtube:af1zvuCmr58"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DA_Nidalee18_AP",
+      "name": "Nidalee",
+      "partitions": {
+        "test": {
+          "samples": 0,
+          "sources": []
+        },
+        "train": {
+          "samples": 2,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Scuttlecrab18",
+      "name": "Aronguejo",
+      "partitions": {
+        "test": {
+          "samples": 1,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 6,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Sentinel18",
+      "name": "Azuporã",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:T0KVjZtR3GY",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Taric18",
+      "name": "Taric",
+      "partitions": {
+        "test": {
+          "samples": 2,
+          "sources": [
+            "twitch:2883698368"
+          ]
+        },
+        "train": {
+          "samples": 12,
+          "sources": [
+            "twitch:2891050468",
+            "youtube:Jmi5fbZiFGU",
+            "youtube:UcztPIRD1m0",
+            "youtube:nxSUNW1yZqI"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    },
+    {
+      "id": "DA_Vi18",
+      "name": "Vi",
+      "partitions": {
+        "test": {
+          "samples": 8,
+          "sources": [
+            "twitch:2883698368",
+            "twitch:2890208196"
+          ]
+        },
+        "train": {
+          "samples": 8,
+          "sources": [
+            "match-9acfd9af",
+            "twitch:2891050468",
+            "twitch:2891052706",
+            "youtube:Jmi5fbZiFGU"
+          ]
+        },
+        "validation": {
+          "samples": 0,
+          "sources": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "test": {
+      "DA_18_Ahri": 1,
+      "DA_18_Akali_AD": 3,
+      "DA_18_Alistar": 2,
+      "DA_18_Aphelios": 4,
+      "DA_18_Ashe": 2,
+      "DA_18_Azir": 2,
+      "DA_18_Caitlyn": 3,
+      "DA_18_Camille": 8,
+      "DA_18_Cassiopeia": 7,
+      "DA_18_Diana": 3,
+      "DA_18_Elise": 1,
+      "DA_18_Ezreal": 1,
+      "DA_18_Ivern": 1,
+      "DA_18_Kayle": 1,
+      "DA_18_Kennen": 3,
+      "DA_18_LeBlanc": 1,
+      "DA_18_Leona": 3,
+      "DA_18_Maokai": 1,
+      "DA_18_Ornn": 2,
+      "DA_18_Rakan": 4,
+      "DA_18_Rammus": 3,
+      "DA_18_RekSai": 5,
+      "DA_18_Rengar": 3,
+      "DA_18_Sejuani": 2,
+      "DA_18_Sentry": 2,
+      "DA_18_Sett": 1,
+      "DA_18_Shen": 4,
+      "DA_18_Sivir": 2,
+      "DA_18_Soraka": 1,
+      "DA_18_Varus": 3,
+      "DA_18_Veigar": 2,
+      "DA_18_Warwick": 1,
+      "DA_18_Yorick": 5,
+      "DA_18_Zyra": 5,
+      "DA_Amumu18": 7,
+      "DA_Cinderling18": 5,
+      "DA_CrimsonRaptor18": 1,
+      "DA_Fiddlesticks18": 3,
+      "DA_Gromp18_AP": 1,
+      "DA_Karma18": 2,
+      "DA_KogMaw18_AD": 2,
+      "DA_Krug18": 1,
+      "DA_Scuttlecrab18": 1,
+      "DA_Sentinel18": 2,
+      "DA_Taric18": 2,
+      "DA_Vi18": 8,
+      "__unknown__": 11
+    },
+    "train": {
+      "DA_18_Ahri": 11,
+      "DA_18_Akali_AD": 8,
+      "DA_18_Alistar": 14,
+      "DA_18_Alune": 13,
+      "DA_18_Aphelios": 8,
+      "DA_18_Ashe": 11,
+      "DA_18_Azir": 6,
+      "DA_18_Caitlyn": 12,
+      "DA_18_Camille": 29,
+      "DA_18_Cassiopeia": 19,
+      "DA_18_Diana": 13,
+      "DA_18_ElderDragon": 2,
+      "DA_18_Elise": 10,
+      "DA_18_Ezreal": 15,
+      "DA_18_GnarSmall": 15,
+      "DA_18_Hecarim": 12,
+      "DA_18_Ivern": 7,
+      "DA_18_Kayle": 1,
+      "DA_18_Kennen": 15,
+      "DA_18_KhaZix": 1,
+      "DA_18_Kobuko": 9,
+      "DA_18_LeBlanc": 16,
+      "DA_18_Leona": 7,
+      "DA_18_Lillia": 13,
+      "DA_18_Lux_Elderwood": 8,
+      "DA_18_Malphite": 5,
+      "DA_18_Maokai": 7,
+      "DA_18_MasterYi_AD": 3,
+      "DA_18_Morgana": 9,
+      "DA_18_Ornn": 22,
+      "DA_18_Rakan": 3,
+      "DA_18_Rammus": 10,
+      "DA_18_RekSai": 17,
+      "DA_18_Rengar": 12,
+      "DA_18_Sejuani": 6,
+      "DA_18_Sentry": 17,
+      "DA_18_Sett": 3,
+      "DA_18_Shen": 6,
+      "DA_18_Sivir": 5,
+      "DA_18_Soraka": 15,
+      "DA_18_Teemo": 12,
+      "DA_18_Tristana": 10,
+      "DA_18_Varus": 16,
+      "DA_18_Veigar": 14,
+      "DA_18_Warwick": 4,
+      "DA_18_Xayah": 1,
+      "DA_18_Yorick": 7,
+      "DA_18_Yunara": 5,
+      "DA_18_Zyra": 9,
+      "DA_Amumu18": 4,
+      "DA_Brambleback18": 11,
+      "DA_Cinderling18": 7,
+      "DA_CrimsonRaptor18": 7,
+      "DA_Draven18": 8,
+      "DA_Fiddlesticks18": 13,
+      "DA_Gromp18_AP": 10,
+      "DA_Karma18": 12,
+      "DA_KogMaw18_AD": 19,
+      "DA_Krug18": 8,
+      "DA_Murkwolf18": 2,
+      "DA_Nidalee18_AP": 2,
+      "DA_Scuttlecrab18": 6,
+      "DA_Sentinel18": 12,
+      "DA_Taric18": 12,
+      "DA_Vi18": 8,
+      "__unknown__": 31
+    },
+    "validation": {
+      "DA_18_Akali_AD": 1,
+      "DA_18_Azir": 1,
+      "DA_18_Caitlyn": 1,
+      "DA_18_Camille": 3,
+      "DA_18_Elise": 1,
+      "DA_18_Hecarim": 1,
+      "DA_18_KhaZix": 1,
+      "DA_18_Kobuko": 1,
+      "DA_18_Malphite": 1,
+      "DA_18_Ornn": 1,
+      "DA_18_Rakan": 2,
+      "DA_18_RekSai": 1,
+      "DA_18_Rengar": 1,
+      "DA_18_Sentry": 2,
+      "DA_18_Sett": 1,
+      "DA_18_Shen": 4,
+      "DA_18_Varus": 2,
+      "DA_18_Veigar": 1,
+      "DA_18_Warwick": 2,
+      "DA_Amumu18": 1,
+      "DA_Fiddlesticks18": 2,
+      "DA_Murkwolf18": 1,
+      "__unknown__": 4
+    }
+  },
+  "limitations": [
+    "Checks establish data integrity and source isolation, not label truth or model accuracy.",
+    "A source may contain many correlated appearances; counts are not independent matches.",
+    "This development dataset includes reused evaluation sources; a fresh final holdout is still required."
+  ],
+  "missing_training_ids": [
+    "DA_18_Lux_Coven",
+    "DA_18_Lux_Fae",
+    "DA_18_Lux_Inferno",
+    "DA_18_Lux_Moonbeam",
+    "DA_18_Lux_Primal",
+    "DA_18_Lux_Sunbeam",
+    "DA_Lux18_Base",
+    "DA_Lux18_Blackthorn",
+    "DA_Lux18_Blossom"
+  ],
+  "pixel_and_partition_checks_passed": true,
+  "runtime_approved": false,
+  "samples": 839,
+  "schema_version": 1,
+  "set_key": "TFTSet18",
+  "single_training_source_ids": [
+    "DA_18_Azir",
+    "DA_18_ElderDragon",
+    "DA_18_Kayle",
+    "DA_18_KhaZix",
+    "DA_18_Leona",
+    "DA_18_Lux_Elderwood",
+    "DA_18_MasterYi_AD",
+    "DA_18_Morgana",
+    "DA_18_Shen",
+    "DA_18_Xayah",
+    "DA_CrimsonRaptor18",
+    "DA_Karma18",
+    "DA_Murkwolf18"
+  ]
+}
