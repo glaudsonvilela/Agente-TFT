@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T10:56:00-03:00",
+  "recorded_at": "2026-10-05T11:00:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,32 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "rerun_review_queue_after_source_policy_fix",
-    "fix_commit": "dac2ad00509376915be781404e2f52fc3300b939",
-    "queue_runner": "scripts/build_new_ssd_review_queue.py",
-    "note": "Use a new output directory because the previous queue is preserved as audit evidence.",
+    "status": "targeted_new_source_acquisition_required",
+    "goal": "Acquire genuinely new training-eligible sources for missing Lux forms and single-source identities; do not spend the next iteration on same-source sample count alone.",
+    "priority_ids": [
+      "DA_18_ElderDragon",
+      "DA_18_Kayle",
+      "DA_18_KhaZix",
+      "DA_18_Lux_Elderwood",
+      "DA_18_MasterYi_AD",
+      "DA_18_Morgana",
+      "DA_18_Xayah",
+      "DA_CrimsonRaptor18",
+      "DA_Karma18",
+      "DA_Murkwolf18"
+    ],
+    "priority_lux_forms": [
+      "DA_18_Lux_Coven",
+      "DA_18_Lux_Fae",
+      "DA_18_Lux_Inferno",
+      "DA_18_Lux_Moonbeam",
+      "DA_18_Lux_Primal",
+      "DA_18_Lux_Sunbeam",
+      "DA_Lux18_Base",
+      "DA_Lux18_Blackthorn",
+      "DA_Lux18_Blossom"
+    ],
+    "minjo_kh_allowed_in_training": false,
     "training_performed": false,
     "runtime_approved": false
   },
@@ -1403,5 +1425,45 @@
     "training_performed": false,
     "runtime_approved": false,
     "next": "Visually review numbered crop and Lux sheets; record only confirmed identities/forms. No training before review decisions are sealed."
+  },
+  "latest_ssd_review_queue_v2": {
+    "status": "complete_no_new_training_sources",
+    "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005-v2",
+    "collections_found": 20,
+    "authoritative_checkpoint_source_policies": 14,
+    "allowed_training_collections": 9,
+    "blocked_collections": 11,
+    "collections_with_new_observations": 9,
+    "review_crop_candidates": 98,
+    "lux_context_frames": 24,
+    "targets_represented_in_queue": {
+      "DA_18_Kayle": 3,
+      "DA_18_KhaZix": 24,
+      "DA_18_MasterYi_AD": 5,
+      "DA_CrimsonRaptor18": 30,
+      "DA_Karma18": 36
+    },
+    "targets_with_new_source_candidates": {},
+    "missing_target_suggestions": [
+      "DA_18_ElderDragon",
+      "DA_18_Lux_Elderwood",
+      "DA_18_Morgana",
+      "DA_18_Xayah",
+      "DA_Murkwolf18"
+    ],
+    "missing_lux_forms": [
+      "DA_18_Lux_Coven",
+      "DA_18_Lux_Fae",
+      "DA_18_Lux_Inferno",
+      "DA_18_Lux_Moonbeam",
+      "DA_18_Lux_Primal",
+      "DA_18_Lux_Sunbeam",
+      "DA_Lux18_Base",
+      "DA_Lux18_Blackthorn",
+      "DA_Lux18_Blossom"
+    ],
+    "interpretation": "Current Sherlock corpus can add same-source samples but contributes zero new-source candidates for the priority identities after authoritative source-policy filtering.",
+    "training_performed": false,
+    "runtime_approved": false
   }
 }
