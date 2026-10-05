@@ -293,3 +293,40 @@ Também coletamos a prévia de Lux `youtube:qkG10NeqM3A`: 15 quadros e 69 propos
 Por ser uma prévia anterior ao PBE e não confirmar a variante na interface,
 ela não entrou no treino. A semelhança de cores não basta para vincular as
 nove formas sazonais de Lux ao ID correto.
+
+## Busca dirigida e correção de invocações sazonais
+
+Uma fila de revisão procurou classes com até três exemplos nos VODs de treino,
+limitando fonte e proximidade temporal. As sugestões de identidade foram ocultadas
+nas folhas de revisão. Das 75 propostas, 58 puderam ser nomeadas ou classificadas
+como cenário; quatro já estavam anotadas. Entraram 52 unidades e 2 negativos,
+incluindo as primeiras aparências de Nidalee e Tristana. Os demais casos ficaram
+sem rótulo; a escolha do modelo para montar a fila não é verdade de referência.
+
+A revisão seguinte encontrou nove erros introduzidos nas expansões recentes:
+plantas com flor amarela haviam sido chamadas de Rammus. Os renders nomeados de
+Rammus mostram outra aparência, e a [descrição oficial da Riot](https://teamfighttactics.leagueoflegends.com/en-sg/news/game-updates/enchanted-wilds-overview/)
+confirma invocações de Elderwood e a montaria Sprykin. Removemos esses nove
+exemplos do treino de campeões; não os transformamos automaticamente em exemplos
+de uma invocação específica. Os três exemplos de Rammus no desafio estavam
+corretos. Validação e teste permaneceram inalterados.
+
+`seasonal-summon-quarantine.json` registra cada retirada. `excluded_entities`
+preserva o recorte para investigação; o carregador Rust recusa sua reintrodução
+como campeão, inclusive se a chave da entidade mudar. O inventário sazonal
+`configs/vision/seasons/TFTSet18/entity-scope-v1.json` separa campeões, invocações
+e estados montados, sem alterar a geometria fixa. Esse inventário ainda não é
+um detector implementado dessas entidades.
+
+O conjunto corrigido contém 512 unidades de treino, 63/74 IDs, 11 IDs ausentes
+e 16 classes com apenas uma fonte de treino. O novo modelo acertou 18/32 na
+validação e 62/107 no desafio revisado. Esses números continuam insuficientes
+para promoção; os modelos anteriores às correções ficam como histórico.
+Onze testes da biblioteca Rust passaram, incluindo a proteção de quarentena.
+
+Uma fonte adicional de Tristana (`youtube:T4lJ2S2iH_o`, Minjo TFT) foi baixada.
+A primeira coleta terminou com código 143, sem causa confirmada; os logs parciais
+foram preservados. Com o processo verificado como encerrado, a retomada em outro
+diretório completou 47 quadros e 147 propostas entre 100 e 570 segundos.
+O vídeo mostra um caso importante de campeão montado. Ele permanece sem rótulos
+e fora do treino; a próxima revisão deve ampliar a avaliação entre fontes.

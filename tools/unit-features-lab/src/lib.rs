@@ -63,6 +63,16 @@ fn partition_guard(groups: &mut HashMap<String, String>, value: &str, split: &st
     }
     Ok(())
 }
+fn quarantine_guard(frame: &Value, key: &str, crop_box: &Value) -> Result<()> {
+    if let Some(excluded) = frame.get("excluded_entities") {
+        for record in excluded.as_array().ok_or("invalid excluded entities")? {
+            if record["key"] == key || &record["box"] == crop_box {
+                return Err("quarantined crop cannot re-enter champion training/evaluation".into());
+            }
+        }
+    }
+    Ok(())
+}
 pub fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sample>> {
     let doc: Value = serde_json::from_slice(&fs::read(path)?)?;
     if doc["review_status"] == "superseded" || doc["schema_version"] != 2 {
@@ -141,6 +151,7 @@ pub fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sa
                 .iter()
                 .find(|u| u["key"] == key)
                 .ok_or("entity without layout")?;
+            quarantine_guard(frame, key, &u["box"])?;
             let rect = bounds(&u["box"])?;
             let b = &u["bar_rect"];
             let (x, y, w, h) = (
@@ -552,6 +563,13 @@ pub fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn quarantined_summon_cannot_return_as_champion_under_a_different_key() {
+        let frame = json!({"excluded_entities":[{"key":"marker-2","box":[10,20,138,164]}]});
+        assert!(quarantine_guard(&frame, "marker-2", &json!([0,0,128,144])).is_err());
+        assert!(quarantine_guard(&frame, "renamed", &json!([10,20,138,164])).is_err());
+        assert!(quarantine_guard(&frame, "marker-3", &json!([200,20,328,164])).is_ok());
+    }
     #[test]
     fn same_video_cannot_change_partition() {
         let mut map = HashMap::new();

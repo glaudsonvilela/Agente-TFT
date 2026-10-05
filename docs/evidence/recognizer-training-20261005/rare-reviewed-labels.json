@@ -1,0 +1,910 @@
+{
+  "review": {
+    "proposals": 75,
+    "reviewed_named_or_nonunit": 58,
+    "added": 54,
+    "already_present": 4,
+    "unresolved": 17,
+    "independent_human_ground_truth": false
+  },
+  "labels": [
+    {
+      "index": 1,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 5160,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-005160.png",
+      "box": [
+        839,
+        322,
+        967,
+        466
+      ],
+      "crop_pixel_sha256": "ec3066fe5f4d19de242211bfa2b995e6b9caf04797ede01dbaec87814943aa91",
+      "unit_id": "DA_18_Malphite",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 2,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 660,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-000660.png",
+      "box": [
+        944,
+        716,
+        1072,
+        860
+      ],
+      "crop_pixel_sha256": "9124f1adae8b784a51ae4a381301a998676ef0bfdff6a3db9d050f5427ef0dc3",
+      "unit_id": "DA_18_Veigar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 3,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13320,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013320.png",
+      "box": [
+        715,
+        276,
+        843,
+        420
+      ],
+      "crop_pixel_sha256": "1adc3b00ca1c38aca09be77d53d92420feb838bb96ab658fdd01df10149671e4",
+      "unit_id": "DA_18_Maokai",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 4,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13080,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013080.png",
+      "box": [
+        593,
+        290,
+        721,
+        434
+      ],
+      "crop_pixel_sha256": "209a0e0a92ae10eea3074ab4780dbb437727e846af07a7ec5f78294880044b81",
+      "unit_id": "DA_18_Maokai",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 7,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 2100,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-002100.png",
+      "box": [
+        863,
+        296,
+        991,
+        440
+      ],
+      "crop_pixel_sha256": "af3cd54ffd0c401958425ddb82532ff6038b9c3dbc280f031eb50186081ee7ae",
+      "unit_id": "DA_18_Malphite",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 8,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 1860,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-001860.png",
+      "box": [
+        738,
+        292,
+        866,
+        436
+      ],
+      "crop_pixel_sha256": "fe1911279e140db960586681562bc058f42ca3fbfb9a9baed817c17ef8631e14",
+      "unit_id": "DA_18_Malphite",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 9,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13500,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013500.png",
+      "box": [
+        714,
+        267,
+        842,
+        411
+      ],
+      "crop_pixel_sha256": "c7c2998094d2c7aa3e430134c4865c7592fe9f8637552406917581d98caae6ee",
+      "unit_id": "DA_18_Maokai",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 10,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 1860,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-001860.png",
+      "box": [
+        824,
+        711,
+        952,
+        855
+      ],
+      "crop_pixel_sha256": "5aa525fe0f1829334b0abc2bffa5f644dcabcc1ead4af0e456095fa3af917067",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 11,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 5940,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-005940.png",
+      "box": [
+        740,
+        554,
+        868,
+        698
+      ],
+      "crop_pixel_sha256": "2dbb6488d6639d4c49e2059fcb74e99624481185bc71d3a780ba8cc6a58dc524",
+      "unit_id": "DA_18_Warwick",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 12,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 1040,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-001040.png",
+      "box": [
+        840,
+        322,
+        968,
+        466
+      ],
+      "crop_pixel_sha256": "0465fdc9231b2f0a49d7322f5a767d36e8813d31e9aa226e559298c6a1231290",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 13,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 9840,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-009840.png",
+      "box": [
+        824,
+        710,
+        952,
+        854
+      ],
+      "crop_pixel_sha256": "05e12b7678840672d4d1bbf4cd27b93e888b6dd358c8c4e4cf5e1b1ea114e949",
+      "unit_id": "DA_18_Varus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 16,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13320,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013320.png",
+      "box": [
+        839,
+        351,
+        967,
+        495
+      ],
+      "crop_pixel_sha256": "aa29919364110bb77505095280317583f8787b45fa2638fe91857b643929939f",
+      "unit_id": "DA_18_Sejuani",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 18,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13080,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013080.png",
+      "box": [
+        839,
+        363,
+        967,
+        507
+      ],
+      "crop_pixel_sha256": "464fdb401b4882ce922967dce9c11e94eebb74640e3a4f6d9a8a419c66c3c3f3",
+      "unit_id": "DA_18_Sejuani",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 19,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 7260,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-007260.png",
+      "box": [
+        1016,
+        413,
+        1144,
+        557
+      ],
+      "crop_pixel_sha256": "388f46749a333c35c01d8eb5a414eae7608391e95e1ac11e951e163665a5c4a3",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 20,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 3840,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-003840.png",
+      "box": [
+        1063,
+        716,
+        1191,
+        860
+      ],
+      "crop_pixel_sha256": "b718c7908bafdaca07188fd9f9cb9c1ed18ec85c6e25110991b681792d288961",
+      "unit_id": "DA_18_Veigar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 23,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 1260,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-001260.png",
+      "box": [
+        539,
+        414,
+        667,
+        558
+      ],
+      "crop_pixel_sha256": "e9c48a878ae725a486402899a1b3358a6925b4fe291e8e82d112977b891f5f84",
+      "unit_id": "DA_Krug18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 24,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13560,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013560.png",
+      "box": [
+        839,
+        351,
+        967,
+        495
+      ],
+      "crop_pixel_sha256": "404be90e71ac8b1b45a72a80e3bce6ca214bc4b5500bf1305bf94e2b0801d40a",
+      "unit_id": "DA_18_Sejuani",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 25,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 11460,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-011460.png",
+      "box": [
+        759,
+        469,
+        887,
+        613
+      ],
+      "crop_pixel_sha256": "65f50a99796a79a292157ab50ed151d71936def967a39b55b16594183071bc72",
+      "unit_id": "DA_18_Veigar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 26,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 8880,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-008880.png",
+      "box": [
+        702,
+        705,
+        830,
+        849
+      ],
+      "crop_pixel_sha256": "ca8f6f90491c8a43907b646db22daae72e8c537ff48eaf708f6a7b3c002165fa",
+      "unit_id": "DA_Nidalee18_AP",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 27,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 980,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-000980.png",
+      "box": [
+        634,
+        551,
+        762,
+        695
+      ],
+      "crop_pixel_sha256": "52b4577c060dc5855d3d59b70450b1199850b83c7f5f03a7bd358661572d1832",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 28,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 60,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-000060.png",
+      "box": [
+        1074,
+        386,
+        1202,
+        530
+      ],
+      "crop_pixel_sha256": "253852bdb0efe37791b15c1b21e0b157180ed87a998e3f86ded6384ac36406d7",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 29,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 1080,
+      "frame": "unit-gallery-morgana-training-20261005/001080.png",
+      "box": [
+        634,
+        551,
+        762,
+        695
+      ],
+      "crop_pixel_sha256": "e3dd8caeafe072869958680ea9eff389e792832dcf0598691c8e5b3eb6f33625",
+      "unit_id": "DA_18_Lillia",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 30,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 9600,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-009600.png",
+      "box": [
+        839,
+        306,
+        967,
+        450
+      ],
+      "crop_pixel_sha256": "65e2c452c8d2948bd47537e15f6318545341bbc158ebd7b9d98822e1e8e05586",
+      "unit_id": "DA_18_Camille",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 32,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 5160,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-005160.png",
+      "box": [
+        944,
+        712,
+        1072,
+        856
+      ],
+      "crop_pixel_sha256": "29a02ca1ce13093017e290cb4ac12b034eefbb02afae9feda2a66ff88e307c69",
+      "unit_id": "DA_18_Tristana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 33,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 1200,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-001200.png",
+      "box": [
+        576,
+        705,
+        704,
+        849
+      ],
+      "crop_pixel_sha256": "914d255612247a38bf27ba507b3e0f1d85b1892e4c5bbef1b37df1eb34555812",
+      "unit_id": "DA_18_Sejuani",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 34,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6660,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006660.png",
+      "box": [
+        1296,
+        580,
+        1424,
+        724
+      ],
+      "crop_pixel_sha256": "30c5160b67dec3291f7fc4bc3a42f8f1975dfc9d45f2cb856959b9c78234ff69",
+      "unit_id": "DA_Cinderling18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 35,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 9300,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-009300.png",
+      "box": [
+        840,
+        327,
+        968,
+        471
+      ],
+      "crop_pixel_sha256": "c26fb7d2e82cd4bf9ebfda698e772f2b9a34d8d593ad0dbc92a8cd82ecf711e6",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 36,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6360,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006360.png",
+      "box": [
+        1296,
+        580,
+        1424,
+        724
+      ],
+      "crop_pixel_sha256": "bbc763bb5647a656be3025bf3a802aa38b13cff2b342413da96a497bc57ee7c4",
+      "unit_id": "DA_Cinderling18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 37,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 12420,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-012420.png",
+      "box": [
+        1031,
+        599,
+        1159,
+        743
+      ],
+      "crop_pixel_sha256": "8e0008acdedd9be52a5665f47043e412dda6b9f706b6eff4411ebe6990e4a73d",
+      "unit_id": "DA_18_Veigar",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 38,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 780,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-000780.png",
+      "box": [
+        531,
+        436,
+        659,
+        580
+      ],
+      "crop_pixel_sha256": "0b66d3131bac00bb611cfb136503c6498967b014bdd2c9d1c2ebe3c8235846e7",
+      "unit_id": "DA_18_GnarSmall",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 39,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6180,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006180.png",
+      "box": [
+        701,
+        680,
+        829,
+        824
+      ],
+      "crop_pixel_sha256": "edd77dfdfdd327263d3a6b3810ecb6c0f73c3b6895e96889436f0d66df92872e",
+      "unit_id": "DA_18_Camille",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 41,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 9960,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-009960.png",
+      "box": [
+        500,
+        588,
+        628,
+        732
+      ],
+      "crop_pixel_sha256": "78a3113ce8261a6c3d8d08657f20d55c6fa9caa44d97412a5324a1e550ac972b",
+      "unit_id": "DA_18_Varus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 42,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 4860,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-004860.png",
+      "box": [
+        501,
+        573,
+        629,
+        717
+      ],
+      "crop_pixel_sha256": "a54f9f79cc9848019a4da792ef75557b39dcdcda68d74526a4fdf50904568442",
+      "unit_id": "DA_Cinderling18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 43,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6960,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006960.png",
+      "box": [
+        837,
+        533,
+        965,
+        677
+      ],
+      "crop_pixel_sha256": "a2085e043ec74d271a58eee86951976d0392b5bb6f9af219ded0c76951b4f6ec",
+      "unit_id": "DA_18_Yorick",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 45,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 13200,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-013200.png",
+      "box": [
+        948,
+        355,
+        1076,
+        499
+      ],
+      "crop_pixel_sha256": "e61a5c5129d3438df53a4e5473781fb6d879dd3a298859159dabbfa0498246e2",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 46,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 2880,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-002880.png",
+      "box": [
+        836,
+        513,
+        964,
+        657
+      ],
+      "crop_pixel_sha256": "cee4ae315f6fca86866fb9a4d6c619012f56d65b15aacff4c16ce16d1a37a86c",
+      "unit_id": "DA_18_Soraka",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 49,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 9840,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-009840.png",
+      "box": [
+        341,
+        712,
+        469,
+        856
+      ],
+      "crop_pixel_sha256": "45178b5d80271c5149878fa7c8e0134be3b9af30a41e1c40e6af9f5367e76f2f",
+      "unit_id": "DA_Scuttlecrab18",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 53,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 9660,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-009660.png",
+      "box": [
+        1146,
+        399,
+        1274,
+        543
+      ],
+      "crop_pixel_sha256": "f75b29247aae9e1741a07c096ab0e2818276e5ab983f911a522bdac25f9d7eb3",
+      "unit_id": "DA_18_Diana",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 56,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 2700,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-002700.png",
+      "box": [
+        632,
+        596,
+        760,
+        740
+      ],
+      "crop_pixel_sha256": "e3949b908793625b22d087a948f11d48bd5fda0b4506d850bf92276eb026e152",
+      "unit_id": "DA_18_Ahri",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 57,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 540,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-000540.png",
+      "box": [
+        703,
+        723,
+        831,
+        867
+      ],
+      "crop_pixel_sha256": "c59d97daecc891b462015e5855290b3c72b7ada652eafdb9b86eaac926bbf805",
+      "unit_id": "DA_18_Kobuko",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 58,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6420,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006420.png",
+      "box": [
+        1032,
+        594,
+        1160,
+        738
+      ],
+      "crop_pixel_sha256": "b2fa16f0d0498f2c48f3525f5faf8cc9bc609b49f3691ead675e2af6cfeff303",
+      "unit_id": "DA_Gromp18_AP",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 59,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6600,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006600.png",
+      "box": [
+        1167,
+        628,
+        1295,
+        772
+      ],
+      "crop_pixel_sha256": "6911d7063997d4db3dd7b7d053ed867d3287f244091ef7427718976bf512d96a",
+      "unit_id": "DA_KogMaw18_AD",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 60,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 4740,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-004740.png",
+      "box": [
+        701,
+        739,
+        829,
+        883
+      ],
+      "crop_pixel_sha256": "2bbb658cd25e3db0be3ec47520c0d08c8998d6e1a93c7941a00af3c259cd5645",
+      "unit_id": "DA_KogMaw18_AD",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 62,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 1740,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-001740.png",
+      "box": [
+        703,
+        707,
+        831,
+        851
+      ],
+      "crop_pixel_sha256": "737c0f2f9363103e6f42983c5e46dbd980d9573bf80edb9249a66a7ccf44592a",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 63,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 12480,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891050468-012480.png",
+      "box": [
+        1068,
+        684,
+        1196,
+        828
+      ],
+      "crop_pixel_sha256": "38f8d2f5e8b3968d75cc60ed473b9d48fa9fb43cb4234e657247cb31fa034beb",
+      "unit_id": "DA_Nidalee18_AP",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 64,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 220,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-000220.png",
+      "box": [
+        342,
+        704,
+        470,
+        848
+      ],
+      "crop_pixel_sha256": "426d48c7c06a4a197cc719dae321f4335e1b70d409d8d8f47707edc35215e7c9",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 66,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6780,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006780.png",
+      "box": [
+        463,
+        723,
+        591,
+        867
+      ],
+      "crop_pixel_sha256": "adb941e193e76ca1b4405cf4163bcd7746e3670771b52f7241723c2391b4444c",
+      "unit_id": "DA_18_Kobuko",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 67,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 600,
+      "frame": "unit-gallery-morgana-training-20261005/000600.png",
+      "box": [
+        341,
+        704,
+        469,
+        848
+      ],
+      "crop_pixel_sha256": "5665b92dcb87aa019e95d5ddb9adfeb71d9c9473c4bc9056fa9765f6f3ae520e",
+      "unit_id": "DA_18_Ornn",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 69,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 6060,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-006060.png",
+      "box": [
+        512,
+        600,
+        640,
+        744
+      ],
+      "crop_pixel_sha256": "642372f67f135c13ba7d42d02d0e0c8c07e3ee86c9d34a015a5693c5ba7bbe64",
+      "unit_id": "DA_18_Teemo",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 70,
+      "source_id": "youtube:nxSUNW1yZqI",
+      "source_seconds_nominal": 580,
+      "frame": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-000580.png",
+      "box": [
+        578,
+        659,
+        706,
+        803
+      ],
+      "crop_pixel_sha256": "2ab0983b03bca821ab08b44bc2d88c6a889d8761640947b576ff293cfd43e67a",
+      "unit_id": "DA_18_LeBlanc",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 71,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 4080,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-004080.png",
+      "box": [
+        1167,
+        628,
+        1295,
+        772
+      ],
+      "crop_pixel_sha256": "84c364241c63f2fe48f42912f52b6f5a8ce73266a6de330e69d79c1a56bcff4c",
+      "unit_id": "DA_KogMaw18_AD",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 72,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 10020,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-010020.png",
+      "box": [
+        1161,
+        735,
+        1289,
+        879
+      ],
+      "crop_pixel_sha256": "3a5bc772a906fafa6c9a455fb020c3695a99b797c88d1ad2f65f778ce4efc1e4",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 73,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 2280,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-002280.png",
+      "box": [
+        297,
+        240,
+        425,
+        384
+      ],
+      "crop_pixel_sha256": "3dfb2f256bf720bf909177a230d1be1c326f03fdf948da0b12b7881efde2ba25",
+      "unit_id": "__unknown__",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    },
+    {
+      "index": 74,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 12780,
+      "frame": "unit-gallery-rare-training-20261005/twitch-2891052706-012780.png",
+      "box": [
+        461,
+        719,
+        589,
+        863
+      ],
+      "crop_pixel_sha256": "037f8bc46c08dd46e19a77c535be1b43476a0609760c1d5c1c6ead7faa28a7f6",
+      "unit_id": "DA_18_Rammus",
+      "method": "assistant_visual_review",
+      "model_predictions_used_as_labels": false
+    }
+  ],
+  "already_present": [
+    {
+      "index": 0,
+      "new_visual_review": "DA_18_Malphite",
+      "existing": {
+        "state": "known",
+        "id": "DA_18_Malphite"
+      }
+    },
+    {
+      "index": 21,
+      "new_visual_review": "DA_Fiddlesticks18",
+      "existing": {
+        "state": "known",
+        "id": "DA_Fiddlesticks18"
+      }
+    },
+    {
+      "index": 61,
+      "new_visual_review": "DA_KogMaw18_AD",
+      "existing": {
+        "state": "known",
+        "id": "DA_KogMaw18_AD"
+      }
+    },
+    {
+      "index": 68,
+      "new_visual_review": "DA_Amumu18",
+      "existing": {
+        "state": "known",
+        "id": "DA_Amumu18"
+      }
+    }
+  ]
+}

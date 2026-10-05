@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T05:53:43.214Z",
+  "recorded_at": "2026-10-05T06:04:38.610Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -644,19 +644,112 @@
         "unique_frame_hashes": 15,
         "unit_crops": 69
       }
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "partition": "unlabeled_reserved_for_cross_source_evaluation_review",
+      "local_private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/tristana-resumed-10s",
+      "progress": {
+        "accepted_candidates": 0,
+        "accepted_distribution": {},
+        "accuracy_measured": false,
+        "allow_dense_ticks": true,
+        "analysis_ms_p50": 109.467329,
+        "analysis_ms_p95": 565.62068,
+        "board_profile_sha256": "50023142d6cc2d1a920b116f5e3e6452c5be89fbbdd3f849e37d02f23ab552c9",
+        "decode_mode": "all",
+        "decoder_success": true,
+        "decoder_wait_ms_p95": 864.517331,
+        "elapsed_seconds": 43.003568796,
+        "embedding_dimensions": 384,
+        "embedding_rows": 147,
+        "embeddings_sha256": "955b9a4f2c483f6f6c01445147f02e49f1cab799c772b5be5624e22136cf8e5b",
+        "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+        "frames": 47,
+        "frames_without_green_proposals": 8,
+        "gallery_sha256": "cddc7258f8895a4d79342bbbd9518a90678c8a3c758bea89df577e2aca1207c8",
+        "green_markers": 147,
+        "human_labeled_crops": 0,
+        "limitations": [
+          "Structural green-bar proposals with the recorded profile; no-proposal frames may be menu, combat, overlay or missed units.",
+          "Counts of model candidates are not precision/recall or catalog coverage.",
+          "Consecutive or duplicate crops are correlated; no pseudolabels enter training.",
+          "Sampling does not run inference on every decoded video frame.",
+          "Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."
+        ],
+        "margin": 0.08,
+        "partition": "training_pool_unlabeled",
+        "requested_seconds": 470,
+        "review_interval_seconds": 10,
+        "runtime_approved": false,
+        "sample_interval_seconds": 10,
+        "saved_review_frames": 47,
+        "schema_version": 1,
+        "source_id": "youtube:T4lJ2S2iH_o",
+        "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+        "start_seconds": 100,
+        "status": "complete",
+        "target_frames": 47,
+        "threshold": 0.8,
+        "top1_distribution": {
+          "DA_18_Ahri": 1,
+          "DA_18_Akali_AD": 1,
+          "DA_18_Alistar": 3,
+          "DA_18_Aphelios": 1,
+          "DA_18_Ashe": 3,
+          "DA_18_Azir": 4,
+          "DA_18_Caitlyn": 3,
+          "DA_18_Camille": 7,
+          "DA_18_Cassiopeia": 1,
+          "DA_18_Ezreal": 12,
+          "DA_18_Hecarim": 1,
+          "DA_18_Ivern": 3,
+          "DA_18_KhaZix": 12,
+          "DA_18_Malphite": 9,
+          "DA_18_Maokai": 12,
+          "DA_18_Ornn": 8,
+          "DA_18_Rakan": 4,
+          "DA_18_RekSai": 2,
+          "DA_18_Rengar": 2,
+          "DA_18_Shen": 11,
+          "DA_18_Sivir": 3,
+          "DA_18_Teemo": 1,
+          "DA_18_Varus": 2,
+          "DA_18_Veigar": 2,
+          "DA_18_Zyra": 5,
+          "DA_Amumu18": 5,
+          "DA_Brambleback18": 2,
+          "DA_Cinderling18": 1,
+          "DA_Karma18": 14,
+          "DA_KogMaw18_AD": 11,
+          "DA_Scuttlecrab18": 1
+        },
+        "training_performed": false,
+        "unique_frame_hashes": 47,
+        "unit_crops": 147
+      },
+      "earlier_attempt": {
+        "status": "interrupted",
+        "exit_code": 143,
+        "last_complete_nominal_seconds": 90,
+        "diagnosis": "cause_unknown",
+        "directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/tristana-pool-10s"
+      }
     }
   ],
   "pending": [
-    "Increase coverage of 13 missing IDs and diversify 18 classes having only one training source",
+    "Review new Tristana source as additional source-separated evaluation, including mounted appearances",
+    "Resolve 11 missing IDs and diversify 16 classes having only one training source",
+    "Map seasonal summons and mounted/transformed appearances without assigning incorrect champion labels",
     "Resolve cross-source recognition errors; calibrate rejection and broaden localization audit",
     "Collect a fresh final holdout before promotion",
-    "Verify the same preprocessing and model artifact in Rust runtime before coaching activation"
+    "Verify identical preprocessing and model artifact in Rust runtime before coaching activation"
   ],
   "runtime_approved": false,
-  "latest_annotations": "configs/training/unit-gallery-morgana-20261005.json",
-  "latest_model_private": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/morgana-center-head/dino-head.json",
+  "latest_annotations": "configs/training/unit-gallery-seasonal-reconciled-20261005.json",
+  "latest_model_private": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/seasonal-reconciled-head/dino-head.json",
   "latest_development_audit": {
-    "correct": 59,
+    "correct": 62,
     "reviewed": 107,
     "named_units": 98,
     "nonunits": 9,
@@ -681,14 +774,14 @@
     }
   },
   "feature_study_notes": "337 named training units; 32 validation units. A previously trained source was reassigned to validation. Models retrained from scratch with frozen DINO; this is development evidence, not a fresh final holdout.",
-  "latest_model_sha256": "9e38d889b8fb053b307bcc23238862e2c9d2be91b12bc195cf5681a911251e64",
+  "latest_model_sha256": "ae164a3bd0eb8b448558859f13fc8e67cbe88a0a0a22a132a96ba7898fea8628",
   "latest_validation": {
-    "correct": 17,
+    "correct": 18,
     "named_units": 32
   },
   "latest_training": {
-    "named_units": 469,
-    "represented_ids": 61,
+    "named_units": 512,
+    "represented_ids": 63,
     "catalog_ids": 74,
     "missing_ids": [
       "DA_18_Elise",
@@ -699,11 +792,9 @@
       "DA_18_Lux_Moonbeam",
       "DA_18_Lux_Primal",
       "DA_18_Lux_Sunbeam",
-      "DA_18_Tristana",
       "DA_Lux18_Base",
       "DA_Lux18_Blackthorn",
-      "DA_Lux18_Blossom",
-      "DA_Nidalee18_AP"
+      "DA_Lux18_Blossom"
     ],
     "single_source_ids": [
       "DA_18_Alune",
@@ -711,14 +802,12 @@
       "DA_18_ElderDragon",
       "DA_18_Kayle",
       "DA_18_KhaZix",
-      "DA_18_Kobuko",
       "DA_18_Leona",
-      "DA_18_Malphite",
       "DA_18_MasterYi_AD",
       "DA_18_Morgana",
       "DA_18_Sett",
       "DA_18_Shen",
-      "DA_18_Teemo",
+      "DA_18_Tristana",
       "DA_18_Xayah",
       "DA_CrimsonRaptor18",
       "DA_Draven18",
@@ -748,10 +837,16 @@
       "named_units": 32
     }
   },
-  "regression_note": "Validation improved 16->17/32 while development challenge declined 62->59/107. Neither candidate approved for runtime.",
+  "regression_note": "Expanded data and correction of nine mislabeled summons: validation 18/32, development 62/107; no runtime approval. Prior heads using the nine labels retained for historical comparison only.",
   "crop_transform_parity": {
     "artifact_identical": true,
     "sha256": "3d379ad94cebd588c23117e16910b9d5c250a42753c42f5c79717e99c901437f",
     "library_tests_passed": 10
+  },
+  "quarantine": {
+    "excluded_training_crops": 9,
+    "evidence": "docs/evidence/recognizer-training-20261005/seasonal-summon-quarantine.json",
+    "runtime_scope_inventory": "configs/vision/seasons/TFTSet18/entity-scope-v1.json",
+    "library_tests_passed": 11
   }
 }

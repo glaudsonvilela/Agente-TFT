@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "set_key": "TFTSet18",
+  "scope": "seasonal_visual_entity_inventory",
+  "runtime_approved": false,
+  "geometry_included": false,
+  "source_url": "https://teamfighttactics.leagueoflegends.com/en-sg/news/game-updates/enchanted-wilds-overview/",
+  "reviewed_on": "2026-10-05",
+  "policy": "Appearance taxonomy for dataset review; not a runtime detector or a combat-stat catalog",
+  "non_champion_entities": [
+    {
+      "name": "Stonebark Tree",
+      "trait": "Elderwood",
+      "entity_kind": "seasonal_summon",
+      "champion_catalog_id": null,
+      "visual_binding": "requires_explicit_review",
+      "train_as_champion": false
+    },
+    {
+      "name": "Lifebloom",
+      "trait": "Elderwood",
+      "entity_kind": "seasonal_summon",
+      "champion_catalog_id": null,
+      "visual_binding": "requires_explicit_review",
+      "train_as_champion": false
+    },
+    {
+      "name": "Deepwood Protector",
+      "trait": "Elderwood",
+      "entity_kind": "seasonal_summon",
+      "champion_catalog_id": null,
+      "visual_binding": "requires_explicit_review",
+      "train_as_champion": false
+    }
+  ],
+  "appearance_states": [
+    {
+      "name": "Sprykin rider on Big Furry Friend",
+      "identity_policy": "Retain rider champion identity separately from carrier; the same crop may contain both",
+      "class_scope": "Any champion with the relevant emblem can be a rider",
+      "training_coverage": "not_yet_validated"
+    },
+    {
+      "name": "Nidalee ranged/melee forms",
+      "identity_policy": "Same champion; appearance and ability form are separate seasonal attributes",
+      "training_coverage": "ranged appearances only, melee not verified"
+    },
+    {
+      "name": "Lux seasonal forms",
+      "identity_policy": "Bind the exact seasonal catalog ID from visible identity evidence; color alone is insufficient",
+      "training_coverage": "missing"
+    }
+  ],
+  "quarantine_evidence": "docs/evidence/recognizer-training-20261005/seasonal-summon-quarantine.json"
+}

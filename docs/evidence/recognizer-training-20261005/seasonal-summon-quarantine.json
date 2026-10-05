@@ -1,0 +1,117 @@
+{
+  "review": {
+    "removed_named_training_examples": 9,
+    "validation_and_test_unchanged": true,
+    "independent_human_ground_truth": false
+  },
+  "changes": [
+    {
+      "image": "unit-gallery-five-cost-training-20261005/000250.png",
+      "key": "marker-14",
+      "split": "train",
+      "crop_pixel_sha256": "6683125c8e74e74682eb1f34d923d69ceae12c7412175594fcb14583f41c9519",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-five-cost-training-20261005/000260.png",
+      "key": "marker-4",
+      "split": "train",
+      "crop_pixel_sha256": "2f0ba3ff6c6e3b2e8a50d44fe1a6581fb39918ac5452958dba4c8255beb2e780",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-morgana-training-20261005/000000.png",
+      "key": "marker-10",
+      "split": "train",
+      "crop_pixel_sha256": "572fcfaa58cd56592ecf071e43bbcab96950609183fa53e36de79311d0ce2154",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-morgana-training-20261005/000120.png",
+      "key": "marker-5",
+      "split": "train",
+      "crop_pixel_sha256": "88f3a9f32ff4607fd50cfa811303aa8f5bc04ffa93e9661ed85611b46654c366",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-morgana-training-20261005/000240.png",
+      "key": "marker-7",
+      "split": "train",
+      "crop_pixel_sha256": "6a3cf49e3a4b5daa7e5b68a4d78ccb8675db9c48535277d6a2308b799eef03f7",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-morgana-training-20261005/000480.png",
+      "key": "marker-5",
+      "split": "train",
+      "crop_pixel_sha256": "6cfdb560e99f2f21f121f8763519b1fbd290d97b8e388ad080faaf66a2ad0c84",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-morgana-training-20261005/000600.png",
+      "key": "marker-5",
+      "split": "train",
+      "crop_pixel_sha256": "35df745084c24a6e0bce2cc4290fe2dbdc5e998ef33660901afbcfe4778fa9e9",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-morgana-training-20261005/000960.png",
+      "key": "marker-5",
+      "split": "train",
+      "crop_pixel_sha256": "979a9293a2f1193c1f280b7f5a8f44a35052d72742963c163acad53398018358",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    },
+    {
+      "image": "unit-gallery-rare-training-20261005/youtube-nxSUNW1yZqI-000060.png",
+      "key": "rare-8",
+      "split": "train",
+      "crop_pixel_sha256": "253852bdb0efe37791b15c1b21e0b157180ed87a998e3f86ded6384ac36406d7",
+      "old_identity": {
+        "state": "known",
+        "id": "DA_18_Rammus"
+      },
+      "new_state": "excluded_pending_summon_mapping",
+      "basis": "Yellow-flower Elderwood summon was mislabeled as the pinecone-like Rammus; exact summon ID not yet confirmed"
+    }
+  ]
+}
