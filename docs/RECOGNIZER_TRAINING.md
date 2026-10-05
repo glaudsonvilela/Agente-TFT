@@ -550,3 +550,23 @@ dos 106 quadros não encontrou painel de unidade elegível. Isso não é prova d
 não houve painel entre amostras. Iniciamos uma coleta de 1 Hz em 1.240–1.280 s,
 quando a característica Avatar aparece, para procurar a aquisição de Lux e sua
 forma sem depender somente da cor ou do título do vídeo.
+
+## Lux Elderwood: vínculo pela loja e pela sequência de compra
+
+A revisão dos 40 quadros da coleta de 1 Hz encontrou, em **1.253 s**, a carta
+“Lux” com “Elderwood”, “Avatar” e o texto “Elderwood Bonus”. Os quadros seguintes
+mostram a compra, a unidade no banco e sua colocação no tabuleiro. Esse vínculo
+visual permite rotular cinco recortes espaçados em 1.320, 1.440, 1.560, 1.780 e
+1.900 s como `DA_18_Lux_Elderwood`. Os hashes e a base da revisão estão em
+`lux-elderwood-training-labels.json`. O OCR de painel lateral não encontrou esses
+textos, pois a informação estava na loja e no tooltip de habilidade, fora de sua
+região fixa. A revisão é do assistente, sem validação humana independente.
+
+O manifesto `unit-gallery-lux-elderwood-expanded-20261005.json` contém **615
+exemplos nomeados de treino e 65/74 IDs**. A nova cabeça DINO INT8 com região
+`upper_88x80_v1` e lote 1 obteve **19/32 na validação, 66/107 no desafio de
+desenvolvimento e 31/35 na fonte Minjo**. Os cinco exemplos Lux vêm de uma única
+partida; não demonstram generalização de Lux. Nove variantes ainda não têm treino.
+Reservamos a fonte `youtube:ezSEOwI7uOM` exclusivamente para avaliação antes de
+revisar suas imagens. A cabeça está congelada para essa avaliação e permanece
+sem aprovação para o runtime Windows.

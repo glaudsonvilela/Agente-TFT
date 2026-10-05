@@ -1,0 +1,109 @@
+{
+  "review": {
+    "source_id": "youtube:CQhg2_6tzcM",
+    "authorization_basis": "User states creator authorization for project training",
+    "named_added": 5,
+    "independent_human_ground_truth": false,
+    "variant_binding": "Visible shop name and Elderwood trait/ability text followed by purchase and board placement",
+    "unproven_variants": 9
+  },
+  "evidence_frames": [
+    {
+      "source_seconds": 1253,
+      "frame_pixel_sha256": "a0307bf4b5ea689a8dc648c1f631cc9c87267aecb8fbaa90ee3f7e25e5f58dab",
+      "private_frame": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s/frames/001253.png"
+    },
+    {
+      "source_seconds": 1254,
+      "frame_pixel_sha256": "e86992600d51f1f6be007986c0553c090d3a6cc51a992881180e637ef52676ef",
+      "private_frame": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s/frames/001254.png"
+    },
+    {
+      "source_seconds": 1256,
+      "frame_pixel_sha256": "d3dccde4efa613ade756b5af634bce326ae5cb627e83c55ae0eaa7e4bf467a64",
+      "private_frame": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s/frames/001256.png"
+    },
+    {
+      "source_seconds": 1258,
+      "frame_pixel_sha256": "d2cd364276af3886185f72052f4857967b2fb7a4c075aa4389fc28826938fbc1",
+      "private_frame": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s/frames/001258.png"
+    },
+    {
+      "source_seconds": 1260,
+      "frame_pixel_sha256": "0a7caa75bf64a384c3a22ed44c87eb5f20217184d9ad90a9e06ec9e29d8abae2",
+      "private_frame": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s/frames/001260.png"
+    }
+  ],
+  "labels": [
+    {
+      "image": "unit-gallery-lux-elderwood-training-20261005/1320.png",
+      "key": "marker-7",
+      "box": [
+        1307,
+        567,
+        1435,
+        711
+      ],
+      "crop_pixel_sha256": "c09a4e6b4683ff95294f6bad14a4ea6ecc7f9a19aebe42e51de67cf0675972e9",
+      "label": "DA_18_Lux_Elderwood",
+      "original_review_index": 6
+    },
+    {
+      "image": "unit-gallery-lux-elderwood-training-20261005/1440.png",
+      "key": "marker-12",
+      "box": [
+        1297,
+        548,
+        1425,
+        692
+      ],
+      "crop_pixel_sha256": "37b2a52eaa1da56c722a262f71218b856e7404a5b19b81afb25fdb54f616e4a5",
+      "label": "DA_18_Lux_Elderwood",
+      "original_review_index": 25
+    },
+    {
+      "image": "unit-gallery-lux-elderwood-training-20261005/1560.png",
+      "key": "marker-11",
+      "box": [
+        1307,
+        567,
+        1435,
+        711
+      ],
+      "crop_pixel_sha256": "7505e8b69864f95262f35792f07f616ca205c85a9a6930b1cb253da07050e96b",
+      "label": "DA_18_Lux_Elderwood",
+      "original_review_index": 39
+    },
+    {
+      "image": "unit-gallery-lux-elderwood-training-20261005/1780.png",
+      "key": "marker-8",
+      "box": [
+        629,
+        558,
+        757,
+        702
+      ],
+      "crop_pixel_sha256": "e1890f6584a273ad7a3a8187636e307a7c3c7edd7ae2ef6d8357f1ab99fafb61",
+      "label": "DA_18_Lux_Elderwood",
+      "original_review_index": 68
+    },
+    {
+      "image": "unit-gallery-lux-elderwood-training-20261005/1900.png",
+      "key": "marker-8",
+      "box": [
+        631,
+        558,
+        759,
+        702
+      ],
+      "crop_pixel_sha256": "3c2e6f844df25b9115fc74878aa14070e3cdc7360c87746f31ba7ffcf14ed469",
+      "label": "DA_18_Lux_Elderwood",
+      "original_review_index": 81
+    }
+  ],
+  "limitations": [
+    "All five examples are from one source and assigned to train.",
+    "This does not demonstrate generalization to another Lux match or any other Lux form.",
+    "Right-panel OCR found no proposals; the binding was reviewed in the shop and acquisition sequence."
+  ]
+}

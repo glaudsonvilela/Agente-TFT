@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T07:19:04.248Z",
+  "recorded_at": "2026-10-05T07:28:56.161Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -956,11 +956,11 @@
   },
   "current_candidate": {
     "status": "experimental_not_runtime_approved",
-    "annotations": "configs/training/unit-gallery-sprykin-seven-expanded-20261005.json",
-    "head_sha256": "35eb0fce3a55bd75a9a129b4ab82b79002389f4b6246b1ae56208a0a88f77774",
-    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-seven-head/dino-head.json",
-    "training_units": 610,
-    "catalog_coverage": 64,
+    "annotations": "configs/training/unit-gallery-lux-elderwood-expanded-20261005.json",
+    "head_sha256": "669b555ab3cb2648df1a173c211fb7c38ce68b60a78bd4d70a83d9ebc5636c38",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-head/dino-head.json",
+    "training_units": 615,
+    "catalog_coverage": 65,
     "catalog_total": 74,
     "validation_correct": 19,
     "validation_samples": 32,
@@ -1032,6 +1032,17 @@
       "interruption_cause": "not_confirmed",
       "training_labels_added": 0,
       "final_segment_tooltip_proposals": 0
+    },
+    {
+      "source": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "creator": "KH-Teamfight Tactics TFT",
+      "partition": "evaluation_unlabeled",
+      "status": "collection_complete_review_in_progress",
+      "private_video": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-kh-evaluation-1080.mp4",
+      "purpose": "First separate-source Lux Elderwood evaluation; no training labels allowed.",
+      "frames": 72,
+      "proposed_crops": 766,
+      "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-kh-evaluation-pool-20s"
     }
   ],
   "latest_sprykin_seven": {
@@ -1061,7 +1072,7 @@
     "embeddings_reconstructed": false,
     "report": "docs/evidence/recognizer-training-20261005/lux-reconciled-collection.json",
     "full_tooltip_proposals": 0,
-    "next": "Review completed 1-second acquisition frames and visible seasonal form before assigning Lux variant labels.",
+    "next": "Evaluate frozen Lux-expanded head against separate KH source youtube:ezSEOwI7uOM; source reserved for evaluation before reviewing its images.",
     "dense_acquisition": {
       "status": "complete",
       "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s",
@@ -1070,7 +1081,8 @@
       "embeddings_sha256": "9409e9c3a858be383839a07650c4d0f221478936807ac32dd60ab0c9fb37fbd9",
       "start_seconds": 1240,
       "sample_interval_seconds": 1,
-      "training_labels_added": 0
+      "training_labels_added": 5,
+      "review_status": "complete_shop_and_acquisition_sequence_binds_elderwood"
     }
   },
   "checkpoint_tests": {
@@ -1084,5 +1096,32 @@
     "apps/hud_mapper/hm/runtime_session.py",
     "apps/hud_mapper/hm45_core_server.py",
     "apps/hud_mapper/hm/native_unit_observer.py"
-  ]
+  ],
+  "previous_candidate_before_lux": {
+    "status": "experimental_not_runtime_approved",
+    "annotations": "configs/training/unit-gallery-sprykin-seven-expanded-20261005.json",
+    "head_sha256": "35eb0fce3a55bd75a9a129b4ab82b79002389f4b6246b1ae56208a0a88f77774",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-seven-head/dino-head.json",
+    "training_units": 610,
+    "catalog_coverage": 64,
+    "catalog_total": 74,
+    "validation_correct": 19,
+    "validation_samples": 32,
+    "development_correct": 66,
+    "development_samples": 107,
+    "tristana_correct": 31,
+    "tristana_samples": 35,
+    "mounted_correct": 1,
+    "mounted_samples": 3,
+    "crop_transform": "upper_88x80_v1",
+    "embedding_batch_size": 1,
+    "runtime_approved": false
+  },
+  "lux_variant_binding": {
+    "evidence": "docs/evidence/recognizer-training-20261005/lux-elderwood-training-labels.json",
+    "new_training_examples": 5,
+    "training_sources": 1,
+    "independent_human_ground_truth": false,
+    "cross_source_accuracy_measured": false
+  }
 }
