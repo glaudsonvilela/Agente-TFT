@@ -330,3 +330,45 @@ foram preservados. Com o processo verificado como encerrado, a retomada em outro
 diretório completou 47 quadros e 147 propostas entre 100 e 570 segundos.
 O vídeo mostra um caso importante de campeão montado. Ele permanece sem rótulos
 e fora do treino; a próxima revisão deve ampliar a avaliação entre fontes.
+
+## Primeira avaliação na nova partida de Tristana
+
+Uma grade de 30 segundos da coleta retomada produziu 46 propostas para revisão.
+Retivemos 35 recortes legíveis e excluímos 11 ambíguos. O manifesto separado
+`unit-gallery-tristana-evaluation-20261005.json` reserva o vídeo inteiro para
+avaliação. As identidades foram revisadas antes da execução do classificador;
+continuam sendo rótulos do assistente, sem confirmação humana independente.
+
+O comando Rust `evaluate-classifier --spec CONFIG_JSON` usa o encoder e a cabeça
+congelados, valida seus hashes, o vínculo com o manifesto de treino e os pixels
+dos quadros. Ele rejeita partidas/fontes/pixels compartilhados com o treino.
+O carregador específico de avaliação aceita apenas a divisão `test`; a API
+de treino continua exigindo as três divisões não vazias. Nenhum peso foi ajustado.
+
+Com o modelo corrigido de 512 unidades de treino, o resultado foi:
+
+| Condição revisada | Acertos | Exemplos |
+|---|---:|---:|
+| Aparência comum | 22 | 32 |
+| Tristana montada no companheiro Sprykin | 0 | 3 |
+| Total | 22 | 35 |
+
+Os quatro recortes comuns de Tristana foram reconhecidos. A montaria é uma
+lacuna distinta de aparência. O vídeo também contém ampliação editorial:
+alguns quadros de 1080p não mostram a interface inteira e têm outra escala.
+Só marcamos o enquadramento quando o quadro completo foi verificado; os demais
+ficam `not_reviewed`. Há apenas dois recortes na categoria de zoom verificada,
+insuficientes para concluir a precisão nessa condição.
+
+Esse resultado mede somente as propostas legíveis revisadas, sem contar
+campeões que o localizador perdeu. A fonte é anterior ao lançamento e o patch
+exato não está confirmado. Depois dessa inspeção, ela passa a ser evidência de
+desenvolvimento e não pode ser anunciada como teste final intocado. Os próximos
+exemplos montados devem vir de outra fonte. O modelo continua sem promoção.
+
+Também comparamos o mesmo artefato com lotes de 1 e 4 recortes: quatro das 35
+previsões mudaram, com 21 e 22 acertos, respectivamente. As execuções isoladas
+levaram cerca de 1,62 s cada para os 35 recortes, sem captura, carregamento ou
+exibição. Não é uma medida de FPS do HUD. Essa dependência do lote no encoder
+INT8 exige uma política explícita e idêntica no treino e na inferência; o próximo
+experimento usará um recorte por lote para retirar a influência dos vizinhos.

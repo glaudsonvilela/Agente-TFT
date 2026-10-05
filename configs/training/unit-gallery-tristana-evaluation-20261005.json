@@ -1,0 +1,1359 @@
+{
+  "schema_version": 2,
+  "kind": "board_review",
+  "scope": "source_disjoint_frozen_classifier_evaluation",
+  "review_revision": "20261005-tristana-first-evaluation",
+  "review": {
+    "proposed_crops": 46,
+    "named_crops": 35,
+    "excluded_ambiguous": 11,
+    "independent_human_ground_truth": false,
+    "model_predictions_used_as_labels": false
+  },
+  "sources": [
+    {
+      "source_id": "youtube:T4lJ2S2iH_o",
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "creator": "Minjo TFT",
+      "authorization_basis": "User states creator authorization for project training and evaluation",
+      "partition_policy": "Entire video reserved for evaluation; no chapter/frame from this source may enter training"
+    }
+  ],
+  "frames": [
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000150.png",
+      "source_ms": 150000,
+      "sha256": "376e1e248aea51eb2cabe0a3d63d012c2f643e56bc7f21264d82599c9b87928f",
+      "pixel_sha256": "19adc33bcf7b7158f8b777f1a92f86ce35fb9e060329d16784c9a4aac72148e1",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "not_reviewed",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              611,
+              374,
+              739,
+              518
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 643,
+              "y": 366
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "crop_pixel_sha256": "3018ef06d5e196b2a2a66d10e5d912987bc4311292c605c4590fcb6bcb13b173",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000210.png",
+      "source_ms": 210000,
+      "sha256": "69c22a74367bcb823595ae56bf60b0aa8de80b725b97940ceeeff75b39e6e427",
+      "pixel_sha256": "5bc2c462a023db1de83d7656034165b24273f1e3408996ef3d2d26c017f9e17c",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "not_reviewed",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-5",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              978,
+              372,
+              1106,
+              516
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 71,
+              "x": 1007,
+              "y": 364
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              725,
+              394,
+              853,
+              538
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 70,
+              "x": 754,
+              "y": 386
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1341,
+              608,
+              1469,
+              752
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 70,
+              "x": 1370,
+              "y": 600
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              769,
+              618,
+              897,
+              762
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 70,
+              "x": 798,
+              "y": 610
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              631,
+              636,
+              759,
+              780
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 70,
+              "x": 660,
+              "y": 628
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rammus"
+          },
+          "crop_pixel_sha256": "82b501db005b0429c6cc1cac7c66a53dba93e1c14417813f00fc65c2aa503453",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kobuko"
+          },
+          "crop_pixel_sha256": "fc8537363682ca1e777657be5c1029b0c7d5a4252d988bf8bd8ba97de1cfe1eb",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "crop_pixel_sha256": "9b20c52f3a95156d9b1497b483a75d1272cf7bb06362a6e7fd61324f9335886e",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "crop_pixel_sha256": "5a079d9a1d02f3c237b7393613889f24b1f070e353b4244e76d39628dc9ed35d",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "crop_pixel_sha256": "9f7cb88faf70b3098292dd5d4a2e70f8d596ff5239a058e43c58005fbc2277f7",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000240.png",
+      "source_ms": 240000,
+      "sha256": "275cf110020d9568eab93108b12c7b57b04b9ad58dbac9615bb55eea8c5a1f13",
+      "pixel_sha256": "c8b7b4b46d050caf648dbb64b4bbd850c82b0597c97cb690ab8c782e6e475cc8",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-7",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              971,
+              353,
+              1099,
+              497
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1003,
+              "y": 345
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              733,
+              373,
+              861,
+              517
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 765,
+              "y": 365
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1179,
+              481,
+              1307,
+              625
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1211,
+              "y": 473
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1312,
+              573,
+              1440,
+              717
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1344,
+              "y": 565
+            }
+          },
+          {
+            "key": "marker-11",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              773,
+              584,
+              901,
+              728
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 805,
+              "y": 576
+            }
+          },
+          {
+            "key": "marker-12",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              643,
+              601,
+              771,
+              745
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 675,
+              "y": 593
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rammus"
+          },
+          "crop_pixel_sha256": "3aa052b3073787c6054ec4cd49de779259720d581fc87bfd671f1a0a24a742f1",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kobuko"
+          },
+          "crop_pixel_sha256": "eedc70774c4540a6a56aa25d2177b2ab324df545c060ae5b185c4f286e22970d",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "e8081b143ce0cc9edf2063ccd8678141a324d957439d06eee131ea6b39865976",
+          "stars": null,
+          "appearance_state": "sprykin_mounted"
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "crop_pixel_sha256": "120562d9c1fdea22b0f5e4a44a4107adf0e9a9a5f7f98f94b423a528b0ad3533",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-11",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "crop_pixel_sha256": "805a90983673cc0bb7bfbfb40bf405fd1396e85ffe090b229aa6394e6bb2253a",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-12",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "crop_pixel_sha256": "e72e10c535ec7d0c144af7a32ebf2349733c3f5dcc1b1ae78fdcac0737630aa7",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000270.png",
+      "source_ms": 270000,
+      "sha256": "618de59066f2e234e8e384079f6312c632cf4f3533028b8ea9c12bc681415999",
+      "pixel_sha256": "ae4fc7998227fbb52388a1722e9fafd850ec571912d8ef9fc25c8c6508ca67e3",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "not_reviewed",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              964,
+              364,
+              1092,
+              508
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 996,
+              "y": 356
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              727,
+              381,
+              855,
+              525
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 759,
+              "y": 373
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              782,
+              437,
+              910,
+              581
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 814,
+              "y": 429
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1179,
+              481,
+              1307,
+              625
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1211,
+              "y": 473
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              639,
+              574,
+              767,
+              718
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 671,
+              "y": 566
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              774,
+              582,
+              902,
+              726
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 806,
+              "y": 574
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1304,
+              595,
+              1432,
+              739
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1336,
+              "y": 587
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              353,
+              711,
+              481,
+              855
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 385,
+              "y": 703
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1304,
+              715,
+              1432,
+              859
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1336,
+              "y": 707
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1068,
+              733,
+              1196,
+              877
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1100,
+              "y": 725
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              707,
+              748,
+              835,
+              892
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 739,
+              "y": 740
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rammus"
+          },
+          "crop_pixel_sha256": "ea8373b26f52ab13ffed76da0a516ff80cc220e33c53132ea2cb252686bda92e",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kobuko"
+          },
+          "crop_pixel_sha256": "47e4629a5547715f5804ecd46c9536fc938be38f583fa1647f71d883709353e4",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_GnarSmall"
+          },
+          "crop_pixel_sha256": "3ec41552a6b79b180753dd5181a435506796077df239dd20b1edccb394e5a7e0",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "5d04ddc6c03bf278a9a4ec376b813097aa9e92ecad6becd31effb31cfb226da1",
+          "stars": null,
+          "appearance_state": "sprykin_mounted"
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "crop_pixel_sha256": "733dc26d954595d9a053cbffda81c59f6b65088fa57a0e296a8a20822fa135da",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "crop_pixel_sha256": "f76d1bfa6933d4e1c09afaab25b27a2336186726301c7fca8df9c0cee98e3e66",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "crop_pixel_sha256": "41a3d84091497365c2464ade5efbf88a2233bcb57d1a3157117bef16ffc31740",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "84e6703bc705311071274849938d0f58d149258e333c57356618732ceaa0d9bd",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "crop_pixel_sha256": "f5e7ad1a8e29db8ae498d1593803278aae6433e86f5b56a10a5a31d4b36b44fa",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rammus"
+          },
+          "crop_pixel_sha256": "fb30a65adc2747ff0cc6970d8d8beaaf151117261a1d67522ba135630921098b",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "crop_pixel_sha256": "ba1043dfdb962ccb1c9b07a3acf72eb7f8f33dc9e4ff21b10aa43949a3f6c2a0",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000300.png",
+      "source_ms": 300000,
+      "sha256": "db7b82c18914341c6ba94538754f8700988b0332580cbc22e3c191fa3e5aa3b6",
+      "pixel_sha256": "948d0a4d74936090e8c0f4b3cfeb0848a503f03b4ff6410e8dc32d39808c1666",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              733,
+              373,
+              861,
+              517
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 765,
+              "y": 365
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              639,
+              574,
+              767,
+              718
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 671,
+              "y": 566
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              773,
+              584,
+              901,
+              728
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 66,
+              "x": 804,
+              "y": 576
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kobuko"
+          },
+          "crop_pixel_sha256": "3d9f55df4850ea1a561018e59fb5e09b586c7212a35eb43ab801d02e3564075d",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "crop_pixel_sha256": "1eb082306782c5c399133cff44a354a54ca4e9850a24c627d59504cab99d3fbc",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "crop_pixel_sha256": "f1bb6efd1bba93b7f276a337378c4dfc58e8ad53cf0ff78e774001659c7c4526",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000360.png",
+      "source_ms": 360000,
+      "sha256": "2f4164fb29eca66ea94885c139fe79d65dcfe32ad464793889909079d72b79c6",
+      "pixel_sha256": "033a5e2ca8ab8cece9365f817a80036b61e4346cd546571329b4cc72823203ce",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "editorial_zoom_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-7",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              655,
+              429,
+              783,
+              573
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 688,
+              "y": 421
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lillia"
+          },
+          "crop_pixel_sha256": "af28d679278291736b48ed5a6f93373fc3167562dd2ed1a9ee832a008a4e3e9e",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000420.png",
+      "source_ms": 420000,
+      "sha256": "426e2d14556e1a79cda9d6e41df60883eb6d11b1c889c76a28a3d4dd82f433b9",
+      "pixel_sha256": "a39f7347dcbd95a70cf28fd8dab1f47c6473bbd2265ac88fdd48e4e3a4630847",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "not_reviewed",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              708,
+              710,
+              836,
+              854
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 740,
+              "y": 702
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1309,
+              710,
+              1437,
+              854
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 1341,
+              "y": 702
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              353,
+              711,
+              481,
+              855
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 385,
+              "y": 703
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              473,
+              716,
+              601,
+              860
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 505,
+              "y": 708
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              592,
+              716,
+              720,
+              860
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 65,
+              "x": 624,
+              "y": 708
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_GnarSmall"
+          },
+          "crop_pixel_sha256": "9cb8bffd4de30bb281dd7ab7b53b1f6288a22f35c1df4c183a68a466ceb06c6e",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_GnarSmall"
+          },
+          "crop_pixel_sha256": "5f6916366e2b4138044c76d5a8509fe22fcf72a75cf00417e3407e26c31a2ef6",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "39f34fa9406ab6a490ed9183b1fa773248ea13628b3ffa783418ac242151e6d8",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "73ae98eec73075226c2f90acd38ae0d3ca15acd46690558439960570acc4479c",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "9731b69f31521e783560f69a2416c6a24028862bacc816e6867a7170e9f9e18c",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000450.png",
+      "source_ms": 450000,
+      "sha256": "8c1dfeb297d391809bbf932b401e25807bf4deff976696aaef05016b48004042",
+      "pixel_sha256": "445b1a58d2cb49617d0a4b38f1d89f999cea6bb932fa45a86cc11d61b02e8e5c",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "not_reviewed",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1145,
+              466,
+              1273,
+              610
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 68,
+              "x": 1175,
+              "y": 458
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "crop_pixel_sha256": "ccbbb9a452e05c0b37c765ac0b86493d60cfe99f8815f747570483b63171adc2",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000480.png",
+      "source_ms": 480000,
+      "sha256": "60c480877fc3a0336b2e4edf0bdf572bafbda66c27972c24e216b25392557fab",
+      "pixel_sha256": "ea4f9880263bf01e29cc2a7769568f601b3bb7fe77f91eb8bd461b4c5c2b2c40",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "not_reviewed",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1089,
+              638,
+              1217,
+              782
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 81,
+              "x": 1113,
+              "y": 630
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Tristana"
+          },
+          "crop_pixel_sha256": "180fe3de88393e3024bc292680293221c442444cf936d460d08615e16807b09d",
+          "stars": null,
+          "appearance_state": "sprykin_mounted"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-tristana-evaluation-20261005/000540.png",
+      "source_ms": 540000,
+      "sha256": "6043ed8ab95960344f31cda8be1f568c789d1e108eb7b52f8107b98cb8ef6b42",
+      "pixel_sha256": "2d94036f52e41add46d361f87653892e9f807335c6fb9d883070c97048e2ae9f",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-T4lJ2S2iH_o",
+      "match_group": "youtube-T4lJ2S2iH_o-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Thirty-second grid in completed resumed collection; full frames and named renders inspected before classifier evaluation; only legible crop identities retained; not independent human ground truth"
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "PBE_source_exact_revision_unknown",
+        "published_date": "2026-07-31",
+        "appearance_binding": "Assistant-reviewed visual match only; no current stats assumed"
+      },
+      "source_url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
+      "source_video_id": "youtube:T4lJ2S2iH_o",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "editorial_zoom_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-3",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              506,
+              429,
+              634,
+              573
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 89,
+              "x": 526,
+              "y": 421
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lillia"
+          },
+          "crop_pixel_sha256": "cb16b36abd56a633ea4e40fc7e5dcbc7e2073e2259dda2762c455c2133a14def",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    }
+  ]
+}

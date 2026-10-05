@@ -74,6 +74,31 @@ fn quarantine_guard(frame: &Value, key: &str, crop_box: &Value) -> Result<()> {
     Ok(())
 }
 pub fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sample>> {
+    load_samples_with_scope(path, root, reference, false)
+}
+/// Standalone frozen evaluation; training callers still require all three splits.
+pub fn load_evaluation_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sample>> {
+    load_samples_with_scope(path, root, reference, true)
+}
+fn validate_split_scope(splits: &HashSet<&str>, evaluation_only: bool) -> Result<()> {
+    if evaluation_only {
+        if splits.len() != 1 || !splits.contains("test") {
+            return Err("evaluation requires nonempty test split only".into());
+        }
+    } else if ["train", "validation", "test"]
+        .iter()
+        .any(|s| !splits.contains(s))
+    {
+        return Err("three nonempty splits required".into());
+    }
+    Ok(())
+}
+fn load_samples_with_scope(
+    path: &Path,
+    root: &Path,
+    reference: &Path,
+    evaluation_only: bool,
+) -> Result<Vec<Sample>> {
     let doc: Value = serde_json::from_slice(&fs::read(path)?)?;
     if doc["review_status"] == "superseded" || doc["schema_version"] != 2 {
         return Err("unsupported/superseded review".into());
@@ -209,12 +234,8 @@ pub fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sa
             }
         }
     }
-    if ["train", "validation", "test"]
-        .iter()
-        .any(|s| !result.iter().any(|r| r.split == *s))
-    {
-        return Err("three nonempty splits required".into());
-    }
+    let splits: HashSet<_> = result.iter().map(|s| s.split.as_str()).collect();
+    validate_split_scope(&splits, evaluation_only)?;
     Ok(result)
 }
 fn prepare(crop: &UnitCrop, mode: &str) -> Result<(UnitCrop, bool)> {
@@ -564,11 +585,21 @@ pub fn main() {
 mod tests {
     use super::*;
     #[test]
+    fn standalone_evaluation_does_not_relax_training_split_requirements() {
+        let test_only = HashSet::from(["test"]);
+        let all = HashSet::from(["train", "validation", "test"]);
+        assert!(validate_split_scope(&test_only, true).is_ok());
+        assert!(validate_split_scope(&test_only, false).is_err());
+        assert!(validate_split_scope(&all, false).is_ok());
+        assert!(validate_split_scope(&all, true).is_err());
+        assert!(validate_split_scope(&HashSet::new(), true).is_err());
+    }
+    #[test]
     fn quarantined_summon_cannot_return_as_champion_under_a_different_key() {
         let frame = json!({"excluded_entities":[{"key":"marker-2","box":[10,20,138,164]}]});
-        assert!(quarantine_guard(&frame, "marker-2", &json!([0,0,128,144])).is_err());
-        assert!(quarantine_guard(&frame, "renamed", &json!([10,20,138,164])).is_err());
-        assert!(quarantine_guard(&frame, "marker-3", &json!([200,20,328,164])).is_ok());
+        assert!(quarantine_guard(&frame, "marker-2", &json!([0, 0, 128, 144])).is_err());
+        assert!(quarantine_guard(&frame, "renamed", &json!([10, 20, 138, 164])).is_err());
+        assert!(quarantine_guard(&frame, "marker-3", &json!([200, 20, 328, 164])).is_ok());
     }
     #[test]
     fn same_video_cannot_change_partition() {

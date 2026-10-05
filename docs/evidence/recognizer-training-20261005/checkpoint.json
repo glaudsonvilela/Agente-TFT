@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T06:04:38.610Z",
+  "recorded_at": "2026-10-05T06:15:21.091Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -647,7 +647,7 @@
     },
     {
       "url": "https://www.youtube.com/watch?v=T4lJ2S2iH_o",
-      "partition": "unlabeled_reserved_for_cross_source_evaluation_review",
+      "partition": "evaluation_only",
       "local_private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/tristana-resumed-10s",
       "progress": {
         "accepted_candidates": 0,
@@ -738,7 +738,7 @@
     }
   ],
   "pending": [
-    "Review new Tristana source as additional source-separated evaluation, including mounted appearances",
+    "Collect mounted champion examples from another source; preserve the new Tristana source entirely for evaluation",
     "Resolve 11 missing IDs and diversify 16 classes having only one training source",
     "Map seasonal summons and mounted/transformed appearances without assigning incorrect champion labels",
     "Resolve cross-source recognition errors; calibrate rejection and broaden localization audit",
@@ -848,5 +848,27 @@
     "evidence": "docs/evidence/recognizer-training-20261005/seasonal-summon-quarantine.json",
     "runtime_scope_inventory": "configs/vision/seasons/TFTSet18/entity-scope-v1.json",
     "library_tests_passed": 11
+  },
+  "additional_source_evaluation": {
+    "source_id": "youtube:T4lJ2S2iH_o",
+    "manifest": "configs/training/unit-gallery-tristana-evaluation-20261005.json",
+    "reviewed_named_crops": 35,
+    "excluded_ambiguous": 11,
+    "correct": 22,
+    "ordinary": {
+      "correct": 22,
+      "examples": 32
+    },
+    "mounted": {
+      "correct": 0,
+      "examples": 3
+    },
+    "training_performed": false,
+    "independent_human_ground_truth": false,
+    "now_development_evidence": true
+  },
+  "native_evaluation_tests": {
+    "library_passed": 12,
+    "source_isolation_passed": 2
   }
 }

@@ -120,7 +120,7 @@ impl Head {
     }
 }
 
-fn metrics(head: &Head, rows: &[(&Sample, &Vec<f32>)]) -> Result<Value> {
+pub fn metrics(head: &Head, rows: &[(&Sample, &Vec<f32>)]) -> Result<Value> {
     let mut per_class: BTreeMap<String, (u64, u64)> = BTreeMap::new();
     let mut confusion: BTreeMap<String, u64> = BTreeMap::new();
     let mut predictions = Vec::new();
