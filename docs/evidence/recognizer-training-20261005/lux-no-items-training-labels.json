@@ -1,0 +1,50 @@
+{
+  "review": {
+    "source_id": "youtube:CQhg2_6tzcM",
+    "named_added": 3,
+    "independent_matches_added": 0,
+    "independent_human_ground_truth": false,
+    "basis": "Add absent no-item appearance modes within training source; no test frames used."
+  },
+  "labels": [
+    {
+      "review_index": 3,
+      "image": "unit-gallery-lux-elderwood-training-20261005/1254.png",
+      "key": "marker-14",
+      "label": "DA_18_Lux_Elderwood",
+      "box": [
+        949,
+        706,
+        1077,
+        850
+      ],
+      "crop_pixel_sha256": "a20a0c2c1b9919d89c1754b31eee7872a6790f42d25c4f1ebaf807d76f94c430"
+    },
+    {
+      "review_index": 7,
+      "image": "unit-gallery-lux-elderwood-training-20261005/1256.png",
+      "key": "marker-9",
+      "label": "DA_18_Lux_Elderwood",
+      "box": [
+        764,
+        561,
+        892,
+        705
+      ],
+      "crop_pixel_sha256": "2b1d3014b549deb5e73918d60d5362feeea501f145a47abcbfdd950a208af157"
+    },
+    {
+      "review_index": 16,
+      "image": "unit-gallery-lux-elderwood-training-20261005/1261.png",
+      "key": "marker-9",
+      "label": "DA_18_Lux_Elderwood",
+      "box": [
+        1310,
+        590,
+        1438,
+        734
+      ],
+      "crop_pixel_sha256": "6bd404c9da6bab5ff1ad64a77b7a288c93d7b3f73f2f1eaebf72af94e1e45b51"
+    }
+  ]
+}

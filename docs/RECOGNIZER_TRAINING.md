@@ -595,3 +595,18 @@ a avaliação KH passou de 21/35 para 24/35, mas Minjo caiu de 31/35 para 27/35.
 A mudança global de recorte não resolveu o problema com consistência. O próximo
 passo é ampliar as aparições sem itens na fonte de treino e examinar a necessidade
 de alinhamento condicionado à faixa de itens, mantendo a separação das partidas.
+
+### Cobertura de Lux sem itens na própria fonte de treino
+
+Acrescentamos três aparições da sequência de aquisição de shurkou: banco após
+compra, colocação com contorno de seleção e tabuleiro sem itens. São observações
+correlacionadas da mesma partida, não três partidas novas. A fonte KH permanece
+exclusivamente para avaliação. A cabeça foi novamente treinada com o recorte
+`upper_88x80_v1`, totalizando **618 exemplos nomeados e 65/74 IDs**.
+
+Resultados: **19/32 validação; 66/107 desafio anterior; 31/35 Minjo; 23/35 KH**.
+Lux Elderwood passou de 0/3 para **2/3** no KH sem as regressões da troca global
+de recorte. O experimento sustenta ampliar cobertura por estado de aparência
+(itens, pose, seleção, montaria, arena), preservando os recortes e a origem dos
+rótulos. Ainda faltam nove formas Lux, precisão maior entre partidas e validação
+independente. O artefato continua experimental, sem ativação no Windows.

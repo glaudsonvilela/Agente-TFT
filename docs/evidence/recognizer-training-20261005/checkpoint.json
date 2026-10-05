@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T07:39:09.164Z",
+  "recorded_at": "2026-10-05T07:43:51.881Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -956,10 +956,10 @@
   },
   "current_candidate": {
     "status": "experimental_not_runtime_approved",
-    "annotations": "configs/training/unit-gallery-lux-elderwood-expanded-20261005.json",
-    "head_sha256": "669b555ab3cb2648df1a173c211fb7c38ce68b60a78bd4d70a83d9ebc5636c38",
-    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-head/dino-head.json",
-    "training_units": 615,
+    "annotations": "configs/training/unit-gallery-lux-no-items-expanded-20261005.json",
+    "head_sha256": "c9b3ba9bf7c22ffdb6e7a6096de841ab00d5a301eb8903dd6c93992367a4e31e",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-no-items-head/dino-head.json",
+    "training_units": 618,
     "catalog_coverage": 65,
     "catalog_total": 74,
     "validation_correct": 19,
@@ -972,7 +972,12 @@
     "mounted_samples": 3,
     "crop_transform": "upper_88x80_v1",
     "embedding_batch_size": 1,
-    "runtime_approved": false
+    "runtime_approved": false,
+    "kh_correct": 23,
+    "kh_samples": 35,
+    "lux_cross_source_correct": 2,
+    "lux_cross_source_samples": 3,
+    "lux_cross_source_matches": 1
   },
   "current_region_experiment": {
     "protocol": "docs/evidence/recognizer-training-20261005/region-experiment-protocol.json",
@@ -1072,7 +1077,7 @@
     "embeddings_reconstructed": false,
     "report": "docs/evidence/recognizer-training-20261005/lux-reconciled-collection.json",
     "full_tooltip_proposals": 0,
-    "next": "Investigate crop height/position and training appearance coverage; current upper transform can discard the head when no item row is present.",
+    "next": "Expand independent training appearances and resolve scene/alignment failures. KH and Minjo remain test-only development sources; do not train on them. Nine Lux forms still missing.",
     "dense_acquisition": {
       "status": "complete",
       "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s",
@@ -1154,5 +1159,55 @@
     "minjo_correct": 27,
     "minjo_samples": 35,
     "crop_tests_passed": 4
+  },
+  "next_training": {
+    "status": "complete",
+    "annotations": "configs/training/unit-gallery-lux-no-items-expanded-20261005.json",
+    "new_examples": 3,
+    "total_training_named": 618,
+    "new_training_matches": 0,
+    "reason": "Add missing no-item appearance of Lux within existing training source",
+    "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-no-items-head",
+    "result": {
+      "validation": 19,
+      "validation_samples": 32,
+      "development": 66,
+      "development_samples": 107,
+      "minjo": 31,
+      "minjo_samples": 35,
+      "kh": 23,
+      "kh_samples": 35,
+      "lux": 2,
+      "lux_samples": 3
+    }
+  },
+  "previous_candidate_before_no_items": {
+    "status": "experimental_not_runtime_approved",
+    "annotations": "configs/training/unit-gallery-lux-elderwood-expanded-20261005.json",
+    "head_sha256": "669b555ab3cb2648df1a173c211fb7c38ce68b60a78bd4d70a83d9ebc5636c38",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-head/dino-head.json",
+    "training_units": 615,
+    "catalog_coverage": 65,
+    "catalog_total": 74,
+    "validation_correct": 19,
+    "validation_samples": 32,
+    "development_correct": 66,
+    "development_samples": 107,
+    "tristana_correct": 31,
+    "tristana_samples": 35,
+    "mounted_correct": 1,
+    "mounted_samples": 3,
+    "crop_transform": "upper_88x80_v1",
+    "embedding_batch_size": 1,
+    "runtime_approved": false
+  },
+  "external_acquisition": {
+    "status": "two_additional_sources_require_youtube_sign_in",
+    "source_ids": [
+      "youtube:-ukIGOlhclU",
+      "youtube:r_LykupV32c"
+    ],
+    "downloads_started": false,
+    "existing_corpus_available": true
   }
 }
