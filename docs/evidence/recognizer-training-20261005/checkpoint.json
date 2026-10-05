@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:35:00-03:00",
+  "recorded_at": "2026-10-05T11:50:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,14 +1346,17 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "ready_for_frozen_model_prioritization",
+    "status": "run_autonomous_game_derived_supervision",
     "source_id": "youtube:Ot358nhRJl0",
     "collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/annotation-2s",
-    "runner": "scripts/prioritize_targeted_annotation_collection.py",
-    "native_binary": "prioritize-annotation-collection",
-    "frozen_model": "optimizer-default-parity / transfer-vertical",
-    "predictions_are_labels": false,
-    "automatic_labels": false,
+    "runner": "scripts/run_autonomous_source_supervision.py",
+    "expected_signals": [
+      "exact catalog-backed tooltip OCR",
+      "selected-unit cyan association",
+      "temporal repetition"
+    ],
+    "fallback_if_no_gold_anchors": "autonomous shop/purchase transition evidence, then multi-model temporal consensus; never manual labeling",
+    "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
   },
@@ -1481,6 +1484,18 @@
     "unit_crops": 6927,
     "saved_review_frames": 230,
     "inference_performed": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_supervision": {
+    "status": "required_no_human_in_critical_path",
+    "policy": "docs/evidence/recognizer-training-20261005/autonomous-supervision-policy.json",
+    "ocr_alias_commit": "5486fac3bed63c0ec05f2c5fef2f5cb436d75eb4",
+    "tooltip_consensus_runner": "scripts/autolabel_tooltip_temporal_consensus.py",
+    "orchestration_runner": "scripts/run_autonomous_source_supervision.py",
+    "human_review_required": false,
+    "model_self_confidence_alone_is_label": false,
+    "ambiguous_becomes_unknown": true,
     "training_performed": false,
     "runtime_approved": false
   }
