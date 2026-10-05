@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-10-05T10:16:00-03:00",
+  "status": "ready_for_ssd_inventory",
+  "input_policy": "new_training_side_images_only",
+  "automatic_labels": false,
+  "training_performed": false,
+  "minjo_kh_allowed_in_training": false,
+  "priority_missing_training_ids": [
+    "DA_18_Lux_Coven",
+    "DA_18_Lux_Fae",
+    "DA_18_Lux_Inferno",
+    "DA_18_Lux_Moonbeam",
+    "DA_18_Lux_Primal",
+    "DA_18_Lux_Sunbeam",
+    "DA_Lux18_Base",
+    "DA_Lux18_Blackthorn",
+    "DA_Lux18_Blossom"
+  ],
+  "priority_single_source_ids": [
+    "DA_18_ElderDragon",
+    "DA_18_Kayle",
+    "DA_18_KhaZix",
+    "DA_18_Lux_Elderwood",
+    "DA_18_MasterYi_AD",
+    "DA_18_Morgana",
+    "DA_18_Xayah",
+    "DA_CrimsonRaptor18",
+    "DA_Karma18",
+    "DA_Murkwolf18"
+  ],
+  "admission_rules": [
+    "Image pixels must be absent from existing train, validation and test manifests.",
+    "Source provenance must be known before any training label is admitted.",
+    "Identity must be reviewed from the image/context; model predictions are never labels.",
+    "Ambiguous images remain unreviewed and do not become negatives.",
+    "Minjo and KH development sources remain permanently excluded from training.",
+    "A new independent final holdout must remain untouched."
+  ],
+  "runtime_approved": false
+}
