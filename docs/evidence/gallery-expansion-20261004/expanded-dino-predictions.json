@@ -1,0 +1,614 @@
+{
+  "validation": [
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        719,
+        318,
+        847,
+        462
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-0",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.02851271629333496,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Scuttlecrab18",
+          "similarity": 0.6569299697875977
+        },
+        {
+          "unit_id": "DA_18_Alistar",
+          "similarity": 0.6284172534942627
+        },
+        {
+          "unit_id": "DA_18_Ornn",
+          "similarity": 0.6037654876708984
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        840,
+        323,
+        968,
+        467
+      ],
+      "label": "DA_18_Camille",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-1",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Camille",
+      "status": "identity_candidate",
+      "similarity_margin": 0.16175150871276855,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.8735116720199585
+        },
+        {
+          "unit_id": "DA_18_Zyra",
+          "similarity": 0.7117601633071899
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.6972699761390686
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        960,
+        350,
+        1088,
+        494
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-2",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.019276857376098633,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Leona",
+          "similarity": 0.7411748170852661
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.7218979597091675
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.7173060774803162
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        1077,
+        385,
+        1205,
+        529
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-3",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.0231131911277771,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.6587027907371521
+        },
+        {
+          "unit_id": "DA_18_Alistar",
+          "similarity": 0.635589599609375
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6100748777389526
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        499,
+        563,
+        627,
+        707
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-4",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Sentry",
+      "status": "identity_candidate",
+      "similarity_margin": 0.15027666091918945,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.8678908348083496
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.7176141738891602
+        },
+        {
+          "unit_id": "DA_18_Zyra",
+          "similarity": 0.7099317312240601
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        1067,
+        694,
+        1195,
+        838
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-5",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.0045375823974609375,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Leona",
+          "similarity": 0.704124927520752
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.699587345123291
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.68999183177948
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        1310,
+        700,
+        1438,
+        844
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-6",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.06912779808044434,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7716977596282959
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.7025699615478516
+        },
+        {
+          "unit_id": "DA_18_Cassiopeia",
+          "similarity": 0.6350351572036743
+        }
+      ]
+    }
+  ],
+  "test": [
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        840,
+        345,
+        968,
+        489
+      ],
+      "label": "DA_18_Camille",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-0",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Camille",
+      "status": "identity_candidate",
+      "similarity_margin": 0.3207368850708008,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.979628324508667
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.6588914394378662
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.631607174873352
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        723,
+        379,
+        851,
+        523
+      ],
+      "label": "DA_18_RekSai",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-1",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.10814082622528076,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.791257381439209
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6831165552139282
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.5775208473205566
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        501,
+        593,
+        629,
+        737
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-2",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.02752053737640381,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7354655265808105
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.7079449892044067
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.705787181854248
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        989,
+        670,
+        1117,
+        814
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-3",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.016731739044189453,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.6479456424713135
+        },
+        {
+          "unit_id": "DA_Amumu18",
+          "similarity": 0.631213903427124
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6174374222755432
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        1064,
+        728,
+        1192,
+        872
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-4",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.020910322666168213,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.7105790376663208
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6896687150001526
+        },
+        {
+          "unit_id": "DA_18_Veigar",
+          "similarity": 0.658661961555481
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        586,
+        729,
+        714,
+        873
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-5",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.003638625144958496,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Veigar",
+          "similarity": 0.6308395862579346
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6272009611129761
+        },
+        {
+          "unit_id": "DA_18_Shen",
+          "similarity": 0.6035991907119751
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        826,
+        729,
+        954,
+        873
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-6",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.07060456275939941,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Rakan",
+          "similarity": 0.6697114706039429
+        },
+        {
+          "unit_id": "DA_18_Leona",
+          "similarity": 0.5991069078445435
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.5946823358535767
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        840,
+        323,
+        968,
+        467
+      ],
+      "label": "DA_18_Camille",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-0",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.037379324436187744,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.7751287221908569
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.7377493977546692
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.719407320022583
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        723,
+        357,
+        851,
+        501
+      ],
+      "label": "DA_18_RekSai",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-1",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.035616159439086914,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.7584956884384155
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.7228795289993286
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.6626400947570801
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        501,
+        593,
+        629,
+        737
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-2",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Sentry",
+      "status": "identity_candidate",
+      "similarity_margin": 0.23187434673309326,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.9950377941131592
+        },
+        {
+          "unit_id": "DA_18_Varus",
+          "similarity": 0.7631634473800659
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6327972412109375
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        1295,
+        614,
+        1423,
+        758
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-3",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.09507143497467041,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.7639847993850708
+        },
+        {
+          "unit_id": "DA_18_Alistar",
+          "similarity": 0.6689133644104004
+        },
+        {
+          "unit_id": "DA_CrimsonRaptor18",
+          "similarity": 0.6663211584091187
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        1301,
+        728,
+        1429,
+        872
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-4",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.012886106967926025,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Teemo",
+          "similarity": 0.6548565626144409
+        },
+        {
+          "unit_id": "DA_Gromp18_AP",
+          "similarity": 0.6419704556465149
+        },
+        {
+          "unit_id": "DA_18_Ornn",
+          "similarity": 0.6296900510787964
+        }
+      ]
+    }
+  ]
+}

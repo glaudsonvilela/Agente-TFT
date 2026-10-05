@@ -176,6 +176,11 @@ instalador nem habilitado o cérebro estratégico a partir desse modelo reprovad
 
 ### Alternativa com reconhecedores separados — 2026-10-04
 
+**Resultados históricos superados:** nove rótulos visuais foram corrigidos na
+revisão descrita abaixo. As métricas semânticas desta seção e do experimento
+CNN anterior não devem orientar ativação. Os arquivos originais ficam como
+histórico; o treinador rejeita a anotação antiga marcada como `superseded`.
+
 Foi comparado um extrator visual pré-treinado com uma galeria de recortes reais
 dos campeões. A galeria usa somente a partição de treino: 29 unidades nomeadas,
 dez recortes negativos de HUD e 16 IDs. Inserir exemplos por temporada passa a
@@ -221,3 +226,76 @@ Também foram corrigidas duas incompatibilidades vistas no CI Windows: os JSON
 do catálogo/pesos de coaching devem preservar LF para os hashes conferirem, e
 os leitores desta etapa especificam UTF-8 para nomes multilíngues. A verificação
 de integridade dos arquivos permanece obrigatória.
+
+### Galeria ampliada, revisão de rótulos e compactação — 2026-10-04
+
+A galeria corrigida cresceu de 29 para **193 recortes de campeões**, de 17 para
+**51 IDs oficiais** entre os 74 IDs do catálogo. Há também dez negativos de HUD.
+Foram revisados 36 quadros de treino: 29 recortes novos vieram do YouTube de
+Wasianiverson e 55 do VOD da Twitch de Dishsoap, extraídos diretamente em 1080p.
+Cada fonte registra URL, tempo do vídeo, formato, hashes da imagem e dos pixels.
+Os vídeos completos de cada criador permanecem numa única partição.
+
+As nove correções substituem Elise por Camille em cinco recortes, Soraka por
+Karma em um, Alistar por Ornn em um e Karma por Master Yi em dois. Foram
+conferidos recortes, quadros completos, características visíveis e catálogo
+sazonal. Isso continua sendo revisão pelo assistente, sem validação humana
+independente. O registro de alterações está em
+`docs/evidence/gallery-expansion-20261004/label-corrections.json`.
+
+`training.export_unit_gallery_review` gera uma galeria HTML filtrável, recortes
+PNG e um índice JSON com código estável, ID oficial, nome, origem e checksum.
+O código da imagem depende de seus pixels e coordenadas, portanto corrigir o
+nome não muda esse código. A numeração de exibição é apenas uma ordenação.
+Os 193 arquivos e seus vínculos foram verificados. A galeria e um ZIP de 4,9 MB
+estão no laboratório privado do SSD, sem incluir vídeos no GitHub.
+
+O reconhecimento compara **vetores de características aprendidas** dos
+recortes. Não exige igualdade pixel a pixel. Esta etapa amplia a memória de
+referências: **não houve treinamento de novos pesos** nem implementação de
+memória temporal de identidade. Combinar quadros consecutivos exigirá
+rastreamento e invalidação após compra, venda, mudança de cena e movimento.
+
+Foi reservado outro VOD, de Subzeroark na Twitch, para 19 novos recortes de
+teste. Nenhum deles entrou na galeria. Junto aos dez recortes nomeados do teste
+local reutilizado, os resultados com limiar 0,8 e margem 0,08 foram:
+
+| Extrator | Arquivo | p95 para 12 recortes | Primeira opção correta | Candidatos aceitos / errados |
+| --- | ---: | ---: | ---: | ---: |
+| MobileNetV3 | 3,7 MB | 39 ms | 14/29 | 3 / 0 |
+| DINOv2 completo FP32 | 88,4 MB | 779 ms | 16/29 | 2 / 0 |
+| DINOv2 completo INT8 | 25,0 MB | 546 ms | 18/29 | 2 / 0 |
+| DINOv2 com 6 blocos INT8 | 14,0 MB | 287 ms | 6/29 | 0 / 0 |
+
+Medição de inferência em CPU Linux, uma thread, sem captura, transporte, voz ou
+pré-processamento. Tamanho de arquivo não é consumo de RAM. No VOD novo,
+MobileNet acertou a primeira opção em 10/19, DINO completo FP32 em 7/19 e INT8
+em 9/19; **nenhum aceitou um candidato nesse VOD**. Os dois recortes locais sem
+nome permanecem fora do denominador de acertos. Não são negativos confiáveis.
+
+O núcleo DINO já é somente o extrator visual. A quantização reduziu o arquivo
+em aproximadamente 72% e preservou melhor o resultado desta pequena avaliação.
+O corte ingênuo de metade dos blocos foi **reprovado**: reduziu custo, mas perdeu
+discriminação. O exportador permite reproduzir esse experimento explicitamente
+com `--dinov2-blocks 6`; o padrão permanece 12. A equivalência PyTorch/ONNX do
+modelo de seis blocos teve erro máximo 1,49e-7; isso valida a exportação, não a
+qualidade de reconhecimento. Não houve destilação do modelo.
+
+Todos os modelos continuam **diagnósticos, sem ativação estratégica**. Faltam
+23 IDs, incluindo dez variantes de Lux, e muitos dos 51 IDs têm somente uma
+vista. Também faltam validação independente, diversidade de poses/domínios,
+localização robusta de recortes, memória temporal, estrelas/propriedade/hexágono
+e avaliação abrangente dos itens. Recortes ambíguos ou mal centralizados foram
+excluídos; estas métricas não medem a cobertura do detector de barras.
+
+Reprodução: usar `unit-identity-corrected-20261004.json` como baseline,
+`unit-gallery-expanded-20261004.json` para a galeria e
+`unit-gallery-challenge-20261004.json` para incluir o novo VOD de teste, todos
+em `configs/training`, com `--images datasets`. Executar
+`python -m training.evaluate_unit_gallery --help` e
+`python -m training.export_unit_gallery_review --help` para os argumentos.
+Relatórios, previsões, cobertura por ID, códigos e fontes estão em
+`docs/evidence/gallery-expansion-20261004/summary.json` e arquivos adjacentes.
+
+Referência técnica de compactação:
+[quantização no ONNX Runtime](https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html).

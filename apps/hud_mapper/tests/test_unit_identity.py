@@ -95,7 +95,7 @@ class UnitIdentityContracts(unittest.TestCase):
 
     def test_reviewed_matches_may_not_leak_across_splits(self):
         document = json.loads(
-            (ROOT / "configs/training/unit-identity-review-20261004.json").read_text(
+            (ROOT / "configs/training/unit-gallery-expanded-20261004.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -111,6 +111,20 @@ class UnitIdentityContracts(unittest.TestCase):
         )
         rows = samples(document, None, catalog, "reference")
         self.assertEqual(len(rows["test"]), 12)
+        retired = json.loads(
+            (ROOT / "configs/training/unit-identity-review-20261004.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "superseded identity review"):
+            samples(retired, None, catalog, "reference")
+        changed = copy.deepcopy(document)
+        video_frame = next(f for f in changed["frames"] if f.get("source_video_id"))
+        video_frame["identity_split"] = "test"
+        video_frame["session_id"] = "different-session-same-video"
+        video_frame["match_group"] = "different-match-same-video"
+        with self.assertRaisesRegex(ValueError, "source video leakage"):
+            samples(changed, None, catalog, "reference")
         changed = copy.deepcopy(document)
         changed["frames"][0]["identity_split"] = "test"
         with self.assertRaisesRegex(ValueError, "leakage"):

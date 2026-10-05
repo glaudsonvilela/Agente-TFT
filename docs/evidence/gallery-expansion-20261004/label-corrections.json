@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "method": "assistant_visual_review_no_model_predictions",
+  "corrections": [
+    {
+      "frame": "review-20261004/064.png",
+      "key": "marker-0",
+      "previous_id": "DA_18_Elise",
+      "corrected_id": "DA_18_Camille",
+      "basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+    },
+    {
+      "frame": "review-20261004/076.png",
+      "key": "marker-1",
+      "previous_id": "DA_18_Elise",
+      "corrected_id": "DA_18_Camille",
+      "basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+    },
+    {
+      "frame": "review-20261004/076.png",
+      "key": "marker-2",
+      "previous_id": "DA_18_Soraka",
+      "corrected_id": "DA_Karma18",
+      "basis": "Floating pink fans; Florescer/Enfeiticador visible in 065/076"
+    },
+    {
+      "frame": "review-20261004/143.png",
+      "key": "marker-1",
+      "previous_id": "DA_18_Alistar",
+      "corrected_id": "DA_18_Ornn",
+      "basis": "Antlered hammer bearer; Sabugueiro/Defendente roster, no Lutador"
+    },
+    {
+      "frame": "review-20261004/143.png",
+      "key": "marker-3",
+      "previous_id": "DA_Karma18",
+      "corrected_id": "DA_18_MasterYi_AD",
+      "basis": "Spirit Blossom blade silhouette; Florescer/Adaptador roster, no Enfeiticador"
+    },
+    {
+      "frame": "review-20261004/143.png",
+      "key": "marker-4",
+      "previous_id": "DA_Karma18",
+      "corrected_id": "DA_18_MasterYi_AD",
+      "basis": "Spirit Blossom blade silhouette; Florescer/Adaptador roster, no Enfeiticador"
+    },
+    {
+      "frame": "review-20261004/167.png",
+      "key": "marker-1",
+      "previous_id": "DA_18_Elise",
+      "corrected_id": "DA_18_Camille",
+      "basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+    },
+    {
+      "frame": "review-20261004/193.png",
+      "key": "marker-0",
+      "previous_id": "DA_18_Elise",
+      "corrected_id": "DA_18_Camille",
+      "basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+    },
+    {
+      "frame": "review-20261004/204.png",
+      "key": "marker-0",
+      "previous_id": "DA_18_Elise",
+      "corrected_id": "DA_18_Camille",
+      "basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+    }
+  ],
+  "previous_accuracy_reports_superseded": true
+}

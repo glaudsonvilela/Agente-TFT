@@ -1,0 +1,614 @@
+{
+  "validation": [
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        719,
+        318,
+        847,
+        462
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-0",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.006256818771362305,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Ornn",
+          "similarity": 0.7749083042144775
+        },
+        {
+          "unit_id": "DA_Gromp18_AP",
+          "similarity": 0.7686514854431152
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.7105683088302612
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        840,
+        323,
+        968,
+        467
+      ],
+      "label": "DA_18_Camille",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-1",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Camille",
+      "status": "identity_candidate",
+      "similarity_margin": 0.13582521677017212,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.9092147946357727
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.7733895778656006
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.7554266452789307
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        960,
+        350,
+        1088,
+        494
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-2",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.01369333267211914,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Caitlyn",
+          "similarity": 0.7907378673553467
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.7770445346832275
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.7291240692138672
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        1077,
+        385,
+        1205,
+        529
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-3",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.06402051448822021,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.6933060884475708
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.6292855739593506
+        },
+        {
+          "unit_id": "DA_18_Akali_AD",
+          "similarity": 0.601415753364563
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        499,
+        563,
+        627,
+        707
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-4",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.045461177825927734,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7778364419937134
+        },
+        {
+          "unit_id": "DA_18_Varus",
+          "similarity": 0.7323752641677856
+        },
+        {
+          "unit_id": "DA_18_Ornn",
+          "similarity": 0.7206273078918457
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        1067,
+        694,
+        1195,
+        838
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-5",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.003438234329223633,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Rakan",
+          "similarity": 0.7982866764068604
+        },
+        {
+          "unit_id": "DA_18_Veigar",
+          "similarity": 0.7948484420776367
+        },
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7653142213821411
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/167.png",
+      "box": [
+        1310,
+        700,
+        1438,
+        844
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "key": "marker-6",
+      "match_group": "match-c39eced3",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Sentry",
+      "status": "identity_candidate",
+      "similarity_margin": 0.08703577518463135,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.8332921266555786
+        },
+        {
+          "unit_id": "DA_18_Teemo",
+          "similarity": 0.7462563514709473
+        },
+        {
+          "unit_id": "DA_18_Varus",
+          "similarity": 0.7235099077224731
+        }
+      ]
+    }
+  ],
+  "test": [
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        840,
+        345,
+        968,
+        489
+      ],
+      "label": "DA_18_Camille",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-0",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.07094883918762207,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.8416822552680969
+        },
+        {
+          "unit_id": "DA_18_Veigar",
+          "similarity": 0.7707334160804749
+        },
+        {
+          "unit_id": "DA_18_Rakan",
+          "similarity": 0.7681987285614014
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        723,
+        379,
+        851,
+        523
+      ],
+      "label": "DA_18_RekSai",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-1",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.03634899854660034,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.8055841326713562
+        },
+        {
+          "unit_id": "DA_18_Ornn",
+          "similarity": 0.7692351341247559
+        },
+        {
+          "unit_id": "DA_18_Alistar",
+          "similarity": 0.7175145149230957
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        501,
+        593,
+        629,
+        737
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-2",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.05185830593109131,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7294985055923462
+        },
+        {
+          "unit_id": "DA_18_MasterYi_AD",
+          "similarity": 0.6776401996612549
+        },
+        {
+          "unit_id": "DA_Gromp18_AP",
+          "similarity": 0.6664583683013916
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        989,
+        670,
+        1117,
+        814
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-3",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.0437009334564209,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Alistar",
+          "similarity": 0.8064174652099609
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.76271653175354
+        },
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7549638748168945
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        1064,
+        728,
+        1192,
+        872
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-4",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.0069748759269714355,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.7924304008483887
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.7854555249214172
+        },
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.765637993812561
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        586,
+        729,
+        714,
+        873
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-5",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.003791332244873047,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Gromp18_AP",
+          "similarity": 0.7333991527557373
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.7296078205108643
+        },
+        {
+          "unit_id": "DA_18_Rakan",
+          "similarity": 0.7196731567382812
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/193.png",
+      "box": [
+        826,
+        729,
+        954,
+        873
+      ],
+      "label": "__unknown__",
+      "frame_sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "key": "marker-6",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.041397809982299805,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Rakan",
+          "similarity": 0.729068398475647
+        },
+        {
+          "unit_id": "DA_Gromp18_AP",
+          "similarity": 0.6876705884933472
+        },
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.6758217811584473
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        840,
+        323,
+        968,
+        467
+      ],
+      "label": "DA_18_Camille",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-0",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.07626688480377197,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.8672174215316772
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.7909505367279053
+        },
+        {
+          "unit_id": "DA_18_Caitlyn",
+          "similarity": 0.7895461320877075
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        723,
+        357,
+        851,
+        501
+      ],
+      "label": "DA_18_RekSai",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-1",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.06437641382217407,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_RekSai",
+          "similarity": 0.8724304437637329
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.8080540299415588
+        },
+        {
+          "unit_id": "DA_18_Camille",
+          "similarity": 0.7877011895179749
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        501,
+        593,
+        629,
+        737
+      ],
+      "label": "DA_18_Sentry",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-2",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": "DA_18_Sentry",
+      "status": "identity_candidate",
+      "similarity_margin": 0.15883779525756836,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_18_Sentry",
+          "similarity": 0.9826889038085938
+        },
+        {
+          "unit_id": "DA_18_Varus",
+          "similarity": 0.8238511085510254
+        },
+        {
+          "unit_id": "DA_Karma18",
+          "similarity": 0.7616208791732788
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        1295,
+        614,
+        1423,
+        758
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-3",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.00039315223693847656,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.7914525270462036
+        },
+        {
+          "unit_id": "DA_18_Alistar",
+          "similarity": 0.7910593748092651
+        },
+        {
+          "unit_id": "DA_18_MasterYi_AD",
+          "similarity": 0.7784713506698608
+        }
+      ]
+    },
+    {
+      "image": "review-20261004/204.png",
+      "box": [
+        1301,
+        728,
+        1429,
+        872
+      ],
+      "label": "DA_Cinderling18",
+      "frame_sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "key": "marker-4",
+      "match_group": "match-d75a3fcf",
+      "reference_sha256": "5dafba7d15d09fb77b4ba83af78f3a46f0986121f68c46e3be6bf41da85c823f",
+      "candidate_id": null,
+      "status": "unknown",
+      "similarity_margin": 0.0015431046485900879,
+      "identity_verified": false,
+      "candidates": [
+        {
+          "unit_id": "DA_Cinderling18",
+          "similarity": 0.8179485201835632
+        },
+        {
+          "unit_id": "DA_18_Teemo",
+          "similarity": 0.8164054155349731
+        },
+        {
+          "unit_id": "DA_18_Varus",
+          "similarity": 0.7600560188293457
+        }
+      ]
+    }
+  ]
+}

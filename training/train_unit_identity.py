@@ -19,9 +19,13 @@ from training.board_review import require, validate
 def samples(document, root, catalog, reference_sha):
     from apps.hud_mapper.hm.unit_identity import unit_box
 
+    require(
+        document.get("review_status") != "superseded",
+        "superseded identity review: use the corrected annotations",
+    )
     validate(document, root)
     ids = {entry["id"] for entry in catalog["entries"]}
-    groups, sessions, pixels = {}, {}, {}
+    groups, sessions, pixels, videos = {}, {}, {}, {}
     result = {key: [] for key in ("train", "validation", "test")}
     for frame in document["frames"]:
         split = frame.get("identity_split")
@@ -40,6 +44,10 @@ def samples(document, root, catalog, reference_sha):
             require(
                 index.setdefault(value, split) == split, "match/session/pixel leakage"
             )
+        video = frame.get("source_video_id")
+        if video is not None:
+            require(isinstance(video, str) and video, "invalid source video ID")
+            require(videos.setdefault(video, split) == split, "source video leakage")
         layout = {u["key"]: u for u in frame["layout"]["units"]}
         for entity in frame["entities"]:
             identity = entity["identity"]

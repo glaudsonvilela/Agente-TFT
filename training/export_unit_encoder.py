@@ -35,6 +35,10 @@ def export(args):
         base = torch.hub.load(
             str(args.dinov2_source), "dinov2_vits14", source="local"
         ).eval()
+        if args.dinov2_blocks != 12:
+            # Experimental truncation, NOT equivalent to distillation or the
+            # original checkpoint. Its gallery must be rebuilt and evaluated.
+            base.blocks = torch.nn.ModuleList(list(base.blocks)[: args.dinov2_blocks])
 
     class Encoder(torch.nn.Module):
         def __init__(self):
@@ -91,6 +95,10 @@ def export(args):
         training_performed=False,
         runtime_approved=False,
     )
+    if args.backbone == "dinov2_vits14":
+        report["transformer_blocks"] = args.dinov2_blocks
+        report["experimental_truncation"] = args.dinov2_blocks != 12
+        report["accuracy_equivalence_claimed"] = False
     if args.quantize:
         from onnxruntime.quantization import quantize_dynamic, QuantType
 
@@ -120,6 +128,13 @@ if __name__ == "__main__":
     parser.add_argument("--size", type=int, default=224)
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--dinov2-source", type=Path)
+    parser.add_argument(
+        "--dinov2-blocks",
+        type=int,
+        choices=(6, 9, 12),
+        default=12,
+        help="Experimental block truncation; requires a new gallery/evaluation",
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--quantize", action="store_true")
     export(parser.parse_args())

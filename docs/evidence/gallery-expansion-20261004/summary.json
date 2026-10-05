@@ -1,0 +1,706 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-04",
+  "status": "diagnostic_only_not_ready_for_strategic_state",
+  "gallery": {
+    "named_crops": 193,
+    "hud_negative_crops": 10,
+    "covered_ids": 51,
+    "catalog_ids": 74,
+    "training_frames": 36,
+    "new_youtube_crops": 29,
+    "new_twitch_crops": 55
+  },
+  "label_corrections": 9,
+  "sources": [
+    {
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+      "source_id": "af1zvuCmr58",
+      "format_id": "299",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "authorization_basis": "User states creator authorization for project training",
+      "partition_policy": "Entire VOD train; match roster identifiers aid provenance, not independent match-ID verification",
+      "download_scope": "Eight single frames, five usable reviewed frames, no full VOD download",
+      "exclusions": {
+        "02400.png": "carousel: outside current bar crop contract",
+        "13200.png": "only one partial combat crop",
+        "15600.png": "overlapping combat crops"
+      }
+    },
+    {
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_id": "twitch:2891050468",
+      "creator": "Dishsoap",
+      "title": "Blossom Cup #TPC !overlay",
+      "format_id": "1080p60",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "authorization_basis": "User states creator authorization for project training",
+      "partition_policy": "Entire VOD train; approximate roster episode groups are not verified match IDs",
+      "download_scope": "Eleven single frames; nine usable reviewed frames",
+      "exclusions": {
+        "03000.png": "No usable unit-bar proposals",
+        "08400.png": "No usable unit-bar proposals"
+      }
+    }
+  ],
+  "evaluation_sources": [
+    {
+      "source_url": "https://www.twitch.tv/videos/2890208196",
+      "source_id": "twitch:2890208196",
+      "creator": "Subzeroark",
+      "title": "Tactician Showdown: Into the Wilds Tournament Day 1",
+      "format_id": "1080p60",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "partition_policy": "Entire VOD test-only, including adjacent frames. Not independent human ground truth.",
+      "authorization_basis": "User states creator authorization for project training",
+      "named_crops": 19,
+      "download_scope": "Thirteen individual frames, seven with usable reviewed proposals"
+    }
+  ],
+  "coverage": [
+    {
+      "id": "DA_18_Ahri",
+      "name": "Ahri",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Akali_AD",
+      "name": "Akali",
+      "training_crops": 5,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Alistar",
+      "name": "Alistar",
+      "training_crops": 4,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Alune",
+      "name": "Alune",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Aphelios",
+      "name": "Aphelios",
+      "training_crops": 3,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Ashe",
+      "name": "Ashe",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Azir",
+      "name": "Azir",
+      "training_crops": 3,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Caitlyn",
+      "name": "Caitlyn",
+      "training_crops": 4,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Camille",
+      "name": "Camille",
+      "training_crops": 18,
+      "different_training_sources": 3
+    },
+    {
+      "id": "DA_18_Cassiopeia",
+      "name": "Cassiopeia",
+      "training_crops": 3,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Diana",
+      "name": "Diana",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_ElderDragon",
+      "name": "Dragão Ancião",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Elise",
+      "name": "Elise",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Ezreal",
+      "name": "Ezreal",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_GnarSmall",
+      "name": "Gnar",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Hecarim",
+      "name": "Hecarim",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Ivern",
+      "name": "Ivern",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Kayle",
+      "name": "Kayle",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Kennen",
+      "name": "Kennen",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_KhaZix",
+      "name": "Kha'Zix",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Kobuko",
+      "name": "Kobuko",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_LeBlanc",
+      "name": "LeBlanc",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Leona",
+      "name": "Leona",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Lillia",
+      "name": "Lillia",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Coven",
+      "name": "Lux (Congregação das Bruxas)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Elderwood",
+      "name": "Lux (Sabugueiro)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Fae",
+      "name": "Lux (Feérica)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Inferno",
+      "name": "Lux (Inferno)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Moonbeam",
+      "name": "Lux (Lunar)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Primal",
+      "name": "Lux (Primordial)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Lux_Sunbeam",
+      "name": "Lux (Solar)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Malphite",
+      "name": "Malphite",
+      "training_crops": 2,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Maokai",
+      "name": "Maokai",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_MasterYi_AD",
+      "name": "Master Yi",
+      "training_crops": 3,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Morgana",
+      "name": "Morgana",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Ornn",
+      "name": "Ornn",
+      "training_crops": 5,
+      "different_training_sources": 3
+    },
+    {
+      "id": "DA_18_Rakan",
+      "name": "Rakan",
+      "training_crops": 3,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Rammus",
+      "name": "Rammus",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_RekSai",
+      "name": "Rek'Sai",
+      "training_crops": 12,
+      "different_training_sources": 3
+    },
+    {
+      "id": "DA_18_Rengar",
+      "name": "Rengar",
+      "training_crops": 4,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Sejuani",
+      "name": "Sejuani",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Sentry",
+      "name": "Cascalho",
+      "training_crops": 15,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Sett",
+      "name": "Sett",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Shen",
+      "name": "Shen",
+      "training_crops": 5,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Sivir",
+      "name": "Sivir",
+      "training_crops": 3,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Soraka",
+      "name": "Soraka",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Teemo",
+      "name": "Teemo",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Tristana",
+      "name": "Tristana",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Varus",
+      "name": "Varus",
+      "training_crops": 9,
+      "different_training_sources": 3
+    },
+    {
+      "id": "DA_18_Veigar",
+      "name": "Veigar",
+      "training_crops": 2,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_18_Warwick",
+      "name": "Warwick",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Xayah",
+      "name": "Xayah",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Yorick",
+      "name": "Yorick",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_18_Yunara",
+      "name": "Yunara",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_18_Zyra",
+      "name": "Zyra",
+      "training_crops": 3,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_Amumu18",
+      "name": "Amumu",
+      "training_crops": 2,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_Brambleback18",
+      "name": "Rubrivira",
+      "training_crops": 4,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_Cinderling18",
+      "name": "Rubrivirim",
+      "training_crops": 4,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_CrimsonRaptor18",
+      "name": "Mamãe Bicuda",
+      "training_crops": 7,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_Draven18",
+      "name": "Draven",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_Fiddlesticks18",
+      "name": "Fiddlesticks",
+      "training_crops": 4,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_Gromp18_AP",
+      "name": "Grompe",
+      "training_crops": 7,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_Karma18",
+      "name": "Karma",
+      "training_crops": 12,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_KogMaw18_AD",
+      "name": "Kog'Maw",
+      "training_crops": 6,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_Krug18",
+      "name": "Krugue",
+      "training_crops": 4,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_Lux18_Base",
+      "name": "Lux",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_Lux18_Blackthorn",
+      "name": "Lux (Espinhos Negros)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_Lux18_Blossom",
+      "name": "Lux (Florescer)",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_Murkwolf18",
+      "name": "Lobo Trevoguari",
+      "training_crops": 2,
+      "different_training_sources": 2
+    },
+    {
+      "id": "DA_Nidalee18_AP",
+      "name": "Nidalee",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_Scuttlecrab18",
+      "name": "Aronguejo",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_Sentinel18",
+      "name": "Azuporã",
+      "training_crops": 1,
+      "different_training_sources": 1
+    },
+    {
+      "id": "DA_Taric18",
+      "name": "Taric",
+      "training_crops": 0,
+      "different_training_sources": 0
+    },
+    {
+      "id": "DA_Vi18",
+      "name": "Vi",
+      "training_crops": 7,
+      "different_training_sources": 3
+    }
+  ],
+  "comparisons": {
+    "corrected-baseline": {
+      "encoder_bytes": 3717890,
+      "encoder_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 34.20269350135641,
+        "p95": 37.65856170066399
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 8,
+          "candidates_accepted": 1,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "expanded-youtube": {
+      "encoder_bytes": 3717890,
+      "encoder_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 36.92445749948092,
+        "p95": 38.60486195208068
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 5,
+          "candidates_accepted": 3,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "expanded-final": {
+      "encoder_bytes": 3717890,
+      "encoder_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 33.951817500565085,
+        "p95": 35.66915040009917
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 4,
+          "candidates_accepted": 3,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "expanded-dino": {
+      "encoder_bytes": 88371512,
+      "encoder_sha256": "d11497b95bab015a00130af3aba4727d81b3fb473891dd2d11b28d5ab7994e18",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 786.7659319999802,
+        "p95": 806.0583667480387
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 9,
+          "candidates_accepted": 2,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "challenge-mobile": {
+      "encoder_bytes": 3717890,
+      "encoder_sha256": "a8bf11e5029fe15691985fa7b1bdfa6dc983cc94666759a42b71d8a79a7c2a1d",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 37.078086999827065,
+        "p95": 39.0061879019413
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 4,
+          "candidates_accepted": 3,
+          "wrong_candidates_accepted": 0
+        },
+        "new_vod_challenge": {
+          "named": 19,
+          "top1_correct": 10,
+          "candidates_accepted": 0,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "challenge-dino-fp32": {
+      "encoder_bytes": 88371512,
+      "encoder_sha256": "d11497b95bab015a00130af3aba4727d81b3fb473891dd2d11b28d5ab7994e18",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 755.7706070019776,
+        "p95": 778.8506861994392
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 9,
+          "candidates_accepted": 2,
+          "wrong_candidates_accepted": 0
+        },
+        "new_vod_challenge": {
+          "named": 19,
+          "top1_correct": 7,
+          "candidates_accepted": 0,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "challenge-dino-int8": {
+      "encoder_bytes": 25000912,
+      "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 537.0223355002963,
+        "p95": 545.6951087511698
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 9,
+          "candidates_accepted": 2,
+          "wrong_candidates_accepted": 0
+        },
+        "new_vod_challenge": {
+          "named": 19,
+          "top1_correct": 9,
+          "candidates_accepted": 0,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    },
+    "challenge-dino-six-int8": {
+      "encoder_bytes": 14010608,
+      "encoder_sha256": "9105970999450268058e2c88635d87b80805daed24977fe10fa4c1d487efbe88",
+      "inference_ms": {
+        "batch": 12,
+        "threads": 1,
+        "median": 281.3507094997476,
+        "p95": 286.9179452505705
+      },
+      "partitions": {
+        "reused_local_test": {
+          "named": 10,
+          "top1_correct": 5,
+          "candidates_accepted": 0,
+          "wrong_candidates_accepted": 0
+        },
+        "new_vod_challenge": {
+          "named": 19,
+          "top1_correct": 1,
+          "candidates_accepted": 0,
+          "wrong_candidates_accepted": 0
+        }
+      }
+    }
+  },
+  "limitations": [
+    "No neural weight training or distillation performed; frozen features and reference-gallery expansion only.",
+    "Labels reviewed by assistant, no independent human ground truth.",
+    "Old semantic accuracy reports superseded because nine labels were corrected.",
+    "23 catalog IDs have no training crop; ten are Lux variants with shared portrait artwork.",
+    "Temporal identity memory, owner/hex/star verification and comprehensive item validation are not completed by this experiment.",
+    "Test selection excludes ambiguous/miscentered proposals: these figures do not measure end-to-end detector recall.",
+    "All measurements CPU Linux; inference only, no Windows capture/preview/voice/transport.",
+    "Threshold 0.8 and class margin 0.08 unchanged; no promotion to verified_state.",
+    "Zero accepted candidates in the new VOD for every tested encoder; absence of false accepts is not adequate coverage."
+  ],
+  "recommendation": "Keep full 12-block INT8 DINO as research teacher/reference; reject naive 6-block truncation. Continue crop localization, independent labeling and domain/pose coverage before activation.",
+  "compression_sources": [
+    "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+    "https://github.com/facebookresearch/dinov2/tree/7764ea0f912e53c92e82eb78a2a1631e92725fc8"
+  ],
+  "annotation_sha256": {
+    "unit-identity-corrected-20261004.json": "3f85e66d27d76c513e05fe1518af9ecfdf85eab589f8289cd907f310a3de4e92",
+    "unit-gallery-expanded-20261004.json": "8f663b9ee312657c8351d8d16170d783e22a8022b2a3f65d16082b8ecc60c771",
+    "unit-gallery-challenge-20261004.json": "8f0141230ff446cc2226376d795f47b882eff064a5c644fec9bf2e7e3722ad32"
+  }
+}

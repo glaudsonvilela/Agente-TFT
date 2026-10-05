@@ -95,7 +95,7 @@
       "pixel_sha256": "c6a77add248ad0ad08e5bb5439be64611d85b135aa69e88571e2f770bce8abea",
       "session_id": "1f0938fe7952419283f8544b8e5115df",
       "source_ms": 384437.5374,
-      "image": "029.png",
+      "image": "review-20261004/029.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -331,7 +331,7 @@
       "pixel_sha256": "c85df9868ae6904d905c27303fb2c276e356ab0748edafe730a9366aba22e674",
       "session_id": "1f0938fe7952419283f8544b8e5115df",
       "source_ms": 528588.5369,
-      "image": "041.png",
+      "image": "review-20261004/041.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -483,7 +483,7 @@
       "pixel_sha256": "8190d98bc589e23f00b6ce62d8323ae2b86e3252d694c9b4ea77573f36fe648f",
       "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
       "source_ms": 277708.6668,
-      "image": "064.png",
+      "image": "review-20261004/064.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -629,9 +629,10 @@
           "key": "marker-0",
           "identity": {
             "state": "known",
-            "id": "DA_18_Elise"
+            "id": "DA_18_Camille"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
         },
         {
           "key": "marker-1",
@@ -710,7 +711,7 @@
       "pixel_sha256": "b58902eab8ba07c76ed88918c68bd926778d311d77f0c937c2d19fd5ad6a4760",
       "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
       "source_ms": 655143.3271,
-      "image": "076.png",
+      "image": "review-20261004/076.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -847,17 +848,19 @@
           "key": "marker-1",
           "identity": {
             "state": "known",
-            "id": "DA_18_Elise"
+            "id": "DA_18_Camille"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
         },
         {
           "key": "marker-2",
           "identity": {
             "state": "known",
-            "id": "DA_18_Soraka"
+            "id": "DA_Karma18"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Floating pink fans; Florescer/Enfeiticador visible in 065/076"
         },
         {
           "key": "marker-3",
@@ -912,7 +915,7 @@
       "pixel_sha256": "7e7f02d3077005fb051de708307d8dc8082e6571f2bf252fadb52dbb0e958eba",
       "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
       "source_ms": 663798.1203,
-      "image": "143.png",
+      "image": "review-20261004/143.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -1032,9 +1035,10 @@
           "key": "marker-1",
           "identity": {
             "state": "known",
-            "id": "DA_18_Alistar"
+            "id": "DA_18_Ornn"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Antlered hammer bearer; Sabugueiro/Defendente roster, no Lutador"
         },
         {
           "key": "marker-2",
@@ -1048,17 +1052,19 @@
           "key": "marker-3",
           "identity": {
             "state": "known",
-            "id": "DA_Karma18"
+            "id": "DA_18_MasterYi_AD"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Spirit Blossom blade silhouette; Florescer/Adaptador roster, no Enfeiticador"
         },
         {
           "key": "marker-4",
           "identity": {
             "state": "known",
-            "id": "DA_Karma18"
+            "id": "DA_18_MasterYi_AD"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Spirit Blossom blade silhouette; Florescer/Adaptador roster, no Enfeiticador"
         }
       ],
       "identity_split": "train",
@@ -1089,7 +1095,7 @@
       "pixel_sha256": "8c6155e094f5d85b996050ad5061a6ea722dd71dc10a26157afe7e1dd8c04711",
       "session_id": "c39eced32a004bc38e4270a2b3297f1e",
       "source_ms": 1121013.2758,
-      "image": "167.png",
+      "image": "review-20261004/167.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -1242,9 +1248,10 @@
           "key": "marker-1",
           "identity": {
             "state": "known",
-            "id": "DA_18_Elise"
+            "id": "DA_18_Camille"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
         },
         {
           "key": "marker-2",
@@ -1292,7 +1299,7 @@
       "pixel_sha256": "1efdf67ffee6ff8b89c80ede574502e5a4730e8b548ca82b993e4bc03a292cf8",
       "session_id": "d75a3fcf5071426196119a07fff17f42",
       "source_ms": 356593.4342,
-      "image": "193.png",
+      "image": "review-20261004/193.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -1438,9 +1445,10 @@
           "key": "marker-0",
           "identity": {
             "state": "known",
-            "id": "DA_18_Elise"
+            "id": "DA_18_Camille"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
         },
         {
           "key": "marker-1",
@@ -1497,7 +1505,7 @@
       "pixel_sha256": "a830598c2d6b2003490232ba39b5be64ca102d6976f124ada048760aee3570e5",
       "session_id": "d75a3fcf5071426196119a07fff17f42",
       "source_ms": 519309.1476,
-      "image": "204.png",
+      "image": "review-20261004/204.png",
       "scene": "board",
       "image_size": [
         1920,
@@ -1609,9 +1617,10 @@
           "key": "marker-0",
           "identity": {
             "state": "known",
-            "id": "DA_18_Elise"
+            "id": "DA_18_Camille"
           },
-          "stars": null
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
         },
         {
           "key": "marker-1",
@@ -1649,6 +1658,10 @@
       "identity_split": "test"
     }
   ],
-  "review_status": "superseded",
-  "superseded_by": "unit-identity-corrected-20261004.json"
+  "review_revision": "20261004-r2",
+  "supersedes": "unit-identity-review-20261004.json",
+  "limitations": [
+    "Assistant visual review, not independent human ground truth.",
+    "Reused held-out matches: development comparison only."
+  ]
 }

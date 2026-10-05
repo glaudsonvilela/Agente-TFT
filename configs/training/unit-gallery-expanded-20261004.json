@@ -1,0 +1,6824 @@
+{
+  "schema_version": 2,
+  "kind": "board_review",
+  "scope": "expanded_unit_gallery_development",
+  "match_group_reviews": [
+    {
+      "id": "match-1f0938fe",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "fd58cef22e344dded96b995ee1e614173aba5b9ac1f390aa743f436fd5e73e69"
+      ],
+      "opponent_names": [
+        "LuscaoBradock",
+        "Jotave",
+        "CalmaSeuLuiz",
+        "thetha99",
+        "CANTU",
+        "我九岁了",
+        "WPX Eskilo07"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-6f784a17",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "74060899da7ca9985fd1959eae08156aa49d56ab4fac2f49ff10ac1bcd545e2c"
+      ],
+      "opponent_names": [
+        "Xicadoida",
+        "Duzinn",
+        "QuemL3u",
+        "рят",
+        "Corey taylor",
+        "Not 4 Kids",
+        "pimenta0289"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-9acfd9af",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "bc6e7d8c923cf1b71368eaa6451206a91ffe79ac5d00f29af7eb3a5c92e5fc6d"
+      ],
+      "opponent_names": [
+        "Bruus",
+        "Brunigma",
+        "AlShadan",
+        "ArcanjoBob40",
+        "Gokusan2013",
+        "DJScratch"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-c39eced3",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "f9af5f5783518247db72ae8b4d98cff63cfe609aac4d995d81f960adf0260f71"
+      ],
+      "opponent_names": [
+        "ionian legacy",
+        "OhDaRol4",
+        "Valaaaaa",
+        "pedrobonne",
+        "Socaa fofoo",
+        "Tempest 98",
+        "PRICILÃO"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-d75a3fcf",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "73b4ad9da1992f6a0dcec4d4ed7171b683ae32e2c5c79b55ebd887802baf58f4"
+      ],
+      "opponent_names": [
+        "KazakiZam",
+        "PalioWeekend2010",
+        "Minuu",
+        "Cracatua",
+        "jaogagabriel",
+        "PrincesaDoce",
+        "vknk VG"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    }
+  ],
+  "frames": [
+    {
+      "index": 29,
+      "sha256": "fd58cef22e344dded96b995ee1e614173aba5b9ac1f390aa743f436fd5e73e69",
+      "pixel_sha256": "c6a77add248ad0ad08e5bb5439be64611d85b135aa69e88571e2f770bce8abea",
+      "session_id": "1f0938fe7952419283f8544b8e5115df",
+      "source_ms": 384437.5374,
+      "image": "review-20261004/029.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-1f0938fe",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "phase": "planning",
+      "hud": {
+        "hp": 100,
+        "gold": 3,
+        "level": 4,
+        "xp": 0,
+        "xp_cap": 10,
+        "stage": "2-1"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              354,
+              969,
+              498
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              355,
+              1088,
+              499
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 347
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              902,
+              435,
+              1030,
+              579
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 69,
+              "x": 932,
+              "y": 427
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              596,
+              629,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 588
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              350,
+              722,
+              478,
+              866
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 382,
+              "y": 714
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              706,
+              724,
+              834,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 738,
+              "y": 716
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              826,
+              724,
+              954,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 858,
+              "y": 716
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "sha256": "3c8ce7daed2c77d343b629a90fc839b1f3ae0d432ed1c5b4b9e110fb723ab615",
+      "pixel_sha256": "c85df9868ae6904d905c27303fb2c276e356ab0748edafe730a9366aba22e674",
+      "session_id": "1f0938fe7952419283f8544b8e5115df",
+      "source_ms": 528588.5369,
+      "image": "review-20261004/041.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-1f0938fe",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              354,
+              969,
+              498
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              355,
+              1088,
+              499
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 347
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              429,
+              1028,
+              573
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 64,
+              "x": 932,
+              "y": 421
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              596,
+              629,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 588
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 64,
+      "sha256": "77a7c6178fa9d4ae499899cb9eab8be4351ca6e660fd0135b383bc6a4901f575",
+      "pixel_sha256": "8190d98bc589e23f00b6ce62d8323ae2b86e3252d694c9b4ea77573f36fe648f",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 277708.6668,
+      "image": "review-20261004/064.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              946,
+              672,
+              1074,
+              816
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 978,
+              "y": 664
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              347,
+              708,
+              475,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 379,
+              "y": 700
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              470,
+              708,
+              598,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 80,
+              "x": 494,
+              "y": 700
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              825,
+              712,
+              953,
+              856
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 857,
+              "y": 704
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              708,
+              717,
+              836,
+              861
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 740,
+              "y": 709
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              585,
+              724,
+              713,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 617,
+              "y": 716
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kayle"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rakan"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 76,
+      "sha256": "fabe8871d0f0b051b75d253475b83b44b4ad2b8f02ffd2237b7e36fa8f6a739c",
+      "pixel_sha256": "b58902eab8ba07c76ed88918c68bd926778d311d77f0c937c2d19fd5ad6a4760",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 655143.3271,
+      "image": "review-20261004/076.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              336,
+              1088,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              614,
+              1028,
+              758
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 606
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              341,
+              708,
+              469,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 373,
+              "y": 700
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null,
+          "review_basis": "Floating pink fans; Florescer/Enfeiticador visible in 065/076"
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 143,
+      "sha256": "79cccbac5e6c3057740eaa6729560971713db2263820da169eb103c84d2adce0",
+      "pixel_sha256": "7e7f02d3077005fb051de708307d8dc8082e6571f2bf252fadb52dbb0e958eba",
+      "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
+      "source_ms": 663798.1203,
+      "image": "review-20261004/143.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-9acfd9af",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              338,
+              968,
+              482
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 330
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1079,
+              352,
+              1207,
+              496
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1111,
+              "y": 344
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              359,
+              1088,
+              503
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 351
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              720,
+              371,
+              848,
+              515
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 752,
+              "y": 363
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1310,
+              711,
+              1438,
+              855
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1342,
+              "y": 703
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "stars": null,
+          "review_basis": "Antlered hammer bearer; Sabugueiro/Defendente roster, no Lutador"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_MasterYi_AD"
+          },
+          "stars": null,
+          "review_basis": "Spirit Blossom blade silhouette; Florescer/Adaptador roster, no Enfeiticador"
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_MasterYi_AD"
+          },
+          "stars": null,
+          "review_basis": "Spirit Blossom blade silhouette; Florescer/Adaptador roster, no Enfeiticador"
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 167,
+      "sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "pixel_sha256": "8c6155e094f5d85b996050ad5061a6ea722dd71dc10a26157afe7e1dd8c04711",
+      "session_id": "c39eced32a004bc38e4270a2b3297f1e",
+      "source_ms": 1121013.2758,
+      "image": "review-20261004/167.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-c39eced3",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              719,
+              318,
+              847,
+              462
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 751,
+              "y": 310
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              323,
+              968,
+              467
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 315
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              350,
+              1088,
+              494
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 342
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1077,
+              385,
+              1205,
+              529
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1109,
+              "y": 377
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              563,
+              627,
+              707
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 555
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1067,
+              694,
+              1195,
+              838
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1099,
+              "y": 686
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1310,
+              700,
+              1438,
+              844
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1342,
+              "y": 692
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "validation"
+    },
+    {
+      "index": 193,
+      "sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "pixel_sha256": "1efdf67ffee6ff8b89c80ede574502e5a4730e8b548ca82b993e4bc03a292cf8",
+      "session_id": "d75a3fcf5071426196119a07fff17f42",
+      "source_ms": 356593.4342,
+      "image": "review-20261004/193.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-d75a3fcf",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              723,
+              379,
+              851,
+              523
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 755,
+              "y": 371
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              989,
+              670,
+              1117,
+              814
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1021,
+              "y": 662
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1064,
+              728,
+              1192,
+              872
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1096,
+              "y": 720
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              586,
+              729,
+              714,
+              873
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 618,
+              "y": 721
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              826,
+              729,
+              954,
+              873
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 858,
+              "y": 721
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "test"
+    },
+    {
+      "index": 204,
+      "sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "pixel_sha256": "a830598c2d6b2003490232ba39b5be64ca102d6976f124ada048760aee3570e5",
+      "session_id": "d75a3fcf5071426196119a07fff17f42",
+      "source_ms": 519309.1476,
+      "image": "review-20261004/204.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-d75a3fcf",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              323,
+              968,
+              467
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 315
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              723,
+              357,
+              851,
+              501
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 755,
+              "y": 349
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1295,
+              614,
+              1423,
+              758
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 69,
+              "x": 1325,
+              "y": 606
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1301,
+              728,
+              1429,
+              872
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1333,
+              "y": 720
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null,
+          "review_basis": "Blade legs and Coven/Devastador roster; full frames 064,065,076,137 cross-check"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "test"
+    },
+    {
+      "index": 31,
+      "sha256": "785c73daef36145c95bfd71e750cdfd728367e88353dd23f987b53bb50533c8f",
+      "pixel_sha256": "7e46f92728036e2c7b9807665819fb243a87617aa595af253ae9f248cd50f4b8",
+      "session_id": "1f0938fe7952419283f8544b8e5115df",
+      "source_ms": 391815.7187,
+      "image": "review-20261004/031.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-1f0938fe",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              354,
+              969,
+              498
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              355,
+              1088,
+              499
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 347
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              435,
+              1028,
+              579
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 427
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              596,
+              629,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 588
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              350,
+              722,
+              478,
+              866
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 382,
+              "y": 714
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              706,
+              724,
+              834,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 738,
+              "y": 716
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              826,
+              724,
+              954,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 858,
+              "y": 716
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 49,
+      "sha256": "d766c1d66a493b74d846810ffc9d5b569913a0c6f71f7ecf3a2da9f9c622d11a",
+      "pixel_sha256": "5cbe327df417a4d6f206cef70a6ab9a9df80d3c465a6e834fe757266a083a18f",
+      "session_id": "1f0938fe7952419283f8544b8e5115df",
+      "source_ms": 624627.2647,
+      "image": "review-20261004/049.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-1f0938fe",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              354,
+              969,
+              498
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              355,
+              1088,
+              499
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 347
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              902,
+              427,
+              1030,
+              571
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 69,
+              "x": 932,
+              "y": 419
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              596,
+              629,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 588
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              342,
+              745,
+              470,
+              889
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 67,
+              "x": 373,
+              "y": 737
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 65,
+      "sha256": "8c13b430917b168a01631759d3881ad274b1ae355d166d4a6d73b58549ad67fd",
+      "pixel_sha256": "60f54132ba85bdd0da196f860561ca3ce35189ab067407c4d8ec116dc8741000",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 308244.8028,
+      "image": "review-20261004/065.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              939,
+              218,
+              1067,
+              362
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 32,
+              "x": 987,
+              "y": 210
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1094,
+              488,
+              1222,
+              632
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1126,
+              "y": 480
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 69,
+      "sha256": "9efee08513ccc500fd4f1b19e7c9eaa8f827847f25a710d8621855709e820123",
+      "pixel_sha256": "f8158168d755befffd3d8ddc75096e94973d2516ff9ac6c357b8489aff5403c9",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 430770.2707,
+      "image": "review-20261004/069.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              357,
+              1088,
+              501
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 349
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              341,
+              708,
+              469,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 373,
+              "y": 700
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              465,
+              724,
+              593,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 497,
+              "y": 716
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 74,
+      "sha256": "2fa1fd4421c11e163f5263e136948e8c285c114b61167c39984dd99539b59f69",
+      "pixel_sha256": "47f53f5f8f9874ea4fbe0921740de6f3a6d330e00dcbd6989b21059b2eec19a0",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 593910.4271,
+      "image": "review-20261004/074.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              336,
+              1088,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              614,
+              1028,
+              758
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 606
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              341,
+              708,
+              469,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 373,
+              "y": 700
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 78,
+      "sha256": "2c0ebc1fa8af7824620e5f3714adbba962167dba41790f0479977be9d1f38c19",
+      "pixel_sha256": "b65da760218653c43684b556889dcec7c36de3a667a6c95e4dc807f20c161e52",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 716066.0326,
+      "image": "review-20261004/078.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              336,
+              1088,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              585,
+              627,
+              729
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              614,
+              1028,
+              758
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 606
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 80,
+      "sha256": "068f9fd336bb78d01cf596ecd0ef8f75eeca6059daf31110a3fd0bf2a8e85715",
+      "pixel_sha256": "22d3e4e041ab22a1f78fa9ae27ee80fa44bb4a28693247a687140a60b88e428b",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 766982.0317,
+      "image": "review-20261004/080.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              336,
+              1088,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1309,
+              548,
+              1437,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 76,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              585,
+              627,
+              729
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              606,
+              1028,
+              750
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 598
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 83,
+      "sha256": "d16a44f59015530dde98b3c9218cd03cbee7ccaa2ef6775d612651f17a9e755a",
+      "pixel_sha256": "fdcf4216729b79e2da0aa6ad9d3fa69a541b8c950a5f627b430958f6cf79fe0e",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 858738.1318,
+      "image": "review-20261004/083.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              336,
+              1088,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1309,
+              548,
+              1437,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 76,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              585,
+              627,
+              729
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1031,
+              606,
+              1159,
+              750
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1063,
+              "y": 598
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              768,
+              628,
+              896,
+              772
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 800,
+              "y": 620
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 89,
+      "sha256": "832ca938a759eec15a46c71d7e29e628f4dec78212c00c03e78bf8d0fbe24155",
+      "pixel_sha256": "d4f56f60946017faa32c31cfdfcbdedd34090ce08308c21e02044739756840ae",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 1042094.9512,
+      "image": "review-20261004/089.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              309,
+              1088,
+              453
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 301
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              585,
+              627,
+              729
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1031,
+              606,
+              1159,
+              750
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1063,
+              "y": 598
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Krug18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 91,
+      "sha256": "1b5f9f66d53b52a4c613bc2de1508ccf1c4946c75429cb173f27c83593753ba7",
+      "pixel_sha256": "973a8cd253849ea74d11d3ea9786dc0e9ee4ca9dc7c74141431fdaa3eb7c69a6",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 1103417.5864,
+      "image": "review-20261004/091.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              309,
+              1088,
+              453
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 301
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              585,
+              627,
+              729
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1031,
+              606,
+              1159,
+              750
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1063,
+              "y": 598
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              768,
+              628,
+              896,
+              772
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 800,
+              "y": 620
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Krug18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 94,
+      "sha256": "b2ad5501a45a06e2319eab95d479c4c982ee80349df39793681a5c47b44c2948",
+      "pixel_sha256": "cc0828902090478c02c11a85adcb8f89fe5d17e459305b465c9633bb1a0d4373",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 1195052.2509,
+      "image": "review-20261004/094.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              784,
+              279,
+              912,
+              423
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 816,
+              "y": 271
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1228,
+              473,
+              1356,
+              617
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1260,
+              "y": 465
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              450,
+              503,
+              578,
+              647
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 482,
+              "y": 495
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1028,
+              596,
+              1156,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1060,
+              "y": 588
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              771,
+              602,
+              899,
+              746
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 803,
+              "y": 594
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 95,
+      "sha256": "bd08b31d60b8907f94a57323dde4590b5eae557e074e7593882cfa4be90f0cbe",
+      "pixel_sha256": "cf35732c855f0dc1b1541e5d88992a0f505b0c8bde924ac243865157fc7431b1",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 1225820.4247,
+      "image": "review-20261004/095.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              309,
+              1088,
+              453
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 301
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1309,
+              548,
+              1437,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 76,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              497,
+              585,
+              625,
+              729
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 68,
+              "x": 527,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1031,
+              606,
+              1159,
+              750
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1063,
+              "y": 598
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1309,
+              687,
+              1437,
+              831
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1341,
+              "y": 679
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Krug18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 98,
+      "sha256": "7c1198fd1bd4c919fed0aaab70bb78ad616631ab301c2521a156c9e4680845bb",
+      "pixel_sha256": "963f96b25bb3643c524f09a95084d58bafe012b6974eab1ccb9e8e39ae1d6d42",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 1317308.3257,
+      "image": "review-20261004/098.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              298,
+              1088,
+              442
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 290
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              336,
+              968,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              717,
+              341,
+              845,
+              485
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 749,
+              "y": 333
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1309,
+              548,
+              1437,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 76,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1034,
+              585,
+              1162,
+              729
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1066,
+              "y": 577
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              502,
+              606,
+              630,
+              750
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 534,
+              "y": 598
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              589,
+              719,
+              717,
+              863
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 621,
+              "y": 711
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Krug18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Brambleback18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_KogMaw18_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_CrimsonRaptor18"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 137,
+      "sha256": "56947f6660df7079d29f9f2034fa3904be4ec57277a86dc6ff9e7b6afefb85e7",
+      "pixel_sha256": "16b58ea75583bb7831cc368b89355d50dfe2e558e940dd28f14efebf5842527c",
+      "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
+      "source_ms": 571791.3646,
+      "image": "review-20261004/137.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-9acfd9af",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              791,
+              172,
+              919,
+              316
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 823,
+              "y": 164
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              723,
+              218,
+              851,
+              362
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 47,
+              "x": 764,
+              "y": 210
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 139,
+      "sha256": "b122a68ded047560e1c20f744f1f8d22454c4ebbd3e8c5c144d874c48d727e9c",
+      "pixel_sha256": "9ad6d3447430d29609020567e23d90edd29b2f44301dcb465b66276115c20929",
+      "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
+      "source_ms": 602293.5123,
+      "image": "review-20261004/139.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-9acfd9af",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              782,
+              279,
+              910,
+              423
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 61,
+              "x": 816,
+              "y": 271
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              899,
+              291,
+              1027,
+              435
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 60,
+              "x": 933,
+              "y": 283
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              667,
+              302,
+              795,
+              446
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 60,
+              "x": 701,
+              "y": 294
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_MasterYi_AD"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 146,
+      "sha256": "a0fd9dba3fc9bb3b2a3acbdd2b43b26a6b21e59fefececf7c23057dfe5314db7",
+      "pixel_sha256": "afeb3ce6d1c8490cf71977f1968c11bba68a14b3f7af691cbd334999320ff873",
+      "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
+      "source_ms": 696299.5194,
+      "image": "review-20261004/146.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-9acfd9af",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              834,
+              338,
+              962,
+              482
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 53,
+              "x": 872,
+              "y": 330
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              959,
+              357,
+              1087,
+              501
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 60,
+              "x": 993,
+              "y": 349
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "index": 151,
+      "sha256": "ae81b78e93346af0a193d6e23710f19737ca67afa82469bcdc8dc6416fa9c749",
+      "pixel_sha256": "382e024e69c7277f7b9180b2da7e5a2ea788a5857a6cbac9b3fc5242b5c0310c",
+      "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
+      "source_ms": 777784.9914,
+      "image": "review-20261004/151.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-9acfd9af",
+      "identity_split": "train",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native bar crops visually reviewed with full frame, same-match temporal context and pinned Set18 traits; ambiguous crops omitted"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              338,
+              968,
+              482
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 330
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/00600.png",
+      "source_ms": 600000,
+      "sha256": "8a757dd6dd124e58da092c6c931baabdf219bfa0ae856d3eb982a510d7aa9eed",
+      "pixel_sha256": "8978d95ebfb751ce02759ad97be698e50b718ac3a24bd8dbf74b302ab66698c0",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-af1zvuCmr58",
+      "match_group": "youtube-af1zvuCmr58-roster-600",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full native 1080p YouTube frame, crop silhouette, visible roster traits and pinned seasonal artwork; ambiguous/covered proposals omitted. Entire VOD assigned train to avoid cross-match leakage."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "YouTube title claims patch 18.3; visible Set18 roster and artwork agree; not client-build verification"
+      },
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=600s",
+      "source_format_id": "299",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1130,
+              141,
+              1258,
+              285
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 49,
+              "x": 1170,
+              "y": 133
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Hecarim"
+          },
+          "stars": null
+        }
+      ],
+      "source_video_id": "youtube:af1zvuCmr58"
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/04200.png",
+      "source_ms": 4200000,
+      "sha256": "4075f6061ea85160b9cc48082e4e49c523b102bbab64b232ec5554a234d3be84",
+      "pixel_sha256": "cd0ddcdbc1ef57de5619439d15409cd2c145673a95405c0efb3b5b4377f869dd",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-af1zvuCmr58",
+      "match_group": "youtube-af1zvuCmr58-roster-4200",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full native 1080p YouTube frame, crop silhouette, visible roster traits and pinned seasonal artwork; ambiguous/covered proposals omitted. Entire VOD assigned train to avoid cross-match leakage."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "YouTube title claims patch 18.3; visible Set18 roster and artwork agree; not client-build verification"
+      },
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=4200s",
+      "source_format_id": "299",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              718,
+              338,
+              846,
+              482
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 750,
+              "y": 330
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              579,
+              490,
+              707,
+              634
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 63,
+              "x": 612,
+              "y": 482
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              572,
+              629,
+              716
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 63,
+              "x": 534,
+              "y": 564
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              319,
+              714,
+              447,
+              858
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 66,
+              "x": 350,
+              "y": 706
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1291,
+              722,
+              1419,
+              866
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 1324,
+              "y": 714
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Elise"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Warwick"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rakan"
+          },
+          "stars": null
+        }
+      ],
+      "source_video_id": "youtube:af1zvuCmr58"
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/09900.png",
+      "source_ms": 9900000,
+      "sha256": "0ecbbe615fc7a683003fd7903a7a8ae4d62163ace1f91ffd1ec35d97afb54918",
+      "pixel_sha256": "89d35a45c1297de9f7d7dc538c5d89ed30d8ff46c9b8d2b52fc38f2482ae2339",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-af1zvuCmr58",
+      "match_group": "youtube-af1zvuCmr58-roster-9900",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full native 1080p YouTube frame, crop silhouette, visible roster traits and pinned seasonal artwork; ambiguous/covered proposals omitted. Entire VOD assigned train to avoid cross-match leakage."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "YouTube title claims patch 18.3; visible Set18 roster and artwork agree; not client-build verification"
+      },
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=9900s",
+      "source_format_id": "299",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              326,
+              968,
+              470
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 872,
+              "y": 318
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              576,
+              476,
+              704,
+              620
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 63,
+              "x": 609,
+              "y": 468
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              966,
+              502,
+              1094,
+              646
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 998,
+              "y": 494
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              709,
+              523,
+              837,
+              667
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 742,
+              "y": 515
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              500,
+              559,
+              628,
+              703
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 532,
+              "y": 551
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              806,
+              710,
+              934,
+              854
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 838,
+              "y": 702
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              443,
+              713,
+              571,
+              857
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 475,
+              "y": 705
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              564,
+              713,
+              692,
+              857
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 597,
+              "y": 705
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1284,
+              726,
+              1412,
+              870
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 63,
+              "x": 1317,
+              "y": 718
+            }
+          },
+          {
+            "key": "marker-12",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              689,
+              732,
+              817,
+              876
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 721,
+              "y": 724
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rengar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Warwick"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Malphite"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Azir"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Shen"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Shen"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-12",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        }
+      ],
+      "source_video_id": "youtube:af1zvuCmr58"
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/11400.png",
+      "source_ms": 11400000,
+      "sha256": "c105a0cd16ec7cb3244c3c50f7660a9e6d2a3360518d1675ecc716a688de9c22",
+      "pixel_sha256": "2e421605ff5436f9d151c60bbc2dac955461f6aab79bb4aa905988dd42b41dc1",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-af1zvuCmr58",
+      "match_group": "youtube-af1zvuCmr58-roster-11400",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full native 1080p YouTube frame, crop silhouette, visible roster traits and pinned seasonal artwork; ambiguous/covered proposals omitted. Entire VOD assigned train to avoid cross-match leakage."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "YouTube title claims patch 18.3; visible Set18 roster and artwork agree; not client-build verification"
+      },
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=11400s",
+      "source_format_id": "299",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              314,
+              968,
+              458
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 63,
+              "x": 873,
+              "y": 306
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              450,
+              460,
+              578,
+              604
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 482,
+              "y": 452
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              708,
+              506,
+              836,
+              650
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 741,
+              "y": 498
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              587,
+              541,
+              715,
+              685
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 619,
+              "y": 533
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1290,
+              734,
+              1418,
+              878
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1322,
+              "y": 726
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Fiddlesticks18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Camille"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_Murkwolf18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kobuko"
+          },
+          "stars": null
+        }
+      ],
+      "source_video_id": "youtube:af1zvuCmr58"
+    },
+    {
+      "image": "unit-gallery-youtube-20261004/15900.png",
+      "source_ms": 15900000,
+      "sha256": "5b2b19f91889b91ea164660fdae671bbf0b8403566f88e58da5f56c89fcb994b",
+      "pixel_sha256": "1f11bda756b58d9632c7359e3973781289c3674b88a39ff7f2f8c1f386e19215",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-af1zvuCmr58",
+      "match_group": "youtube-af1zvuCmr58-roster-15900",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full native 1080p YouTube frame, crop silhouette, visible roster traits and pinned seasonal artwork; ambiguous/covered proposals omitted. Entire VOD assigned train to avoid cross-match leakage."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "YouTube title claims patch 18.3; visible Set18 roster and artwork agree; not client-build verification"
+      },
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=15900s",
+      "source_format_id": "299",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              343,
+              1088,
+              487
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 335
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              720,
+              354,
+              848,
+              498
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 63,
+              "x": 753,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              601,
+              358,
+              729,
+              502
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 633,
+              "y": 350
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              484,
+              366,
+              612,
+              510
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 516,
+              "y": 358
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              367,
+              968,
+              511
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 873,
+              "y": 359
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              321,
+              713,
+              449,
+              857
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 354,
+              "y": 705
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              564,
+              721,
+              692,
+              865
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 597,
+              "y": 713
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              686,
+              721,
+              814,
+              865
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 718,
+              "y": 713
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_Fiddlesticks18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Shen"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_KhaZix"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rakan"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Shen"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        }
+      ],
+      "source_video_id": "youtube:af1zvuCmr58"
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/01200.png",
+      "source_ms": 1200000,
+      "sha256": "27e343cf70d2b77e54b6bc06cfee2a47982af9f49f1693945e6e9c6377f3e398",
+      "pixel_sha256": "7b07214e878f5de281cae00f85f2df04eb4224bb62637749e21c31572636dad2",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-1200",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1078,
+              330,
+              1206,
+              474
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1110,
+              "y": 322
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              959,
+              343,
+              1087,
+              487
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 991,
+              "y": 335
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1201,
+              349,
+              1329,
+              493
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1233,
+              "y": 341
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              351,
+              968,
+              495
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 343
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1301,
+              584,
+              1429,
+              728
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 1333,
+              "y": 576
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1167,
+              592,
+              1295,
+              736
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 1199,
+              "y": 584
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              340,
+              694,
+              468,
+              838
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 372,
+              "y": 686
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              463,
+              702,
+              591,
+              846
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 495,
+              "y": 694
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              703,
+              702,
+              831,
+              846
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 735,
+              "y": 694
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              825,
+              702,
+              953,
+              846
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 857,
+              "y": 694
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              583,
+              730,
+              711,
+              874
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 615,
+              "y": 722
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_Fiddlesticks18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rengar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Leona"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Cassiopeia"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_LeBlanc"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Shen"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Leona"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Cassiopeia"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/04800.png",
+      "source_ms": 4800000,
+      "sha256": "89836b08979f3c3d486b8671883d66c49c9d76e72835a70934c6f5a8216e539e",
+      "pixel_sha256": "b235d2b7b9194596f0bfbe64a1c12905724ab9b96dc5c3d047a6a6a11f00b6f5",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-4780",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-7",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              541,
+              627,
+              685
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 62,
+              "x": 532,
+              "y": 533
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              901,
+              557,
+              1029,
+              701
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 59,
+              "x": 936,
+              "y": 549
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              769,
+              565,
+              897,
+              709
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 62,
+              "x": 802,
+              "y": 557
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ahri"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Azir"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ezreal"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/06600.png",
+      "source_ms": 6600000,
+      "sha256": "edf2c3975fb7cb51a8fb6c010bd8074ecc15f351a333e56660e74727b22fa208",
+      "pixel_sha256": "50ea294ae56d3cf5ab2344c762fc4c24b2bd1aaaae3716c663aab6bd7a5a3f74",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-6600",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              523,
+              573,
+              651,
+              717
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 555,
+              "y": 565
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              582,
+              685,
+              710,
+              829
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 20,
+              "x": 636,
+              "y": 677
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_Murkwolf18"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/10200.png",
+      "source_ms": 10200000,
+      "sha256": "2bf1e43209e2ac5bfb5880b75d342f3f8ebc959fcedff23e346eae24962acbda",
+      "pixel_sha256": "271310138fb5a0e4fbb295c9fcd76064f54b921ce47b04353f8916252372d1b6",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-10170",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              151,
+              1028,
+              295
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 143
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1091,
+              499,
+              1219,
+              643
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1123,
+              "y": 491
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1033,
+              595,
+              1161,
+              739
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1065,
+              "y": 587
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rengar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Aphelios"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/12000.png",
+      "source_ms": 12000000,
+      "sha256": "4c79a92bfc6dc6022487b2a2c229c5a7cefb468c0154a90314f139b32412167a",
+      "pixel_sha256": "a425dffe2446e467acf08a6cc0748c91899643f917d95b2f3ed960addd54b26e",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-13185",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1014,
+              290,
+              1142,
+              434
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1046,
+              "y": 282
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Cassiopeia"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/13200.png",
+      "source_ms": 13200000,
+      "sha256": "c935a65feff9cd8b2a426d9b343b4b760c9b60cebdd946d07999b61c310c9c36",
+      "pixel_sha256": "ac45463f7f6b1dd839f5d7023b85d5077eb706e95e44d351e2a5430177dd17df",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-13185",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-10",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              634,
+              551,
+              762,
+              695
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 666,
+              "y": 543
+            }
+          },
+          {
+            "key": "marker-11",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              496,
+              554,
+              624,
+              698
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 528,
+              "y": 546
+            }
+          },
+          {
+            "key": "marker-12",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1304,
+              556,
+              1432,
+              700
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1336,
+              "y": 548
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sivir"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-11",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Zyra"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-12",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ashe"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/04780.png",
+      "source_ms": 4780000,
+      "sha256": "c9e5521810b562c9a795e6417bd55fb0babbfbcd2d5104f53603b48be45ffa68",
+      "pixel_sha256": "e702229485ece3b1e2f8e2f0ef51fbf18dbb43b1c6c2a469229b15ed619ffb84",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-4780",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              839,
+              322,
+              967,
+              466
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 872,
+              "y": 314
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1197,
+              363,
+              1325,
+              507
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1229,
+              "y": 355
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              836,
+              482,
+              964,
+              626
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 868,
+              "y": 474
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1172,
+              541,
+              1300,
+              685
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1204,
+              "y": 533
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              497,
+              542,
+              625,
+              686
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 529,
+              "y": 534
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              631,
+              566,
+              759,
+              710
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 663,
+              "y": 558
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              766,
+              572,
+              894,
+              716
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 798,
+              "y": 564
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1301,
+              573,
+              1429,
+              717
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1333,
+              "y": 565
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              578,
+              704,
+              706,
+              848
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 610,
+              "y": 696
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Malphite"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Yorick"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Fiddlesticks18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ivern"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ahri"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ezreal"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Azir"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Soraka"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Zyra"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/10170.png",
+      "source_ms": 10170000,
+      "sha256": "f4a975c3ae4c21761057c47fde99bb7a0ce1afae83265d4adfff5f61eb2e4931",
+      "pixel_sha256": "7e8723f1ebf175b44e85f30b57e7fa1c7426374af88b500ba8e86c5033a120d5",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-10170",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              959,
+              318,
+              1087,
+              462
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 991,
+              "y": 310
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              379,
+              969,
+              523
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 371
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              899,
+              420,
+              1027,
+              564
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 62,
+              "x": 932,
+              "y": 412
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              776,
+              429,
+              904,
+              573
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 808,
+              "y": 421
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1226,
+              490,
+              1354,
+              634
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1258,
+              "y": 482
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1321,
+              521,
+              1449,
+              665
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1353,
+              "y": 513
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1165,
+              580,
+              1293,
+              724
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 1197,
+              "y": 572
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1033,
+              595,
+              1161,
+              739
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1065,
+              "y": 587
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              574,
+              691,
+              702,
+              835
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 606,
+              "y": 683
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              823,
+              691,
+              951,
+              835
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 855,
+              "y": 683
+            }
+          },
+          {
+            "key": "marker-11",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              338,
+              693,
+              466,
+              837
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 370,
+              "y": 685
+            }
+          },
+          {
+            "key": "marker-12",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              702,
+              695,
+              830,
+              839
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 734,
+              "y": 687
+            }
+          },
+          {
+            "key": "marker-13",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1312,
+              705,
+              1440,
+              849
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1344,
+              "y": 697
+            }
+          },
+          {
+            "key": "marker-14",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              469,
+              712,
+              597,
+              856
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 78,
+              "x": 494,
+              "y": 704
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_Sentinel18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Amumu18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Diana"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Scuttlecrab18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rengar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_Brambleback18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Aphelios"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_Brambleback18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_Brambleback18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-11",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Diana"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-12",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Aphelios"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-13",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sivir"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-14",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        }
+      ]
+    },
+    {
+      "image": "unit-gallery-twitch-20261004/13185.png",
+      "source_ms": 13185000,
+      "sha256": "bc6b85c8b67d05ae373ea8cb2cebeac2d247357dfa509080fd860fa11da8a28f",
+      "pixel_sha256": "0db6671016cb9ecd387f9c09cea4f5e58b6b2c3d356e2e46aad6cc3b207731da",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "twitch-v2891050468",
+      "match_group": "twitch-v2891050468-roster-13185",
+      "identity_split": "train",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Native 1080p full frame and bar crops; seasonal artwork, visible trait counts and adjacent planning/combat frames. Entire VOD train. No model predictions used for labels; no independent human review."
+      },
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "Visible PATCH 18.3 tournament overlay and Set18 roster/artwork; not client-build verification"
+      },
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_video_id": "twitch:2891050468",
+      "source_format_id": "1080p60",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              716,
+              290,
+              844,
+              434
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 748,
+              "y": 282
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              604,
+              351,
+              732,
+              495
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 636,
+              "y": 343
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              839,
+              351,
+              967,
+              495
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 63,
+              "x": 872,
+              "y": 343
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1208,
+              351,
+              1336,
+              495
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 80,
+              "x": 1232,
+              "y": 343
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              358,
+              1088,
+              502
+            ],
+            "bar_rect": {
+              "height": 6,
+              "width": 64,
+              "x": 992,
+              "y": 350
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1078,
+              360,
+              1206,
+              504
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1110,
+              "y": 352
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              493,
+              555,
+              621,
+              699
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 525,
+              "y": 547
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              631,
+              558,
+              759,
+              702
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 663,
+              "y": 550
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              336,
+              705,
+              464,
+              849
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 368,
+              "y": 697
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Maokai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Amumu18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sejuani"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Yorick"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sett"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Zyra"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sivir"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        }
+      ]
+    }
+  ],
+  "review_revision": "20261004-r2",
+  "supersedes": "unit-identity-review-20261004.json",
+  "limitations": [
+    "Assistant visual review, not independent human ground truth.",
+    "Reused held-out matches: development comparison only."
+  ],
+  "sources": [
+    {
+      "source_url": "https://www.youtube.com/watch?v=af1zvuCmr58",
+      "source_id": "af1zvuCmr58",
+      "format_id": "299",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "authorization_basis": "User states creator authorization for project training",
+      "partition_policy": "Entire VOD train; match roster identifiers aid provenance, not independent match-ID verification",
+      "download_scope": "Eight single frames, five usable reviewed frames, no full VOD download",
+      "exclusions": {
+        "02400.png": "carousel: outside current bar crop contract",
+        "13200.png": "only one partial combat crop",
+        "15600.png": "overlapping combat crops"
+      }
+    },
+    {
+      "source_url": "https://www.twitch.tv/videos/2891050468",
+      "source_id": "twitch:2891050468",
+      "creator": "Dishsoap",
+      "title": "Blossom Cup #TPC !overlay",
+      "format_id": "1080p60",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "authorization_basis": "User states creator authorization for project training",
+      "partition_policy": "Entire VOD train; approximate roster episode groups are not verified match IDs",
+      "download_scope": "Eleven single frames; nine usable reviewed frames",
+      "exclusions": {
+        "03000.png": "No usable unit-bar proposals",
+        "08400.png": "No usable unit-bar proposals"
+      }
+    }
+  ]
+}
