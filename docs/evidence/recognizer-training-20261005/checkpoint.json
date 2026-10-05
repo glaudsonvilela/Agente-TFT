@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:05:00-03:00",
+  "recorded_at": "2026-10-05T11:10:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,16 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "acquire_first_targeted_source",
-    "recommended_first_source": "https://www.youtube.com/watch?v=Ot358nhRJl0",
+    "status": "ready_for_elder_dragon_annotation_collection",
+    "source_id": "youtube:Ot358nhRJl0",
+    "source_url": "https://www.youtube.com/watch?v=Ot358nhRJl0",
     "target": "DA_18_ElderDragon",
-    "reason": "High-priority missing source diversity with a clearly targeted Set 18 video from a creator already present in the project corpus.",
+    "runner": "scripts/collect_targeted_annotation_source.py",
+    "collection_mode": "annotation_only",
+    "sample_interval_seconds": 2,
+    "review_interval_seconds": 10,
+    "automatic_labels": false,
+    "inference_performed": false,
     "training_performed": false,
     "runtime_approved": false
   },
