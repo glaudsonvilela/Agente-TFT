@@ -13,6 +13,8 @@ pub enum CropTransform {
     Center88x120V1,
     #[serde(rename = "upper_88x80_v1")]
     Upper88x80V1,
+    #[serde(rename = "top_88x104_v1")]
+    Top88x104V1,
 }
 
 impl CropTransform {
@@ -21,6 +23,7 @@ impl CropTransform {
             Self::Raw => "raw",
             Self::Center88x120V1 => "center_88x120_v1",
             Self::Upper88x80V1 => "upper_88x80_v1",
+            Self::Top88x104V1 => "top_88x104_v1",
         }
     }
 
@@ -45,10 +48,11 @@ impl CropTransform {
             &frame,
             PixelRect {
                 x: 20,
-                y: 24,
+                y: if self == Self::Top88x104V1 { 0 } else { 24 },
                 width: 88,
                 height: match self {
                     Self::Upper88x80V1 => 80,
+                    Self::Top88x104V1 => 104,
                     _ => 120,
                 },
             },
@@ -83,6 +87,7 @@ mod tests {
         assert!(CropTransform::Raw.apply(&crop).is_err());
         assert!(CropTransform::Center88x120V1.apply(&crop).is_err());
         assert!(CropTransform::Upper88x80V1.apply(&crop).is_err());
+        assert!(CropTransform::Top88x104V1.apply(&crop).is_err());
         assert!(serde_json::from_str::<CropTransform>("\"center_v99\"").is_err());
     }
 
@@ -101,5 +106,26 @@ mod tests {
         assert!(upper.rgb.chunks_exact(3).all(|p| p == [0, 200, 0]));
         let center = CropTransform::Center88x120V1.apply(&crop).unwrap();
         assert!(center.rgb.chunks_exact(3).any(|p| p == [255, 0, 0]));
+    }
+
+    #[test]
+    fn top_region_preserves_high_heads_and_excludes_lower_context() {
+        let mut crop = UnitCrop {
+            rgb: [255, 0, 0].repeat(WIDTH * HEIGHT),
+        };
+        for y in 0..104 {
+            for x in 20..108 {
+                crop.rgb[(y * WIDTH + x) * 3..(y * WIDTH + x) * 3 + 3].copy_from_slice(if y < 24 {
+                    &[0, 0, 255]
+                } else {
+                    &[0, 200, 0]
+                });
+            }
+        }
+        let top = CropTransform::Top88x104V1.apply(&crop).unwrap();
+        assert_eq!(&top.rgb[..3], &[0, 0, 255]);
+        assert!(!top.rgb.chunks_exact(3).any(|p| p == [255, 0, 0]));
+        let upper = CropTransform::Upper88x80V1.apply(&crop).unwrap();
+        assert!(upper.rgb.chunks_exact(3).all(|p| p == [0, 200, 0]));
     }
 }

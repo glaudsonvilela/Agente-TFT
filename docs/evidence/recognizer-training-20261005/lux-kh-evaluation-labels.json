@@ -1,0 +1,263 @@
+{
+  "source_id": "youtube:ezSEOwI7uOM",
+  "partition": "test",
+  "reserved_before_review": true,
+  "labels_fixed_before_predictions": true,
+  "frozen_model_sha256": "669b555ab3cb2648df1a173c211fb7c38ce68b60a78bd4d70a83d9ebc5636c38",
+  "reviewed_proposals": 58,
+  "named_labels": 35,
+  "excluded": 23,
+  "independent_human_ground_truth": false,
+  "labels": [
+    {
+      "review_index": 1,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-1",
+      "label": "DA_18_Hecarim",
+      "crop_pixel_sha256": "fe26855b6ae1fab88f4749060dfec4f2d6e165ca0102ae6a018732873333b1dd"
+    },
+    {
+      "review_index": 2,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-2",
+      "label": "DA_18_Ornn",
+      "crop_pixel_sha256": "9e5907c1f6585f8519f639c693b82c5bc23a965bf582e378f822cbd50d67d561"
+    },
+    {
+      "review_index": 6,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-6",
+      "label": "DA_18_Kennen",
+      "crop_pixel_sha256": "7478acd688a5fba0d7058bcb96532d271ce2cd82522c99c3f06a74610e43d6ba"
+    },
+    {
+      "review_index": 7,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-7",
+      "label": "DA_18_GnarSmall",
+      "crop_pixel_sha256": "df621dadab394c44111c38e91759c1786bce69ab0b3fc1699bebcedee55c9f66"
+    },
+    {
+      "review_index": 8,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-8",
+      "label": "DA_18_Alune",
+      "crop_pixel_sha256": "ac0fb54a3f90e49ab419c12c1410be2df619b87e0a4f9cdd7a62e0d176e9f3ee"
+    },
+    {
+      "review_index": 9,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-9",
+      "label": "DA_18_LeBlanc",
+      "crop_pixel_sha256": "1a5ac1e5d13169a212ff55603ff6eef2656e27fbaa38ae6f79fbf32f9d3b55a8"
+    },
+    {
+      "review_index": 10,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-10",
+      "label": "DA_18_Lillia",
+      "crop_pixel_sha256": "662c18fb9abf1dab1730bd6824fd61e9aa9475aab4ca51d90bdd17fed66bc499"
+    },
+    {
+      "review_index": 11,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-11",
+      "label": "DA_18_Lux_Elderwood",
+      "crop_pixel_sha256": "6af491f859652972082e70c75f9db826498989499b5a6b1307c06571622396a0"
+    },
+    {
+      "review_index": 12,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-12",
+      "label": "DA_18_Ivern",
+      "crop_pixel_sha256": "20a191fce400bc914278496724bbc0e3fc3f7087cf87deb0f63c0c362e5caf6b"
+    },
+    {
+      "review_index": 13,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-13",
+      "label": "DA_18_Alistar",
+      "crop_pixel_sha256": "feeb8f023e61cf92902575f711d8aaa4a013df4cb073565a12b8bf987c0c2bbc"
+    },
+    {
+      "review_index": 15,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-15",
+      "label": "DA_18_Lillia",
+      "crop_pixel_sha256": "aeffb4886ca318b2c2032b004b1caf7c44691456364562dfe13669c59f07d8c6"
+    },
+    {
+      "review_index": 19,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-19",
+      "label": "DA_18_Malphite",
+      "crop_pixel_sha256": "3ea2d79b15213a044adf3b7d667ec001ed90b28df44aea6875033f3837072d36"
+    },
+    {
+      "review_index": 20,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "key": "marker-20",
+      "label": "DA_18_GnarSmall",
+      "crop_pixel_sha256": "abce95781083c82955a92f645f7fddeac00ad60301a5f4027e47931720af35f6"
+    },
+    {
+      "review_index": 22,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+      "key": "marker-1",
+      "label": "DA_18_Kennen",
+      "crop_pixel_sha256": "1aa42121d5b4e7dacc266f049bc091fed58a1423ff1cd10d58bf70193d7b4416"
+    },
+    {
+      "review_index": 25,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+      "key": "marker-4",
+      "label": "DA_18_Alune",
+      "crop_pixel_sha256": "bdbad330f2915b65022932e0ccbfa9a5670f0cd93ae42cf1b49b776f939d9790"
+    },
+    {
+      "review_index": 26,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+      "key": "marker-5",
+      "label": "DA_18_LeBlanc",
+      "crop_pixel_sha256": "610344abdf07741834152b703b6a9dda30d23b2e845bda8b52b5d134e14d07ef"
+    },
+    {
+      "review_index": 27,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+      "key": "marker-6",
+      "label": "DA_18_Lux_Elderwood",
+      "crop_pixel_sha256": "5dee744b3bf2d908c91f9c13d8a5ad8f4c80369ab70e5947418999db42c5d3cc"
+    },
+    {
+      "review_index": 28,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+      "key": "marker-0",
+      "label": "DA_18_Kennen",
+      "crop_pixel_sha256": "24361ce620d76c6d5c6ff2f97359a86614a4b801bc130c705ce486f7ea96218b"
+    },
+    {
+      "review_index": 29,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+      "key": "marker-1",
+      "label": "DA_18_Ezreal",
+      "crop_pixel_sha256": "1011f5ac2a09e6b52c63b9e90c49fc16860648a55b26d457251de5014edf7298"
+    },
+    {
+      "review_index": 30,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+      "key": "marker-2",
+      "label": "DA_18_Alune",
+      "crop_pixel_sha256": "1049a045e375951b7f89221a4839fe13251267fadd4fbd0322814f164dcf6369"
+    },
+    {
+      "review_index": 31,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+      "key": "marker-3",
+      "label": "DA_18_LeBlanc",
+      "crop_pixel_sha256": "76bc6583ce76b2abc0b0944c6c293a9a448fbab7089c8f64b428e57f9798ce5b"
+    },
+    {
+      "review_index": 35,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+      "key": "marker-4",
+      "label": "DA_18_Ezreal",
+      "crop_pixel_sha256": "d507e20579aab95283fde9924a0f79b02c25aeb598fbd8721065f34dcaa3e698"
+    },
+    {
+      "review_index": 37,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+      "key": "marker-6",
+      "label": "DA_18_Alune",
+      "crop_pixel_sha256": "d4a9b18b5bd18a6d4ff3bf2892c0d63f264f9d73c29cd6101c93de8c4ea0ef1a"
+    },
+    {
+      "review_index": 40,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-0",
+      "label": "DA_18_Hecarim",
+      "crop_pixel_sha256": "d1c4385281f9e22aa6df32df14621a509d51cc7d4d295291e5d74c263dd5d366"
+    },
+    {
+      "review_index": 41,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-1",
+      "label": "DA_18_Ornn",
+      "crop_pixel_sha256": "8afd8a48b31bf1a6d6a1f4c5550a5b2aa2221d47925a39ff2f2552ccb914b7ad"
+    },
+    {
+      "review_index": 42,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-2",
+      "label": "DA_18_Kennen",
+      "crop_pixel_sha256": "c9082822d3a1fa8b2dcde8ab752685997a50a18d12a943eb04cc4c041b53f98a"
+    },
+    {
+      "review_index": 44,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-4",
+      "label": "DA_18_GnarSmall",
+      "crop_pixel_sha256": "71a69e5f496aec787f3441c75d3c23b1de589dd69bac3e6d23d929cb93a41ba9"
+    },
+    {
+      "review_index": 45,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-5",
+      "label": "DA_18_Alune",
+      "crop_pixel_sha256": "bc825169bad3c5c769715a6c5ebde1d091dfc22f12775e20c723545c24afc6f9"
+    },
+    {
+      "review_index": 46,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-6",
+      "label": "DA_18_Ezreal",
+      "crop_pixel_sha256": "80718ed4545a99838210b4a4d470231caa7a254041ced54197c86bc29ce68256"
+    },
+    {
+      "review_index": 48,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-8",
+      "label": "DA_18_LeBlanc",
+      "crop_pixel_sha256": "faa95a25e19354c98b6e917a2a38edc9ea8e5c8d44e9cefac55855faa886a670"
+    },
+    {
+      "review_index": 49,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-9",
+      "label": "DA_18_Lux_Elderwood",
+      "crop_pixel_sha256": "a9fd1d9a7a767943ff4e530efbed346c11896dd7f8f988ed491bda748cb4ffad"
+    },
+    {
+      "review_index": 50,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-10",
+      "label": "DA_18_Maokai",
+      "crop_pixel_sha256": "ecbcb8e84b59886597cc3338a85a07d5a807751a992df98bc8298c2ffda910a0"
+    },
+    {
+      "review_index": 52,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-12",
+      "label": "DA_18_Lillia",
+      "crop_pixel_sha256": "f489291832b00a6b406a3a694d681b0a27d44fcdb74619b995738184ff9de376"
+    },
+    {
+      "review_index": 55,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-15",
+      "label": "DA_18_Lillia",
+      "crop_pixel_sha256": "e3a6b3fab6582a9ca9e2c2404014b5d01021c1ba20bacd80bbf2cdea347a09b7"
+    },
+    {
+      "review_index": 56,
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "key": "marker-16",
+      "label": "DA_18_Ezreal",
+      "crop_pixel_sha256": "8dd9623802e3a78ff374084e88dda6639841aeb32d942c66fd9f204b1c681c69"
+    }
+  ],
+  "limitations": [
+    "One new match, three Lux crops; correlated observations, not three independent matches.",
+    "Selection focuses on late-game visible units; ambiguous/occluded crops and summons excluded.",
+    "Seasonal form has visual and trait-context binding, not a named right-panel tooltip in this source."
+  ]
+}

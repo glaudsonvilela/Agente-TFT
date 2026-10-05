@@ -1,0 +1,23 @@
+{
+  "recorded_at": "2026-10-05T07:37:59.882Z",
+  "protocol": "docs/evidence/recognizer-training-20261005/high-head-region-protocol.json",
+  "baseline": {
+    "epoch": 800,
+    "macro_recall": 0.5984848484848485,
+    "cross_entropy": 3.311866750319799,
+    "correct": 19,
+    "named": 32,
+    "head_sha256": "669b555ab3cb2648df1a173c211fb7c38ce68b60a78bd4d70a83d9ebc5636c38"
+  },
+  "candidate": {
+    "epoch": 800,
+    "macro_recall": 0.553030303030303,
+    "cross_entropy": 3.435614082548353,
+    "correct": 18,
+    "named": 32,
+    "head_sha256": "ede750f455deebe51adc28c8258cf225c9093940dd8bf9a55bba51d64607ec25"
+  },
+  "selected_transform": "upper_88x80_v1",
+  "selection_uses_validation_only": true,
+  "runtime_approved": false
+}

@@ -570,3 +570,28 @@ partida; não demonstram generalização de Lux. Nove variantes ainda não têm 
 Reservamos a fonte `youtube:ezSEOwI7uOM` exclusivamente para avaliação antes de
 revisar suas imagens. A cabeça está congelada para essa avaliação e permanece
 sem aprovação para o runtime Windows.
+
+### Primeira avaliação na segunda partida de Lux
+
+A fonte KH foi coletada por completo (72 quadros, 766 propostas). Antes de
+consultar previsões, a revisão fixou 35 rótulos de 13 IDs, incluindo três Lux;
+23 propostas ambíguas, redundantes ou de invocações foram excluídas. Resultado
+congelado: **21/35**, com **0/3 Lux Elderwood**. A arena, iluminação, pose e itens
+são diferentes do treino. Essa fonte passa a ser evidência de desenvolvimento,
+pois suas falhas já orientam a investigação. Os três recortes Lux pertencem à
+mesma partida e não são três testes independentes de generalização.
+
+A montagem de comparação mostrou que `upper_88x80_v1`, que começa em y=24,
+corta a parte superior da cabeça dos exemplos sem a faixa de itens. A alternativa
+`top_88x104_v1` preserva y=0..104 e mantém a mesma largura central. Também mantém
+os itens quando presentes, portanto não é uma máscara semântica. O protocolo
+`high-head-region-protocol.json` fixa os dados e a seleção pela macro-revocação
+na validação, seguida da entropia cruzada; empate mantém o recorte anterior.
+Quatro testes do módulo de recorte passaram. Nenhuma mudança foi ativada no HUD.
+
+A alternativa que preserva a cabeça foi **rejeitada pela validação**: 18/32 e
+macro-revocação 0,553, contra 19/32 e 0,598 do recorte anterior. Após a seleção,
+a avaliação KH passou de 21/35 para 24/35, mas Minjo caiu de 31/35 para 27/35.
+A mudança global de recorte não resolveu o problema com consistência. O próximo
+passo é ampliar as aparições sem itens na fonte de treino e examinar a necessidade
+de alinhamento condicionado à faixa de itens, mantendo a separação das partidas.

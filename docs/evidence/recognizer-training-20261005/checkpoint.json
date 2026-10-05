@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T07:28:56.161Z",
+  "recorded_at": "2026-10-05T07:39:09.164Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1037,7 +1037,7 @@
       "source": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
       "creator": "KH-Teamfight Tactics TFT",
       "partition": "evaluation_unlabeled",
-      "status": "collection_complete_review_in_progress",
+      "status": "review_and_first_frozen_evaluation_complete",
       "private_video": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-kh-evaluation-1080.mp4",
       "purpose": "First separate-source Lux Elderwood evaluation; no training labels allowed.",
       "frames": 72,
@@ -1072,7 +1072,7 @@
     "embeddings_reconstructed": false,
     "report": "docs/evidence/recognizer-training-20261005/lux-reconciled-collection.json",
     "full_tooltip_proposals": 0,
-    "next": "Evaluate frozen Lux-expanded head against separate KH source youtube:ezSEOwI7uOM; source reserved for evaluation before reviewing its images.",
+    "next": "Investigate crop height/position and training appearance coverage; current upper transform can discard the head when no item row is present.",
     "dense_acquisition": {
       "status": "complete",
       "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s",
@@ -1122,6 +1122,37 @@
     "new_training_examples": 5,
     "training_sources": 1,
     "independent_human_ground_truth": false,
-    "cross_source_accuracy_measured": false
+    "cross_source_accuracy_measured": true,
+    "cross_source_correct": 0,
+    "cross_source_examples": 3,
+    "cross_source_matches": 1
+  },
+  "latest_fresh_source_evaluation": {
+    "source_id": "youtube:ezSEOwI7uOM",
+    "head_sha256": "669b555ab3cb2648df1a173c211fb7c38ce68b60a78bd4d70a83d9ebc5636c38",
+    "correct": 21,
+    "samples": 35,
+    "lux_correct": 0,
+    "lux_samples": 3,
+    "now_development_evidence": true,
+    "report": "docs/evidence/recognizer-training-20261005/lux-kh-first-evaluation.json",
+    "annotation_metadata_reconciled_without_label_changes": true
+  },
+  "current_experiment": {
+    "status": "complete_rejected_by_validation",
+    "candidate": "top_88x104_v1",
+    "selection": "docs/evidence/recognizer-training-20261005/high-head-region-selection.json",
+    "baseline_validation": 19,
+    "candidate_validation": 18,
+    "validation_samples": 32,
+    "kh_correct": 24,
+    "kh_samples": 35,
+    "lux_counts": [
+      3,
+      2
+    ],
+    "minjo_correct": 27,
+    "minjo_samples": 35,
+    "crop_tests_passed": 4
   }
 }

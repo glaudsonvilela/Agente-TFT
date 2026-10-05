@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-10-05T07:35:02.520Z",
+  "motivation": "New-source failures expose higher character head position without an equipped item row. Fixed y=24 can discard identity cues.",
+  "annotations": "configs/training/unit-gallery-lux-elderwood-expanded-20261005.json",
+  "annotations_sha256": "9ed11436c60c940c98b34523b2b43ca41b95facb272f240bb7131398d381929e",
+  "baseline": "upper_88x80_v1",
+  "candidate": "top_88x104_v1",
+  "fixed_parameters": {
+    "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+    "embedding_batch_size": 1,
+    "input_size": 140,
+    "learning_rate": 2,
+    "weight_decay": 0.001,
+    "max_epochs": 800
+  },
+  "selection": "Higher validation named macro recall, then lower validation cross entropy; exact tie retains baseline. Development tests are reported after selection.",
+  "validation_named": 32,
+  "test_source_used_as_labels": false,
+  "new_source_now_development": true,
+  "limitations": [
+    "Top region also retains any item icons; this is a comparison, not semantic segmentation.",
+    "The validation set is small and repeatedly consulted. No final independent accuracy claim."
+  ]
+}

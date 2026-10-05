@@ -1,0 +1,1166 @@
+{
+  "schema_version": 2,
+  "kind": "board_review",
+  "scope": "source_disjoint_frozen_classifier_evaluation",
+  "review_revision": "20261005-lux-kh-first-evaluation",
+  "review": {
+    "proposed_crops": 58,
+    "named_crops": 35,
+    "excluded_ambiguous_or_redundant": 23,
+    "independent_human_ground_truth": false,
+    "model_predictions_used_as_labels": false
+  },
+  "sources": [
+    {
+      "source_id": "youtube:ezSEOwI7uOM",
+      "source_url": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "creator": "KH-Teamfight Tactics TFT",
+      "authorization_basis": "User states creator authorization for project training and evaluation",
+      "partition_policy": "Entire video reserved for evaluation; no chapter/frame from this source may enter training"
+    }
+  ],
+  "frames": [
+    {
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+      "source_ms": 1000000,
+      "sha256": "0fc5b923d9d37a74f5e666490c1d94d2e075c59e3e5cb2f8c3c619a9eb4bf045",
+      "pixel_sha256": "252a78d9219bcb12527f2cc6dd35edbb90309ac1a1a9eec2dd35f92ab5e886bc",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-ezSEOwI7uOM",
+      "match_group": "youtube-ezSEOwI7uOM-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Reviewed crops and full frames against named model renders before evaluator predictions. Lux green/gold leaf-shoulder staff appearance matches UI-bound Elderwood reference; 980-1000 s placement adds Avatar and raises Elderwood 7 to 9. No independent human ground truth."
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "exact_patch_unknown",
+        "published_date": "2026-08-23",
+        "appearance_binding": "Visual identification only; combat stats not inferred"
+      },
+      "source_url": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "source_video_id": "youtube:ezSEOwI7uOM",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              839,
+              327,
+              967,
+              471
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 872,
+              "y": 319
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              959,
+              330,
+              1087,
+              474
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 63,
+              "x": 992,
+              "y": 322
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              777,
+              405,
+              905,
+              549
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 63,
+              "x": 810,
+              "y": 397
+            }
+          },
+          {
+            "key": "marker-7",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1140,
+              414,
+              1268,
+              558
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 50,
+              "x": 1179,
+              "y": 406
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              632,
+              541,
+              760,
+              685
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 665,
+              "y": 533
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              766,
+              562,
+              894,
+              706
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 799,
+              "y": 554
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              500,
+              581,
+              628,
+              725
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 533,
+              "y": 573
+            }
+          },
+          {
+            "key": "marker-11",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              901,
+              590,
+              1029,
+              734
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 934,
+              "y": 582
+            }
+          },
+          {
+            "key": "marker-12",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1194,
+              679,
+              1322,
+              823
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 1227,
+              "y": 671
+            }
+          },
+          {
+            "key": "marker-13",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              691,
+              695,
+              819,
+              839
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 42,
+              "x": 734,
+              "y": 687
+            }
+          },
+          {
+            "key": "marker-15",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1067,
+              695,
+              1195,
+              839
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 1100,
+              "y": 687
+            }
+          },
+          {
+            "key": "marker-19",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              577,
+              703,
+              705,
+              847
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 63,
+              "x": 610,
+              "y": 695
+            }
+          },
+          {
+            "key": "marker-20",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              945,
+              708,
+              1073,
+              852
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 62,
+              "x": 978,
+              "y": 700
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Hecarim"
+          },
+          "crop_pixel_sha256": "fe26855b6ae1fab88f4749060dfec4f2d6e165ca0102ae6a018732873333b1dd",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "crop_pixel_sha256": "9e5907c1f6585f8519f639c693b82c5bc23a965bf582e378f822cbd50d67d561",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kennen"
+          },
+          "crop_pixel_sha256": "7478acd688a5fba0d7058bcb96532d271ce2cd82522c99c3f06a74610e43d6ba",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-7",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_GnarSmall"
+          },
+          "crop_pixel_sha256": "df621dadab394c44111c38e91759c1786bce69ab0b3fc1699bebcedee55c9f66",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alune"
+          },
+          "crop_pixel_sha256": "ac0fb54a3f90e49ab419c12c1410be2df619b87e0a4f9cdd7a62e0d176e9f3ee",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_LeBlanc"
+          },
+          "crop_pixel_sha256": "1a5ac1e5d13169a212ff55603ff6eef2656e27fbaa38ae6f79fbf32f9d3b55a8",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lillia"
+          },
+          "crop_pixel_sha256": "662c18fb9abf1dab1730bd6824fd61e9aa9475aab4ca51d90bdd17fed66bc499",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-11",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lux_Elderwood"
+          },
+          "crop_pixel_sha256": "6af491f859652972082e70c75f9db826498989499b5a6b1307c06571622396a0",
+          "stars": null,
+          "appearance_state": "elderwood_form"
+        },
+        {
+          "key": "marker-12",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ivern"
+          },
+          "crop_pixel_sha256": "20a191fce400bc914278496724bbc0e3fc3f7087cf87deb0f63c0c362e5caf6b",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-13",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "crop_pixel_sha256": "feeb8f023e61cf92902575f711d8aaa4a013df4cb073565a12b8bf987c0c2bbc",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-15",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lillia"
+          },
+          "crop_pixel_sha256": "aeffb4886ca318b2c2032b004b1caf7c44691456364562dfe13669c59f07d8c6",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-19",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Malphite"
+          },
+          "crop_pixel_sha256": "3ea2d79b15213a044adf3b7d667ec001ed90b28df44aea6875033f3837072d36",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-20",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_GnarSmall"
+          },
+          "crop_pixel_sha256": "abce95781083c82955a92f645f7fddeac00ad60301a5f4027e47931720af35f6",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+      "source_ms": 1100000,
+      "sha256": "2bb95bfbf07d9192445b7b4a336b2c35dc07f078ddb42c7cf23e877073bd6277",
+      "pixel_sha256": "8958c4b467972ef73f38e455f1f9173f4b1e7dfeb5415ee565ff5aa4ed476ea1",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-ezSEOwI7uOM",
+      "match_group": "youtube-ezSEOwI7uOM-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Reviewed crops and full frames against named model renders before evaluator predictions. Lux green/gold leaf-shoulder staff appearance matches UI-bound Elderwood reference; 980-1000 s placement adds Avatar and raises Elderwood 7 to 9. No independent human ground truth."
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "exact_patch_unknown",
+        "published_date": "2026-08-23",
+        "appearance_binding": "Visual identification only; combat stats not inferred"
+      },
+      "source_url": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "source_video_id": "youtube:ezSEOwI7uOM",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              955,
+              331,
+              1083,
+              475
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 54,
+              "x": 992,
+              "y": 323
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              629,
+              536,
+              757,
+              680
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 59,
+              "x": 664,
+              "y": 528
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              764,
+              558,
+              892,
+              702
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 59,
+              "x": 799,
+              "y": 550
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              880,
+              566,
+              1008,
+              710
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 35,
+              "x": 927,
+              "y": 558
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kennen"
+          },
+          "crop_pixel_sha256": "1aa42121d5b4e7dacc266f049bc091fed58a1423ff1cd10d58bf70193d7b4416",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alune"
+          },
+          "crop_pixel_sha256": "bdbad330f2915b65022932e0ccbfa9a5670f0cd93ae42cf1b49b776f939d9790",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_LeBlanc"
+          },
+          "crop_pixel_sha256": "610344abdf07741834152b703b6a9dda30d23b2e845bda8b52b5d134e14d07ef",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lux_Elderwood"
+          },
+          "crop_pixel_sha256": "5dee744b3bf2d908c91f9c13d8a5ad8f4c80369ab70e5947418999db42c5d3cc",
+          "stars": null,
+          "appearance_state": "elderwood_form"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+      "source_ms": 1200000,
+      "sha256": "1592feb78da212a9a7639ed67ab8e186664dccdb40b37066741dc4998b51762b",
+      "pixel_sha256": "7a249d8140c7a449ad43d38f40b0f25bdb674bc22c21043dcbebbd45a52b3374",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-ezSEOwI7uOM",
+      "match_group": "youtube-ezSEOwI7uOM-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Reviewed crops and full frames against named model renders before evaluator predictions. Lux green/gold leaf-shoulder staff appearance matches UI-bound Elderwood reference; 980-1000 s placement adds Avatar and raises Elderwood 7 to 9. No independent human ground truth."
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "exact_patch_unknown",
+        "published_date": "2026-08-23",
+        "appearance_binding": "Visual identification only; combat stats not inferred"
+      },
+      "source_url": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "source_video_id": "youtube:ezSEOwI7uOM",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1048,
+              207,
+              1176,
+              351
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 27,
+              "x": 1099,
+              "y": 199
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              719,
+              231,
+              847,
+              375
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 39,
+              "x": 764,
+              "y": 223
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              783,
+              248,
+              911,
+              392
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 61,
+              "x": 817,
+              "y": 240
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              821,
+              332,
+              949,
+              476
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 24,
+              "x": 873,
+              "y": 324
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kennen"
+          },
+          "crop_pixel_sha256": "24361ce620d76c6d5c6ff2f97359a86614a4b801bc130c705ce486f7ea96218b",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ezreal"
+          },
+          "crop_pixel_sha256": "1011f5ac2a09e6b52c63b9e90c49fc16860648a55b26d457251de5014edf7298",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alune"
+          },
+          "crop_pixel_sha256": "1049a045e375951b7f89221a4839fe13251267fadd4fbd0322814f164dcf6369",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_LeBlanc"
+          },
+          "crop_pixel_sha256": "76bc6583ce76b2abc0b0944c6c293a9a448fbab7089c8f64b428e57f9798ce5b",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+      "source_ms": 1300000,
+      "sha256": "9e1b2643dcc3a07004a69a505ef49b50529bd2deee169d6046618357a6a2b388",
+      "pixel_sha256": "33d8c7493d6b660635a5ec75403b0e964f5b4565e921493d50f3e36cd7d8a762",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-ezSEOwI7uOM",
+      "match_group": "youtube-ezSEOwI7uOM-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Reviewed crops and full frames against named model renders before evaluator predictions. Lux green/gold leaf-shoulder staff appearance matches UI-bound Elderwood reference; 980-1000 s placement adds Avatar and raises Elderwood 7 to 9. No independent human ground truth."
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "exact_patch_unknown",
+        "published_date": "2026-08-23",
+        "appearance_binding": "Visual identification only; combat stats not inferred"
+      },
+      "source_url": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "source_video_id": "youtube:ezSEOwI7uOM",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-4",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              568,
+              502,
+              696,
+              646
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 43,
+              "x": 611,
+              "y": 494
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              766,
+              536,
+              894,
+              680
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 799,
+              "y": 528
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ezreal"
+          },
+          "crop_pixel_sha256": "d507e20579aab95283fde9924a0f79b02c25aeb598fbd8721065f34dcaa3e698",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alune"
+          },
+          "crop_pixel_sha256": "d4a9b18b5bd18a6d4ff3bf2892c0d63f264f9d73c29cd6101c93de8c4ea0ef1a",
+          "stars": null,
+          "appearance_state": "ordinary"
+        }
+      ],
+      "identity_negatives": []
+    },
+    {
+      "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+      "source_ms": 1380000,
+      "sha256": "19a023538fbe204f964e1429ac4712a29b910217f14c5688f30ff33194fca86a",
+      "pixel_sha256": "67d235ef2b8f0dc58584c7177e24e888f9ff9ba60304173027b7956185bfaef8",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "session_id": "youtube-ezSEOwI7uOM",
+      "match_group": "youtube-ezSEOwI7uOM-entire-source",
+      "identity_split": "test",
+      "scene": "board",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Reviewed crops and full frames against named model renders before evaluator predictions. Lux green/gold leaf-shoulder staff appearance matches UI-bound Elderwood reference; 980-1000 s placement adds Avatar and raises Elderwood 7 to 9. No independent human ground truth."
+      },
+      "patch_binding": {
+        "set_key": "TFTSet18",
+        "patch": null,
+        "status": "exact_patch_unknown",
+        "published_date": "2026-08-23",
+        "appearance_binding": "Visual identification only; combat stats not inferred"
+      },
+      "source_url": "https://www.youtube.com/watch?v=ezSEOwI7uOM",
+      "source_video_id": "youtube:ezSEOwI7uOM",
+      "source_format_id": "137",
+      "timestamp_basis": "ffmpeg_fps_grid_not_original_frame_pts",
+      "decode_mode": "all",
+      "framing": "full_hud_verified",
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              839,
+              327,
+              967,
+              471
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 872,
+              "y": 319
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              958,
+              330,
+              1086,
+              474
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 61,
+              "x": 992,
+              "y": 322
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1072,
+              387,
+              1200,
+              531
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 1105,
+              "y": 379
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1131,
+              407,
+              1259,
+              551
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 30,
+              "x": 1180,
+              "y": 399
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              900,
+              541,
+              1028,
+              685
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 933,
+              "y": 533
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              488,
+              567,
+              616,
+              711
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 44,
+              "x": 530,
+              "y": 559
+            }
+          },
+          {
+            "key": "marker-8",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1034,
+              584,
+              1162,
+              728
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 1067,
+              "y": 576
+            }
+          },
+          {
+            "key": "marker-9",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              630,
+              590,
+              758,
+              734
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 663,
+              "y": 582
+            }
+          },
+          {
+            "key": "marker-10",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              1195,
+              673,
+              1323,
+              817
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 1228,
+              "y": 665
+            }
+          },
+          {
+            "key": "marker-12",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              582,
+              695,
+              710,
+              839
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 615,
+              "y": 687
+            }
+          },
+          {
+            "key": "marker-15",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              463,
+              703,
+              591,
+              847
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 496,
+              "y": 695
+            }
+          },
+          {
+            "key": "marker-16",
+            "zone": "unknown",
+            "owner": "unknown",
+            "box": [
+              823,
+              713,
+              951,
+              857
+            ],
+            "bar_rect": {
+              "height": 4,
+              "width": 63,
+              "x": 856,
+              "y": 705
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Hecarim"
+          },
+          "crop_pixel_sha256": "d1c4385281f9e22aa6df32df14621a509d51cc7d4d295291e5d74c263dd5d366",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ornn"
+          },
+          "crop_pixel_sha256": "8afd8a48b31bf1a6d6a1f4c5550a5b2aa2221d47925a39ff2f2552ccb914b7ad",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kennen"
+          },
+          "crop_pixel_sha256": "c9082822d3a1fa8b2dcde8ab752685997a50a18d12a943eb04cc4c041b53f98a",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_GnarSmall"
+          },
+          "crop_pixel_sha256": "71a69e5f496aec787f3441c75d3c23b1de589dd69bac3e6d23d929cb93a41ba9",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alune"
+          },
+          "crop_pixel_sha256": "bc825169bad3c5c769715a6c5ebde1d091dfc22f12775e20c723545c24afc6f9",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ezreal"
+          },
+          "crop_pixel_sha256": "80718ed4545a99838210b4a4d470231caa7a254041ced54197c86bc29ce68256",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-8",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_LeBlanc"
+          },
+          "crop_pixel_sha256": "faa95a25e19354c98b6e917a2a38edc9ea8e5c8d44e9cefac55855faa886a670",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-9",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lux_Elderwood"
+          },
+          "crop_pixel_sha256": "a9fd1d9a7a767943ff4e530efbed346c11896dd7f8f988ed491bda748cb4ffad",
+          "stars": null,
+          "appearance_state": "elderwood_form"
+        },
+        {
+          "key": "marker-10",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Maokai"
+          },
+          "crop_pixel_sha256": "ecbcb8e84b59886597cc3338a85a07d5a807751a992df98bc8298c2ffda910a0",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-12",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lillia"
+          },
+          "crop_pixel_sha256": "f489291832b00a6b406a3a694d681b0a27d44fcdb74619b995738184ff9de376",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-15",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Lillia"
+          },
+          "crop_pixel_sha256": "e3a6b3fab6582a9ca9e2c2404014b5d01021c1ba20bacd80bbf2cdea347a09b7",
+          "stars": null,
+          "appearance_state": "ordinary"
+        },
+        {
+          "key": "marker-16",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Ezreal"
+          },
+          "crop_pixel_sha256": "8dd9623802e3a78ff374084e88dda6639841aeb32d942c66fd9f204b1c681c69",
+          "stars": null,
+          "appearance_state": "hover_highlight"
+        }
+      ],
+      "identity_negatives": []
+    }
+  ],
+  "review_status": "assistant_reviewed",
+  "review_notes": "New source reserved exclusively for test before review; labels fixed before frozen-head predictions. Excluded ambiguous, occluded, duplicate and summon proposals. Not a random full-VOD accuracy estimate."
+}
