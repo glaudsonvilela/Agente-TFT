@@ -110,3 +110,46 @@ Após a seleção congelada:
 7. reservar uma fonte realmente independente para o holdout final.
 
 Até esses gates passarem, `runtime_approved=false` permanece obrigatório.
+
+## Resultado do estudo local — 05/10/2026
+
+A retomada reproduziu o baseline e concluiu os dois braços pré-registrados:
+
+| Braço | Época selecionada | Validação | Macro-revocação | Cross-entropy | Teste antigo |
+|---|---:|---:|---:|---:|---:|
+| optimizer-default-parity | 800 | 21/32 | **0,6894** | 3,1966 | **79/127** |
+| optimizer-l2-1e4 | 400 | — | 0,6439 | 3,1800 | 77/127 |
+| optimizer-l2-1e5 | 400 | — | 0,6439 | 3,1505 | 78/127 |
+
+Pelo critério registrado antes da execução, macro-revocação de validação tem
+prioridade sobre cross-entropy. Portanto o baseline foi retido e a escolha foi
+congelada. Nenhum resultado de Minjo/KH participou dessa escolha.
+
+Evidência versionada:
+`docs/evidence/recognizer-training-20261005/optimizer-study-result.json`.
+
+## Avaliação pós-seleção em Minjo/KH
+
+Depois de atualizar o branch, execute somente o modelo congelado:
+
+```bash
+python3 scripts/evaluate_frozen_optimizer_selection.py \
+  --selection "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/optimizer-study-resume-20261005-101237/optimizer-study-selection.json"
+```
+
+Esse runner:
+
+- lê o SHA-256 do modelo escolhido no `selection.json`;
+- reutiliza exatamente encoder/ONNX Runtime registrados pelo estudo;
+- chama apenas `evaluate-classifier`;
+- exige `training_performed=false`;
+- exige isolamento das fontes em relação ao treino;
+- exige lote igual ao usado no treino;
+- como o baseline foi retido, exige paridade de previsões com os relatórios
+  históricos `transfer-vertical-minjo-evaluation.json` e
+  `transfer-vertical-kh-evaluation.json`;
+- não muda a seleção, não ajusta hiperparâmetros e não promove o modelo.
+
+A saída fica em `development-evaluation/` dentro da mesma pasta privada do
+estudo. Minjo/KH continuam sendo evidência de desenvolvimento, não holdout final.
+
