@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T10:16:00-03:00",
+  "recorded_at": "2026-10-05T10:20:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,13 +1346,28 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "ready_for_ssd_inventory",
+    "status": "ready_for_bounded_review_queue",
     "protocol": "docs/evidence/recognizer-training-20261005/new-image-review-protocol.json",
-    "runner": "scripts/inventory_new_ssd_training_images.py",
-    "default_root": "/mnt/sherlock-ssd/AgenteTFT",
+    "inventory_runner": "scripts/inventory_new_ssd_training_images.py",
+    "queue_runner": "scripts/build_new_ssd_review_queue.py",
+    "default_inventory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-inventory-20261005/inventory.json",
+    "default_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005",
     "automatic_labels": false,
     "training_performed": false,
     "minjo_kh_allowed_in_training": false,
+    "runtime_approved": false
+  },
+  "latest_ssd_inventory": {
+    "status": "complete",
+    "private_output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-inventory-20261005",
+    "scanned_images": 11913,
+    "scan_errors": 3,
+    "new_unique_images": 6019,
+    "new_full_frames": 2987,
+    "new_native_unit_crops": 0,
+    "new_other_images": 3032,
+    "interpretation": "Novel relative to current manifests, not necessarily new source diversity; includes derived and irrelevant assets.",
+    "training_performed": false,
     "runtime_approved": false
   }
 }
