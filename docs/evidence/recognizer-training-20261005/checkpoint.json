@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T07:05:48.159Z",
+  "recorded_at": "2026-10-05T07:19:04.248Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -955,21 +955,22 @@
     "tristana_samples": 35
   },
   "current_candidate": {
-    "annotations": "configs/training/unit-gallery-sprykin-expanded-20261005.json",
-    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-expanded-head/dino-head.json",
-    "head_sha256": "3acc7baf0af11921ecb0d9d42dab5938389728d3664917ca73af88ca71abdcc8",
-    "training_units": 569,
-    "catalog_ids": 64,
+    "status": "experimental_not_runtime_approved",
+    "annotations": "configs/training/unit-gallery-sprykin-seven-expanded-20261005.json",
+    "head_sha256": "35eb0fce3a55bd75a9a129b4ab82b79002389f4b6246b1ae56208a0a88f77774",
+    "private_model": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/sprykin-seven-head/dino-head.json",
+    "training_units": 610,
+    "catalog_coverage": 64,
     "catalog_total": 74,
-    "single_source_ids": 13,
-    "validation_correct": 17,
+    "validation_correct": 19,
     "validation_samples": 32,
-    "development_correct": 64,
+    "development_correct": 66,
     "development_samples": 107,
-    "tristana_correct": 22,
+    "tristana_correct": 31,
     "tristana_samples": 35,
-    "tristana_mounted_correct": 0,
-    "tristana_mounted_samples": 3,
+    "mounted_correct": 1,
+    "mounted_samples": 3,
+    "crop_transform": "upper_88x80_v1",
     "embedding_batch_size": 1,
     "runtime_approved": false
   },
@@ -1052,5 +1053,36 @@
     "crop_transform": "upper_88x80_v1",
     "embedding_batch_size": 1,
     "runtime_approved": false
-  }
+  },
+  "lux_review_recovery": {
+    "status": "verified_review_frames_complete",
+    "frames": 106,
+    "unit_crops": 738,
+    "embeddings_reconstructed": false,
+    "report": "docs/evidence/recognizer-training-20261005/lux-reconciled-collection.json",
+    "full_tooltip_proposals": 0,
+    "next": "Review completed 1-second acquisition frames and visible seasonal form before assigning Lux variant labels.",
+    "dense_acquisition": {
+      "status": "complete",
+      "private_directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-acquisition-1s",
+      "frames": 40,
+      "unit_crops": 434,
+      "embeddings_sha256": "9409e9c3a858be383839a07650c4d0f221478936807ac32dd60ab0c9fb37fbd9",
+      "start_seconds": 1240,
+      "sample_interval_seconds": 1,
+      "training_labels_added": 0
+    }
+  },
+  "checkpoint_tests": {
+    "reconcile_collection": 2,
+    "mine_tooltip_labels": 1,
+    "failed": 0
+  },
+  "pending_unrelated_work": [
+    "apps/hud_mapper/hm/board_hub_live.py",
+    "apps/hud_mapper/hm/runtime_app.py",
+    "apps/hud_mapper/hm/runtime_session.py",
+    "apps/hud_mapper/hm45_core_server.py",
+    "apps/hud_mapper/hm/native_unit_observer.py"
+  ]
 }

@@ -531,3 +531,22 @@ final completou 17 quadros e 150 propostas. Os prefixos anteriores contêm 76 e 
 registros completos; seus arquivos de embeddings não são declarados íntegros.
 O auxiliar OCR não encontrou painéis válidos no segmento final. Nenhuma identidade
 Lux foi adicionada com base somente no título, cor ou nome genérico.
+
+## Recuperação verificável de coletas interrompidas
+
+O comando Rust `reconcile-collection --spec RECONCILIATION_JSON` reúne segmentos
+concluídos e prefixos interrompidos explicitamente registrados. Verifica a grade
+completa de tempos, rejeita sobreposições/lacunas e confere pixels dos quadros,
+recortes salvos e sua associação com a região original. Uma linha JSON truncada
+só pode ser ignorada no final de uma entrada marcada como interrompida; corrupção
+anterior ou em uma coleta concluída é erro. Os arquivos originais são preservados.
+Dois testes exercitam essas falhas de recuperação e de cobertura temporal.
+
+A execução real recuperou os 106 quadros de revisão e 738 recortes da fonte Lux,
+sem lacunas na grade de 20 segundos. O índice usa `review_frames_complete`;
+não reconstrói nem declara válidos os embeddings interrompidos. O auxiliar OCR
+aceita esse índice verificando seu hash e os pixels de cada quadro. A revisão OCR
+dos 106 quadros não encontrou painel de unidade elegível. Isso não é prova de que
+não houve painel entre amostras. Iniciamos uma coleta de 1 Hz em 1.240–1.280 s,
+quando a característica Avatar aparece, para procurar a aquisição de Lux e sua
+forma sem depender somente da cor ou do título do vídeo.

@@ -1,0 +1,44 @@
+{
+  "duration_seconds": 2120,
+  "embeddings_reconstructed": false,
+  "frames": 106,
+  "limitations": [
+    "This index certifies saved review frames and crop pixels, not interrupted embedding files.",
+    "No identity labels are inferred or confirmed by file integrity checks."
+  ],
+  "observations_sha256": "2698b61252702a139182fc80d520812ae259b0396324a3e199d0471aded8f4b1",
+  "parts": [
+    {
+      "completed": false,
+      "directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-pool-20s",
+      "original_observations_sha256": "a162e2fe4ca797d94c3998c31d1a34c27fb902725af83983d7e95abc1d45149c",
+      "truncated_tail_ignored": true,
+      "valid_records": 76
+    },
+    {
+      "completed": false,
+      "directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-resumed-20s",
+      "original_observations_sha256": "4e7a43b32b37bd7aee3dcb30b513f2d75e5d3cf0db162a0145e6d6408858cef3",
+      "truncated_tail_ignored": true,
+      "valid_records": 13
+    },
+    {
+      "completed": true,
+      "directory": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/lux-elderwood-final-20s",
+      "original_observations_sha256": "5a74ea3de5c0f8826e63c38496d3d6d8706a036c7d5b1b013704e5b47c339d6c",
+      "truncated_tail_ignored": false,
+      "valid_records": 17
+    }
+  ],
+  "pixels_and_crop_associations_verified": true,
+  "runtime_approved": false,
+  "sample_interval_seconds": 20,
+  "schema_version": 1,
+  "source_id": "youtube:CQhg2_6tzcM",
+  "source_url": "https://www.youtube.com/watch?v=CQhg2_6tzcM",
+  "spec_sha256": "9656ea75634c15a93ef3bbce3214e7c2dcaf17d0a682b27efe4fd42e5bf4dec5",
+  "start_seconds": 0,
+  "status": "review_frames_complete",
+  "training_performed": false,
+  "unit_crops": 738
+}

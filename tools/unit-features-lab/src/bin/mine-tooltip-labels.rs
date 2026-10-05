@@ -1,6 +1,7 @@
 //! Find explicit on-screen unit names to speed up annotation. Cyan outlines only
 //! propose associations; a tooltip name is not automatically a crop's label.
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::PathBuf, process::Command};
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 fn canonical(s: &str) -> String {
@@ -65,22 +66,34 @@ fn run() -> Result<()> {
         return Err("new output required".into());
     }
     let report: Value = serde_json::from_slice(&fs::read(root.join("report.json"))?)?;
-    if report["status"] != "complete" {
-        return Err("complete source required".into());
+    if report["status"] != "complete" && report["status"] != "review_frames_complete" {
+        return Err("complete source or verified review-frame index required".into());
     }
     let catalog: Value = serde_json::from_slice(&fs::read(&a[2])?)?;
     let (names, families) = name_indexes(&catalog)?;
     fs::create_dir_all(out.join("rois"))?;
     let mut proposals = Vec::new();
     let mut scanned = 0;
-    for line in fs::read_to_string(root.join("observations.jsonl"))?.lines() {
+    let observations = fs::read_to_string(root.join("observations.jsonl"))?;
+    if report["status"] == "review_frames_complete"
+        && report["observations_sha256"] != format!("{:x}", Sha256::digest(observations.as_bytes()))
+    {
+        return Err("reconciled observation checksum mismatch".into());
+    }
+    for line in observations.lines() {
         let frame: Value = serde_json::from_str(line)?;
+        if frame["source_id"] != report["source_id"] {
+            return Err("mixed review source".into());
+        }
         let Some(file) = frame["review_frame"].as_str() else {
             continue;
         };
         let rgb = image::open(root.join(file))?.to_rgb8();
         if rgb.width() != 1920 || rgb.height() != 1080 {
             return Err("frame geometry".into());
+        }
+        if frame["frame_pixel_sha256"] != format!("{:x}", Sha256::digest(rgb.as_raw())) {
+            return Err("review frame pixel checksum mismatch".into());
         }
         let roi = image::imageops::crop_imm(&rgb, 1650, 170, 270, 660).to_image();
         let roi_path = out.join(format!("rois/{}.png", frame["source_seconds_nominal"]));
@@ -159,10 +172,12 @@ fn run() -> Result<()> {
     )?;
     fs::write(
         out.join("report.json"),
-        serde_json::to_vec_pretty(&json!({"source_id":report["source_id"],"scanned":scanned,
+        serde_json::to_vec_pretty(
+            &json!({"source_id":report["source_id"],"source_collection_status":report["status"],"scanned":scanned,
         "proposals":proposals.len(),"automatically_labeled":0,"limitations":["OCR names require review; cyan pixel count is not semantic selection detection.",
         "Catalog names are matched literally; untranslated aliases can be missed. Generic seasonal names retain every candidate ID.",
-        "This is annotation assistance, not a runtime recognition or coaching decision."]}))?,
+        "This is annotation assistance, not a runtime recognition or coaching decision."]}),
+        )?,
     )?;
     Ok(())
 }
