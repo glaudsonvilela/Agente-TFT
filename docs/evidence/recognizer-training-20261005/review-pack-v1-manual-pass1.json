@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-05T10:56:00-03:00",
+  "status": "manual_review_pass1_complete",
+  "source_pack": "AGENTE_TFT_REVIEW_PACK_V1.zip",
+  "findings": {
+    "new_source_candidates": [
+      {
+        "review_number": 1,
+        "suggested_id": "DA_18_KhaZix",
+        "decision": "not_admitted",
+        "reason": "source checkpoint partition is unlabeled_appearance_review_only; visual identity not independently confirmed"
+      },
+      {
+        "review_number": 2,
+        "suggested_id": "DA_Karma18",
+        "decision": "reject_suggestion",
+        "reason": "source checkpoint partition is unlabeled_appearance_review_only; crop silhouette does not support confident Karma label"
+      },
+      {
+        "review_number": 3,
+        "suggested_id": "DA_Karma18",
+        "decision": "ambiguous_not_admitted",
+        "reason": "source checkpoint partition is unlabeled_appearance_review_only; crop could not be confirmed from context alone"
+      }
+    ],
+    "lux_context": {
+      "known_elderwood_sequence": "Frames around 1253 s explicitly show Elderwood Lux acquisition/tooltip and support only the already-known Elderwood form.",
+      "new_source_qkG10NeqM3A": "Appearance-review-only source; frames show multiple visually distinct units but no reliable trait/name binding for the nine missing Lux forms. No form admitted.",
+      "missing_lux_forms_confirmed": 0
+    },
+    "candidate_queue_quality": "Broad visual inspection shows many same-source suggestions are false or ambiguous (especially CrimsonRaptor/Karma groups); the queue is useful for prioritization only, not automatic labeling."
+  },
+  "admitted_training_examples": 0,
+  "training_performed": false,
+  "runtime_approved": false,
+  "next": "Rebuild review queue after checkpoint-partition fix. Acquire/review genuinely training-eligible second sources for missing Lux forms and single-source IDs."
+}
