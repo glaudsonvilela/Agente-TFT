@@ -1,0 +1,11 @@
+{
+  "iterations": 120,
+  "invalid_reference_recovered": true,
+  "ocr_loaded": false,
+  "geometry_ipc_ms_median": 18.974158501805505,
+  "geometry_ipc_ms_p95": 45.93822599781561,
+  "rust_worker_rss_before_kib": 3612,
+  "rust_worker_rss_after_kib": 12080,
+  "physical_windows_test": false,
+  "accelerated_loop_not_wall_clock_endurance": true
+}

@@ -124,3 +124,52 @@ no diretório isolado do experimento no BigBANANA, fora do instalador.
 Não foi gerado um instalador novo. A configuração disponibiliza o ranker para
 estados estruturados confirmados; o caminho visual continua sem identidade
 confirmada e não foi promovido por estes resultados.
+
+## Identificação visual: investigação e mudanças de 04/10/2026
+
+O tabuleiro agora recebe quadros diretamente da captura, em fila que conserva
+somente o quadro mais recente, a cada 1 segundo. Antes, dependia do término do
+OCR e havia um intervalo fixo de 5 segundos para um estado estratégico que
+expirava em 2 segundos. O processo Rust `AGENTE_TFT_BOARD_ONLY=1` executa apenas
+geometria, sem carregar Tesseract. A VM calcula as barras a partir dos mesmos
+pixels recebidos; não reutiliza as barras de uma resposta anterior do OCR.
+Uma referência plana inválida é rejeitada sem encerrar esse processo.
+
+Foi implementado um classificador ONNX de recortes das unidades, com IDs ligados
+ao catálogo visual versionado, limite de propostas e rejeição de saída ambígua.
+Seu carregamento é opcional, os resultados são candidatos e uma falha de
+inferência desativa somente esse modelo. Nenhum candidato vira automaticamente
+campeão confirmado, posição ocupada, estrela ou item equipado.
+
+O primeiro experimento utilizou 48 recortes de unidades de oito imagens e dez
+recortes negativos de HUD. Os nomes foram revisados pelo assistente, com hashes
+das imagens; não constituem avaliação humana independente. Os conjuntos usam
+partidas separadas: três para treino, uma para validação e uma para teste.
+
+- 16 identidades treinadas de 74 IDs do catálogo; 600 passos, 13.753 parâmetros.
+- ONNX de 56.244 bytes; p95 de 1,25 ms para inferência de um lote de 12 recortes
+  neste computador, sem captura, transporte ou pré-processamento.
+- Treino: 39/39 exemplos classificados corretamente, incluindo negativos.
+- Validação: 1/7 correto, quatro identificações falsas aceitas.
+- Teste: 2/12 corretos, seis identificações falsas aceitas e quatro abstenções.
+- Resultado: **reprovado para ativação estratégica**. Os pesos permanecem no
+  laboratório do SSD; não há configuração ativa desse modelo no instalador.
+
+A consulta online incluiu reprodução de trechos de Wasianiverson no YouTube e
+Dishsoap na Twitch, além de um guia com capítulos por custo. Esse guia mostra
+cartas de campeões no trecho revisado, portanto não foi contabilizado como
+treino de modelos 3D. As amostras deste experimento vieram das capturas locais.
+O catálogo oficial também tem dez IDs de Lux com retrato idêntico: o retrato
+sozinho não resolve essas variantes.
+
+Evidências e cobertura por identidade:
+`docs/evidence/visual-identity-20261004`. Rótulos reprodutíveis:
+`configs/training/unit-identity-review-20261004.json`. Treinador:
+`python -m training.train_unit_identity --help`.
+
+O teste com os dois canais de OCR bloqueados respondeu ao HUB em 93,3 ms.
+Isso valida a independência da análise no Linux; não mede FPS da prévia no
+Windows, latência de voz, nem precisão do estado completo. Ainda faltam exemplos
+variados por campeão, rejeição confiável de desconhecidos, estrelas, associação
+ao hexágono, itens confirmados e perspectiva/fase. Não foi produzido novo
+instalador nem habilitado o cérebro estratégico a partir desse modelo reprovado.

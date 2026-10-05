@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "kind": "unit_identity_training",
+  "status": "trained_evaluated_not_promoted",
+  "annotation_sha256": "bec18576915aa4d28ec53bd7ae7f01862f49ff26f3fc48fade6b330c0601357a",
+  "partitions": {
+    "train": {
+      "crops": 39,
+      "matches": 3,
+      "correct": 39,
+      "accepted": 29,
+      "false_accepts": 0,
+      "by_class": {
+        "DA_18_RekSai": {
+          "samples": 5,
+          "correct": 5,
+          "accepted": 5,
+          "false_accepts": 0
+        },
+        "DA_18_Alistar": {
+          "samples": 3,
+          "correct": 3,
+          "accepted": 3,
+          "false_accepts": 0
+        },
+        "DA_18_Akali_AD": {
+          "samples": 2,
+          "correct": 2,
+          "accepted": 2,
+          "false_accepts": 0
+        },
+        "DA_18_Varus": {
+          "samples": 2,
+          "correct": 2,
+          "accepted": 2,
+          "false_accepts": 0
+        },
+        "DA_18_Teemo": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "__unknown__": {
+          "samples": 10,
+          "correct": 10,
+          "accepted": 0,
+          "false_accepts": 0
+        },
+        "DA_18_Elise": {
+          "samples": 2,
+          "correct": 2,
+          "accepted": 2,
+          "false_accepts": 0
+        },
+        "DA_18_Kayle": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_Gromp18_AP": {
+          "samples": 2,
+          "correct": 2,
+          "accepted": 2,
+          "false_accepts": 0
+        },
+        "DA_18_Sentry": {
+          "samples": 3,
+          "correct": 3,
+          "accepted": 3,
+          "false_accepts": 0
+        },
+        "DA_18_Rakan": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_18_Veigar": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_18_Soraka": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_Cinderling18": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_18_Caitlyn": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_Vi18": {
+          "samples": 1,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_Karma18": {
+          "samples": 2,
+          "correct": 2,
+          "accepted": 2,
+          "false_accepts": 0
+        }
+      }
+    },
+    "validation": {
+      "crops": 7,
+      "matches": 1,
+      "correct": 1,
+      "accepted": 5,
+      "false_accepts": 4,
+      "by_class": {
+        "__unknown__": {
+          "samples": 4,
+          "correct": 0,
+          "accepted": 4,
+          "false_accepts": 4
+        },
+        "DA_18_Elise": {
+          "samples": 1,
+          "correct": 0,
+          "accepted": 0,
+          "false_accepts": 0
+        },
+        "DA_18_Sentry": {
+          "samples": 2,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        }
+      }
+    },
+    "test": {
+      "crops": 12,
+      "matches": 1,
+      "correct": 2,
+      "accepted": 8,
+      "false_accepts": 6,
+      "by_class": {
+        "DA_18_Elise": {
+          "samples": 2,
+          "correct": 0,
+          "accepted": 2,
+          "false_accepts": 2
+        },
+        "DA_18_RekSai": {
+          "samples": 2,
+          "correct": 1,
+          "accepted": 1,
+          "false_accepts": 0
+        },
+        "DA_18_Sentry": {
+          "samples": 2,
+          "correct": 1,
+          "accepted": 2,
+          "false_accepts": 1
+        },
+        "DA_Cinderling18": {
+          "samples": 4,
+          "correct": 0,
+          "accepted": 1,
+          "false_accepts": 1
+        },
+        "__unknown__": {
+          "samples": 2,
+          "correct": 0,
+          "accepted": 2,
+          "false_accepts": 2
+        }
+      }
+    }
+  },
+  "optimizer_steps": 600,
+  "changed_parameter_tensors": 8,
+  "parameters": 13753,
+  "model_bytes": 56244,
+  "model_sha256": "6477903d8a58921e395d1ee4ecd57426be25d62fd3eee4a949625792c6071890",
+  "onnx_max_absolute_error": 1.52587890625e-05,
+  "seconds": 11.703538188001403,
+  "loss_first_25": 2.7674948883056643,
+  "loss_last_25": 0.0013532618794124573,
+  "batch_size": 12,
+  "inference_cpu_batch_ms_p50": 1.1480079992907122,
+  "inference_cpu_batch_ms_p95": 1.2520762013082276,
+  "trained_champions": 16,
+  "catalog_champions": 74,
+  "missing_champions": [
+    "DA_18_Ahri",
+    "DA_18_Alune",
+    "DA_18_Aphelios",
+    "DA_18_Ashe",
+    "DA_18_Azir",
+    "DA_18_Camille",
+    "DA_18_Cassiopeia",
+    "DA_18_Diana",
+    "DA_18_ElderDragon",
+    "DA_18_Ezreal",
+    "DA_18_GnarSmall",
+    "DA_18_Hecarim",
+    "DA_18_Ivern",
+    "DA_18_Kennen",
+    "DA_18_KhaZix",
+    "DA_18_Kobuko",
+    "DA_18_LeBlanc",
+    "DA_18_Leona",
+    "DA_18_Lillia",
+    "DA_18_Lux_Coven",
+    "DA_18_Lux_Elderwood",
+    "DA_18_Lux_Fae",
+    "DA_18_Lux_Inferno",
+    "DA_18_Lux_Moonbeam",
+    "DA_18_Lux_Primal",
+    "DA_18_Lux_Sunbeam",
+    "DA_18_Malphite",
+    "DA_18_Maokai",
+    "DA_18_MasterYi_AD",
+    "DA_18_Morgana",
+    "DA_18_Ornn",
+    "DA_18_Rammus",
+    "DA_18_Rengar",
+    "DA_18_Sejuani",
+    "DA_18_Sett",
+    "DA_18_Shen",
+    "DA_18_Sivir",
+    "DA_18_Tristana",
+    "DA_18_Warwick",
+    "DA_18_Xayah",
+    "DA_18_Yorick",
+    "DA_18_Yunara",
+    "DA_18_Zyra",
+    "DA_Amumu18",
+    "DA_Brambleback18",
+    "DA_CrimsonRaptor18",
+    "DA_Draven18",
+    "DA_Fiddlesticks18",
+    "DA_KogMaw18_AD",
+    "DA_Krug18",
+    "DA_Lux18_Base",
+    "DA_Lux18_Blackthorn",
+    "DA_Lux18_Blossom",
+    "DA_Murkwolf18",
+    "DA_Nidalee18_AP",
+    "DA_Scuttlecrab18",
+    "DA_Sentinel18",
+    "DA_Taric18"
+  ],
+  "runtime_approved": false,
+  "complete_board_states": 0,
+  "limitations": [
+    "Assistant visual labels, no independent human review",
+    "Few examples and limited per-class match coverage",
+    "Detector proposal recall not measured by crop classification",
+    "No star, ownership, ground-cell or item confirmation"
+  ]
+}

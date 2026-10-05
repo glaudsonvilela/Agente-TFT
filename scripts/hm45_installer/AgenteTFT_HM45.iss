@@ -1,6 +1,6 @@
 [Setup]
 AppName=Agente TFT · Laboratório HM4.5
-AppVersion=0.6.3
+AppVersion=0.6.4
 DefaultDirName={localappdata}\AgenteTFT-HM45
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest

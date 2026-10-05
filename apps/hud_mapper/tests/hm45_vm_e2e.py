@@ -27,7 +27,7 @@ def main() -> None:
         rgb = bytes(1920 * 1080 * 3)
     frame = SimpleNamespace(id=1, width=1920, height=1080, rgb=rgb, pts_ms=0)
     command = ["docker", "run", "--rm", "--network=host", "--memory=768m", "--cpus=2",
-               "-i", "agente-tft-hm45-core:0.6.3", "serve"]
+               "-i", "agente-tft-hm45-core:0.6.4", "serve"]
     core = VMCore("unused", args.output.with_suffix(".stderr.log"), command=command)
     try:
         model = RemoteObserver(core, "build/hm4-live-assets/models/deployment-candidate.json").observe(frame)

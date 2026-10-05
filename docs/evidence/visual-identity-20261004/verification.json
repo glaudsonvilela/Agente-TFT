@@ -1,0 +1,11 @@
+{
+  "python_tests_passed": 71,
+  "python_tests_skipped": 2,
+  "subtests_passed": 14,
+  "rust_tests_passed": 53,
+  "rust_release_build_passed": true,
+  "invalid_reference_then_120_real_frames_passed": true,
+  "neural_model_rejected": true,
+  "windows_physical_test_performed": false,
+  "new_installer_created": false
+}

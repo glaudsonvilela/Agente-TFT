@@ -1,0 +1,9 @@
+{
+  "frames": 8,
+  "geometry_and_hub_cpu_ms_min": 41.35101899737492,
+  "geometry_and_hub_cpu_ms_max": 99.60239899737644,
+  "unit_model_enabled_only_in_isolated_lab": true,
+  "raw_capture_transport_ocr_voice_excluded": true,
+  "verified_state_emitted": false,
+  "production_model_promoted": false
+}

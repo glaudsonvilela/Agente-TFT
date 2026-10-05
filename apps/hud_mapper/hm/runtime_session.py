@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import replace
 from concurrent.futures import ThreadPoolExecutor
 import copy, hashlib, queue, threading, time
+import json
+from pathlib import Path
+from types import SimpleNamespace
 from PIL import Image
 from .core import native_regions, valid_box
 from .session import Session
@@ -12,6 +15,13 @@ CANONICAL_READER_SIZE = (1920, 1080)
 ASPECT_16_9 = 16 / 9
 ASPECT_TOLERANCE = 0.005
 ASYNC_HP_MAX_AGE_MS = 2000.0
+
+
+def hub_due(previous, frame, interval_ms):
+    """Replay seeks/restarts must not wait for an old source-time deadline."""
+    return (previous is None or previous['epoch'] != frame.epoch
+            or frame.pts_ms < previous['source_ms']
+            or frame.pts_ms - previous['source_ms'] >= interval_ms)
 
 
 def reader_plan(frame, allow_normalize=False):
@@ -245,22 +255,6 @@ class RuntimeSession(Session):
                         raise ValueError('Reader plan marked supported but produced no input frame')
                     if plan.get('normalized'):
                         self.counts['reader_normalized_runs'] += 1
-                    if (self.options.board_hub_enabled and self.board_reference_requested.is_set()):
-                        try:
-                            reply = self.worker.request(dict(op='reference', id=frame.id,
-                                source_ms=round(frame.pts_ms), width=reader_frame.width,
-                                height=reader_frame.height, bytes=len(reader_frame.rgb)),
-                                reader_frame.rgb, timeout=12)
-                            if not reply.get('reference_ready'):
-                                raise ValueError('B1 reference was not accepted')
-                            self.versions['board_reference_sha256'] = hashlib.sha256(reader_frame.rgb).hexdigest()
-                            self.versions['board_reference_frame_id'] = frame.id
-                            self.versions['board_reference_status'] = 'manual_replay_frame'
-                        except Exception as exc:
-                            self.versions['board_reference_status'] = 'failed'
-                            self.versions['board_reference_error'] = str(exc)
-                        finally:
-                            self.board_reference_requested.clear()
                     executed = True
                     self.counts['reader_native_runs'] += 1
                     include_shop = (self.shop_interval_ms <= 0 or frame.pts_ms >= self._next_shop_ms)
@@ -358,11 +352,6 @@ class RuntimeSession(Session):
                 if self.options.replay_review:
                     from .replay_coach import coach_prompt
                     self._publish_coach(coach_prompt(answer),frame,end)
-                if self.options.board_hub_enabled and plan.get('supported') and not hit:
-                    next_hub = getattr(self, '_next_hub_ms', -1)
-                    if frame.pts_ms >= next_hub:
-                        self._next_hub_ms = frame.pts_ms + 5000
-                        self.hub_pending.put((frame, reader_frame, answer.get('board'), plan))
         except Exception as exc:
             self.error = str(exc)
             self.stop()
@@ -381,6 +370,10 @@ class HM4RuntimeSession(RuntimeSession):
 
     def __init__(self, options):
         super().__init__(options)
+        profile = json.loads((Path(options.configs) / 'ui/board-hub-live-v1.json').read_text())
+        self.hub_interval_ms = profile['sample_interval_ms']
+        if type(self.hub_interval_ms) is not int or not 1000 <= self.hub_interval_ms < 2000:
+            raise ValueError('Board cadence must fit the 2000 ms strategic freshness budget')
         self.board_reference_requested = threading.Event()
         self.latest_replay_tip = None
         self.latest_decision_reason = None
@@ -405,7 +398,14 @@ class HM4RuntimeSession(RuntimeSession):
             raise ValueError('Inicie a revisão de replay antes de calibrar o tabuleiro')
         self.board_reference_requested.set()
 
+    def submit_hub_frame(self, frame):
+        if hub_due(getattr(self, '_last_hub_submission', None), frame, self.hub_interval_ms):
+            self._last_hub_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.hub_pending.put(frame)
+            self.counts['hub_submitted'] += 1
+
     def _hub_loop(self):
+        board_worker = None
         try:
             from .replay_coach import inventory_prompt
             if self.core:
@@ -413,20 +413,64 @@ class HM4RuntimeSession(RuntimeSession):
                 observer = RemoteBoardHub(self.core)
             else:
                 from .board_hub_live import BoardHubLive
+                from .board_worker import BoardWorker
                 observer = BoardHubLive(self.options.configs)
+                board_worker = BoardWorker(self.options.worker, self.options.configs,
+                                           log=Path(self.options.output) / 'board-stderr.log')
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
             self.versions['board_hub_set_key'] = observer.manifest['set_key']
             self.versions['board_hub_mode'] = 'replay_screen_candidate_only'
+            self.versions['board_hub_interval_ms'] = self.hub_interval_ms
             self.versions['board_reference_status'] = 'not_calibrated'
+            if self.options.board_reference:
+                with Image.open(self.options.board_reference) as reference:
+                    reference = reference.convert('RGB')
+                    reference_frame = SimpleNamespace(id=0, pts_ms=0, width=reference.width,
+                        height=reference.height, rgb=reference.tobytes())
+                if self.core:
+                    observer.observe(reference_frame, calibrate=True)
+                else:
+                    board_worker.observe(reference_frame, calibrate=True)
             while not self.cancel.is_set():
                 try:
-                    frame, reader_frame, board_read, plan = self.hub_pending.get()
+                    frame = self.hub_pending.get()
                 except queue.Empty:
                     if self.producer_done.is_set():
                         break
                     continue
                 started = time.perf_counter_ns()
-                observed = observer.observe(reader_frame, board_read)
+                if (started - frame.due_ns) / 1e6 > 2000:
+                    with self.lock:
+                        self._latest_strategy_state = None
+                    self.counts['hub_stale_input_dropped'] += 1
+                    continue
+                plan = reader_plan(frame, self.normalize_reader_input)
+                reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
+                if reader_frame is None:
+                    with self.lock:
+                        self._latest_strategy_state = None
+                    self.counts['hub_resolution_skipped'] += 1
+                    continue
+                calibrate = self.board_reference_requested.is_set()
+                if calibrate:
+                    self.board_reference_requested.clear()
+                try:
+                    if self.core:
+                        observed = observer.observe(reader_frame, calibrate=calibrate)
+                    else:
+                        board_read = board_worker.observe(reader_frame, calibrate)
+                        observed = observer.observe(reader_frame, board_read)
+                except (ValueError, RuntimeError) as exc:
+                    if not calibrate:
+                        raise
+                    self.versions['board_reference_status'] = 'failed'
+                    self.versions['board_reference_error'] = str(exc)
+                    with self.lock:
+                        self._latest_strategy_state = None
+                    continue
+                if calibrate:
+                    self.versions['board_reference_sha256'] = hashlib.sha256(reader_frame.rgb).hexdigest()
+                    self.versions['board_reference_frame_id'] = frame.id
                 # The present observer does not produce this contract. Keep the
                 # explicit boundary for a future calibrated identity observer;
                 # candidate icons are never converted into verified units here.
@@ -438,6 +482,10 @@ class HM4RuntimeSession(RuntimeSession):
                 neural_items=observed['snapshot'].get('neural_items') or {}
                 self.versions['item_neural_active']=neural_items.get('active',False)
                 self.versions['item_neural_model_sha256']=neural_items.get('model_sha256')
+                neural_units = observed['snapshot'].get('neural_units') or {}
+                self.versions['unit_neural_active'] = neural_units.get('active', False)
+                self.versions['unit_neural_model_sha256'] = neural_units.get('model_sha256')
+                self.versions['visual_readiness'] = observed['snapshot'].get('visual_readiness')
                 end = time.perf_counter_ns()
                 regions = regions_to_source(observed['regions'], frame, plan)
                 record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions,
@@ -445,6 +493,8 @@ class HM4RuntimeSession(RuntimeSession):
                               reader_input_transform=plan, ground_truth=False,
                               source_to_hub_ms=(end-frame.due_ns)/1e6,
                               hub_processing_ms=(end-started)/1e6,
+                              hub_normalize_ms=normalize_ms,
+                              scheduling='independent_of_hud_ocr_latest_frame',
                               board_reference_status=self.versions.get('board_reference_status'),
                               game_state_updated=False)
                 with self.lock:
@@ -462,3 +512,6 @@ class HM4RuntimeSession(RuntimeSession):
         except Exception as exc:
             self.error = str(exc)
             self.stop()
+        finally:
+            if board_worker:
+                board_worker.close()

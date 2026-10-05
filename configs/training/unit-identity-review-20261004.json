@@ -1,0 +1,1652 @@
+{
+  "schema_version": 2,
+  "kind": "board_review",
+  "scope": "unit_identity_development_crops",
+  "match_group_reviews": [
+    {
+      "id": "match-1f0938fe",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "fd58cef22e344dded96b995ee1e614173aba5b9ac1f390aa743f436fd5e73e69"
+      ],
+      "opponent_names": [
+        "LuscaoBradock",
+        "Jotave",
+        "CalmaSeuLuiz",
+        "thetha99",
+        "CANTU",
+        "我九岁了",
+        "WPX Eskilo07"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-6f784a17",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "74060899da7ca9985fd1959eae08156aa49d56ab4fac2f49ff10ac1bcd545e2c"
+      ],
+      "opponent_names": [
+        "Xicadoida",
+        "Duzinn",
+        "QuemL3u",
+        "рят",
+        "Corey taylor",
+        "Not 4 Kids",
+        "pimenta0289"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-9acfd9af",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "bc6e7d8c923cf1b71368eaa6451206a91ffe79ac5d00f29af7eb3a5c92e5fc6d"
+      ],
+      "opponent_names": [
+        "Bruus",
+        "Brunigma",
+        "AlShadan",
+        "ArcanjoBob40",
+        "Gokusan2013",
+        "DJScratch"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-c39eced3",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "f9af5f5783518247db72ae8b4d98cff63cfe609aac4d995d81f960adf0260f71"
+      ],
+      "opponent_names": [
+        "ionian legacy",
+        "OhDaRol4",
+        "Valaaaaa",
+        "pedrobonne",
+        "Socaa fofoo",
+        "Tempest 98",
+        "PRICILÃO"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    },
+    {
+      "id": "match-d75a3fcf",
+      "method": "assistant_visual_roster_review",
+      "evidence_frame_sha256": [
+        "73b4ad9da1992f6a0dcec4d4ed7171b683ae32e2c5c79b55ebd887802baf58f4"
+      ],
+      "opponent_names": [
+        "KazakiZam",
+        "PalioWeekend2010",
+        "Minuu",
+        "Cracatua",
+        "jaogagabriel",
+        "PrincesaDoce",
+        "vknk VG"
+      ],
+      "notes": "Distinct roster compared across five captures; contact sheets reviewed for continuity. Capture context retained for lobby/loading frames. Not a Riot match-ID binding."
+    }
+  ],
+  "frames": [
+    {
+      "index": 29,
+      "sha256": "fd58cef22e344dded96b995ee1e614173aba5b9ac1f390aa743f436fd5e73e69",
+      "pixel_sha256": "c6a77add248ad0ad08e5bb5439be64611d85b135aa69e88571e2f770bce8abea",
+      "session_id": "1f0938fe7952419283f8544b8e5115df",
+      "source_ms": 384437.5374,
+      "image": "029.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-1f0938fe",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "phase": "planning",
+      "hud": {
+        "hp": 100,
+        "gold": 3,
+        "level": 4,
+        "xp": 0,
+        "xp_cap": 10,
+        "stage": "2-1"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              354,
+              969,
+              498
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              355,
+              1088,
+              499
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 347
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              902,
+              435,
+              1030,
+              579
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 69,
+              "x": 932,
+              "y": 427
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              596,
+              629,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 588
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              350,
+              722,
+              478,
+              866
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 382,
+              "y": 714
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              706,
+              724,
+              834,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 738,
+              "y": 716
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              826,
+              724,
+              954,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 858,
+              "y": 716
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Teemo"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "sha256": "3c8ce7daed2c77d343b629a90fc839b1f3ae0d432ed1c5b4b9e110fb723ab615",
+      "pixel_sha256": "c85df9868ae6904d905c27303fb2c276e356ab0748edafe730a9366aba22e674",
+      "session_id": "1f0938fe7952419283f8544b8e5115df",
+      "source_ms": 528588.5369,
+      "image": "041.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-1f0938fe",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              841,
+              354,
+              969,
+              498
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 873,
+              "y": 346
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              355,
+              1088,
+              499
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 347
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              429,
+              1028,
+              573
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 64,
+              "x": 932,
+              "y": 421
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              596,
+              629,
+              740
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 588
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Akali_AD"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Varus"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 64,
+      "sha256": "77a7c6178fa9d4ae499899cb9eab8be4351ca6e660fd0135b383bc6a4901f575",
+      "pixel_sha256": "8190d98bc589e23f00b6ce62d8323ae2b86e3252d694c9b4ea77573f36fe648f",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 277708.6668,
+      "image": "064.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              946,
+              672,
+              1074,
+              816
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 978,
+              "y": 664
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              347,
+              708,
+              475,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 379,
+              "y": 700
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              470,
+              708,
+              598,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 80,
+              "x": 494,
+              "y": 700
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              825,
+              712,
+              953,
+              856
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 857,
+              "y": 704
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              708,
+              717,
+              836,
+              861
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 740,
+              "y": 709
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              585,
+              724,
+              713,
+              868
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 617,
+              "y": 716
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Elise"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Kayle"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Rakan"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Veigar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 76,
+      "sha256": "fabe8871d0f0b051b75d253475b83b44b4ad2b8f02ffd2237b7e36fa8f6a739c",
+      "pixel_sha256": "b58902eab8ba07c76ed88918c68bd926778d311d77f0c937c2d19fd5ad6a4760",
+      "session_id": "6f784a17a03f40c592bdeb9fb7ceef7c",
+      "source_ms": 655143.3271,
+      "image": "076.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-6f784a17",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              336,
+              1088,
+              480
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 328
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1308,
+              548,
+              1436,
+              692
+            ],
+            "bar_rect": {
+              "height": 3,
+              "width": 75,
+              "x": 1335,
+              "y": 540
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              900,
+              614,
+              1028,
+              758
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 932,
+              "y": 606
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              341,
+              708,
+              469,
+              852
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 373,
+              "y": 700
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_Gromp18_AP"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Elise"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Soraka"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 143,
+      "sha256": "79cccbac5e6c3057740eaa6729560971713db2263820da169eb103c84d2adce0",
+      "pixel_sha256": "7e7f02d3077005fb051de708307d8dc8082e6571f2bf252fadb52dbb0e958eba",
+      "session_id": "9acfd9afbd074a4582aaa20fa3e86db4",
+      "source_ms": 663798.1203,
+      "image": "143.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-9acfd9af",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              338,
+              968,
+              482
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 330
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1079,
+              352,
+              1207,
+              496
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1111,
+              "y": 344
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              359,
+              1088,
+              503
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 351
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              720,
+              371,
+              848,
+              515
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 752,
+              "y": 363
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1310,
+              711,
+              1438,
+              855
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1342,
+              "y": 703
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Caitlyn"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Alistar"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_Vi18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Karma18"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "train",
+      "identity_negatives": [
+        {
+          "box": [
+            340,
+            875,
+            532,
+            925
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        },
+        {
+          "box": [
+            710,
+            0,
+            1190,
+            62
+          ],
+          "basis": "assistant_reviewed_nonunit_hud"
+        }
+      ]
+    },
+    {
+      "index": 167,
+      "sha256": "efb95d4622074aece0810ec064cd7ade84f3334aed913c0ce2be690b602f13b4",
+      "pixel_sha256": "8c6155e094f5d85b996050ad5061a6ea722dd71dc10a26157afe7e1dd8c04711",
+      "session_id": "c39eced32a004bc38e4270a2b3297f1e",
+      "source_ms": 1121013.2758,
+      "image": "167.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-c39eced3",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              719,
+              318,
+              847,
+              462
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 751,
+              "y": 310
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              323,
+              968,
+              467
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 315
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              960,
+              350,
+              1088,
+              494
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 992,
+              "y": 342
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1077,
+              385,
+              1205,
+              529
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1109,
+              "y": 377
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              499,
+              563,
+              627,
+              707
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 531,
+              "y": 555
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1067,
+              694,
+              1195,
+              838
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1099,
+              "y": 686
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1310,
+              700,
+              1438,
+              844
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1342,
+              "y": 692
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Elise"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "validation"
+    },
+    {
+      "index": 193,
+      "sha256": "1ca8bb9516d6a4a3dae373281962cd690a8c0036ef94c2e6de3393f1d8613e7f",
+      "pixel_sha256": "1efdf67ffee6ff8b89c80ede574502e5a4730e8b548ca82b993e4bc03a292cf8",
+      "session_id": "d75a3fcf5071426196119a07fff17f42",
+      "source_ms": 356593.4342,
+      "image": "193.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-d75a3fcf",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              345,
+              968,
+              489
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 337
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              723,
+              379,
+              851,
+              523
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 755,
+              "y": 371
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              989,
+              670,
+              1117,
+              814
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1021,
+              "y": 662
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1064,
+              728,
+              1192,
+              872
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1096,
+              "y": 720
+            }
+          },
+          {
+            "key": "marker-5",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              586,
+              729,
+              714,
+              873
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 618,
+              "y": 721
+            }
+          },
+          {
+            "key": "marker-6",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              826,
+              729,
+              954,
+              873
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 858,
+              "y": 721
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Elise"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-5",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-6",
+          "identity": {
+            "state": "unknown"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "test"
+    },
+    {
+      "index": 204,
+      "sha256": "b606d47079930bc50cb92bfc301feae50f1dadbfd296bf203a9e51c72ebcf7fc",
+      "pixel_sha256": "a830598c2d6b2003490232ba39b5be64ca102d6976f124ada048760aee3570e5",
+      "session_id": "d75a3fcf5071426196119a07fff17f42",
+      "source_ms": 519309.1476,
+      "image": "204.png",
+      "scene": "board",
+      "image_size": [
+        1920,
+        1080
+      ],
+      "patch_binding": {
+        "release_sha256": "0674657d3f7c165d37045fbd45d8f7c56b20aef064660e6906c3985f0c8a0299",
+        "set_key": "TFTSet18",
+        "patch": "18.3",
+        "evidence": "User dates/patch context plus reviewed Set18 art and shop names; not client build verification"
+      },
+      "match_group": "match-d75a3fcf",
+      "review": {
+        "method": "assistant_visual_review",
+        "model_predictions_used_as_labels": false,
+        "basis": "Full frame + manually inspected per-unit crops + pinned Riot artwork; initial development labels, not independent human ground truth"
+      },
+      "layout": {
+        "units": [
+          {
+            "key": "marker-0",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              840,
+              323,
+              968,
+              467
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 872,
+              "y": 315
+            }
+          },
+          {
+            "key": "marker-1",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              723,
+              357,
+              851,
+              501
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 755,
+              "y": 349
+            }
+          },
+          {
+            "key": "marker-2",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              501,
+              593,
+              629,
+              737
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 533,
+              "y": 585
+            }
+          },
+          {
+            "key": "marker-3",
+            "zone": "board",
+            "owner": "unknown",
+            "box": [
+              1295,
+              614,
+              1423,
+              758
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 69,
+              "x": 1325,
+              "y": 606
+            }
+          },
+          {
+            "key": "marker-4",
+            "zone": "bench",
+            "owner": "unknown",
+            "box": [
+              1301,
+              728,
+              1429,
+              872
+            ],
+            "bar_rect": {
+              "height": 5,
+              "width": 64,
+              "x": 1333,
+              "y": 720
+            }
+          }
+        ]
+      },
+      "entities": [
+        {
+          "key": "marker-0",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Elise"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-1",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_RekSai"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-2",
+          "identity": {
+            "state": "known",
+            "id": "DA_18_Sentry"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-3",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        },
+        {
+          "key": "marker-4",
+          "identity": {
+            "state": "known",
+            "id": "DA_Cinderling18"
+          },
+          "stars": null
+        }
+      ],
+      "identity_split": "test"
+    }
+  ]
+}

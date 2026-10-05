@@ -193,6 +193,8 @@ class Session:
                     if getattr(self,'separate_hp_loop',False) and f.due_ns>=next_hp:
                         hp_hz=float(getattr(self,'hp_hz',1.0));next_hp=f.due_ns+int(1e9/hp_hz)
                         self.hp_pending.put(f);self.counts['hp_submitted']+=1
+                if o.board_hub_enabled:
+                    self.submit_hub_frame(f)
             self.producer_done.set()
             for t in threads:t.join(30)
             if any(t.is_alive() for t in threads):raise TimeoutError('Trabalhador não encerrou dentro do prazo')

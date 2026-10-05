@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "board-hub-live-v1",
-  "sample_interval_ms": 5000,
+  "sample_interval_ms": 1000,
   "semantic_mode": "candidate_only",
   "game_state_write_allowed": false
 }

@@ -34,7 +34,7 @@ def render(source: str, *, release_tag: str, sha256: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--release-tag", default="hm45-lab-0.6.3-20261004")
+    parser.add_argument("--release-tag", default="hm45-lab-0.6.4-20261004")
     args = parser.parse_args()
     if not OFFLINE.is_file():
         raise SystemExit("Build the verified offline installer first")

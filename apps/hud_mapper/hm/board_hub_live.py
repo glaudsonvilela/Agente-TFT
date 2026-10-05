@@ -63,6 +63,15 @@ class BoardHubLive:
                 self.item_neural=ItemIconObserver(root)
             except (OSError,ValueError,ImportError,RuntimeError) as exc:
                 self.item_neural_error=str(exc)
+        self.unit_neural = None
+        self.unit_neural_error = 'unit_model_not_installed'
+        if (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
+            try:
+                from .unit_identity import UnitIdentityObserver
+                self.unit_neural = UnitIdentityObserver(root)
+                self.unit_neural_error = None
+            except (OSError, ValueError, ImportError, RuntimeError) as exc:
+                self.unit_neural_error = str(exc)
 
     def observe(self, canonical_frame, board_read: dict | None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
@@ -77,6 +86,26 @@ class BoardHubLive:
                                       equipped_templates=self.equipped_templates)
             snapshot['neural_items']=(self.item_neural.observe(image,snapshot['inventory']['inventory'],self.inventory)
                 if self.item_neural else dict(active=False,error=self.item_neural_error))
+            try:
+                snapshot['neural_units'] = (self.unit_neural.observe(image, read) if self.unit_neural
+                                            else dict(active=False, error=self.unit_neural_error, records=[]))
+            except Exception as exc:
+                # Quarantine this optional model for the rest of the session.
+                # A damaged model must not close screen capture or reuse IDs.
+                self.unit_neural_error = f'{type(exc).__name__}: {exc}'
+                self.unit_neural = None
+                snapshot['neural_units'] = dict(active=False, error=self.unit_neural_error, records=[])
+        unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
+        for marker in snapshot['observed_markers']:
+            marker['identity_observation'] = unit_records.get(marker['marker_id'])
+        snapshot['visual_readiness'] = dict(
+            complete=False, verified_units=0,
+            candidate_units=sum(row.get('candidate_id') is not None for row in unit_records.values()),
+            observed_unit_regions=len(unit_records),
+            trained_champions=snapshot['neural_units'].get('trained_champions', 0),
+            blockers=['UNIT_IDENTITY_VALIDATION_PENDING', 'STARS_UNVERIFIED',
+                      'GROUND_POSITIONS_UNVERIFIED', 'ITEMS_UNVERIFIED',
+                      'PERSPECTIVE_AND_PHASE_UNVERIFIED'])
         for row in snapshot['inventory']['candidate_slots']:
             for candidate in row['candidates']:
                 self._bind_exact_attribute_ids(candidate)
@@ -109,9 +138,14 @@ class BoardHubLive:
         positions = {m['marker_id']: m['position_candidate'] for m in snapshot['observed_markers']}
         for marker in read['markers']:
             location = positions.get(marker['id'])
+            identity = unit_records.get(marker['id'], {})
             regions.append(region(f"hub.marker.{marker['id']}", xyxy(marker['rect']),
                                   'position_candidate' if location else 'unassigned_bar',
-                                  value=location, champion_id=None, game_state_write_allowed=False))
+                                  value=location, champion_id=None,
+                                  candidate_champion_id=identity.get('candidate_id'),
+                                  candidate_champion_name=identity.get('candidate_name'),
+                                  identity_status=identity.get('status', 'unavailable'),
+                                  game_state_write_allowed=False))
         return {'snapshot': snapshot, 'regions': regions}
 
     def _bind_exact_attribute_ids(self, candidate: dict) -> None:

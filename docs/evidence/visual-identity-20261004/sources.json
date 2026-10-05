@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "online_research_used": true,
+  "online_vods_used_as_training_labels": false,
+  "permission_basis": "User reports creator permission for training; raw video remains outside the repository",
+  "sources": [
+    {
+      "url": "https://www.youtube.com/watch?v=af1zvuCmr58&t=300s",
+      "creator": "Wasianiverson VODs",
+      "review": "Browser playback and visual inspection near 5:00; game on screen with shop and changing arena. A video title alone is not a unit label.",
+      "patch_claim": "18.3"
+    },
+    {
+      "url": "https://www.twitch.tv/videos/2891050468",
+      "creator": "Dishsoap",
+      "review": "Browser playback visually inspected around 13 minutes. Tournament VOD includes opponent scouting and arena changes; green bars alone do not establish self ownership."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=93uzCwDnPow&t=58s",
+      "creator": "Wasianiverson",
+      "review": "Inspected 0:58 chapter. Shows champion cards and explanations, not a gallery of 3D board units at this point. Helpful for names, excluded from unit-crop training.",
+      "chapters_seconds": [
+        58,
+        662,
+        1139,
+        1567,
+        2209
+      ],
+      "patch_claim": "early Set18 guide, not verified current patch rules"
+    },
+    {
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/",
+      "review": "Official index identifies 18.3 as latest listed TFT patch during this investigation; visual assets pinned separately to DDragon16.19.1."
+    }
+  ],
+  "training_source": "Eight locally available reviewed replay frames; configs/training/unit-identity-review-20261004.json; assistant visual labels with image hashes, not independent human ground truth",
+  "reference": "Version-pinned Riot DDragon champion art; 74 IDs, 65 distinct files by content hash. Ten Lux IDs share identical art and require additional context to disambiguate."
+}

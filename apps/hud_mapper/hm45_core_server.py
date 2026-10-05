@@ -28,7 +28,7 @@ for path in (ROOT, ROOT / "apps/hud_mapper", ROOT / "apps/e1_replay"):
 
 from hm45_protocol import ProtocolError, decode_rgb, recv_packet, send_packet
 
-VERSION = "0.6.3"
+VERSION = "0.6.4"
 MAX_CLIENTS = 6
 
 
@@ -49,12 +49,16 @@ class AnalysisCore:
         self.hub_lock = threading.Lock()
         self.reader = None
         self.hp = None
+        self.board_worker = None
         log_suffix = f"{os.getpid()}-{time.time_ns()}"
         try:
             self.reader = NativeWorker(str(root / "bin/agente-tft-e1-worker"), str(root / "configs"),
                                        "tesseract", log=root / f"runtime/reader-{log_suffix}.log")
             self.hp = NativeWorker(str(root / "bin/agente-tft-hm-hp"), str(root / "configs"),
                                    "tesseract", log=root / f"runtime/hp-{log_suffix}.log")
+            from hm.board_worker import BoardWorker
+            self.board_worker = BoardWorker(str(root / "bin/agente-tft-e1-worker"), str(root / "configs"),
+                                             log=root / f"runtime/board-{log_suffix}.log")
         except Exception:
             self.close()
             raise
@@ -71,11 +75,11 @@ class AnalysisCore:
             "board_reference_sha256": self.board.manifest["reference_sha256"],
             "board_set_key": self.board.manifest["set_key"],
             "analysis_health_contract": "l3_ocr_b4_roi_v1",
-            "capabilities": ["l3_small_rgb", "ocr_lossless_rgb", "hp_lossless_rgb", "b4_lossless_rgb"],
+            "capabilities": ["l3_small_rgb", "ocr_lossless_rgb", "hp_lossless_rgb", "b4_lossless_rgb", "board_independent_v1"],
         }
 
     def close(self):
-        for worker in (self.reader, self.hp):
+        for worker in (self.reader, self.hp, self.board_worker):
             try:
                 if worker:
                     worker.close()
@@ -136,9 +140,11 @@ class AnalysisCore:
             with self.reader_lock:
                 answer = self.reader.request(request, rgb, timeout=12)
         elif op == "hub":
-            board_read = header.get("board_read")
             frame = SimpleNamespace(id=frame_id, pts_ms=source_ms, width=width, height=height, rgb=rgb)
             with self.hub_lock:
+                # Derive geometry from these pixels, independently of the OCR
+                # connection; never trust a stale caller-supplied bar list.
+                board_read = self.board_worker.observe(frame, header.get('calibrate_board') is True)
                 answer = self.board.observe(frame, board_read)
         else:
             raise ProtocolError("Operação não reconhecida.")

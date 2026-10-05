@@ -445,6 +445,9 @@ fn main(){if let Err(e)=run(){eprintln!("E1_WORKER_ERROR={e}");std::process::exi
 fn run()->Result<(),String>{
     let args:Vec<_>=std::env::args().skip(1).collect();
     if args.len()<2 || args[0]!="--configs"{return Err("usage: e1-worker --configs <dir> [tesseract] [controls.json]".into())}
+    if std::env::var("AGENTE_TFT_BOARD_ONLY").as_deref()==Ok("1") {
+        return board_only(Path::new(&args[1]));
+    }
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
     writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
@@ -462,6 +465,41 @@ fn run()->Result<(),String>{
       };
       writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }Ok(())
+}
+
+// Dedicated geometry worker: no OCR engine, model, or game-state allocation.
+// A slow shop read must never hold up a fresh board frame.
+fn board_only(root:&Path)->Result<(),String>{
+    let profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;
+    profile.validate()?;
+    let anchors:Value=load(&root.join("ui/standard-arena-anchors-v1.json"))?;
+    if anchors["schema_version"]!=1 || anchors["profile"]!=profile.id {
+        return Err("packaged arena profile mismatch".into());
+    }
+    let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
+    let mut reader=scene::SceneReader::from_anchors(profile.clone(),reference)?;
+    let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"board_only":true,"ocr_available":false,
+        "pid":std::process::id()})).map_err(|e|e.to_string())?;
+    output.flush().map_err(|e|e.to_string())?;
+    while let Some(h)=header(&mut input)? {
+        let id=number(&h,"id")?;
+        if h["op"]=="stop" {break;}
+        if h["op"]!="frame" && h["op"]!="reference" {return Err("unknown board-only operation".into());}
+        let f=frame(&h,&mut input)?;
+        let started=Instant::now();
+        let out=if h["op"]=="reference" {
+            match scene::SceneReader::new(profile.clone(),&f) {
+                Ok(next)=>{reader=next;json!({"id":id,"reference_ready":true})},
+                Err(error)=>json!({"id":id,"reference_ready":false,"error":error}),
+            }
+        } else {
+            json!({"id":id,"source_ms":f.captured_at_ms,"board":reader.read(&f)?,
+                "native_ms":ms(&started),"ocr_process_calls":0})
+        };
+        writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
+    }
+    Ok(())
 }
 #[cfg(test)] mod tests{
  use super::*;

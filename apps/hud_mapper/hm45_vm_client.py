@@ -233,13 +233,15 @@ class RemoteObserver:
 class RemoteBoardHub:
     def __init__(self, core: VMCore):
         self.core = core
+        if 'board_independent_v1' not in core.ready.get('capabilities', []):
+            raise ValueError('VM core needs updating for independent board capture')
         self.manifest = {"reference_sha256": core.ready["board_reference_sha256"],
                          "set_key": core.ready["board_set_key"]}
 
-    def observe(self, canonical_frame, board_read):
+    def observe(self, canonical_frame, board_read=None, calibrate=False):
         result, _ = self.core.request("hub", canonical_frame.id, canonical_frame.width,
                                       canonical_frame.height, canonical_frame.rgb,
-                                      source_ms=canonical_frame.pts_ms, board_read=board_read)
+                                      source_ms=canonical_frame.pts_ms, calibrate_board=calibrate)
         if "snapshot" not in result or "regions" not in result:
             raise RuntimeError("HUB da VM sem observação estruturada.")
         return result

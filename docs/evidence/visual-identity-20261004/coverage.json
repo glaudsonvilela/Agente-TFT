@@ -1,0 +1,516 @@
+{
+  "schema_version": 1,
+  "status": "NOT_READY_FOR_WINDOWS_COACH",
+  "set_key": "TFTSet18",
+  "reviewed_frames": 8,
+  "reviewed_unit_crops": 48,
+  "complete_verified_boards": 0,
+  "catalog_champions": 74,
+  "training_champions": 16,
+  "catalog_art_unique": 65,
+  "identical_art_id_groups": [
+    [
+      "DA_18_Lux_Coven",
+      "DA_18_Lux_Elderwood",
+      "DA_18_Lux_Fae",
+      "DA_18_Lux_Inferno",
+      "DA_18_Lux_Moonbeam",
+      "DA_18_Lux_Primal",
+      "DA_18_Lux_Sunbeam",
+      "DA_Lux18_Base",
+      "DA_Lux18_Blackthorn",
+      "DA_Lux18_Blossom"
+    ]
+  ],
+  "blockers": [
+    "58 catalog identities have no named training crops",
+    "16-class scratch CNN failed validation and test; not promoted",
+    "Unit stars, ground-cell association and self/planning perspective are not verified",
+    "Equipped and inventory item observations remain candidates",
+    "No physical Windows capture-to-voice validation of this change"
+  ],
+  "classes": [
+    {
+      "unit_id": "DA_18_Ahri",
+      "name": "Ahri",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Akali_AD",
+      "name": "Akali",
+      "reviewed_counts": {
+        "train": 2
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Alistar",
+      "name": "Alistar",
+      "reviewed_counts": {
+        "train": 3
+      },
+      "matches": 2
+    },
+    {
+      "unit_id": "DA_18_Alune",
+      "name": "Alune",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Aphelios",
+      "name": "Aphelios",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Ashe",
+      "name": "Ashe",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Azir",
+      "name": "Azir",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Caitlyn",
+      "name": "Caitlyn",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Camille",
+      "name": "Camille",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Cassiopeia",
+      "name": "Cassiopeia",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Diana",
+      "name": "Diana",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_ElderDragon",
+      "name": "Dragão Ancião",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Elise",
+      "name": "Elise",
+      "reviewed_counts": {
+        "train": 2,
+        "validation": 1,
+        "test": 2
+      },
+      "matches": 3
+    },
+    {
+      "unit_id": "DA_18_Ezreal",
+      "name": "Ezreal",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_GnarSmall",
+      "name": "Gnar",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Hecarim",
+      "name": "Hecarim",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Ivern",
+      "name": "Ivern",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Kayle",
+      "name": "Kayle",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Kennen",
+      "name": "Kennen",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_KhaZix",
+      "name": "Kha'Zix",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Kobuko",
+      "name": "Kobuko",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_LeBlanc",
+      "name": "LeBlanc",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Leona",
+      "name": "Leona",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lillia",
+      "name": "Lillia",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Coven",
+      "name": "Lux (Congregação das Bruxas)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Elderwood",
+      "name": "Lux (Sabugueiro)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Fae",
+      "name": "Lux (Feérica)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Inferno",
+      "name": "Lux (Inferno)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Moonbeam",
+      "name": "Lux (Lunar)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Primal",
+      "name": "Lux (Primordial)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Lux_Sunbeam",
+      "name": "Lux (Solar)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Malphite",
+      "name": "Malphite",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Maokai",
+      "name": "Maokai",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_MasterYi_AD",
+      "name": "Master Yi",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Morgana",
+      "name": "Morgana",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Ornn",
+      "name": "Ornn",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Rakan",
+      "name": "Rakan",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Rammus",
+      "name": "Rammus",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_RekSai",
+      "name": "Rek'Sai",
+      "reviewed_counts": {
+        "train": 5,
+        "test": 2
+      },
+      "matches": 3
+    },
+    {
+      "unit_id": "DA_18_Rengar",
+      "name": "Rengar",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Sejuani",
+      "name": "Sejuani",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Sentry",
+      "name": "Cascalho",
+      "reviewed_counts": {
+        "train": 3,
+        "validation": 2,
+        "test": 2
+      },
+      "matches": 3
+    },
+    {
+      "unit_id": "DA_18_Sett",
+      "name": "Sett",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Shen",
+      "name": "Shen",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Sivir",
+      "name": "Sivir",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Soraka",
+      "name": "Soraka",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Teemo",
+      "name": "Teemo",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Tristana",
+      "name": "Tristana",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Varus",
+      "name": "Varus",
+      "reviewed_counts": {
+        "train": 2
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Veigar",
+      "name": "Veigar",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_18_Warwick",
+      "name": "Warwick",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Xayah",
+      "name": "Xayah",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Yorick",
+      "name": "Yorick",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Yunara",
+      "name": "Yunara",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_18_Zyra",
+      "name": "Zyra",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Amumu18",
+      "name": "Amumu",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Brambleback18",
+      "name": "Rubrivira",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Cinderling18",
+      "name": "Rubrivirim",
+      "reviewed_counts": {
+        "train": 1,
+        "test": 4
+      },
+      "matches": 2
+    },
+    {
+      "unit_id": "DA_CrimsonRaptor18",
+      "name": "Mamãe Bicuda",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Draven18",
+      "name": "Draven",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Fiddlesticks18",
+      "name": "Fiddlesticks",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Gromp18_AP",
+      "name": "Grompe",
+      "reviewed_counts": {
+        "train": 2
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_Karma18",
+      "name": "Karma",
+      "reviewed_counts": {
+        "train": 2
+      },
+      "matches": 1
+    },
+    {
+      "unit_id": "DA_KogMaw18_AD",
+      "name": "Kog'Maw",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Krug18",
+      "name": "Krugue",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Lux18_Base",
+      "name": "Lux",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Lux18_Blackthorn",
+      "name": "Lux (Espinhos Negros)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Lux18_Blossom",
+      "name": "Lux (Florescer)",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Murkwolf18",
+      "name": "Lobo Trevoguari",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Nidalee18_AP",
+      "name": "Nidalee",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Scuttlecrab18",
+      "name": "Aronguejo",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Sentinel18",
+      "name": "Azuporã",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Taric18",
+      "name": "Taric",
+      "reviewed_counts": {},
+      "matches": 0
+    },
+    {
+      "unit_id": "DA_Vi18",
+      "name": "Vi",
+      "reviewed_counts": {
+        "train": 1
+      },
+      "matches": 1
+    }
+  ]
+}
