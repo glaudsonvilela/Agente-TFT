@@ -26,6 +26,7 @@ pub fn embedding_batch_size(value: Option<&Value>) -> Result<usize> {
     }
 }
 pub mod crop_transform;
+pub mod retrieval;
 mod live;
 pub mod training;
 #[derive(Clone)]

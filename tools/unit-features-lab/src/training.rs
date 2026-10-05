@@ -121,28 +121,41 @@ impl Head {
 }
 
 pub fn metrics(head: &Head, rows: &[(&Sample, &Vec<f32>)]) -> Result<Value> {
+    metrics_with_predictor(&head.labels, rows, |x| head.probabilities(x))
+}
+
+pub fn metrics_with_predictor(
+    labels: &[String],
+    rows: &[(&Sample, &Vec<f32>)],
+    predict: impl Fn(&[f32]) -> Result<Vec<f32>>,
+) -> Result<Value> {
     let mut per_class: BTreeMap<String, (u64, u64)> = BTreeMap::new();
     let mut confusion: BTreeMap<String, u64> = BTreeMap::new();
     let mut predictions = Vec::new();
     let mut loss = 0.;
     for (sample, x) in rows {
-        let p = head.probabilities(x)?;
+        let p = predict(x)?;
+        if p.len() != labels.len() || p.is_empty() || p.iter().any(|x| !x.is_finite() || *x < 0.) {
+            return Err("invalid prediction distribution".into());
+        }
         let k = (0..p.len())
             .max_by(|&a, &b| p[a].total_cmp(&p[b]).then(b.cmp(&a)))
             .unwrap();
-        let correct = head.labels[k] == sample.label;
+        let correct = labels[k] == sample.label;
         let counts = per_class.entry(sample.label.clone()).or_default();
         counts.0 += 1;
         counts.1 += u64::from(correct);
         if !correct {
             *confusion
-                .entry(format!("{} -> {}", sample.label, head.labels[k]))
+                .entry(format!("{} -> {}", sample.label, labels[k]))
                 .or_default() += 1;
         }
-        let truth = head.labels.iter().position(|s| s == &sample.label);
+        let truth = labels.iter().position(|s| s == &sample.label);
         loss -= truth.map(|i| p[i]).unwrap_or(0.).max(1e-12).ln() as f64;
-        predictions.push(json!({"image":sample.image,"key":sample.key,"label":sample.label,
-            "predicted":head.labels[k],"softmax_score_uncalibrated":p[k],"identity_verified":false}));
+        predictions.push(
+            json!({"image":sample.image,"key":sample.key,"label":sample.label,
+            "predicted":labels[k],"softmax_score_uncalibrated":p[k],"identity_verified":false}),
+        );
     }
     let named: Vec<_> = per_class
         .iter()
@@ -252,6 +265,9 @@ pub fn run_cli() -> Result<()> {
         Path::new(str_field(&spec, "images")?),
         Path::new(str_field(&spec, "reference")?),
     )?;
+    if spec["retrieval_only"] == true && spec["augmentation"].as_str().unwrap_or("none") != "none" {
+        return Err("retrieval experiment requires unaugmented reviewed samples".into());
+    }
     let transform: crate::crop_transform::CropTransform = match spec.get("crop_transform") {
         Some(value) => serde_json::from_value(value.clone())?,
         None => Default::default(),
@@ -333,6 +349,17 @@ pub fn run_cli() -> Result<()> {
             vectors
         };
         neural.extend(features);
+    }
+    if spec["retrieval_only"] == true {
+        return crate::retrieval::build_experiment(
+            &samples,
+            &neural,
+            &spec,
+            &spec_bytes,
+            &out,
+            start,
+            cache_hits,
+        );
     }
     let color: Vec<_> = samples.iter().map(|s| colors(&s.crop)).collect();
     let combined: Vec<Vec<f32>> = neural

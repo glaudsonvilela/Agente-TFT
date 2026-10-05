@@ -2,9 +2,24 @@
 use agente_tft_unit_features_lab::{
     crop_transform::CropTransform,
     embedding_batch_size, embeddings, load_evaluation_samples,
-    training::{metrics, Head},
-    Result,
+    retrieval::RetrievalHead,
+    training::{metrics_with_predictor, Head},
+    Result, Sample,
 };
+
+enum FrozenHead {
+    Linear(Head),
+    Retrieval(RetrievalHead),
+}
+
+fn metrics(head: &FrozenHead, rows: &[(&Sample, &Vec<f32>)]) -> Result<Value> {
+    match head {
+        FrozenHead::Linear(h) => metrics_with_predictor(&h.labels, rows, |x| h.probabilities(x)),
+        FrozenHead::Retrieval(h) => {
+            metrics_with_predictor(h.labels(), rows, |x| h.probabilities(x))
+        }
+    }
+}
 use ort::session::Session;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -109,7 +124,13 @@ fn run() -> Result<()> {
     if !(64..=224).contains(&side) {
         return Err("input size budget".into());
     }
-    let head: Head = serde_json::from_value(model["head"].clone())?;
+    let head = match model["classifier_type"].as_str().unwrap_or("linear") {
+        "linear" => FrozenHead::Linear(serde_json::from_value(model["head"].clone())?),
+        "retrieval_v1" => {
+            FrozenHead::Retrieval(RetrievalHead::from_value(model["retrieval"].clone())?)
+        }
+        _ => return Err("unsupported frozen classifier type".into()),
+    };
     let trained_batch = embedding_batch_size(model.get("embedding_batch_size"))?;
     let batch = match spec.get("batch_size") {
         Some(v) => embedding_batch_size(Some(v))?,

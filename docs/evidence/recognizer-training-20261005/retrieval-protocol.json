@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-05T07:51:08.295Z",
+  "annotations": "/mnt/sherlock-ssd/AgenteTFT/work/Agente-TFT/configs/training/unit-gallery-lux-no-items-expanded-20261005.json",
+  "annotations_sha256": "c0159d1ec05f9aa7ccdb43a80cdabf80fdb83cadf4ad4c6055736cfda2c0f10e",
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "crop_transform": "upper_88x80_v1",
+  "embedding_batch_size": 1,
+  "pooling_candidates": [
+    "class_max_cosine_v1",
+    "class_top3_mean_cosine_v1",
+    "class_mean_cosine_v1"
+  ],
+  "temperature": 0.07,
+  "index_support": "Reviewed train split only; validation and test never become exemplars.",
+  "selection": "Validation named macro recall, then lower cross entropy; exact ties retain first candidate. Compare selected retrieval against frozen linear baseline by same validation criteria; development reports follow selection.",
+  "linear_baseline_sha256": "c9b3ba9bf7c22ffdb6e7a6096de841ab00d5a301eb8903dd6c93992367a4e31e",
+  "reference": "https://github.com/facebookresearch/dinov2",
+  "reference_scope": "DINOv2 provides both k-NN and linear evaluation; our classwise pooling experiment is implemented locally in Rust and is not a reproduction of its ImageNet benchmark.",
+  "runtime_approved": false
+}

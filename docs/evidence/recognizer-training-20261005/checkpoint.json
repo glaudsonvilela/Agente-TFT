@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T07:43:51.881Z",
+  "recorded_at": "2026-10-05T07:54:14.392Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1209,5 +1209,17 @@
     ],
     "downloads_started": false,
     "existing_corpus_available": true
+  },
+  "latest_retrieval_experiment": {
+    "status": "complete_rejected_by_validation",
+    "validation_correct": 15,
+    "validation_samples": 32,
+    "baseline_validation_correct": 19,
+    "training_references": 649,
+    "named_references": 618,
+    "negative_references": 31,
+    "selection": "docs/evidence/recognizer-training-20261005/retrieval-selection.json",
+    "library_and_evaluator_tests_passed": 19,
+    "linear_evaluation_unchanged": true
   }
 }

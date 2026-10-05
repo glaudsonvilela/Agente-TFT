@@ -1,0 +1,1131 @@
+{
+  "annotations_sha256": "26fa7d41f1653f6cfc640633525398d565827509e6a2c8686e6a0fdbf7f4bebd",
+  "batch": 1,
+  "batch_matches_training": true,
+  "crop_transform": "upper_88x80_v1",
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "evaluation": {
+    "confusions": {
+      "DA_18_Alune -> DA_18_Ezreal": 1,
+      "DA_18_Alune -> DA_18_Veigar": 3,
+      "DA_18_Alune -> DA_18_Yunara": 1,
+      "DA_18_Ezreal -> DA_18_Xayah": 1,
+      "DA_18_Ezreal -> DA_Sentinel18": 1,
+      "DA_18_Ivern -> DA_Nidalee18_AP": 1,
+      "DA_18_LeBlanc -> DA_18_Kayle": 1,
+      "DA_18_LeBlanc -> DA_18_Lillia": 1,
+      "DA_18_LeBlanc -> DA_18_Yunara": 1,
+      "DA_18_LeBlanc -> DA_Karma18": 1,
+      "DA_18_Lillia -> DA_18_Xayah": 3,
+      "DA_18_Lux_Elderwood -> DA_18_MasterYi_AD": 1,
+      "DA_18_Lux_Elderwood -> DA_18_Yunara": 1,
+      "DA_18_Malphite -> DA_18_Alistar": 1
+    },
+    "cross_entropy": 2.8153494324002946,
+    "named": 35,
+    "named_macro_recall": 0.5448717948717948,
+    "named_top1_correct": 17,
+    "per_class": {
+      "DA_18_Alistar": [
+        1,
+        1
+      ],
+      "DA_18_Alune": [
+        5,
+        0
+      ],
+      "DA_18_Ezreal": [
+        4,
+        2
+      ],
+      "DA_18_GnarSmall": [
+        3,
+        3
+      ],
+      "DA_18_Hecarim": [
+        2,
+        2
+      ],
+      "DA_18_Ivern": [
+        1,
+        0
+      ],
+      "DA_18_Kennen": [
+        4,
+        4
+      ],
+      "DA_18_LeBlanc": [
+        4,
+        0
+      ],
+      "DA_18_Lillia": [
+        4,
+        1
+      ],
+      "DA_18_Lux_Elderwood": [
+        3,
+        1
+      ],
+      "DA_18_Malphite": [
+        1,
+        0
+      ],
+      "DA_18_Maokai": [
+        1,
+        1
+      ],
+      "DA_18_Ornn": [
+        2,
+        2
+      ]
+    },
+    "predictions": [
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-1",
+        "label": "DA_18_Hecarim",
+        "predicted": "DA_18_Hecarim",
+        "softmax_score_uncalibrated": 0.21707329154014587
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-2",
+        "label": "DA_18_Ornn",
+        "predicted": "DA_18_Ornn",
+        "softmax_score_uncalibrated": 0.14552976191043854
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-6",
+        "label": "DA_18_Kennen",
+        "predicted": "DA_18_Kennen",
+        "softmax_score_uncalibrated": 0.07637962698936462
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-7",
+        "label": "DA_18_GnarSmall",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.14890819787979126
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-8",
+        "label": "DA_18_Alune",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.06521432101726532
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-9",
+        "label": "DA_18_LeBlanc",
+        "predicted": "DA_Karma18",
+        "softmax_score_uncalibrated": 0.0405636727809906
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-10",
+        "label": "DA_18_Lillia",
+        "predicted": "DA_18_Lillia",
+        "softmax_score_uncalibrated": 0.0675366073846817
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-11",
+        "label": "DA_18_Lux_Elderwood",
+        "predicted": "DA_18_MasterYi_AD",
+        "softmax_score_uncalibrated": 0.052899446338415146
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-12",
+        "label": "DA_18_Ivern",
+        "predicted": "DA_Nidalee18_AP",
+        "softmax_score_uncalibrated": 0.06761660426855087
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-13",
+        "label": "DA_18_Alistar",
+        "predicted": "DA_18_Alistar",
+        "softmax_score_uncalibrated": 0.27786147594451904
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-15",
+        "label": "DA_18_Lillia",
+        "predicted": "DA_18_Xayah",
+        "softmax_score_uncalibrated": 0.10083546489477158
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-19",
+        "label": "DA_18_Malphite",
+        "predicted": "DA_18_Alistar",
+        "softmax_score_uncalibrated": 0.12893840670585632
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+        "key": "marker-20",
+        "label": "DA_18_GnarSmall",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.15291893482208252
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+        "key": "marker-1",
+        "label": "DA_18_Kennen",
+        "predicted": "DA_18_Kennen",
+        "softmax_score_uncalibrated": 0.07274603098630905
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+        "key": "marker-4",
+        "label": "DA_18_Alune",
+        "predicted": "DA_18_Yunara",
+        "softmax_score_uncalibrated": 0.04689227417111397
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+        "key": "marker-5",
+        "label": "DA_18_LeBlanc",
+        "predicted": "DA_18_Lillia",
+        "softmax_score_uncalibrated": 0.03900756686925888
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+        "key": "marker-6",
+        "label": "DA_18_Lux_Elderwood",
+        "predicted": "DA_18_Lux_Elderwood",
+        "softmax_score_uncalibrated": 0.07206709682941437
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+        "key": "marker-0",
+        "label": "DA_18_Kennen",
+        "predicted": "DA_18_Kennen",
+        "softmax_score_uncalibrated": 0.07805551588535309
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+        "key": "marker-1",
+        "label": "DA_18_Ezreal",
+        "predicted": "DA_18_Ezreal",
+        "softmax_score_uncalibrated": 0.058140892535448074
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+        "key": "marker-2",
+        "label": "DA_18_Alune",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.059363480657339096
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+        "key": "marker-3",
+        "label": "DA_18_LeBlanc",
+        "predicted": "DA_18_Yunara",
+        "softmax_score_uncalibrated": 0.05985419079661369
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+        "key": "marker-4",
+        "label": "DA_18_Ezreal",
+        "predicted": "DA_Sentinel18",
+        "softmax_score_uncalibrated": 0.06166223809123039
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+        "key": "marker-6",
+        "label": "DA_18_Alune",
+        "predicted": "DA_18_Veigar",
+        "softmax_score_uncalibrated": 0.04742646589875221
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-0",
+        "label": "DA_18_Hecarim",
+        "predicted": "DA_18_Hecarim",
+        "softmax_score_uncalibrated": 0.16858616471290588
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-1",
+        "label": "DA_18_Ornn",
+        "predicted": "DA_18_Ornn",
+        "softmax_score_uncalibrated": 0.10436683893203735
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-2",
+        "label": "DA_18_Kennen",
+        "predicted": "DA_18_Kennen",
+        "softmax_score_uncalibrated": 0.13662101328372955
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-4",
+        "label": "DA_18_GnarSmall",
+        "predicted": "DA_18_GnarSmall",
+        "softmax_score_uncalibrated": 0.14255648851394653
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-5",
+        "label": "DA_18_Alune",
+        "predicted": "DA_18_Ezreal",
+        "softmax_score_uncalibrated": 0.07230928540229797
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-6",
+        "label": "DA_18_Ezreal",
+        "predicted": "DA_18_Ezreal",
+        "softmax_score_uncalibrated": 0.12702910602092743
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-8",
+        "label": "DA_18_LeBlanc",
+        "predicted": "DA_18_Kayle",
+        "softmax_score_uncalibrated": 0.09442850202322006
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-9",
+        "label": "DA_18_Lux_Elderwood",
+        "predicted": "DA_18_Yunara",
+        "softmax_score_uncalibrated": 0.057249173521995544
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-10",
+        "label": "DA_18_Maokai",
+        "predicted": "DA_18_Maokai",
+        "softmax_score_uncalibrated": 0.15360811352729797
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-12",
+        "label": "DA_18_Lillia",
+        "predicted": "DA_18_Xayah",
+        "softmax_score_uncalibrated": 0.12219709903001785
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-15",
+        "label": "DA_18_Lillia",
+        "predicted": "DA_18_Xayah",
+        "softmax_score_uncalibrated": 0.1298091858625412
+      },
+      {
+        "identity_verified": false,
+        "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+        "key": "marker-16",
+        "label": "DA_18_Ezreal",
+        "predicted": "DA_18_Xayah",
+        "softmax_score_uncalibrated": 0.07409072667360306
+      }
+    ],
+    "samples": 35
+  },
+  "head_sha256": "54a456b3cdb0c24418943b3faaa1bfab390d56b9e64d08d18d71af13adedaf3a",
+  "inference_seconds": 1.713637125,
+  "limitations": [
+    "Assistant-reviewed labels, not independent human ground truth.",
+    "Legible proposed crops only; missed or ambiguous units are not recognition successes.",
+    "No Windows capture/display or end-to-end latency measurement.",
+    "After inspection this source is development evidence, not an untouched final holdout."
+  ],
+  "new_source_relative_to_training_manifest": true,
+  "runtime_approved": false,
+  "schema_version": 1,
+  "spec_sha256": "884a7a812d71a9764346be4011989b054c46a82163a155d8c6a7913d42a02b9f",
+  "strata": {
+    "appearance:elderwood_form": {
+      "confusions": {
+        "DA_18_Lux_Elderwood -> DA_18_MasterYi_AD": 1,
+        "DA_18_Lux_Elderwood -> DA_18_Yunara": 1
+      },
+      "cross_entropy": 3.1492133935292563,
+      "named": 3,
+      "named_macro_recall": 0.3333333333333333,
+      "named_top1_correct": 1,
+      "per_class": {
+        "DA_18_Lux_Elderwood": [
+          3,
+          1
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-11",
+          "label": "DA_18_Lux_Elderwood",
+          "predicted": "DA_18_MasterYi_AD",
+          "softmax_score_uncalibrated": 0.052899446338415146
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-6",
+          "label": "DA_18_Lux_Elderwood",
+          "predicted": "DA_18_Lux_Elderwood",
+          "softmax_score_uncalibrated": 0.07206709682941437
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-9",
+          "label": "DA_18_Lux_Elderwood",
+          "predicted": "DA_18_Yunara",
+          "softmax_score_uncalibrated": 0.057249173521995544
+        }
+      ],
+      "samples": 3
+    },
+    "appearance:hover_highlight": {
+      "confusions": {
+        "DA_18_Ezreal -> DA_18_Xayah": 1
+      },
+      "cross_entropy": 3.257680654525757,
+      "named": 1,
+      "named_macro_recall": 0.0,
+      "named_top1_correct": 0,
+      "per_class": {
+        "DA_18_Ezreal": [
+          1,
+          0
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-16",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.07409072667360306
+        }
+      ],
+      "samples": 1
+    },
+    "appearance:ordinary": {
+      "confusions": {
+        "DA_18_Alune -> DA_18_Ezreal": 1,
+        "DA_18_Alune -> DA_18_Veigar": 3,
+        "DA_18_Alune -> DA_18_Yunara": 1,
+        "DA_18_Ezreal -> DA_Sentinel18": 1,
+        "DA_18_Ivern -> DA_Nidalee18_AP": 1,
+        "DA_18_LeBlanc -> DA_18_Kayle": 1,
+        "DA_18_LeBlanc -> DA_18_Lillia": 1,
+        "DA_18_LeBlanc -> DA_18_Yunara": 1,
+        "DA_18_LeBlanc -> DA_Karma18": 1,
+        "DA_18_Lillia -> DA_18_Xayah": 3,
+        "DA_18_Malphite -> DA_18_Alistar": 1
+      },
+      "cross_entropy": 2.768771267706348,
+      "named": 31,
+      "named_macro_recall": 0.5763888888888888,
+      "named_top1_correct": 16,
+      "per_class": {
+        "DA_18_Alistar": [
+          1,
+          1
+        ],
+        "DA_18_Alune": [
+          5,
+          0
+        ],
+        "DA_18_Ezreal": [
+          3,
+          2
+        ],
+        "DA_18_GnarSmall": [
+          3,
+          3
+        ],
+        "DA_18_Hecarim": [
+          2,
+          2
+        ],
+        "DA_18_Ivern": [
+          1,
+          0
+        ],
+        "DA_18_Kennen": [
+          4,
+          4
+        ],
+        "DA_18_LeBlanc": [
+          4,
+          0
+        ],
+        "DA_18_Lillia": [
+          4,
+          1
+        ],
+        "DA_18_Malphite": [
+          1,
+          0
+        ],
+        "DA_18_Maokai": [
+          1,
+          1
+        ],
+        "DA_18_Ornn": [
+          2,
+          2
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-1",
+          "label": "DA_18_Hecarim",
+          "predicted": "DA_18_Hecarim",
+          "softmax_score_uncalibrated": 0.21707329154014587
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-2",
+          "label": "DA_18_Ornn",
+          "predicted": "DA_18_Ornn",
+          "softmax_score_uncalibrated": 0.14552976191043854
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-6",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.07637962698936462
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-7",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.14890819787979126
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-8",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.06521432101726532
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-9",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_Karma18",
+          "softmax_score_uncalibrated": 0.0405636727809906
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-10",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Lillia",
+          "softmax_score_uncalibrated": 0.0675366073846817
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-12",
+          "label": "DA_18_Ivern",
+          "predicted": "DA_Nidalee18_AP",
+          "softmax_score_uncalibrated": 0.06761660426855087
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-13",
+          "label": "DA_18_Alistar",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.27786147594451904
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-15",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.10083546489477158
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-19",
+          "label": "DA_18_Malphite",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.12893840670585632
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-20",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.15291893482208252
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-1",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.07274603098630905
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-4",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Yunara",
+          "softmax_score_uncalibrated": 0.04689227417111397
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-5",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_18_Lillia",
+          "softmax_score_uncalibrated": 0.03900756686925888
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-0",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.07805551588535309
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-1",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_18_Ezreal",
+          "softmax_score_uncalibrated": 0.058140892535448074
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-2",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.059363480657339096
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-3",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_18_Yunara",
+          "softmax_score_uncalibrated": 0.05985419079661369
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+          "key": "marker-4",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_Sentinel18",
+          "softmax_score_uncalibrated": 0.06166223809123039
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+          "key": "marker-6",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.04742646589875221
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-0",
+          "label": "DA_18_Hecarim",
+          "predicted": "DA_18_Hecarim",
+          "softmax_score_uncalibrated": 0.16858616471290588
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-1",
+          "label": "DA_18_Ornn",
+          "predicted": "DA_18_Ornn",
+          "softmax_score_uncalibrated": 0.10436683893203735
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-2",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.13662101328372955
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-4",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.14255648851394653
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-5",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Ezreal",
+          "softmax_score_uncalibrated": 0.07230928540229797
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-6",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_18_Ezreal",
+          "softmax_score_uncalibrated": 0.12702910602092743
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-8",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_18_Kayle",
+          "softmax_score_uncalibrated": 0.09442850202322006
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-10",
+          "label": "DA_18_Maokai",
+          "predicted": "DA_18_Maokai",
+          "softmax_score_uncalibrated": 0.15360811352729797
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-12",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.12219709903001785
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-15",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.1298091858625412
+        }
+      ],
+      "samples": 31
+    },
+    "framing:full_hud_verified": {
+      "confusions": {
+        "DA_18_Alune -> DA_18_Ezreal": 1,
+        "DA_18_Alune -> DA_18_Veigar": 3,
+        "DA_18_Alune -> DA_18_Yunara": 1,
+        "DA_18_Ezreal -> DA_18_Xayah": 1,
+        "DA_18_Ezreal -> DA_Sentinel18": 1,
+        "DA_18_Ivern -> DA_Nidalee18_AP": 1,
+        "DA_18_LeBlanc -> DA_18_Kayle": 1,
+        "DA_18_LeBlanc -> DA_18_Lillia": 1,
+        "DA_18_LeBlanc -> DA_18_Yunara": 1,
+        "DA_18_LeBlanc -> DA_Karma18": 1,
+        "DA_18_Lillia -> DA_18_Xayah": 3,
+        "DA_18_Lux_Elderwood -> DA_18_MasterYi_AD": 1,
+        "DA_18_Lux_Elderwood -> DA_18_Yunara": 1,
+        "DA_18_Malphite -> DA_18_Alistar": 1
+      },
+      "cross_entropy": 2.8153494324002946,
+      "named": 35,
+      "named_macro_recall": 0.5448717948717948,
+      "named_top1_correct": 17,
+      "per_class": {
+        "DA_18_Alistar": [
+          1,
+          1
+        ],
+        "DA_18_Alune": [
+          5,
+          0
+        ],
+        "DA_18_Ezreal": [
+          4,
+          2
+        ],
+        "DA_18_GnarSmall": [
+          3,
+          3
+        ],
+        "DA_18_Hecarim": [
+          2,
+          2
+        ],
+        "DA_18_Ivern": [
+          1,
+          0
+        ],
+        "DA_18_Kennen": [
+          4,
+          4
+        ],
+        "DA_18_LeBlanc": [
+          4,
+          0
+        ],
+        "DA_18_Lillia": [
+          4,
+          1
+        ],
+        "DA_18_Lux_Elderwood": [
+          3,
+          1
+        ],
+        "DA_18_Malphite": [
+          1,
+          0
+        ],
+        "DA_18_Maokai": [
+          1,
+          1
+        ],
+        "DA_18_Ornn": [
+          2,
+          2
+        ]
+      },
+      "predictions": [
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-1",
+          "label": "DA_18_Hecarim",
+          "predicted": "DA_18_Hecarim",
+          "softmax_score_uncalibrated": 0.21707329154014587
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-2",
+          "label": "DA_18_Ornn",
+          "predicted": "DA_18_Ornn",
+          "softmax_score_uncalibrated": 0.14552976191043854
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-6",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.07637962698936462
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-7",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.14890819787979126
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-8",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.06521432101726532
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-9",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_Karma18",
+          "softmax_score_uncalibrated": 0.0405636727809906
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-10",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Lillia",
+          "softmax_score_uncalibrated": 0.0675366073846817
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-11",
+          "label": "DA_18_Lux_Elderwood",
+          "predicted": "DA_18_MasterYi_AD",
+          "softmax_score_uncalibrated": 0.052899446338415146
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-12",
+          "label": "DA_18_Ivern",
+          "predicted": "DA_Nidalee18_AP",
+          "softmax_score_uncalibrated": 0.06761660426855087
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-13",
+          "label": "DA_18_Alistar",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.27786147594451904
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-15",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.10083546489477158
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-19",
+          "label": "DA_18_Malphite",
+          "predicted": "DA_18_Alistar",
+          "softmax_score_uncalibrated": 0.12893840670585632
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1000.png",
+          "key": "marker-20",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.15291893482208252
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-1",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.07274603098630905
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-4",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Yunara",
+          "softmax_score_uncalibrated": 0.04689227417111397
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-5",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_18_Lillia",
+          "softmax_score_uncalibrated": 0.03900756686925888
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1100.png",
+          "key": "marker-6",
+          "label": "DA_18_Lux_Elderwood",
+          "predicted": "DA_18_Lux_Elderwood",
+          "softmax_score_uncalibrated": 0.07206709682941437
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-0",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.07805551588535309
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-1",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_18_Ezreal",
+          "softmax_score_uncalibrated": 0.058140892535448074
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-2",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.059363480657339096
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1200.png",
+          "key": "marker-3",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_18_Yunara",
+          "softmax_score_uncalibrated": 0.05985419079661369
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+          "key": "marker-4",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_Sentinel18",
+          "softmax_score_uncalibrated": 0.06166223809123039
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1300.png",
+          "key": "marker-6",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Veigar",
+          "softmax_score_uncalibrated": 0.04742646589875221
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-0",
+          "label": "DA_18_Hecarim",
+          "predicted": "DA_18_Hecarim",
+          "softmax_score_uncalibrated": 0.16858616471290588
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-1",
+          "label": "DA_18_Ornn",
+          "predicted": "DA_18_Ornn",
+          "softmax_score_uncalibrated": 0.10436683893203735
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-2",
+          "label": "DA_18_Kennen",
+          "predicted": "DA_18_Kennen",
+          "softmax_score_uncalibrated": 0.13662101328372955
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-4",
+          "label": "DA_18_GnarSmall",
+          "predicted": "DA_18_GnarSmall",
+          "softmax_score_uncalibrated": 0.14255648851394653
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-5",
+          "label": "DA_18_Alune",
+          "predicted": "DA_18_Ezreal",
+          "softmax_score_uncalibrated": 0.07230928540229797
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-6",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_18_Ezreal",
+          "softmax_score_uncalibrated": 0.12702910602092743
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-8",
+          "label": "DA_18_LeBlanc",
+          "predicted": "DA_18_Kayle",
+          "softmax_score_uncalibrated": 0.09442850202322006
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-9",
+          "label": "DA_18_Lux_Elderwood",
+          "predicted": "DA_18_Yunara",
+          "softmax_score_uncalibrated": 0.057249173521995544
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-10",
+          "label": "DA_18_Maokai",
+          "predicted": "DA_18_Maokai",
+          "softmax_score_uncalibrated": 0.15360811352729797
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-12",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.12219709903001785
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-15",
+          "label": "DA_18_Lillia",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.1298091858625412
+        },
+        {
+          "identity_verified": false,
+          "image": "unit-gallery-lux-kh-evaluation-20261005/1380.png",
+          "key": "marker-16",
+          "label": "DA_18_Ezreal",
+          "predicted": "DA_18_Xayah",
+          "softmax_score_uncalibrated": 0.07409072667360306
+        }
+      ],
+      "samples": 35
+    }
+  },
+  "threads": 1,
+  "training_batch": 1,
+  "training_performed": false
+}

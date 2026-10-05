@@ -610,3 +610,25 @@ de recorte. O experimento sustenta ampliar cobertura por estado de aparência
 (itens, pose, seleção, montaria, arena), preservando os recortes e a origem dos
 rótulos. Ainda faltam nove formas Lux, precisão maior entre partidas e validação
 independente. O artefato continua experimental, sem ativação no Windows.
+
+## Comparação por exemplares revisados
+
+Implementamos em Rust um índice de vetores com três políticas: maior similaridade
+por classe, média das três maiores e média de todos os exemplares da classe.
+Somente o split de treino entra no índice. O encoder e o preparo de recortes são
+os mesmos do classificador; o índice pode ser reconstruído com embeddings em cache,
+sem atualização de pesos. O repositório DINOv2 apresenta avaliação por vizinhos e
+por camadas lineares: <https://github.com/facebookresearch/dinov2>. A agregação por
+classe deste experimento é local e não reproduz o benchmark ImageNet do projeto.
+
+O protocolo `retrieval-protocol.json` foi salvo antes da execução. Na validação,
+as políticas obtiveram **14/32, 15/32 e 15/32**. A média de todos os exemplares
+venceu entre elas pela macro-revocação, mas perdeu para a cabeça linear (**19/32**).
+O índice contém 649 referências (618 nomeadas e 31 negativas), 66 classes contando
+`__unknown__`. Não reportamos acurácia do próprio treino, pois a busca encontraria
+os próprios exemplares. O índice foi rejeitado para substituir a cabeça atual.
+
+Os 17 testes da biblioteca e dois testes de isolamento do avaliador passaram.
+Após compartilhar o cálculo de métricas, a avaliação linear completa de 35 recortes
+ficou idêntica, incluindo escores. O artefato de busca e seus relatórios permanecem
+como experimento; nenhuma inferência foi transformada em rótulo ou ativada no HUD.
