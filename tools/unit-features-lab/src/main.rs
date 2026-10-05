@@ -198,7 +198,9 @@ fn load_samples(path: &Path, root: &Path, reference: &Path) -> Result<Vec<Sample
 fn prepare(crop: &UnitCrop, mode: &str) -> Result<(UnitCrop, bool)> {
     let mut c = crop.clone();
     let mut valid = true;
-    if mode.starts_with("mask") {
+    if mode.ends_with("outline") {
+        valid = !c.outline_overlay(mode.starts_with("mask"))?.empty;
+    } else if mode.starts_with("mask") {
         valid = !c.foreground()?.empty;
     }
     if mode.ends_with("gray") {
@@ -211,6 +213,7 @@ fn embeddings(
     crops: &[(UnitCrop, bool)],
     size: usize,
     gradient: bool,
+    contour_fusion: bool,
 ) -> Result<Vec<Vec<f32>>> {
     if gradient {
         return crops
@@ -235,14 +238,31 @@ fn embeddings(
         return Err("encoder output shape".into());
     }
     let mut result = Vec::new();
-    for ((_, valid), v) in crops.iter().zip(values.chunks_exact(shape[1] as usize)) {
+    for ((crop, valid), v) in crops.iter().zip(values.chunks_exact(shape[1] as usize)) {
         let mut v = v.to_vec();
         if !*valid || !normalize(&mut v) {
             v.fill(0.0);
         }
+        if contour_fusion {
+            v = fuse_contour(&v, &crop.contour_view()?.gradient_vector()?);
+        }
         result.push(v);
     }
     Ok(result)
+}
+
+// Fixed before evaluation: 80% color similarity, 20% contour similarity.
+// sqrt weights on unit vectors make cosine of their concatenation that mixture.
+// Reject missing branches rather than silently changing the comparison weights.
+fn fuse_contour(color: &[f32], contour: &[f32]) -> Vec<f32> {
+    let mut color = color.to_vec();
+    let mut contour = contour.to_vec();
+    if !normalize(&mut color) || !normalize(&mut contour) {
+        return vec![0.0; color.len() + contour.len()];
+    }
+    color.iter_mut().for_each(|x| *x *= 0.8f32.sqrt());
+    color.extend(contour.iter().map(|x| x * 0.2f32.sqrt()));
+    color
 }
 fn rank(v: &[f32], gallery: &[(&str, &Vec<f32>)]) -> Value {
     let mut classes: BTreeMap<&str, f32> = BTreeMap::new();
@@ -316,7 +336,11 @@ fn run() -> Result<()> {
         ("mask_gray", false),
         ("gray", true),
         ("mask_gray", true),
+        ("rgb_outline", false),
+        ("mask_rgb_outline", false),
+        ("rgb_contour_fused", false),
     ] {
+        let contour_fusion = mode.ends_with("fused");
         let name = format!("{}-{mode}", if gradient { "gradient" } else { "encoder" });
         let prepared = samples
             .iter()
@@ -324,7 +348,13 @@ fn run() -> Result<()> {
             .collect::<Result<Vec<_>>>()?;
         let mut features = Vec::new();
         for batch in prepared.chunks(4) {
-            features.extend(embeddings(&mut session, batch, side, gradient)?);
+            features.extend(embeddings(
+                &mut session,
+                batch,
+                side,
+                gradient,
+                contour_fusion,
+            )?);
         }
         let gallery: Vec<_> = samples
             .iter()
@@ -371,7 +401,7 @@ fn run() -> Result<()> {
                 .map(|s| prepare(&s.crop, mode))
                 .collect::<Result<Vec<_>>>()?;
             let t1 = start.elapsed().as_secs_f64() * 1000.0;
-            let v = embeddings(&mut session, &p, side, gradient)?;
+            let v = embeddings(&mut session, &p, side, gradient, contour_fusion)?;
             let t2 = start.elapsed().as_secs_f64() * 1000.0;
             for row in &v {
                 std::hint::black_box(rank(row, &gallery));
@@ -395,6 +425,9 @@ fn run() -> Result<()> {
         }
         variant.insert("timing_ms".into(), json!(measures));
         variant.insert("vector_dimensions".into(), json!(features[0].len()));
+        if contour_fusion {
+            variant.insert("fusion_weights".into(), json!({"color":0.8,"contour":0.2}));
+        }
         variant.insert(
             "empty_features".into(),
             json!(samples
@@ -436,6 +469,26 @@ fn run() -> Result<()> {
             );
         }
         preview.save(out.join(format!("{name}-preview.png")))?;
+        if contour_fusion {
+            let mut contours = RgbImage::new(WIDTH as u32 * 4, HEIGHT as u32 * 2);
+            for (n, s) in samples
+                .iter()
+                .filter(|s| s.split == "test")
+                .take(8)
+                .enumerate()
+            {
+                let contour = s.crop.contour_view()?;
+                let im = RgbImage::from_raw(WIDTH as u32, HEIGHT as u32, contour.rgb)
+                    .ok_or("contour preview size")?;
+                image::imageops::replace(
+                    &mut contours,
+                    &im,
+                    (n % 4 * WIDTH) as i64,
+                    (n / 4 * HEIGHT) as i64,
+                );
+            }
+            contours.save(out.join("contour-only-preview.png"))?;
+        }
         println!("{}", json!({"variant":name,"results":variant}));
         report.insert(name.clone(), variant);
         predictions.insert(name, variant_preds);
@@ -443,7 +496,7 @@ fn run() -> Result<()> {
     let summary = json!({"schema_version":1,"implementation":"rust_native_onnxruntime","python_required":false,"opencv_required":false,
         "encoder_sha256":hash(&fs::read(arg("--encoder")?)?),"annotations_sha256":hash(&fs::read(arg("--annotations")?)?),"threads":1,"batch":12,"input_size":side,
         "threshold":0.8,"margin":0.08,"runtime_approved":false,"new_training_performed":false,"variants":report,
-        "limitations":["Reused development images with assistant-reviewed labels; no independent human ground truth.","Border-color connected flood mask is a heuristic, NOT GrabCut or a trained segmenter.","Native bilinear resize is not pixel-identical to the old Pillow bicubic pipeline; use this run's native RGB baseline.","Timings include in-memory crop preprocessing, vector extraction and ranking, exclude screen capture and localization.","Gradient histogram is an untrained nearest-gallery descriptor, not canonical HOG/SVM.","No temporal identity memory or automatic model promotion."]});
+        "limitations":["Reused development images with assistant-reviewed labels; no independent human ground truth.","Border-color connected flood mask is a heuristic, NOT GrabCut or a trained segmenter.","Contours are inner mask boundaries, not verified character outlines; board lines and occlusion remain.","Fusion uses fixed 80/20 color/contour weights, with unchanged uncalibrated threshold/margin; no test-based parameter selection.","Native bilinear resize is not pixel-identical to the old Pillow bicubic pipeline; use this run's native RGB baseline.","Timings include in-memory crop preprocessing, vector extraction and ranking, exclude screen capture and localization.","Gradient histogram is an untrained nearest-gallery descriptor, not canonical HOG/SVM.","No temporal identity memory or automatic model promotion."]});
     fs::write(
         out.join("report.json"),
         serde_json::to_vec_pretty(&summary)?,
@@ -475,5 +528,15 @@ mod tests {
         let g = vec![("a", &v), ("b", &v)];
         assert!(rank(&[0.0, 0.0], &g)["candidate_id"].is_null());
         assert!(rank(&v, &g)["candidate_id"].is_null());
+    }
+
+    #[test]
+    fn fusion_is_weighted_cosine_and_rejects_missing_contour() {
+        let a = fuse_contour(&[1.0, 0.0], &[1.0, 0.0]);
+        let b = fuse_contour(&[1.0, 0.0], &[0.0, 1.0]);
+        assert!((cosine(&a, &b).unwrap() - 0.8).abs() < 1e-6);
+        assert!(fuse_contour(&[1.0, 0.0], &[0.0, 0.0])
+            .iter()
+            .all(|&x| x == 0.0));
     }
 }

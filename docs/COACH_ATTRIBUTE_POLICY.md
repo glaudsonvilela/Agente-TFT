@@ -390,3 +390,59 @@ Nove testes da biblioteca e dois do laboratório passaram localmente.
 O workflow `Native unit features` executa esses contratos em Linux e Windows;
 esses testes não dependem dos modelos ou dos vídeos privados e não substituem
 uma medição de inferência/captura no Windows.
+
+## Recorte combinado com contorno — 05/10/2026
+
+Comparação solicitada pelo usuário, implementada inteiramente em Rust, com
+o mesmo encoder MobileNet, galeria, partições, limiar 0,8 e margem 0,08.
+O contorno é a borda interna de quatro vizinhos da máscara aproximada anterior;
+não inclui automaticamente o retângulo externo do recorte. Não é uma silhueta
+verificada: linhas do tabuleiro, cursor e efeitos visuais ainda aparecem nele.
+
+Três variantes novas foram fixadas antes da execução:
+
+- RGB com traço preto de um pixel sobre a borda da máscara.
+- RGB com fundo neutralizado e o mesmo traço.
+- Vetor neural do RGB original concatenado com descritor de gradientes do
+  contorno binário. Ambos normalizados, ponderados por raiz de 0,8 e raiz de
+  0,2: o cosseno resultante equivale a 80% da similaridade de cor/aparência e
+  20% da similaridade de contorno. Não houve procura de pesos no teste.
+
+Uma imagem sem vetor válido em qualquer ramo da fusão é recusada; o código
+não muda silenciosamente os pesos para aproveitar só o outro ramo.
+Os seis hashes de galerias do experimento anterior permaneceram idênticos
+após extrair a rotina compartilhada de máscara, preservando os baselines.
+
+| Variante | Primeira opção correta / 29 | Aceitos / errados | VOD separado: acertos / 19 | Mediana / p95 para 12 recortes |
+| --- | ---: | ---: | ---: | ---: |
+| Recorte RGB | 12 | 3 / 0 | 8 | 53,8 / 59,3 ms |
+| Recorte com fundo neutralizado | 14 | 3 / 0 | 8 | 57,8 / 59,5 ms |
+| Recorte RGB + contorno desenhado | 11 | 4 / 0 | 6 | 58,3 / 60,5 ms |
+| Fundo neutralizado + contorno desenhado | 10 | 1 / 0 | 4 | 58,5 / 60,0 ms |
+| Vetores de RGB + contorno, 80/20 | 15 | 2 / 0 | 7 | 66,1 / 67,2 ms |
+
+A fusão melhorou quatro recortes locais e piorou um do VOD, comparada ao RGB.
+As correções foram uma Rek'Sai e três Cinderlings; a piora foi Veigar.
+Assim, a melhora agregada de 12/29 para 15/29 não demonstra melhora geral de
+campeões em outro vídeo. A fusão não aceitou nenhuma identidade no VOD separado
+nem nos três recortes nomeados de validação. O contorno desenhado aceitou uma
+identidade correta no VOD, mas reduziu a acurácia de primeira opção. Não há
+base para promover qualquer dessas variantes ao reconhecimento ativo.
+
+No pequeno conjunto de validação, as três variantes novas acertaram a primeira
+opção em 3/3. Isso não calibra a confiança: a fusão altera a distribuição dos
+escores e precisaria de validação maior antes de escolher limiares. Sem novos
+pesos neurais, sem confirmação temporal e sem alteração nas dicas.
+
+O vetor combinado tem 1.224 valores e a galeria ocupa 993.888 bytes, contra
+467.712 bytes no RGB. Nesta execução, a fusão adicionou aproximadamente 12,3 ms
+por lote em relação ao RGB. Tempos incluem preparação/extração/comparação em
+CPU Linux e excluem captura, localização inicial, exibição e voz. As variações
+entre execuções anteriores e esta não são atribuídas a otimização de código.
+
+Evidências: `docs/evidence/vector-contours-20261005/`, incluindo as mudanças
+de previsão por recorte. As prévias RGB, sobreposição e contorno binário foram
+inspecionadas e permanecem no SSD privado. Reprodução pelo mesmo comando do
+laboratório, usando um diretório de saída novo. Treze testes locais passaram:
+dez da biblioteca e três do laboratório, incluindo preservação da cor interna,
+ausência de contorno em imagem uniforme e equivalência da fusão ponderada.

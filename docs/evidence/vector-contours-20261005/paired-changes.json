@@ -1,0 +1,101 @@
+[
+  {
+    "image": "review-20261004/193.png",
+    "key": "marker-1",
+    "label": "DA_18_RekSai",
+    "previous": "DA_18_Camille",
+    "combined": "DA_18_RekSai",
+    "previous_correct": false,
+    "combined_correct": true
+  },
+  {
+    "image": "review-20261004/193.png",
+    "key": "marker-3",
+    "label": "DA_Cinderling18",
+    "previous": "DA_18_Alistar",
+    "combined": "DA_18_RekSai",
+    "previous_correct": false,
+    "combined_correct": false
+  },
+  {
+    "image": "review-20261004/193.png",
+    "key": "marker-4",
+    "label": "DA_Cinderling18",
+    "previous": "DA_18_Cassiopeia",
+    "combined": "DA_Cinderling18",
+    "previous_correct": false,
+    "combined_correct": true
+  },
+  {
+    "image": "review-20261004/204.png",
+    "key": "marker-3",
+    "label": "DA_Cinderling18",
+    "previous": "DA_CrimsonRaptor18",
+    "combined": "DA_Cinderling18",
+    "previous_correct": false,
+    "combined_correct": true
+  },
+  {
+    "image": "review-20261004/204.png",
+    "key": "marker-4",
+    "label": "DA_Cinderling18",
+    "previous": "DA_18_Teemo",
+    "combined": "DA_Cinderling18",
+    "previous_correct": false,
+    "combined_correct": true
+  },
+  {
+    "image": "unit-gallery-subzero-20261004/10500.png",
+    "key": "marker-2",
+    "label": "DA_18_Alistar",
+    "previous": "DA_18_Sivir",
+    "combined": "DA_18_Ornn",
+    "previous_correct": false,
+    "combined_correct": false
+  },
+  {
+    "image": "unit-gallery-subzero-20261004/04480.png",
+    "key": "marker-1",
+    "label": "DA_18_Alistar",
+    "previous": "DA_18_Sivir",
+    "combined": "DA_18_Sejuani",
+    "previous_correct": false,
+    "combined_correct": false
+  },
+  {
+    "image": "unit-gallery-subzero-20261004/04480.png",
+    "key": "marker-4",
+    "label": "DA_18_RekSai",
+    "previous": "DA_18_Rengar",
+    "combined": "DA_18_Ornn",
+    "previous_correct": false,
+    "combined_correct": false
+  },
+  {
+    "image": "unit-gallery-subzero-20261004/04480.png",
+    "key": "marker-5",
+    "label": "DA_Krug18",
+    "previous": "DA_18_Aphelios",
+    "combined": "DA_18_Maokai",
+    "previous_correct": false,
+    "combined_correct": false
+  },
+  {
+    "image": "unit-gallery-subzero-20261004/06880.png",
+    "key": "marker-4",
+    "label": "DA_Karma18",
+    "previous": "DA_18_Veigar",
+    "combined": "DA_18_Shen",
+    "previous_correct": false,
+    "combined_correct": false
+  },
+  {
+    "image": "unit-gallery-subzero-20261004/10480.png",
+    "key": "marker-6",
+    "label": "DA_18_Veigar",
+    "previous": "DA_18_Veigar",
+    "combined": "DA_18_Alistar",
+    "previous_correct": true,
+    "combined_correct": false
+  }
+]

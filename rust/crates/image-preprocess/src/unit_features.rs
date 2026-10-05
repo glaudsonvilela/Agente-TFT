@@ -88,6 +88,43 @@ impl UnitCrop {
     /// Remove only border-connected colors near the most common border colors.
     /// This is intentionally a separate hypothesis, never a semantic unit assertion.
     pub fn foreground(&mut self) -> Result<MaskSummary, String> {
+        let background = self.background_mask()?;
+        for (i, bg) in background.iter().enumerate() {
+            if *bg {
+                self.rgb[i * 3..i * 3 + 3].fill(127);
+            }
+        }
+        Ok(mask_summary(&background))
+    }
+
+    /// Draw the inner boundary of the foreground hypothesis on the color crop.
+    /// This includes erroneous foreground islands; it is not a verified silhouette.
+    pub fn outline_overlay(&mut self, mask_background: bool) -> Result<MaskSummary, String> {
+        let background = self.background_mask()?;
+        let boundary = inner_boundary(&background);
+        for i in 0..WIDTH * HEIGHT {
+            if mask_background && background[i] {
+                self.rgb[i * 3..i * 3 + 3].fill(127);
+            } else if boundary[i] {
+                self.rgb[i * 3..i * 3 + 3].fill(0);
+            }
+        }
+        Ok(mask_summary(&background))
+    }
+
+    /// Binary contour view for a separate shape descriptor; preserve source pixels.
+    pub fn contour_view(&self) -> Result<Self, String> {
+        let boundary = inner_boundary(&self.background_mask()?);
+        let mut rgb = vec![0; WIDTH * HEIGHT * 3];
+        for (i, edge) in boundary.iter().enumerate() {
+            if *edge {
+                rgb[i * 3..i * 3 + 3].fill(255);
+            }
+        }
+        Ok(Self { rgb })
+    }
+
+    fn background_mask(&self) -> Result<Vec<bool>, String> {
         self.validate()?;
         let mut counts = [0u32; 512];
         let mut sums = [[0u32; 3]; 512];
@@ -145,16 +182,7 @@ impl UnitCrop {
                 }
             }
         }
-        let kept = background.iter().filter(|&&v| !v).count();
-        for (i, bg) in background.iter().enumerate() {
-            if *bg {
-                self.rgb[i * 3..i * 3 + 3].fill(127);
-            }
-        }
-        Ok(MaskSummary {
-            foreground_fraction: kept as f32 / (WIDTH * HEIGHT) as f32,
-            empty: kept < WIDTH * HEIGHT / 100,
-        })
+        Ok(background)
     }
 
     /// RGB CHW in [0,1]. The exported encoder contains ImageNet normalization.
@@ -204,6 +232,29 @@ impl UnitCrop {
         }
         normalize(&mut v);
         Ok(v)
+    }
+}
+
+fn inner_boundary(background: &[bool]) -> Vec<bool> {
+    let mut edge = vec![false; WIDTH * HEIGHT];
+    // Frame edges do not assert a character boundary: that silhouette is truncated.
+    for y in 1..HEIGHT - 1 {
+        for x in 1..WIDTH - 1 {
+            let i = y * WIDTH + x;
+            edge[i] = !background[i]
+                && [i - 1, i + 1, i - WIDTH, i + WIDTH]
+                    .iter()
+                    .any(|&j| background[j]);
+        }
+    }
+    edge
+}
+
+fn mask_summary(background: &[bool]) -> MaskSummary {
+    let kept = background.iter().filter(|&&v| !v).count();
+    MaskSummary {
+        foreground_fraction: kept as f32 / (WIDTH * HEIGHT) as f32,
+        empty: kept < WIDTH * HEIGHT / 100,
     }
 }
 
@@ -323,5 +374,30 @@ mod tests {
         assert!((cosine(&[2.0, 0.0], &[10.0, 0.0]).unwrap() - 1.0).abs() < 1e-6);
         assert!(crop.tensor(4096).is_err());
         assert!(UnitCrop { rgb: vec![0] }.tensor(140).is_err());
+    }
+
+    #[test]
+    fn contour_combination_preserves_color_inside_and_has_no_frame_rectangle() {
+        let mut c = UnitCrop {
+            rgb: vec![40; WIDTH * HEIGHT * 3],
+        };
+        for y in 40..100 {
+            for x in 40..90 {
+                c.rgb[(y * WIDTH + x) * 3..][..3].copy_from_slice(&[220, 10, 10]);
+            }
+        }
+        let original = c.clone();
+        let contour = c.contour_view().unwrap();
+        assert_eq!(c, original);
+        assert_eq!(&contour.rgb[(40 * WIDTH + 60) * 3..][..3], &[255; 3]);
+        assert_eq!(&contour.rgb[(60 * WIDTH + 60) * 3..][..3], &[0; 3]);
+        c.outline_overlay(false).unwrap();
+        assert_eq!(&c.rgb[..3], &[40; 3]);
+        assert_eq!(&c.rgb[(40 * WIDTH + 60) * 3..][..3], &[0; 3]);
+        assert_eq!(&c.rgb[(60 * WIDTH + 60) * 3..][..3], &[220, 10, 10]);
+        let blank = UnitCrop {
+            rgb: vec![40; WIDTH * HEIGHT * 3],
+        };
+        assert!(blank.contour_view().unwrap().rgb.iter().all(|&v| v == 0));
     }
 }
