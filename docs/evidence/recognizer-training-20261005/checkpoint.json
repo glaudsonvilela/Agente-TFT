@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T11:00:00-03:00",
+  "recorded_at": "2026-10-05T11:05:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,32 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "targeted_new_source_acquisition_required",
-    "goal": "Acquire genuinely new training-eligible sources for missing Lux forms and single-source identities; do not spend the next iteration on same-source sample count alone.",
-    "priority_ids": [
-      "DA_18_ElderDragon",
-      "DA_18_Kayle",
-      "DA_18_KhaZix",
-      "DA_18_Lux_Elderwood",
-      "DA_18_MasterYi_AD",
-      "DA_18_Morgana",
-      "DA_18_Xayah",
-      "DA_CrimsonRaptor18",
-      "DA_Karma18",
-      "DA_Murkwolf18"
-    ],
-    "priority_lux_forms": [
-      "DA_18_Lux_Coven",
-      "DA_18_Lux_Fae",
-      "DA_18_Lux_Inferno",
-      "DA_18_Lux_Moonbeam",
-      "DA_18_Lux_Primal",
-      "DA_18_Lux_Sunbeam",
-      "DA_Lux18_Base",
-      "DA_Lux18_Blackthorn",
-      "DA_Lux18_Blossom"
-    ],
-    "minjo_kh_allowed_in_training": false,
+    "status": "acquire_first_targeted_source",
+    "recommended_first_source": "https://www.youtube.com/watch?v=Ot358nhRJl0",
+    "target": "DA_18_ElderDragon",
+    "reason": "High-priority missing source diversity with a clearly targeted Set 18 video from a creator already present in the project corpus.",
     "training_performed": false,
     "runtime_approved": false
   },
@@ -1463,6 +1441,20 @@
       "DA_Lux18_Blossom"
     ],
     "interpretation": "Current Sherlock corpus can add same-source samples but contributes zero new-source candidates for the priority identities after authoritative source-policy filtering.",
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "targeted_new_source_plan": {
+    "status": "ready",
+    "evidence": "docs/evidence/recognizer-training-20261005/targeted-new-source-plan.json",
+    "first_targets": [
+      "DA_18_ElderDragon",
+      "DA_18_Lux_Sunbeam",
+      "DA_Lux18_Blossom",
+      "DA_18_MasterYi_AD",
+      "DA_18_Kayle"
+    ],
+    "policy": "Acquire annotation-only first; candidate title is not a label; source authorization must cover training; no Minjo/KH reuse.",
     "training_performed": false,
     "runtime_approved": false
   }
