@@ -41,6 +41,7 @@ DEFAULT_ANNOTATIONS = Path(
 )
 MINJO = Path("configs/training/unit-gallery-tristana-evaluation-20261005.json")
 KH = Path("configs/training/unit-gallery-lux-kh-evaluation-20261005.json")
+CHECKPOINT = Path("docs/evidence/recognizer-training-20261005/checkpoint.json")
 
 MISSING_LUX = [
     "DA_18_Lux_Coven",
@@ -146,6 +147,33 @@ def evaluation_sources(path: Path) -> set[str]:
             value = src.get("source_id") or src.get("source_url")
             if isinstance(value, str) and value:
                 result.add(value)
+    return result
+
+
+def checkpoint_source_policy(path: Path) -> dict[str, str]:
+    """Authoritative source partition recorded by the project checkpoint.
+
+    Collector report.partition is a transport-era field and can be generic.
+    The checkpoint preserves the intended role of a source, e.g.
+    appearance-review-only or evaluation-only. When they disagree, this map
+    wins and the source fails closed for training review.
+    """
+    doc = load_json(path)
+    result: dict[str, str] = {}
+    for src in doc.get("sources", []):
+        if not isinstance(src, dict):
+            continue
+        partition = src.get("partition")
+        if not isinstance(partition, str) or not partition:
+            continue
+        for value in (src.get("source_id"), src.get("url")):
+            if isinstance(value, str) and value:
+                result[value] = partition
+        progress = src.get("progress")
+        if isinstance(progress, dict):
+            for value in (progress.get("source_id"), progress.get("source_url")):
+                if isinstance(value, str) and value:
+                    result[value] = partition
     return result
 
 
@@ -276,6 +304,7 @@ def main() -> int:
     train_sources, blocked_sources = manifest_source_policy(annotations)
     blocked_sources |= evaluation_sources((repo / MINJO).resolve())
     blocked_sources |= evaluation_sources((repo / KH).resolve())
+    authoritative_policy = checkpoint_source_policy((repo / CHECKPOINT).resolve())
     novel_pixels = new_pixel_hashes(inventory)
 
     collections = find_collections(root)
@@ -307,6 +336,19 @@ def main() -> int:
                     "directory": str(collection),
                     "source_id": source_id,
                     "reason": "missing_source_id",
+                }
+            )
+            continue
+        checkpoint_partition = authoritative_policy.get(source_id)
+        if checkpoint_partition is None and isinstance(source_url, str):
+            checkpoint_partition = authoritative_policy.get(source_url)
+        if checkpoint_partition is not None and checkpoint_partition != "training_pool_unlabeled":
+            blocked.append(
+                {
+                    "directory": str(collection),
+                    "source_id": source_id,
+                    "source_url": source_url,
+                    "reason": f"checkpoint_partition={checkpoint_partition!r}",
                 }
             )
             continue
@@ -525,6 +567,7 @@ def main() -> int:
     )
     summary = {
         "collections_found": len(collections),
+        "authoritative_checkpoint_source_policies": len(authoritative_policy),
         "allowed_training_collections": len(allowed),
         "blocked_collections": len(blocked),
         "collections_with_new_observations": sum(
