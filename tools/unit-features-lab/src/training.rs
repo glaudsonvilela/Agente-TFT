@@ -4,6 +4,47 @@ use serde::{Deserialize, Serialize};
 
 const COLOR_DIM: usize = 4 * 52;
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct OptimizerConfig {
+    learning_rate: f32,
+    weight_decay: f32,
+    max_epochs: usize,
+    checkpoints: Vec<usize>,
+}
+
+impl Default for OptimizerConfig {
+    fn default() -> Self {
+        Self {
+            learning_rate: 2.,
+            weight_decay: 0.001,
+            max_epochs: 800,
+            checkpoints: vec![50, 100, 200, 400, 800],
+        }
+    }
+}
+
+impl OptimizerConfig {
+    fn validate(&self) -> Result<()> {
+        if !self.learning_rate.is_finite()
+            || !(0. < self.learning_rate && self.learning_rate <= 10.)
+            || !self.weight_decay.is_finite()
+            || !(0. ..=1.).contains(&self.weight_decay)
+            || !(1..=10_000).contains(&self.max_epochs)
+            || self.checkpoints.is_empty()
+            || self
+                .checkpoints
+                .iter()
+                .any(|&n| n == 0 || n > self.max_epochs)
+            || self.checkpoints.windows(2).any(|w| w[0] >= w[1])
+            || self.checkpoints.last() != Some(&self.max_epochs)
+        {
+            return Err("invalid optimizer budget or checkpoint schedule".into());
+        }
+        Ok(())
+    }
+}
+
 fn augment_training(samples: &mut Vec<Sample>) -> Result<usize> {
     let originals: Vec<_> = samples
         .iter()
@@ -195,7 +236,15 @@ pub fn metrics_with_predictor(
     )
 }
 
-fn fit(samples: &[Sample], features: &[Vec<f32>]) -> Result<(Head, usize, Vec<Value>)> {
+fn fit(
+    samples: &[Sample],
+    features: &[Vec<f32>],
+    optimizer: &OptimizerConfig,
+) -> Result<(Head, usize, Vec<Value>)> {
+    optimizer.validate()?;
+    if samples.len() != features.len() {
+        return Err("sample/feature count mismatch".into());
+    }
     let train: Vec<_> = samples
         .iter()
         .zip(features)
@@ -206,6 +255,9 @@ fn fit(samples: &[Sample], features: &[Vec<f32>]) -> Result<(Head, usize, Vec<Va
         .zip(features)
         .filter(|(s, _)| s.split == "validation")
         .collect();
+    if train.is_empty() || validation.is_empty() {
+        return Err("training and validation samples required".into());
+    }
     let mut labels: Vec<_> = train.iter().map(|(s, _)| s.label.clone()).collect();
     labels.sort();
     labels.dedup();
@@ -228,7 +280,7 @@ fn fit(samples: &[Sample], features: &[Vec<f32>]) -> Result<(Head, usize, Vec<Va
     // an epoch. Test examples never take part in gradient/checkpoint selection.
     let mut best: Option<(f64, f64, usize, Head)> = None;
     let mut history = Vec::new();
-    for epoch in 1..=800 {
+    for epoch in 1..=optimizer.max_epochs {
         let mut dw = vec![0.; head.weights.len()];
         let mut db = vec![0.; head.labels.len()];
         for ((_, x), &target) in train.iter().zip(&targets) {
@@ -243,17 +295,21 @@ fn fit(samples: &[Sample], features: &[Vec<f32>]) -> Result<(Head, usize, Vec<Va
             }
         }
         for (w, g) in head.weights.iter_mut().zip(dw) {
-            *w -= 2. * (g + 0.001 * *w);
+            *w -= optimizer.learning_rate * (g + optimizer.weight_decay * *w);
         }
         for (b, g) in head.biases.iter_mut().zip(db) {
-            *b -= 2. * g;
+            *b -= optimizer.learning_rate * g;
         }
-        if [50, 100, 200, 400, 800].contains(&epoch) {
+        if optimizer.checkpoints.contains(&epoch) {
             let m = metrics(&head, &validation)?;
             let score = m["named_macro_recall"].as_f64().ok_or("validation score")?;
             let loss = m["cross_entropy"].as_f64().ok_or("validation loss")?;
             history.push(
                 json!({"epoch":epoch,"validation_macro_recall":score,"validation_loss":loss}),
+            );
+            println!(
+                "{}",
+                json!({"training_checkpoint":epoch,"validation_macro_recall":score,"validation_loss":loss})
             );
             if best
                 .as_ref()
@@ -274,6 +330,11 @@ pub fn run_cli() -> Result<()> {
     }
     let spec_bytes = fs::read(&args[2])?;
     let spec: Value = serde_json::from_slice(&spec_bytes)?;
+    let optimizer: OptimizerConfig = match spec.get("optimizer") {
+        Some(value) => serde_json::from_value(value.clone())?,
+        None => OptimizerConfig::default(),
+    };
+    optimizer.validate()?;
     let out = PathBuf::from(str_field(&spec, "output")?);
     if out.exists() {
         return Err("new output directory required".into());
@@ -411,7 +472,7 @@ pub fn run_cli() -> Result<()> {
         if spec["only_dino"] == true && name != "dino" {
             continue;
         }
-        let (head, epoch, history) = fit(&samples, features)?;
+        let (head, epoch, history) = fit(&samples, features, &optimizer)?;
         let mut evaluation = BTreeMap::new();
         for split in ["train", "validation", "test"] {
             let rows: Vec<_> = samples
@@ -424,7 +485,7 @@ pub fn run_cli() -> Result<()> {
         let model = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"feature_mode":name,"head":head,"selected_epoch":epoch,
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
             "input_size":side,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
-            "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"]});
+            "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"],"optimizer":optimizer});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -438,7 +499,8 @@ pub fn run_cli() -> Result<()> {
     }
     let report = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"implementation":"rust_native","training_performed":true,
         "backbone_finetuned":false,"training_algorithm":"class_balanced_multiclass_softmax_gradient_descent",
-        "learning_rate":2.0,"weight_decay":0.001,"max_epochs":800,"checkpoint_selection":"validation_macro_recall_then_loss",
+        "learning_rate":optimizer.learning_rate,"weight_decay":optimizer.weight_decay,"max_epochs":optimizer.max_epochs,
+        "optimizer":optimizer,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
         "source_samples":source_samples,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
         "synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
@@ -456,6 +518,69 @@ pub fn run_cli() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn optimizer_rejects_ambiguous_or_unbounded_schedules() {
+        OptimizerConfig::default().validate().unwrap();
+        for value in [
+            json!({"max_epochs":0}),
+            json!({"max_epochs":10001}),
+            json!({"learning_rate":0}),
+            json!({"weight_decay":-0.1}),
+            json!({"checkpoints":[50,50,800]}),
+            json!({"checkpoints":[50,400]}),
+            json!({"checkpoints":[0,800]}),
+            json!({"checkpoints":[800,50]}),
+            json!({"checkpoints":[]}),
+        ] {
+            assert!(serde_json::from_value::<OptimizerConfig>(value)
+                .unwrap()
+                .validate()
+                .is_err());
+        }
+        assert!(serde_json::from_value::<OptimizerConfig>(json!({"learnig_rate":2})).is_err());
+    }
+
+    #[test]
+    fn held_out_test_changes_cannot_change_trained_weights_or_selection() {
+        let make = |label: &str, split: &str| Sample {
+            crop: UnitCrop {
+                rgb: vec![0; WIDTH * HEIGHT * 3],
+            },
+            label: label.into(),
+            split: split.into(),
+            image: split.into(),
+            key: label.into(),
+        };
+        let mut samples = vec![
+            make("a", "train"),
+            make("b", "train"),
+            make("a", "validation"),
+            make("b", "validation"),
+            make("a", "test"),
+        ];
+        let mut features = vec![
+            vec![1., 0.],
+            vec![0., 1.],
+            vec![1., 0.],
+            vec![0., 1.],
+            vec![1., 0.],
+        ];
+        let optimizer = OptimizerConfig {
+            max_epochs: 4,
+            checkpoints: vec![2, 4],
+            ..Default::default()
+        };
+        let (first, epoch, history) = fit(&samples, &features, &optimizer).unwrap();
+        samples[4].label = "unseen-test-class".into();
+        features[4] = vec![100., -100.];
+        let (second, second_epoch, second_history) = fit(&samples, &features, &optimizer).unwrap();
+        assert_eq!(first.weights, second.weights);
+        assert_eq!(first.biases, second.biases);
+        assert_eq!(epoch, second_epoch);
+        assert_eq!(history, second_history);
+        assert_eq!(first.labels, vec!["a", "b"]);
+    }
+
     #[test]
     fn color_histogram_distinguishes_palette_and_position() {
         let red = UnitCrop {

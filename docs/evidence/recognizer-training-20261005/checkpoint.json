@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-05T08:51:21.287Z",
+  "recorded_at": "2026-10-05T09:00:29.196Z",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1314,5 +1314,15 @@
     "independent_final_holdout": false,
     "tests_passed": 20,
     "next": "Increase source diversity for remaining single-source IDs and resolve missing Lux forms; improve identity transfer and unknown rejection, then validate on a source not used to guide development."
+  },
+  "latest_optimizer_experiment": {
+    "status": "default_parity_running",
+    "protocol": "docs/evidence/recognizer-training-20261005/optimizer-study-protocol.json",
+    "tests_passed": 22,
+    "backbone_finetuned": false,
+    "training_named": 642,
+    "training_explicit_negatives": 31,
+    "independent_final_holdout": false,
+    "runtime_approved": false
   }
 }
