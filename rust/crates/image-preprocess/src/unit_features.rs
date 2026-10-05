@@ -126,7 +126,11 @@ impl UnitCrop {
 
     /// Blur only the estimated background, excluding foreground colors from the
     /// box filter. Fixed radius 5; no blur or contrast changes inside foreground.
-    pub fn blur_background(&mut self, outline: bool) -> Result<MaskSummary, String> {
+    pub fn blur_background(
+        &mut self,
+        outline: bool,
+        grayscale_background: bool,
+    ) -> Result<MaskSummary, String> {
         let background = self.background_mask()?;
         let boundary = inner_boundary(&background);
         let stride = WIDTH + 1;
@@ -162,6 +166,13 @@ impl UnitCrop {
                     if count > 0 {
                         for c in 0..3 {
                             self.rgb[i * 3 + c] = ((total(c) + count / 2) / count) as u8;
+                        }
+                        if grayscale_background {
+                            let p = &mut self.rgb[i * 3..i * 3 + 3];
+                            let luma =
+                                ((77 * p[0] as u32 + 150 * p[1] as u32 + 29 * p[2] as u32 + 128)
+                                    >> 8) as u8;
+                            p.fill(luma);
                         }
                     }
                 } else if outline && boundary[i] {
@@ -465,15 +476,39 @@ mod tests {
             }
         }
         let mut outlined = c.clone();
-        c.blur_background(false).unwrap();
+        c.blur_background(false, false).unwrap();
         let at = |c: &UnitCrop, x, y| c.rgb[(y * WIDTH + x) * 3..][..3].to_vec();
         assert_eq!(at(&c, 40, 40), [220, 10, 10]);
         assert_eq!(at(&c, 60, 60), [220, 10, 10]);
         let bg = at(&c, 39, 40);
         assert!((50..=60).contains(&bg[0]));
         assert_eq!(bg[0], bg[1]); // No red foreground bleed into background.
-        outlined.blur_background(true).unwrap();
+        outlined.blur_background(true, false).unwrap();
         assert_eq!(at(&outlined, 40, 40), [0; 3]);
         assert_eq!(at(&outlined, 60, 60), [220, 10, 10]);
+    }
+
+    #[test]
+    fn blurred_grayscale_background_keeps_foreground_color_and_original_mask() {
+        let mut c = UnitCrop {
+            rgb: [20, 100, 40].repeat(WIDTH * HEIGHT),
+        };
+        for y in 40..100 {
+            for x in 40..90 {
+                c.rgb[(y * WIDTH + x) * 3..][..3].copy_from_slice(&[220, 10, 10]);
+            }
+        }
+        let original = c.clone();
+        let m = c.blur_background(false, true).unwrap();
+        assert!(!m.empty);
+        assert_eq!(&c.rgb[..3], &[69; 3]);
+        for y in 40..100 {
+            for x in 40..90 {
+                assert_eq!(&c.rgb[(y * WIDTH + x) * 3..][..3], &[220, 10, 10]);
+            }
+        }
+        let mut colored = original;
+        let color_mask = colored.blur_background(false, false).unwrap();
+        assert_eq!(m.foreground_fraction, color_mask.foreground_fraction);
     }
 }

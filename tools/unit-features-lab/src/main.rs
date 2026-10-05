@@ -199,7 +199,9 @@ fn prepare(crop: &UnitCrop, mode: &str) -> Result<(UnitCrop, bool)> {
     let mut c = crop.clone();
     let mut valid = true;
     if mode.starts_with("blur") {
-        valid = !c.blur_background(mode.ends_with("outline"))?.empty;
+        valid = !c
+            .blur_background(mode.ends_with("outline"), mode.contains("background_mono"))?
+            .empty;
     } else if mode.ends_with("outline") {
         valid = !c.outline_overlay(mode.starts_with("mask"))?.empty;
     } else if mode.starts_with("mask") {
@@ -343,6 +345,9 @@ fn run() -> Result<()> {
         ("rgb_contour_fused", false),
         ("blur_rgb", false),
         ("blur_rgb_outline", false),
+        ("blur_background_mono", false),
+        ("blur_background_mono_outline", false),
+        ("blur_gray", false),
     ] {
         let contour_fusion = mode.ends_with("fused");
         let name = format!("{}-{mode}", if gradient { "gradient" } else { "encoder" });
@@ -429,6 +434,17 @@ fn run() -> Result<()> {
         }
         variant.insert("timing_ms".into(), json!(measures));
         variant.insert("vector_dimensions".into(), json!(features[0].len()));
+        if mode.starts_with("blur") {
+            variant.insert(
+                "filter".into(),
+                json!({
+                    "background_blur_radius":5,"exclude_foreground_from_blur":true,
+                    "grayscale_scope":if mode.contains("background_mono") {"estimated_background"}
+                        else if mode.ends_with("gray") {"whole_crop"} else {"none"},
+                    "outline":mode.ends_with("outline"),"mask_from_original_rgb":true
+                }),
+            );
+        }
         if contour_fusion {
             variant.insert("fusion_weights".into(), json!({"color":0.8,"contour":0.2}));
         }

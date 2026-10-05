@@ -489,3 +489,38 @@ Relatório e previsões: `docs/evidence/vector-blur-20261005/`. Prévias no SSD
 privado. Quatorze testes locais passaram (11 da biblioteca, 3 do laboratório),
 incluindo preservação do primeiro plano e exclusão de suas cores no filtro.
 Reproduzir com o mesmo executável e argumentos, em diretório de saída novo.
+
+## Desfoque em preto e branco — 05/10/2026
+
+Acrescentadas três variantes Rust: fundo desfocado em escala de cinza com
+primeiro plano colorido; o mesmo com contorno preto; desfoque seletivo seguido
+de escala de cinza no recorte inteiro. A máscara é calculada no RGB original
+em todos os casos. A média de raio 5 e os coeficientes de luminância
+(77R + 150G + 29B + 128) / 256 permanecem fixos. O relatório agora registra
+o alcance da conversão, raio e contorno em cada variante de desfoque.
+
+| Variante | Primeira opção correta / 29 | Aceitos / errados | VOD: acertos / aceitos, de 19 | Mediana / p95 por 12 recortes |
+| --- | ---: | ---: | ---: | ---: |
+| Desfoque colorido | 13 | 6 / 0 | 6 / 2 | 65,0 / 68,6 ms |
+| Fundo desfocado cinza, personagem colorido | 11 | 5 / 0 | 6 / 2 | 65,1 / 66,2 ms |
+| Fundo desfocado cinza + contorno | 9 | 2 / 0 | 3 / 1 | 64,6 / 66,0 ms |
+| Desfoque com recorte inteiro cinza | 8 | 5 / 1 | 3 / 0 | 64,6 / 67,6 ms |
+
+O fundo cinza não superou o desfoque colorido. Remover a cor do personagem
+piorou a primeira opção e provocou um falso aceite. Todas as variantes novas
+acertaram a primeira opção nos três recortes de validação; aceitaram 2, 1 e 2,
+respectivamente, sem erro nesse conjunto pequeno. Não houve ajuste de limiares,
+treinamento ou ativação no coach. As limitações de rótulos, reutilização das
+imagens e avaliação do pipeline completo permanecem as anteriores.
+
+Prévia inspecionada: a máscara ainda preserva cores de partes do tabuleiro,
+o que demonstra que o filtro não isola perfeitamente o personagem. Os vetores
+de todas as variantes anteriores mantiveram os mesmos hashes. O teste novo
+verifica a preservação dos pixels coloridos de primeiro plano e da máscara
+original ao converter o fundo. Quinze testes locais passaram: 12 da biblioteca
+e 3 do laboratório. Sem ganho de velocidade comprovado: o encoder ainda
+recebe três canais e os tempos, em CPU Linux compartilhada, excluem captura,
+localização inicial e UI.
+
+Evidências: `docs/evidence/vector-blur-mono-20261005/`; prévias no SSD privado.
+Reprodução pelo mesmo laboratório com diretório de saída novo.
