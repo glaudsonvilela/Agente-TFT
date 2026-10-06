@@ -387,7 +387,7 @@ fn run() -> Result<()> {
     for label in &labels {
         let raw: Vec<_> = candidates
             .iter()
-            .filter(|r| r["unit_id"].as_str() == Some(label))
+            .filter(|r| r["unit_id"].as_str() == Some(label.as_str()))
             .cloned()
             .collect();
         let mut buckets = HashMap::<u64, Value>::new();
