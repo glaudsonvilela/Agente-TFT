@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T19:03:00-03:00",
+  "recorded_at": "2026-10-06T19:10:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,8 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "rerun_resumable_autonomous_shop_supervision",
-    "runner": "scripts/run_autonomous_shop_supervision.py",
+    "status": "run_autonomous_gold_anchor_propagation",
+    "runner": "scripts/propagate_autonomous_gold_anchors.py",
+    "success_condition": "Produce conservative silver_auto labels without changing weights.",
+    "next_if_success": "Add weighted autonomous training support and compare a challenger against frozen optimizer-default-parity using validation only for selection; Minjo/KH remain development-only.",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
@@ -1527,5 +1529,34 @@
     "runner_resumable": true,
     "resumable_commit": "a41fa3cb3d7b764efdf32012b3c58b25896d6091",
     "retry_policy": "Preserve incomplete dense/miner/consensus directories; reuse valid completed stages; never delete or overwrite evidence."
+  },
+  "autonomous_shop_supervision_result": {
+    "status": "complete_with_gold_anchors",
+    "source_id": "youtube:Ot358nhRJl0",
+    "dense_frames": 1150,
+    "dense_unit_crops": 6927,
+    "shop_transition_proposals": 18,
+    "gold_auto_labels": 3,
+    "gold_auto_ids": {
+      "DA_18_ElderDragon": 2,
+      "DA_Draven18": 1
+    },
+    "human_review_required": false,
+    "model_prediction_used_as_label": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_propagation": {
+    "status": "ready",
+    "runner": "scripts/propagate_autonomous_gold_anchors.py",
+    "native_binary": "propagate-autonomous-anchors",
+    "input_collection": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/annotation-2s-shop-dense",
+    "gold_anchors": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/autonomous-shop-supervision-v1/shop-consensus/auto-labels.json",
+    "output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/autonomous-propagation-v1",
+    "silver_policy": "DINO anchor cosine + frozen classifier agreement + temporal proximity + diversity cap",
+    "recommended_silver_training_weight": 0.35,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
   }
 }
