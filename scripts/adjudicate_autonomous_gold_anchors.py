@@ -162,7 +162,7 @@ def main() -> int:
         die("gold anchors are missing")
     if any(
         not isinstance(row, dict)
-        or row.get("label_source") != "autonomous_shop_purchase_bench_consensus_v1"
+        or row.get("label_source") not in {"autonomous_shop_purchase_bench_consensus_v1", "autonomous_tooltip_temporal_consensus_v1"}
         or row.get("human_review_required") is not False
         or row.get("model_prediction_used_as_label") is not False
         or row.get("training_eligible") is not True
