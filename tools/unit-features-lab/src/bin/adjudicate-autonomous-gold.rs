@@ -270,4 +270,31 @@ fn run() -> Result<()> {
     println!("{summary}");
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unseen_bootstrap_requires_multiple_distinct_consistent_gold_anchors() {
+        let good = vec![
+            ("new".to_owned(), "a".to_owned(), 10, vec![1.0, 0.0]),
+            ("new".to_owned(), "b".to_owned(), 14, vec![0.99, 0.01]),
+        ];
+        let r = unseen_bootstrap_support("new", "a", &good).unwrap();
+        assert_eq!(r["bootstrap_supported"], true);
+
+        let one = vec![("new".to_owned(), "a".to_owned(), 10, vec![1.0, 0.0])];
+        let r = unseen_bootstrap_support("new", "a", &one).unwrap();
+        assert_eq!(r["bootstrap_supported"], false);
+
+        let inconsistent = vec![
+            ("new".to_owned(), "a".to_owned(), 10, vec![1.0, 0.0]),
+            ("new".to_owned(), "b".to_owned(), 14, vec![0.0, 1.0]),
+        ];
+        let r = unseen_bootstrap_support("new", "a", &inconsistent).unwrap();
+        assert_eq!(r["bootstrap_supported"], false);
+    }
+}
+
 fn main(){if let Err(e)=run(){eprintln!("AUTONOMOUS_GOLD_ADJUDICATION_ERROR: {e}");std::process::exit(1);}}
