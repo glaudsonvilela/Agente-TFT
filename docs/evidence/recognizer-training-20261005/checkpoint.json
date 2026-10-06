@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T20:20:00-03:00",
+  "recorded_at": "2026-10-06T20:30:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "rerun_khazix_targeted_pipeline_with_tooltip_fallback",
-    "runner": "scripts/run_targeted_autonomous_source_pipeline.py",
-    "note": "Existing source, dense collection and shop supervision are reused; only missing tooltip/adjudication/propagation stages run.",
-    "next_if_tooltip_gold": "Adjudicate strict tooltip gold and propagate only supported anchors.",
-    "next_if_no_tooltip_gold": "Acquire another source or add a new independent game-derived teacher; do not lower OCR thresholds.",
+    "status": "run_khazix_multiteacher_shop_silver",
+    "runner": "scripts/run_multiteacher_shop_silver.py",
+    "next_if_silver": "Build source-diverse multi-source challenger with Elder/Draven gold+silver and KhaZix silver=0.20.",
+    "next_if_zero": "Acquire a second KhaZix source; do not weaken gold OCR threshold.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1764,6 +1763,50 @@
     ],
     "thresholds_unchanged": true,
     "resumable": true,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "khazix_independent_teachers": {
+    "status": "complete_no_gold",
+    "source_id": "youtube:oDaWsvSlAdw",
+    "shop": {
+      "transition_proposals": 11,
+      "gold_auto_labels": 0,
+      "rejection": "ocr_confidence_below_threshold"
+    },
+    "tooltip": {
+      "proposals": 7,
+      "gold_auto_labels": 0,
+      "rejection": "ocr_confidence_below_threshold"
+    },
+    "thresholds_lowered": false,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "multiteacher_shop_silver": {
+    "status": "ready",
+    "target_id": "DA_18_KhaZix",
+    "runner": "scripts/run_multiteacher_shop_silver.py",
+    "native_binary": "mine-multiteacher-shop-silver",
+    "label_source": "silver_auto_shop_multiteacher_temporal_v1",
+    "recommended_training_weight": 0.2,
+    "gold_ocr_threshold_unchanged": 94,
+    "silver_ocr_band": [
+      70,
+      94
+    ],
+    "requirements": [
+      "unique exact shop catalog candidate",
+      "strong portrait disappearance",
+      "unique new bench proposal",
+      "at least two unique temporal bench crops",
+      "frozen classifier agrees",
+      "train-only supervised retrieval agrees",
+      "retrieval similarity exceeds target-specific impostor ceiling plus safety margin"
+    ],
+    "unseen_class_bootstrap": false,
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
