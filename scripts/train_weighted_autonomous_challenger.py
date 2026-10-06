@@ -42,7 +42,6 @@ DEFAULT_SILVER = Path(
 DEFAULT_PRIVATE_ROOT = Path(
     "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005"
 )
-SOURCE_ID = "youtube:Ot358nhRJl0"
 
 
 def die(message: str) -> "NoReturn":
@@ -169,6 +168,14 @@ def main() -> int:
     silver_rows = load_json(silver)
     assert_gold(gold_rows)
     assert_silver(silver_rows)
+    source_ids = {
+        row.get("source_id")
+        for row in [*gold_rows, *silver_rows]
+        if isinstance(row, dict) and isinstance(row.get("source_id"), str)
+    }
+    if len(source_ids) != 1:
+        die(f"autonomous gold/silver must belong to exactly one source, got {sorted(source_ids)}")
+    source_id = next(iter(source_ids))
 
     selection = load_json(selection_path)
     if selection.get("status") != "selection_frozen_before_minjo_kh_evaluation":
@@ -244,7 +251,7 @@ def main() -> int:
         "silver_labels_sha256": sha256_file(silver),
         "silver_count": len(silver_rows),
         "silver_weight": 0.35,
-        "source_id": SOURCE_ID,
+        "source_id": source_id,
         "minjo_kh_used_for_selection": False,
         "runtime_approved": False,
     }
@@ -285,7 +292,7 @@ def main() -> int:
         "optimizer": optimizer,
         "autonomous_training": {
             "collection": str(collection),
-            "source_id": SOURCE_ID,
+            "source_id": source_id,
             "gold_labels": str(gold),
             "silver_labels": str(silver),
             "gold_weight": 1.0,
