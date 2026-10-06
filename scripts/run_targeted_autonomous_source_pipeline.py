@@ -4,8 +4,9 @@
 Stages:
 1. verified 1080p acquisition (if source.mp4 is absent);
 2. dense annotation-only collection + shop/purchase consensus;
-3. autonomous gold adjudication;
-4. silver propagation when every supported class already exists in the frozen head.
+3. strict tooltip/name temporal consensus fallback when shop produces no gold;
+4. autonomous gold adjudication;
+5. silver propagation when every supported class already exists in the frozen head.
 
 No training occurs here. Human review is never required.
 """
@@ -141,12 +142,12 @@ def main() -> int:
         repo,
     )
 
-    gold = shop / "shop-consensus" / "auto-labels.json"
-    if not gold.is_file():
+    shop_gold = shop / "shop-consensus" / "auto-labels.json"
+    if not shop_gold.is_file():
         die("shop supervision finished without gold label file")
-    gold_rows = load_json(gold)
-    if not isinstance(gold_rows, list):
-        die("gold label file must be a list")
+    shop_gold_rows = load_json(shop_gold)
+    if not isinstance(shop_gold_rows, list):
+        die("shop gold label file must be a list")
 
     summary: dict[str, Any] = {
         "schema_version": 1,
@@ -155,17 +156,50 @@ def main() -> int:
         "base": str(base),
         "dense_collection": str(dense),
         "shop_supervision": str(shop),
-        "gold_auto_labels": len(gold_rows),
+        "shop_gold_auto_labels": len(shop_gold_rows),
         "human_review_required": False,
         "training_performed": False,
         "runtime_approved": False,
     }
 
+    gold = shop_gold
+    gold_rows = shop_gold_rows
+    gold_teacher = "shop_purchase_bench"
+
     if not gold_rows:
-        summary["status"] = "complete_no_gold"
+        tooltip = base / "autonomous-tooltip-supervision-v1"
+        run_stream(
+            [
+                sys.executable,
+                str(repo / "scripts/run_autonomous_source_supervision.py"),
+                "--collection",
+                str(dense),
+                "--output",
+                str(tooltip),
+            ],
+            repo,
+        )
+        tooltip_gold = tooltip / "tooltip-consensus" / "auto-labels.json"
+        if not tooltip_gold.is_file():
+            die("tooltip supervision finished without auto-labels.json")
+        tooltip_rows = load_json(tooltip_gold)
+        if not isinstance(tooltip_rows, list):
+            die("tooltip gold label file must be a list")
+        summary["tooltip_supervision"] = str(tooltip)
+        summary["tooltip_gold_auto_labels"] = len(tooltip_rows)
+        if tooltip_rows:
+            gold = tooltip_gold
+            gold_rows = tooltip_rows
+            gold_teacher = "tooltip_temporal_consensus"
+
+    summary["gold_teacher"] = gold_teacher if gold_rows else None
+    summary["gold_auto_labels"] = len(gold_rows)
+
+    if not gold_rows:
+        summary["status"] = "complete_no_gold_after_independent_teachers"
         summary["next"] = (
-            "Acquire another training-side source or add another independent "
-            "game-derived teacher; do not weaken thresholds."
+            "Acquire another training-side source or add a genuinely independent "
+            "game-derived teacher; do not weaken OCR/association thresholds."
         )
         out = base / "autonomous-source-summary.json"
         out.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -174,7 +208,9 @@ def main() -> int:
         print("GOLD_AUTO_LABELS=0")
         print("SUPPORTED_GOLD_ANCHORS=0")
         print("SILVER_AUTO_LABELS=0")
+        print("HUMAN_REVIEW_REQUIRED=false")
         print("TRAINING_PERFORMED=false")
+        print("RUNTIME_APPROVED=false")
         return 0
 
     adjudication = base / "autonomous-gold-adjudication-v2"
