@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T19:10:00-03:00",
+  "recorded_at": "2026-10-06T19:20:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,11 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "run_autonomous_gold_anchor_propagation",
-    "runner": "scripts/propagate_autonomous_gold_anchors.py",
-    "success_condition": "Produce conservative silver_auto labels without changing weights.",
-    "next_if_success": "Add weighted autonomous training support and compare a challenger against frozen optimizer-default-parity using validation only for selection; Minjo/KH remain development-only.",
+    "status": "run_autonomous_gold_adjudication",
+    "runner": "scripts/adjudicate_autonomous_gold_anchors.py",
+    "success_condition": "Produce supported-gold-anchors.json and quarantine inconsistent anchors without human review.",
+    "next_if_supported": "Regenerate silver propagation using only supported gold anchors, then add weighted autonomous training support.",
+    "next_if_none_supported": "Acquire another training-eligible source and repeat autonomous shop/tooltip supervision; do not train from unsupported anchors.",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
@@ -1555,6 +1556,48 @@
     "output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/autonomous-propagation-v1",
     "silver_policy": "DINO anchor cosine + frozen classifier agreement + temporal proximity + diversity cap",
     "recommended_silver_training_weight": 0.35,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_propagation_result": {
+    "status": "complete",
+    "source_id": "youtube:Ot358nhRJl0",
+    "gold_anchors": 3,
+    "silver_auto_labels": 5,
+    "per_label": {
+      "DA_18_ElderDragon": {
+        "gold": 2,
+        "raw_consensus": 0,
+        "silver": 0,
+        "gold_anchor_pair_min_similarity": 0.3306180536746979
+      },
+      "DA_Draven18": {
+        "gold": 1,
+        "raw_consensus": 5,
+        "silver": 5
+      }
+    },
+    "interpretation": "Draven propagated conservatively. Elder Dragon gold anchors disagree strongly in frozen DINO space; do not train from them until autonomous adjudication.",
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_gold_adjudication": {
+    "status": "ready",
+    "runner": "scripts/adjudicate_autonomous_gold_anchors.py",
+    "native_binary": "adjudicate-autonomous-gold",
+    "teachers": [
+      "frozen optimizer-default-parity classifier",
+      "nearest supervised training exemplars on frozen DINO embeddings"
+    ],
+    "decisions": [
+      "supported",
+      "mixed",
+      "quarantine_no_supervised_support",
+      "quarantine_teacher_disagreement"
+    ],
+    "rule": "Only supported anchors remain training-eligible. Mixed/quarantined anchors are excluded automatically, never sent to manual review.",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
