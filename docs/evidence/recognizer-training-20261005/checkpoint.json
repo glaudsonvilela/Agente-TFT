@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T20:45:00-03:00",
+  "recorded_at": "2026-10-06T20:55:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "retry_khazix_multiteacher_with_board_emergence",
-    "runner": "scripts/run_multiteacher_shop_silver.py",
-    "output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261006/khazix-shurkou/multiteacher-shop-silver-v3",
-    "next_if_silver": "Build a multi-source autonomous challenger including KhaZix silver at weight 0.20.",
-    "next_if_zero": "Close this KhaZix source as diagnostic-only and acquire a second authorized source; do not weaken thresholds.",
+    "status": "bootstrap_khazix_from_private_queue_source",
+    "runner": "scripts/bootstrap_khazix_from_private_queue.py",
+    "next_if_labels": "Build a multi-source challenger using only admitted gold/silver evidence.",
+    "next_if_zero": "Mark the private source diagnostic-only and move to another validation-weak class/source; do not weaken thresholds.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1903,6 +1902,50 @@
       "gradual bench movement remains supported",
       "large single spatial jumps remain rejected"
     ],
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "khazix_shurkou_source_final": {
+    "status": "diagnostic_only_exhausted_for_training",
+    "source_id": "youtube:oDaWsvSlAdw",
+    "attempts": [
+      "shop gold",
+      "tooltip gold",
+      "multi-teacher silver v1",
+      "chained bench tracking v2",
+      "purchase-to-board rescue v3"
+    ],
+    "final_v3": {
+      "silver_auto_labels": 0,
+      "rejected": {
+        "insufficient_bench_and_board_temporal_unique_crops": 1,
+        "multi_teacher_temporal_consensus_failed": 1,
+        "not_requested_target": 9
+      }
+    },
+    "thresholds_changed": false,
+    "do_not_retry_without_new_independent_signal": true,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "khazix_private_queue_source": {
+    "status": "ready",
+    "runner": "scripts/bootstrap_khazix_from_private_queue.py",
+    "private_queue": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/new-image-review-queue-20261005/queue.json",
+    "discovery": {
+      "target_id": "DA_18_KhaZix",
+      "queue_candidates_total": 28,
+      "new_source_candidates": 1
+    },
+    "policy": "Historical model suggestion only locates a new training-side source; it never becomes a label.",
+    "acquisition": "Download only a bounded window around the private queue timestamp, then recollect densely at 2s.",
+    "direct_teachers": [
+      "shop purchase/bench consensus",
+      "tooltip exact-name temporal consensus"
+    ],
+    "fallback": "low-weight multi-teacher shop silver if direct gold remains zero",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
