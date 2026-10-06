@@ -104,6 +104,19 @@ def reusable(last, pixels, frame):
                 last['signature'] == pixels)
 
 
+def terminal_hp_observation(hp):
+    """Terminal HP is a fail-closed live-match end signal, never a replay signal."""
+    if not isinstance(hp, dict):
+        return False
+    status = str(hp.get('status') or '').lower()
+    signed_hp = hp.get('signed_hp')
+    value = hp.get('hp')
+    return (
+        (status == 'accepted' and value == 0)
+        or (status == 'negative_display' and isinstance(signed_hp, int) and signed_hp < 0)
+    )
+
+
 def async_hp_delivery(frame, latest, max_age_ms=ASYNC_HP_MAX_AGE_MS):
     """Choose only causal, same-geometry HP evidence; never relabel stale output as fresh."""
     pending = dict(status='async_pending', signed_hp=None, hp=None)
@@ -189,14 +202,13 @@ class RuntimeSession(Session):
                               epoch=frame.epoch, ready_ns=end, response=response,
                               input_transform=plan)
                 hp_observation = response.get('hp') or {}
-                hp_status = str(hp_observation.get('status') or '').lower()
-                signed_hp = hp_observation.get('signed_hp')
-                hp_value = hp_observation.get('hp')
-                terminal_hp = (
-                    (hp_status == 'accepted' and hp_value == 0)
-                    or (hp_status == 'negative_display' and isinstance(signed_hp, int) and signed_hp < 0)
-                )
-                if terminal_hp:
+                terminal_hp = terminal_hp_observation(hp_observation)
+                if self.options.replay_review:
+                    # A recorded replay can contain terminal HP in its middle/end;
+                    # replay analysis must never stop or trigger live learning.
+                    self._terminal_hp_confirmations = 0
+                    self._terminal_hp_first_source_ms = None
+                elif terminal_hp:
                     if self._terminal_hp_confirmations == 0:
                         self._terminal_hp_first_source_ms = frame.pts_ms
                     self._terminal_hp_confirmations += 1
@@ -204,7 +216,8 @@ class RuntimeSession(Session):
                     self._terminal_hp_confirmations = 0
                     self._terminal_hp_first_source_ms = None
                 if (
-                    self._terminal_hp_confirmations >= 2
+                    not self.options.replay_review
+                    and self._terminal_hp_confirmations >= 2
                     and self._terminal_hp_first_source_ms is not None
                     and frame.pts_ms - self._terminal_hp_first_source_ms >= 500
                 ):
