@@ -123,7 +123,7 @@ def main() -> int:
     if report_path.is_file():
         report = load_json(report_path)
         if (
-            report.get("policy") == "autonomous_gold_anchor_adjudication_v1"
+            report.get("policy") in {"autonomous_gold_anchor_adjudication_v1", "autonomous_gold_anchor_adjudication_v2"}
             and report.get("human_review_required") is False
             and report.get("training_performed") is False
         ):
