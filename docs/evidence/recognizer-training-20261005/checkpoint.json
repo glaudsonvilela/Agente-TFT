@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T19:20:00-03:00",
+  "recorded_at": "2026-10-06T19:35:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "run_autonomous_gold_adjudication",
-    "runner": "scripts/adjudicate_autonomous_gold_anchors.py",
-    "success_condition": "Produce supported-gold-anchors.json and quarantine inconsistent anchors without human review.",
-    "next_if_supported": "Regenerate silver propagation using only supported gold anchors, then add weighted autonomous training support.",
-    "next_if_none_supported": "Acquire another training-eligible source and repeat autonomous shop/tooltip supervision; do not train from unsupported anchors.",
+    "status": "propagate_supported_gold_only",
+    "runner": "scripts/propagate_autonomous_gold_anchors.py",
+    "success_condition": "Generate silver_auto only from adjudicated supported gold anchors.",
+    "next_if_success": "Build weighted autonomous challenger training with gold=1.0 and silver=0.35, preserving validation/test isolation.",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
@@ -1598,6 +1597,38 @@
       "quarantine_teacher_disagreement"
     ],
     "rule": "Only supported anchors remain training-eligible. Mixed/quarantined anchors are excluded automatically, never sent to manual review.",
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_gold_adjudication_result": {
+    "status": "complete",
+    "source_id": "youtube:Ot358nhRJl0",
+    "anchors": 3,
+    "supported_gold_anchors": 2,
+    "supported_ids": {
+      "DA_18_ElderDragon": 1,
+      "DA_Draven18": 1
+    },
+    "quarantined": [
+      {
+        "unit_id": "DA_18_ElderDragon",
+        "source_seconds_nominal": 1708,
+        "decision": "quarantine_teacher_disagreement",
+        "classifier_label": "DA_18_Rammus",
+        "retrieval_label": "DA_18_Rammus"
+      }
+    ],
+    "supervised_training_support": 642,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_propagation_supported_only": {
+    "status": "ready",
+    "anchors": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/autonomous-gold-adjudication-v1/supported-gold-anchors.json",
+    "output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/elder-dragon-shurkou/autonomous-propagation-supported-v1",
+    "runner": "scripts/propagate_autonomous_gold_anchors.py",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
