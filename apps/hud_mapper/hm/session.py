@@ -7,12 +7,14 @@ import json, os, queue, threading, time, uuid
 from .core import Registry, Observer, native_regions, sha, dump
 from .dataset import Latest, Store
 
-def completion_state(error, cancelled, stopped_by_user=False):
-    """A user-requested graceful stop seals valid evidence; errors remain partial."""
-    complete = error is None and (not cancelled or stopped_by_user)
+def completion_state(error, cancelled, stopped_by_user=False, stopped_by_match_end=False):
+    """Graceful user/match-end stops seal valid evidence; errors remain partial."""
+    graceful = bool(stopped_by_user or stopped_by_match_end)
+    complete = error is None and (not cancelled or graceful)
     return dict(execution_complete=complete,
-                cancelled=bool(cancelled and not stopped_by_user),
-                stopped_by_user=bool(stopped_by_user))
+                cancelled=bool(cancelled and not graceful),
+                stopped_by_user=bool(stopped_by_user),
+                stopped_by_match_end=bool(stopped_by_match_end))
 
 def stats(values):
     if not values:return dict(n=0,p50_ms=None,p95_ms=None)
@@ -87,7 +89,7 @@ class Session:
         self.preview=Latest();self.map_results=Latest();self.native_results=Latest();self.hub_results=Latest()
         self.counts=Counter();self.coverage=Counter();self.traces=deque(maxlen=4096);self.lock=threading.Lock()
         self.store=Store(options.output,options.max_samples,options.max_bytes)
-        self.source=self.worker=self.hp_worker=self.model=self.core=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False
+        self.source=self.worker=self.hp_worker=self.model=self.core=None;self.error=None;self.phase='preflight';self.finished=False;self.stopped_by_user=False;self.stopped_by_match_end=False;self.match_end_reason=None
         self.source_info={};self.versions={};self.source_hash=None;self.registry=None
         self.started=time.perf_counter_ns();self.thread=threading.Thread(target=self._run,daemon=True)
     def start(self):self.thread.start();return self
@@ -102,6 +104,12 @@ class Session:
     def request_stop(self):
         # Graceful UI stop: stop producing new work, but let in-flight readers finish.
         self.stopped_by_user=True
+        self.cancel.set()
+    def request_match_end(self, reason):
+        if self.done.is_set() or self.cancel.is_set():
+            return
+        self.stopped_by_match_end=True
+        self.match_end_reason=str(reason)
         self.cancel.set()
     def _source_frame_observed(self, frame):
         """Optional low-priority hook; subclasses must never block capture here."""
@@ -292,9 +300,10 @@ class Session:
         for x in reading:
             for s in x.get('spans',[]):stages.setdefault(s['stage'],[]).append(s['duration_ms'])
         default_policy='hud_mapper_hm2' if self.source_info.get('source_kind')=='native_capture' else 'hud_mapper_hm1'
-        stop_state=completion_state(self.error,self.cancel.is_set(),self.stopped_by_user)
+        stop_state=completion_state(self.error,self.cancel.is_set(),self.stopped_by_user,self.stopped_by_match_end)
         result=dict(schema_version=1,policy=getattr(self,'policy_name',default_policy),primary_objective=getattr(self,'primary_objective','HUD_mapping_and_natural_training_material'),
            session_id=self.id,source=self.source_info,versions=self.versions,error=self.error,
+           match_end_reason=self.match_end_reason,
            **stop_state,counts=dict(self.counts),
            timing_scope='most_recent_4096_events_full_events_in_bounded_jsonl_logs',
            queues=dict(mapper_replaced=self.map_pending.replaced,native_replaced=self.native_pending.replaced,hp_replaced=self.hp_pending.replaced,
