@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T19:45:00-03:00",
+  "recorded_at": "2026-10-06T20:10:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,14 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "acquire_new_training_source_and_bootstrap_unseen_classes",
-    "reason": "First autonomous challenger tied macro recall and slightly worsened validation cross-entropy; same-source autonomous expansion is insufficient.",
-    "priorities": [
-      "new source diversity",
-      "direct game-derived gold anchors",
-      "bootstrap policy for classes absent from supervised support",
-      "do not weaken autonomous thresholds"
-    ],
+    "status": "run_khazix_targeted_autonomous_pipeline",
+    "runner": "scripts/run_targeted_autonomous_source_pipeline.py",
+    "next_if_supported": "Train a source-diverse weighted autonomous challenger.",
+    "next_if_no_gold": "Acquire another Kha'Zix source without lowering thresholds.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1697,6 +1693,46 @@
     },
     "selected_arm": "optimizer-default-parity",
     "minjo_kh_used_for_selection": false,
+    "human_review_required": false,
+    "runtime_approved": false
+  },
+  "autonomous_challenger_1": {
+    "status": "complete_baseline_retained",
+    "baseline_validation": "21/32",
+    "challenger_validation": "21/32",
+    "baseline_macro_recall": 0.6893939393939393,
+    "challenger_macro_recall": 0.6893939393939393,
+    "baseline_cross_entropy": 3.196618214249611,
+    "challenger_cross_entropy": 3.1973003707826138,
+    "selected_arm": "optimizer-default-parity",
+    "human_review_required": false,
+    "runtime_approved": false
+  },
+  "unseen_class_bootstrap": {
+    "status": "implemented",
+    "adjudication_policy": "autonomous_gold_anchor_adjudication_v2",
+    "requirements": {
+      "direct_gold_anchors_min": 2,
+      "distinct_pixels_min": 2,
+      "temporal_span_seconds_min": 2,
+      "dino_pair_similarity_min": 0.82
+    },
+    "training_accepts_decisions": [
+      "supported",
+      "bootstrap_supported"
+    ],
+    "human_review_required": false,
+    "runtime_approved": false
+  },
+  "next_targeted_source": {
+    "status": "ready",
+    "target_id": "DA_18_KhaZix",
+    "source_id": "youtube:oDaWsvSlAdw",
+    "source_url": "https://www.youtube.com/watch?v=oDaWsvSlAdw",
+    "creator": "shurkou",
+    "reason": "Kha'Zix is source-sparse and represented in the current validation; a new training source can affect the selection metric.",
+    "runner": "scripts/run_targeted_autonomous_source_pipeline.py",
+    "expected_slug": "khazix-shurkou",
     "human_review_required": false,
     "runtime_approved": false
   }
