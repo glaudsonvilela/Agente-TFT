@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T20:10:00-03:00",
+  "recorded_at": "2026-10-06T20:20:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,11 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "run_khazix_targeted_autonomous_pipeline",
+    "status": "rerun_khazix_targeted_pipeline_with_tooltip_fallback",
     "runner": "scripts/run_targeted_autonomous_source_pipeline.py",
-    "next_if_supported": "Train a source-diverse weighted autonomous challenger.",
-    "next_if_no_gold": "Acquire another Kha'Zix source without lowering thresholds.",
+    "note": "Existing source, dense collection and shop supervision are reused; only missing tooltip/adjudication/propagation stages run.",
+    "next_if_tooltip_gold": "Adjudicate strict tooltip gold and propagate only supported anchors.",
+    "next_if_no_tooltip_gold": "Acquire another source or add a new independent game-derived teacher; do not lower OCR thresholds.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1734,6 +1735,37 @@
     "runner": "scripts/run_targeted_autonomous_source_pipeline.py",
     "expected_slug": "khazix-shurkou",
     "human_review_required": false,
+    "runtime_approved": false
+  },
+  "khazix_targeted_source_result": {
+    "status": "complete_no_shop_gold",
+    "source_id": "youtube:oDaWsvSlAdw",
+    "video_sha256": "3b8faf226e1679cddf37ec03eff71bb5b1675b595e61e142ecb9ca5ad08bf8b8",
+    "resolution": "1920x1080",
+    "duration_seconds": 2020.101,
+    "dense_frames": 1010,
+    "dense_unit_crops": 5793,
+    "shop_transition_proposals": 11,
+    "shop_gold_auto_labels": 0,
+    "shop_excluded": {
+      "ocr_confidence_below_threshold": 11
+    },
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "tooltip_fallback": {
+    "status": "ready",
+    "policy": "autonomous_tooltip_temporal_consensus_v1",
+    "behavior": "Targeted pipeline now falls back automatically to tooltip/name temporal consensus when shop gold is zero.",
+    "accepted_gold_sources": [
+      "autonomous_shop_purchase_bench_consensus_v1",
+      "autonomous_tooltip_temporal_consensus_v1"
+    ],
+    "thresholds_unchanged": true,
+    "resumable": true,
+    "human_review_required": false,
+    "training_performed": false,
     "runtime_approved": false
   }
 }
