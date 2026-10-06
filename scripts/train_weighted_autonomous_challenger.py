@@ -123,8 +123,8 @@ def assert_gold(rows: Any) -> None:
 
 
 def assert_silver(rows: Any) -> None:
-    if not isinstance(rows, list) or not rows:
-        die("silver autonomous label list is empty")
+    if not isinstance(rows, list):
+        die("silver autonomous labels must be a list")
     for row in rows:
         if (
             not isinstance(row, dict)
@@ -168,6 +168,8 @@ def main() -> int:
     silver_rows = load_json(silver)
     assert_gold(gold_rows)
     assert_silver(silver_rows)
+    if not gold_rows and not silver_rows:
+        die("no autonomous supervision available")
     source_ids = {
         row.get("source_id")
         for row in [*gold_rows, *silver_rows]
