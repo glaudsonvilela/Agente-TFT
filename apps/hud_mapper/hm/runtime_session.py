@@ -370,6 +370,18 @@ class HM4RuntimeSession(RuntimeSession):
 
     def __init__(self, options):
         super().__init__(options)
+        self.shadow_learning_recorder = None
+        self.shadow_learning_sealed = None
+        self.shadow_learning_error = None
+        if not options.replay_review:
+            from .learning_capture import ShadowLearningRecorder
+            self.shadow_learning_recorder = ShadowLearningRecorder(
+                options.output,
+                interval_ms=2000.0,
+                max_frames=3600,
+                max_bytes=2 * 1024**3,
+                jpeg_quality=88,
+            )
         profile = json.loads((Path(options.configs) / 'ui/board-hub-live-v1.json').read_text())
         self.hub_interval_ms = profile['sample_interval_ms']
         if type(self.hub_interval_ms) is not int or not 1000 <= self.hub_interval_ms < 2000:
@@ -392,6 +404,37 @@ class HM4RuntimeSession(RuntimeSession):
             self.versions['replay_catalog_set'] = self.decision_engine.set_key
             self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
             self.versions['replay_patch_basis'] = 'reported_replay_patch'
+
+    def _source_frame_observed(self, frame):
+        recorder = self.shadow_learning_recorder
+        if recorder is not None:
+            recorder.submit(frame)
+
+    def finish(self):
+        recorder = self.shadow_learning_recorder
+        if recorder is not None and self.shadow_learning_sealed is None and self.shadow_learning_error is None:
+            try:
+                self.shadow_learning_sealed = recorder.close(
+                    session_id=self.id,
+                    source=self.source_info,
+                    runtime_model_sha256=self.versions.get('unit_neural_model_sha256')
+                        or self.versions.get('model_sha256'),
+                )
+                self.versions['shadow_learning_capture'] = self.shadow_learning_sealed
+            except Exception as exc:
+                # Learning capture failure must never invalidate the gameplay/session evidence.
+                self.shadow_learning_error = str(exc)
+                self.versions['shadow_learning_capture_error'] = self.shadow_learning_error
+        result = super().finish()
+        result['shadow_learning_capture'] = self.shadow_learning_sealed
+        result['shadow_learning_capture_error'] = self.shadow_learning_error
+        result['active_model_changed_during_session'] = False
+        result['post_session_learning_eligible'] = bool(
+            result.get('execution_complete')
+            and self.shadow_learning_sealed
+            and self.shadow_learning_sealed.get('ready_for_post_session_learning')
+        )
+        return result
 
     def request_board_reference(self):
         if not self.options.board_hub_enabled or self.done.is_set():
