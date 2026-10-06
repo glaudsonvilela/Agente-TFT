@@ -22,6 +22,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+DEFAULT_SELECTION = Path(
+    "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/"
+    "optimizer-study-resume-20261005-101237/optimizer-study-selection.json"
+)
+
 
 def die(message: str) -> "NoReturn":
     raise SystemExit(f"POST_SESSION_SHADOW_LEARNING_ERROR: {message}")
@@ -117,11 +122,15 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--repo", type=Path, default=Path.cwd())
     p.add_argument("--session", type=Path, required=True)
+    p.add_argument("--selection", type=Path, default=DEFAULT_SELECTION)
     p.add_argument("--ffmpeg", default="ffmpeg")
     args = p.parse_args()
 
     repo = args.repo.expanduser().resolve()
     session = args.session.expanduser().resolve()
+    selection = args.selection.expanduser().resolve()
+    if not selection.is_file():
+        die(f"frozen selection not found: {selection}")
     if not (repo / "tools/unit-features-lab/Cargo.toml").is_file():
         die(f"not an Agente-TFT checkout: {repo}")
     if not session.is_dir():
@@ -248,6 +257,7 @@ def main() -> int:
         [
             sys.executable,
             str(repo / "scripts/adjudicate_autonomous_gold_anchors.py"),
+            "--selection", str(selection),
             "--collection", str(dense),
             "--anchors", str(gold_file),
             "--output", str(adjudication),
@@ -281,6 +291,7 @@ def main() -> int:
         [
             sys.executable,
             str(repo / "scripts/propagate_autonomous_gold_anchors.py"),
+            "--selection", str(selection),
             "--collection", str(dense),
             "--anchors", str(supported),
             "--output", str(propagation),
@@ -299,6 +310,7 @@ def main() -> int:
         [
             sys.executable,
             str(repo / "scripts/train_weighted_autonomous_challenger.py"),
+            "--selection", str(selection),
             "--collection", str(dense),
             "--gold", str(supported),
             "--silver", str(silver),
