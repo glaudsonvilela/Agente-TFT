@@ -99,6 +99,44 @@ struct TeacherDecision {
     passes: bool,
 }
 
+
+fn chained_temporal_track(
+    observations: &[ObservationUnit],
+    initial: ObservationUnit,
+    max_persistence: u64,
+    max_distance: f32,
+) -> Result<Vec<ObservationUnit>> {
+    let start_time = initial.time;
+    let mut last_center = center(&initial.boxv)?;
+    let mut track = vec![initial];
+
+    // Follow only timestamps that actually exist in the dense collection.
+    // Position is updated after every match so modest bench movement does not
+    // break the track merely because it moved away from the purchase position.
+    let mut times: Vec<u64> = observations
+        .iter()
+        .filter(|u| u.time > start_time && u.time <= start_time + max_persistence)
+        .map(|u| u.time)
+        .collect();
+    times.sort_unstable();
+    times.dedup();
+
+    for t in times {
+        let mut best: Option<(f32, ObservationUnit)> = None;
+        for u in observations.iter().filter(|u| u.time == t) {
+            let d = distance(last_center, center(&u.boxv)?);
+            if d <= max_distance && best.as_ref().is_none_or(|(old, _)| d < *old) {
+                best = Some((d, u.clone()));
+            }
+        }
+        if let Some((_, unit)) = best {
+            last_center = center(&unit.boxv)?;
+            track.push(unit);
+        }
+    }
+    Ok(track)
+}
+
 fn teacher_decision(
     feature: &[f32],
     target: &str,
@@ -373,29 +411,17 @@ fn run() -> Result<()> {
         }
         let initial = &bench[0];
         let initial_box = &initial["box"];
-        let origin = center(initial_box)?;
-
-        let mut track = Vec::<ObservationUnit>::new();
-        track.push(ObservationUnit {
-            time: after_t,
-            crop: s(initial, "crop")?.to_owned(),
-            pixel: s(initial, "pixel_sha256")?.to_owned(),
-            boxv: initial_box.clone(),
-        });
-        for t in ((after_t + 1)..=(after_t + max_persistence)).step_by(1) {
-            let mut best: Option<(f32, ObservationUnit)> = None;
-            for u in observation_units.iter().filter(|u| u.time == t) {
-                let d = distance(origin, center(&u.boxv)?);
-                if d <= max_distance
-                    && best.as_ref().is_none_or(|(old, _)| d < *old)
-                {
-                    best = Some((d, u.clone()));
-                }
-            }
-            if let Some((_, unit)) = best {
-                track.push(unit);
-            }
-        }
+        let track = chained_temporal_track(
+            &observation_units,
+            ObservationUnit {
+                time: after_t,
+                crop: s(initial, "crop")?.to_owned(),
+                pixel: s(initial, "pixel_sha256")?.to_owned(),
+                boxv: initial_box.clone(),
+            },
+            max_persistence,
+            max_distance,
+        )?;
 
         let mut unique = Vec::<ObservationUnit>::new();
         let mut seen_pixels = HashSet::<String>::new();
@@ -557,6 +583,41 @@ fn run() -> Result<()> {
     fs::write(out.join("report.json"), serde_json::to_vec_pretty(&summary)?)?;
     println!("{summary}");
     Ok(())
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn unit(time: u64, x: f64, pixel: &str) -> ObservationUnit {
+        ObservationUnit {
+            time,
+            crop: format!("{pixel}.png"),
+            pixel: pixel.to_owned(),
+            boxv: json!([x, 700.0, x + 128.0, 844.0]),
+        }
+    }
+
+    #[test]
+    fn chained_tracking_follows_gradual_bench_movement() {
+        let initial = unit(10, 100.0, "a");
+        let observations = vec![
+            unit(12, 150.0, "b"),
+            unit(14, 200.0, "c"),
+            unit(16, 400.0, "far"),
+        ];
+        let track = chained_temporal_track(&observations, initial, 8, 70.0).unwrap();
+        assert_eq!(track.iter().map(|u| u.pixel.as_str()).collect::<Vec<_>>(), vec!["a", "b", "c"]);
+    }
+
+    #[test]
+    fn chained_tracking_still_rejects_large_single_jump() {
+        let initial = unit(10, 100.0, "a");
+        let observations = vec![unit(12, 190.0, "b")];
+        let track = chained_temporal_track(&observations, initial, 8, 70.0).unwrap();
+        assert_eq!(track.len(), 1);
+    }
 }
 
 fn main() {
