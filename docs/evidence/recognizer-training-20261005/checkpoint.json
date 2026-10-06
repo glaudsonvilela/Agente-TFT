@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T20:38:00-03:00",
+  "recorded_at": "2026-10-06T20:45:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,11 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "retry_khazix_multiteacher_with_chained_tracking",
+    "status": "retry_khazix_multiteacher_with_board_emergence",
     "runner": "scripts/run_multiteacher_shop_silver.py",
+    "output": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261006/khazix-shurkou/multiteacher-shop-silver-v3",
     "next_if_silver": "Build a multi-source autonomous challenger including KhaZix silver at weight 0.20.",
-    "next_if_zero": "Acquire a second KhaZix source; do not weaken OCR, distance, teacher, or temporal thresholds.",
+    "next_if_zero": "Close this KhaZix source as diagnostic-only and acquire a second authorized source; do not weaken thresholds.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1861,5 +1862,49 @@
     ],
     "update_behavior": "Before introducing a new method, compare against recorded working/failed paths and preserve backwards-compatible fallbacks.",
     "human_review_required": false
+  },
+  "khazix_multiteacher_v2_result": {
+    "status": "complete_zero_silver",
+    "target_id": "DA_18_KhaZix",
+    "transition_proposals": 11,
+    "silver_auto_labels": 0,
+    "calibration": {
+      "support": 1,
+      "impostor_ceiling": 0.6295447945594788,
+      "threshold": 0.6595447659492493,
+      "usable": true
+    },
+    "rejected": {
+      "insufficient_temporal_unique_crops": 2,
+      "not_requested_target": 9
+    },
+    "interpretation": "Chained bench tracking did not recover a second unique crop; likely direct bench-to-board movement or immediate merge.",
+    "thresholds_changed": false,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "purchase_to_board_rescue": {
+    "status": "implemented_ready_to_retry",
+    "commit": "9905a45b29caf0eb3b51d4b3f96249719866ad80",
+    "behavior": "Prefer bench track; if insufficient, allow exactly one newly emerged persistent board track that did not exist at the pre-purchase timestamp.",
+    "constraints": {
+      "board_y_min": 250,
+      "board_y_max_exclusive": 665,
+      "max_per_step_distance_px": 70,
+      "min_unique_crops": 2,
+      "ambiguous_multiple_new_board_tracks": "reject",
+      "gold_ocr_threshold_unchanged": 94,
+      "teacher_thresholds_unchanged": true
+    },
+    "tests": [
+      "direct bench-to-board purchase can produce a persistent board track",
+      "multiple simultaneous new board tracks are rejected",
+      "gradual bench movement remains supported",
+      "large single spatial jumps remain rejected"
+    ],
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
   }
 }
