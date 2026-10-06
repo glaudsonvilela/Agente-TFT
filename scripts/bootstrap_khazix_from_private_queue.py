@@ -467,6 +467,9 @@ def main() -> int:
 
     print(json.dumps(summary, indent=2, sort_keys=True))
     print("\nKHAZIX_QUEUE_BOOTSTRAP_OK=true")
+    print(f"SELECTED_QUEUE_SOURCE_ID={source_id}")
+    print(f"SELECTED_QUEUE_PARTITION={current_partition}")
+    print(f"EXISTING_KHAZIX_TRAIN_SOURCES={','.join(sorted(existing_khazix_sources))}")
     print(f"SOURCE_ID={source_id}")
     print(f"WINDOW={start}-{end}")
     print(f"SHOP_GOLD_AUTO_LABELS={len(shop_rows)}")
