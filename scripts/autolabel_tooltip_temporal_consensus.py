@@ -151,7 +151,7 @@ def main() -> int:
         prelim.append(
             {
                 "source_id": row.get("source_id"),
-                "source_seconds_nominal": float(t),
+                "source_seconds_nominal": int(round(float(t))),
                 "unit_id": unit_id,
                 "ocr_name_confidence": float(conf),
                 "crop": crop,
