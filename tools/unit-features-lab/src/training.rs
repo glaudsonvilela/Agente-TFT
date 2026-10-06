@@ -88,7 +88,8 @@ fn load_autonomous_rows(
         match tier {
             "gold_auto" => {
                 if row["decision"] != "supported" && row["decision"] != "bootstrap_supported"
-                    || row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
+                    || (row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
+                        && row["label_source"] != "autonomous_tooltip_temporal_consensus_v1")
                     || row["model_prediction_used_as_label"] != false
                 {
                     return Err(format!("unsupported gold provenance at row {i}").into());
