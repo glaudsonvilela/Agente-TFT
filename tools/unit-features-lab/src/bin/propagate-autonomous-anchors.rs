@@ -229,7 +229,8 @@ fn run() -> Result<()> {
     let mut gold_pixels = HashSet::<String>::new();
     for row in anchors_rows {
         if row["source_id"].as_str() != Some(source_id)
-            || row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
+            || (row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
+                && row["label_source"] != "autonomous_tooltip_temporal_consensus_v1")
             || row["human_review_required"] != false
             || row["model_prediction_used_as_label"] != false
             || row["training_eligible"] != true
