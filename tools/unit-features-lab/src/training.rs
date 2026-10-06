@@ -97,7 +97,8 @@ fn load_autonomous_rows(
             }
             "silver_auto" => {
                 if row["supervision_tier"] != "silver_auto"
-                    || row["label_source"] != "silver_auto_dino_frozen_temporal_consensus_v1"
+                    || (row["label_source"] != "silver_auto_dino_frozen_temporal_consensus_v1"
+                        && row["label_source"] != "silver_auto_shop_multiteacher_temporal_v1")
                     || row["human_review_required"] != false
                 {
                     return Err(format!("unsupported silver provenance at row {i}").into());
