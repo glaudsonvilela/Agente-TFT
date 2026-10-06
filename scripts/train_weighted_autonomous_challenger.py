@@ -130,11 +130,13 @@ def assert_silver(rows: Any) -> None:
         if (
             not isinstance(row, dict)
             or row.get("supervision_tier") != "silver_auto"
-            or row.get("label_source")
-            != "silver_auto_dino_frozen_temporal_consensus_v1"
+            or row.get("label_source") not in {
+                "silver_auto_dino_frozen_temporal_consensus_v1",
+                "silver_auto_shop_multiteacher_temporal_v1",
+            }
             or row.get("training_eligible") is not True
             or row.get("human_review_required") is not False
-            or abs(float(row.get("recommended_training_weight", -1)) - 0.35) > 1e-9
+            or not (0.0 < float(row.get("recommended_training_weight", -1)) <= 0.35)
         ):
             die("silver autonomous provenance/weight contract failed")
 
