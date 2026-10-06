@@ -888,10 +888,12 @@ mod tests {
             key: "one".into(),
         };
         let mut samples = vec![sample("train"), sample("validation"), sample("test")];
+        let mut weights = vec![0.35, 1.0, 1.0];
         let before = samples[1].crop.clone();
-        let n = augment_training(&mut samples).unwrap();
+        let n = augment_training(&mut samples, &mut weights).unwrap();
         assert!(n >= 3);
         assert_eq!(samples[1].crop, before);
         assert!(samples[3..].iter().all(|s| s.split == "train"));
+        assert!(weights[3..].iter().all(|w| (*w - 0.35).abs() < 1e-6));
     }
 }
