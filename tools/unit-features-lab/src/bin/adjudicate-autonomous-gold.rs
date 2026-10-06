@@ -14,7 +14,7 @@ use ort::session::Session;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, HashSet},
     fs,
     path::{Path, PathBuf},
 };
@@ -50,6 +50,52 @@ fn load_crop(path:&Path, expected:&str)->Result<UnitCrop>{
     let raw=rgb.into_raw();
     if hash(&raw)!=expected{return Err("anchor crop pixel hash mismatch".into());}
     Ok(UnitCrop{rgb:raw})
+}
+
+
+fn unseen_bootstrap_support(
+    label: &str,
+    current_pixel: &str,
+    anchors: &[(String, String, u64, Vec<f32>)],
+) -> Result<Value> {
+    let same: Vec<_> = anchors.iter().filter(|(id, _, _, _)| id == label).collect();
+    let unique_pixels: HashSet<_> = same.iter().map(|(_, pixel, _, _)| pixel.as_str()).collect();
+    let mut times: Vec<_> = same.iter().map(|(_, _, t, _)| *t).collect();
+    times.sort_unstable();
+
+    let mut pairwise = Vec::new();
+    for i in 0..same.len() {
+        for j in i + 1..same.len() {
+            pairwise.push(cosine(&same[i].3, &same[j].3)?);
+        }
+    }
+    let min_pair_similarity = pairwise.iter().copied().reduce(f32::min);
+    let mean_pair_similarity = if pairwise.is_empty() {
+        None
+    } else {
+        Some(pairwise.iter().sum::<f32>() / pairwise.len() as f32)
+    };
+    let time_span_seconds = times.last().zip(times.first()).map(|(b, a)| b - a).unwrap_or(0);
+    let current_present = unique_pixels.contains(current_pixel);
+
+    // Fail-closed bootstrap for a catalog class with no supervised support.
+    // Two independent game-derived purchase anchors are required, with distinct
+    // pixels and strong agreement in the frozen visual space.
+    let supported = current_present
+        && same.len() >= 2
+        && unique_pixels.len() >= 2
+        && time_span_seconds >= 2
+        && min_pair_similarity.is_some_and(|x| x >= 0.82);
+
+    Ok(json!({
+        "same_label_gold_anchors": same.len(),
+        "unique_gold_pixels": unique_pixels.len(),
+        "time_span_seconds": time_span_seconds,
+        "min_pair_similarity": min_pair_similarity,
+        "mean_pair_similarity": mean_pair_similarity,
+        "bootstrap_similarity_threshold": 0.82,
+        "bootstrap_supported": supported
+    }))
 }
 
 fn run() -> Result<()> {
@@ -97,9 +143,7 @@ fn run() -> Result<()> {
     if rows.is_empty(){return Err("no anchors".into());}
 
     let collection=PathBuf::from(s(&spec,"collection")?);
-    let mut decisions=Vec::new();
-    let mut counts=BTreeMap::<String,u64>::new();
-
+    let mut anchor_features: Vec<(String, String, u64, Vec<f32>)> = Vec::new();
     for row in rows {
         if row["label_source"]!="autonomous_shop_purchase_bench_consensus_v1"
             || row["human_review_required"]!=false
@@ -110,11 +154,22 @@ fn run() -> Result<()> {
         let label=s(row,"unit_id")?.to_owned();
         let crop_rel=s(row,"crop")?.to_owned();
         let pixel=s(row,"pixel_sha256")?.to_owned();
+        let time=row["source_seconds_nominal"].as_u64().ok_or("anchor time")?;
         let crop=load_crop(&collection.join(&crop_rel),&pixel)?;
         let feature=embeddings(&mut session,&[(transform.apply(&crop)?,true)],side,false,false)?
             .pop().ok_or("missing anchor feature")?;
+        anchor_features.push((label,pixel,time,feature));
+    }
 
-        let p=head.probabilities(&feature)?;
+    let mut decisions=Vec::new();
+    let mut counts=BTreeMap::<String,u64>::new();
+
+    for (row, (_, _, _, feature)) in rows.iter().zip(&anchor_features) {
+        let label=s(row,"unit_id")?.to_owned();
+        let crop_rel=s(row,"crop")?.to_owned();
+        let pixel=s(row,"pixel_sha256")?.to_owned();
+
+        let p=head.probabilities(feature)?;
         let mut order:Vec<_>=(0..p.len()).collect();
         order.sort_by(|&a,&b|p[b].total_cmp(&p[a]).then(a.cmp(&b)));
         let classifier=head.labels[order[0]].clone();
@@ -123,7 +178,7 @@ fn run() -> Result<()> {
         let mut class_best=HashMap::<String,f32>::new();
         let mut same_label_support=0usize;
         for (sample,vec) in train.iter().zip(&train_features) {
-            let sim=cosine(&feature,vec)?;
+            let sim=cosine(feature,vec)?;
             class_best.entry(sample.label.clone())
                 .and_modify(|x|*x=x.max(sim)).or_insert(sim);
             if sample.label==label { same_label_support+=1; }
@@ -139,8 +194,13 @@ fn run() -> Result<()> {
         let classifier_agrees=classifier==label;
         let retrieval_agrees=retrieval_label.as_deref()==Some(label.as_str());
 
+        let bootstrap = unseen_bootstrap_support(&label, &pixel, &anchor_features)?;
         let decision=if same_label_support==0 {
-            "quarantine_no_supervised_support"
+            if bootstrap["bootstrap_supported"] == true {
+                "bootstrap_supported"
+            } else {
+                "quarantine_no_supervised_support"
+            }
         } else if classifier_agrees && retrieval_agrees {
             "supported"
         } else if classifier_agrees || retrieval_agrees {
@@ -159,7 +219,8 @@ fn run() -> Result<()> {
             "label_source":row["label_source"],
             "original_label_source":row["label_source"],
             "decision":decision,
-            "training_eligible":decision=="supported",
+            "training_eligible":decision=="supported" || decision=="bootstrap_supported",
+            "bootstrap":bootstrap,
             "human_review_required":false,
             "model_prediction_used_as_label":false,
             "teachers":{
@@ -182,11 +243,13 @@ fn run() -> Result<()> {
 
     fs::create_dir_all(&out)?;
     fs::write(out.join("anchor-decisions.json"),serde_json::to_vec_pretty(&decisions)?)?;
-    let supported:Vec<_>=decisions.iter().filter(|r|r["decision"]=="supported").cloned().collect();
+    let supported:Vec<_>=decisions.iter()
+        .filter(|r|r["decision"]=="supported" || r["decision"]=="bootstrap_supported")
+        .cloned().collect();
     fs::write(out.join("supported-gold-anchors.json"),serde_json::to_vec_pretty(&supported)?)?;
     let summary=json!({
         "schema_version":1,
-        "policy":"autonomous_gold_anchor_adjudication_v1",
+        "policy":"autonomous_gold_anchor_adjudication_v2",
         "anchors":rows.len(),
         "decision_counts":counts,
         "supported_gold_anchors":supported.len(),
@@ -199,7 +262,8 @@ fn run() -> Result<()> {
         "limitations":[
             "This gate does not change game-derived gold labels; it only controls whether they can train the next challenger.",
             "Classifier and retrieval share the same frozen encoder, but retrieval uses supervised exemplars rather than classifier weights.",
-            "Mixed or unsupported anchors are quarantined automatically rather than sent for manual review."
+            "Mixed or unsupported anchors are quarantined automatically rather than sent for manual review.",
+            "Classes absent from supervised support can bootstrap only from at least two distinct direct game-derived gold anchors with DINO pair similarity >= 0.82."
         ]
     });
     fs::write(out.join("report.json"),serde_json::to_vec_pretty(&summary)?)?;
