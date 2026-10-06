@@ -45,14 +45,196 @@ impl OptimizerConfig {
     }
 }
 
-fn augment_training(samples: &mut Vec<Sample>) -> Result<usize> {
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AutonomousTrainingConfig {
+    collection: String,
+    source_id: String,
+    gold_labels: String,
+    silver_labels: String,
+    gold_weight: f32,
+    silver_weight: f32,
+}
+
+fn validate_autonomous_weight(value: f32, name: &str) -> Result<()> {
+    if !value.is_finite() || !(0.0 < value && value <= 1.0) {
+        return Err(format!("{name} must be finite in (0,1]").into());
+    }
+    Ok(())
+}
+
+fn load_autonomous_rows(
+    file: &Path,
+    collection: &Path,
+    source_id: &str,
+    ids: &HashSet<&str>,
+    tier: &str,
+    weight: f32,
+    seen_pixels: &mut HashSet<String>,
+) -> Result<Vec<(Sample, f32)>> {
+    validate_autonomous_weight(weight, tier)?;
+    let rows: Value = serde_json::from_slice(&fs::read(file)?)?;
+    let rows = rows.as_array().ok_or("autonomous labels must be a JSON array")?;
+    let collection = collection.canonicalize()?;
+    let mut result = Vec::new();
+    for (i, row) in rows.iter().enumerate() {
+        if row["source_id"].as_str() != Some(source_id)
+            || row["human_review_required"] != false
+            || row["training_eligible"] != true
+        {
+            return Err(format!("autonomous {tier} provenance mismatch at row {i}").into());
+        }
+        match tier {
+            "gold_auto" => {
+                if row["decision"] != "supported"
+                    || row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
+                    || row["model_prediction_used_as_label"] != false
+                {
+                    return Err(format!("unsupported gold provenance at row {i}").into());
+                }
+            }
+            "silver_auto" => {
+                if row["supervision_tier"] != "silver_auto"
+                    || row["label_source"] != "silver_auto_dino_frozen_temporal_consensus_v1"
+                    || row["human_review_required"] != false
+                {
+                    return Err(format!("unsupported silver provenance at row {i}").into());
+                }
+                let declared = row["recommended_training_weight"]
+                    .as_f64()
+                    .ok_or("silver recommended weight")? as f32;
+                if (declared - weight).abs() > 1e-6 {
+                    return Err("silver declared/configured weight mismatch".into());
+                }
+            }
+            _ => return Err("unknown autonomous supervision tier".into()),
+        }
+
+        let label = row["unit_id"].as_str().ok_or("autonomous unit_id")?;
+        if !ids.contains(label) {
+            return Err(format!("autonomous label absent from catalog: {label}").into());
+        }
+        let relative = row["crop"].as_str().ok_or("autonomous crop path")?;
+        let filename = collection.join(relative).canonicalize()?;
+        if !filename.starts_with(&collection) {
+            return Err("autonomous crop escapes collection root".into());
+        }
+        let rgb = image::open(&filename)?.to_rgb8();
+        if (rgb.width(), rgb.height()) != (WIDTH as u32, HEIGHT as u32) {
+            return Err("autonomous crop geometry mismatch".into());
+        }
+        let pixel = hash(rgb.as_raw());
+        if row["pixel_sha256"].as_str() != Some(pixel.as_str()) {
+            return Err("autonomous crop pixel hash mismatch".into());
+        }
+        if !seen_pixels.insert(pixel.clone()) {
+            return Err("duplicate autonomous/base crop pixels".into());
+        }
+        let time = row["source_seconds_nominal"]
+            .as_u64()
+            .ok_or("autonomous source time")?;
+        result.push((
+            Sample {
+                crop: UnitCrop { rgb: rgb.into_raw() },
+                label: label.to_owned(),
+                split: "train".into(),
+                image: format!("autonomous:{source_id}:{time}"),
+                key: format!("{tier}:{i}:{pixel}"),
+            },
+            weight,
+        ));
+    }
+    Ok(result)
+}
+
+fn load_autonomous_training(
+    spec: &Value,
+    reference: &Path,
+    base_samples: &[Sample],
+) -> Result<Vec<(Sample, f32)>> {
+    let Some(value) = spec.get("autonomous_training") else {
+        return Ok(Vec::new());
+    };
+    if value.is_null() {
+        return Ok(Vec::new());
+    }
+    let config: AutonomousTrainingConfig = serde_json::from_value(value.clone())?;
+    validate_autonomous_weight(config.gold_weight, "gold_weight")?;
+    validate_autonomous_weight(config.silver_weight, "silver_weight")?;
+    if config.gold_weight < config.silver_weight {
+        return Err("gold autonomous weight must be >= silver weight".into());
+    }
+
+    let cat: Value = serde_json::from_slice(&fs::read(reference.join("champions.json"))?)?;
+    let ids: HashSet<_> = cat["entries"]
+        .as_array()
+        .ok_or("catalog entries")?
+        .iter()
+        .map(|x| x["id"].as_str().ok_or("catalog id"))
+        .collect::<Result<_>>()?;
+
+    let mut seen_pixels: HashSet<String> =
+        base_samples.iter().map(|s| hash(&s.crop.rgb)).collect();
+    let collection = PathBuf::from(&config.collection);
+    let mut rows = load_autonomous_rows(
+        Path::new(&config.gold_labels),
+        &collection,
+        &config.source_id,
+        &ids,
+        "gold_auto",
+        config.gold_weight,
+        &mut seen_pixels,
+    )?;
+    rows.extend(load_autonomous_rows(
+        Path::new(&config.silver_labels),
+        &collection,
+        &config.source_id,
+        &ids,
+        "silver_auto",
+        config.silver_weight,
+        &mut seen_pixels,
+    )?);
+    Ok(rows)
+}
+
+fn effective_class_weights(
+    samples: &[Sample],
+    sample_weights: &[f32],
+    labels: &[String],
+) -> Result<(Vec<usize>, Vec<f32>)> {
+    if samples.len() != sample_weights.len() {
+        return Err("sample/weight count mismatch".into());
+    }
+    let targets: Vec<_> = samples
+        .iter()
+        .map(|s| labels.binary_search(&s.label).map_err(|_| "target label missing"))
+        .collect::<std::result::Result<_, _>>()?;
+    let mut totals = vec![0f32; labels.len()];
+    for (&target, &weight) in targets.iter().zip(sample_weights) {
+        if !weight.is_finite() || weight <= 0.0 {
+            return Err("invalid training sample weight".into());
+        }
+        totals[target] += weight;
+    }
+    if totals.iter().any(|x| !x.is_finite() || *x <= 0.0) {
+        return Err("invalid weighted class total".into());
+    }
+    Ok((targets, totals))
+}
+
+fn augment_training(samples: &mut Vec<Sample>, sample_weights: &mut Vec<f32>) -> Result<usize> {
+    if samples.len() != sample_weights.len() {
+        return Err("sample/weight count mismatch before augmentation".into());
+    }
     let originals: Vec<_> = samples
         .iter()
-        .filter(|s| s.split == "train")
-        .cloned()
+        .zip(sample_weights.iter().copied())
+        .filter(|(s, _)| s.split == "train")
+        .map(|(s, w)| (s.clone(), w))
         .collect();
     let mut added = 0;
-    for original in originals {
+    for (original, original_weight) in originals {
         for mode in ["mirror", "dim", "bright", "mask"] {
             let mut s = original.clone();
             match mode {
@@ -80,6 +262,7 @@ fn augment_training(samples: &mut Vec<Sample>) -> Result<usize> {
             }
             s.key = format!("{}@augmentation:{mode}", s.key);
             samples.push(s);
+            sample_weights.push(original_weight);
             added += 1;
         }
     }
@@ -88,16 +271,18 @@ fn augment_training(samples: &mut Vec<Sample>) -> Result<usize> {
 
 fn augment_vertical_alignment(
     samples: &mut Vec<Sample>,
-    originals: &[Sample],
+    sample_weights: &mut Vec<f32>,
+    originals: &[(Sample, f32)],
     transform: crate::crop_transform::CropTransform,
 ) -> Result<usize> {
     let mut added = 0;
-    for original in originals.iter().filter(|s| s.split == "train") {
+    for (original, original_weight) in originals.iter().filter(|(s, _)| s.split == "train") {
         for offset in [-12, 12] {
             let mut view = original.clone();
             view.crop = transform.vertical_training_view(&original.crop, offset)?;
             view.key = format!("{}@augmentation:vertical:{offset}", view.key);
             samples.push(view);
+            sample_weights.push(*original_weight);
             added += 1;
         }
     }
@@ -238,17 +423,20 @@ pub fn metrics_with_predictor(
 
 fn fit(
     samples: &[Sample],
+    sample_weights: &[f32],
     features: &[Vec<f32>],
     optimizer: &OptimizerConfig,
 ) -> Result<(Head, usize, Vec<Value>)> {
     optimizer.validate()?;
-    if samples.len() != features.len() {
-        return Err("sample/feature count mismatch".into());
+    if samples.len() != features.len() || samples.len() != sample_weights.len() {
+        return Err("sample/feature/weight count mismatch".into());
     }
     let train: Vec<_> = samples
         .iter()
         .zip(features)
-        .filter(|(s, _)| s.split == "train")
+        .zip(sample_weights)
+        .filter(|((s, _), _)| s.split == "train")
+        .map(|((s, x), w)| (s, x, *w))
         .collect();
     let validation: Vec<_> = samples
         .iter()
@@ -258,7 +446,7 @@ fn fit(
     if train.is_empty() || validation.is_empty() {
         return Err("training and validation samples required".into());
     }
-    let mut labels: Vec<_> = train.iter().map(|(s, _)| s.label.clone()).collect();
+    let mut labels: Vec<_> = train.iter().map(|(s, _, _)| s.label.clone()).collect();
     labels.sort();
     labels.dedup();
     let dimensions = features.first().ok_or("empty features")?.len();
@@ -268,14 +456,10 @@ fn fit(
         dimensions,
         labels,
     };
-    let mut counts = vec![0usize; head.labels.len()];
-    let targets: Vec<_> = train
-        .iter()
-        .map(|(s, _)| head.labels.binary_search(&s.label).unwrap())
-        .collect();
-    for &i in &targets {
-        counts[i] += 1;
-    }
+    let train_samples: Vec<_> = train.iter().map(|(s, _, _)| (*s).clone()).collect();
+    let train_weights: Vec<_> = train.iter().map(|(_, _, w)| *w).collect();
+    let (targets, weighted_class_totals) =
+        effective_class_weights(&train_samples, &train_weights, &head.labels)?;
     // Fixed class-balanced full-batch gradient descent; only validation selects
     // an epoch. Test examples never take part in gradient/checkpoint selection.
     let mut best: Option<(f64, f64, usize, Head)> = None;
@@ -283,9 +467,14 @@ fn fit(
     for epoch in 1..=optimizer.max_epochs {
         let mut dw = vec![0.; head.weights.len()];
         let mut db = vec![0.; head.labels.len()];
-        for ((_, x), &target) in train.iter().zip(&targets) {
+        for (((_, x, sample_weight), &target), _) in train
+            .iter()
+            .zip(&targets)
+            .zip(0..)
+        {
             let p = head.probabilities(x)?;
-            let weight = 1. / (counts[target] * head.labels.len()) as f32;
+            let weight = *sample_weight
+                / (weighted_class_totals[target] * head.labels.len() as f32);
             for k in 0..head.labels.len() {
                 let error = (p[k] - if k == target { 1. } else { 0. }) * weight;
                 db[k] += error;
@@ -339,11 +528,20 @@ pub fn run_cli() -> Result<()> {
     if out.exists() {
         return Err("new output directory required".into());
     }
+    let reference_path = Path::new(str_field(&spec, "reference")?);
     let mut samples = load_samples(
         Path::new(str_field(&spec, "annotations")?),
         Path::new(str_field(&spec, "images")?),
-        Path::new(str_field(&spec, "reference")?),
+        reference_path,
     )?;
+    let reviewed_samples = samples.len();
+    let autonomous_rows = load_autonomous_training(&spec, reference_path, &samples)?;
+    let autonomous_source_samples = autonomous_rows.len();
+    let mut sample_weights = vec![1.0f32; samples.len()];
+    for (sample, weight) in autonomous_rows {
+        samples.push(sample);
+        sample_weights.push(weight);
+    }
     if spec["retrieval_only"] == true && spec["augmentation"].as_str().unwrap_or("none") != "none" {
         return Err("retrieval experiment requires unaugmented reviewed samples".into());
     }
@@ -355,8 +553,9 @@ pub fn run_cli() -> Result<()> {
     let alignment_originals: Vec<_> = if spec["augmentation"] == "vertical_alignment_v1" {
         samples
             .iter()
-            .filter(|s| s.split == "train")
-            .cloned()
+            .zip(sample_weights.iter().copied())
+            .filter(|(s, _)| s.split == "train")
+            .map(|(s, w)| (s.clone(), w))
             .collect()
     } else {
         Vec::new()
@@ -367,9 +566,14 @@ pub fn run_cli() -> Result<()> {
     let source_samples = samples.len();
     let augmented = match spec["augmentation"].as_str().unwrap_or("none") {
         "none" => 0,
-        "native_domain_v1" => augment_training(&mut samples)?,
+        "native_domain_v1" => augment_training(&mut samples, &mut sample_weights)?,
         "vertical_alignment_v1" => {
-            augment_vertical_alignment(&mut samples, &alignment_originals, transform)?
+            augment_vertical_alignment(
+                &mut samples,
+                &mut sample_weights,
+                &alignment_originals,
+                transform,
+            )?
         }
         _ => return Err("unknown augmentation policy".into()),
     };
@@ -472,7 +676,7 @@ pub fn run_cli() -> Result<()> {
         if spec["only_dino"] == true && name != "dino" {
             continue;
         }
-        let (head, epoch, history) = fit(&samples, features, &optimizer)?;
+        let (head, epoch, history) = fit(&samples, &sample_weights, features, &optimizer)?;
         let mut evaluation = BTreeMap::new();
         for split in ["train", "validation", "test"] {
             let rows: Vec<_> = samples
@@ -502,7 +706,10 @@ pub fn run_cli() -> Result<()> {
         "learning_rate":optimizer.learning_rate,"weight_decay":optimizer.weight_decay,"max_epochs":optimizer.max_epochs,
         "optimizer":optimizer,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
-        "source_samples":source_samples,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
+        "source_samples":source_samples,"reviewed_source_samples":reviewed_samples,
+        "autonomous_source_samples":autonomous_source_samples,
+        "autonomous_training":spec.get("autonomous_training"),
+        "crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
         "synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
         "encoder_sha256":spec["encoder_sha256"],"runtime_approved":false,
         "limitations":["Existing small assistant-reviewed dataset; no independent human ground truth.",
