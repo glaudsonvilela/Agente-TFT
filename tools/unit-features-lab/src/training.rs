@@ -467,11 +467,7 @@ fn fit(
     for epoch in 1..=optimizer.max_epochs {
         let mut dw = vec![0.; head.weights.len()];
         let mut db = vec![0.; head.labels.len()];
-        for (((_, x, sample_weight), &target), _) in train
-            .iter()
-            .zip(&targets)
-            .zip(0..)
-        {
+        for ((_, x, sample_weight), &target) in train.iter().zip(&targets) {
             let p = head.probabilities(x)?;
             let weight = *sample_weight
                 / (weighted_class_totals[target] * head.labels.len() as f32);
@@ -777,15 +773,39 @@ mod tests {
             checkpoints: vec![2, 4],
             ..Default::default()
         };
-        let (first, epoch, history) = fit(&samples, &features, &optimizer).unwrap();
+        let weights = vec![1.0; samples.len()];
+        let (first, epoch, history) = fit(&samples, &weights, &features, &optimizer).unwrap();
         samples[4].label = "unseen-test-class".into();
         features[4] = vec![100., -100.];
-        let (second, second_epoch, second_history) = fit(&samples, &features, &optimizer).unwrap();
+        let second_weights = vec![1.0; samples.len()];
+        let (second, second_epoch, second_history) =
+            fit(&samples, &second_weights, &features, &optimizer).unwrap();
         assert_eq!(first.weights, second.weights);
         assert_eq!(first.biases, second.biases);
         assert_eq!(epoch, second_epoch);
         assert_eq!(history, second_history);
         assert_eq!(first.labels, vec!["a", "b"]);
+    }
+
+    #[test]
+    fn weighted_class_balance_preserves_class_mass_and_downweights_silver() {
+        let make = |label: &str| Sample {
+            crop: UnitCrop { rgb: vec![0; WIDTH * HEIGHT * 3] },
+            label: label.into(),
+            split: "train".into(),
+            image: label.into(),
+            key: label.into(),
+        };
+        let samples = vec![make("a"), make("a"), make("b")];
+        let weights = vec![1.0, 0.35, 1.0];
+        let labels = vec!["a".to_owned(), "b".to_owned()];
+        let (targets, totals) = effective_class_weights(&samples, &weights, &labels).unwrap();
+        assert_eq!(targets, vec![0, 0, 1]);
+        assert!((totals[0] - 1.35).abs() < 1e-6);
+        assert!((totals[1] - 1.0).abs() < 1e-6);
+        let gold_share = weights[0] / totals[0];
+        let silver_share = weights[1] / totals[0];
+        assert!(gold_share > silver_share);
     }
 
     #[test]
@@ -832,11 +852,19 @@ mod tests {
             key: "one".into(),
         };
         let originals = vec![make("train"), make("validation"), make("test")];
+        let original_weights = vec![1.0, 1.0, 1.0];
+        let weighted_originals: Vec<_> = originals
+            .iter()
+            .cloned()
+            .zip(original_weights.iter().copied())
+            .collect();
         let mut prepared = originals.clone();
+        let mut prepared_weights = original_weights.clone();
         assert_eq!(
             augment_vertical_alignment(
                 &mut prepared,
-                &originals,
+                &mut prepared_weights,
+                &weighted_originals,
                 crate::crop_transform::CropTransform::Upper88x80V1
             )
             .unwrap(),
