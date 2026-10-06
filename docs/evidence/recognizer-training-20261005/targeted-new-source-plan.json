@@ -1,16 +1,29 @@
 {
-  "recorded_at": "2026-10-05T11:05:00-03:00",
-  "status": "targeted_new_source_acquisition_planned",
+  "recorded_at": "2026-10-06T20:00:00-03:00",
+  "status": "autonomous_targeted_source_acquisition",
   "reason": "Corrected SSD review queue contains zero new-source candidates for priority identities.",
   "policy": {
-    "automatic_training_labels": false,
+    "automatic_training_labels": "direct game-derived consensus only; neural propagation remains silver-weighted",
     "minjo_kh_allowed_in_training": false,
     "same_source_sample_count_not_primary_goal": true,
     "candidate_video_title_is_not_a_label": true,
     "creator_authorization_must_cover_training_use": true,
-    "runtime_approved": false
+    "runtime_approved": false,
+    "human_review_required": false
   },
   "candidates": [
+    {
+      "priority": "highest",
+      "target_ids": [
+        "DA_18_KhaZix"
+      ],
+      "creator": "shurkou",
+      "url": "https://www.youtube.com/watch?v=oDaWsvSlAdw",
+      "title": "I gave Kha'Zix a Zhonya's AND a DEADLIER Cap. Then I 3 Starred him.",
+      "published": "2026-08-09",
+      "authorization_basis": "Same creator family already used in the project's authorized training workflow; source still passes project provenance gates before admission.",
+      "use": "Next autonomous training-source candidate because Kha'Zix is source-sparse and represented in the current validation."
+    },
     {
       "priority": "high",
       "target_ids": [
@@ -111,5 +124,5 @@
     "DA_Karma18",
     "DA_Murkwolf18"
   ],
-  "next": "Acquire one candidate source at a time into a fresh private directory, collect annotation-only frames first, visually bind identity/form, then admit only reviewed training examples."
+  "next": "Acquire Kha'Zix source, run autonomous dense shop/purchase supervision, adjudicate gold anchors, propagate supported anchors, then train a weighted challenger only if evidence is admitted."
 }
