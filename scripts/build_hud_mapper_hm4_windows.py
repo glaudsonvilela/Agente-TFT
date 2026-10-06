@@ -72,6 +72,8 @@ args = [
     '--hidden-import', 'hm45_vm_client',
     '--hidden-import', 'hm45_protocol',
     '--hidden-import', 'hm.vm_bridge',
+    '--hidden-import', 'hm.learning_capture',
+    '--hidden-import', 'hm.post_session_learning',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -120,6 +122,9 @@ manifest = dict(
     ffmpeg_bundled=False,
     pytorch_bundled=False,
     trainer_bundled=False,
+    shadow_learning_capture_bundled=True,
+    post_session_learning_job_bundled=True,
+    post_session_linux_trainer_bundled=False,
     capture='resident_Rust_WGC_D3D11',
     neural='bundled_L3_ONNX_CPU_shadow_diagnostic',
     ocr='Tesseract_private',
@@ -199,6 +204,9 @@ report = dict(
     ffmpeg_bundled=False,
     pytorch_bundled=False,
     trainer_bundled=False,
+    shadow_learning_capture_bundled=True,
+    post_session_learning_job_bundled=True,
+    post_session_linux_trainer_bundled=False,
     automatic_model_discovery=True,
     reader_only_fallback=True,
     model_weights_included=True,
