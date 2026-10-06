@@ -156,6 +156,7 @@ fn run() -> Result<()> {
             "source_seconds_nominal":row["source_seconds_nominal"],
             "crop":crop_rel,
             "pixel_sha256":pixel,
+            "label_source":row["label_source"],
             "original_label_source":row["label_source"],
             "decision":decision,
             "training_eligible":decision=="supported",
