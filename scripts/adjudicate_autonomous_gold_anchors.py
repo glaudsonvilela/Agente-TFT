@@ -60,6 +60,18 @@ def required(path: Path) -> Path:
         die(f"required path not found: {path}")
 
 
+def preserve_failed_attempt(path: Path) -> None:
+    if not path.exists():
+        return
+    for i in range(1, 100):
+        candidate = path.with_name(f"{path.name}.failed-{i:02d}")
+        if not candidate.exists():
+            path.rename(candidate)
+            print(f"AUTONOMOUS_GOLD_ADJUDICATION_RESUME=preserved:{candidate}")
+            return
+    die(f"too many preserved failed attempts beside {path}")
+
+
 def run_stream(command: list[str], cwd: Path, log: Path) -> None:
     print("+", " ".join(command), flush=True)
     log.parent.mkdir(parents=True, exist_ok=True)
@@ -161,8 +173,12 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     spec_path = output.parent / f"{output.name}-spec.json"
     log_path = output.parent / f"{output.name}.log"
-    if spec_path.exists() or log_path.exists():
-        die("spec/log already exists; choose a new --output path")
+    # A compile/runtime failure can leave only spec/log behind while producing
+    # no output directory. Preserve those failed-attempt artifacts and retry
+    # deterministically with the same requested output.
+    if not output.exists():
+        preserve_failed_attempt(spec_path)
+        preserve_failed_attempt(log_path)
 
     spec = {
         "collection": str(collection),
