@@ -38,5 +38,18 @@
     "DA_Lux18_Blossom"
   ],
   "training_performed": false,
-  "runtime_approved": false
+  "runtime_approved": false,
+  "posthoc_policy_correction": {
+    "recorded_at": "2026-10-06T21:10:00-03:00",
+    "reason": "The historical queue was generated before the current checkpoint source-policy correction. One KhaZix 'new source' candidate resolved to youtube:qkG10NeqM3A, which is now authoritative partition unlabeled_appearance_review_only.",
+    "stale_for_direct_admission": true,
+    "historical_counts_preserved": true,
+    "effective_new_source_khazix_candidates_after_current_policy": 0,
+    "required_behavior": "Any consumer must revalidate source_id/source_url against the current checkpoint before acquisition, labeling, or training.",
+    "invalidated_source_id": "youtube:qkG10NeqM3A",
+    "invalidated_partition": "unlabeled_appearance_review_only",
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  }
 }
