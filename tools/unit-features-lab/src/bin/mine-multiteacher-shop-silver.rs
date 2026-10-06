@@ -137,6 +137,127 @@ fn chained_temporal_track(
     Ok(track)
 }
 
+
+fn is_board_unit(unit: &ObservationUnit) -> Result<bool> {
+    let a = unit.boxv.as_array().ok_or("box array")?;
+    if a.len() != 4 {
+        return Err("box size".into());
+    }
+    let y = a[1].as_f64().ok_or("box y")?;
+    Ok((250.0..665.0).contains(&y))
+}
+
+fn unique_pixels(track: Vec<ObservationUnit>) -> Vec<ObservationUnit> {
+    let mut seen = HashSet::<String>::new();
+    track
+        .into_iter()
+        .filter(|u| seen.insert(u.pixel.clone()))
+        .collect()
+}
+
+fn chained_board_track(
+    observations: &[ObservationUnit],
+    initial: ObservationUnit,
+    end_time: u64,
+    max_distance: f32,
+) -> Result<Vec<ObservationUnit>> {
+    let mut last_center = center(&initial.boxv)?;
+    let start_time = initial.time;
+    let mut track = vec![initial];
+    let mut times: Vec<u64> = observations
+        .iter()
+        .filter(|u| u.time > start_time && u.time <= end_time)
+        .map(|u| u.time)
+        .collect();
+    times.sort_unstable();
+    times.dedup();
+    for t in times {
+        let mut best: Option<(f32, ObservationUnit)> = None;
+        for u in observations.iter().filter(|u| u.time == t) {
+            if !is_board_unit(u)? {
+                continue;
+            }
+            let d = distance(last_center, center(&u.boxv)?);
+            if d <= max_distance && best.as_ref().is_none_or(|(old, _)| d < *old) {
+                best = Some((d, u.clone()));
+            }
+        }
+        if let Some((_, unit)) = best {
+            last_center = center(&unit.boxv)?;
+            track.push(unit);
+        }
+    }
+    Ok(track)
+}
+
+fn new_board_emergence_track(
+    observations: &[ObservationUnit],
+    before_t: u64,
+    after_t: u64,
+    max_persistence: u64,
+    max_distance: f32,
+    min_unique: usize,
+) -> Result<Option<Vec<ObservationUnit>>> {
+    let baseline: Vec<_> = observations
+        .iter()
+        .filter(|u| u.time == before_t)
+        .filter_map(|u| match is_board_unit(u) {
+            Ok(true) => Some(Ok(u.clone())),
+            Ok(false) => None,
+            Err(e) => Some(Err(e)),
+        })
+        .collect::<Result<_>>()?;
+
+    let mut times: Vec<u64> = observations
+        .iter()
+        .filter(|u| u.time > after_t && u.time <= after_t + max_persistence)
+        .map(|u| u.time)
+        .collect();
+    times.sort_unstable();
+    times.dedup();
+
+    for t in times {
+        let mut starters = Vec::<ObservationUnit>::new();
+        for u in observations.iter().filter(|u| u.time == t) {
+            if !is_board_unit(u)? {
+                continue;
+            }
+            let c = center(&u.boxv)?;
+            let existed_before = baseline.iter().any(|b| {
+                center(&b.boxv)
+                    .map(|bc| distance(c, bc) <= max_distance)
+                    .unwrap_or(false)
+            });
+            if !existed_before {
+                starters.push(u.clone());
+            }
+        }
+        if starters.is_empty() {
+            continue;
+        }
+
+        let mut qualifying = Vec::<Vec<ObservationUnit>>::new();
+        for starter in starters {
+            let track = unique_pixels(chained_board_track(
+                observations,
+                starter,
+                after_t + max_persistence,
+                max_distance,
+            )?);
+            if track.len() >= min_unique {
+                qualifying.push(track);
+            }
+        }
+        // Fail closed: exactly one newly emerged board track must persist.
+        return Ok(if qualifying.len() == 1 {
+            Some(qualifying.remove(0))
+        } else {
+            None
+        });
+    }
+    Ok(None)
+}
+
 fn teacher_decision(
     feature: &[f32],
     target: &str,
@@ -423,15 +544,25 @@ fn run() -> Result<()> {
             max_distance,
         )?;
 
-        let mut unique = Vec::<ObservationUnit>::new();
-        let mut seen_pixels = HashSet::<String>::new();
-        for u in track {
-            if seen_pixels.insert(u.pixel.clone()) {
-                unique.push(u);
+        let mut unique = unique_pixels(track);
+        let mut tracking_mode = "bench_chained";
+        if unique.len() < min_confirmed {
+            if let Some(board_track) = new_board_emergence_track(
+                &observation_units,
+                before_t,
+                after_t,
+                max_persistence,
+                max_distance,
+                min_confirmed,
+            )? {
+                unique = board_track;
+                tracking_mode = "new_board_emergence";
             }
         }
         if unique.len() < min_confirmed {
-            *rejected.entry("insufficient_temporal_unique_crops".into()).or_default() += 1;
+            *rejected
+                .entry("insufficient_bench_and_board_temporal_unique_crops".into())
+                .or_default() += 1;
             continue;
         }
 
@@ -495,6 +626,7 @@ fn run() -> Result<()> {
                     "portrait_brightness_after":after,
                     "transition_gap_seconds":after_t-before_t,
                     "unique_new_bench_proposal":true,
+                    "tracking_mode":tracking_mode,
                     "temporal_unique_candidates":unique.len(),
                     "temporal_multi_teacher_confirmations":min_confirmed,
                     "frozen_classifier":{
@@ -577,6 +709,7 @@ fn run() -> Result<()> {
             "These are low-weight silver labels, never gold truth.",
             "The original gold OCR threshold remains 94 and is not weakened.",
             "The OCR proposal supplies the candidate identity; frozen classifier and train-only retrieval must independently agree on repeated bench crops.",
+            "A direct bench track is preferred; when absent, exactly one newly emerged board track may continue the purchase evidence.",
             "No unseen class can be created by this policy."
         ]
     });
@@ -609,6 +742,63 @@ mod tests {
         ];
         let track = chained_temporal_track(&observations, initial, 8, 70.0).unwrap();
         assert_eq!(track.iter().map(|u| u.pixel.as_str()).collect::<Vec<_>>(), vec!["a", "b", "c"]);
+    }
+
+
+    #[test]
+    fn board_emergence_can_follow_direct_bench_to_board_purchase() {
+        let observations = vec![
+            unit(10, 500.0, "old-board"),
+            ObservationUnit {
+                time: 14,
+                crop: "b.png".into(),
+                pixel: "b".into(),
+                boxv: json!([900.0, 420.0, 1028.0, 564.0]),
+            },
+            ObservationUnit {
+                time: 16,
+                crop: "c.png".into(),
+                pixel: "c".into(),
+                boxv: json!([920.0, 425.0, 1048.0, 569.0]),
+            },
+        ];
+        let track = new_board_emergence_track(&observations, 10, 12, 8, 70.0, 2)
+            .unwrap()
+            .unwrap();
+        assert_eq!(track.iter().map(|u| u.pixel.as_str()).collect::<Vec<_>>(), vec!["b", "c"]);
+    }
+
+    #[test]
+    fn board_emergence_rejects_ambiguous_multiple_new_tracks() {
+        let observations = vec![
+            ObservationUnit {
+                time: 14,
+                crop: "a.png".into(),
+                pixel: "a".into(),
+                boxv: json!([800.0, 420.0, 928.0, 564.0]),
+            },
+            ObservationUnit {
+                time: 14,
+                crop: "b.png".into(),
+                pixel: "b".into(),
+                boxv: json!([1100.0, 420.0, 1228.0, 564.0]),
+            },
+            ObservationUnit {
+                time: 16,
+                crop: "a2.png".into(),
+                pixel: "a2".into(),
+                boxv: json!([810.0, 425.0, 938.0, 569.0]),
+            },
+            ObservationUnit {
+                time: 16,
+                crop: "b2.png".into(),
+                pixel: "b2".into(),
+                boxv: json!([1110.0, 425.0, 1238.0, 569.0]),
+            },
+        ];
+        assert!(new_board_emergence_track(&observations, 10, 12, 8, 70.0, 2)
+            .unwrap()
+            .is_none());
     }
 
     #[test]
