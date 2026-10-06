@@ -133,7 +133,7 @@ fn run() -> Result<()> {
         let retrieval_label=ranked.first().map(|x|x.0.clone());
         let retrieval_similarity=ranked.first().map(|x|x.1);
         let retrieval_second=ranked.get(1).map(|x|x.1);
-        let retrieval_margin=match(retrieval_similarity.zip(retrieval_second){
+        let retrieval_margin=match retrieval_similarity.zip(retrieval_second) {
             Some((a,b))=>Some(a-b), _=>None
         };
         let classifier_agrees=classifier==label;
