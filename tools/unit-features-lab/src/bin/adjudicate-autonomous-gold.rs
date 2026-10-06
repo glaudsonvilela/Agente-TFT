@@ -146,6 +146,7 @@ fn run() -> Result<()> {
     let mut anchor_features: Vec<(String, String, u64, Vec<f32>)> = Vec::new();
     for row in rows {
         if row["label_source"]!="autonomous_shop_purchase_bench_consensus_v1"
+            && row["label_source"]!="autonomous_tooltip_temporal_consensus_v1"
             || row["human_review_required"]!=false
             || row["model_prediction_used_as_label"]!=false
             || row["training_eligible"]!=true {
