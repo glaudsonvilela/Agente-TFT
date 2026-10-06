@@ -171,7 +171,7 @@ fn load_autonomous_training(
         .as_array()
         .ok_or("catalog entries")?
         .iter()
-        .map(|x| x["id"].as_str().ok_or("catalog id"))
+        .map(|x| str_field(x, "id"))
         .collect::<Result<_>>()?;
 
     let mut seen_pixels: HashSet<String> =
@@ -685,7 +685,8 @@ pub fn run_cli() -> Result<()> {
         let model = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"feature_mode":name,"head":head,"selected_epoch":epoch,
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
             "input_size":side,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
-            "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"],"optimizer":optimizer});
+            "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"],"optimizer":optimizer,
+            "autonomous_training":spec.get("autonomous_training")});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -698,7 +699,8 @@ pub fn run_cli() -> Result<()> {
         reports.insert(name, report);
     }
     let report = json!({"schema_version":1,"supervision_policy":crate::SUPERVISION_POLICY,"implementation":"rust_native","training_performed":true,
-        "backbone_finetuned":false,"training_algorithm":"class_balanced_multiclass_softmax_gradient_descent",
+        "backbone_finetuned":false,
+        "training_algorithm":"class_balanced_weighted_multiclass_softmax_gradient_descent",
         "learning_rate":optimizer.learning_rate,"weight_decay":optimizer.weight_decay,"max_epochs":optimizer.max_epochs,
         "optimizer":optimizer,"checkpoint_selection":"validation_macro_recall_then_loss",
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
