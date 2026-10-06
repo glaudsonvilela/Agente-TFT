@@ -103,6 +103,9 @@ class Session:
         # Graceful UI stop: stop producing new work, but let in-flight readers finish.
         self.stopped_by_user=True
         self.cancel.set()
+    def _source_frame_observed(self, frame):
+        """Optional low-priority hook; subclasses must never block capture here."""
+        return None
     def _run(self):
         threads=[]
         try:
@@ -175,6 +178,7 @@ class Session:
                 if self.cancel.is_set():break
                 if self.store.error:raise OSError(self.store.error)
                 self.counts['source_frames']+=1
+                self._source_frame_observed(f)
                 if getattr(self.source, 'preview_frames', None) is None:self.preview.put(f)
                 if not o.vm_core or f.due_ns>=next_source_telemetry:
                     next_source_telemetry=f.due_ns+1_000_000_000
