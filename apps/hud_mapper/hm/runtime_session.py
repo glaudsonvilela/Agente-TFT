@@ -188,6 +188,28 @@ class RuntimeSession(Session):
                 latest = dict(frame_id=frame.id, source_ms=frame.pts_ms, due_ns=frame.due_ns,
                               epoch=frame.epoch, ready_ns=end, response=response,
                               input_transform=plan)
+                hp_observation = response.get('hp') or {}
+                hp_status = str(hp_observation.get('status') or '').lower()
+                signed_hp = hp_observation.get('signed_hp')
+                hp_value = hp_observation.get('hp')
+                terminal_hp = (
+                    (hp_status == 'accepted' and hp_value == 0)
+                    or (hp_status == 'negative_display' and isinstance(signed_hp, int) and signed_hp < 0)
+                )
+                if terminal_hp:
+                    if self._terminal_hp_confirmations == 0:
+                        self._terminal_hp_first_source_ms = frame.pts_ms
+                    self._terminal_hp_confirmations += 1
+                else:
+                    self._terminal_hp_confirmations = 0
+                    self._terminal_hp_first_source_ms = None
+                if (
+                    self._terminal_hp_confirmations >= 2
+                    and self._terminal_hp_first_source_ms is not None
+                    and frame.pts_ms - self._terminal_hp_first_source_ms >= 500
+                ):
+                    self.counts['match_end_hp_confirmed'] += 1
+                    self.request_match_end('terminal_hp_confirmed')
                 with self.lock:
                     self._latest_hp = latest
                     self.traces.append(dict(kind='hp', frame_id=frame.id,
@@ -387,6 +409,8 @@ class HM4RuntimeSession(RuntimeSession):
         if type(self.hub_interval_ms) is not int or not 1000 <= self.hub_interval_ms < 2000:
             raise ValueError('Board cadence must fit the 2000 ms strategic freshness budget')
         self.board_reference_requested = threading.Event()
+        self._terminal_hp_confirmations = 0
+        self._terminal_hp_first_source_ms = None
         self.latest_replay_tip = None
         self.latest_decision_reason = None
         self._latest_strategy_state = None
