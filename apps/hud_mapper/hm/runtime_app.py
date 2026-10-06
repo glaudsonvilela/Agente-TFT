@@ -131,9 +131,9 @@ class App:
                 style.configure(name,background="#101820",foreground="#dce7ef")
             style.configure("TButton",padding=5)
         self.model=tk.StringVar();self.dest=tk.StringVar();self.ref=tk.StringVar();self.controls=tk.StringVar()
-        self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm4-replay-screen" if self.hm4 else "hud-live-01")
+        self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm45-live-shadow-learning" if self.hm4 else "hud-live-01")
         self.map_hz=tk.StringVar(value="2" if self.hm4 else "8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
-        self.replay_review=tk.BooleanVar(value=self.hm4)
+        self.replay_review=tk.BooleanVar(value=False)
         self.voice_enabled=tk.BooleanVar(value=bool(self.voice and os.name=="nt"))
         self.voice_choice=tk.StringVar(value=self.voice.voices.get(self.voice.voice_id, "Configure ElevenLabs") if self.voice else "")
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
@@ -158,7 +158,7 @@ class App:
         if self.hm4:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
             ttk.Label(line,text=("Visão neural: diagnóstico ativo" if auto else "Leitores nativos ativos")).pack(side="left")
-            ttk.Checkbutton(line,text="Analisar replay (HUB + orientações)",variable=self.replay_review).pack(side="left",padx=8)
+            ttk.Checkbutton(line,text="Modo replay encerrado (não aprende)",variable=self.replay_review).pack(side="left",padx=8)
             voice_line=ttk.Frame(outer);voice_line.pack(fill="x",pady=2)
             ttk.Checkbutton(voice_line,text="Narrar orientações",variable=self.voice_enabled,
                             command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
@@ -324,7 +324,9 @@ class App:
             if self.hm4 and self.replay_review.get():
                 message += "Confirme que a fonte exibirá um vídeo de partida já encerrada. As dicas de revisão usam apenas leituras observadas."
             else:
-                message += "Nenhum áudio, tecla, input automation ou dica estratégica é executado."
+                message += ("Partida ao vivo: serão salvos frames de aprendizado em baixa frequência; "
+                            "os pesos ficam congelados durante a partida e o treino só pode iniciar após o encerramento. "
+                            "Nenhum input automation é executado.")
             if not messagebox.askyesno("Confirmar captura",message):return
             if self.hm4:
                 self.compact.set(True);self.compact_view()
