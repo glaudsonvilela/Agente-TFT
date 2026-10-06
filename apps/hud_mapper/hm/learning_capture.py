@@ -117,7 +117,7 @@ class ShadowLearningRecorder:
                     continue
                 started = time.perf_counter_ns()
                 image = Image.frombytes("RGB", (item.width, item.height), item.rgb)
-                name = f"frames/{self.saved:06d}-{item.frame_id:09d}.jpg"
+                name = f"frames/{self.saved:06d}.jpg"
                 path = self.root / name
                 image.save(
                     path,
