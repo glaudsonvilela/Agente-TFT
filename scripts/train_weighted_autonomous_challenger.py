@@ -114,7 +114,7 @@ def assert_gold(rows: Any) -> None:
     for row in rows:
         if (
             not isinstance(row, dict)
-            or row.get("decision") != "supported"
+            or row.get("decision") not in {"supported", "bootstrap_supported"}
             or row.get("label_source")
             != "autonomous_shop_purchase_bench_consensus_v1"
             or row.get("training_eligible") is not True
