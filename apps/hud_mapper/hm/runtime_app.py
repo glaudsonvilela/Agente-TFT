@@ -735,8 +735,23 @@ class App:
                 threading.Thread(target=finish,daemon=True).start()
         if self.finalizing and self.final_result is not None:
             result=self.final_result;self.final_result=None;self.finalizing=False;self.last_finished=s.options.output
+            learning_job=None
+            if (result.get("post_session_learning_eligible")
+                    and not s.options.replay_review
+                    and not self.smoke):
+                try:
+                    from .post_session_learning import launch_post_session_learning
+                    learning_job=launch_post_session_learning(self.last_finished)
+                except Exception as exc:
+                    learning_job=dict(status="launch_error",error=str(exc),
+                                      training_started=False,active_model_changed=False)
+            if learning_job is not None:
+                result["post_session_learning_job"]=learning_job
             self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(result,ensure_ascii=False,indent=2))
             label=("Concluído (encerrado pelo usuário)" if result.get("stopped_by_user") else "Concluído") if result.get("execution_complete") else "Parcial: "+str(result.get("error"))
+            if learning_job:
+                state=learning_job.get("status")
+                label += " · aprendizado pós-jogo: " + str(state)
             self.status.configure(text=label+" · "+self.last_finished)
             if self.smoke or self.closing:self.root.destroy();return
         elif self.closing and (not s or s.finished) and not self.finalizing:self.root.destroy();return
