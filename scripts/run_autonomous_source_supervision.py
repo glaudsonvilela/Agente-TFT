@@ -34,6 +34,28 @@ def die(message: str) -> "NoReturn":
     raise SystemExit(f"AUTONOMOUS_SUPERVISION_ERROR: {message}")
 
 
+def preserve_failed_output(path: Path) -> None:
+    if not path.exists():
+        return
+    for i in range(1, 100):
+        candidate = path.with_name(f"{path.name}.failed-{i:02d}")
+        if not candidate.exists():
+            path.rename(candidate)
+            print(f"AUTONOMOUS_SUPERVISION_RESUME=preserved:{candidate}")
+            return
+    die(f"too many failed outputs beside {path}")
+
+
+def print_success(summary: dict, output: Path) -> None:
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    print("\nAUTONOMOUS_SUPERVISION_OK=true")
+    print(f"OUTPUT={output}")
+    print(f"GOLD_AUTO_LABELS={summary.get('gold_auto_labels')}")
+    print("HUMAN_REVIEW_REQUIRED=false")
+    print("TRAINING_PERFORMED=false")
+    print("RUNTIME_APPROVED=false")
+
+
 def run_stream(command: list[str], cwd: Path, log: Path) -> None:
     print("+", " ".join(command), flush=True)
     with log.open("w", encoding="utf-8") as handle:
@@ -71,8 +93,20 @@ def main() -> int:
     )
     output = args.output.expanduser()
 
+    summary_path = output / "summary.json"
+    if summary_path.is_file():
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        if (
+            summary.get("human_review_required") is False
+            and summary.get("training_performed") is False
+            and summary.get("runtime_approved") is False
+        ):
+            print("AUTONOMOUS_SUPERVISION_RESUME=already_complete")
+            print_success(summary, output)
+            return 0
+        die("existing summary does not satisfy autonomous supervision contract")
     if output.exists():
-        die(f"output already exists: {output}")
+        preserve_failed_output(output)
     if not (collection / "report.json").is_file() or not (
         collection / "observations.jsonl"
     ).is_file():
@@ -155,13 +189,7 @@ def main() -> int:
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
 
-    print(json.dumps(summary, ensure_ascii=False, indent=2))
-    print("\nAUTONOMOUS_SUPERVISION_OK=true")
-    print(f"OUTPUT={output}")
-    print(f"GOLD_AUTO_LABELS={summary['gold_auto_labels']}")
-    print("HUMAN_REVIEW_REQUIRED=false")
-    print("TRAINING_PERFORMED=false")
-    print("RUNTIME_APPROVED=false")
+    print_success(summary, output)
     return 0
 
 
