@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T19:35:00-03:00",
+  "recorded_at": "2026-10-06T19:50:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,12 +1346,12 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "propagate_supported_gold_only",
-    "runner": "scripts/propagate_autonomous_gold_anchors.py",
-    "success_condition": "Generate silver_auto only from adjudicated supported gold anchors.",
-    "next_if_success": "Build weighted autonomous challenger training with gold=1.0 and silver=0.35, preserving validation/test isolation.",
+    "status": "train_first_weighted_autonomous_challenger",
+    "runner": "scripts/train_weighted_autonomous_challenger.py",
+    "success_condition": "Train challenger with explicit gold/silver weights and freeze selection using only base validation.",
+    "next_if_challenger_wins": "Evaluate frozen winner on Minjo/KH development sources, then acquire a fresh independent holdout before shadow promotion.",
+    "next_if_baseline_retained": "Acquire another authorized training-side source autonomously and repeat without weakening thresholds.",
     "human_review_required": false,
-    "training_performed": false,
     "runtime_approved": false
   },
   "latest_ssd_inventory": {
@@ -1631,6 +1631,46 @@
     "runner": "scripts/propagate_autonomous_gold_anchors.py",
     "human_review_required": false,
     "training_performed": false,
+    "runtime_approved": false
+  },
+  "autonomous_propagation_supported_result": {
+    "status": "complete",
+    "source_id": "youtube:Ot358nhRJl0",
+    "gold_anchors": 2,
+    "gold_ids": {
+      "DA_18_ElderDragon": 1,
+      "DA_Draven18": 1
+    },
+    "silver_auto_labels": 6,
+    "silver_ids": {
+      "DA_18_ElderDragon": 1,
+      "DA_Draven18": 5
+    },
+    "recommended_silver_training_weight": 0.35,
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "weighted_autonomous_challenger": {
+    "status": "ready",
+    "runner": "scripts/train_weighted_autonomous_challenger.py",
+    "baseline": "optimizer-default-parity / transfer-vertical",
+    "training_extra": {
+      "gold_auto": 2,
+      "gold_weight": 1,
+      "silver_auto": 6,
+      "silver_weight": 0.35,
+      "source_id": "youtube:Ot358nhRJl0"
+    },
+    "selection_rule": "validation_named_macro_recall_then_lower_cross_entropy",
+    "baseline_validation": {
+      "correct": 21,
+      "named": 32,
+      "named_macro_recall": 0.6893939393939393
+    },
+    "minjo_kh_used_for_selection": false,
+    "validation_test_partitions_modified": false,
+    "human_review_required": false,
     "runtime_approved": false
   }
 }
