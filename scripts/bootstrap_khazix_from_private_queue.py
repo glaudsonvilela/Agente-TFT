@@ -29,8 +29,10 @@ DEFAULT_QUEUE = Path(
 )
 DEFAULT_OUTPUT_ROOT = Path(
     "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261006/"
-    "khazix-private-queue-source"
+    "khazix-cross-source-queue-v2"
 )
+CHECKPOINT = Path("docs/evidence/recognizer-training-20261005/checkpoint.json")
+ANNOTATIONS = Path("configs/training/unit-gallery-transfer-reviewed-expanded-20261005.json")
 TARGET_ID = "DA_18_KhaZix"
 
 
@@ -43,6 +45,121 @@ def load_json(path: Path) -> Any:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
         die(f"cannot read JSON {path}: {exc}")
+
+
+
+def source_token(frame: dict[str, Any]) -> str | None:
+    for key in ("source_video_id", "source_id"):
+        value = frame.get(key)
+        if isinstance(value, str) and value:
+            return value
+    value = frame.get("source_url")
+    return value if isinstance(value, str) and value else None
+
+
+def current_khazix_train_sources(manifest: dict[str, Any]) -> set[str]:
+    sources: set[str] = set()
+    for frame in manifest.get("frames", []):
+        if not isinstance(frame, dict) or frame.get("identity_split") != "train":
+            continue
+        has_khazix = any(
+            isinstance(entity, dict)
+            and isinstance(entity.get("identity"), dict)
+            and entity["identity"].get("id") == TARGET_ID
+            for entity in frame.get("entities", [])
+        )
+        if has_khazix:
+            src = source_token(frame)
+            if src:
+                sources.add(src)
+    return sources
+
+
+def checkpoint_source_partitions(checkpoint: dict[str, Any]) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for source in checkpoint.get("sources", []):
+        if not isinstance(source, dict):
+            continue
+        partition = source.get("partition")
+        if not isinstance(partition, str) or not partition:
+            continue
+        for value in (
+            source.get("source_id"),
+            source.get("url"),
+            (source.get("progress") or {}).get("source_id")
+            if isinstance(source.get("progress"), dict)
+            else None,
+            (source.get("progress") or {}).get("source_url")
+            if isinstance(source.get("progress"), dict)
+            else None,
+        ):
+            if isinstance(value, str) and value:
+                result[value] = partition
+    return result
+
+
+def allowed_training_partition(partition: str | None) -> bool:
+    return partition in {"training", "training_pool_unlabeled"}
+
+
+def select_cross_source_candidate(
+    rows: list[Any],
+    source_partitions: dict[str, str],
+    existing_khazix_sources: set[str],
+) -> dict[str, Any]:
+    eligible: list[dict[str, Any]] = []
+    rejected: dict[str, int] = {}
+    for raw in rows:
+        if not isinstance(raw, dict) or raw.get("target_id_suggestion") != TARGET_ID:
+            continue
+        source_id = raw.get("source_id")
+        source_url = raw.get("source_url")
+        if not isinstance(source_id, str) or not source_id:
+            rejected["missing_source_id"] = rejected.get("missing_source_id", 0) + 1
+            continue
+        if source_id in existing_khazix_sources:
+            rejected["already_supervises_khazix"] = rejected.get("already_supervises_khazix", 0) + 1
+            continue
+        partition = source_partitions.get(source_id)
+        if partition is None and isinstance(source_url, str):
+            partition = source_partitions.get(source_url)
+        if not allowed_training_partition(partition):
+            rejected[f"checkpoint_partition:{partition or 'missing'}"] = (
+                rejected.get(f"checkpoint_partition:{partition or 'missing'}", 0) + 1
+            )
+            continue
+        if (
+            raw.get("model_prediction_used_as_label") is not False
+            or raw.get("training_eligible") is not False
+        ):
+            rejected["queue_contract_violation"] = rejected.get("queue_contract_violation", 0) + 1
+            continue
+        row = dict(raw)
+        row["checkpoint_partition"] = partition
+        eligible.append(row)
+
+    if not eligible:
+        die(
+            "no cross-source KhaZix queue candidate survives current checkpoint policy; "
+            f"rejected={json.dumps(rejected, sort_keys=True)}"
+        )
+
+    def rank(row: dict[str, Any]) -> tuple[int, float, float]:
+        accepted = 1 if row.get("suggestion_kind") == "accepted_suggestion" else 0
+        score = row.get("suggestion_score")
+        numeric_score = float(score) if isinstance(score, (int, float)) else -1.0
+        seconds = row.get("source_seconds_nominal")
+        numeric_seconds = float(seconds) if isinstance(seconds, (int, float)) else 0.0
+        return (-accepted, -numeric_score, numeric_seconds)
+
+    eligible.sort(key=rank)
+    selected = eligible[0]
+    selected["_selection_audit"] = {
+        "eligible_candidates": len(eligible),
+        "rejected": rejected,
+        "existing_khazix_train_sources": sorted(existing_khazix_sources),
+    }
+    return selected
 
 
 def sha256_file(path: Path) -> str:
@@ -143,19 +260,20 @@ def main() -> int:
     if not isinstance(rows, list):
         die("queue.json missing queue list")
 
-    matches = [
-        row
-        for row in rows
-        if isinstance(row, dict)
-        and row.get("target_id_suggestion") == TARGET_ID
-        and row.get("new_source_relative_to_current_train") is True
-    ]
-    if len(matches) != 1:
-        die(f"expected exactly one new-source KhaZix queue row, found {len(matches)}")
-    row = matches[0]
+    checkpoint_path = (repo / CHECKPOINT).resolve()
+    annotations_path = (repo / ANNOTATIONS).resolve()
+    if not checkpoint_path.is_file() or not annotations_path.is_file():
+        die("current checkpoint/annotations are required for source-policy revalidation")
+    checkpoint = load_json(checkpoint_path)
+    annotations = load_json(annotations_path)
+    source_partitions = checkpoint_source_partitions(checkpoint)
+    existing_khazix_sources = current_khazix_train_sources(annotations)
 
-    if row.get("model_prediction_used_as_label") is not False or row.get("training_eligible") is not False:
-        die("historical queue candidate must remain suggestion-only")
+    row = select_cross_source_candidate(
+        rows,
+        source_partitions=source_partitions,
+        existing_khazix_sources=existing_khazix_sources,
+    )
 
     source_id = row.get("source_id")
     source_url = row.get("source_url")
@@ -172,13 +290,15 @@ def main() -> int:
     if not report_path.is_file():
         die(f"referenced collection missing report.json: {collection}")
     report = load_json(report_path)
+    current_partition = row.get("checkpoint_partition")
     if (
         report.get("source_id") != source_id
         or report.get("partition") != "training_pool_unlabeled"
+        or not allowed_training_partition(current_partition)
         or report.get("training_performed") is not False
         or report.get("runtime_approved") is not False
     ):
-        die("referenced collection fails training-side provenance contract")
+        die("referenced collection fails current training-side provenance contract")
 
     start = max(0, seconds - args.before_seconds)
     end = seconds + args.after_seconds
@@ -212,6 +332,9 @@ def main() -> int:
             "queue_training_eligible": False,
             "source_collection": str(collection),
             "source_collection_report_sha256": sha256_file(report_path),
+            "checkpoint_sha256": sha256_file(checkpoint_path),
+            "checkpoint_partition": current_partition,
+            "selection_audit": row.get("_selection_audit"),
             "window_start_seconds": start,
             "window_end_seconds": end,
             "human_review_required": False,
@@ -286,6 +409,8 @@ def main() -> int:
         "source_id": source_id,
         "window_source_id": window_source_id,
         "source_url": source_url,
+        "checkpoint_partition": current_partition,
+        "selection_audit": row.get("_selection_audit"),
         "window_start_seconds": start,
         "window_end_seconds": end,
         "window_duration_seconds": info["duration"],
