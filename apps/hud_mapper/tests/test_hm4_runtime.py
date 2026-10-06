@@ -104,7 +104,7 @@ class HM4RuntimeTests(unittest.TestCase):
         try:
             app=App(root,'hm4')
             root.update_idletasks()
-            self.assertTrue(app.replay_review.get())
+            self.assertFalse(app.replay_review.get())
             self.assertTrue(app.voice_enabled.get())
             self.assertEqual(app.tip_label.winfo_manager(),'pack')
             self.assertEqual(app.tip_label.master.winfo_manager(),'pack')
