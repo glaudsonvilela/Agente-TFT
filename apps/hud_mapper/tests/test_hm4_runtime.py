@@ -5,7 +5,7 @@ from unittest.mock import patch
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
     HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source,
-    async_hp_delivery
+    async_hp_delivery, terminal_hp_observation
 )
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
@@ -17,6 +17,33 @@ from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_terminal_hp_signal_is_fail_closed(self):
+        self.assertTrue(terminal_hp_observation(
+            {'status':'accepted','hp':0,'signed_hp':0}
+        ))
+        self.assertTrue(terminal_hp_observation(
+            {'status':'negative_display','hp':None,'signed_hp':-3}
+        ))
+        self.assertFalse(terminal_hp_observation(
+            {'status':'accepted','hp':1,'signed_hp':1}
+        ))
+        self.assertFalse(terminal_hp_observation(
+            {'status':'ocr_uncertain','hp':0,'signed_hp':0}
+        ))
+        self.assertFalse(terminal_hp_observation(None))
+
+    def test_match_end_is_a_complete_graceful_stop(self):
+        value=completion_state(
+            error=None,
+            cancelled=True,
+            stopped_by_user=False,
+            stopped_by_match_end=True,
+        )
+        self.assertTrue(value['execution_complete'])
+        self.assertTrue(value['stopped_by_match_end'])
+        self.assertFalse(value['cancelled'])
+        self.assertFalse(value['stopped_by_user'])
+
     def test_level_advice_requires_temporal_evidence_and_current_affordability(self):
         engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
         answer={'origin':'observed_pixels','source_ms':1000,'hud':[
