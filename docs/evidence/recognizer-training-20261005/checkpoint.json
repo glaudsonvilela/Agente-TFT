@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T20:55:00-03:00",
+  "recorded_at": "2026-10-06T21:12:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,10 +1346,11 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "bootstrap_khazix_from_private_queue_source",
+    "status": "rerun_khazix_queue_bootstrap_with_current_policy",
     "runner": "scripts/bootstrap_khazix_from_private_queue.py",
+    "expected_behavior": "Exclude qkG10NeqM3A and the existing KhaZix source twitch:2891052706; select the strongest remaining current-policy training-side candidate, preferably Dishsoap twitch:2891050468 if present.",
+    "next_if_no_candidate": "Stop using the stale queue for KhaZix and acquire another authorized training-side source without weakening thresholds.",
     "next_if_labels": "Build a multi-source challenger using only admitted gold/silver evidence.",
-    "next_if_zero": "Mark the private source diagnostic-only and move to another validation-weak class/source; do not weaken thresholds.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1946,6 +1947,40 @@
       "tooltip exact-name temporal consensus"
     ],
     "fallback": "low-weight multi-teacher shop silver if direct gold remains zero",
+    "human_review_required": false,
+    "training_performed": false,
+    "runtime_approved": false
+  },
+  "khazix_private_queue_attempt": {
+    "status": "invalid_source_policy_diagnostic_only",
+    "source_id": "youtube:qkG10NeqM3A",
+    "source_partition": "unlabeled_appearance_review_only",
+    "downloaded_window_seconds": 149.816667,
+    "dense_frames": 75,
+    "dense_unit_crops": 331,
+    "shop_transition_proposals": 0,
+    "tooltip_proposals": 0,
+    "gold_auto_labels": 0,
+    "silver_auto_labels": 0,
+    "training_eligible": false,
+    "reason": "Historical queue was stale relative to the current authoritative checkpoint. Source is appearance-review-only.",
+    "do_not_train": true,
+    "human_review_required": false,
+    "runtime_approved": false
+  },
+  "queue_source_revalidation": {
+    "status": "implemented",
+    "commit": "66c7fa43c185cd1a7ea5301374906de7e85d168b",
+    "rules": [
+      "Historical queue suggestions never become labels.",
+      "Every queue source is revalidated against the current checkpoint before acquisition.",
+      "evaluation_only, evaluation_unlabeled, and unlabeled_appearance_review_only are blocked.",
+      "For KhaZix, sources already providing current supervised KhaZix examples are excluded when selecting cross-source candidates."
+    ],
+    "current_khazix_supervised_sources": [
+      "twitch:2891052706"
+    ],
+    "preferred_remaining_training_source_if_present_in_queue": "twitch:2891050468",
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
