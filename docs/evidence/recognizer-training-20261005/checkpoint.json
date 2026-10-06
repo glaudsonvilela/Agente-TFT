@@ -1844,5 +1844,22 @@
     "human_review_required": false,
     "training_performed": false,
     "runtime_approved": false
+  },
+  "working_method_policy": {
+    "status": "active",
+    "rule": "Continuously record what works, what fails, why, and the exact thresholds/provenance so future updates can adapt immediately instead of repeating experiments.",
+    "always_record": [
+      "winning model and frozen hashes",
+      "successful autonomous teachers and their confidence tier",
+      "failed teachers and exact rejection reason",
+      "source usefulness and source-specific quirks",
+      "thresholds that must remain fixed unless independently revalidated",
+      "performance/latency observations",
+      "training outcomes and selection metrics",
+      "runtime/shadow readiness blockers",
+      "UI/design decisions that affect integration"
+    ],
+    "update_behavior": "Before introducing a new method, compare against recorded working/failed paths and preserve backwards-compatible fallbacks.",
+    "human_review_required": false
   }
 }
