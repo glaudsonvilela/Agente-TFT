@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T19:50:00-03:00",
+  "recorded_at": "2026-10-06T19:45:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,14 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "train_first_weighted_autonomous_challenger",
-    "runner": "scripts/train_weighted_autonomous_challenger.py",
-    "success_condition": "Train challenger with explicit gold/silver weights and freeze selection using only base validation.",
-    "next_if_challenger_wins": "Evaluate frozen winner on Minjo/KH development sources, then acquire a fresh independent holdout before shadow promotion.",
-    "next_if_baseline_retained": "Acquire another authorized training-side source autonomously and repeat without weakening thresholds.",
+    "status": "acquire_new_training_source_and_bootstrap_unseen_classes",
+    "reason": "First autonomous challenger tied macro recall and slightly worsened validation cross-entropy; same-source autonomous expansion is insufficient.",
+    "priorities": [
+      "new source diversity",
+      "direct game-derived gold anchors",
+      "bootstrap policy for classes absent from supervised support",
+      "do not weaken autonomous thresholds"
+    ],
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1670,6 +1673,30 @@
     },
     "minjo_kh_used_for_selection": false,
     "validation_test_partitions_modified": false,
+    "human_review_required": false,
+    "runtime_approved": false
+  },
+  "weighted_autonomous_challenger_result": {
+    "status": "complete_baseline_retained",
+    "output_root": "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/autonomous-challenger-20261006-193813",
+    "baseline": {
+      "validation_correct": 21,
+      "validation_named": 32,
+      "validation_macro_recall": 0.6893939393939393,
+      "validation_cross_entropy": 3.196618214249611
+    },
+    "challenger": {
+      "validation_correct": 21,
+      "validation_named": 32,
+      "validation_macro_recall": 0.6893939393939393,
+      "validation_cross_entropy": 3.1973003707826138,
+      "test_correct": 79,
+      "test_named": 127,
+      "gold_auto": 2,
+      "silver_auto": 6
+    },
+    "selected_arm": "optimizer-default-parity",
+    "minjo_kh_used_for_selection": false,
     "human_review_required": false,
     "runtime_approved": false
   }
