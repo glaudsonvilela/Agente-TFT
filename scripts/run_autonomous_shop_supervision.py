@@ -70,6 +70,44 @@ def load_json(path: Path) -> dict:
         die(f"cannot read {path}: {exc}")
 
 
+def retry_path(path: Path) -> Path:
+    """Preserve an incomplete attempt and choose a fresh sibling."""
+    for i in range(1, 100):
+        candidate = path.with_name(f"{path.name}-retry-{i:02d}")
+        if not candidate.exists():
+            return candidate
+    die(f"too many preserved retry directories beside {path}")
+
+
+def valid_dense(path: Path, source_id: str) -> dict | None:
+    report_path = path / "report.json"
+    if not report_path.is_file():
+        return None
+    report = load_json(report_path)
+    if (
+        report.get("status") == "complete"
+        and report.get("collection_mode") == "annotation_only"
+        and report.get("review_interval_seconds") == 2
+        and report.get("sample_interval_seconds") == 2
+        and report.get("training_performed") is False
+        and report.get("inference_performed") is False
+        and report.get("source_id") == source_id
+    ):
+        return report
+    return None
+
+
+def print_success(summary: dict, output: Path) -> None:
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    print("\nAUTONOMOUS_SHOP_SUPERVISION_OK=true")
+    print(f"OUTPUT={output}")
+    print(f"SHOP_TRANSITION_PROPOSALS={summary.get('shop_transition_proposals')}")
+    print(f"GOLD_AUTO_LABELS={summary.get('gold_auto_labels')}")
+    print("HUMAN_REVIEW_REQUIRED=false")
+    print("TRAINING_PERFORMED=false")
+    print("RUNTIME_APPROVED=false")
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--repo", type=Path, default=Path.cwd())
@@ -90,29 +128,34 @@ def main() -> int:
         die(f"source video not found: {source}")
     if not catalog.is_file():
         die(f"catalog not found: {catalog}")
-    if output.exists():
-        die(f"output already exists: {output}")
 
-    output.mkdir(parents=True)
-    logs = output / "logs"
-    logs.mkdir()
-
-    # Reuse only a complete dense annotation-only collection. Otherwise create it.
-    dense_report_path = dense / "report.json"
-    if dense.exists():
-        if not dense_report_path.is_file():
-            die(f"dense collection exists without report.json: {dense}")
-        dense_report = load_json(dense_report_path)
-        if not (
-            dense_report.get("status") == "complete"
-            and dense_report.get("collection_mode") == "annotation_only"
-            and dense_report.get("review_interval_seconds") == 2
-            and dense_report.get("sample_interval_seconds") == 2
-            and dense_report.get("training_performed") is False
-            and dense_report.get("inference_performed") is False
+    # Idempotent completion: a finished run can be invoked again safely.
+    summary_path = output / "summary.json"
+    if summary_path.is_file():
+        summary = load_json(summary_path)
+        if (
+            summary.get("source_id") == args.source_id
+            and summary.get("human_review_required") is False
+            and summary.get("training_performed") is False
+            and summary.get("runtime_approved") is False
         ):
-            die("existing dense collection does not satisfy autonomous shop contract")
-    else:
+            print("AUTONOMOUS_SHOP_SUPERVISION_RESUME=already_complete")
+            print_success(summary, output)
+            return 0
+        die("existing summary does not match the current safety/source contract")
+
+    output.mkdir(parents=True, exist_ok=True)
+    logs = output / "logs"
+    logs.mkdir(exist_ok=True)
+
+    # Reuse a complete dense annotation-only collection. Preserve an incomplete
+    # attempt and create a fresh sibling instead of deleting or overwriting it.
+    dense_report = valid_dense(dense, args.source_id) if dense.exists() else None
+    if dense.exists() and dense_report is None:
+        preserved = dense
+        dense = retry_path(dense)
+        print(f"AUTONOMOUS_SHOP_SUPERVISION_RESUME=preserve_incomplete_dense:{preserved}")
+    if dense_report is None:
         run_stream(
             [
                 sys.executable,
@@ -133,13 +176,30 @@ def main() -> int:
             repo,
             logs / "dense-collection.log",
         )
-        dense_report = load_json(dense_report_path)
+        dense_report = valid_dense(dense, args.source_id)
+        if dense_report is None:
+            die("new dense collection did not satisfy autonomous shop contract")
 
     if dense_report.get("source_id") != args.source_id:
         die("dense collection source ID mismatch")
 
     miner = output / "shop-miner"
-    run_stream(
+    miner_report_path = miner / "report.json"
+    transitions = miner / "transition-proposals.json"
+    miner_report = None
+    if miner_report_path.is_file() and transitions.is_file():
+        candidate = load_json(miner_report_path)
+        if candidate.get("status") == "complete" and candidate.get("source_id") == args.source_id:
+            miner_report = candidate
+            print("AUTONOMOUS_SHOP_SUPERVISION_RESUME=reuse_shop_miner")
+    if miner.exists() and miner_report is None:
+        preserved = miner
+        miner = retry_path(miner)
+        miner_report_path = miner / "report.json"
+        transitions = miner / "transition-proposals.json"
+        print(f"AUTONOMOUS_SHOP_SUPERVISION_RESUME=preserve_incomplete_miner:{preserved}")
+    if miner_report is None:
+        run_stream(
         [
             "cargo",
             "run",
@@ -154,15 +214,31 @@ def main() -> int:
             str(miner),
         ],
         repo,
-        logs / "shop-miner.log",
-    )
-
-    transitions = miner / "transition-proposals.json"
-    if not transitions.is_file():
-        die("shop miner did not produce transition-proposals.json")
+        logs / f"{miner.name}.log",
+        )
+        if not transitions.is_file() or not miner_report_path.is_file():
+            die("shop miner did not produce its sealed outputs")
+        miner_report = load_json(miner_report_path)
 
     labels = output / "shop-consensus"
-    run_stream(
+    label_report_path = labels / "report.json"
+    label_report = None
+    if label_report_path.is_file():
+        candidate = load_json(label_report_path)
+        if (
+            candidate.get("policy") == "autonomous_shop_purchase_bench_consensus_v1"
+            and candidate.get("human_review_required") is False
+            and candidate.get("training_performed") is False
+        ):
+            label_report = candidate
+            print("AUTONOMOUS_SHOP_SUPERVISION_RESUME=reuse_shop_consensus")
+    if labels.exists() and label_report is None:
+        preserved = labels
+        labels = retry_path(labels)
+        label_report_path = labels / "report.json"
+        print(f"AUTONOMOUS_SHOP_SUPERVISION_RESUME=preserve_incomplete_consensus:{preserved}")
+    if label_report is None:
+        run_stream(
         [
             sys.executable,
             str(repo / "scripts/autolabel_shop_purchase_consensus.py"),
@@ -174,11 +250,11 @@ def main() -> int:
             str(labels),
         ],
         repo,
-        logs / "shop-consensus.log",
-    )
-
-    miner_report = load_json(miner / "report.json")
-    label_report = load_json(labels / "report.json")
+        logs / f"{labels.name}.log",
+        )
+        if not label_report_path.is_file():
+            die("shop consensus did not produce report.json")
+        label_report = load_json(label_report_path)
 
     summary = {
         "schema_version": 1,
@@ -205,14 +281,7 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    print(json.dumps(summary, ensure_ascii=False, indent=2))
-    print("\nAUTONOMOUS_SHOP_SUPERVISION_OK=true")
-    print(f"OUTPUT={output}")
-    print(f"SHOP_TRANSITION_PROPOSALS={summary['shop_transition_proposals']}")
-    print(f"GOLD_AUTO_LABELS={summary['gold_auto_labels']}")
-    print("HUMAN_REVIEW_REQUIRED=false")
-    print("TRAINING_PERFORMED=false")
-    print("RUNTIME_APPROVED=false")
+    print_success(summary, output)
     return 0
 
 
