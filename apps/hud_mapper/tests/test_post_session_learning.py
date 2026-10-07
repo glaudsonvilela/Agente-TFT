@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
+import shutil
+import zipfile
 from types import SimpleNamespace
 
 from hm.learning_capture import ShadowLearningRecorder
 from hm.post_session_learning import launch_post_session_learning
+from hm.model_update import ModelUpdater, active_model_metadata
 
 
 def frame(index: int, source_ms: float):
@@ -97,3 +101,135 @@ def test_post_session_launcher_queues_server_upload_without_local_training(tmp_p
     assert value["local_training_performed"] is False
     assert value["active_model_changed"] is False
 
+
+
+def _champion_zip(path: Path, *, generation: int, version: str, identity: str):
+    metadata = b'{"schema_version":2,"coordinate_format":"normalized_tlbr","panels":["bench","shop"]}'
+    model = b"fake-onnx"
+    rows = [
+        {"path": "models/deployment-candidate.json",
+         "sha256": hashlib.sha256(metadata).hexdigest(),
+         "bytes": len(metadata), "role": "l3_metadata"},
+        {"path": "models/candidate-model.onnx",
+         "sha256": hashlib.sha256(model).hexdigest(),
+         "bytes": len(model), "role": "l3_onnx"},
+    ]
+    manifest = {
+        "schema_version": 1,
+        "package_type": "agente_tft_neural_runtime_bundle",
+        "version": version,
+        "generation": generation,
+        "runtime_min_version": "0.7.0",
+        "model_identity_sha256": identity,
+        "files": rows,
+    }
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("model-package.json", json.dumps(manifest))
+        archive.writestr("models/deployment-candidate.json", metadata)
+        archive.writestr("models/candidate-model.onnx", model)
+
+
+class _FakeChampionClient:
+    def __init__(self, package: Path, generation: int, version: str, identity: str):
+        self.package = package
+        self.generation = generation
+        self.version = version
+        self.identity = identity
+
+    def connect(self):
+        return {"token": "x" * 64, "expires_at_ms": 999999999}
+
+    def champion_manifest(self, channel="stable"):
+        assert channel == "stable"
+        return {
+            "schema_version": 1,
+            "channel": "stable",
+            "version": self.version,
+            "generation": self.generation,
+            "published_at_ms": 1,
+            "package_sha256": hashlib.sha256(self.package.read_bytes()).hexdigest(),
+            "package_bytes": self.package.stat().st_size,
+            "package_path": f"/v1/neural/champion/package/stable/{self.generation}",
+            "runtime_min_version": "0.7.0",
+            "model_identity_sha256": self.identity,
+            "approved": True,
+            "training_provenance": {},
+        }
+
+    def download_champion_package(self, channel, generation, destination, max_bytes=512*1024*1024):
+        assert channel == "stable" and generation == self.generation
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(self.package, destination)
+        return {
+            "sha256": hashlib.sha256(destination.read_bytes()).hexdigest(),
+            "bytes": destination.stat().st_size,
+            "path": str(destination),
+        }
+
+
+def test_zero_click_model_update_activates_only_when_idle(tmp_path, monkeypatch):
+    import hm.model_update as update
+
+    package = tmp_path / "champion.zip"
+    identity = "a" * 64
+    _champion_zip(package, generation=2, version="v2", identity=identity)
+    monkeypatch.setattr(update, "_probe_l3", lambda path: identity)
+
+    idle = {"value": False}
+    updater = ModelUpdater(
+        root=tmp_path / "models",
+        is_idle=lambda: idle["value"],
+        client_factory=lambda: _FakeChampionClient(package, 2, "v2", identity),
+    )
+    result = updater.check_once()
+    assert result["status"] == "ready_waiting_for_idle"
+    assert not (tmp_path / "models" / "active.json").exists()
+    assert (tmp_path / "models" / "pending.json").is_file()
+
+    idle["value"] = True
+    activated = updater.activate_pending_if_idle()
+    assert activated["status"] == "active"
+    assert activated["generation"] == 2
+    active = json.loads((tmp_path / "models" / "active.json").read_text())
+    assert active["generation"] == 2
+    assert Path(active["l3_metadata"]).is_file()
+
+
+def test_model_update_rolls_back_to_previous_on_active_health_failure(tmp_path, monkeypatch):
+    import hm.model_update as update
+
+    root = tmp_path / "models"
+    old_dir = root / "versions" / "000000000001-v1"
+    new_dir = root / "versions" / "000000000002-v2"
+    for folder in (old_dir, new_dir):
+        (folder / "models").mkdir(parents=True)
+        (folder / "models" / "deployment-candidate.json").write_text("{}")
+        (folder / "models" / "candidate-model.onnx").write_bytes(b"x")
+
+    old = {
+        "generation": 1,
+        "version": "v1",
+        "model_identity_sha256": "1" * 64,
+        "l3_metadata": str(old_dir / "models" / "deployment-candidate.json"),
+    }
+    new = {
+        "generation": 2,
+        "version": "v2",
+        "model_identity_sha256": "2" * 64,
+        "l3_metadata": str(new_dir / "models" / "deployment-candidate.json"),
+    }
+    root.mkdir(exist_ok=True)
+    (root / "previous.json").write_text(json.dumps(old))
+    (root / "active.json").write_text(json.dumps(new))
+
+    def probe(path):
+        if "000000000002" in str(path):
+            raise update.ModelUpdateError("broken")
+        return "1" * 64
+
+    monkeypatch.setattr(update, "_probe_l3", probe)
+    selected = active_model_metadata(root)
+    assert selected == (old_dir / "models" / "deployment-candidate.json").resolve()
+    restored = json.loads((root / "active.json").read_text())
+    assert restored["generation"] == 1
+    assert restored["status"] == "active_rollback"
