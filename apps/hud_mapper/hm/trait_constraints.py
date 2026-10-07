@@ -31,6 +31,19 @@ def bind_observed_traits(raw: dict | None, names: set[str]) -> dict:
         return {"status": "unavailable", "traits": [], "unmatched": []}
     if raw.get("status") == "cached_ocr" and raw.get("age_ms", 99999) > 2000:
         return {"status": "stale", "traits": [], "unmatched": []}
+    # The text baseline repeats every 53 px. A short OCR fragment such as
+    # "FI" still proves that a row exists, even when its name cannot be bound.
+    text_rows: set[int] = set()
+    for word in raw.get("words") or []:
+        box = word.get("box")
+        value = word.get("text")
+        if not isinstance(box, list) or len(box) != 4 or not isinstance(value, str):
+            continue
+        center = (box[1] + box[3]) / 2
+        slot = round((center - 275) / 53)
+        if (0 <= slot <= 3 and abs(center - (275 + slot * 53)) <= 11 and
+                len(_fold(value)) >= 2 and word.get("confidence", 0) >= .25):
+            text_rows.add(slot)
     rows: list[list[dict]] = []
     for word in sorted(raw.get("words") or [], key=lambda item: item.get("box", [0, 0])[1]):
         text = word.get("text")
@@ -38,7 +51,10 @@ def bind_observed_traits(raw: dict | None, names: set[str]) -> dict:
         confidence = word.get("confidence")
         if not isinstance(text, str) or not isinstance(box, list) or len(box) != 4:
             continue
-        if type(confidence) not in (int, float) or confidence < .55 or len(_fold(text)) < 4:
+        # Tesseract often assigns low confidence to the Portuguese cedilla
+        # with the English model, even when the full trait name is legible.
+        # Catalog matching below still requires a unique full-word match.
+        if type(confidence) not in (int, float) or confidence < .30 or len(_fold(text)) < 4:
             continue
         center = (box[1] + box[3]) / 2
         if rows and abs(center - sum((w["box"][1] + w["box"][3]) / 2
@@ -65,8 +81,10 @@ def bind_observed_traits(raw: dict | None, names: set[str]) -> dict:
             matched.append({"name": choice, "observed_text": observed,
                             "method": method,
                             "confidence": min(w["confidence"] for w in row)})
-    return {"status": "candidates" if matched else "no_catalog_match",
+    return {"status": "candidates" if matched and len(matched) == len(text_rows)
+            else "partial_panel" if matched else "no_catalog_match",
             "traits": matched, "unmatched": unmatched,
+            "detected_text_rows": len(text_rows),
             "complete_panel_verified": False, "identity_verified": False}
 
 

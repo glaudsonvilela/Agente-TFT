@@ -38,3 +38,22 @@ def test_stale_or_unmatched_trait_text_does_not_constrain_roster():
                                                  box=[140, 428, 180, 440])]}, names)
     assert stale['status'] == 'stale'
     assert roster_hypotheses(stale, [dict(color='green', rect={'y': 300})], units)['rosters'] == []
+
+
+def test_low_confidence_full_trait_word_can_bind_without_accepting_noise():
+    names, _ = _catalog()
+    words = [dict(text='Enfeiticador', confidence=.36, box=[140, 325, 228, 337]),
+             dict(text='cosy', confidence=.28, box=[140, 440, 166, 452])]
+    binding = bind_observed_traits({'status': 'raw_ocr', 'words': words}, names)
+    assert [row['name'] for row in binding['traits']] == ['Enfeitiçador']
+    assert binding['traits'][0]['method'] == 'exact_text'
+
+
+def test_short_word_on_separate_trait_row_blocks_roster_exhaustiveness():
+    names, units = _catalog()
+    words = [dict(text='Enfeitigador', confidence=.80, box=[140, 268, 221, 285]),
+             dict(text='FI', confidence=.81, box=[141, 322, 149, 334])]
+    binding = bind_observed_traits({'status': 'raw_ocr', 'words': words}, names)
+    assert binding['status'] == 'partial_panel'
+    assert binding['detected_text_rows'] == 2
+    assert roster_hypotheses(binding, [dict(color='green', rect={'y': 573})], units)['rosters'] == []
