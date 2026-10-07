@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from trainer.scripts.manage_shadow_promotion import gate
+import importlib.util
+from pathlib import Path
+
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "manage_shadow_promotion.py"
+SPEC = importlib.util.spec_from_file_location("manage_shadow_promotion_test_target", SCRIPT)
+assert SPEC is not None and SPEC.loader is not None
+MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(MODULE)
+gate = MODULE.gate
 
 
 def _row(session: str, *, gold=2, cand=2, champ=1, accepted=1, wrong=0):
