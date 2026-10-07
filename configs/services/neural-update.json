@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "policy": "automatic_neural_model_update_v1",
+  "service_url": "https://tft.bigbanana.io",
+  "channel": "stable",
+  "check_on_app_start": true,
+  "check_after_match": true,
+  "check_during_match": false,
+  "download_in_background": true,
+  "user_confirmation_required": false,
+  "activate_during_match": false,
+  "activate_only_when_idle": true,
+  "verify_sha256": true,
+  "verify_compatibility": true,
+  "atomic_activation": true,
+  "keep_previous_versions": 2,
+  "rollback_on_load_failure": true,
+  "rollback_on_startup_health_failure": true,
+  "offline_behavior": "continue_with_last_approved_model",
+  "training_location": "BigBANANA",
+  "local_inference": true
+}
