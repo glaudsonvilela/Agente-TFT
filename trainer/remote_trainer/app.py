@@ -10,11 +10,18 @@ import time
 import zipfile
 from typing import Callable
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, status
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
 
 from .schemas import (
     CancelResponse,
+    NeuralFrameMetadata,
+    NeuralInferenceResult,
+    NeuralLearningStatus,
+    NeuralSealRequest,
+    NeuralSessionRecord,
+    NeuralSessionRequest,
+    NeuralSessionStatus,
     ShadowSessionRecord,
     ShadowSessionRequest,
     ShadowStatus,
@@ -27,6 +34,7 @@ from .schemas import (
     TrainingSessionRequest,
 )
 from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
+from .neural import NeuralBackend, NeuralBackendNotConfigured, NullNeuralBackend
 from .resources import ResourceSampler
 from .policy_learning import policy_learning_jobs, simulation_coverage, scene_learning_jobs
 
@@ -166,10 +174,11 @@ def create_app(
     store: TrainerStore | None = None,
     clock_ms: Callable[[], int] = unix_ms,
     api_token: str | None = None,
+    neural_backend: NeuralBackend | None = None,
 ) -> FastAPI:
     app = FastAPI(
         title="Agente TFT Remote Trainer",
-        version="0.1.0",
+        version="0.2.0",
     )
     app.state.store = store or TrainerStore(
         backend=NullTrainerBackend(),
@@ -177,6 +186,7 @@ def create_app(
     )
     app.state.clock_ms = clock_ms
     app.state.resources = ResourceSampler()
+    app.state.neural_backend = neural_backend or NullNeuralBackend()
     app.state.api_token = (
         api_token
         if api_token is not None
@@ -212,6 +222,8 @@ def create_app(
             "protocol_version": 1,
             "storage": "sqlite" if app.state.store.db_path else "memory",
             "simulator_ready": not isinstance(app.state.store.backend, NullTrainerBackend),
+            "neural_backend_ready": not isinstance(app.state.neural_backend, NullNeuralBackend),
+            "neural_location": "server",
         }
 
     @app.get("/v1/training/dashboard-metrics")
@@ -237,6 +249,190 @@ def create_app(
         page = Path(__file__).with_name("dashboard.html").read_text(encoding="utf-8")
         return HTMLResponse(page, headers={"Cache-Control": "no-store",
                                            "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'none'; object-src 'none'"})
+
+
+    @app.post(
+        "/v1/neural/sessions",
+        response_model=NeuralSessionRecord,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(require_token)],
+    )
+    async def create_neural_session(
+        request: NeuralSessionRequest,
+    ) -> NeuralSessionRecord:
+        if app.state.store.evidence_root is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="persistent neural evidence storage is not configured",
+            )
+        return await app.state.store.create_neural_session(
+            request,
+            app.state.clock_ms(),
+        )
+
+    @app.get(
+        "/v1/neural/sessions/{neural_session_id}",
+        response_model=NeuralSessionRecord,
+        dependencies=[Depends(require_token)],
+    )
+    async def get_neural_session(
+        neural_session_id: str,
+    ) -> NeuralSessionRecord:
+        record = await app.state.store.get_neural_session(neural_session_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail="neural session not found")
+        return record
+
+    @app.post(
+        "/v1/neural/sessions/{neural_session_id}/frames",
+        response_model=NeuralInferenceResult,
+        dependencies=[Depends(require_token)],
+    )
+    async def submit_neural_frame(
+        neural_session_id: str,
+        request: Request,
+        frame_id: int,
+        source_ms: int,
+        width: int,
+        height: int,
+        image_sha256: str,
+        capture_role: str,
+        content_type: str = Header(alias="Content-Type"),
+    ) -> NeuralInferenceResult:
+        body = await request.body()
+        try:
+            metadata = NeuralFrameMetadata(
+                neural_session_id=neural_session_id,
+                frame_id=frame_id,
+                source_ms=source_ms,
+                width=width,
+                height=height,
+                image_sha256=image_sha256,
+                image_bytes=len(body),
+                content_type=content_type,
+                capture_role=capture_role,
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        if hashlib.sha256(body).hexdigest() != metadata.image_sha256:
+            raise HTTPException(status_code=409, detail="frame sha256 mismatch")
+
+        root = app.state.store.evidence_root
+        if root is None:
+            raise HTTPException(status_code=503, detail="neural evidence storage unavailable")
+        folder = root / neural_session_id / "frames"
+        if not folder.is_dir():
+            raise HTTPException(status_code=404, detail="neural session not found")
+        suffix = ".jpg" if content_type == "image/jpeg" else ".png"
+        final = folder / f"{frame_id:012d}{suffix}"
+        meta_path = folder / f"{frame_id:012d}.json"
+        if final.exists() or meta_path.exists():
+            raise HTTPException(status_code=409, detail="frame_id already stored")
+        temporary = final.with_suffix(final.suffix + ".partial")
+        try:
+            with temporary.open("xb") as handle:
+                handle.write(body)
+                handle.flush()
+                os.fsync(handle.fileno())
+            temporary.replace(final)
+            meta_path.write_text(
+                metadata.model_dump_json(indent=2) + "\n",
+                encoding="utf-8",
+            )
+            await app.state.store.record_neural_frame(
+                neural_session_id,
+                metadata.source_ms,
+                metadata.image_bytes,
+                app.state.clock_ms(),
+            )
+        except (KeyError, ValueError) as exc:
+            temporary.unlink(missing_ok=True)
+            final.unlink(missing_ok=True)
+            meta_path.unlink(missing_ok=True)
+            code = 404 if isinstance(exc, KeyError) else 409
+            raise HTTPException(status_code=code, detail=str(exc)) from exc
+
+        try:
+            return await app.state.neural_backend.infer(metadata, body)
+        except Exception as exc:
+            return NeuralInferenceResult(
+                neural_session_id=neural_session_id,
+                frame_id=metadata.frame_id,
+                source_ms=metadata.source_ms,
+                status="error",
+                error=f"neural_backend_error:{type(exc).__name__}",
+            )
+
+    @app.post(
+        "/v1/neural/sessions/{neural_session_id}/seal",
+        response_model=NeuralSessionRecord,
+        dependencies=[Depends(require_token)],
+    )
+    async def seal_neural_session(
+        neural_session_id: str,
+        request: NeuralSealRequest,
+        background_tasks: BackgroundTasks,
+    ) -> NeuralSessionRecord:
+        record = await app.state.store.get_neural_session(neural_session_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail="neural session not found")
+        if record.frames_received != request.frame_count:
+            raise HTTPException(
+                status_code=409,
+                detail="seal frame_count does not match received evidence",
+            )
+        root = app.state.store.evidence_root
+        assert root is not None
+        folder = root / neural_session_id
+        seal_path = folder / "seal.json"
+        seal_doc = request.model_dump()
+        seal_doc.update(
+            neural_session_id=neural_session_id,
+            frames_received=record.frames_received,
+            bytes_received=record.bytes_received,
+        )
+        seal_path.write_text(
+            json.dumps(seal_doc, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        try:
+            sealed = await app.state.store.seal_neural_session(
+                neural_session_id,
+                app.state.clock_ms(),
+            )
+        except (KeyError, ValueError) as exc:
+            code = 404 if isinstance(exc, KeyError) else 409
+            raise HTTPException(status_code=code, detail=str(exc)) from exc
+        background_tasks.add_task(
+            _process_neural_session,
+            app.state.store,
+            app.state.neural_backend,
+            neural_session_id,
+            app.state.clock_ms,
+        )
+        return sealed
+
+    @app.get(
+        "/v1/neural/sessions/{neural_session_id}/learning",
+        response_model=NeuralLearningStatus,
+        dependencies=[Depends(require_token)],
+    )
+    async def neural_learning_status(
+        neural_session_id: str,
+    ) -> NeuralLearningStatus:
+        record = await app.state.store.get_neural_session(neural_session_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail="neural session not found")
+        return NeuralLearningStatus(
+            neural_session_id=neural_session_id,
+            status=record.status,
+            champion_model_sha256=record.champion_model_sha256,
+            challenger_model_sha256=record.shadow_candidate_sha256,
+            challenger_selected=record.shadow_candidate_sha256 is not None,
+            shadow_candidate_created=record.shadow_candidate_sha256 is not None,
+            metrics={},
+            error=record.error,
+        )
 
     @app.post(
         "/v1/training/sessions",
@@ -482,6 +678,61 @@ def create_app(
         return ended
 
     return app
+
+
+
+async def _process_neural_session(
+    store: TrainerStore,
+    backend: NeuralBackend,
+    neural_session_id: str,
+    clock_ms: Callable[[], int],
+) -> None:
+    root = store.evidence_root
+    if root is None:
+        await store.update_neural_status(
+            neural_session_id,
+            NeuralSessionStatus.FAILED,
+            clock_ms(),
+            error="neural_evidence_storage_unavailable",
+        )
+        return
+    await store.update_neural_status(
+        neural_session_id,
+        NeuralSessionStatus.PROCESSING,
+        clock_ms(),
+    )
+    try:
+        result = await backend.learn_from_sealed_session(
+            neural_session_id,
+            root / neural_session_id,
+        )
+    except NeuralBackendNotConfigured as exc:
+        await store.update_neural_status(
+            neural_session_id,
+            NeuralSessionStatus.FAILED,
+            clock_ms(),
+            error=str(exc),
+        )
+        return
+    except Exception as exc:
+        await store.update_neural_status(
+            neural_session_id,
+            NeuralSessionStatus.FAILED,
+            clock_ms(),
+            error=f"neural_backend_error:{type(exc).__name__}",
+        )
+        return
+
+    champion = result.get("champion_model_sha256")
+    shadow = result.get("shadow_candidate_sha256")
+    await store.update_neural_status(
+        neural_session_id,
+        NeuralSessionStatus.COMPLETE,
+        clock_ms(),
+        champion_model_sha256=champion if isinstance(champion, str) else None,
+        shadow_candidate_sha256=shadow if isinstance(shadow, str) else None,
+        error=None,
+    )
 
 
 async def _execute_job(
