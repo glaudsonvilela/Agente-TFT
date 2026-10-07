@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T21:45:00-03:00",
+  "recorded_at": "2026-10-06T22:10:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,9 +1346,11 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "build_and_validate_hm45_self_learning_core",
-    "success_condition": "Core 0.7.0 builds with learner health OK, Python contracts pass, then one real Windows match produces SEALED learning capture and post-session job.",
-    "next_if_success": "Run first end-to-end Windows match in shadow; inspect automatic post-session outcome without promoting live model.",
+    "status": "run_local_contract_tests_then_build_hm45_core_0_7_0",
+    "local_test_command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay python3 -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py apps/hud_mapper/tests/test_hm4_runtime.py",
+    "build_command": "python3 scripts/build_hm45_core.py",
+    "success_condition": "Python post-session/HM4 contracts pass and Docker core reports L3/OCR/HP/B4 + post-session learner OK.",
+    "next_if_success": "Build Windows installer and run one real live match shadow-learning field test.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -2036,5 +2038,88 @@
     "installer_refuses_missing_or_unhealthy_learner": true,
     "windows_wsl_field_test": false,
     "runtime_approved": false
+  },
+  "windows_post_match_learning_implementation": {
+    "status": "code_complete_pending_local_and_ci_validation",
+    "branch_head": "95031339b5bca84f35459edea684d8936ac923df",
+    "core_version": "0.7.0",
+    "live_mode_default": true,
+    "replay_mode_opt_in": true,
+    "replay_can_train": false,
+    "shadow_capture": {
+      "interval_seconds": 2,
+      "canonical_resolution": "1920x1080",
+      "nonblocking_writer": true,
+      "bounded_queue": true,
+      "max_frames": 3600,
+      "max_bytes": 2147483648
+    },
+    "match_completion": {
+      "natural_capture_end": true,
+      "persistent_terminal_hp_defeat": true,
+      "terminal_hp_confirmations": 2,
+      "terminal_hp_min_span_ms": 500,
+      "victory_final_screen_detector": false,
+      "manual_graceful_stop": true
+    },
+    "wsl_learner": {
+      "portable_baseline": true,
+      "champion": "optimizer-default-parity",
+      "prebuilt_rust_binaries": true,
+      "rust_toolchain_on_windows": false,
+      "pytorch_on_windows": false,
+      "ffmpeg_in_wsl": true,
+      "onnxruntime_in_wsl": true,
+      "trainer_bundled_required_by_installer": true,
+      "learner_health_required_by_installer": true
+    },
+    "post_game_pipeline": [
+      "sealed capture",
+      "direct shop gold",
+      "tooltip gold fallback",
+      "gold adjudication",
+      "silver propagation",
+      "weighted challenger",
+      "frozen validation selection",
+      "shadow candidate only"
+    ],
+    "automatic_active_model_replacement": false,
+    "human_review_required": false,
+    "runtime_approved": false,
+    "validation_state": "CI queued/in_progress; local build not yet executed"
+  },
+  "ci_current": {
+    "commit": "95031339b5bca84f35459edea684d8936ac923df",
+    "observed_at": "2026-10-06T22:10:00-03:00",
+    "runs": {
+      "ci": {
+        "id": 37550373697,
+        "status": "pending"
+      },
+      "native_unit_features": {
+        "id": 37550373751,
+        "status": "queued"
+      },
+      "hm45_installer_contracts": {
+        "id": 37550373763,
+        "status": "queued"
+      },
+      "hm3_runtime": {
+        "id": 37550373757,
+        "status": "queued"
+      },
+      "hud_media": {
+        "id": 37550373773,
+        "status": "in_progress"
+      },
+      "hm2": {
+        "id": 37550373846,
+        "status": "queued"
+      },
+      "e1_replay": {
+        "id": 37550373738,
+        "status": "queued"
+      }
+    }
   }
 }
