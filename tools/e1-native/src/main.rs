@@ -357,12 +357,12 @@ impl Readers{
       } else {
         #[cfg(any(windows,target_os="linux"))]
         let shop_read=if let Some(engine)=self.resident_text.as_mut(){
-            screen::perceive(f,&self.shop,engine,Some(&self.recovery))
+            screen::perceive_with_name_fallback(f,&self.shop,engine,Some(&self.recovery),true)
         }else{
-            screen::perceive(f,&self.shop,&mut self.ocr,Some(&self.recovery))
+            screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true)
         };
         #[cfg(not(any(windows,target_os="linux")))]
-        let shop_read=screen::perceive(f,&self.shop,&mut self.ocr,Some(&self.recovery));
+        let shop_read=screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true);
         match shop_read {
          Ok(read)=>{
           located=read.panel_status=="located";

@@ -27,6 +27,8 @@ pub struct SlotRead {
     pub catalog_base_cost: Option<u8>,
     pub empty_similarity: Option<f32>,
     pub name_attempts: Vec<Attempt>,
+    pub strip_name_attempt: Option<Attempt>,
+    pub name_evidence: Option<String>,
     pub cost_attempts: Vec<Attempt>,
 }
 #[derive(Debug, Clone, Serialize)]
@@ -45,7 +47,8 @@ pub struct ScreenRead {
 fn base_slot(slot: u8, status: &str, similarity: Option<f32>) -> SlotRead {
     SlotRead { slot, status: status.into(), observed_name: None, observed_cost: None,
         name_confidence: None, cost_confidence: None, unit_id: None, catalog_status: "not_bound".into(),
-        catalog_base_cost: None, empty_similarity: similarity, name_attempts: vec![], cost_attempts: vec![] }
+        catalog_base_cost: None, empty_similarity: similarity, name_attempts: vec![],
+        strip_name_attempt: None, name_evidence: None, cost_attempts: vec![] }
 }
 
 pub fn normalize(text: &str) -> String {
@@ -117,8 +120,100 @@ fn atlas<E: HudOcrEngine>(frame: &FrameEnvelope, layout: &ScreenLayout, engine: 
     Ok((image, tiles))
 }
 
+fn occupied_shop_portraits(frame: &FrameEnvelope, layout: &ScreenLayout) -> usize {
+    let bpp = frame.pixel_format.bytes_per_pixel();
+    layout.slots.iter().filter(|slot| {
+        let mut bright = 0;
+        for y in slot.card.y + 12..slot.card.y + 72 {
+            for x in slot.card.x + 34..slot.card.x + 154 {
+                let offset = y as usize * frame.stride_bytes as usize + x as usize * bpp;
+                if frame.pixels[offset..offset + bpp].iter().any(|channel| *channel > 55) {
+                    bright += 1;
+                }
+            }
+        }
+        bright >= 720
+    }).count()
+}
+
+fn strip_names<E: TextBlockOcrEngine>(frame: &FrameEnvelope, layout: &ScreenLayout,
+    engine: &mut E) -> Result<[Option<Attempt>; 5], String> {
+    let x0 = layout.slots[0].card.x.checked_sub(1).ok_or("shop strip x origin")?;
+    let y0 = layout.slots[0].name.y.checked_sub(4).ok_or("shop strip y origin")?;
+    let width = layout.slots[4].card.x + layout.slots[4].card.width - x0 + 1;
+    let height = 39u32;
+    if width > 1200 || x0 + width > frame.width || y0 + height > frame.height {
+        return Err("shop strip exceeds fixed UI geometry".into());
+    }
+    let mut mask = GrayImage { width: width * 2, height: height * 2,
+        stride_bytes: width * 2, pixels: vec![255; (width * height * 4) as usize] };
+    let bpp = frame.pixel_format.bytes_per_pixel();
+    for y in 6..31u32 {
+        for x in 0..width {
+            let in_name = layout.slots.iter().any(|slot| {
+                let offset = x0 + x;
+                offset >= slot.name.x.saturating_sub(1)
+                    && offset < slot.name.x + slot.name.width + 6
+            });
+            if !in_name { continue; }
+            let offset = (y0 + y) as usize * frame.stride_bytes as usize + (x0 + x) as usize * bpp;
+            let pixel = &frame.pixels[offset..offset + 3];
+            let low = *pixel.iter().min().unwrap();
+            let high = *pixel.iter().max().unwrap();
+            if low >= 130 && high - low <= 100 {
+                let row = (y * 2 * mask.width + x * 2) as usize;
+                mask.pixels[row] = 0;
+                mask.pixels[row + 1] = 0;
+                mask.pixels[row + mask.width as usize] = 0;
+                mask.pixels[row + mask.width as usize + 1] = 0;
+            }
+        }
+    }
+    let words = engine.recognize_text_block(&mask)?;
+    let mut by_slot: [Vec<&TextWord>; 5] = std::array::from_fn(|_| Vec::new());
+    for word in &words {
+        if word.height < 18 || word.confidence < 0.70 || !word.confidence.is_finite() { continue; }
+        let x = x0 + word.x / 2;
+        let Some((index, _)) = layout.slots.iter().enumerate().find(|(_, slot)| {
+            x >= slot.name.x.saturating_sub(1) && x < slot.name.x + slot.name.width + 6
+        }) else { continue; };
+        if word.text.chars().filter(|c| c.is_alphabetic()).count() < 2
+            || !word.text.chars().all(|c| c.is_alphabetic() || "'-.’".contains(c)) { continue; }
+        by_slot[index].push(word);
+    }
+    Ok(std::array::from_fn(|index| {
+        let words = &mut by_slot[index];
+        if words.is_empty() { return None; }
+        words.sort_by_key(|word| word.x);
+        let text = words.iter().map(|word| word.text.as_str()).collect::<Vec<_>>().join(" ");
+        let confidence = words.iter().map(|word| word.confidence).fold(1.0, f32::min);
+        Some(Attempt { scale: 2, text: Some(text), confidence: Some(confidence),
+            reason: if confidence >= 0.85 { "eligible" } else { "below_min_confidence" }.into() })
+    }))
+}
+
+fn combine_name(atlas: (Option<String>, Option<f32>), strip: Option<&Attempt>)
+    -> (Option<String>, Option<f32>, Option<String>) {
+    let strip = strip.filter(|attempt| attempt.reason == "eligible")
+        .and_then(|attempt| attempt.text.as_ref().zip(attempt.confidence));
+    match (atlas, strip) {
+        ((Some(a), Some(ac)), Some((b, bc))) if normalize(&a) == normalize(b) =>
+            (Some(a), Some(ac.min(bc)), Some("atlas_and_strip_agree".into())),
+        ((Some(_), Some(_)), Some(_)) => (None, None, Some("atlas_strip_conflict".into())),
+        ((Some(a), Some(ac)), None) => (Some(a), Some(ac), Some("atlas_only".into())),
+        ((None, _), Some((b, bc))) if bc >= 0.94 =>
+            (Some(b.clone()), Some(bc), Some("strong_strip_only".into())),
+        _ => (None, None, None),
+    }
+}
+
 pub fn perceive<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &mut E,
     recovery: Option<&RecoveryProfile>) -> Result<ScreenRead, String> {
+    perceive_with_name_fallback(frame, layout, engine, recovery, false)
+}
+
+pub fn perceive_with_name_fallback<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, layout: &ScreenLayout, engine: &mut E,
+    recovery: Option<&RecoveryProfile>, allow_name_fallback: bool) -> Result<ScreenRead, String> {
     frame.validate().map_err(|e| e.to_string())?;
     if (frame.width, frame.height) != (layout.reference_width, layout.reference_height) {
         return Err("UI profile resolution mismatch; no silent resize".into());
@@ -138,6 +233,11 @@ pub fn perceive<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, lay
             visible = profile.accepts(&diag.fallback_scores);
             if visible { diag.panel_source = "structural_fallback".into(); }
         }
+    }
+    let name_fallback = !visible && allow_name_fallback && occupied_shop_portraits(frame, layout) >= 3;
+    if name_fallback {
+        visible = true;
+        if let Some(diag) = trace.as_mut() { diag.panel_source = "portraits_pending_name_ocr".into(); }
     }
     let mut out = ScreenRead { timestamp_ms: frame.captured_at_ms, layout_id: layout.id.clone(),
         panel_status: if visible { "located" } else { "unresolved" }.into(),
@@ -179,10 +279,22 @@ pub fn perceive<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, lay
             else { out.slots[tile.slot].cost_attempts.push(value); }
         }
     }
-    for slot in &mut out.slots {
+    let read_strip = allow_name_fallback && (name_fallback || out.slots.iter().any(|slot| {
+        slot.status != "empty_observed" && agree(&slot.name_attempts).0.is_none()
+    }));
+    let strip = if read_strip {
+        out.ocr_process_calls += 1;
+        match strip_names(frame, layout, engine) {
+            Ok(reads) => Some(reads),
+            Err(error) => { out.error = Some(error); None }
+        }
+    } else { None };
+    for (index, slot) in out.slots.iter_mut().enumerate() {
         if slot.status == "empty_observed" { continue; }
         if out.error.is_some() { slot.status = "read_error".into(); continue; }
-        (slot.observed_name, slot.name_confidence) = agree(&slot.name_attempts);
+        slot.strip_name_attempt = strip.as_ref().and_then(|reads| reads[index].clone());
+        (slot.observed_name, slot.name_confidence, slot.name_evidence) =
+            combine_name(agree(&slot.name_attempts), slot.strip_name_attempt.as_ref());
         let (cost, confidence) = agree(&slot.cost_attempts);
         slot.observed_cost = cost.and_then(|value| value.parse::<u16>().ok());
         slot.cost_confidence = confidence;
@@ -190,12 +302,36 @@ pub fn perceive<E: HudOcrEngine + TextBlockOcrEngine>(frame: &FrameEnvelope, lay
             (true, true) => "offer_text_readable", (true, false) | (false, true) => "partially_readable", _ => "unknown",
         }.into();
     }
+    if name_fallback {
+        if out.slots.iter().filter(|slot| slot.observed_name.is_some()).count() >= 3 {
+            if let Some(diag) = out.recovery.as_mut() { diag.panel_source = "portraits_and_shop_names".into(); }
+        } else {
+            out.panel_status = "unresolved".into();
+            out.slots = (0..5).map(|i| base_slot(i, "unavailable", None)).collect();
+            if let Some(diag) = out.recovery.as_mut() { diag.panel_source = "unresolved".into(); }
+        }
+    }
     Ok(out)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn two_name_reads_agree_or_abstain_without_multiplying_ocr_scores() {
+        let strip = Attempt { scale: 2, text: Some("Elder Dragon".into()),
+            confidence: Some(0.95), reason: "eligible".into() };
+        let agreed = combine_name((Some("elder dragon".into()), Some(0.91)), Some(&strip));
+        assert_eq!(agreed.0.as_deref(), Some("elder dragon"));
+        assert_eq!(agreed.1, Some(0.91));
+        assert_eq!(agreed.2.as_deref(), Some("atlas_and_strip_agree"));
+        let conflict = combine_name((Some("Ashe".into()), Some(0.98)), Some(&strip));
+        assert_eq!(conflict.0, None);
+        assert_eq!(conflict.2.as_deref(), Some("atlas_strip_conflict"));
+        assert_eq!(combine_name((None, None), Some(&strip)).0.as_deref(), Some("Elder Dragon"));
+        let weak = Attempt { confidence: Some(0.88), ..strip };
+        assert_eq!(combine_name((None, None), Some(&weak)).0, None);
+    }
     fn a(scale: u8, text: &str, conf: f32) -> Attempt {
         Attempt { scale, text: Some(text.into()), confidence: Some(conf),
             reason: if conf >= 0.7 { "eligible" } else { "below_min_confidence" }.into() }
