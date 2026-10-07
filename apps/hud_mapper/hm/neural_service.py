@@ -215,3 +215,74 @@ class NeuralServiceClient:
             f"/v1/neural/sessions/{neural_session_id}/learning",
             {},
         )
+
+
+    def champion_manifest(self, channel: str = "stable") -> dict:
+        if channel not in {"stable", "shadow"}:
+            raise NeuralServiceError("Canal de modelo neural inválido.")
+        return self._json_request(
+            "GET",
+            f"/v1/neural/champion?channel={channel}",
+            {},
+        )
+
+    def download_champion_package(
+        self,
+        channel: str,
+        generation: int,
+        destination: Path,
+        *,
+        max_bytes: int = 512 * 1024 * 1024,
+    ) -> dict:
+        if not self.token:
+            raise NeuralServiceError("Sessão neural não conectada.")
+        connection = self.connection_factory(self.host, self.port, timeout=30)
+        path = f"/v1/neural/champion/package/{channel}/{generation}"
+        try:
+            connection.request(
+                "GET",
+                path,
+                headers={
+                    "Authorization": "Bearer " + self.token,
+                    "Accept": "application/zip",
+                },
+            )
+            response = connection.getresponse()
+            if response.status != 200:
+                raise NeuralServiceError(
+                    f"Download da rede neural recusado (HTTP {response.status})."
+                )
+            expected = response.getheader("X-TFT-Package-SHA256")
+            if not isinstance(expected, str) or len(expected) != 64:
+                raise NeuralServiceError("Servidor não informou hash do pacote neural.")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            temporary = destination.with_suffix(destination.suffix + ".partial")
+            total = 0
+            h = hashlib.sha256()
+            with temporary.open("wb") as handle:
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise NeuralServiceError("Pacote neural excedeu o limite local.")
+                    h.update(chunk)
+                    handle.write(chunk)
+                handle.flush()
+            digest = h.hexdigest()
+            if digest != expected:
+                temporary.unlink(missing_ok=True)
+                raise NeuralServiceError("Hash do pacote neural não confere.")
+            temporary.replace(destination)
+            return {
+                "sha256": digest,
+                "bytes": total,
+                "path": str(destination),
+            }
+        except NeuralServiceError:
+            raise
+        except Exception:
+            raise NeuralServiceError("Falha ao baixar atualização neural.") from None
+        finally:
+            connection.close()
