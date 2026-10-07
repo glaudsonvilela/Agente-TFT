@@ -12,7 +12,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/opt/agente-tft:/opt/agente-tft/apps/hud_mapper:/opt/agente-tft/apps/e1_replay \
     OMP_THREAD_LIMIT=1 \
     OPENBLAS_NUM_THREADS=1 \
-    AGENTE_TFT_RESIDENT_OCR=required
+    AGENTE_TFT_RESIDENT_OCR=required \
+    AGENTE_TFT_DISABLE_LOCAL_NEURAL=1
 RUN apt-get update \
  && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng libtesseract5 libgomp1 \
  && rm -rf /var/lib/apt/lists/* \
