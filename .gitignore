@@ -65,3 +65,4 @@ logs/
 # External training laboratories (pinned by lock metadata)
 training/upstream/TFT_GOAT/
 trainer/data/
+trainer/neural-bundle/
