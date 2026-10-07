@@ -10,6 +10,7 @@ services:
       TRAINER_HOST: 0.0.0.0
       TRAINER_PORT: 8801
       TRAINER_DB_PATH: /var/lib/agente-tft-trainer/trainer.sqlite3
+      NEURAL_CLIENT_SESSIONS_ENABLED: "1"
     ports:
       - "127.0.0.1:8801:8801"
     volumes:
