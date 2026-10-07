@@ -58,7 +58,8 @@ class BoardHubLive:
                                                  size=self.equipped['icon_size'])
         self.item_neural=None
         self.item_neural_error=None
-        if (root/'configs/catalog/active-item-neural-v1.json').is_file():
+        if ((neural_root/'configs/catalog/active-item-neural-v1.json').is_file() or
+                (root/'configs/catalog/active-item-neural-v1.json').is_file()):
             try:
                 from .item_neural import ItemIconObserver
                 self.item_neural=ItemIconObserver(root, neural_root)

@@ -786,3 +786,19 @@ Próximas dependências para dicas reais: instalar um modelo visual compatível,
 medir identidade e posição em fontes independentes, ligar o estado observado ao
 motor de decisões e atualizar os dados sazonais para o patch corrente. Esta
 correção não promove previsões a rótulos nem prova acerto das dicas.
+
+## Pacote neural no cliente (7 de outubro)
+
+O BigBANANA já publica a geração estável 1 com L3, classificador DINO de
+unidades e classificador de ícones de itens. O download HTTPS e a verificação
+integral do pacote foram exercitados em Linux com a mesma rotina do cliente:
+os dois componentes opcionais passaram no health-check. O arquivo publicado
+continua sendo um modelo inicial de laboratório; os escores de unidade não são
+calibrados e sua cobertura independente não sustenta dicas específicas.
+
+No cliente, o leitor de itens agora carrega também o plano dentro do pacote
+aprovado. A interface Tk inicia a verificação de atualização ao abrir; a
+interface Studio espera o modelo inicial antes de iniciar a captura, evitando
+uma sessão silenciosa sem classificador por corrida com o download. O teste
+integrado de leitura na máquina Windows e o desempenho prolongado continuam
+pendentes. A lógica de conselho ainda exige estado de jogo validado.

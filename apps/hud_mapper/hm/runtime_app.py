@@ -253,6 +253,7 @@ class App:
         root.protocol("WM_DELETE_WINDOW",self.close)
         root.after(30,self.tick)
         if self.hm4:root.after(16,self.preview_tick)
+        if self.hm4:root.after(0,self._schedule_neural_update_check)
 
     def render_hero(self,_=None):
         if not self.hm4:return

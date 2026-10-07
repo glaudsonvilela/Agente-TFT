@@ -21,7 +21,7 @@ import time
 from urllib.parse import unquote, urlsplit
 from urllib.request import urlopen
 
-from .runtime_app import default_hm4_output_root, discover_model, runtime_paths, target_label
+from .runtime_app import default_hm4_output_root, runtime_paths, target_label
 from .runtime_session import HM4RuntimeSession
 from .session import Options
 
@@ -97,7 +97,7 @@ class StudioController:
                              if t["kind"] == kind and t["id"] == identity), None)
             if selected is None:
                 raise ValueError("Fonte indisponível; selecione novamente.")
-            model = discover_model()
+            model = str(self.model_updater.ensure_active())
             vm_core = (Path(sys.executable).resolve().parent / "core" / "core-package.json").is_file()
             output = str(Path(default_hm4_output_root()) /
                          ("hm4-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
@@ -106,7 +106,7 @@ class StudioController:
             self.preview_jpeg = None
             self.session = HM4RuntimeSession(Options(
                 **paths, video=f"capture://{kind}/{identity}", output=output,
-                model=model, dataset_only=not bool(model), seconds=7200,
+                model=model, dataset_only=False, seconds=7200,
                 map_hz=4, reader_hz=1, sample_hz=.2 if vm_core else 1,
                 scenario="studio-live-lab" if not replay_review else "studio-replay-review",
                 replay_review=bool(replay_review), board_hub_enabled=True,

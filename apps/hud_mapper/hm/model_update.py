@@ -341,7 +341,26 @@ class ModelUpdater:
         self.client_factory = client_factory
         self.lock = threading.Lock()
         self.running = False
+        self.idle_event = threading.Event()
+        self.idle_event.set()
         self.last_result: dict | None = None
+
+    def ensure_active(self, timeout: float = 30) -> Path:
+        """Resolve the initial model before starting a session that needs it."""
+        active = active_model_metadata(self.root)
+        if active is not None:
+            return active
+        self.check_async()
+        if not self.idle_event.wait(timeout):
+            raise ModelUpdateError("A atualização neural ainda está em andamento.")
+        active = active_model_metadata(self.root)
+        if active is None:
+            reason = (self.last_result or {}).get("error")
+            raise ModelUpdateError(
+                "O modelo neural inicial não está disponível. "
+                + (str(reason) if reason else "Verifique a conexão com o BigBANANA.")
+            )
+        return active
 
     def _active(self) -> dict | None:
         try:
@@ -500,6 +519,7 @@ class ModelUpdater:
             if self.running:
                 return False
             self.running = True
+            self.idle_event.clear()
 
         def work():
             try:
@@ -512,6 +532,7 @@ class ModelUpdater:
             finally:
                 with self.lock:
                     self.running = False
+                    self.idle_event.set()
 
         threading.Thread(
             target=work,
