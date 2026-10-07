@@ -76,6 +76,7 @@ args = [
     '--hidden-import', 'hm.post_session_learning',
     '--hidden-import', 'hm.neural_service',
     '--hidden-import', 'hm.model_update',
+    '--hidden-import', 'hm.unit_head',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
