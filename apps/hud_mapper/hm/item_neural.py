@@ -7,12 +7,17 @@ import time
 
 
 class ItemIconObserver:
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, neural_root: Path | None = None):
         import onnxruntime as ort
-        plan=json.loads((root/'configs/catalog/active-item-neural-v1.json').read_text())
+        neural_root = Path(neural_root) if neural_root is not None else root
+        plan_path = neural_root/'configs/catalog/active-item-neural-v1.json'
+        if not plan_path.is_file():
+            plan_path = root/'configs/catalog/active-item-neural-v1.json'
+            neural_root = root
+        plan=json.loads(plan_path.read_text())
         catalog=json.loads((root/'configs/catalog/active-visual-reference-v1.json').read_text())
         reference=json.loads((root/catalog['reference']/'reference.json').read_text())
-        folder=root/'models/item-icons'
+        folder=neural_root/'models/item-icons'
         for name,digest in plan['files'].items():
             if name not in ('item-icons.onnx','metadata.json'):
                 raise ValueError('Unexpected item model artifact')
