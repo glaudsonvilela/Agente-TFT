@@ -92,6 +92,7 @@ class NeuralServiceClient:
         *,
         auth: bool = True,
         timeout: float = 8,
+        _retry_auth: bool = True,
     ) -> dict:
         connection = self.connection_factory(self.host, self.port, timeout=timeout)
         try:
@@ -106,6 +107,16 @@ class NeuralServiceClient:
             raw = response.read(1024 * 1024 + 1)
             if len(raw) > 1024 * 1024:
                 raise NeuralServiceError("Resposta neural excedeu o limite.")
+            if response.status == 401 and auth and _retry_auth:
+                self.connect(force_refresh=True)
+                return self._json_request(
+                    method,
+                    path,
+                    payload,
+                    auth=auth,
+                    timeout=timeout,
+                    _retry_auth=False,
+                )
             if response.status not in (200, 201, 202):
                 raise NeuralServiceError(f"Servidor neural indisponível (HTTP {response.status}).")
             value = json.loads(raw or b"{}")
@@ -181,6 +192,7 @@ class NeuralServiceClient:
         image: bytes,
         content_type: str,
         capture_role: str,
+        _retry_auth: bool = True,
     ) -> dict:
         if not self.token:
             raise NeuralServiceError("Sessão neural não conectada.")
@@ -211,6 +223,19 @@ class NeuralServiceClient:
             raw = response.read(1024 * 1024 + 1)
             if len(raw) > 1024 * 1024:
                 raise NeuralServiceError("Resposta de inferência excedeu o limite.")
+            if response.status == 401 and _retry_auth:
+                self.connect(force_refresh=True)
+                return self.upload_frame(
+                    neural_session_id,
+                    frame_id=frame_id,
+                    source_ms=source_ms,
+                    width=width,
+                    height=height,
+                    image=image,
+                    content_type=content_type,
+                    capture_role=capture_role,
+                    _retry_auth=False,
+                )
             if response.status not in (200, 201, 202):
                 raise NeuralServiceError(f"Upload neural recusado (HTTP {response.status}).")
             value = json.loads(raw or b"{}")
@@ -270,6 +295,7 @@ class NeuralServiceClient:
         destination: Path,
         *,
         max_bytes: int = 512 * 1024 * 1024,
+        _retry_auth: bool = True,
     ) -> dict:
         if not self.token:
             raise NeuralServiceError("Sessão neural não conectada.")
@@ -285,6 +311,15 @@ class NeuralServiceClient:
                 },
             )
             response = connection.getresponse()
+            if response.status == 401 and _retry_auth:
+                self.connect(force_refresh=True)
+                return self.download_champion_package(
+                    channel,
+                    generation,
+                    destination,
+                    max_bytes=max_bytes,
+                    _retry_auth=False,
+                )
             if response.status != 200:
                 raise NeuralServiceError(
                     f"Download da rede neural recusado (HTTP {response.status})."
