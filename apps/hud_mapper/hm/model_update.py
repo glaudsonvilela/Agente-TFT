@@ -62,8 +62,15 @@ def _version_tuple(value: str) -> tuple[int, ...]:
 
 
 def _safe_member(info: zipfile.ZipInfo) -> bool:
-    path = Path(info.filename)
-    if path.is_absolute() or ".." in path.parts or info.filename.endswith("/"):
+    name = info.filename
+    path = Path(name)
+    if (
+        path.is_absolute()
+        or "\\" in name
+        or ":" in name
+        or ".." in path.parts
+        or name.endswith("/")
+    ):
         return False
     mode = (info.external_attr >> 16) & 0xFFFF
     if mode and (mode & 0o170000) == 0o120000:
@@ -172,6 +179,7 @@ def _verify_and_extract(
         if not isinstance(files, list) or not files:
             raise ModelUpdateError("Bundle neural não contém arquivos.")
         roles: dict[str, str] = {}
+        declared_paths: set[str] = set()
         total = 0
         for row in files:
             if not isinstance(row, dict):
@@ -184,6 +192,7 @@ def _verify_and_extract(
                 not isinstance(name, str)
                 or name not in names
                 or name == "model-package.json"
+                or name in declared_paths
                 or not isinstance(digest, str)
                 or len(digest) != 64
                 or not isinstance(size, int)
@@ -200,8 +209,11 @@ def _verify_and_extract(
                 raise ModelUpdateError(f"Arquivo neural corrompido: {name}")
             if role in roles:
                 raise ModelUpdateError(f"Role neural duplicado: {role}")
+            declared_paths.add(name)
             roles[role] = name
 
+        if names != declared_paths | {"model-package.json"}:
+            raise ModelUpdateError("Pacote neural contém arquivo não declarado.")
         for role in ("l3_metadata", "l3_onnx"):
             if role not in roles:
                 raise ModelUpdateError(f"Champion não contém {role}.")
