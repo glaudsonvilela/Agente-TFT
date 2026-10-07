@@ -31,6 +31,9 @@ class NeuralBackend(Protocol):
     def consume_result(self, neural_session_id: str) -> dict | None:
         ...
 
+    def acknowledge_result(self, neural_session_id: str) -> None:
+        ...
+
 
 class NullNeuralBackend:
     async def infer(
@@ -59,6 +62,9 @@ class NullNeuralBackend:
         raise NeuralBackendNotConfigured("neural_backend_not_configured")
 
     def consume_result(self, neural_session_id: str) -> dict | None:
+        return None
+
+    def acknowledge_result(self, neural_session_id: str) -> None:
         return None
 
 
@@ -137,3 +143,7 @@ class FileQueueNeuralBackend:
         if value.get("schema_version") != 1 or value.get("neural_session_id") != neural_session_id:
             return {"worker_failed": True, "error": "invalid_neural_worker_result"}
         return value
+
+    def acknowledge_result(self, neural_session_id: str) -> None:
+        for folder in (self.outbox, self.failed):
+            (folder / f"{neural_session_id}.json").unlink(missing_ok=True)
