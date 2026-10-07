@@ -179,3 +179,17 @@ A color-only head was trained on the same base split and five Camille
 corrections as a representation check. It reached 0.220 validation named
 macro recall (the DINO head reached 0.689) and also missed all eight
 evaluation Camille crops. Pure color histograms are not sufficient here.
+
+The DINO-plus-color concatenation was also weaker: validation named macro
+recall 0.288 versus 0.689 for DINO alone, and 61/127 test samples versus
+79/127. These comparisons use the same small reviewed split and single
+Camille training event; none of the three heads is runtime-approved.
+
+Both fresh sparse passes now use the indexed MP4 sources and are complete:
+1,374 training frames and 2,160 evaluation frames. Their OCR proposal miners
+are running separately; no evaluation proposal enters the training set.
+The open champion panel has a stable dark lower backing. A conservative
+16-point Rust prefilter now skips full OCR when fewer than 10 points match
+that backing. In the proposal frames inspected so far, every real tooltip
+passed at 13/16 or more. A closed example scored 2/16. This filter only
+accelerates annotation discovery; it does not establish champion identity.

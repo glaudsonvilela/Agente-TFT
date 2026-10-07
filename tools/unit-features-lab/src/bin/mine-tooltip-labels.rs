@@ -35,6 +35,26 @@ fn balanced_arcs(left: u32, right: u32) -> bool {
     left.min(right).saturating_mul(2) >= left.max(right)
 }
 
+// The lower part of an open champion panel has a nearly uniform dark backing.
+// This cheap gate avoids OCR on arena/scoreboard frames. It is deliberately
+// permissive: every independently found tooltip in the indexed sparse scans
+// had at least 13 matching points, while the gate requires only 10.
+fn champion_panel_present(frame: &image::RgbImage) -> bool {
+    let mut matching = 0;
+    for y in [705, 735, 765, 795] {
+        for x in [1700, 1760, 1820, 1880] {
+            let p = frame.get_pixel(x, y).0;
+            if p.iter()
+                .zip([17i16, 26, 27])
+                .all(|(channel, expected)| (*channel as i16 - expected).abs() <= 14)
+            {
+                matching += 1;
+            }
+        }
+    }
+    matching >= 10
+}
+
 fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> {
     if box_xyxy.len() != 4 {
         return None;
@@ -157,6 +177,8 @@ fn run() -> Result<()> {
     fs::create_dir_all(out.join("rois"))?;
     let mut proposals = Vec::new();
     let mut scanned = 0;
+    let mut frames_verified = 0;
+    let mut frames_prefiltered = 0;
     let observations = fs::read_to_string(root.join("observations.jsonl"))?;
     if report["status"] == "review_frames_complete"
         && report["observations_sha256"] != format!("{:x}", Sha256::digest(observations.as_bytes()))
@@ -177,6 +199,11 @@ fn run() -> Result<()> {
         }
         if frame["frame_pixel_sha256"] != format!("{:x}", Sha256::digest(rgb.as_raw())) {
             return Err("review frame pixel checksum mismatch".into());
+        }
+        frames_verified += 1;
+        if !champion_panel_present(&rgb) {
+            frames_prefiltered += 1;
+            continue;
         }
         let roi = image::imageops::crop_imm(&rgb, 1650, 170, 270, 660).to_image();
         let nominal_ms = frame["source_milliseconds_nominal"].as_u64().unwrap_or(
@@ -297,6 +324,7 @@ fn run() -> Result<()> {
         out.join("report.json"),
         serde_json::to_vec_pretty(
             &json!({"source_id":report["source_id"],"partition":report["partition"],"source_collection_status":report["status"],"scanned":scanned,
+        "frames_verified":frames_verified,"frames_prefiltered":frames_prefiltered,
         "proposals":proposals.len(),"automatically_labeled":0,"limitations":["Selection-ring geometry is a cue only; it needs independent temporal repetition before an automatic training label.",
         "Catalog names are matched literally; untranslated aliases can be missed. Generic seasonal names retain every candidate ID.",
         "This is annotation assistance, not a runtime recognition or coaching decision."]}),
@@ -313,6 +341,22 @@ mod tests {
     fn warm_arc_balance_rejects_observed_character_art_false_positive() {
         assert!(balanced_arcs(433, 695));
         assert!(!balanced_arcs(1195, 165));
+    }
+    #[test]
+    fn panel_gate_accepts_dark_backing_and_rejects_open_arena() {
+        let mut frame = image::RgbImage::from_pixel(1920, 1080, image::Rgb([40, 50, 60]));
+        assert!(!champion_panel_present(&frame));
+        for y in [705, 735, 765, 795] {
+            for x in [1700, 1760, 1820, 1880] {
+                frame.put_pixel(x, y, image::Rgb([17, 26, 27]));
+            }
+        }
+        assert!(champion_panel_present(&frame));
+        for x in [1700, 1760, 1820, 1880] {
+            frame.put_pixel(x, 705, image::Rgb([40, 50, 60]));
+            frame.put_pixel(x, 735, image::Rgb([40, 50, 60]));
+        }
+        assert!(!champion_panel_present(&frame));
     }
     #[test]
     fn generic_lux_does_not_become_base_form_and_multiword_names_are_complete() {
