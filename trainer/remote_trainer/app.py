@@ -242,6 +242,7 @@ def create_app(
                 result,
                 app.state.clock_ms,
             )
+            app.state.neural_backend.acknowledge_result(neural_session_id)
             completed += 1
         return completed
 
@@ -710,6 +711,7 @@ def create_app(
                     result,
                     app.state.clock_ms,
                 )
+                app.state.neural_backend.acknowledge_result(neural_session_id)
                 record = await app.state.store.get_neural_session(neural_session_id)
                 assert record is not None
         return NeuralLearningStatus(
