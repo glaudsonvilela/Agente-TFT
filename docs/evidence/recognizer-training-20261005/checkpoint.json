@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T22:10:00-03:00",
+  "recorded_at": "2026-10-06T21:10:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,9 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "run_local_contract_tests_then_build_hm45_core_0_7_0",
-    "local_test_command": "PYTHONPATH=apps/hud_mapper:apps/e1_replay python3 -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py apps/hud_mapper/tests/test_hm4_runtime.py",
-    "build_command": "python3 scripts/build_hm45_core.py",
-    "success_condition": "Python post-session/HM4 contracts pass and Docker core reports L3/OCR/HP/B4 + post-session learner OK.",
-    "next_if_success": "Build Windows installer and run one real live match shadow-learning field test.",
+    "status": "build_server_neural_transport_and_post_match_upload",
+    "success_condition": "Windows client can capture/seal a match and send live/post-match evidence to the server without bundling neural weights locally.",
+    "next_if_success": "Run first live match with server-side inference and automatic post-match server training in shadow.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -2027,16 +2025,15 @@
     "runtime_approved": false
   },
   "hm45_self_learning_core": {
-    "status": "code_ready_build_not_yet_executed",
-    "version": "0.7.0",
-    "architecture": "Windows capture/UI -> sealed session -> pinned WSL learner",
-    "windows_rust_toolchain_required": false,
-    "windows_pytorch_required": false,
-    "wsl_prebuilt_rust_learner": true,
-    "wsl_ffmpeg": true,
-    "portable_frozen_baseline": true,
-    "installer_refuses_missing_or_unhealthy_learner": true,
-    "windows_wsl_field_test": false,
+    "status": "superseded_by_server_side_neural_architecture",
+    "previous_version": "0.7.0-local-wsl-learner-plan",
+    "keep_only": "capture/UI/transport contracts that remain useful",
+    "remove_from_future_package": [
+      "portable frozen recognizer baseline",
+      "DINO encoder",
+      "unit-features learner binaries",
+      "post-session trainer"
+    ],
     "runtime_approved": false
   },
   "windows_post_match_learning_implementation": {
@@ -2121,5 +2118,54 @@
         "status": "queued"
       }
     }
+  },
+  "authoritative_neural_architecture": {
+    "status": "active",
+    "decision": "Neural network must live on the server, not inside the Windows software or local WSL runtime.",
+    "windows_client": {
+      "responsibilities": [
+        "capture authorized screen pixels",
+        "render UI/HUD/coach",
+        "collect local telemetry",
+        "buffer and seal match evidence",
+        "upload selected live frames/ROIs and post-match evidence to server",
+        "receive structured neural results and recommendations"
+      ],
+      "neural_weights_bundled": false,
+      "dino_encoder_bundled": false,
+      "neural_training_local": false,
+      "challenger_training_local": false
+    },
+    "server": {
+      "responsibilities": [
+        "neural perception inference",
+        "DINO/feature extraction",
+        "autonomous gold/silver supervision",
+        "post-match training",
+        "challenger validation",
+        "shadow candidate registry",
+        "long-term learning memory",
+        "future simulator/policy/value ranking"
+      ],
+      "active_model_authority": true,
+      "model_weights_resident": true,
+      "training_resident": true
+    },
+    "local_wsl": {
+      "role": "optional transport/compatibility helper only; not a neural-model host",
+      "neural_weights_bundled": false,
+      "post_session_trainer_bundled": false
+    },
+    "match_learning_flow": [
+      "Windows observes and records match",
+      "Windows uploads bounded live evidence and sealed post-match session",
+      "Server neural stack analyzes and labels",
+      "Server trains challenger after match",
+      "Server validates challenger against champion",
+      "Winner remains shadow until promotion gates pass"
+    ],
+    "active_model_changes_during_match": false,
+    "human_review_required": false,
+    "runtime_approved": false
   }
 }
