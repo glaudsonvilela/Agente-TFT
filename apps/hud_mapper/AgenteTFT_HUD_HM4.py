@@ -22,7 +22,8 @@ def main():
         traceback.print_exc()
         if not any(x in sys.argv for x in ('--headless', '--ui-smoke', '--voice-smoke-output', '--replay-voice-validation')):
             from tkinter import messagebox
-            messagebox.showerror('HUD Mapper HM4', 'Falha na inicialização. Consulte AgenteTFT-HUD-HM4/logs.')
+            error = traceback.format_exc().splitlines()[-1]
+            messagebox.showerror('Agente TFT', error + '\n\nDetalhes em AgenteTFT-HUD-HM4/logs.')
         return 2
 
 if __name__ == '__main__':

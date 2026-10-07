@@ -1,0 +1,8 @@
+Agente TFT — Pengu estrategista
+Approved by the user in this conversation on 2026-10-04.
+Generated with the built-in image_gen tool, using pengu.png as the reference.
+Reference character and original artwork: Riot Games, Featherknight Pengu.
+Source: https://wiki.leagueoflegends.com/en-us/images/Featherknight_Pengu_Tier_3.png
+The PNG is the original generated artwork. Desktop exports only resize and package it.
+Prompt:
+Use case: identity-preserve / logo-brand. Edit the supplied penguin mascot reference into one polished Agente TFT application logo asset. Preserve exactly this recognizable Pengu Featherknight character identity: round black-and-white penguin, huge glossy black eyes, orange beak and feet, silver helmet with a gold central crest, dark neck scarf, royal blue cape, gold-trimmed sword. Change the pose: confident three-quarter view, head slightly tilted toward viewer, one flipper pointing thoughtfully down at a small floating violet hexagonal tactical tile beside its chest, other flipper resting on its sheathed sword. Compact iconic silhouette, head prominent, full body contained, few bold shapes readable as a desktop app icon. Premium stylized game illustration, crisp edges, restrained violet rim lighting and warm gold accents. Centered square composition with generous safe margin, isolated subject with TRUE transparent background and clean alpha; no green background, no scene, no words, no watermark, no presentation sheet, no border. Output only the finished mascot logo, one image.

@@ -157,7 +157,11 @@ class RuntimeSession(Session):
         if tip is None:return
         tip = dict(tip, frame_id=frame.id, source_ms=frame.pts_ms,
                    source_due_ns=frame.due_ns, ready_ns=ready_ns,
-                   input_kind='previously_recorded_video_on_screen',
+                   input_kind=('previously_recorded_video_on_screen' if self.options.replay_review
+                               else 'live_match_on_screen'),
+                   data_patch=getattr(getattr(self, 'decision_engine', None), 'patch', None),
+                   data_patch_basis=('reported_replay_patch' if self.options.replay_review
+                                     else 'bundled_catalog_patch_lab'),
                    ground_truth=False, game_state_updated=False)
         with self.lock:
             self.latest_replay_tip=tip
@@ -340,6 +344,9 @@ class RuntimeSession(Session):
                             if frame.pts_ms < strategy_entry['source_ms']:
                                 strategy_state = None
                         answer = decision_engine.evaluate(answer, strategy_state=strategy_state)
+                        if not self.options.replay_review:
+                            answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
+                            answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
                         self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
                         self.latest_decision_reason = (answer['decision'].get('economy') or {}).get('code') or answer['decision']['evidence'][0]['code']
                         if answer['decision']['action']['type'] == 'wait':
@@ -384,7 +391,7 @@ class RuntimeSession(Session):
                     self.store.emit('roi-observations', record, frame, save)
                 self.native_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['read_frames'] += 1
-                if self.options.replay_review:
+                if getattr(self, 'decision_engine', None):
                     from .replay_coach import coach_prompt
                     self._publish_coach(coach_prompt(answer),frame,end)
         except Exception as exc:
@@ -428,7 +435,7 @@ class HM4RuntimeSession(RuntimeSession):
         self.latest_decision_reason = None
         self._latest_strategy_state = None
         self.decision_engine = None
-        if options.replay_review:
+        if options.board_hub_enabled:
             from .replay_decision import ReplayDecisionEngine
             self.decision_engine = ReplayDecisionEngine(options.configs)
             self.versions['replay_decision_policy'] = 'verified_third_copy_v1'
@@ -440,7 +447,8 @@ class HM4RuntimeSession(RuntimeSession):
             self.versions['strategic_vision_state'] = 'pending_verified_observer'
             self.versions['replay_catalog_set'] = self.decision_engine.set_key
             self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
-            self.versions['replay_patch_basis'] = 'reported_replay_patch'
+            self.versions['decision_patch_basis'] = ('reported_replay_patch' if options.replay_review
+                                                     else 'bundled_catalog_patch_lab')
 
     def _source_frame_observed(self, frame):
         recorder = self.shadow_learning_recorder
@@ -499,7 +507,8 @@ class HM4RuntimeSession(RuntimeSession):
                                            log=Path(self.options.output) / 'board-stderr.log')
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
             self.versions['board_hub_set_key'] = observer.manifest['set_key']
-            self.versions['board_hub_mode'] = 'replay_screen_candidate_only'
+            self.versions['board_hub_mode'] = ('replay_screen_candidate_only' if self.options.replay_review
+                                               else 'live_screen_candidate_only')
             self.versions['board_hub_interval_ms'] = self.hub_interval_ms
             self.versions['board_reference_status'] = 'not_calibrated'
             if self.options.board_reference:

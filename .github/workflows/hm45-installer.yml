@@ -80,6 +80,7 @@ jobs:
           Set-Content -Path build/hm45-core/fixture.txt -Value 'syntax fixture' -Encoding utf8
           tar -cf build/hm45-core/AgenteTFT-Core-v2.tar -C build/hm45-core fixture.txt
           Copy-Item scripts/hm45_installer/AgenteTFT_HM45.iss build/HM45.iss
+          Copy-Item ui/tauri-design/icons/icon.ico build/hm45-design-icon.ico
           $iscc = @('C:/Program Files (x86)/Inno Setup 6/ISCC.exe', 'C:/Program Files/Inno Setup 6/ISCC.exe') | Where-Object { Test-Path $_ } | Select-Object -First 1
           if (-not $iscc) { throw 'ISCC.exe missing' }
           & $iscc build/HM45.iss

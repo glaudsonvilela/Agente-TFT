@@ -5,6 +5,10 @@ import hashlib, importlib.metadata, json, os, shutil, subprocess, sys, zipfile
 root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
     raise SystemExit('Windows build host required')
+try:
+    importlib.metadata.version('pywebview')
+except importlib.metadata.PackageNotFoundError as exc:
+    raise SystemExit('Instale apps/hud_mapper/requirements.txt para incluir a interface WebView2.') from exc
 live_assets = root / 'build/hm4-live-assets'
 asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
 if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
@@ -45,6 +49,7 @@ folder = dist / 'AgenteTFT-HUD-HM4-Auto'
 args = [
     sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '--onedir', '--windowed',
     '--name', 'AgenteTFT-HUD-HM4-Auto',
+    '--icon', str(root / 'ui/tauri-design/icons/icon.ico'),
     '--paths', str(root / 'apps/e1_replay'),
     '--paths', str(root / 'apps/hud_mapper'),
     '--paths', str(root),
@@ -53,6 +58,7 @@ args = [
     '--specpath', str(root / 'build'),
     '--add-data', f'{root / "configs"};configs',
     '--add-data', f'{root / "apps/hud_mapper/assets"};assets',
+    '--add-data', f'{root / "ui/tauri-design"};ui/tauri-design',
     '--add-data', f'{reference};{live_plan["reference"]}',
     '--add-data', f'{knowledge_reference};{knowledge_plan["reference"]}',
     '--add-data', f'{live_assets / "models"};models',
@@ -77,6 +83,9 @@ args = [
     '--hidden-import', 'hm.neural_service',
     '--hidden-import', 'hm.model_update',
     '--hidden-import', 'hm.unit_head',
+    '--hidden-import', 'hm.studio_bridge',
+    '--hidden-import', 'webview.platforms.edgechromium',
+    '--collect-data', 'webview', '--collect-binaries', 'webview',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -107,7 +116,8 @@ for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.te
                 shutil.copy2(p, licenses / (package + '-' + str(name).replace('/', '-').replace('\\', '-')))
 forbidden = ('ffmpeg', 'ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn', 'sherpa', 'supertonic', 'espeak', 'voice_styles')
 bad = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and any(x in p.relative_to(folder).as_posix().lower() for x in forbidden)]
-fonts = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and p.suffix.lower() in {'.ttf', '.otf', '.woff', '.woff2', '.fon', '.fnt', '.pfb', '.pfa', '.ttc'}]
+fonts = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and p.suffix.lower() in {'.ttf', '.otf', '.woff', '.woff2', '.fon', '.fnt', '.pfb', '.pfa', '.ttc'}
+         and not p.relative_to(folder).as_posix().startswith('_internal/ui/tauri-design/assets/manrope-')]
 if bad or fonts:
     raise SystemExit(f'Refuse runtime publication: forbidden={bad[:20]}, fonts={fonts[:20]}')
 
@@ -116,7 +126,7 @@ files = {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdig
 manifest = dict(
     schema_version=1,
     commit=os.environ.get('GITHUB_SHA'),
-    primary_objective='replay_screen_capture_neural_board_hub_and_review_prompts',
+    primary_objective='live_and_replay_screen_capture_local_coaching_and_post_match_learning',
     runtime_only=True,
     automatic_model_discovery=True,
     reader_only_fallback=True,
@@ -145,7 +155,8 @@ manifest = dict(
     voice_service_configured=bool(json.loads((root / 'configs/services/voice.json').read_text())['service_url']),
     voice_api_credentials_bundled=False,
     local_tts_models_bundled=False,
-    live_strategy_enabled=False,
+    live_strategy_enabled=True,
+    live_strategy_mode='lab_bundled_patch_provenance',
     signed=False,
     files=files,
     payload_compaction=compaction,

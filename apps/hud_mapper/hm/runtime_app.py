@@ -812,6 +812,8 @@ def main(mode="hm3"):
     hm4=mode=="hm4"
     p=argparse.ArgumentParser(description="Agente TFT "+("HM4 Auto" if hm4 else "HM3 — HUD-first, captura nativa somente"))
     p.add_argument("--capture");p.add_argument("--capture-consent",action="store_true");p.add_argument("--headless",action="store_true")
+    p.add_argument("--legacy-ui",action="store_true")
+    p.add_argument("--studio-browser",action="store_true")
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
     p.add_argument("--replay-review",action="store_true")
     p.add_argument("--voice-smoke-output")
@@ -839,7 +841,7 @@ def main(mode="hm3"):
             cls=HM4RuntimeSession if hm4 else RuntimeSession
             o=Options(**runtime_paths(),video=a.capture,model=a.model or "",output=a.output,seconds=a.seconds,map_hz=a.map_hz,
                       reader_hz=a.reader_hz,sample_hz=a.sample_hz,capture_consent=True,capture_expected=selected,
-                      replay_review=hm4 and a.replay_review,board_hub_enabled=hm4 and a.replay_review,
+                      replay_review=hm4 and a.replay_review,board_hub_enabled=hm4,
                       native_preview=hm4,preview_hz=30,
                       dataset_only=hm4 and not bool(a.model),scenario="hm4-ci" if hm4 else "hm3-ci")
             sess=cls(o).start()
@@ -858,5 +860,8 @@ def main(mode="hm3"):
         old=messagebox.askyesno;messagebox.askyesno=lambda *x,**k: True
         root.after(100,app.start);root.mainloop();messagebox.askyesno=old
         return 0 if app.session and app.session.finished and not app.session.error and app.displayed else 2
+    if hm4 and not a.legacy_ui:
+        from .studio_bridge import run_studio
+        return run_studio(browser=a.studio_browser)
     import tkinter as tk
     root=tk.Tk();App(root,mode);root.mainloop();return 0

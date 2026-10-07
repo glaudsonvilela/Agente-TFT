@@ -16,6 +16,7 @@ DisableDirPage=yes
 DisableReadyPage=yes
 WizardStyle=modern
 WizardSizePercent=115
+SetupIconFile=hm45-design-icon.ico
 SetupLogging=yes
 
 [InstallDelete]
@@ -70,7 +71,7 @@ begin
   AddParagraph(OverviewPage, 18,
     'O Agente TFT usa captura Rust no Windows. Em partida ao vivo, amostras visuais de aprendizado são salvas localmente em baixa frequência; os pesos ficam congelados durante a partida e o treino só pode começar depois que a sessão é encerrada e selada.');
   AddParagraph(OverviewPage, 102,
-    'O assistente verifica o PC, instala a VM WSL 2 desta versão e testa análise e learner pós-jogo. Um challenger vencedor vira apenas candidato shadow; o modelo ativo não é substituído automaticamente.');
+    'O assistente verifica o PC e instala o núcleo WSL 2. O BigBANANA treina após a partida e distribui versões aprovadas entre partidas; a análise local permanece ativa mesmo sem conexão.');
   AddParagraph(OverviewPage, 200,
     'Se o Windows precisar habilitar o WSL 2, pedirá permissão de administrador. Caso exija reinício, o assistente mostrará o botão Reiniciar agora e continuará no próximo login.');
 end;

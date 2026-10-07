@@ -70,6 +70,7 @@ for forbidden in (
 source = ROOT / "scripts/hm45_installer/AgenteTFT_HM45.iss"
 destination = ROOT / "build/HM45.iss"
 shutil.copy2(source, destination)
+shutil.copy2(ROOT / "ui/tauri-design/icons/icon.ico", ROOT / "build/hm45-design-icon.ico")
 iscc = next((path for path in (
     Path("C:/Program Files (x86)/Inno Setup 6/ISCC.exe"),
     Path("C:/Program Files/Inno Setup 6/ISCC.exe")) if path.is_file()), None)

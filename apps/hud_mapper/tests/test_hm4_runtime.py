@@ -140,13 +140,30 @@ class HM4RuntimeTests(unittest.TestCase):
             if 'app' in locals():app.voice.close()
             root.destroy()
 
-    def test_replay_hub_requires_explicit_review_mode(self):
+    def test_live_hub_is_allowed_for_post_match_learning(self):
         with tempfile.TemporaryDirectory() as td:
             worker=Path(td)/("worker.exe" if os.name=="nt" else "worker")
             worker.write_bytes(b"x")
-            with self.assertRaisesRegex(ValueError,"replay"):
-                Options(video="capture://window/1", output=td, model="", worker=str(worker),
-                        configs=td, dataset_only=True,board_hub_enabled=True).validate()
+            Options(video="capture://window/1", output=td, model="", worker=str(worker),
+                    configs=td, dataset_only=True,board_hub_enabled=True).validate()
+
+    def test_live_session_has_decisions_and_post_match_capture(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(__file__).resolve().parents[3]
+            worker=Path(td)/"worker"
+            worker.write_bytes(b"x")
+            session=HM4RuntimeSession(Options(
+                video="capture://window/1",output=str(Path(td)/"session"),model="",
+                worker=str(worker),configs=str(root/"configs"),dataset_only=True,
+                board_hub_enabled=True,replay_review=False))
+            try:
+                self.assertIsNotNone(session.decision_engine)
+                self.assertIsNotNone(session.shadow_learning_recorder)
+                self.assertEqual(session.versions['decision_patch_basis'],'bundled_catalog_patch_lab')
+            finally:
+                session.shadow_learning_recorder.close('test',{},None)
+                session.store.done.set()
+                session.store.thread.join(timeout=2)
 
     def test_replay_coach_uses_observed_values_and_abstains(self):
         missing=economy_prompt({"hud":[{"field":"gold","status":"unknown","value":50}]})

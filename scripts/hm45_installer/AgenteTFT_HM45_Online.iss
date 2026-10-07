@@ -7,6 +7,7 @@ Uninstallable=no
 PrivilegesRequired=lowest
 OutputDir=..\dist
 OutputBaseFilename=AgenteTFT-HM45-Online-Setup
+SetupIconFile=hm45-design-icon.ico
 Compression=lzma2
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible

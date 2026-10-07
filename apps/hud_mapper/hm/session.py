@@ -65,10 +65,9 @@ class Options:
     def validate(self):
         if not self.model and not self.dataset_only:
             raise ValueError('Selecione o modelo espacial L2/L3 (deployment-candidate.json).')
-        if self.board_hub_enabled and not self.replay_review:
-            raise ValueError('O HUB de revisão exige um replay previamente encerrado na tela.')
-        # Neural perception is server-side. Replay may run local deterministic
-        # readers without bundling any neural model in the client.
+        # The same local board observer supports a finished replay and a live
+        # match. Replay mode alone controls whether evidence may be uploaded
+        # for post-match learning.
         if not 1<=self.seconds<=7200 or not .2<=self.map_hz<=15 or not .1<=self.reader_hz<=5 or not .1<=self.sample_hz<=2:
             raise ValueError('Duração/frequência fora dos limites.')
         if not 5<=self.preview_hz<=30:

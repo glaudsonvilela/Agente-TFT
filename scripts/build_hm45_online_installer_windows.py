@@ -47,6 +47,8 @@ def main() -> None:
             raise SystemExit("Offline installer does not match its build report")
     destination = ROOT / "build/HM45-Online.iss"
     destination.parent.mkdir(parents=True, exist_ok=True)
+    import shutil
+    shutil.copy2(ROOT / "ui/tauri-design/icons/icon.ico", ROOT / "build/hm45-design-icon.ico")
     destination.write_text(render(TEMPLATE.read_text(encoding="utf-8"),
                                   release_tag=args.release_tag, sha256=sha256), encoding="utf-8")
     iscc = next((path for path in (

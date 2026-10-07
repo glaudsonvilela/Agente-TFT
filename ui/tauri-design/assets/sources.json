@@ -1,0 +1,158 @@
+[
+  {
+    "file": "ahri.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Ahri_splash_centered_27.TFT_Set18.png",
+    "name": "Ahri",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "3407b8a333d82f0b7070de0a9f49a4a68ba266f9f26b0d4335ca8bfc67d02c62"
+  },
+  {
+    "file": "akali.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Akali_splash_centered_2.TFT_Set18.png",
+    "name": "Akali",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "2aabaca57dc1f32e3f822f3f46ac733a35691b7b9240ba7fd3352772699b774d"
+  },
+  {
+    "file": "ashe.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Ashe_splash_centered_76.TFT_Set18.png",
+    "name": "Ashe",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "2a4a2c06f3c81ca6e5d4f68faebd92f2c3712d53c79a783ace6d7203debd63ca"
+  },
+  {
+    "file": "diana.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Diana_splash_centered_0.TFT_Set18.png",
+    "name": "Diana",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "d74d14fa42534e533ffbf956aa1380c4c045ff5e61e21d9764d5ec89b4df722b"
+  },
+  {
+    "file": "leona.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Leona_splash_centered_10.TFT_Set18.png",
+    "name": "Leona",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "2ec158780e36eabc866c77db15f3227dd95a1214c149fbc56d56fac82dc7e1ae"
+  },
+  {
+    "file": "lillia.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Lillia_splash_centered_28.TFT_Set18.png",
+    "name": "Lillia",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "62c918e6cd08bd13082ac05bbbff18a10b32e2d340e06ecd36123c8f0647c185"
+  },
+  {
+    "file": "morgana.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Morgana_splash_centered_26.TFT_Set18.png",
+    "name": "Morgana",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "7c52179a64588e8074579bd25d821b26167330de958e6943eaa499f35c901d99"
+  },
+  {
+    "file": "shen.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-champion/TFT18_Shen_splash_centered_16.TFT_Set18.png",
+    "name": "Shen",
+    "source": "Riot Data Dragon 16.19.1 / TFTSet18",
+    "sha256": "d4c1be2b0aa3fde48781eae21ebe115e23420c3ffa0c6a076cd24c08a2a53a4d"
+  },
+  {
+    "file": "vest.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-item/TFT_Item_ChainVest.png",
+    "name": "Cota de Malha",
+    "source": "Riot Data Dragon 16.19.1",
+    "sha256": "771fa97ec8b2d4ff61b70d4a2f5922950a50d36e387d6b06035dce4c5160d53f"
+  },
+  {
+    "file": "rod.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-item/TFT_Item_NeedlesslyLargeRod.png",
+    "name": "Bastão Desnecessariamente Grande",
+    "source": "Riot Data Dragon 16.19.1",
+    "sha256": "fb8ebcc52fbb7a1ee969a7b069c8882db478a69891584c3c908a8a2641acf84e"
+  },
+  {
+    "file": "tear.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-item/TFT_Item_TearOfTheGoddess.png",
+    "name": "Lágrima da Deusa",
+    "source": "Riot Data Dragon 16.19.1",
+    "sha256": "6d68e531415e38e48adb2f96fd076ef4d415350871a6ef946aaa391494d97871"
+  },
+  {
+    "file": "sword.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-item/TFT_Item_BFSword.png",
+    "name": "Espada G.p.C.",
+    "source": "Riot Data Dragon 16.19.1",
+    "sha256": "cb8bf877801a8182c6cb01aeda06f7ac2ad73ae1188e9bc910e6ba2bc7d2cca8"
+  },
+  {
+    "file": "bow.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-item/TFT_Item_RecurveBow.png",
+    "name": "Arco Recurvo",
+    "source": "Riot Data Dragon 16.19.1",
+    "sha256": "950e1195d7ea39bd278f1d715d7da137feae607c5456b19a7505a62c8dadb33f"
+  },
+  {
+    "file": "infinity.png",
+    "url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/tft-item/TFT_Item_InfinityEdge.png",
+    "name": "Gume do Infinito",
+    "source": "Riot Data Dragon 16.19.1",
+    "sha256": "b45a47450d557e09fb0f84a8b60a478006ac0ccb8ae97e79536a12a4a0846d66"
+  },
+  {
+    "file": "pengu.png",
+    "url": "https://wiki.leagueoflegends.com/en-us/images/Featherknight_Pengu_Tier_3.png",
+    "name": "Pengu",
+    "source": "Riot artwork via League of Legends Wiki",
+    "sha256": "87463a47800af9f9001d1fefefd61d16aff143eee3c002fec7dfdee2d65ecf07"
+  },
+  {
+    "file": "pengu-avatar.png",
+    "url": "https://wiki.leagueoflegends.com/en-us/images/Pengu_Featherknight_profileicon.png",
+    "name": "Pengu profile",
+    "source": "Riot artwork via League of Legends Wiki",
+    "sha256": "12cb47650b1c2dcd50f36ac92a67fdd7ac028683149c6167c1b08fafa6b182b8"
+  },
+  {
+    "file": "tft-symbol.png",
+    "name": "TFT Logos/Logomark/TFT_Logomark_White.png",
+    "source": "Riot Games press kit",
+    "url": "https://www.riotgames.com/en/press",
+    "sha256": "93732afeff79a5870d5474c3c4255771b579b55e1c19a6959037347c4cb84f94"
+  },
+  {
+    "file": "tft-logo.png",
+    "name": "TFT Logos/Logotype Horizontal/TFT_Logotype_Horiz_White.png",
+    "source": "Riot Games press kit",
+    "url": "https://www.riotgames.com/en/press",
+    "sha256": "a85aab6d9111a0169224240124befac0644d2ce63f10adbb15f073a03c34d3e8"
+  },
+  {
+    "file": "manrope-400.ttf",
+    "source": "Google Fonts / Manrope / OFL",
+    "url": "https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FO_F.ttf",
+    "sha256": "a13d9b41b0a471ce58f0e46d377fa3cc76615e4632c3b15eb397caadf7a13f0a"
+  },
+  {
+    "file": "manrope-500.ttf",
+    "source": "Google Fonts / Manrope / OFL",
+    "url": "https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk7PFO_F.ttf",
+    "sha256": "f433e5d333be1128d8ec8a28b8aadd0314d10e14e4105406076666bc830fc15d"
+  },
+  {
+    "file": "manrope-600.ttf",
+    "source": "Google Fonts / Manrope / OFL",
+    "url": "https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4jE-_F.ttf",
+    "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce"
+  },
+  {
+    "file": "manrope-700.ttf",
+    "source": "Google Fonts / Manrope / OFL",
+    "url": "https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4aE-_F.ttf",
+    "sha256": "b9584e099e0e7f1e1e914c3037aabb9010c50346a3ce8df5eeeeecc0563044d8"
+  },
+  {
+    "file": "manrope-800.ttf",
+    "source": "Google Fonts / Manrope / OFL",
+    "url": "https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59E-_F.ttf",
+    "sha256": "b8f802f05b322a7345805f5b89f8bb976604cc719a91530918d5ce3c47160950"
+  }
+]
