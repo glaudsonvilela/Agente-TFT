@@ -281,6 +281,9 @@ def create_app(
     @app.on_event("startup")
     async def start_neural_reconciler() -> None:
         if isinstance(app.state.neural_backend, FileQueueNeuralBackend):
+            # Recover SEALED/PROCESSING sessions immediately on boot before
+            # entering the periodic reconciliation loop.
+            await reconcile_neural_worker_results_once()
             app.state.neural_reconciler_task = asyncio.create_task(
                 neural_reconciler_loop(),
                 name="tft-neural-result-reconciler",
