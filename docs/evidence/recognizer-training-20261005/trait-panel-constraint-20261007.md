@@ -27,3 +27,14 @@ Next evidence required: repeated frames across distinct matches, a verified
 perspective and bar count, and independent champion labels. The seasonal
 knowledge bundle remains on patch 18.3B and must be updated before current
 patch recommendations are released.
+
+An independent authorized six-hour English VOD exposed a four-row truncation
+in the first reader. The Rust board worker now reads the full left trait list
+in two bands, while a locale alias catalog maps English trait names to the
+same seasonal IDs. Among 60 evenly spaced saved review frames, 52 had green
+bar proposals, 48 had at least one catalog-matched trait, 16 had every detected
+text row matched, 32 had partial text, 4 had no catalog match, and 8 had no
+trait read. One frame returned nine of nine visible trait names. This measures
+OCR coverage on sampled frames, not champion ID accuracy; the VOD has no
+independent champion labels. Exact small-roster hypotheses are disabled when
+more than four traits are present.

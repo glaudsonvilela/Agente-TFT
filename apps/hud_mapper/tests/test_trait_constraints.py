@@ -72,3 +72,22 @@ def test_english_vod_trait_names_bind_to_same_seasonal_ids():
              dict(text='Lunar', confidence=.96, box=[140, 428, 178, 440])]
     binding = bind_observed_traits({'status': 'raw_ocr', 'words': words}, names)
     assert {row['name'] for row in binding['traits']} == {'Colosso', 'Lunar'}
+
+
+def test_later_trait_rows_are_not_silently_ignored():
+    names, _ = _catalog()
+    binding = bind_observed_traits({'status': 'raw_ocr', 'words': [
+        dict(text='Solar', confidence=.95, box=[140, 428, 173, 440]),
+        dict(text='FI', confidence=.82, box=[141, 640, 149, 652]),
+    ]}, names)
+    assert binding['status'] == 'partial_panel'
+    assert binding['detected_text_rows'] == 2
+
+
+def test_many_visible_traits_do_not_create_small_roster_identity():
+    names, units = _catalog()
+    binding = {'status': 'candidates', 'unmatched': [],
+               'traits': [{'name': name} for name in
+                          ('Florescer', 'Enfeitiçador', 'Defendente', 'Solar', 'Lunar')]}
+    result = roster_hypotheses(binding, [dict(color='green', rect={'y': 350})], units)
+    assert result['status'] == 'large_roster_not_exhaustive'

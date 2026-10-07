@@ -503,7 +503,7 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             let active=serde_json::to_value(&board).map_err(|e|e.to_string())?["markers"]
                 .as_array().is_some_and(|rows| !rows.is_empty());
             let trait_pixels=if active {Some(exact_rect_signature(&f,&[
-                PixelRect{x:138,y:255,width:95,height:205}])?)}else{None};
+                trait_panel::PANEL])?)}else{None};
             let traits=if active {
                 if let Some((at,pixels,old))=&previous_traits {
                     if f.captured_at_ms.saturating_sub(*at)<5000 &&

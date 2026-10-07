@@ -41,8 +41,9 @@ def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> 
             continue
         center = (box[1] + box[3]) / 2
         slot = round((center - 275) / 53)
-        if (0 <= slot <= 3 and abs(center - (275 + slot * 53)) <= 11 and
-                len(_fold(value)) >= 2 and word.get("confidence", 0) >= .25):
+        if (0 <= slot <= 9 and abs(center - (275 + slot * 53)) <= 11 and
+                sum(char.isalpha() for char in value) >= 2 and
+                word.get("confidence", 0) >= .25):
             text_rows.add(slot)
     rows: list[list[dict]] = []
     for word in sorted(raw.get("words") or [], key=lambda item: item.get("box", [0, 0])[1]):
@@ -54,7 +55,8 @@ def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> 
         # Tesseract often assigns low confidence to the Portuguese cedilla
         # with the English model, even when the full trait name is legible.
         # Catalog matching below still requires a unique full-word match.
-        if type(confidence) not in (int, float) or confidence < .30 or len(_fold(text)) < 4:
+        if (type(confidence) not in (int, float) or confidence < .30 or
+                sum(char.isalpha() for char in text) < 3):
             continue
         center = (box[1] + box[3]) / 2
         if rows and abs(center - sum((w["box"][1] + w["box"][3]) / 2
@@ -101,7 +103,11 @@ def roster_hypotheses(binding: dict, markers: list[dict], champion_traits: dict[
     board_count = sum(marker.get("color") == "green" and
                       type((marker.get("rect") or {}).get("y")) is int and
                       200 <= marker["rect"]["y"] < 665 for marker in markers)
-    if not 1 <= board_count <= 4 or len(observed) > 10:
+    # Only a very small early roster can be discussed from visible bars.
+    # A late-game trait list may contain many unseen champions behind effects.
+    if len(observed) > 4:
+        return {"status": "large_roster_not_exhaustive", "rosters": []}
+    if not 1 <= board_count <= 4:
         return {"status": "board_count_unavailable", "rosters": []}
     eligible = sorted(unit for unit, traits in champion_traits.items()
                       if traits and traits <= observed)
