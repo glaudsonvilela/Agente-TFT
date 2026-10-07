@@ -98,7 +98,8 @@ class BoardHubLive:
             snapshot = build_snapshot(image, read, self.board, self.position, self.equipped,
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
-                                      equipped_templates=self.equipped_templates)
+                                      equipped_templates=self.equipped_templates,
+                                      allow_unmatched_arena=True)
             snapshot['neural_items']=(self.item_neural.observe(image,snapshot['inventory']['inventory'],self.inventory)
                 if self.item_neural else dict(active=False,error=self.item_neural_error))
             try:

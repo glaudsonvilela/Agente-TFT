@@ -16,18 +16,21 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    entries: list[dict], icon_dir: Path, match_scope: str,
                    recording_context: dict | None = None,
                    inventory_templates: tuple[TemplateBank, int] | None = None,
-                   equipped_templates: tuple[TemplateBank, int] | None = None) -> dict:
+                   equipped_templates: tuple[TemplateBank, int] | None = None,
+                   allow_unmatched_arena: bool = False) -> dict:
     if recording_context is not None:
         if (recording_context.get("schema_version") != 1 or
                 recording_context.get("set_key") != manifest["set_key"] or
                 not recording_context.get("tft_patch")):
             raise ValueError("recording set/patch context does not match visual reference")
-    positions = project(read, position_profile, board)
+    positions = project(read, position_profile, board,
+                        allow_unmatched_arena=allow_unmatched_arena)
     inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope,
                               preloaded_templates=inventory_templates)
     equipped = equipped_run(image, read, board, position_profile, equipped_profile,
                             manifest, entries, icon_dir, match_scope,
-                            preloaded_templates=equipped_templates)
+                            preloaded_templates=equipped_templates,
+                            allow_unmatched_arena=allow_unmatched_arena)
     grouped = {}
     for row in positions["candidates"]:
         grouped.setdefault((row["zone"], row["row"], row["cell_or_slot"]), []).append(row["marker_id"])

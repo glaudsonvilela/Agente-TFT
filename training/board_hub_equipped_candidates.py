@@ -49,14 +49,16 @@ def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profi
 
 def run(image, read: dict, board: dict, position_profile: dict, equipped_profile: dict,
         manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all",
-        preloaded_templates: tuple[TemplateBank, int] | None = None) -> dict:
+        preloaded_templates: tuple[TemplateBank, int] | None = None,
+        allow_unmatched_arena: bool = False) -> dict:
     import numpy as np
 
     validate(equipped_profile, board)
     rgb = image.convert("RGB")
     if (rgb.width, rgb.height) != (board["reference_width"], board["reference_height"]):
         raise ValueError("equipped frame resolution mismatch")
-    positions = project(read, position_profile, board)
+    positions = project(read, position_profile, board,
+                        allow_unmatched_arena=allow_unmatched_arena)
     if positions["status"] == "projection_unavailable":
         return {"status": "projection_unavailable", "markers": [], "item_identity_established": False,
                 "unit_identity_established": False, "game_state_updated": False}

@@ -766,3 +766,23 @@ originais de treino (642 nomeados e 31 negativos), não novas unidades ou partid
 O encoder DINO continua congelado, o lote permanece 1 e todos os escores seguem
 sem calibração. Faltam as nove formas Lux, cobertura mais diversa das dez
 identidades com uma fonte e avaliação final realmente independente.
+
+## Descarte da geometria em arenas diferentes (7 de outubro)
+
+Na sessão Windows examinada, o leitor nativo detectou barras verdes, mas o HUB
+descartou todas as posições porque a aparência da arena não correspondia à
+referência empacotada. Em quatro leituras de um trecho da partida, havia três
+barras no banco e uma no tabuleiro; o relatório do HUB ainda mostrava zero
+marcadores. Assim, o reconhecedor nem recebia esses recortes para formar o
+estado visual usado nas dicas.
+
+O modo ao vivo agora pode projetar **candidatos de posição a partir das barras**
+mesmo quando a comparação da arena falha. O resultado fica identificado como
+`bar_geometry_only_unmatched_arena`: posição no chão, ocupação, perspectiva e
+identidade continuam não confirmadas. O comportamento conservador dos leitores
+de treinamento e dos relatórios antigos permanece como padrão.
+
+Próximas dependências para dicas reais: instalar um modelo visual compatível,
+medir identidade e posição em fontes independentes, ligar o estado observado ao
+motor de decisões e atualizar os dados sazonais para o patch corrente. Esta
+correção não promove previsões a rótulos nem prova acerto das dicas.

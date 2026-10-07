@@ -38,6 +38,13 @@ class PositionCandidateTests(unittest.TestCase):
         read = {"profile": BOARD["id"], "projection_status": "unresolved",
                 "markers": [marker(0, 631, 320)]}
         self.assertEqual(project(read, PROFILE, BOARD)["candidates"], [])
+        live = project(read, PROFILE, BOARD, allow_unmatched_arena=True)
+        self.assertEqual(live["status"], "bar_geometry_only_unmatched_arena")
+        self.assertEqual((live["candidates"][0]["zone"], live["candidates"][0]["row"]),
+                         ("board", 0))
+        self.assertIsNone(live["candidates"][0]["ground_point"])
+        self.assertIsNone(live["candidates"][0]["occupancy"])
+        self.assertFalse(live["ground_assignment_established"])
         bad = copy.deepcopy(PROFILE)
         bad["bands"][1]["min_bar_y"] = 360
         with self.assertRaisesRegex(ValueError, "overlap"):

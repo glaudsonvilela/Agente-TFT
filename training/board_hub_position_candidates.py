@@ -30,11 +30,13 @@ def validate(profile: dict, board: dict) -> None:
         raise ValueError("invalid horizontal residual")
 
 
-def project(read: dict, profile: dict, board: dict) -> dict:
+def project(read: dict, profile: dict, board: dict,
+            allow_unmatched_arena: bool = False) -> dict:
     validate(profile, board)
     if read.get("profile") != board["id"]:
         raise ValueError("B1 report profile mismatch")
-    if read.get("projection_status") != "reference_arena_match":
+    matched = read.get("projection_status") == "reference_arena_match"
+    if not matched and not (allow_unmatched_arena and read.get("projection_status") == "unresolved"):
         return {"status": "projection_unavailable", "candidates": [], "unassigned": [],
                 "occupancy_established": False, "ground_assignment_established": False}
     candidates, unassigned = [], []
@@ -67,7 +69,8 @@ def project(read: dict, profile: dict, board: dict) -> dict:
     for row in candidates:
         if counts[(row["zone"], row["row"], row["cell_or_slot"])] > 1:
             row["status"] = "ambiguous_collision"
-    return {"status": "candidate_only", "candidates": candidates, "unassigned": unassigned,
+    return {"status": "candidate_only" if matched else "bar_geometry_only_unmatched_arena",
+            "candidates": candidates, "unassigned": unassigned,
             "occupancy_established": False, "ground_assignment_established": False}
 
 
