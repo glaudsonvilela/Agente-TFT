@@ -31,7 +31,7 @@ services:
     volumes:
       - ..:/workspace:ro
       - ./data:/var/lib/agente-tft-trainer
-      - ./neural-bundle:/opt/agente-tft/learner
+      - ./neural-bundle:/opt/agente-tft:ro
     cpus: 4.0
     mem_limit: 6g
     pids_limit: 256
