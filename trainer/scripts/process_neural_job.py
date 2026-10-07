@@ -77,7 +77,12 @@ def build_session(job: dict, data_root: Path, workspace: Path) -> Path:
             rgb=im.convert("RGB")
             if rgb.size!=(1920,1080):
                 die("server evidence must be canonical 1920x1080")
-            rgb.save(target,format="JPEG",quality=95,subsampling=0,optimize=False)
+            if image.suffix.lower() in {".jpg",".jpeg"}:
+                # Preserve the exact client evidence. Re-encoding a JPEG here
+                # adds a second lossy generation before autonomous supervision.
+                shutil.copy2(image,target)
+            else:
+                rgb.save(target,format="JPEG",quality=95,subsampling=0,optimize=False)
         manifest_rows.append({
             "index":index,"frame_id":frame_id,"source_ms":source_ms,
             "width":1920,"height":1080,"image":f"frames/{index:06d}.jpg",
