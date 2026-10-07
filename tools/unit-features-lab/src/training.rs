@@ -252,6 +252,49 @@ fn load_autonomous_training(
     Ok(result)
 }
 
+fn autonomous_training_provenance(spec: &Value) -> Result<Value> {
+    if let Some(rows) = spec
+        .get("autonomous_training_sources")
+        .and_then(Value::as_array)
+    {
+        let mut source_ids = Vec::with_capacity(rows.len());
+        for row in rows {
+            source_ids.push(
+                row["source_id"]
+                    .as_str()
+                    .ok_or("autonomous source_id missing from provenance")?,
+            );
+        }
+        source_ids.sort_unstable();
+        let ids = source_ids.join("\n");
+        let config_bytes = serde_json::to_vec(
+            spec.get("autonomous_training_sources")
+                .ok_or("autonomous sources provenance missing")?,
+        )?;
+        return Ok(json!({
+            "mode":"multi_source",
+            "sources":rows.len(),
+            "source_ids_sha256":hash(ids.as_bytes()),
+            "config_sha256":hash(&config_bytes),
+            "paths_embedded":false
+        }));
+    }
+    if let Some(value) = spec.get("autonomous_training").filter(|v| !v.is_null()) {
+        let source_id = value["source_id"]
+            .as_str()
+            .ok_or("autonomous source_id missing from provenance")?;
+        let config_bytes = serde_json::to_vec(value)?;
+        return Ok(json!({
+            "mode":"single_source",
+            "sources":1,
+            "source_ids_sha256":hash(source_id.as_bytes()),
+            "config_sha256":hash(&config_bytes),
+            "paths_embedded":false
+        }));
+    }
+    Ok(json!({"mode":"none","sources":0,"paths_embedded":false}))
+}
+
 fn effective_class_weights(
     samples: &[Sample],
     sample_weights: &[f32],
@@ -721,6 +764,7 @@ pub fn run_cli() -> Result<()> {
             v
         })
         .collect();
+    let autonomous_provenance = autonomous_training_provenance(&spec)?;
     let mut reports = BTreeMap::new();
     for (name, features) in [
         ("colors", &color),
@@ -744,8 +788,7 @@ pub fn run_cli() -> Result<()> {
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
             "input_size":side,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
             "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"],"optimizer":optimizer,
-            "autonomous_training":spec.get("autonomous_training"),
-            "autonomous_training_sources":spec.get("autonomous_training_sources")});
+            "autonomous_training_provenance":autonomous_provenance.clone()});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -765,8 +808,7 @@ pub fn run_cli() -> Result<()> {
         "variants":reports,"elapsed_seconds":start.elapsed().as_secs_f64(),"spec_sha256":hash(&spec_bytes),
         "source_samples":source_samples,"reviewed_source_samples":reviewed_samples,
         "autonomous_source_samples":autonomous_source_samples,
-        "autonomous_training":spec.get("autonomous_training"),
-        "autonomous_training_sources":spec.get("autonomous_training_sources"),
+        "autonomous_training_provenance":autonomous_provenance,
         "crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
         "synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
         "encoder_sha256":spec["encoder_sha256"],"runtime_approved":false,
@@ -847,6 +889,26 @@ mod tests {
         assert_eq!(epoch, second_epoch);
         assert_eq!(history, second_history);
         assert_eq!(first.labels, vec!["a", "b"]);
+    }
+
+    #[test]
+    fn autonomous_model_provenance_hashes_paths_instead_of_embedding_them() {
+        let spec = json!({
+            "autonomous_training_sources":[
+                {"source_id":"session:b","collection":"/private/b","gold_labels":"/private/bg",
+                 "silver_labels":"/private/bs","gold_weight":1.0,"silver_weight":0.35},
+                {"source_id":"session:a","collection":"/private/a","gold_labels":"/private/ag",
+                 "silver_labels":"/private/as","gold_weight":1.0,"silver_weight":0.35}
+            ]
+        });
+        let value = autonomous_training_provenance(&spec).unwrap();
+        assert_eq!(value["mode"], "multi_source");
+        assert_eq!(value["sources"], 2);
+        assert_eq!(value["paths_embedded"], false);
+        let encoded = serde_json::to_string(&value).unwrap();
+        assert!(!encoded.contains("/private/"));
+        assert_eq!(value["source_ids_sha256"].as_str().unwrap().len(), 64);
+        assert_eq!(value["config_sha256"].as_str().unwrap().len(), 64);
     }
 
     #[test]
