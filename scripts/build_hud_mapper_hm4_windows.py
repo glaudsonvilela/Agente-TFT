@@ -7,8 +7,8 @@ if os.name != 'nt':
     raise SystemExit('Windows build host required')
 live_assets = root / 'build/hm4-live-assets'
 asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
-if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
-    raise SystemExit('Replay-screen assets were not verified')
+if asset_report.get('matching_item_entries', 0) < 100:
+    raise SystemExit('Visual reference assets were not verified')
 live_plan = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
 reference = root / live_plan['reference']
 knowledge_plan = json.loads((root / 'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
@@ -55,7 +55,6 @@ args = [
     '--add-data', f'{root / "apps/hud_mapper/assets"};assets',
     '--add-data', f'{reference};{live_plan["reference"]}',
     '--add-data', f'{knowledge_reference};{knowledge_plan["reference"]}',
-    '--add-data', f'{live_assets / "models"};models',
     '--add-data', f'{live_assets / live_plan["icon_dir"]};{live_plan["icon_dir"]}',
     '--add-data', f'{td};tesseract',
     '--collect-binaries', 'onnxruntime', '--collect-data', 'onnxruntime',
@@ -115,7 +114,7 @@ manifest = dict(
     commit=os.environ.get('GITHUB_SHA'),
     primary_objective='replay_screen_capture_neural_board_hub_and_review_prompts',
     runtime_only=True,
-    automatic_model_discovery=True,
+    automatic_model_discovery=False,
     reader_only_fallback=True,
     manual_model_selection=False,
     replay_in_runtime=False,
@@ -125,11 +124,12 @@ manifest = dict(
     shadow_learning_capture_bundled=True,
     post_session_learning_job_bundled=True,
     post_session_linux_trainer_bundled=False,
+    neural_location='server',
     capture='resident_Rust_WGC_D3D11',
-    neural='bundled_L3_ONNX_CPU_shadow_diagnostic',
+    neural='server_side_only',
     ocr='Tesseract_private',
-    model_weights_included=True,
-    model_sha256=asset_report['model_sha256'],
+    model_weights_included=False,
+    model_sha256=None,
     board_hub_reference_sha256=asset_report['reference_sha256'],
     board_hub_candidate_only=True,
     replay_screen_review_prompts=True,
@@ -207,10 +207,11 @@ report = dict(
     shadow_learning_capture_bundled=True,
     post_session_learning_job_bundled=True,
     post_session_linux_trainer_bundled=False,
-    automatic_model_discovery=True,
+    automatic_model_discovery=False,
     reader_only_fallback=True,
-    model_weights_included=True,
-    model_sha256=asset_report['model_sha256'],
+    neural_location='server',
+    model_weights_included=False,
+    model_sha256=None,
     board_hub_reference_sha256=asset_report['reference_sha256'],
     replay_screen_review_prompts=True,
     compaction_removed_bytes=compaction['removed_bytes'],
