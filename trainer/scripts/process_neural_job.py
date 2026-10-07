@@ -172,6 +172,41 @@ def main():
             die(f"post-session pipeline failed:{proc.returncode}")
 
         state=load_json(session/"shadow-learning"/"post-session-v1"/"state.json")
+
+        # Every later session is independent shadow evidence for previously
+        # registered candidates. A newly selected challenger is registered
+        # only after its validation gates are calibrated.
+        post=session/"shadow-learning"/"post-session-v1"
+        dense=post/"annotation-2s-shop-dense"
+        supported=post/"autonomous-gold-adjudication-v2"/"supported-gold-anchors.json"
+        challenger_selection=post/"challenger"/"autonomous-challenger-selection.json"
+        promotion_out=work/"promotion.json"
+        command=[
+            sys.executable,str(args.repo/"trainer/scripts/manage_shadow_promotion.py"),
+            "--data-root",str(args.data_root),
+            "--repo",str(args.repo),
+            "--central-selection",str(selection_path),
+            "--evaluation-session",sid,
+            "--output",str(promotion_out),
+        ]
+        if dense.is_dir() and supported.is_file():
+            command.extend(["--collection",str(dense),"--gold",str(supported)])
+        if challenger_selection.is_file():
+            selected=load_json(challenger_selection)
+            if selected.get("selected_arm")=="weighted-autonomous":
+                command.extend([
+                    "--new-challenger-selection",str(challenger_selection),
+                    "--new-candidate-training-session",sid,
+                ])
+        with (work/"promotion.log").open("w",encoding="utf-8") as handle:
+            promotion_proc=subprocess.run(
+                command,cwd=args.repo,env=env,
+                stdout=handle,stderr=subprocess.STDOUT,text=True,
+            )
+        if promotion_proc.returncode!=0:
+            die(f"promotion manager failed:{promotion_proc.returncode}")
+        promotion=load_json(promotion_out)
+
         selection=load_json(selection_path)
         result={
             "schema_version":1,"neural_session_id":sid,
@@ -181,6 +216,8 @@ def main():
             "challenger_selected":False,
             "training_location":"BigBANANA",
             "client_compute_required":False,
+            "promotion":promotion.get("promoted"),
+            "central_stable_generation":selection.get("central_stable_generation"),
         }
         candidate=session/"shadow-learning"/"post-session-v1"/"shadow-candidate.json"
         if candidate.is_file():
