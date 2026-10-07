@@ -4,7 +4,89 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::PathBuf, process::Command};
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-use agente_tft_unit_features_lab::ocr_names::{match_name, name_indexes};
+use agente_tft_unit_features_lab::ocr_names::{match_name, name_indexes, Names};
+
+fn tooltip_name_match(
+    words: &[(String, f32)],
+    names: &Names,
+    families: &Names,
+) -> Option<(Vec<String>, f32)> {
+    if let Some(found) = match_name(words, names, families) {
+        return Some(found);
+    }
+    // The portrait row ends with a coin icon and a one-digit price. Tesseract
+    // frequently reads this as `a3`, `ain`, or `a`. Remove just that short
+    // final glyph group; never truncate an arbitrary name or sentence.
+    let (last, prefix) = words.split_last()?;
+    let suffix = last.0.as_str();
+    if !suffix.starts_with('a') || suffix.len() > 3 || prefix.is_empty() {
+        return None;
+    }
+    match_name(prefix, names, families)
+}
+
+// The selection halo is a broad cyan ellipse below the unit. Counting cyan
+// anywhere in a crop mistakes spell effects and the champion's own colours
+// for a selection. This shape test remains an association cue, not a label.
+fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> {
+    if box_xyxy.len() != 4 {
+        return None;
+    }
+    let (Some(x1), Some(y1), Some(x2), Some(_)) = (
+        box_xyxy[0].as_i64(),
+        box_xyxy[1].as_i64(),
+        box_xyxy[2].as_i64(),
+        box_xyxy[3].as_i64(),
+    ) else {
+        return None;
+    };
+    let cx = (x1 + x2) / 2;
+    let mut rows = [0u32; 95];
+    let (mut total, mut left, mut right) = (0u32, 0u32, 0u32);
+    for dy in 0..95i64 {
+        let y = y1 + 70 + dy;
+        if y < 0 || y >= frame.height() as i64 {
+            continue;
+        }
+        for dx in 0..110i64 {
+            let x = cx - 55 + dx;
+            if x < 0 || x >= frame.width() as i64 {
+                continue;
+            }
+            let p = frame.get_pixel(x as u32, y as u32).0;
+            if p[0] < 130 && p[1] > 160 && p[2] > 170 && p[1] as i16 - p[0] as i16 > 70 {
+                total += 1;
+                rows[dy as usize] += 1;
+                if dx < 35 {
+                    left += 1;
+                }
+                if dx >= 75 {
+                    right += 1;
+                }
+            }
+        }
+    }
+    let percentile = |numerator: u32| -> usize {
+        let target = (total * numerator).div_ceil(100);
+        let mut sum = 0u32;
+        for (i, count) in rows.iter().enumerate() {
+            sum += count;
+            if sum >= target {
+                return i;
+            }
+        }
+        94
+    };
+    let span = if total > 0 {
+        percentile(90) - percentile(10)
+    } else {
+        0
+    };
+    Some(
+        json!({"cyan_pixels":total,"left_arc_pixels":left,"right_arc_pixels":right,
+        "vertical_span_p10_p90":span,"shape_pass":total>=250 && left>=40 && right>=40 && span>=30}),
+    )
+}
 fn run() -> Result<()> {
     let a: Vec<_> = std::env::args().collect();
     if a.len() != 4 {
@@ -84,7 +166,7 @@ fn run() -> Result<()> {
         }
         let found: Vec<_> = lines
             .values()
-            .filter_map(|words| match_name(words, &names, &families))
+            .filter_map(|words| tooltip_name_match(words, &names, &families))
             .collect();
         if found.len() != 1 {
             continue;
@@ -98,14 +180,27 @@ fn run() -> Result<()> {
                     p[0] < 100 && p[1] > 160 && p[2] > 160 && p[1] as i16 - p[0] as i16 > 80
                 })
                 .count();
-            units.push(json!({"crop":u["crop"],"pixel_sha256":u["pixel_sha256"],"marker_id":u["marker_id"],"box":u["box"],"cyan_pixels":cyan}));
+            let ring = u["box"].as_array().and_then(|b| selection_ring(&rgb, b));
+            units.push(json!({"crop":u["crop"],"pixel_sha256":u["pixel_sha256"],"marker_id":u["marker_id"],"box":u["box"],"cyan_pixels":cyan,
+                "selection_ring":ring}));
         }
         units.sort_by(|a, b| b["cyan_pixels"].as_u64().cmp(&a["cyan_pixels"].as_u64()));
+        let rings: Vec<_> = units
+            .iter()
+            .filter(|u| u["selection_ring"]["shape_pass"] == true)
+            .collect();
+        let selected = if rings.len() == 1 {
+            Some(rings[0]["marker_id"].clone())
+        } else {
+            None
+        };
         proposals.push(json!({"source_id":report["source_id"],"source_seconds_nominal":frame["source_seconds_nominal"],
             "frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],
             "tooltip_unit_id":if found[0].0.len()==1 {Some(&found[0].0[0])} else {None},
             "tooltip_unit_candidates":found[0].0,"identity_requires_variant_review":found[0].0.len()!=1,"ocr_name_confidence":found[0].1,
-            "tooltip_text":text,"association_candidates":units,"crop_identity_confirmed":false,
+            "tooltip_text":text,"association_candidates":units,"selected_ring_marker_candidate":selected,
+            "selection_ring_status":if rings.len()==1 {"unique_shape_candidate"} else if rings.is_empty() {"no_shape_candidate"} else {"ambiguous_shape_candidates"},
+            "crop_identity_confirmed":false,
             "review_required":true,"training_label":null}));
         println!(
             "{}",
@@ -124,7 +219,7 @@ fn run() -> Result<()> {
         out.join("report.json"),
         serde_json::to_vec_pretty(
             &json!({"source_id":report["source_id"],"source_collection_status":report["status"],"scanned":scanned,
-        "proposals":proposals.len(),"automatically_labeled":0,"limitations":["OCR names require review; cyan pixel count is not semantic selection detection.",
+        "proposals":proposals.len(),"automatically_labeled":0,"limitations":["Selection-ring geometry is a cue only; it needs independent temporal repetition before an automatic training label.",
         "Catalog names are matched literally; untranslated aliases can be missed. Generic seasonal names retain every candidate ID.",
         "This is annotation assistance, not a runtime recognition or coaching decision."]}),
         )?,
@@ -164,6 +259,24 @@ mod tests {
         );
         assert!(match_name(&words("Lux player"), &exact, &families).is_none());
         assert!(match_name(&[("Lux".into(), 65.)], &exact, &families).is_none());
+        let words = |s: &str| {
+            s.split_whitespace()
+                .map(|s| (s.to_owned(), 95.))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            tooltip_name_match(&words("Master Yi a3"), &exact, &families)
+                .unwrap()
+                .0,
+            vec!["yi"]
+        );
+        assert_eq!(
+            tooltip_name_match(&words("Lux a"), &exact, &families)
+                .unwrap()
+                .0,
+            vec!["base", "elderwood"]
+        );
+        assert!(tooltip_name_match(&words("Lux player"), &exact, &families).is_none());
     }
 }
 fn main() {
