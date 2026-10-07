@@ -101,3 +101,17 @@ decoder with one sampled frame per second. The earlier keyframe windows remain
 diagnostic only; new output directories preserve the evidence of the issue.
 The separate training VOD's full sparse annotation collection has completed:
 1,374 saved review frames and 6,466 unit crops, with zero inferred labels.
+
+A new read-only Rust evaluator checked the frozen 66-class head against three
+direct Camille labels from the evaluation VOD. Camille exists in the model,
+but all three predictions were Veigar (0/3 top-1). These are correlated frames
+from one event, so the result proves that event fails; it is not a global
+accuracy percentage. The same model's supervised manifest contains 29
+Camille training crops, including four from the separate training VOD. More
+copies of the same arena alone are unlikely to resolve the cross-arena error.
+
+The full sparse training scan recovered 12 exact tooltip-name proposals, but
+none had both a strong OCR name and a unique selected-unit halo in that one
+saved frame. This makes a ring-required *window planner* too restrictive.
+The dense consensus rule remains strict; discovery windows can be chosen from
+exact names and then seek multiple frames for visual confirmation.
