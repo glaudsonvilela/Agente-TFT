@@ -263,13 +263,13 @@ class NeuralClientSessionResponse(StrictModel):
 class ChampionManifest(StrictModel):
     schema_version: Literal[1] = 1
     channel: Literal["stable", "shadow"] = "stable"
-    version: str = Field(min_length=1, max_length=128)
+    version: str = Field(pattern=r"^[A-Za-z0-9._-]{1,128}$")
     generation: int = Field(ge=1)
     published_at_ms: int = Field(ge=0)
     package_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     package_bytes: int = Field(ge=1, le=512 * 1024 * 1024)
     package_path: str = Field(min_length=1, max_length=256)
-    runtime_min_version: str = Field(min_length=1, max_length=32)
+    runtime_min_version: str = Field(pattern=r"^[0-9]+(?:\.[0-9]+){1,3}$")
     model_identity_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     approved: bool
     training_provenance: dict[str, Any] = Field(default_factory=dict)
