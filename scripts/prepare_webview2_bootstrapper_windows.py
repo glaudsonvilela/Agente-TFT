@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
+import shutil
 import subprocess
 from urllib.parse import urlparse
 from urllib.request import urlopen
@@ -31,7 +32,10 @@ def prepare() -> Path:
         "$s=Get-AuthenticodeSignature -LiteralPath $env:AGENTE_TFT_WEBVIEW2_BOOTSTRAPPER; "
         "if ($s.Status -ne 'Valid' -or $s.SignerCertificate.Subject -notmatch 'Microsoft Corporation') { exit 1 }"
     )
-    subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command],
+    shell = shutil.which("pwsh") or shutil.which("powershell.exe")
+    if shell is None:
+        raise RuntimeError("PowerShell indisponível para verificar a assinatura WebView2.")
+    subprocess.run([shell, "-NoProfile", "-NonInteractive", "-Command", command],
                    env={**os.environ, "AGENTE_TFT_WEBVIEW2_BOOTSTRAPPER": str(DESTINATION)},
                    check=True)
     return DESTINATION
