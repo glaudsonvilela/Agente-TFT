@@ -339,6 +339,46 @@ def create_app(
             expires_at_ms=expires_at_ms,
         )
 
+    def central_neural_status() -> dict[str, object]:
+        latest = None
+        registry = app.state.champion_registry
+        if registry is not None:
+            try:
+                latest = registry.latest("stable")
+            except Exception:
+                latest = None
+        by_status: dict[str, int] = {}
+        for record in app.state.store.neural_sessions.values():
+            key = record.status.value
+            by_status[key] = by_status.get(key, 0) + 1
+        queue = {"inbox": 0, "working": 0, "outbox": 0, "failed": 0}
+        backend = app.state.neural_backend
+        if isinstance(backend, FileQueueNeuralBackend):
+            for name in queue:
+                folder = backend.root / name
+                try:
+                    queue[name] = sum(1 for p in folder.glob("*.json") if p.is_file())
+                except OSError:
+                    queue[name] = -1
+            working = backend.root / "working"
+            try:
+                queue["working"] = sum(1 for p in working.glob("*.json") if p.is_file())
+            except OSError:
+                queue["working"] = -1
+        return {
+            "learning_backend": (
+                "file_queue_worker"
+                if isinstance(backend, FileQueueNeuralBackend)
+                else "inline" if not isinstance(backend, NullNeuralBackend)
+                else "disabled"
+            ),
+            "sessions_by_status": by_status,
+            "queue": queue,
+            "stable_generation": latest.generation if latest else None,
+            "stable_version": latest.version if latest else None,
+            "stable_package_sha256": latest.package_sha256 if latest else None,
+        }
+
     @app.get("/v1/training/health")
     async def health() -> dict[str, object]:
         return {
@@ -349,6 +389,7 @@ def create_app(
             "simulator_ready": not isinstance(app.state.store.backend, NullTrainerBackend),
             "neural_backend_ready": not isinstance(app.state.neural_backend, NullNeuralBackend),
             "neural_location": "server",
+            "central_neural": central_neural_status(),
         }
 
     @app.get("/v1/training/dashboard-metrics")
@@ -366,6 +407,7 @@ def create_app(
         snapshot["simulation_coverage"] = simulation_coverage(app.state.store.db_path)
         snapshot["latest_imported_runtime"] = latest_imported_runtime(app.state.store.db_path)
         snapshot["resources"] = app.state.resources.sample()
+        snapshot["central_neural"] = central_neural_status()
         snapshot["generated_at_ms"] = app.state.clock_ms()
         return snapshot
 
@@ -459,10 +501,13 @@ def create_app(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="persistent neural evidence storage is not configured",
             )
-        return await app.state.store.create_neural_session(
-            request,
-            app.state.clock_ms(),
-        )
+        try:
+            return await app.state.store.create_neural_session(
+                request,
+                app.state.clock_ms(),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     @app.get(
         "/v1/neural/sessions/{neural_session_id}",
