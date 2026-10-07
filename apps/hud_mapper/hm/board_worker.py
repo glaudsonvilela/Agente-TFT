@@ -8,9 +8,9 @@ from e1.protocol import NativeWorker
 
 
 class BoardWorker:
-    def __init__(self, binary, configs, log=None):
+    def __init__(self, binary, configs, log=None, tesseract='tesseract'):
         environment = dict(os.environ, AGENTE_TFT_BOARD_ONLY="1")
-        self.worker = NativeWorker(binary, configs, log=log, env=environment)
+        self.worker = NativeWorker(binary, configs, tesseract=tesseract, log=log, env=environment)
         if self.worker.ready.get("board_only") is not True:
             self.close()
             raise ValueError(
@@ -34,7 +34,10 @@ class BoardWorker:
             answer.get("board"), dict
         ):
             raise ValueError("Board result is not bound to the submitted frame")
-        return answer["board"]
+        board = answer["board"]
+        if isinstance(answer.get("trait_panel"), dict):
+            board["trait_panel"] = answer["trait_panel"]
+        return board
 
     def close(self):
         self.worker.close()

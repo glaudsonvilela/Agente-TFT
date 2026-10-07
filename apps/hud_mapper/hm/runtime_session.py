@@ -515,7 +515,8 @@ class HM4RuntimeSession(RuntimeSession):
                 from .board_worker import BoardWorker
                 observer = BoardHubLive(self.options.configs, neural_root=neural_bundle)
                 board_worker = BoardWorker(self.options.worker, self.options.configs,
-                                           log=Path(self.options.output) / 'board-stderr.log')
+                                           log=Path(self.options.output) / 'board-stderr.log',
+                                           tesseract=self.options.tesseract)
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
             self.versions['board_hub_set_key'] = observer.manifest['set_key']
             self.versions['board_hub_mode'] = ('replay_screen_candidate_only' if self.options.replay_review

@@ -802,3 +802,16 @@ interface Studio espera o modelo inicial antes de iniciar a captura, evitando
 uma sessão silenciosa sem classificador por corrida com o download. O teste
 integrado de leitura na máquina Windows e o desempenho prolongado continuam
 pendentes. A lógica de conselho ainda exige estado de jogo validado.
+
+## Evidência dos traços no tabuleiro (7 de outubro)
+
+Em um quadro real da sessão Windows (frame 10682), as duas barras verdes foram
+detectadas, mas o DINO rejeitou ambas as identidades (escores máximos 0,034 e
+0,056). O painel esquerdo mostrava quatro traços. Um leitor Rust separado do
+OCR principal extraiu `Defendente`, `Enfeiti¢ador`, `Florescer` e `Solar` no
+mesmo quadro; a segunda leitura da mesma imagem usou cache. O OCR leva cerca
+de 200 ms quando executado e está no processo independente do tabuleiro.
+
+Essa evidência pode restringir hipóteses de composição, mas o texto bruto
+continua sem vínculo com o catálogo, sem prova de perspectiva e sem identidade
+de unidade. Ele não é enviado ao motor de dicas como estado verificado.

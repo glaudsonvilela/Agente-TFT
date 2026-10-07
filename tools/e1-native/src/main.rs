@@ -13,6 +13,7 @@
 #[path="../../../rust/apps/board-replay-probe/src/scene.rs"] mod scene;
 mod engine;
 mod stage;
+mod trait_panel;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
@@ -446,7 +447,7 @@ fn run()->Result<(),String>{
     let args:Vec<_>=std::env::args().skip(1).collect();
     if args.len()<2 || args[0]!="--configs"{return Err("usage: e1-worker --configs <dir> [tesseract] [controls.json]".into())}
     if std::env::var("AGENTE_TFT_BOARD_ONLY").as_deref()==Ok("1") {
-        return board_only(Path::new(&args[1]));
+        return board_only(Path::new(&args[1]),args.get(2).map(String::as_str).unwrap_or("tesseract"));
     }
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
@@ -469,7 +470,7 @@ fn run()->Result<(),String>{
 
 // Dedicated geometry worker: no OCR engine, model, or game-state allocation.
 // A slow shop read must never hold up a fresh board frame.
-fn board_only(root:&Path)->Result<(),String>{
+fn board_only(root:&Path,tess:&str)->Result<(),String>{
     let profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;
     profile.validate()?;
     let anchors:Value=load(&root.join("ui/standard-arena-anchors-v1.json"))?;
@@ -478,6 +479,10 @@ fn board_only(root:&Path)->Result<(),String>{
     }
     let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
     let mut reader=scene::SceneReader::from_anchors(profile.clone(),reference)?;
+    #[cfg(any(windows,target_os="linux"))]
+    let mut trait_resident=ResidentTesseractOcr::from_cli_path(tess,"eng").ok();
+    let mut trait_cli=TesseractOcr::new(TesseractConfig{binary:tess.into(),language:"eng".into()});
+    let mut previous_traits:Option<(u64,Vec<u8>,Value)>=None;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
     writeln!(output,"{}",json!({"ready":true,"protocol":1,"board_only":true,"ocr_available":false,
         "pid":std::process::id()})).map_err(|e|e.to_string())?;
@@ -494,8 +499,36 @@ fn board_only(root:&Path)->Result<(),String>{
                 Err(error)=>json!({"id":id,"reference_ready":false,"error":error}),
             }
         } else {
-            json!({"id":id,"source_ms":f.captured_at_ms,"board":reader.read(&f)?,
-                "native_ms":ms(&started),"ocr_process_calls":0})
+            let board=reader.read(&f)?;
+            let active=serde_json::to_value(&board).map_err(|e|e.to_string())?["markers"]
+                .as_array().is_some_and(|rows| !rows.is_empty());
+            let trait_pixels=if active {Some(exact_rect_signature(&f,&[
+                PixelRect{x:138,y:255,width:95,height:205}])?)}else{None};
+            let traits=if active {
+                if let Some((at,pixels,old))=&previous_traits {
+                    if f.captured_at_ms.saturating_sub(*at)<5000 &&
+                            trait_pixels.as_ref()==Some(pixels) {
+                        let mut cached=old.clone();
+                        cached["status"]=json!("cached_ocr");
+                        cached["age_ms"]=json!(f.captured_at_ms.saturating_sub(*at));
+                        cached
+                    }else{Value::Null}
+                }else{Value::Null}
+            }else{Value::Null};
+            let traits=if active && traits.is_null(){
+                #[cfg(any(windows,target_os="linux"))]
+                let read=if let Some(engine)=trait_resident.as_mut(){
+                    trait_panel::observe(&f,engine)
+                }else{trait_panel::observe(&f,&mut trait_cli)};
+                #[cfg(not(any(windows,target_os="linux")))]
+                let read=trait_panel::observe(&f,&mut trait_cli);
+                let value=read.unwrap_or_else(|error|json!({"status":"read_error","error":error}));
+                previous_traits=Some((f.captured_at_ms,trait_pixels.unwrap_or_default(),value.clone()));
+                value
+            }else{traits};
+            json!({"id":id,"source_ms":f.captured_at_ms,"board":board,
+                "trait_panel":traits,"native_ms":ms(&started),
+                "ocr_process_calls":if active && traits["status"]=="raw_ocr" {1}else{0}})
         };
         writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }

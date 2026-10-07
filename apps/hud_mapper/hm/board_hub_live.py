@@ -113,6 +113,7 @@ class BoardHubLive:
                 self.unit_neural = None
                 snapshot['neural_units'] = dict(active=False, error=self.unit_neural_error, records=[])
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
+        snapshot['trait_panel_observation'] = read.get('trait_panel')
         for marker in snapshot['observed_markers']:
             marker['identity_observation'] = unit_records.get(marker['marker_id'])
         snapshot['visual_readiness'] = dict(
