@@ -161,11 +161,13 @@ def main():
         env.setdefault("AGENTE_TFT_UNIT_LAB_BIN_DIR","/opt/agente-bin")
         env.setdefault("OMP_THREAD_LIMIT","1")
         env.setdefault("OPENBLAS_NUM_THREADS","1")
+        corpus_manifest=args.data_root/"neural-corpus"/"manifest.json"
         log=work/"pipeline.log"
         with log.open("w",encoding="utf-8") as handle:
             proc=subprocess.run([
                 sys.executable,str(args.repo/"scripts/run_post_session_shadow_learning.py"),
                 "--repo",str(args.repo),"--selection",str(selection_path),
+                "--autonomous-corpus",str(corpus_manifest),
                 "--session",str(session),
             ],cwd=args.repo,env=env,stdout=handle,stderr=subprocess.STDOUT,text=True)
         if proc.returncode!=0:
@@ -218,6 +220,11 @@ def main():
             "client_compute_required":False,
             "promotion":promotion.get("promoted"),
             "central_stable_generation":selection.get("central_stable_generation"),
+            "central_corpus": (
+                load_json(corpus_manifest).get("counts")
+                if corpus_manifest.is_file()
+                else None
+            ),
         }
         candidate=session/"shadow-learning"/"post-session-v1"/"shadow-candidate.json"
         if candidate.is_file():
