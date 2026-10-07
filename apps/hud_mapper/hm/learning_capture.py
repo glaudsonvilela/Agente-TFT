@@ -63,6 +63,8 @@ class ShadowLearningRecorder:
         self.dropped_queue = 0
         self.skipped_interval = 0
         self.skipped_budget = 0
+        self.skipped_geometry = 0
+        self.normalized_frames = 0
         self.error: str | None = None
         self.closed = False
         self._next_source_ms: float | None = None
@@ -117,6 +119,18 @@ class ShadowLearningRecorder:
                     continue
                 started = time.perf_counter_ns()
                 image = Image.frombytes("RGB", (item.width, item.height), item.rgb)
+                source_rgb_sha = hashlib.sha256(item.rgb).hexdigest()
+                ratio = item.width / item.height
+                aspect_error = abs(ratio - (16 / 9)) / (16 / 9)
+                normalized = False
+                if (item.width, item.height) != (1920, 1080):
+                    if aspect_error > 0.005:
+                        self.skipped_geometry += 1
+                        continue
+                    image = image.resize((1920, 1080), Image.Resampling.LANCZOS)
+                    normalized = True
+                    self.normalized_frames += 1
+                learning_rgb = image.tobytes()
                 name = f"frames/{self.saved:06d}.jpg"
                 path = self.root / name
                 image.save(
@@ -132,17 +146,20 @@ class ShadowLearningRecorder:
                     self.skipped_budget += 1
                     continue
                 encoded = path.read_bytes()
-                decoded_rgb_sha = hashlib.sha256(item.rgb).hexdigest()
                 row = {
                     "index": self.saved,
                     "frame_id": item.frame_id,
                     "source_ms": item.source_ms,
-                    "width": item.width,
-                    "height": item.height,
+                    "source_width": item.width,
+                    "source_height": item.height,
+                    "width": 1920,
+                    "height": 1080,
+                    "normalized_to_1920x1080": normalized,
                     "geometry_segment": item.geometry_segment,
                     "image": name,
                     "image_sha256": hashlib.sha256(encoded).hexdigest(),
-                    "decoded_rgb_sha256": decoded_rgb_sha,
+                    "source_rgb_sha256": source_rgb_sha,
+                    "learning_rgb_sha256": hashlib.sha256(learning_rgb).hexdigest(),
                     "capture_role": "post_session_learning_evidence",
                     "ground_truth": False,
                     "training_label": None,
@@ -184,8 +201,11 @@ class ShadowLearningRecorder:
                 "dropped_queue": self.dropped_queue,
                 "skipped_interval": self.skipped_interval,
                 "skipped_budget": self.skipped_budget,
+                "skipped_geometry": self.skipped_geometry,
+                "normalized_frames": self.normalized_frames,
             },
             "encoded_bytes": self.bytes,
+            "learning_geometry": "canonical_1920x1080_rgb_jpeg_v1",
             "active_model_changed_during_session": False,
             "training_performed_during_session": False,
             "human_review_required": False,
