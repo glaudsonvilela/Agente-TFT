@@ -788,3 +788,89 @@ def test_central_neural_health_reports_file_queue_backend(tmp_path, monkeypatch)
             "outbox": 0,
             "failed": 0,
         }
+
+
+def test_file_queue_neural_learning_survives_client_and_reconciles(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    backend = FileQueueNeuralBackend(tmp_path)
+    app = create_app(
+        store=store,
+        neural_backend=backend,
+        clock_ms=lambda: 10_000,
+    )
+    with TestClient(app) as client:
+        headers = _neural_client(client, "install-queue")
+        created = client.post(
+            "/v1/neural/sessions",
+            headers=headers,
+            json={
+                "client_id": "install-queue",
+                "match_id": "match-queue",
+                "created_at_ms": 1,
+                "capture_policy": "test",
+            },
+        )
+        assert created.status_code == 201
+        neural_id = created.json()["neural_session_id"]
+
+        for frame_id, source_ms in ((1, 0), (2, 2000)):
+            body = f"jpeg-{frame_id}".encode()
+            response = client.post(
+                f"/v1/neural/sessions/{neural_id}/frames",
+                params={
+                    "frame_id": frame_id,
+                    "source_ms": source_ms,
+                    "width": 1920,
+                    "height": 1080,
+                    "image_sha256": hashlib.sha256(body).hexdigest(),
+                    "capture_role": "post_match_learning_evidence",
+                },
+                headers={**headers, "Content-Type": "image/jpeg"},
+                content=body,
+            )
+            assert response.status_code == 200
+            assert response.json()["status"] == "queued"
+
+        sealed = client.post(
+            f"/v1/neural/sessions/{neural_id}/seal",
+            headers=headers,
+            json={
+                "sealed_at_ms": 9000,
+                "match_end_reason": "capture_end",
+                "capture_manifest_sha256": "c" * 64,
+                "frame_count": 2,
+            },
+        )
+        assert sealed.status_code == 200
+        assert (backend.inbox / f"{neural_id}.json").is_file()
+        status = client.get(
+            f"/v1/neural/sessions/{neural_id}/learning",
+            headers=headers,
+        ).json()
+        assert status["status"] == "processing"
+
+        # The real worker is a separate process/container. Simulate its durable
+        # outbox result, then let the API reconcile it.
+        (backend.outbox / f"{neural_id}.json").write_text(json.dumps({
+            "schema_version": 1,
+            "neural_session_id": neural_id,
+            "champion_model_sha256": "a" * 64,
+            "shadow_candidate_sha256": "b" * 64,
+            "training_location": "BigBANANA",
+            "client_compute_required": False,
+        }))
+        reconciled = client.get(
+            f"/v1/neural/sessions/{neural_id}/learning",
+            headers=headers,
+        )
+        assert reconciled.status_code == 200
+        value = reconciled.json()
+        assert value["status"] == "complete"
+        assert value["champion_model_sha256"] == "a" * 64
+        assert value["challenger_model_sha256"] == "b" * 64
+        assert value["shadow_candidate_created"] is True
+        assert not (backend.outbox / f"{neural_id}.json").exists()
