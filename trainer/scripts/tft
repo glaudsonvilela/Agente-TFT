@@ -25,11 +25,34 @@ def render(data: dict) -> str:
     neural = ("treino não iniciado" if data["neural_training_status"] == "not_started"
               else "novo candidato rejeitado por regressão" if data["neural_training_status"] == "regression_rejected"
               else "candidato treinado; falta validação independente")
+    central = data.get("central_neural") or {}
+    stable_generation = central.get("stable_generation")
+    stable_version = central.get("stable_version")
+    queue = central.get("queue") or {}
+    sessions_by_status = central.get("sessions_by_status") or {}
+    stable_text = (
+        f"g{stable_generation} · {stable_version}"
+        if stable_generation is not None
+        else "ainda não publicado"
+    )
+    queue_text = (
+        f"fila {queue.get('inbox', 0)} · processando {queue.get('working', 0)} · "
+        f"saídas {queue.get('outbox', 0)} · falhas {queue.get('failed', 0)}"
+    )
+
     lines = [
         "✦ AGENTE TFT · BigBANANA",
         f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
         "────────────────────────────────────────",
         f"Simulador do replay: {simulator}  |  Modelo de banco/loja: {neural}",
+        f"Champion neural: {stable_text}  |  {queue_text}",
+        (
+            "Sessões neurais: "
+            f"ativas {sessions_by_status.get('active', 0)} · "
+            f"processando {sessions_by_status.get('processing', 0)} · "
+            f"concluídas {sessions_by_status.get('complete', 0)} · "
+            f"falhas {sessions_by_status.get('failed', 0)}"
+        ),
         "Visão neural no Windows: diagnóstico local; confira a sessão do Windows.",
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
@@ -163,8 +186,24 @@ def main() -> int:
     if command in ("web", "navegador"):
         print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
         return 0
+    if command in ("neural", "ia"):
+        try:
+            data=fetch()
+        except (URLError, TimeoutError, OSError, ValueError) as exc:
+            print(f"Agente TFT indisponível: {exc}", file=sys.stderr)
+            return 1
+        central=data.get("central_neural") or {}
+        queue=central.get("queue") or {}
+        sessions=central.get("sessions_by_status") or {}
+        print("✦ AGENTE TFT · IA CENTRAL")
+        print(f"Backend: {central.get('learning_backend','desconhecido')}")
+        print(f"Stable: g{central.get('stable_generation')} · {central.get('stable_version')}")
+        print(f"Fila: {queue.get('inbox',0)} esperando · {queue.get('working',0)} processando · {queue.get('failed',0)} falhas")
+        print(f"Sessões: {sessions}")
+        print("Treino pesado: BigBANANA · inferência: modelo aprovado local")
+        return 0
     if command not in ("status", "acompanhar", "watch", "painel", "panel"):
-        print("Uso: tft [status|painel|web|fontes|simulador|habilidades]", file=sys.stderr)
+        print("Uso: tft [status|painel|neural|web|fontes|simulador|habilidades]", file=sys.stderr)
         return 2
     try:
         while True:
