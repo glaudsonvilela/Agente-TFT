@@ -143,6 +143,11 @@ def main() -> int:
     transitions = load_json(transitions_path)
     if not isinstance(transitions, list):
         die("transition-proposals.json must be a list")
+    report = load_json(collection / "report.json")
+    partition = report.get("partition") if isinstance(report, dict) else None
+    source_id = report.get("source_id") if isinstance(report, dict) else None
+    if partition not in {"training_pool_unlabeled", "evaluation_unlabeled"} or not isinstance(source_id, str):
+        die("collection partition/source missing or invalid")
     observations = load_jsonl(collection / "observations.jsonl")
     if not observations:
         die("collection observations are empty")
@@ -154,6 +159,9 @@ def main() -> int:
     for row in transitions:
         if not isinstance(row, dict):
             excluded["invalid_transition"] += 1
+            continue
+        if row.get("source_id") != source_id or row.get("partition") != partition:
+            excluded["transition_source_or_partition_mismatch"] += 1
             continue
 
         ids = row.get("shop_unit_candidates")
@@ -220,6 +228,7 @@ def main() -> int:
         labels.append(
             {
                 "source_id": row.get("source_id"),
+                "partition": partition,
                 "unit_id": unit_id,
                 "source_seconds_nominal": new_t,
                 "crop": crop,
@@ -238,7 +247,7 @@ def main() -> int:
                 },
                 "human_review_required": False,
                 "model_prediction_used_as_label": False,
-                "training_eligible": True,
+                "training_eligible": partition == "training_pool_unlabeled",
             }
         )
 
@@ -267,6 +276,7 @@ def main() -> int:
         "policy": "autonomous_shop_purchase_bench_consensus_v1",
         "transition_proposals": len(transitions),
         "gold_auto_labels": len(labels),
+        "training_eligible_labels": sum(row["training_eligible"] for row in labels),
         "gold_auto_ids": dict(sorted(counts.items())),
         "excluded": dict(sorted(excluded.items())),
         "thresholds": {

@@ -117,6 +117,7 @@ fn run() -> Result<()> {
     let report: Value = serde_json::from_slice(&fs::read(root.join("report.json"))?)?;
     if report["status"] != "complete"
         || report["collection_mode"] != "annotation_only"
+        || report["partition"] != "training_pool_unlabeled"
         || report["training_performed"] != false
         || report["inference_performed"] != false
     {
@@ -229,6 +230,7 @@ fn run() -> Result<()> {
     let mut gold_pixels = HashSet::<String>::new();
     for row in anchors_rows {
         if row["source_id"].as_str() != Some(source_id)
+            || row["partition"] != "training_pool_unlabeled"
             || (row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
                 && row["label_source"] != "autonomous_tooltip_temporal_consensus_v1")
             || row["human_review_required"] != false

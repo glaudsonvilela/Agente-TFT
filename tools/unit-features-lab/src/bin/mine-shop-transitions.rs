@@ -102,6 +102,11 @@ fn run() -> Result<()> {
     if report["status"] != "complete" {
         return Err("complete collection required".into());
     }
+    if report["partition"] != "training_pool_unlabeled"
+        && report["partition"] != "evaluation_unlabeled"
+    {
+        return Err("collection partition missing or invalid".into());
+    }
     let catalog_bytes = fs::read(&args[2])?;
     let catalog: Value = serde_json::from_slice(&catalog_bytes)?;
     let (names, families) = name_indexes(&catalog)?;
@@ -223,7 +228,7 @@ fn run() -> Result<()> {
                 {
                     continue;
                 }
-                transitions.push(json!({"source_id":report["source_id"],"before_seconds":old_time,"after_seconds":time,
+                transitions.push(json!({"source_id":report["source_id"],"partition":report["partition"],"before_seconds":old_time,"after_seconds":time,
                     "before_frame":old_frame["review_frame"],"after_frame":file,"before_pixel_sha256":old_frame["frame_pixel_sha256"],"after_pixel_sha256":frame["frame_pixel_sha256"],
                     "shop_slot":slot,"portrait_brightness_before":old_portraits[slot],"portrait_brightness_after":portrait_brightness[slot],
                     "shop_unit_candidates":old_ids[slot],"shop_ocr_name_confidence":old_confidences[slot],

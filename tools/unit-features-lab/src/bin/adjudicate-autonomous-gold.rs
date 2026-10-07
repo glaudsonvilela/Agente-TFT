@@ -104,6 +104,11 @@ fn run() -> Result<()> {
     let spec:Value=serde_json::from_slice(&fs::read(&args[2])?)?;
     let out=PathBuf::from(s(&spec,"output")?);
     if out.exists(){return Err("new output directory required".into());}
+    let collection=PathBuf::from(s(&spec,"collection")?);
+    let collection_report:Value=serde_json::from_slice(&fs::read(collection.join("report.json"))?)?;
+    if collection_report["partition"]!="training_pool_unlabeled" {
+        return Err("adjudication collection must be training partition".into());
+    }
 
     let model_bytes=read_sealed(&spec,"model")?;
     let model:Value=serde_json::from_slice(&model_bytes)?;
@@ -142,15 +147,18 @@ fn run() -> Result<()> {
     let rows=anchors_doc.as_array().ok_or("anchors array")?;
     if rows.is_empty(){return Err("no anchors".into());}
 
-    let collection=PathBuf::from(s(&spec,"collection")?);
     let mut anchor_features: Vec<(String, String, u64, Vec<f32>)> = Vec::new();
     for row in rows {
         if row["label_source"]!="autonomous_shop_purchase_bench_consensus_v1"
             && row["label_source"]!="autonomous_tooltip_temporal_consensus_v1"
             || row["human_review_required"]!=false
             || row["model_prediction_used_as_label"]!=false
-            || row["training_eligible"]!=true {
+            || row["training_eligible"]!=true
+            || row["partition"]!="training_pool_unlabeled" {
             return Err("anchor provenance mismatch".into());
+        }
+        if row["source_id"] != collection_report["source_id"] {
+            return Err("anchor source differs from collection".into());
         }
         let label=s(row,"unit_id")?.to_owned();
         let crop_rel=s(row,"crop")?.to_owned();
@@ -213,6 +221,7 @@ fn run() -> Result<()> {
 
         decisions.push(json!({
             "source_id":row["source_id"],
+            "partition":row["partition"],
             "unit_id":label,
             "source_seconds_nominal":row["source_seconds_nominal"],
             "crop":crop_rel,

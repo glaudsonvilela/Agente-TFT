@@ -54,3 +54,31 @@ that a warm ellipse passes while a one-sided warm flash fails.
 
 Pending: compare more arena styles, improve cross-arena foreground features,
 and evaluate a new model on matches kept out of training.
+
+The full six-hour evaluation VOD was collected in annotation-only mode at
+one saved frame per ten seconds: 2,160 review frames and 9,554 unit crops.
+The tooltip miner is scanning these frames. Its proposals are observations,
+not labels or an accuracy estimate. The separate training VOD supplies the
+only eligible source for automatic training anchors.
+
+Partition provenance is now carried from the verified collection report into
+tooltip and shop proposals, then into consensus labels. Evaluation labels are
+kept for held-out measurement with `training_eligible=false`; missing or
+inconsistent partitions are rejected. The Rust adjudicator, temporal
+propagator and weighted trainer reject non-training gold. Legacy tooltip and
+shop labels without a partition must be regenerated before training. The
+previous two Camille anchors from the evaluation VOD must never be used for
+training, regardless of the earlier output's `training_eligible` flag.
+
+The first regenerated dense training window produced two direct Camille
+anchors at nominal seconds 11529 and 11530. Eight tooltip proposals were
+inspected; three had OCR below 94, three lacked a strong selected-unit
+association, and two met the temporal rule. These two are training eligible
+because the source is in `training_pool_unlabeled`. This is label evidence,
+not proof that the current classifier recognizes Camille in live play.
+
+The independently regenerated dense evaluation window produced three
+Camille anchors at nominal seconds 122–124. All three are explicitly marked
+`evaluation_unlabeled` and `training_eligible=false`. They can measure a
+challenger trained only on the separate training source, but cannot support
+the training corpus.

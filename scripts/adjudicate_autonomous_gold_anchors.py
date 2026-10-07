@@ -167,6 +167,7 @@ def main() -> int:
         or row.get("human_review_required") is not False
         or row.get("model_prediction_used_as_label") is not False
         or row.get("training_eligible") is not True
+        or row.get("partition") != "training_pool_unlabeled"
         for row in anchors_doc
     ):
         die("gold anchor provenance failed")

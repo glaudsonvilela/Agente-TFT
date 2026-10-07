@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Turn strict tooltip OCR evidence into autonomous training anchors.
+"""Turn strict tooltip OCR evidence into partitioned identity anchors.
 
 No human review is required. The script accepts only exact, unique catalog IDs
 with strong OCR, strong selected-unit association, and temporal repetition.
@@ -144,14 +144,19 @@ def main() -> int:
             excluded["invalid_crop_binding"] += 1
             continue
         source_id = row.get("source_id")
+        partition = row.get("partition")
         frame_pixel = row.get("frame_pixel_sha256")
         if not isinstance(source_id, str) or not source_id or not isinstance(frame_pixel, str) or len(frame_pixel) != 64:
             excluded["invalid_frame_provenance"] += 1
+            continue
+        if partition not in {"training_pool_unlabeled", "evaluation_unlabeled"}:
+            excluded["missing_or_invalid_partition"] += 1
             continue
 
         prelim.append(
             {
                 "source_id": source_id,
+                "partition": partition,
                 "source_seconds_nominal": int(round(float(t))),
                 "unit_id": unit_id,
                 "ocr_name_confidence": float(conf),
@@ -166,13 +171,14 @@ def main() -> int:
             }
         )
 
-    # Greedy track clustering by exact unit ID, nearby time and nearby screen position.
+    # Greedy track clustering by source/partition, exact ID, nearby time and position.
     clusters: list[list[dict[str, Any]]] = []
-    for item in sorted(prelim, key=lambda x: (x["unit_id"], x["source_seconds_nominal"])):
+    for item in sorted(prelim, key=lambda x: (x["source_id"], x["partition"], x["unit_id"], x["source_seconds_nominal"])):
         placed = False
         for cluster in reversed(clusters):
             last = cluster[-1]
-            if last["unit_id"] != item["unit_id"] or last["source_id"] != item["source_id"]:
+            if (last["unit_id"] != item["unit_id"] or last["source_id"] != item["source_id"]
+                    or last["partition"] != item["partition"]):
                 continue
             dt = item["source_seconds_nominal"] - last["source_seconds_nominal"]
             if dt <= 0 or dt > args.max_track_gap_seconds:
@@ -198,6 +204,7 @@ def main() -> int:
             labels.append(
                 {
                     "source_id": item["source_id"],
+                    "partition": item["partition"],
                     "source_seconds_nominal": item["source_seconds_nominal"],
                     "unit_id": item["unit_id"],
                     "crop": item["crop"],
@@ -215,7 +222,7 @@ def main() -> int:
                     },
                     "human_review_required": False,
                     "model_prediction_used_as_label": False,
-                    "training_eligible": True,
+                    "training_eligible": item["partition"] == "training_pool_unlabeled",
                 }
             )
 
@@ -238,6 +245,8 @@ def main() -> int:
         "strong_exact_associations": len(prelim),
         "clusters": len(clusters),
         "auto_labels": len(labels),
+        "training_eligible_labels": sum(row["training_eligible"] for row in labels),
+        "evaluation_labels": sum(row["partition"] == "evaluation_unlabeled" for row in labels),
         "auto_labeled_ids": dict(
             sorted(
                 {
@@ -261,8 +270,8 @@ def main() -> int:
         "training_performed": False,
         "runtime_approved": False,
         "next": (
-            "Use accepted autonomous anchors for temporal propagation and weighted "
-            "semi-supervised training. All rejected/ambiguous evidence remains unknown."
+            "Only training_pool_unlabeled anchors may enter training. Evaluation anchors "
+            "are reserved for held-out measurement; ambiguous evidence remains unknown."
         ),
     }
     (output / "report.json").write_text(

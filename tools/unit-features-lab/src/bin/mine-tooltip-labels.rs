@@ -137,6 +137,11 @@ fn run() -> Result<()> {
     if report["status"] != "complete" && report["status"] != "review_frames_complete" {
         return Err("complete source or verified review-frame index required".into());
     }
+    if report["partition"] != "training_pool_unlabeled"
+        && report["partition"] != "evaluation_unlabeled"
+    {
+        return Err("collection partition missing or invalid".into());
+    }
     let catalog: Value = serde_json::from_slice(&fs::read(&a[2])?)?;
     let (names, families) = name_indexes(&catalog)?;
     fs::create_dir_all(out.join("rois"))?;
@@ -250,7 +255,7 @@ fn run() -> Result<()> {
         } else {
             None
         };
-        proposals.push(json!({"source_id":report["source_id"],"source_seconds_nominal":frame["source_seconds_nominal"],
+        proposals.push(json!({"source_id":report["source_id"],"partition":report["partition"],"source_seconds_nominal":frame["source_seconds_nominal"],
             "frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],
             "tooltip_unit_id":if found[0].0.len()==1 {Some(&found[0].0[0])} else {None},
             "tooltip_unit_candidates":found[0].0,"identity_requires_variant_review":found[0].0.len()!=1,"ocr_name_confidence":found[0].1,
@@ -274,7 +279,7 @@ fn run() -> Result<()> {
     fs::write(
         out.join("report.json"),
         serde_json::to_vec_pretty(
-            &json!({"source_id":report["source_id"],"source_collection_status":report["status"],"scanned":scanned,
+            &json!({"source_id":report["source_id"],"partition":report["partition"],"source_collection_status":report["status"],"scanned":scanned,
         "proposals":proposals.len(),"automatically_labeled":0,"limitations":["Selection-ring geometry is a cue only; it needs independent temporal repetition before an automatic training label.",
         "Catalog names are matched literally; untranslated aliases can be missed. Generic seasonal names retain every candidate ID.",
         "This is annotation assistance, not a runtime recognition or coaching decision."]}),
