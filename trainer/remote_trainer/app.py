@@ -574,27 +574,56 @@ def create_app(
         suffix = ".jpg" if content_type == "image/jpeg" else ".png"
         final = folder / f"{frame_id:012d}{suffix}"
         meta_path = folder / f"{frame_id:012d}.json"
+        already_counted = (
+            record.last_source_ms is not None
+            and metadata.source_ms <= record.last_source_ms
+        )
         if final.exists() or meta_path.exists():
-            if not final.is_file() or not meta_path.is_file():
-                raise HTTPException(status_code=409, detail="partial existing frame state")
-            try:
-                existing = NeuralFrameMetadata.model_validate_json(
-                    meta_path.read_text(encoding="utf-8")
+            if final.is_file() and meta_path.is_file():
+                try:
+                    existing = NeuralFrameMetadata.model_validate_json(
+                        meta_path.read_text(encoding="utf-8")
+                    )
+                except Exception as exc:
+                    raise HTTPException(
+                        status_code=409,
+                        detail="stored frame metadata invalid",
+                    ) from exc
+                if (
+                    existing != metadata
+                    or hashlib.sha256(final.read_bytes()).hexdigest()
+                    != metadata.image_sha256
+                ):
+                    raise HTTPException(
+                        status_code=409,
+                        detail="frame_id already stored with different payload",
+                    )
+                if not already_counted:
+                    try:
+                        await app.state.store.record_neural_frame(
+                            neural_session_id,
+                            metadata.source_ms,
+                            metadata.image_bytes,
+                            app.state.clock_ms(),
+                        )
+                    except (KeyError, ValueError) as exc:
+                        code = 404 if isinstance(exc, KeyError) else 409
+                        raise HTTPException(status_code=code, detail=str(exc)) from exc
+                return NeuralInferenceResult(
+                    neural_session_id=neural_session_id,
+                    frame_id=metadata.frame_id,
+                    source_ms=metadata.source_ms,
+                    status="queued",
+                    error=None,
                 )
-            except Exception as exc:
-                raise HTTPException(status_code=409, detail="stored frame metadata invalid") from exc
-            if (
-                existing != metadata
-                or hashlib.sha256(final.read_bytes()).hexdigest() != metadata.image_sha256
-            ):
-                raise HTTPException(status_code=409, detail="frame_id already stored with different payload")
-            return NeuralInferenceResult(
-                neural_session_id=neural_session_id,
-                frame_id=metadata.frame_id,
-                source_ms=metadata.source_ms,
-                status="queued",
-                error=None,
-            )
+
+            # Recover a crash between payload/meta persistence. The client is
+            # retrying the exact same frame_id+SHA, so rebuild the pair from
+            # this request. If SQLite already counted the frame, skip the
+            # counter mutation below.
+            final.unlink(missing_ok=True)
+            meta_path.unlink(missing_ok=True)
+
         temporary = final.with_suffix(final.suffix + ".partial")
         try:
             with temporary.open("xb") as handle:
@@ -606,12 +635,13 @@ def create_app(
                 metadata.model_dump_json(indent=2) + "\n",
                 encoding="utf-8",
             )
-            await app.state.store.record_neural_frame(
-                neural_session_id,
-                metadata.source_ms,
-                metadata.image_bytes,
-                app.state.clock_ms(),
-            )
+            if not already_counted:
+                await app.state.store.record_neural_frame(
+                    neural_session_id,
+                    metadata.source_ms,
+                    metadata.image_bytes,
+                    app.state.clock_ms(),
+                )
         except (KeyError, ValueError) as exc:
             temporary.unlink(missing_ok=True)
             final.unlink(missing_ok=True)
