@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T21:12:00-03:00",
+  "recorded_at": "2026-10-06T21:45:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,11 +1346,9 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "rerun_khazix_queue_bootstrap_with_current_policy",
-    "runner": "scripts/bootstrap_khazix_from_private_queue.py",
-    "expected_behavior": "Exclude qkG10NeqM3A and the existing KhaZix source twitch:2891052706; select the strongest remaining current-policy training-side candidate, preferably Dishsoap twitch:2891050468 if present.",
-    "next_if_no_candidate": "Stop using the stale queue for KhaZix and acquire another authorized training-side source without weakening thresholds.",
-    "next_if_labels": "Build a multi-source challenger using only admitted gold/silver evidence.",
+    "status": "build_and_validate_hm45_self_learning_core",
+    "success_condition": "Core 0.7.0 builds with learner health OK, Python contracts pass, then one real Windows match produces SEALED learning capture and post-session job.",
+    "next_if_success": "Run first end-to-end Windows match in shadow; inspect automatic post-session outcome without promoting live model.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1983,6 +1981,60 @@
     "preferred_remaining_training_source_if_present_in_queue": "twitch:2891050468",
     "human_review_required": false,
     "training_performed": false,
+    "runtime_approved": false
+  },
+  "primary_goal": {
+    "status": "windows_post_match_autonomous_learning_loop",
+    "rule": "Observe/record during live match with frozen weights; learn only after sealed match completion.",
+    "khazix_targeted_focus": false,
+    "human_review_required": false
+  },
+  "windows_shadow_learning_loop": {
+    "status": "implemented_pending_build_and_field_validation",
+    "live_default": true,
+    "replay_learning": false,
+    "capture": {
+      "interval_seconds": 2,
+      "writer": "dedicated_nonblocking_thread",
+      "queue_policy": "bounded_drop_instead_of_block",
+      "learning_geometry": "canonical_1920x1080",
+      "max_frames": 3600,
+      "max_bytes": 2147483648
+    },
+    "match_end": {
+      "source_stream_end": "natural_session_completion",
+      "defeat": "two persistent terminal HP observations spanning >=500ms",
+      "victory_explicit_final_screen_detector": false,
+      "manual_stop_still_graceful": true,
+      "replay_terminal_hp_ignored": true
+    },
+    "post_session_stages": [
+      "seal session and learning manifest",
+      "shop direct-gold teacher",
+      "tooltip direct-gold fallback",
+      "gold adjudication",
+      "conservative silver propagation",
+      "weighted challenger training",
+      "validation versus frozen champion",
+      "write shadow-candidate only if challenger wins"
+    ],
+    "active_model_changed_during_match": false,
+    "automatic_live_model_replacement": false,
+    "promotion_mode": "shadow_candidate_only",
+    "minjo_kh_used_for_selection": false,
+    "runtime_approved": false
+  },
+  "hm45_self_learning_core": {
+    "status": "code_ready_build_not_yet_executed",
+    "version": "0.7.0",
+    "architecture": "Windows capture/UI -> sealed session -> pinned WSL learner",
+    "windows_rust_toolchain_required": false,
+    "windows_pytorch_required": false,
+    "wsl_prebuilt_rust_learner": true,
+    "wsl_ffmpeg": true,
+    "portable_frozen_baseline": true,
+    "installer_refuses_missing_or_unhealthy_learner": true,
+    "windows_wsl_field_test": false,
     "runtime_approved": false
   }
 }
