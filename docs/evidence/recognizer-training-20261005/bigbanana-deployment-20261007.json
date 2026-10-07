@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-10-07T18:11:43Z",
+  "status": "deployed_public_smoke_passed_pending_real_windows_match",
+  "source_commit": "1e24842a57a9ed1ff78030dcb19dcc9dc13de34d",
+  "bundle_manifest_sha256": "f50cc0c3c9e1a544e9d3753a9c65989fe9b160d4082ce78eef67af928b39a0be",
+  "deployed_services": [
+    "agente-tft-trainer",
+    "agente-tft-neural-worker",
+    "agente-tft-voice-tft-voice-edge-1"
+  ],
+  "internal_health": {
+    "neural_backend_ready": true,
+    "learning_backend": "file_queue_worker",
+    "stable_generation": 1,
+    "stable_version": "g000001-bootstrap",
+    "simulator_ready": false,
+    "queue_inbox": 0,
+    "queue_working": 0,
+    "queue_failed": 0
+  },
+  "public_smoke": {
+    "main_site_http": 200,
+    "voice_health_http": 200,
+    "invalid_neural_session_http": 422,
+    "unauthenticated_champion_http": 401,
+    "authenticated_session_created": true,
+    "authenticated_stable_champion_available": true,
+    "package_download_bytes": 23059532,
+    "package_download_sha256_matches_manifest": true
+  },
+  "reboot_observation": {
+    "server_restarted_during_final_verification": true,
+    "cause_confirmed": false,
+    "services_recovered_automatically": true,
+    "public_routes_reverified_after_restart": true,
+    "authenticated_champion_reverified_after_restart": true
+  },
+  "disk_free_gib_after_expansion_approximate": 38,
+  "real_windows_match_validated": false,
+  "post_match_learning_validated": false,
+  "limitations": [
+    "The live Windows recognition and coaching path has not yet been validated with this deployment.",
+    "No real post-match learning job has been observed; the worker is running with an empty queue.",
+    "The simulator is not ready according to trainer health.",
+    "The cause of the server restart remains unknown."
+  ]
+}

@@ -2308,7 +2308,7 @@
     "runtime_approved": false
   },
   "central_autonomous_learning": {
-    "status": "implemented_pending_bigbanana_deploy_and_field_validation",
+    "status": "deployed_bigbanana_public_smoke_passed_pending_real_windows_match",
     "architecture": "local_inference_central_learning_zero_click_distribution",
     "local_client": {
       "inference": true,
@@ -2365,7 +2365,7 @@
     "runtime_approved": false
   },
   "bigbanana_central_learning_gate": {
-    "status": "code_contracts_green_ready_for_real_bundle",
+    "status": "deployed_public_smoke_passed_pending_real_windows_match",
     "validated_head": "3638fa4735cf7992d7e251931931467ee3bed4d1",
     "ci": {
       "main": "success",
@@ -2392,7 +2392,8 @@
       "local_disk_headroom": true,
       "stale_partial_cleanup": true
     },
-    "next": "Generate the real BigBANANA neural-bundle from the frozen selection and existing HM4 L3 assets, then deploy API+worker and run public smoke.",
+    "deployment_evidence": "docs/evidence/recognizer-training-20261005/bigbanana-deployment-20261007.json",
+    "next": "Run a real Windows match through local inference, confirm post-match upload and server learning, then measure tip accuracy and latency.",
     "runtime_approved": false
   }
 }
