@@ -294,6 +294,10 @@ class TrainerStore:
         root = self.evidence_root
         if root is None:
             raise ValueError("persistent neural evidence storage is required")
+        # First-run safety: disk_usage() requires an existing path. Create only
+        # the fixed evidence root before applying capacity/free-space gates;
+        # individual session folders are still created transactionally below.
+        root.mkdir(parents=True, exist_ok=True)
         async with self.lock:
             active_statuses = {
                 NeuralSessionStatus.ACTIVE,
