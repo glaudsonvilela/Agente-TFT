@@ -21,7 +21,8 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends ffmpeg tesseract-ocr tesseract-ocr-eng libgomp1 \
  && rm -rf /var/lib/apt/lists/* \
  && python3 -m pip install --no-cache-dir --only-binary=:all: \
-      Pillow==12.1.0 numpy==2.2.6 onnxruntime==1.23.2
+      Pillow==12.1.0 numpy==2.2.6 onnxruntime==1.23.2 \
+      'fastapi>=0.115,<1'
 COPY --from=builder /tmp/agente-target/release/vod-collector /opt/agente-bin/vod-collector
 COPY --from=builder /tmp/agente-target/release/mine-shop-transitions /opt/agente-bin/mine-shop-transitions
 COPY --from=builder /tmp/agente-target/release/mine-tooltip-labels /opt/agente-bin/mine-tooltip-labels
