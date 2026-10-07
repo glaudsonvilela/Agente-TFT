@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T21:28:00-03:00",
+  "recorded_at": "2026-10-07T11:20:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,9 +1346,9 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "implement_bigbanana_champion_registry_and_zero_click_client_updater",
-    "success_condition": "Server publishes approved champion manifest/artifact; client checks automatically and atomically installs only while idle with rollback.",
-    "next_if_success": "Validate full loop across two consecutive matches: old model -> central learning -> auto-update -> next match with new model.",
+    "status": "finish_ci_then_prepare_real_bigbanana_deploy",
+    "success_condition": "HM4.5 Windows zero-click contracts and central trainer CI pass on current head; then prepare neural bundle and deploy API+worker to BigBANANA.",
+    "next_if_success": "Run first real end-to-end match upload and observe central corpus/challenger/shadow flow.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -2267,5 +2267,33 @@
       "apps/hud_mapper/hm45_core_server.py",
       "apps/hud_mapper/hm/native_unit_observer.py"
     ]
+  },
+  "central_learning_incremental_status": {
+    "status": "implemented_pending_ci_and_real_server_field_test",
+    "windows_manifest_seal": {
+      "status": "fixed",
+      "bug": "text-mode newline translation could invalidate manifest SHA on Windows",
+      "fix": "hash and persist the exact UTF-8 bytes",
+      "human_review_required": false
+    },
+    "central_autonomous_corpus": {
+      "status": "active",
+      "persistent": true,
+      "deduplicate_by_pixel": true,
+      "conflicting_pixel_identity": "fail_closed",
+      "challenger_uses_accumulated_sources": true
+    },
+    "supervision_weights": {
+      "gold_auto": 1,
+      "silver_dino_temporal_max": 0.35,
+      "silver_multiteacher_low_weight": 0.2,
+      "declared_silver_weight_preserved": true,
+      "trainer_rejects_declared_weight_above_configured_max": true
+    },
+    "central_training_location": "BigBANANA",
+    "local_inference": true,
+    "local_training": false,
+    "player_update_confirmation_required": false,
+    "runtime_approved": false
   }
 }
