@@ -75,7 +75,7 @@ fi
 health="$(curl -fsS http://127.0.0.1:8801/v1/training/health)"
 public_ok=false
 if [[ "${TFT_NEURAL_PUBLIC_SMOKE:-1}" == "1" ]]; then
-  installation="deploy-smoke-$(date +%s)-$"
+  installation="deploy-smoke-$(date +%s%N)"
   session_json="$(curl -fsS --max-time 10 -H 'Content-Type: application/json' -d "{\"installation_id\":\"${installation}\"}" https://tft.bigbanana.io/v1/neural/client-session)"
   token="$(python3 - "$session_json" <<'PYTOKEN'
 import json,sys
