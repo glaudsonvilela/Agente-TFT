@@ -11,6 +11,7 @@ services:
       TRAINER_PORT: 8801
       TRAINER_DB_PATH: /var/lib/agente-tft-trainer/trainer.sqlite3
       NEURAL_CLIENT_SESSIONS_ENABLED: "1"
+      NEURAL_WORKER_QUEUE_ENABLED: "1"
     ports:
       - "127.0.0.1:8801:8801"
     volumes:
@@ -18,5 +19,21 @@ services:
     cpus: 1.5
     mem_limit: 1024m
     pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+
+  neural-worker:
+    build:
+      context: ..
+      dockerfile: trainer/Dockerfile.neural-worker
+    container_name: agente-tft-neural-worker
+    restart: unless-stopped
+    volumes:
+      - ..:/workspace:ro
+      - ./data:/var/lib/agente-tft-trainer
+      - ./neural-bundle:/opt/agente-tft/learner
+    cpus: 4.0
+    mem_limit: 6g
+    pids_limit: 256
     security_opt:
       - no-new-privileges:true
