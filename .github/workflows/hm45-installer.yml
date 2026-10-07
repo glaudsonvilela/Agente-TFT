@@ -21,6 +21,8 @@ on:
       - 'apps/hud_mapper/hm/neural_service.py'
       - 'apps/hud_mapper/hm/model_update.py'
       - '.github/workflows/hm45-installer.yml'
+      - 'apps/hud_mapper/hm/**'
+      - 'trainer/**'
   pull_request:
     paths:
       - 'apps/hud_mapper/AgenteTFT_HUD_HM4.py'
@@ -31,6 +33,9 @@ on:
       - 'scripts/build_hm45_online_installer_windows.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - '.github/workflows/hm45-installer.yml'
+      - 'apps/hud_mapper/hm/**'
+      - 'apps/hud_mapper/tests/test_post_session_learning.py'
+      - 'trainer/**'
   workflow_dispatch:
 
 permissions:
