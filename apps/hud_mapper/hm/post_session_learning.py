@@ -98,7 +98,16 @@ def _upload_worker(session: Path, job_path: Path) -> None:
         if not 0 <= start <= len(frames):
             raise ValueError("invalid_resume_index")
 
+        last_upload_started = None
         for index in range(start, len(frames)):
+            # Keep a deterministic ceiling below the public edge limit so a
+            # healthy fast connection never self-induces HTTP 429.
+            now = time.monotonic()
+            if last_upload_started is not None:
+                delay = 0.05 - (now - last_upload_started)
+                if delay > 0:
+                    time.sleep(delay)
+            last_upload_started = time.monotonic()
             row = frames[index]
             image_path = session / "shadow-learning" / str(row["image"])
             image = image_path.read_bytes()
