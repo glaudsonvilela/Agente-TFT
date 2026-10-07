@@ -66,14 +66,21 @@ class BoardHubLive:
                 self.item_neural_error=str(exc)
         self.unit_neural = None
         self.unit_neural_error = 'unit_model_not_installed'
-        if (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
+        if (neural_root / 'configs/catalog/active-unit-head-v1.json').is_file():
+            try:
+                from .unit_head import UnitHeadObserver
+                self.unit_neural = UnitHeadObserver(root, neural_root)
+                self.unit_neural_error = None
+            except (OSError, ValueError, ImportError, RuntimeError) as exc:
+                self.unit_neural_error = str(exc)
+        if self.unit_neural is None and (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
             try:
                 from .unit_gallery import UnitGalleryObserver
                 self.unit_neural = UnitGalleryObserver(root, neural_root)
                 self.unit_neural_error = None
             except (OSError, ValueError, ImportError, RuntimeError) as exc:
                 self.unit_neural_error = str(exc)
-        elif (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
+        elif self.unit_neural is None and (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
             try:
                 from .unit_identity import UnitIdentityObserver
                 self.unit_neural = UnitIdentityObserver(root)
