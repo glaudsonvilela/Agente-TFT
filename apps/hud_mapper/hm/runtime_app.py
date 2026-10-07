@@ -328,6 +328,7 @@ class App:
         if not self.hm4 or not self.model_updater or self.closing:
             return
         if not self.active() and not self.finalizing:
+            self._resume_pending_server_learning()
             self.model_updater.activate_pending_if_idle()
             self.model_updater.check_async()
             latest=discover_model()
