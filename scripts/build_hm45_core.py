@@ -5,10 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 import hashlib
 import json
-import os
 import shutil
 import subprocess
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "build/hm45-core"
@@ -50,7 +48,6 @@ def main() -> None:
     copy(ROOT / "rust", CONTEXT / "rust")
     copy(ROOT / "tools/e1-native", CONTEXT / "tools/e1-native")
     copy(ROOT / "tools/hm-hp-native", CONTEXT / "tools/hm-hp-native")
-    copy(ROOT / "tools/unit-features-lab", CONTEXT / "tools/unit-features-lab")
     copy(ROOT / "apps/hud_mapper/hm", APP / "apps/hud_mapper/hm")
     copy(ROOT / "apps/e1_replay/e1", APP / "apps/e1_replay/e1")
     copy(ROOT / "apps/hud_mapper/hm45_core_server.py", APP / "hm45_core_server.py")
@@ -67,59 +64,11 @@ def main() -> None:
     copy(ROOT / knowledge["reference"], APP / knowledge["reference"])
     copy(ROOT / "scripts/hm45_core/health-check", APP / "bin/health-check")
 
-    learner_scripts = (
-        "native_lab.py",
-        "collect_targeted_annotation_source.py",
-        "run_autonomous_shop_supervision.py",
-        "autolabel_shop_purchase_consensus.py",
-        "run_autonomous_source_supervision.py",
-        "autolabel_tooltip_temporal_consensus.py",
-        "adjudicate_autonomous_gold_anchors.py",
-        "propagate_autonomous_gold_anchors.py",
-        "train_weighted_autonomous_challenger.py",
-        "run_post_session_shadow_learning.py",
-    )
-    for name in learner_scripts:
-        copy(ROOT / "scripts" / name, APP / "scripts" / name)
-
-    learner_selection = Path(os.environ.get(
-        "AGENTE_TFT_HM45_LEARNER_SELECTION",
-        "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/"
-        "optimizer-study-resume-20261005-101237/optimizer-study-selection.json",
-    ))
-    run([
-        sys.executable,
-        str(ROOT / "scripts/prepare_hm45_learning_bundle.py"),
-        "--selection", str(learner_selection),
-        "--output", str(APP / "learner"),
-    ])
-    learner_package = json.loads((APP / "learner/learner-package.json").read_text(encoding="utf-8"))
-    if (learner_package.get("champion") != "optimizer-default-parity"
-            or learner_package.get("minjo_kh_included") is not False):
-        raise SystemExit("Portable learner baseline failed frozen-selection policy")
-
     run(["docker", "build", "--pull", "--tag", IMAGE, str(CONTEXT)])
     health = run(["docker", "run", "--rm", "--network=none", IMAGE,
                   "self-test", "--version", VERSION], capture_output=True)
     if "AGENTETFT_CORE_HEALTH_OK" not in health.stdout:
         raise SystemExit("Linux core failed ROI/L3/OCR/B4 self-test")
-    learner_health = run([
-        "docker", "run", "--rm", "--network=none",
-        "--entrypoint", "/bin/sh", IMAGE, "-lc",
-        "set -eu; "
-        "test -x /opt/agente-tft/bin/vod-collector; "
-        "test -x /opt/agente-tft/bin/adjudicate-autonomous-gold; "
-        "test -x /opt/agente-tft/bin/propagate-autonomous-anchors; "
-        "test -x /opt/agente-tft/bin/train-classifier; "
-        "test -f /opt/agente-tft/learner/selection.json; "
-        "test -f /opt/agente-tft/learner/encoder/dino.onnx; "
-        "test -e /opt/agente-tft/learner/libonnxruntime.so; "
-        "test -f /opt/agente-tft/scripts/run_post_session_shadow_learning.py; "
-        "ffmpeg -version >/dev/null; "
-        "python3 -c \"import onnxruntime, PIL; print('AGENTETFT_LEARNER_HEALTH_OK')\"",
-    ], capture_output=True)
-    if "AGENTETFT_LEARNER_HEALTH_OK" not in learner_health.stdout:
-        raise SystemExit("Linux post-session learner failed package self-test")
     BUILD.mkdir(parents=True, exist_ok=True)
     rootfs = BUILD / f"{DISTRO}.tar"
     container = run(["docker", "create", IMAGE], capture_output=True).stdout.strip()
@@ -133,20 +82,16 @@ def main() -> None:
                     sha256=digest, version=VERSION,
                     analysis_health_contract="l3_ocr_b4_roi_v1",
                     linux_container_self_test=True,
-                    post_session_trainer_bundled=True,
-                    post_session_trainer_health=True,
-                    learner_policy=learner_package["policy"],
-                    learner_model_sha256=learner_package["model_sha256"],
-                    learner_encoder_sha256=learner_package["encoder_sha256"],
-                    learner_validation_macro_recall=learner_package.get("validation_macro_recall"),
-                    learner_minjo_kh_included=False,
+                    neural_model_location="server",
+                    local_neural_weights_bundled=False,
+                    post_session_trainer_bundled=False,
                     windows_wsl_field_test=False,
                     model_sha256=report["model_sha256"],
                     board_reference_sha256=report["reference_sha256"])
     (BUILD / "core-package.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(json.dumps(dict(rootfs=str(rootfs), bytes=rootfs.stat().st_size,
                           sha256=digest,
-                          health="L3/OCR/HP/B4 + post-session learner OK")), flush=True)
+                          health="local capture/OCR helper core OK; neural stack is server-side")), flush=True)
 
 
 if __name__ == "__main__":
