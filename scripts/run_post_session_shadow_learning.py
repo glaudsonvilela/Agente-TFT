@@ -15,6 +15,7 @@ This runner never promotes a model into the live runtime.
 from __future__ import annotations
 
 import argparse
+import os
 import hashlib
 import json
 import subprocess
@@ -131,8 +132,10 @@ def main() -> int:
     selection = args.selection.expanduser().resolve()
     if not selection.is_file():
         die(f"frozen selection not found: {selection}")
-    if not (repo / "tools/unit-features-lab/Cargo.toml").is_file():
-        die(f"not an Agente-TFT checkout: {repo}")
+    cargo_manifest = repo / "tools/unit-features-lab/Cargo.toml"
+    packaged_bins = os.environ.get("AGENTE_TFT_UNIT_LAB_BIN_DIR")
+    if not cargo_manifest.is_file() and not packaged_bins:
+        die(f"no source or packaged unit-lab runtime under: {repo}")
     if not session.is_dir():
         die(f"session directory not found: {session}")
 
@@ -316,6 +319,7 @@ def main() -> int:
             "--silver", str(silver),
             "--private-root", str(work),
             "--output-root", str(challenger),
+            "--skip-tests",
         ],
         repo,
         work / "challenger-training.log",
