@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TRAINER="$ROOT/trainer"
 COMPOSE="$TRAINER/compose.example.yml"
 BUNDLE="$TRAINER/neural-bundle/bundle.json"
@@ -22,7 +22,7 @@ if [[ ! -f "$BUNDLE" ]]; then
   echo "Run scripts/prepare_bigbanana_neural_bundle.py before deploy." >&2
   exit 1
 fi
-if [[ -z "\${TRAINER_API_TOKEN:-}" ]]; then
+if [[ -z "${TRAINER_API_TOKEN:-}" ]]; then
   echo "BIGBANANA_NEURAL_DEPLOY_ERROR=TRAINER_API_TOKEN_missing" >&2
   exit 1
 fi
