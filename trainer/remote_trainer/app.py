@@ -225,13 +225,33 @@ def create_app(
         if not isinstance(app.state.neural_backend, FileQueueNeuralBackend):
             return 0
         async with app.state.store.lock:
-            ids = [
+            sealed_ids = [
+                identifier
+                for identifier, record in app.state.store.neural_sessions.items()
+                if record.status == NeuralSessionStatus.SEALED
+            ]
+            processing_ids = [
                 identifier
                 for identifier, record in app.state.store.neural_sessions.items()
                 if record.status == NeuralSessionStatus.PROCESSING
             ]
+
+        # Crash recovery: seal persistence happens before the background task.
+        # If the API dies in that gap, restart will queue the sealed session
+        # here without any client action.
+        recovered = 0
+        for neural_session_id in sealed_ids:
+            await _process_neural_session(
+                app.state.store,
+                app.state.neural_backend,
+                app.state.champion_registry,
+                neural_session_id,
+                app.state.clock_ms,
+            )
+            recovered += 1
+
         completed = 0
-        for neural_session_id in ids:
+        for neural_session_id in processing_ids:
             result = app.state.neural_backend.consume_result(neural_session_id)
             if result is None:
                 continue
@@ -244,7 +264,7 @@ def create_app(
             )
             app.state.neural_backend.acknowledge_result(neural_session_id)
             completed += 1
-        return completed
+        return recovered + completed
 
     async def neural_reconciler_loop() -> None:
         while True:
