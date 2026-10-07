@@ -361,6 +361,32 @@ class ModelUpdater:
             if generation not in protected:
                 shutil.rmtree(folder, ignore_errors=True)
 
+    def _prepare_download_storage(self, package_bytes: int, keep_name: str) -> Path:
+        if not isinstance(package_bytes, int) or not 1 <= package_bytes <= 512 * 1024**2:
+            raise ModelUpdateError("Tamanho do champion fora do limite local.")
+        downloads = self.root / "downloads"
+        downloads.mkdir(parents=True, exist_ok=True)
+
+        # A previous network/process failure may leave temporary files. This
+        # updater is single-flight, so no .partial belongs to another active
+        # download when check_once() reaches this point.
+        for path in downloads.iterdir():
+            if not path.is_file():
+                continue
+            if path.name.endswith(".partial"):
+                path.unlink(missing_ok=True)
+            elif path.suffix == ".zip" and path.name != keep_name:
+                path.unlink(missing_ok=True)
+
+        # Keep enough headroom for the ZIP plus extraction/rollback metadata.
+        required_free = package_bytes + 1024**3
+        free = shutil.disk_usage(self.root).free
+        if free < required_free:
+            raise ModelUpdateError(
+                "Espaço local insuficiente para atualizar a rede neural."
+            )
+        return downloads
+
     def _activate(self, ready: dict) -> dict:
         if not self.is_idle():
             pending = {
@@ -420,8 +446,12 @@ class ModelUpdater:
                 "version": current.get("version"),
             }
 
-        downloads = self.root / "downloads"
-        package = downloads / f"{generation:012d}-{manifest['version']}.zip"
+        package_name = f"{generation:012d}-{manifest['version']}.zip"
+        downloads = self._prepare_download_storage(
+            int(manifest.get("package_bytes", 0)),
+            package_name,
+        )
+        package = downloads / package_name
         download = client.download_champion_package("stable", generation, package)
         if download["sha256"] != manifest["package_sha256"]:
             package.unlink(missing_ok=True)
