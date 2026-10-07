@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import time
 from datetime import datetime
@@ -186,6 +187,13 @@ def main() -> int:
     if command in ("web", "navegador"):
         print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
         return 0
+    if command in ("neural-deploy", "ia-deploy"):
+        script=Path(__file__).resolve().with_name("deploy_bigbanana_neural.sh")
+        if not script.is_file():
+            print("Deploy neural indisponível: script não encontrado.", file=sys.stderr)
+            return 1
+        result=subprocess.run(["bash",str(script)])
+        return result.returncode
     if command in ("neural", "ia"):
         try:
             data=fetch()
@@ -205,7 +213,7 @@ def main() -> int:
         print("Treino pesado: BigBANANA · inferência: modelo aprovado local")
         return 0
     if command not in ("status", "acompanhar", "watch", "painel", "panel"):
-        print("Uso: tft [status|painel|neural|web|fontes|simulador|habilidades]", file=sys.stderr)
+        print("Uso: tft [status|painel|neural|neural-deploy|web|fontes|simulador|habilidades]", file=sys.stderr)
         return 2
     try:
         while True:
