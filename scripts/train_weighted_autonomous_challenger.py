@@ -151,6 +151,7 @@ def main() -> int:
     p.add_argument("--private-root", type=Path, default=DEFAULT_PRIVATE_ROOT)
     p.add_argument("--output-root", type=Path)
     p.add_argument("--autonomous-corpus", type=Path)
+    p.add_argument("--embedding-cache", type=Path)
     p.add_argument("--skip-tests", action="store_true")
     args = p.parse_args()
 
@@ -277,9 +278,13 @@ def main() -> int:
     output_root.mkdir(parents=True)
     logs = output_root / "logs"
     specs = output_root / "specs"
-    cache = output_root / "embedding-cache"
+    cache = (
+        args.embedding_cache.expanduser().resolve()
+        if args.embedding_cache is not None
+        else output_root / "embedding-cache"
+    )
     specs.mkdir()
-    cache.mkdir()
+    cache.mkdir(parents=True, exist_ok=True)
 
     run_metadata = {
         "status": "running",
@@ -293,6 +298,8 @@ def main() -> int:
         "reference": str(reference),
         "encoder": str(encoder),
         "encoder_sha256": encoder_sha,
+        "embedding_cache": str(cache),
+        "embedding_cache_shared": args.embedding_cache is not None,
         "onnxruntime": str(onnxruntime),
         "autonomous_collection": str(collection),
         "gold_labels": str(gold),
