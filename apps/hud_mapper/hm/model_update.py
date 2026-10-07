@@ -1,0 +1,354 @@
+"""Zero-click neural model updater for HM4/HM4.5.
+
+Approved champions are learned/validated on BigBANANA, but inference remains
+local. The updater never activates a model while a match is running.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import threading
+import time
+import zipfile
+
+from .neural_service import NeuralServiceClient, NeuralServiceError
+
+RUNTIME_VERSION = "0.7.0"
+
+
+class ModelUpdateError(RuntimeError):
+    pass
+
+
+def _local_root() -> Path:
+    base = Path(os.environ.get("LOCALAPPDATA") or Path.home())
+    return base / "AgenteTFT-HUD-HM4" / "neural-models"
+
+
+def _json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_atomic(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(
+        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(tmp, path)
+
+
+def _sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _version_tuple(value: str) -> tuple[int, ...]:
+    try:
+        parts = tuple(int(x) for x in value.split("."))
+    except Exception as exc:
+        raise ModelUpdateError(f"Versão incompatível: {value!r}") from exc
+    if not parts or any(x < 0 for x in parts):
+        raise ModelUpdateError("Versão inválida.")
+    return parts
+
+
+def _safe_member(info: zipfile.ZipInfo) -> bool:
+    path = Path(info.filename)
+    if path.is_absolute() or ".." in path.parts or info.filename.endswith("/"):
+        return False
+    mode = (info.external_attr >> 16) & 0xFFFF
+    if mode and (mode & 0o170000) == 0o120000:
+        return False
+    return True
+
+
+def _verify_and_extract(
+    package: Path,
+    destination: Path,
+    server_manifest: dict,
+) -> dict:
+    if package.stat().st_size != int(server_manifest["package_bytes"]):
+        raise ModelUpdateError("Tamanho do pacote neural não confere.")
+    if _sha256(package) != server_manifest["package_sha256"]:
+        raise ModelUpdateError("SHA-256 do pacote neural não confere.")
+
+    with zipfile.ZipFile(package) as archive:
+        infos = archive.infolist()
+        if not infos or len(infos) > 256 or any(not _safe_member(i) for i in infos):
+            raise ModelUpdateError("Pacote neural contém caminhos não permitidos.")
+        names = {i.filename for i in infos}
+        if "model-package.json" not in names:
+            raise ModelUpdateError("Manifesto interno do modelo ausente.")
+        raw = archive.read("model-package.json")
+        if len(raw) > 128 * 1024:
+            raise ModelUpdateError("Manifesto interno excedeu o limite.")
+        manifest = json.loads(raw)
+
+        if (
+            manifest.get("schema_version") != 1
+            or manifest.get("package_type") != "agente_tft_neural_runtime_bundle"
+            or manifest.get("version") != server_manifest.get("version")
+            or manifest.get("generation") != server_manifest.get("generation")
+            or manifest.get("runtime_min_version") != server_manifest.get("runtime_min_version")
+            or manifest.get("model_identity_sha256") != server_manifest.get("model_identity_sha256")
+        ):
+            raise ModelUpdateError("Manifesto interno diverge do champion publicado.")
+        if _version_tuple(RUNTIME_VERSION) < _version_tuple(manifest["runtime_min_version"]):
+            raise ModelUpdateError("Champion exige uma versão mais nova do Agente TFT.")
+
+        files = manifest.get("files")
+        if not isinstance(files, list) or not files:
+            raise ModelUpdateError("Bundle neural não contém arquivos.")
+        roles: dict[str, str] = {}
+        total = 0
+        for row in files:
+            if not isinstance(row, dict):
+                raise ModelUpdateError("Entrada de arquivo neural inválida.")
+            name = row.get("path")
+            digest = row.get("sha256")
+            size = row.get("bytes")
+            role = row.get("role")
+            if (
+                not isinstance(name, str)
+                or name not in names
+                or name == "model-package.json"
+                or not isinstance(digest, str)
+                or len(digest) != 64
+                or not isinstance(size, int)
+                or size < 1
+                or not isinstance(role, str)
+                or not role
+            ):
+                raise ModelUpdateError("Contrato de arquivo neural inválido.")
+            payload = archive.read(name)
+            total += len(payload)
+            if total > 768 * 1024 * 1024:
+                raise ModelUpdateError("Bundle neural expandido excede o limite.")
+            if len(payload) != size or hashlib.sha256(payload).hexdigest() != digest:
+                raise ModelUpdateError(f"Arquivo neural corrompido: {name}")
+            if role in roles:
+                raise ModelUpdateError(f"Role neural duplicado: {role}")
+            roles[role] = name
+
+        for role in ("l3_metadata", "l3_onnx"):
+            if role not in roles:
+                raise ModelUpdateError(f"Champion não contém {role}.")
+        meta = Path(roles["l3_metadata"])
+        model = Path(roles["l3_onnx"])
+        if meta.parent != model.parent or model.name != "candidate-model.onnx":
+            raise ModelUpdateError("Layout L3 incompatível com o runtime atual.")
+
+        if destination.exists():
+            raise ModelUpdateError("Diretório de versão neural já existe.")
+        destination.mkdir(parents=True)
+        try:
+            for info in infos:
+                target = destination / info.filename
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with archive.open(info) as src, target.open("xb") as dst:
+                    shutil.copyfileobj(src, dst, length=1024 * 1024)
+        except Exception:
+            shutil.rmtree(destination, ignore_errors=True)
+            raise
+
+    internal = destination / "model-package.json"
+    if not internal.is_file():
+        shutil.rmtree(destination, ignore_errors=True)
+        raise ModelUpdateError("Extração neural incompleta.")
+
+    # Repeat hashes from disk after extraction; ZIP verification alone is not enough
+    # for the eventual runtime path.
+    for row in manifest["files"]:
+        path = destination / row["path"]
+        if (
+            not path.is_file()
+            or path.stat().st_size != row["bytes"]
+            or _sha256(path) != row["sha256"]
+        ):
+            shutil.rmtree(destination, ignore_errors=True)
+            raise ModelUpdateError(f"Verificação pós-extração falhou: {row['path']}")
+
+    return {
+        "manifest": manifest,
+        "roles": roles,
+        "l3_metadata": str(destination / roles["l3_metadata"]),
+        "bundle_root": str(destination),
+    }
+
+
+def active_model_metadata(root: Path | None = None) -> Path | None:
+    root = root or _local_root()
+    pointer = root / "active.json"
+    try:
+        value = _json(pointer)
+        path = Path(value["l3_metadata"])
+        if path.is_file() and path.is_relative_to(root.resolve()):
+            return path
+    except (OSError, ValueError, KeyError, json.JSONDecodeError):
+        return None
+    return None
+
+
+class ModelUpdater:
+    def __init__(
+        self,
+        *,
+        root: Path | None = None,
+        is_idle=lambda: True,
+        client_factory=NeuralServiceClient,
+    ):
+        self.root = root or _local_root()
+        self.is_idle = is_idle
+        self.client_factory = client_factory
+        self.lock = threading.Lock()
+        self.running = False
+        self.last_result: dict | None = None
+
+    def _active(self) -> dict | None:
+        try:
+            value = _json(self.root / "active.json")
+            if isinstance(value.get("generation"), int):
+                return value
+        except (OSError, ValueError, json.JSONDecodeError):
+            return None
+        return None
+
+    def _cleanup(self, keep: int = 2) -> None:
+        versions = self.root / "versions"
+        if not versions.is_dir():
+            return
+        active = self._active() or {}
+        active_generation = active.get("generation")
+        rows = []
+        for folder in versions.iterdir():
+            if not folder.is_dir():
+                continue
+            try:
+                generation = int(folder.name.split("-", 1)[0])
+            except ValueError:
+                continue
+            rows.append((generation, folder))
+        rows.sort(reverse=True)
+        protected = {active_generation}
+        for generation, folder in rows[:keep]:
+            protected.add(generation)
+        for generation, folder in rows:
+            if generation not in protected:
+                shutil.rmtree(folder, ignore_errors=True)
+
+    def _activate(self, ready: dict) -> dict:
+        if not self.is_idle():
+            pending = {
+                **ready,
+                "status": "ready_waiting_for_idle",
+                "activated": False,
+            }
+            _write_atomic(self.root / "pending.json", pending)
+            return pending
+
+        old = self._active()
+        if old:
+            _write_atomic(self.root / "previous.json", old)
+        active = {
+            **ready,
+            "status": "active",
+            "activated": True,
+            "activated_at_ms": int(time.time() * 1000),
+        }
+        _write_atomic(self.root / "active.json", active)
+        (self.root / "pending.json").unlink(missing_ok=True)
+        self._cleanup(keep=2)
+        return active
+
+    def activate_pending_if_idle(self) -> dict | None:
+        if not self.is_idle():
+            return None
+        try:
+            pending = _json(self.root / "pending.json")
+        except (OSError, ValueError, json.JSONDecodeError):
+            return None
+        if pending.get("status") != "ready_waiting_for_idle":
+            return None
+        return self._activate(pending)
+
+    def check_once(self) -> dict:
+        self.root.mkdir(parents=True, exist_ok=True)
+        if self.is_idle():
+            applied = self.activate_pending_if_idle()
+            if applied:
+                return applied
+
+        client = self.client_factory()
+        client.connect()
+        manifest = client.champion_manifest("stable")
+        if manifest.get("approved") is not True:
+            raise ModelUpdateError("Servidor não marcou o champion como aprovado.")
+        generation = manifest.get("generation")
+        if not isinstance(generation, int) or generation < 1:
+            raise ModelUpdateError("Generation do champion inválida.")
+
+        current = self._active()
+        if current and int(current.get("generation", 0)) >= generation:
+            return {
+                "status": "up_to_date",
+                "generation": current["generation"],
+                "version": current.get("version"),
+            }
+
+        downloads = self.root / "downloads"
+        package = downloads / f"{generation:012d}-{manifest['version']}.zip"
+        download = client.download_champion_package("stable", generation, package)
+        if download["sha256"] != manifest["package_sha256"]:
+            package.unlink(missing_ok=True)
+            raise ModelUpdateError("Download não corresponde ao manifest do champion.")
+
+        version_dir = self.root / "versions" / f"{generation:012d}-{manifest['version']}"
+        ready = _verify_and_extract(package, version_dir, manifest)
+        package.unlink(missing_ok=True)
+        record = {
+            "schema_version": 1,
+            "generation": generation,
+            "version": manifest["version"],
+            "model_identity_sha256": manifest["model_identity_sha256"],
+            "package_sha256": manifest["package_sha256"],
+            "runtime_min_version": manifest["runtime_min_version"],
+            "bundle_root": ready["bundle_root"],
+            "l3_metadata": ready["l3_metadata"],
+            "roles": ready["roles"],
+            "downloaded_at_ms": int(time.time() * 1000),
+        }
+        _write_atomic(version_dir / "installed.json", record)
+        return self._activate(record)
+
+    def check_async(self) -> bool:
+        with self.lock:
+            if self.running:
+                return False
+            self.running = True
+
+        def work():
+            try:
+                self.last_result = self.check_once()
+            except Exception as exc:
+                self.last_result = {
+                    "status": "update_check_failed",
+                    "error": f"{type(exc).__name__}:{str(exc)[:300]}",
+                }
+            finally:
+                with self.lock:
+                    self.running = False
+
+        threading.Thread(
+            target=work,
+            daemon=True,
+            name="tft-neural-model-updater",
+        ).start()
+        return True
