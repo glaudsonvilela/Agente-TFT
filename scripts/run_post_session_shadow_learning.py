@@ -385,7 +385,10 @@ def main() -> int:
             "--private-root", str(work),
             "--output-root", str(challenger),
             *(
-                ["--autonomous-corpus", str(autonomous_corpus)]
+                [
+                    "--autonomous-corpus", str(autonomous_corpus),
+                    "--embedding-cache", str(autonomous_corpus.parent / "embedding-cache"),
+                ]
                 if autonomous_corpus is not None
                 else []
             ),
