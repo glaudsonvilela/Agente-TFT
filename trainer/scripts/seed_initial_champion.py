@@ -28,6 +28,7 @@ def main():
     p.add_argument("--data-root",type=Path,default=Path("/var/lib/agente-tft-trainer"))
     p.add_argument("--repo",type=Path,default=ROOT)
     p.add_argument("--seed-root",type=Path,default=Path("/opt/agente-tft/runtime-seed"))
+    p.add_argument("--learner-root",type=Path,default=Path("/opt/agente-tft/learner"))
     args=p.parse_args()
 
     registry=ChampionRegistry(args.data_root)
@@ -60,6 +61,28 @@ def main():
     item_dir=args.seed_root/"models/item-icons"
     if item_plan.is_file() and item_dir.is_dir():
         cmd.extend(["--item-plan",str(item_plan),"--item-dir",str(item_dir)])
+
+    unit_head=args.learner_root/"model/dino-head.json"
+    unit_encoder=args.learner_root/"encoder/dino.onnx"
+    unit_reference=args.learner_root/"reference/reference.json"
+    unit_gates=args.learner_root/"model/runtime-gates.json"
+    for required in (unit_head,unit_encoder,unit_reference,unit_gates):
+        if not required.is_file():
+            die(f"initial unit-head artifact missing: {required}")
+    reference=load(unit_reference)
+    gates=load(unit_gates)
+    set_key=reference.get("set_key")
+    if (not isinstance(set_key,str) or not set_key
+            or gates.get("runtime_gate_eligible") is not True):
+        die("initial unit-head reference/gates invalid")
+    cmd.extend([
+        "--unit-head",str(unit_head),
+        "--unit-encoder",str(unit_encoder),
+        "--unit-reference",str(unit_reference),
+        "--unit-set-key",set_key,
+        "--unit-min-probability",str(gates["min_probability"]),
+        "--unit-min-margin",str(gates["min_margin"]),
+    ])
     subprocess.run(cmd,cwd=args.repo,check=True)
 
     request=ChampionPublishRequest.model_validate(load(publish))
@@ -67,6 +90,8 @@ def main():
         "kind":"initial_shipped_runtime_seed",
         "autonomous_training":False,
         "generation_zero_preexisting_runtime":True,
+        "initial_unit_head":"optimizer-default-parity",
+        "initial_unit_head_runtime_gate":"validation_zero_error_max_coverage_v1",
     })
     manifest=registry.publish(request,int(time.time()*1000))
     print("SEED_CHAMPION_OK=true")
