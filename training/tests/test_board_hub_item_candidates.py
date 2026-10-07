@@ -72,6 +72,8 @@ class ItemCandidateTests(unittest.TestCase):
                              [{"visual_id": "A", "name": "A"},
                               {"visual_id": "A_alias", "name": "A_alias"}])
             self.assertEqual(row["candidates"][0]["rms"], 0)
+            self.assertEqual(row["candidates"][0]["sample_rect"],
+                             {"x": 18, "y": 323, "width": 28, "height": 28})
             self.assertIsNone(row["item_id"])
             self.assertFalse(result["item_identity_established"])
             self.assertFalse(result["game_state_updated"])

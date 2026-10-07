@@ -34,6 +34,7 @@ def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profi
     if not templates:
         return []
     patches = []
+    rects = []
     rect = marker["rect"]
     size = profile["icon_size"]
     for dx in range(profile["min_offset_x"], profile["max_offset_x"] + 1):
@@ -44,7 +45,11 @@ def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profi
             if patch.shape != (size, size, 3):
                 continue
             patches.append(patch)
-    return rank_patches(patches, templates)
+            rects.append({"x": x, "y": y, "width": size, "height": size})
+    ranked = rank_patches(patches, templates)
+    for row in ranked:
+        row["sample_rect"] = rects[row.pop("sample_index")]
+    return ranked
 
 
 def run(image, read: dict, board: dict, position_profile: dict, equipped_profile: dict,

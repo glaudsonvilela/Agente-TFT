@@ -42,6 +42,12 @@ workers = [
 ]
 if any(not p.is_file() for p in workers):
     raise SystemExit('Native HM4 binaries missing')
+item_native = root / 'tools/hm-item-native/target/release/agente_tft_hm_item_native.dll'
+if not item_native.is_file():
+    subprocess.run(['cargo', 'build', '--release', '--manifest-path',
+                    str(root / 'tools/hm-item-native/Cargo.toml')], check=True)
+if not item_native.is_file():
+    raise SystemExit('Native item gallery build did not produce its DLL')
 
 dist = root / 'dist'
 dist.mkdir(exist_ok=True)
@@ -70,6 +76,8 @@ args = [
     '--hidden-import', 'jaraco.context', '--hidden-import', 'jaraco.functools',
     '--hidden-import', 'more_itertools',
     '--hidden-import', 'hm.board_hub_live',
+    '--hidden-import', 'hm.item_visual_native',
+    '--hidden-import', 'hm.item_movement',
     '--hidden-import', 'hm.replay_coach',
     '--hidden-import', 'hm.replay_decision',
     '--hidden-import', 'hm.voice',
@@ -89,6 +97,7 @@ args = [
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
+args += ['--add-binary', f'{item_native};bin']
 for module in ('torch', 'torchvision', 'torchaudio', 'sherpa_onnx', 'sherpa_onnx_core', 'supertonic', 'hm.train', 'hm.seeds',
                'hm.app', 'hm.capture_app', 'e1.app', 'e1.source', 'e1.pipeline'):
     args += ['--exclude-module', module]

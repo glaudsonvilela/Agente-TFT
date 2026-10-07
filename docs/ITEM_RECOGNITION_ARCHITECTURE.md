@@ -63,6 +63,23 @@ melhor hipótese quando útil, com incerteza explícita; dicas que nomeiam um it
 ou campeão específico precisam da evidência correspondente. Dicas gerais de
 economia e progressão não dependem desse reconhecimento.
 
+## Implementação inicial
+
+`tools/hm-item-native` calcula descritores de cor e borda e pesquisa uma galeria
+de ícones do patch diretamente em Rust. `hm.item_visual_native` carrega a
+galeria uma vez e envia ao Rust recortes das coordenadas originais da captura,
+sem usar os pixels da prévia de 720p. O HUB registra três candidatos, margem,
+concordância com o comparador RMS anterior e latência. `hm.item_movement`
+registra hipóteses de transferência inventário → posição de tabuleiro em
+quadros consecutivos. Nenhuma hipótese vira rótulo de treino ou comando de
+equipar automaticamente.
+
+Esta etapa ainda usa o comparador RMS anterior para localizar precisamente o
+ícone dentro de cada espaço. OCR de tooltip, calibração de confiança e medidas
+em partidas independentes continuam pendentes. O teste sintético de redução
+da galeria de 193 artes para 23 px acertou 192 artes; isso mede somente
+transformação dos PNGs oficiais, não a precisão do vídeo ao vivo.
+
 Fontes: [Riot TFT Data Dragon](https://developer.riotgames.com/docs/tft),
 [Prototypical Networks](https://arxiv.org/abs/1703.05175) e
 [quantização ONNX Runtime](https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html).

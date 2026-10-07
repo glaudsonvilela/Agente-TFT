@@ -1,0 +1,11 @@
+[package]
+name = "agente-tft-hm-item-native"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[lib]
+name = "agente_tft_hm_item_native"
+crate-type = ["cdylib"]

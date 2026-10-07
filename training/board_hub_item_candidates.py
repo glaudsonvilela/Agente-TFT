@@ -120,6 +120,7 @@ def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
     observed = np.stack([patch.reshape(-1) for patch in patches]).astype(np.float64)
     norms = np.einsum('ij,ij->i', observed, observed)
     squared = norms[:, None] + templates.squared_norms[None, :] - 2 * observed @ templates.matrix.T
+    best_patch = np.argmin(squared, axis=0)
     scores = np.sqrt(np.maximum(0, squared.min(axis=0)) / (templates.size * templates.size * 3))
     ranked = np.argsort(scores)[:3]
     result = [{"ids_with_same_template": sorted(set(templates.groups[index]["ids"])),
@@ -127,6 +128,7 @@ def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
                                   "name": templates.groups[index]["labels"][item_id]}
                                  for item_id in sorted(templates.groups[index]["labels"])],
              "template_sha256": templates.groups[index]["template_hash"],
+             "sample_index": int(best_patch[index]),
              "rms": round(float(scores[index]), 3)} for index in ranked]
     templates.recent_rankings[fingerprint] = copy.deepcopy(result)
     if len(templates.recent_rankings) > 64:
@@ -138,6 +140,7 @@ def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
     if not templates:
         return []
     patches = []
+    rects = []
     y = rect["y"]
     for x0 in range(rect["x"] + 6, rect["x"] + 13):
         for y0 in range(y + 9, y + 17):
@@ -145,7 +148,11 @@ def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
             if patch.shape != (28, 28, 3):
                 continue
             patches.append(patch)
-    return rank_patches(patches, templates)
+            rects.append({"x": x0, "y": y0, "width": 28, "height": 28})
+    ranked = rank_patches(patches, templates)
+    for row in ranked:
+        row["sample_rect"] = rects[row.pop("sample_index")]
+    return ranked
 
 
 def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path,

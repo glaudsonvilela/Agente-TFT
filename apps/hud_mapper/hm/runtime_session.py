@@ -624,7 +624,7 @@ class HM4RuntimeSession(RuntimeSession):
                         observed = observer.observe(reader_frame, calibrate=calibrate)
                     else:
                         board_read = board_worker.observe(reader_frame, calibrate)
-                        observed = observer.observe(reader_frame, board_read)
+                        observed = observer.observe(reader_frame, board_read, source_frame=frame)
                 except (ValueError, RuntimeError) as exc:
                     if not calibrate:
                         raise
@@ -647,6 +647,9 @@ class HM4RuntimeSession(RuntimeSession):
                 neural_items=observed['snapshot'].get('neural_items') or {}
                 self.versions['item_neural_active']=neural_items.get('active',False)
                 self.versions['item_neural_model_sha256']=neural_items.get('model_sha256')
+                visual_items = observed['snapshot'].get('item_visual_native') or {}
+                self.versions['item_visual_native_active'] = visual_items.get('active', False)
+                self.versions['item_visual_native_error'] = visual_items.get('error')
                 neural_units = observed['snapshot'].get('neural_units') or {}
                 self.versions['unit_neural_active'] = neural_units.get('active', False)
                 self.versions['unit_neural_model_sha256'] = neural_units.get('model_sha256')

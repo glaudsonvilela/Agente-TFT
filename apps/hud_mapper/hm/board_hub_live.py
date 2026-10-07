@@ -77,6 +77,15 @@ class BoardHubLive:
         self.inventory_templates = load_templates(selected, self.icons)
         self.equipped_templates = load_templates(selected, self.icons,
                                                  size=self.equipped['icon_size'])
+        from .item_movement import ItemMovementTracker
+        self.item_movement = ItemMovementTracker()
+        self.item_visual = None
+        self.item_visual_error = None
+        try:
+            from .item_visual_native import ItemVisualNative
+            self.item_visual = ItemVisualNative(root, selected, self.icons, self.item_attribute_ids)
+        except (OSError, ValueError, ImportError, RuntimeError) as exc:
+            self.item_visual_error = str(exc)
         self.item_neural=None
         self.item_neural_error=None
         if ((neural_root/'configs/catalog/active-item-neural-v1.json').is_file() or
@@ -110,7 +119,7 @@ class BoardHubLive:
             except (OSError, ValueError, ImportError, RuntimeError) as exc:
                 self.unit_neural_error = str(exc)
 
-    def observe(self, canonical_frame, board_read: dict | None) -> dict:
+    def observe(self, canonical_frame, board_read: dict | None, source_frame=None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
             raise ValueError('Live B4 requires canonical 1920x1080 reader input')
         read = board_read if isinstance(board_read, dict) and board_read.get('profile') == self.board['id'] else {
@@ -133,6 +142,18 @@ class BoardHubLive:
                 self.unit_neural_error = f'{type(exc).__name__}: {exc}'
                 self.unit_neural = None
                 snapshot['neural_units'] = dict(active=False, error=self.unit_neural_error, records=[])
+        source = source_frame if source_frame is not None else canonical_frame
+        try:
+            snapshot['item_visual_native'] = (self.item_visual.observe(source, snapshot)
+                if self.item_visual else dict(active=False, error=self.item_visual_error,
+                                              inventory=[], equipped=[]))
+        except (OSError, ValueError, RuntimeError) as exc:
+            self.item_visual_error = f'{type(exc).__name__}: {exc}'
+            self.item_visual = None
+            snapshot['item_visual_native'] = dict(active=False, error=self.item_visual_error,
+                                                   inventory=[], equipped=[])
+        snapshot['item_movement'] = self.item_movement.update(
+            snapshot, snapshot['item_visual_native'], getattr(source, 'epoch', None))
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
         snapshot['trait_panel_observation'] = read.get('trait_panel')
         from .trait_constraints import bind_observed_traits, roster_hypotheses
@@ -161,6 +182,10 @@ class BoardHubLive:
             snapshot['observed_markers'], unit_records)
         snapshot['inventory_identity_candidates'] = [
             item_candidate(row) for row in snapshot['inventory']['candidate_slots']]
+        snapshot['visual_readiness']['candidate_items'] = sum(
+            row.get('candidate_id') is not None
+            for row in snapshot['item_visual_native'].get('inventory', []) +
+                       snapshot['item_visual_native'].get('equipped', []))
         snapshot['knowledge_release'] = self.knowledge_release
         snapshot['item_attributes_patch'] = self.knowledge_patch
         # A live recording has no verified patch binding or semantic labels.
@@ -178,10 +203,14 @@ class BoardHubLive:
             leading = candidates[0] if candidates else None
             options = leading['catalog_options'] if leading else []
             names={option['name'] for option in options}
+            native = next((row for row in snapshot['item_visual_native'].get('inventory', [])
+                           if row['slot'] == slot['slot']), {})
             regions.append(region(f"hub.inventory.{slot['slot']}", xyxy(slot['rect']), slot['status'],
                                   value=next(iter(names)) if len(names)==1 else None,
                                   value_is_unverified_candidate=bool(candidates), item_id=None,
                                   candidate_items=options,
+                                  native_candidate_item_id=native.get('candidate_id'),
+                                  native_item_candidates=native.get('candidates', []),
                                   game_state_write_allowed=False))
         positions = {m['marker_id']: m['position_candidate'] for m in snapshot['observed_markers']}
         for marker in read['markers']:
