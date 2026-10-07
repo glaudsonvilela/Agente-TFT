@@ -212,8 +212,12 @@ class ShadowLearningRecorder:
             "runtime_approved": False,
         }
         raw = json.dumps(manifest, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
-        (self.root / "capture-manifest.json").write_text(raw, encoding="utf-8")
-        digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        manifest_bytes = raw.encode("utf-8")
+        # Hash the exact bytes persisted. Text-mode newline translation on
+        # Windows previously turned LF into CRLF after the hash was computed,
+        # making valid live sessions fail the post-match seal check.
+        (self.root / "capture-manifest.json").write_bytes(manifest_bytes)
+        digest = hashlib.sha256(manifest_bytes).hexdigest()
         sealed = {
             "schema_version": 1,
             "manifest_sha256": digest,
