@@ -3,7 +3,7 @@
 
 Base: frozen optimizer-default-parity / transfer-vertical protocol.
 Extra train-only supervision:
-- adjudicated supported gold anchors, weight 1.0
+- adjudicated gold anchors, weight 1.0; strict mixed-teacher tooltip rows are capped at 0.5
 - conservative silver propagation, weight 0.35
 
 Validation/test partitions from the sealed base manifest remain unchanged.
@@ -114,7 +114,7 @@ def assert_gold(rows: Any) -> None:
     for row in rows:
         if (
             not isinstance(row, dict)
-            or row.get("decision") not in {"supported", "bootstrap_supported"}
+            or row.get("decision") not in {"supported", "bootstrap_supported", "direct_gold_teacher_mixed"}
             or row.get("label_source") not in {"autonomous_shop_purchase_bench_consensus_v1", "autonomous_tooltip_temporal_consensus_v1"}
             or row.get("training_eligible") is not True
             or row.get("partition") != "training_pool_unlabeled"
@@ -122,6 +122,22 @@ def assert_gold(rows: Any) -> None:
             or row.get("model_prediction_used_as_label") is not False
         ):
             die("supported gold provenance contract failed")
+        if row["decision"] == "direct_gold_teacher_mixed":
+            evidence = row.get("evidence") or {}
+            association = evidence.get("selected_unit_association") or {}
+            ring = association.get("selected_ring") or {}
+            if (
+                row["label_source"] != "autonomous_tooltip_temporal_consensus_v1"
+                or evidence.get("exact_catalog_name_ocr") is not True
+                or not isinstance(evidence.get("ocr_name_confidence"), (int, float))
+                or not 94 <= evidence["ocr_name_confidence"] <= 100
+                or association.get("association_pass") is not True
+                or ring.get("shape_pass") is not True
+                or not isinstance(evidence.get("temporal_confirmations"), int)
+                or evidence["temporal_confirmations"] < 2
+                or row.get("recommended_training_weight") != 0.5
+            ):
+                die("mixed-teacher direct gold requires strict game evidence and weight cap")
 
 
 def assert_silver(rows: Any) -> None:
@@ -316,6 +332,7 @@ def main() -> int:
         "gold_labels_sha256": sha256_file(gold),
         "gold_count": len(gold_rows),
         "gold_weight": 1.0,
+        "mixed_teacher_gold_weight_cap": 0.5,
         "silver_labels": str(silver),
         "silver_labels_sha256": sha256_file(silver),
         "silver_count": len(silver_rows),
@@ -424,6 +441,7 @@ def main() -> int:
             "validation": challenger_metrics,
             "gold_auto": len(gold_rows),
             "gold_weight": 1.0,
+            "mixed_teacher_gold_weight_cap": 0.5,
             "silver_auto": len(silver_rows),
             "silver_weight": 0.35,
         },

@@ -4,11 +4,13 @@
 //!
 //! The game-derived gold label is never replaced. This tool only decides
 //! whether an anchor is supported strongly enough to remain training-eligible.
+//! A strict tooltip/selection label can also train a low-weight challenger when
+//! one teacher disagrees; the teacher cannot veto independent game evidence.
 
 use agente_tft_image_preprocess::unit_features::UnitCrop;
 use agente_tft_unit_features_lab::{
-    crop_transform::CropTransform, embedding_batch_size, embeddings, load_samples,
-    training::Head, Result, Sample,
+    crop_transform::CropTransform, embedding_batch_size, embeddings, load_samples, training::Head,
+    Result, Sample,
 };
 use ort::session::Session;
 use serde_json::{json, Value};
@@ -23,7 +25,9 @@ fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 fn s<'a>(v: &'a Value, key: &str) -> Result<&'a str> {
-    v[key].as_str().ok_or_else(|| format!("missing {key}").into())
+    v[key]
+        .as_str()
+        .ok_or_else(|| format!("missing {key}").into())
 }
 fn read_sealed(spec: &Value, key: &str) -> Result<Vec<u8>> {
     let bytes = fs::read(s(spec, key)?)?;
@@ -36,22 +40,46 @@ fn cosine(a: &[f32], b: &[f32]) -> Result<f32> {
     if a.len() != b.len() || a.is_empty() {
         return Err("embedding dimension mismatch".into());
     }
-    let mut dot=0f64; let mut aa=0f64; let mut bb=0f64;
-    for (&x,&y) in a.iter().zip(b) {
-        if !x.is_finite() || !y.is_finite() { return Err("nonfinite embedding".into()); }
-        dot += x as f64 * y as f64; aa += (x as f64).powi(2); bb += (y as f64).powi(2);
+    let mut dot = 0f64;
+    let mut aa = 0f64;
+    let mut bb = 0f64;
+    for (&x, &y) in a.iter().zip(b) {
+        if !x.is_finite() || !y.is_finite() {
+            return Err("nonfinite embedding".into());
+        }
+        dot += x as f64 * y as f64;
+        aa += (x as f64).powi(2);
+        bb += (y as f64).powi(2);
     }
-    if aa <= 1e-12 || bb <= 1e-12 { return Err("zero embedding".into()); }
-    Ok((dot/(aa.sqrt()*bb.sqrt())) as f32)
+    if aa <= 1e-12 || bb <= 1e-12 {
+        return Err("zero embedding".into());
+    }
+    Ok((dot / (aa.sqrt() * bb.sqrt())) as f32)
 }
-fn load_crop(path:&Path, expected:&str)->Result<UnitCrop>{
-    let rgb=image::open(path)?.to_rgb8();
-    if (rgb.width(),rgb.height())!=(128,144){return Err("anchor crop geometry".into());}
-    let raw=rgb.into_raw();
-    if hash(&raw)!=expected{return Err("anchor crop pixel hash mismatch".into());}
-    Ok(UnitCrop{rgb:raw})
+fn load_crop(path: &Path, expected: &str) -> Result<UnitCrop> {
+    let rgb = image::open(path)?.to_rgb8();
+    if (rgb.width(), rgb.height()) != (128, 144) {
+        return Err("anchor crop geometry".into());
+    }
+    let raw = rgb.into_raw();
+    if hash(&raw) != expected {
+        return Err("anchor crop pixel hash mismatch".into());
+    }
+    Ok(UnitCrop { rgb: raw })
 }
 
+fn direct_tooltip_evidence(row: &Value) -> bool {
+    row["label_source"] == "autonomous_tooltip_temporal_consensus_v1"
+        && row["evidence"]["exact_catalog_name_ocr"] == true
+        && row["evidence"]["ocr_name_confidence"]
+            .as_f64()
+            .is_some_and(|score| score >= 94.0 && score <= 100.0)
+        && row["evidence"]["selected_unit_association"]["association_pass"] == true
+        && row["evidence"]["selected_unit_association"]["selected_ring"]["shape_pass"] == true
+        && row["evidence"]["temporal_confirmations"]
+            .as_u64()
+            .is_some_and(|count| count >= 2)
+}
 
 fn unseen_bootstrap_support(
     label: &str,
@@ -75,7 +103,11 @@ fn unseen_bootstrap_support(
     } else {
         Some(pairwise.iter().sum::<f32>() / pairwise.len() as f32)
     };
-    let time_span_seconds = times.last().zip(times.first()).map(|(b, a)| b - a).unwrap_or(0);
+    let time_span_seconds = times
+        .last()
+        .zip(times.first())
+        .map(|(b, a)| b - a)
+        .unwrap_or(0);
     let current_present = unique_pixels.contains(current_pixel);
 
     // Fail-closed bootstrap for a catalog class with no supervised support.
@@ -99,112 +131,148 @@ fn unseen_bootstrap_support(
 }
 
 fn run() -> Result<()> {
-    let args:Vec<_>=std::env::args().collect();
-    if args.len()!=3 || args[1]!="--spec" { return Err("use --spec ADJUDICATE.json".into()); }
-    let spec:Value=serde_json::from_slice(&fs::read(&args[2])?)?;
-    let out=PathBuf::from(s(&spec,"output")?);
-    if out.exists(){return Err("new output directory required".into());}
-    let collection=PathBuf::from(s(&spec,"collection")?);
-    let collection_report:Value=serde_json::from_slice(&fs::read(collection.join("report.json"))?)?;
-    if collection_report["partition"]!="training_pool_unlabeled" {
+    let args: Vec<_> = std::env::args().collect();
+    if args.len() != 3 || args[1] != "--spec" {
+        return Err("use --spec ADJUDICATE.json".into());
+    }
+    let spec: Value = serde_json::from_slice(&fs::read(&args[2])?)?;
+    let out = PathBuf::from(s(&spec, "output")?);
+    if out.exists() {
+        return Err("new output directory required".into());
+    }
+    let collection = PathBuf::from(s(&spec, "collection")?);
+    let collection_report: Value =
+        serde_json::from_slice(&fs::read(collection.join("report.json"))?)?;
+    if collection_report["partition"] != "training_pool_unlabeled" {
         return Err("adjudication collection must be training partition".into());
     }
 
-    let model_bytes=read_sealed(&spec,"model")?;
-    let model:Value=serde_json::from_slice(&model_bytes)?;
-    let head:Head=serde_json::from_value(model["head"].clone())?;
-    let transform:CropTransform=model.get("crop_transform")
-        .map(|v|serde_json::from_value(v.clone())).transpose()?.unwrap_or_default();
-    let batch=embedding_batch_size(model.get("embedding_batch_size"))?;
-    let side=model["input_size"].as_u64().ok_or("model input_size")? as usize;
+    let model_bytes = read_sealed(&spec, "model")?;
+    let model: Value = serde_json::from_slice(&model_bytes)?;
+    let head: Head = serde_json::from_value(model["head"].clone())?;
+    let transform: CropTransform = model
+        .get("crop_transform")
+        .map(|v| serde_json::from_value(v.clone()))
+        .transpose()?
+        .unwrap_or_default();
+    let batch = embedding_batch_size(model.get("embedding_batch_size"))?;
+    let side = model["input_size"].as_u64().ok_or("model input_size")? as usize;
 
-    let encoder_bytes=read_sealed(&spec,"encoder")?;
-    if model["encoder_sha256"]!=hash(&encoder_bytes){return Err("encoder/model mismatch".into());}
-    ort::init_from(s(&spec,"onnxruntime")?).commit()?;
-    let mut session=Session::builder()?
-        .with_intra_threads(1)?.with_inter_threads(1)?
-        .with_intra_op_spinning(false)?.with_inter_op_spinning(false)?
-        .commit_from_file(s(&spec,"encoder")?)?;
-
-    let annotations=Path::new(s(&spec,"annotations")?);
-    let images=Path::new(s(&spec,"images")?);
-    let reference=Path::new(s(&spec,"reference")?);
-    let samples=load_samples(annotations,images,reference)?;
-    let train:Vec<&Sample>=samples.iter().filter(|x|x.split=="train" && x.label!="__unknown__").collect();
-    if train.is_empty(){return Err("no supervised training support".into());}
-
-    let mut train_features=Vec::with_capacity(train.len());
-    for chunk in train.chunks(batch){
-        let mut prepared=Vec::with_capacity(chunk.len());
-        for sample in chunk {
-            prepared.push((transform.apply(&sample.crop)?,true));
-        }
-        train_features.extend(embeddings(&mut session,&prepared,side,false,false)?);
+    let encoder_bytes = read_sealed(&spec, "encoder")?;
+    if model["encoder_sha256"] != hash(&encoder_bytes) {
+        return Err("encoder/model mismatch".into());
     }
-    if train_features.len()!=train.len(){return Err("training feature count mismatch".into());}
+    ort::init_from(s(&spec, "onnxruntime")?).commit()?;
+    let mut session = Session::builder()?
+        .with_intra_threads(1)?
+        .with_inter_threads(1)?
+        .with_intra_op_spinning(false)?
+        .with_inter_op_spinning(false)?
+        .commit_from_file(s(&spec, "encoder")?)?;
 
-    let anchors_doc:Value=serde_json::from_slice(&fs::read(s(&spec,"anchors")?)?)?;
-    let rows=anchors_doc.as_array().ok_or("anchors array")?;
-    if rows.is_empty(){return Err("no anchors".into());}
+    let annotations = Path::new(s(&spec, "annotations")?);
+    let images = Path::new(s(&spec, "images")?);
+    let reference = Path::new(s(&spec, "reference")?);
+    let samples = load_samples(annotations, images, reference)?;
+    let train: Vec<&Sample> = samples
+        .iter()
+        .filter(|x| x.split == "train" && x.label != "__unknown__")
+        .collect();
+    if train.is_empty() {
+        return Err("no supervised training support".into());
+    }
+
+    let mut train_features = Vec::with_capacity(train.len());
+    for chunk in train.chunks(batch) {
+        let mut prepared = Vec::with_capacity(chunk.len());
+        for sample in chunk {
+            prepared.push((transform.apply(&sample.crop)?, true));
+        }
+        train_features.extend(embeddings(&mut session, &prepared, side, false, false)?);
+    }
+    if train_features.len() != train.len() {
+        return Err("training feature count mismatch".into());
+    }
+
+    let anchors_doc: Value = serde_json::from_slice(&fs::read(s(&spec, "anchors")?)?)?;
+    let rows = anchors_doc.as_array().ok_or("anchors array")?;
+    if rows.is_empty() {
+        return Err("no anchors".into());
+    }
 
     let mut anchor_features: Vec<(String, String, u64, Vec<f32>)> = Vec::new();
     for row in rows {
-        if row["label_source"]!="autonomous_shop_purchase_bench_consensus_v1"
-            && row["label_source"]!="autonomous_tooltip_temporal_consensus_v1"
-            || row["human_review_required"]!=false
-            || row["model_prediction_used_as_label"]!=false
-            || row["training_eligible"]!=true
-            || row["partition"]!="training_pool_unlabeled" {
+        if row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
+            && row["label_source"] != "autonomous_tooltip_temporal_consensus_v1"
+            || row["human_review_required"] != false
+            || row["model_prediction_used_as_label"] != false
+            || row["training_eligible"] != true
+            || row["partition"] != "training_pool_unlabeled"
+        {
             return Err("anchor provenance mismatch".into());
         }
         if row["source_id"] != collection_report["source_id"] {
             return Err("anchor source differs from collection".into());
         }
-        let label=s(row,"unit_id")?.to_owned();
-        let crop_rel=s(row,"crop")?.to_owned();
-        let pixel=s(row,"pixel_sha256")?.to_owned();
-        let time=row["source_seconds_nominal"].as_u64().ok_or("anchor time")?;
-        let crop=load_crop(&collection.join(&crop_rel),&pixel)?;
-        let feature=embeddings(&mut session,&[(transform.apply(&crop)?,true)],side,false,false)?
-            .pop().ok_or("missing anchor feature")?;
-        anchor_features.push((label,pixel,time,feature));
+        let label = s(row, "unit_id")?.to_owned();
+        let crop_rel = s(row, "crop")?.to_owned();
+        let pixel = s(row, "pixel_sha256")?.to_owned();
+        let time = row["source_seconds_nominal"]
+            .as_u64()
+            .ok_or("anchor time")?;
+        let crop = load_crop(&collection.join(&crop_rel), &pixel)?;
+        let feature = embeddings(
+            &mut session,
+            &[(transform.apply(&crop)?, true)],
+            side,
+            false,
+            false,
+        )?
+        .pop()
+        .ok_or("missing anchor feature")?;
+        anchor_features.push((label, pixel, time, feature));
     }
 
-    let mut decisions=Vec::new();
-    let mut counts=BTreeMap::<String,u64>::new();
+    let mut decisions = Vec::new();
+    let mut counts = BTreeMap::<String, u64>::new();
 
     for (row, (_, _, _, feature)) in rows.iter().zip(&anchor_features) {
-        let label=s(row,"unit_id")?.to_owned();
-        let crop_rel=s(row,"crop")?.to_owned();
-        let pixel=s(row,"pixel_sha256")?.to_owned();
+        let label = s(row, "unit_id")?.to_owned();
+        let crop_rel = s(row, "crop")?.to_owned();
+        let pixel = s(row, "pixel_sha256")?.to_owned();
 
-        let p=head.probabilities(feature)?;
-        let mut order:Vec<_>=(0..p.len()).collect();
-        order.sort_by(|&a,&b|p[b].total_cmp(&p[a]).then(a.cmp(&b)));
-        let classifier=head.labels[order[0]].clone();
-        let classifier_margin=p[order[0]]-p[order[1]];
+        let p = head.probabilities(feature)?;
+        let mut order: Vec<_> = (0..p.len()).collect();
+        order.sort_by(|&a, &b| p[b].total_cmp(&p[a]).then(a.cmp(&b)));
+        let classifier = head.labels[order[0]].clone();
+        let classifier_margin = p[order[0]] - p[order[1]];
 
-        let mut class_best=HashMap::<String,f32>::new();
-        let mut same_label_support=0usize;
-        for (sample,vec) in train.iter().zip(&train_features) {
-            let sim=cosine(feature,vec)?;
-            class_best.entry(sample.label.clone())
-                .and_modify(|x|*x=x.max(sim)).or_insert(sim);
-            if sample.label==label { same_label_support+=1; }
+        let mut class_best = HashMap::<String, f32>::new();
+        let mut same_label_support = 0usize;
+        for (sample, vec) in train.iter().zip(&train_features) {
+            let sim = cosine(feature, vec)?;
+            class_best
+                .entry(sample.label.clone())
+                .and_modify(|x| *x = x.max(sim))
+                .or_insert(sim);
+            if sample.label == label {
+                same_label_support += 1;
+            }
         }
-        let mut ranked:Vec<_>=class_best.into_iter().collect();
-        ranked.sort_by(|a,b|b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
-        let retrieval_label=ranked.first().map(|x|x.0.clone());
-        let retrieval_similarity=ranked.first().map(|x|x.1);
-        let retrieval_second=ranked.get(1).map(|x|x.1);
-        let retrieval_margin=match retrieval_similarity.zip(retrieval_second) {
-            Some((a,b))=>Some(a-b), _=>None
+        let mut ranked: Vec<_> = class_best.into_iter().collect();
+        ranked.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+        let retrieval_label = ranked.first().map(|x| x.0.clone());
+        let retrieval_similarity = ranked.first().map(|x| x.1);
+        let retrieval_second = ranked.get(1).map(|x| x.1);
+        let retrieval_margin = match retrieval_similarity.zip(retrieval_second) {
+            Some((a, b)) => Some(a - b),
+            _ => None,
         };
-        let classifier_agrees=classifier==label;
-        let retrieval_agrees=retrieval_label.as_deref()==Some(label.as_str());
+        let classifier_agrees = classifier == label;
+        let retrieval_agrees = retrieval_label.as_deref() == Some(label.as_str());
 
         let bootstrap = unseen_bootstrap_support(&label, &pixel, &anchor_features)?;
-        let decision=if same_label_support==0 {
+        let decision = if same_label_support == 0 {
             if bootstrap["bootstrap_supported"] == true {
                 "bootstrap_supported"
             } else {
@@ -213,23 +281,30 @@ fn run() -> Result<()> {
         } else if classifier_agrees && retrieval_agrees {
             "supported"
         } else if classifier_agrees || retrieval_agrees {
-            "mixed"
+            if direct_tooltip_evidence(row) {
+                "direct_gold_teacher_mixed"
+            } else {
+                "mixed"
+            }
         } else {
             "quarantine_teacher_disagreement"
         };
-        *counts.entry(decision.to_owned()).or_default()+=1;
+        *counts.entry(decision.to_owned()).or_default() += 1;
 
         decisions.push(json!({
             "source_id":row["source_id"],
             "partition":row["partition"],
             "unit_id":label,
             "source_seconds_nominal":row["source_seconds_nominal"],
+            "source_milliseconds_nominal":row.get("source_milliseconds_nominal"),
             "crop":crop_rel,
             "pixel_sha256":pixel,
             "label_source":row["label_source"],
             "original_label_source":row["label_source"],
+            "evidence":row.get("evidence"),
             "decision":decision,
-            "training_eligible":decision=="supported" || decision=="bootstrap_supported",
+            "training_eligible":decision=="supported" || decision=="bootstrap_supported" || decision=="direct_gold_teacher_mixed",
+            "recommended_training_weight":if decision=="direct_gold_teacher_mixed" {0.5} else {1.0},
             "bootstrap":bootstrap,
             "human_review_required":false,
             "model_prediction_used_as_label":false,
@@ -252,12 +327,20 @@ fn run() -> Result<()> {
     }
 
     fs::create_dir_all(&out)?;
-    fs::write(out.join("anchor-decisions.json"),serde_json::to_vec_pretty(&decisions)?)?;
-    let supported:Vec<_>=decisions.iter()
-        .filter(|r|r["decision"]=="supported" || r["decision"]=="bootstrap_supported")
-        .cloned().collect();
-    fs::write(out.join("supported-gold-anchors.json"),serde_json::to_vec_pretty(&supported)?)?;
-    let summary=json!({
+    fs::write(
+        out.join("anchor-decisions.json"),
+        serde_json::to_vec_pretty(&decisions)?,
+    )?;
+    let supported: Vec<_> = decisions
+        .iter()
+        .filter(|r| r["training_eligible"] == true)
+        .cloned()
+        .collect();
+    fs::write(
+        out.join("supported-gold-anchors.json"),
+        serde_json::to_vec_pretty(&supported)?,
+    )?;
+    let summary = json!({
         "schema_version":1,
         "policy":"autonomous_gold_anchor_adjudication_v2",
         "anchors":rows.len(),
@@ -272,11 +355,14 @@ fn run() -> Result<()> {
         "limitations":[
             "This gate does not change game-derived gold labels; it only controls whether they can train the next challenger.",
             "Classifier and retrieval share the same frozen encoder, but retrieval uses supervised exemplars rather than classifier weights.",
-            "Mixed or unsupported anchors are quarantined automatically rather than sent for manual review.",
+            "Strict direct tooltip labels may train a challenger at weight <= 0.5 when exactly one teacher disagrees; both-teacher disagreement remains quarantined.",
             "Classes absent from supervised support can bootstrap only from at least two distinct direct game-derived gold anchors with DINO pair similarity >= 0.82."
         ]
     });
-    fs::write(out.join("report.json"),serde_json::to_vec_pretty(&summary)?)?;
+    fs::write(
+        out.join("report.json"),
+        serde_json::to_vec_pretty(&summary)?,
+    )?;
     println!("{summary}");
     Ok(())
 }
@@ -284,6 +370,32 @@ fn run() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mixed_teacher_training_requires_independent_tooltip_evidence() {
+        let valid = json!({
+            "label_source":"autonomous_tooltip_temporal_consensus_v1",
+            "evidence":{
+                "exact_catalog_name_ocr":true,
+                "ocr_name_confidence":96.0,
+                "temporal_confirmations":3,
+                "selected_unit_association":{
+                    "association_pass":true,
+                    "selected_ring":{"shape_pass":true}
+                }
+            }
+        });
+        assert!(direct_tooltip_evidence(&valid));
+        let mut weak = valid.clone();
+        weak["evidence"]["temporal_confirmations"] = json!(1);
+        assert!(!direct_tooltip_evidence(&weak));
+        weak = valid.clone();
+        weak["evidence"]["selected_unit_association"]["association_pass"] = json!(false);
+        assert!(!direct_tooltip_evidence(&weak));
+        weak = valid;
+        weak["evidence"]["ocr_name_confidence"] = json!(93.9);
+        assert!(!direct_tooltip_evidence(&weak));
+    }
 
     #[test]
     fn unseen_bootstrap_requires_multiple_distinct_consistent_gold_anchors() {
@@ -307,4 +419,9 @@ mod tests {
     }
 }
 
-fn main(){if let Err(e)=run(){eprintln!("AUTONOMOUS_GOLD_ADJUDICATION_ERROR: {e}");std::process::exit(1);}}
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("AUTONOMOUS_GOLD_ADJUDICATION_ERROR: {e}");
+        std::process::exit(1);
+    }
+}

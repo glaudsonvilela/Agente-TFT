@@ -134,3 +134,20 @@ accepted one crop, marked four as mixed (retrieval said Camille while the
 classifier disagreed), and quarantined one where both teachers disagreed.
 The direct game UI evidence and teacher judgments remain separate. The
 held-out 0/8 result means this model cannot yet be promoted to live tips.
+
+The revised adjudicator permits the four strict tooltip labels with one
+teacher disagreement to enter a *challenger* at weight 0.5. It still
+quarantines the one label where both teachers disagree. This yielded five
+Camille training crops from a single short event. Validation stayed at
+21/32 with the same named macro recall and slightly lower cross entropy,
+so the challenger won the predeclared validation tie-break. On the separate
+evaluation VOD it still scored 0/8 for Camille; all eight crops are from
+one event. The model was **not** approved for the live coach.
+
+A separate 4 Hz Ornn diagnostic showed why relaxing the OCR threshold alone
+would be unsafe. At 90% OCR with three temporal confirmations, the current
+halo tracker labeled both the selected Ornn and a different unit while the
+Ornn side panel remained visible. Those seven diagnostic labels were kept
+off the training path. A quick within-frame equipment-art comparison did
+not distinguish the correct crop reliably, so it was not adopted. Unit to
+panel association remains the main blocker for wider autonomous labels.

@@ -45,7 +45,6 @@ impl OptimizerConfig {
     }
 }
 
-
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct AutonomousTrainingConfig {
@@ -66,11 +65,7 @@ fn validate_autonomous_weight(value: f32, name: &str) -> Result<()> {
     Ok(())
 }
 
-fn effective_silver_weight(
-    declared: f32,
-    configured_max: f32,
-    use_declared: bool,
-) -> Result<f32> {
+fn effective_silver_weight(declared: f32, configured_max: f32, use_declared: bool) -> Result<f32> {
     validate_autonomous_weight(declared, "silver declared weight")?;
     validate_autonomous_weight(configured_max, "silver configured weight")?;
     if declared > configured_max + 1e-6 {
@@ -97,7 +92,9 @@ fn load_autonomous_rows(
 ) -> Result<Vec<(Sample, f32)>> {
     validate_autonomous_weight(weight, tier)?;
     let rows: Value = serde_json::from_slice(&fs::read(file)?)?;
-    let rows = rows.as_array().ok_or("autonomous labels must be a JSON array")?;
+    let rows = rows
+        .as_array()
+        .ok_or("autonomous labels must be a JSON array")?;
     let collection = collection.canonicalize()?;
     let mut result = Vec::new();
     for (i, row) in rows.iter().enumerate() {
@@ -111,12 +108,34 @@ fn load_autonomous_rows(
         }
         match tier {
             "gold_auto" => {
-                if row["decision"] != "supported" && row["decision"] != "bootstrap_supported"
+                if row["decision"] != "supported"
+                    && row["decision"] != "bootstrap_supported"
+                    && row["decision"] != "direct_gold_teacher_mixed"
                     || (row["label_source"] != "autonomous_shop_purchase_bench_consensus_v1"
                         && row["label_source"] != "autonomous_tooltip_temporal_consensus_v1")
                     || row["model_prediction_used_as_label"] != false
                 {
                     return Err(format!("unsupported gold provenance at row {i}").into());
+                }
+                if row["decision"] == "direct_gold_teacher_mixed" {
+                    let evidence = &row["evidence"];
+                    let strict_direct = row["label_source"]
+                        == "autonomous_tooltip_temporal_consensus_v1"
+                        && evidence["exact_catalog_name_ocr"] == true
+                        && evidence["ocr_name_confidence"]
+                            .as_f64()
+                            .is_some_and(|x| (94.0..=100.0).contains(&x))
+                        && evidence["selected_unit_association"]["association_pass"] == true
+                        && evidence["selected_unit_association"]["selected_ring"]["shape_pass"]
+                            == true
+                        && evidence["temporal_confirmations"]
+                            .as_u64()
+                            .is_some_and(|x| x >= 2)
+                        && row["recommended_training_weight"] == 0.5;
+                    if !strict_direct {
+                        return Err(format!("weak direct gold evidence at row {i}").into());
+                    }
+                    row_weight = row_weight.min(0.5);
                 }
             }
             "silver_auto" => {
@@ -130,11 +149,8 @@ fn load_autonomous_rows(
                 let declared = row["recommended_training_weight"]
                     .as_f64()
                     .ok_or("silver recommended weight")? as f32;
-                row_weight = effective_silver_weight(
-                    declared,
-                    weight,
-                    use_declared_silver_weights,
-                )?;
+                row_weight =
+                    effective_silver_weight(declared, weight, use_declared_silver_weights)?;
             }
             _ => return Err("unknown autonomous supervision tier".into()),
         }
@@ -164,7 +180,9 @@ fn load_autonomous_rows(
             .ok_or("autonomous source time")?;
         result.push((
             Sample {
-                crop: UnitCrop { rgb: rgb.into_raw() },
+                crop: UnitCrop {
+                    rgb: rgb.into_raw(),
+                },
                 label: label.to_owned(),
                 split: "train".into(),
                 image: format!("autonomous:{source_id}:{time}"),
@@ -214,8 +232,7 @@ fn load_autonomous_training(
         .map(|x| str_field(x, "id"))
         .collect::<Result<_>>()?;
 
-    let mut seen_pixels: HashSet<String> =
-        base_samples.iter().map(|s| hash(&s.crop.rgb)).collect();
+    let mut seen_pixels: HashSet<String> = base_samples.iter().map(|s| hash(&s.crop.rgb)).collect();
     let mut seen_sources = HashSet::new();
     let mut result = Vec::new();
 
@@ -314,7 +331,11 @@ fn effective_class_weights(
     }
     let targets: Vec<_> = samples
         .iter()
-        .map(|s| labels.binary_search(&s.label).map_err(|_| "target label missing"))
+        .map(|s| {
+            labels
+                .binary_search(&s.label)
+                .map_err(|_| "target label missing")
+        })
         .collect::<std::result::Result<_, _>>()?;
     let mut totals = vec![0f32; labels.len()];
     for (&target, &weight) in targets.iter().zip(sample_weights) {
@@ -579,8 +600,8 @@ fn fit(
         let mut db = vec![0.; head.labels.len()];
         for ((_, x, sample_weight), &target) in train.iter().zip(&targets) {
             let p = head.probabilities(x)?;
-            let weight = *sample_weight
-                / (weighted_class_totals[target] * head.labels.len() as f32);
+            let weight =
+                *sample_weight / (weighted_class_totals[target] * head.labels.len() as f32);
             for k in 0..head.labels.len() {
                 let error = (p[k] - if k == target { 1. } else { 0. }) * weight;
                 db[k] += error;
@@ -673,14 +694,12 @@ pub fn run_cli() -> Result<()> {
     let augmented = match spec["augmentation"].as_str().unwrap_or("none") {
         "none" => 0,
         "native_domain_v1" => augment_training(&mut samples, &mut sample_weights)?,
-        "vertical_alignment_v1" => {
-            augment_vertical_alignment(
-                &mut samples,
-                &mut sample_weights,
-                &alignment_originals,
-                transform,
-            )?
-        }
+        "vertical_alignment_v1" => augment_vertical_alignment(
+            &mut samples,
+            &mut sample_weights,
+            &alignment_originals,
+            transform,
+        )?,
         _ => return Err("unknown augmentation policy".into()),
     };
     let encoder_bytes = fs::read(str_field(&spec, "encoder")?)?;
@@ -950,7 +969,9 @@ mod tests {
     #[test]
     fn weighted_class_balance_preserves_class_mass_and_downweights_silver() {
         let make = |label: &str| Sample {
-            crop: UnitCrop { rgb: vec![0; WIDTH * HEIGHT * 3] },
+            crop: UnitCrop {
+                rgb: vec![0; WIDTH * HEIGHT * 3],
+            },
             label: label.into(),
             split: "train".into(),
             image: label.into(),
