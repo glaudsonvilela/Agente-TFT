@@ -6,7 +6,87 @@ use agente_tft_unit_features_lab::{
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::{collections::HashMap, fs, path::PathBuf, process::Command};
+use std::{
+    collections::{HashMap, VecDeque},
+    fs,
+    path::PathBuf,
+    process::Command,
+};
+
+#[derive(Clone, Debug)]
+struct NameRun {
+    ids: Vec<String>,
+    confirmations: u8,
+    min_good_confidence: f32,
+    first_ms: u64,
+    last_ms: u64,
+    last_frame_hash: String,
+}
+
+fn advance_name_run(
+    old: Option<NameRun>,
+    ids: Option<&Vec<String>>,
+    confidence: Option<f32>,
+    portrait: f32,
+    time_ms: u64,
+    frame_hash: &str,
+) -> Option<NameRun> {
+    if portrait < 0.10 {
+        return None;
+    }
+    let Some(ids) = ids else {
+        return old.filter(|run| time_ms.saturating_sub(run.last_ms) <= 750);
+    };
+    let good = confidence.is_some_and(|c| c.is_finite() && c >= 85.0);
+    if let Some(mut run) = old {
+        if run.ids == *ids && time_ms.saturating_sub(run.last_ms) <= 750 {
+            if good && run.last_frame_hash != frame_hash {
+                if run.confirmations == 0 {
+                    run.min_good_confidence = confidence.unwrap();
+                } else {
+                    run.min_good_confidence = run.min_good_confidence.min(confidence.unwrap());
+                }
+                run.confirmations = run.confirmations.saturating_add(1);
+            }
+            run.last_ms = time_ms;
+            run.last_frame_hash = frame_hash.into();
+            return Some(run);
+        }
+    }
+    Some(NameRun {
+        ids: ids.clone(),
+        confirmations: u8::from(good),
+        min_good_confidence: if good { confidence.unwrap() } else { 0. },
+        first_ms: time_ms,
+        last_ms: time_ms,
+        last_frame_hash: frame_hash.into(),
+    })
+}
+
+fn bench_count(frame: &Value) -> usize {
+    frame["units"].as_array().map_or(0, |units| {
+        units
+            .iter()
+            .filter(|u| {
+                let x = u["box"][0].as_i64();
+                let y = u["box"][1].as_i64();
+                x.is_some_and(|x| (300..=1450).contains(&x))
+                    && y.is_some_and(|y| (665..=760).contains(&y))
+            })
+            .count()
+    })
+}
+
+fn bench_reference<'a>(
+    history: &'a VecDeque<(u64, Value)>,
+    now_ms: u64,
+) -> Option<(u64, &'a Value)> {
+    history
+        .iter()
+        .filter(|(ms, _)| now_ms.saturating_sub(*ms) <= 1000)
+        .max_by_key(|(ms, frame)| (bench_count(frame), *ms))
+        .map(|(ms, frame)| (*ms, frame))
+}
 
 fn slot_words(tsv: &str) -> Vec<Vec<(String, f32)>> {
     let mut slots = vec![Vec::new(); 5];
@@ -124,10 +204,9 @@ fn run() -> Result<()> {
         Vec<Option<Vec<String>>>,
         Vec<f32>,
         Value,
-        [u8; 5],
-        [f32; 5],
-        [u64; 5],
     )> = None;
+    let mut name_runs: [Option<NameRun>; 5] = std::array::from_fn(|_| None);
+    let mut bench_history: VecDeque<(u64, Value)> = VecDeque::new();
     for line in fs::read_to_string(root.join("observations.jsonl"))?.lines() {
         let frame: Value = serde_json::from_str(line)?;
         if frame["source_id"] != report["source_id"] {
@@ -228,12 +307,6 @@ fn run() -> Result<()> {
             })
             .collect();
         let cards:Vec<_>=matched.iter().zip(&words).enumerate().map(|(slot,(m,w))|json!({"slot":slot,"unit_candidates":m.as_ref().map(|x|&x.0),"ocr_name_confidence":m.as_ref().map(|x|x.1),"ocr_words":w})).collect();
-        let mut name_streaks = [1u8; 5];
-        let mut name_min_confidence = [0f32; 5];
-        let mut name_first_seen_ms = [time_ms; 5];
-        for slot in 0..5 {
-            name_min_confidence[slot] = confidences[slot].unwrap_or(0.);
-        }
         if let Some((
             old_time_ms,
             old_time,
@@ -242,9 +315,6 @@ fn run() -> Result<()> {
             old_anchors,
             old_portraits,
             old_frame,
-            old_streaks,
-            old_min_confidence,
-            old_first_seen_ms,
         )) = &previous
         {
             let gap_ms = time_ms
@@ -253,36 +323,48 @@ fn run() -> Result<()> {
             if gap_ms == 0 {
                 return Err("duplicate source timestamp".into());
             }
-            for slot in 0..5 {
-                if gap_ms <= 2000
-                    && identities[slot].is_some()
-                    && identities[slot] == old_ids[slot]
-                    && old_frame["frame_pixel_sha256"] != frame["frame_pixel_sha256"]
-                {
-                    name_streaks[slot] = old_streaks[slot].saturating_add(1);
-                    name_min_confidence[slot] =
-                        old_min_confidence[slot].min(name_min_confidence[slot]);
-                    name_first_seen_ms[slot] = old_first_seen_ms[slot];
-                }
-            }
             for slot in disappearances(old_anchors, &anchors, gap_ms) {
                 if old_ids[slot].is_none()
                     || !portrait_disappeared(old_portraits[slot], portrait_brightness[slot])
                 {
                     continue;
                 }
+                let run = name_runs[slot]
+                    .as_ref()
+                    .filter(|run| old_ids[slot].as_ref() == Some(&run.ids));
+                let (reference_ms, reference) =
+                    bench_reference(&bench_history, time_ms).unwrap_or((*old_time_ms, old_frame));
                 transitions.push(json!({"source_id":report["source_id"],"partition":report["partition"],"before_seconds":old_time,"after_seconds":time,
                     "before_milliseconds":old_time_ms,"after_milliseconds":time_ms,
                     "before_frame":old_frame["review_frame"],"after_frame":file,"before_pixel_sha256":old_frame["frame_pixel_sha256"],"after_pixel_sha256":frame["frame_pixel_sha256"],
                     "shop_slot":slot,"portrait_brightness_before":old_portraits[slot],"portrait_brightness_after":portrait_brightness[slot],
                     "shop_unit_candidates":old_ids[slot],"shop_ocr_name_confidence":old_confidences[slot],
-                    "shop_name_distinct_frame_confirmations":old_streaks[slot],"shop_name_min_ocr_confidence":old_min_confidence[slot],
-                    "shop_name_confirmation_span_ms":old_time_ms-old_first_seen_ms[slot],
-                    "new_bench_proposals":new_bench_proposals(old_frame,&frame),
+                    "shop_name_distinct_frame_confirmations":run.map_or(0, |run| run.confirmations),
+                    "shop_name_min_ocr_confidence":run.map(|run| run.min_good_confidence),
+                    "shop_name_confirmation_span_ms":run.map(|run| old_time_ms.saturating_sub(run.first_ms)),
+                    "bench_reference_milliseconds":reference_ms,
+                    "new_bench_proposals":new_bench_proposals(reference,&frame),
                     "purchase_confirmed":false,"crop_identity_confirmed":false,"review_required":true,"training_label":null}));
             }
         }
+        for slot in 0..5 {
+            name_runs[slot] = advance_name_run(
+                name_runs[slot].take(),
+                identities[slot].as_ref(),
+                confidences[slot],
+                portrait_brightness[slot],
+                time_ms,
+                frame["frame_pixel_sha256"].as_str().ok_or("frame hash")?,
+            );
+        }
         frames.push(json!({"source_seconds":time,"source_milliseconds":time_ms,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"portrait_brightness":portrait_brightness,"cards":cards}));
+        bench_history.push_back((time_ms, frame.clone()));
+        while bench_history
+            .front()
+            .is_some_and(|(ms, _)| time_ms.saturating_sub(*ms) > 1000)
+        {
+            bench_history.pop_front();
+        }
         previous = Some((
             time_ms,
             time,
@@ -291,9 +373,6 @@ fn run() -> Result<()> {
             anchors,
             portrait_brightness,
             frame,
-            name_streaks,
-            name_min_confidence,
-            name_first_seen_ms,
         ));
         if frames.len() % 100 == 0 {
             let progress = json!({"status":"running", "frames":frames.len(), "ocr_calls":ocr_calls,
@@ -375,5 +454,44 @@ mod tests {
         let p = new_bench_proposals(&before, &after);
         assert_eq!(p.len(), 1);
         assert_eq!(p[0]["box"][0], 1100);
+    }
+    #[test]
+    fn stable_name_survives_one_occluded_frame_without_counting_it() {
+        let id = vec!["DA_18_ElderDragon".into()];
+        let mut run = None;
+        for (time, hash) in [(1000, "a"), (1250, "b"), (1500, "c")] {
+            run = advance_name_run(run, Some(&id), Some(95.), 0.9, time, hash);
+        }
+        run = advance_name_run(run, None, None, 0.9, 1750, "d");
+        run = advance_name_run(run, Some(&id), Some(79.), 0.9, 2000, "e");
+        let run = run.unwrap();
+        assert_eq!(run.confirmations, 3);
+        assert_eq!(run.min_good_confidence, 95.);
+        assert_eq!(run.first_ms, 1000);
+        assert!(advance_name_run(Some(run), None, None, 0., 2250, "f").is_none());
+    }
+    #[test]
+    fn name_run_starts_confidence_at_first_strong_read() {
+        let id = vec!["DA_18_Ashe".into()];
+        let run = advance_name_run(None, Some(&id), Some(79.), 0.9, 1000, "a");
+        let run = advance_name_run(run, Some(&id), Some(96.), 0.9, 1250, "b").unwrap();
+        assert_eq!(run.confirmations, 1);
+        assert_eq!(run.min_good_confidence, 96.);
+    }
+    #[test]
+    fn bench_reference_uses_the_last_unoccluded_board() {
+        let mut history = VecDeque::from([
+            (
+                1000,
+                json!({"units":[{"box":[462,736,590,880]},{"box":[1073,694,1201,838]}]}),
+            ),
+            (1250, json!({"units":[{"box":[462,736,590,880]}]})),
+        ]);
+        let (time, frame) = bench_reference(&history, 1500).unwrap();
+        assert_eq!(time, 1000);
+        let after = json!({"units":[{"box":[462,736,590,880]},{"box":[1073,694,1201,838]},{"box":[1195,703,1323,847]}]});
+        assert_eq!(new_bench_proposals(frame, &after).len(), 1);
+        history.push_back((2500, json!({"units":[]})));
+        assert_eq!(bench_reference(&history, 2500).unwrap().0, 2500);
     }
 }

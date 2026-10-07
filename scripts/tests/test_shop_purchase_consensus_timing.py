@@ -19,6 +19,7 @@ def test_repeated_exact_shop_name_survives_a_low_single_frame_ocr_score():
         "shop_name_confirmation_span_ms": 750,
     }
     assert shop.shop_name_verified(evidence, 94.0)
+    assert shop.shop_name_verified({**evidence, "shop_ocr_name_confidence": 79.0}, 94.0)
     assert not shop.shop_name_verified({**evidence, "shop_name_distinct_frame_confirmations": 2}, 94.0)
     assert not shop.shop_name_verified({**evidence, "shop_name_min_ocr_confidence": 72.0}, 94.0)
     assert not shop.shop_name_verified({**evidence, "shop_name_confirmation_span_ms": 0}, 94.0)

@@ -81,7 +81,6 @@ def shop_name_verified(row: dict[str, Any], single_frame_threshold: float) -> bo
         and float(minimum) >= 85.0
         and isinstance(span_ms, int) and not isinstance(span_ms, bool)
         and 250 <= span_ms <= 4000
-        and float(conf) >= 85.0
     )
 
 
