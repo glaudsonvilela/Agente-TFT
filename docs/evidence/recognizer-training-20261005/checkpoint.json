@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-06T21:22:00-03:00",
+  "recorded_at": "2026-10-06T21:28:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,9 +1346,9 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "implement_and_validate_server_to_client_model_distribution",
-    "success_condition": "BigBANANA can publish an approved champion manifest/artifact and the installed client can verify and atomically activate it between matches while retaining rollback.",
-    "next_if_success": "Run first full loop: local inference match -> upload evidence -> central training -> approved update -> local next-match inference.",
+    "status": "implement_bigbanana_champion_registry_and_zero_click_client_updater",
+    "success_condition": "Server publishes approved champion manifest/artifact; client checks automatically and atomically installs only while idle with rollback.",
+    "next_if_success": "Validate full loop across two consecutive matches: old model -> central learning -> auto-update -> next match with new model.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -2201,5 +2201,33 @@
     },
     "mistaken_server_only_packaging": "reverted",
     "runtime_approved": false
+  },
+  "automatic_neural_update_policy": {
+    "status": "authoritative",
+    "user_confirmation_required": false,
+    "checks": [
+      "app_start",
+      "after_match"
+    ],
+    "during_match": {
+      "check": false,
+      "download": false,
+      "activate": false
+    },
+    "idle_update": {
+      "background_download": true,
+      "verify_sha256": true,
+      "verify_compatibility": true,
+      "atomic_activation": true
+    },
+    "rollback": {
+      "keep_previous_versions": 2,
+      "on_load_failure": true,
+      "on_startup_health_failure": true
+    },
+    "offline_behavior": "Use last approved local model without blocking gameplay.",
+    "server_training": "BigBANANA",
+    "local_inference": true,
+    "player_experience": "zero_click"
   }
 }
