@@ -12,8 +12,9 @@ from .core import region, xyxy
 
 
 class BoardHubLive:
-    def __init__(self, configs: str):
+    def __init__(self, configs: str, neural_root: str | Path | None = None):
         root = Path(configs).absolute().parent
+        neural_root = Path(neural_root).absolute() if neural_root else root
         profile = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
         catalog = json.loads((root / 'configs/catalog/active-visual-reference-v1.json').read_text(encoding='utf-8'))
         if (profile.get('schema_version'), profile.get('id'), profile.get('semantic_mode'),
@@ -60,7 +61,7 @@ class BoardHubLive:
         if (root/'configs/catalog/active-item-neural-v1.json').is_file():
             try:
                 from .item_neural import ItemIconObserver
-                self.item_neural=ItemIconObserver(root)
+                self.item_neural=ItemIconObserver(root, neural_root)
             except (OSError,ValueError,ImportError,RuntimeError) as exc:
                 self.item_neural_error=str(exc)
         self.unit_neural = None
@@ -68,7 +69,7 @@ class BoardHubLive:
         if (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
             try:
                 from .unit_gallery import UnitGalleryObserver
-                self.unit_neural = UnitGalleryObserver(root)
+                self.unit_neural = UnitGalleryObserver(root, neural_root)
                 self.unit_neural_error = None
             except (OSError, ValueError, ImportError, RuntimeError) as exc:
                 self.unit_neural_error = str(exc)
