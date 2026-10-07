@@ -40,8 +40,15 @@ class AnalysisCore:
         from hm.board_hub_live import BoardHubLive
 
         self.root = root
-        self.model = MapObserver(root / "models/deployment-candidate.json")
-        self.board = BoardHubLive(str(root / "configs"))
+        overlay_value = os.environ.get("AGENTE_TFT_RUNTIME_NEURAL_ROOT")
+        self.neural_root = Path(overlay_value).resolve() if overlay_value else root
+        model_meta = self.neural_root / "models/deployment-candidate.json"
+        if not model_meta.is_file():
+            model_meta = root / "models/deployment-candidate.json"
+            self.neural_root = root
+        self.model_metadata_path = model_meta
+        self.model = MapObserver(model_meta)
+        self.board = BoardHubLive(str(root / "configs"), self.neural_root)
         (root / "runtime").mkdir(parents=True, exist_ok=True)
         self.reader_lock = threading.Lock()
         self.hp_lock = threading.Lock()
@@ -67,7 +74,8 @@ class AnalysisCore:
         self.ready = {
             "version": VERSION,
             "model_sha256": self.model.hash,
-            "model_metadata_sha256": sha(root / "models/deployment-candidate.json"),
+            "model_metadata_sha256": sha(self.model_metadata_path),
+            "neural_bundle_external": self.neural_root != root,
             "reader_binary_sha256": sha(root / "bin/agente-tft-e1-worker"),
             "hp_binary_sha256": sha(root / "bin/agente-tft-hm-hp"),
             "reader_ready": self.reader.ready,
