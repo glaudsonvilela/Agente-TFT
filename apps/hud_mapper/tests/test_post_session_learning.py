@@ -59,29 +59,41 @@ def test_post_session_launcher_fails_closed_without_complete_session(tmp_path):
     (session / "shadow-learning").mkdir(parents=True)
     value = launch_post_session_learning(session)
     assert value["status"] == "not_eligible"
-    assert value["training_started"] is False
+    assert value["local_training_performed"] is False
     assert value["active_model_changed"] is False
 
 
-def test_post_session_launcher_does_not_claim_packaged_training(tmp_path, monkeypatch):
+def test_post_session_launcher_queues_server_upload_without_local_training(tmp_path, monkeypatch):
     session = tmp_path / "session"
-    learning = session / "shadow-learning"
-    learning.mkdir(parents=True)
-    (session / "COMPLETE.json").write_text("{}")
+    session.mkdir()
+    recorder = ShadowLearningRecorder(
+        session,
+        interval_ms=2000,
+        max_frames=60,
+        max_bytes=128 * 1024**2,
+        jpeg_quality=88,
+    )
+    assert recorder.submit(frame(1, 0))
+    assert recorder.submit(frame(2, 2000))
+    recorder.close(
+        session_id="abc",
+        source={"source_kind": "native_capture"},
+        runtime_model_sha256=None,
+    )
     (session / "summary.json").write_text(json.dumps({
         "execution_complete": True,
         "session_id": "abc",
         "active_model_changed_during_session": False,
+        "source": {"source_kind": "native_capture"},
     }))
-    (learning / "SEALED.json").write_text(json.dumps({
-        "ready_for_post_session_learning": True
-    }))
+    (session / "COMPLETE.json").write_text("{}")
 
-    # Force the source-checkout discovery path to fail without changing host OS.
     import hm.post_session_learning as post
-    # Point __file__ under a temporary packaged-like tree with no scripts/tools.
-    monkeypatch.setattr(post, "__file__", str(tmp_path / "packed" / "hm" / "post_session_learning.py"))
+    monkeypatch.setattr(post, "_upload_worker", lambda *args, **kwargs: None)
     value = post.launch_post_session_learning(session)
-    assert value["status"] == "queued_waiting_for_packaged_wsl_trainer"
-    assert value["training_started"] is False
+    assert value["status"] == "queued_server_upload"
+    assert value["training_location"] == "server"
+    assert value["local_neural_weights_bundled"] is False
+    assert value["local_training_performed"] is False
     assert value["active_model_changed"] is False
+
