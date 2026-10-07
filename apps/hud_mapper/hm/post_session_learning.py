@@ -1,7 +1,8 @@
 """Upload a sealed HM4 match to the server-resident neural learner.
 
-The Windows client never trains and never owns neural weights. Upload is
-resumable; network failure preserves the local sealed evidence for retry.
+The Windows client keeps approved neural weights for low-latency inference,
+but never trains them. Post-match learning is centralized on BigBANANA.
+Upload is resumable; network failure preserves local sealed evidence for retry.
 """
 from __future__ import annotations
 
