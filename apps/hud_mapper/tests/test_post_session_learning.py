@@ -42,6 +42,10 @@ def test_shadow_learning_recorder_is_bounded_and_sealed(tmp_path):
     assert sealed["ready_for_post_session_learning"] is True
     manifest = json.loads((session / "shadow-learning" / "capture-manifest.json").read_text())
     assert manifest["counts"]["saved"] == 2
+    assert manifest["counts"]["normalized_frames"] == 2
+    assert manifest["learning_geometry"] == "canonical_1920x1080_rgb_jpeg_v1"
+    assert all((row["width"], row["height"]) == (1920, 1080) for row in manifest["frames"])
+    assert all(row["normalized_to_1920x1080"] is True for row in manifest["frames"])
     assert manifest["training_performed_during_session"] is False
     assert manifest["active_model_changed_during_session"] is False
     assert [row["image"] for row in manifest["frames"]] == [
@@ -75,12 +79,7 @@ def test_post_session_launcher_does_not_claim_packaged_training(tmp_path, monkey
 
     # Force the source-checkout discovery path to fail without changing host OS.
     import hm.post_session_learning as post
-    original = Path
-
-    class FakePath(type(Path())):
-        pass
-
-    # Simpler: point __file__ under a temporary packaged-like tree with no scripts/tools.
+    # Point __file__ under a temporary packaged-like tree with no scripts/tools.
     monkeypatch.setattr(post, "__file__", str(tmp_path / "packed" / "hm" / "post_session_learning.py"))
     value = post.launch_post_session_learning(session)
     assert value["status"] == "queued_waiting_for_packaged_wsl_trainer"
