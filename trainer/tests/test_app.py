@@ -949,3 +949,76 @@ def test_neural_frame_retry_reconciles_disk_after_counter_crash(tmp_path, monkey
     assert after["frames_received"] == 1
     assert after["bytes_received"] == len(body)
     assert after["last_source_ms"] == 4000
+
+
+def test_neural_global_admission_limit_returns_conflict(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    monkeypatch.setenv("NEURAL_MAX_UNFINISHED_SESSIONS", "2")
+    monkeypatch.setenv("NEURAL_MIN_FREE_BYTES", str(1024**3))
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    client = TestClient(create_app(store=store, clock_ms=lambda: 10_000))
+    for index in range(2):
+        headers = _neural_client(client, f"install-global-{index}")
+        response = client.post(
+            "/v1/neural/sessions",
+            headers=headers,
+            json={
+                "client_id": f"install-global-{index}",
+                "match_id": f"match-{index}",
+                "created_at_ms": index + 1,
+                "capture_policy": "test",
+            },
+        )
+        assert response.status_code == 201
+
+    headers = _neural_client(client, "install-global-over")
+    response = client.post(
+        "/v1/neural/sessions",
+        headers=headers,
+        json={
+            "client_id": "install-global-over",
+            "match_id": "match-over",
+            "created_at_ms": 99,
+            "capture_policy": "test",
+        },
+    )
+    assert response.status_code == 409
+    assert "global unfinished" in response.json()["detail"]
+
+
+def test_neural_low_disk_headroom_returns_conflict(tmp_path, monkeypatch):
+    import remote_trainer.store as store_module
+
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    monkeypatch.setenv("NEURAL_MAX_UNFINISHED_SESSIONS", "64")
+    monkeypatch.setenv("NEURAL_MIN_FREE_BYTES", str(10 * 1024**3))
+    monkeypatch.setattr(
+        store_module.shutil,
+        "disk_usage",
+        lambda _: type("Disk", (), {
+            "total": 20 * 1024**3,
+            "used": 19 * 1024**3,
+            "free": 1 * 1024**3,
+        })(),
+    )
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    client = TestClient(create_app(store=store, clock_ms=lambda: 10_000))
+    headers = _neural_client(client, "install-low-disk")
+    response = client.post(
+        "/v1/neural/sessions",
+        headers=headers,
+        json={
+            "client_id": "install-low-disk",
+            "match_id": "match-low-disk",
+            "created_at_ms": 1,
+            "capture_policy": "test",
+        },
+    )
+    assert response.status_code == 409
+    assert "storage space" in response.json()["detail"]
