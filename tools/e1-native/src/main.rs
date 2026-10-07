@@ -53,6 +53,26 @@ fn ms(t:&Instant)->f64{t.elapsed().as_secs_f64()*1000.}
 struct HudCacheEntry{pixels:Vec<u8>,read:Option<RobustHudRead>,source_frame_id:u64,source_ms:u64}
 #[derive(Clone)]
 struct JsonCacheEntry{pixels:Vec<u8>,value:Value,source_frame_id:u64,source_ms:u64,panel_located:Option<bool>}
+#[derive(Clone)]
+struct ShopNameTrack {
+    name:String,key:String,first_ms:u64,last_ms:u64,last_frame_id:u64,
+    confirmations:u8,min_score:f32,
+}
+fn advance_shop_name_track(previous:Option<ShopNameTrack>,name:&str,score:f32,at:u64,frame_id:u64)->ShopNameTrack{
+    let key=screen::normalize(name);
+    if let Some(mut track)=previous {
+        if track.key==key && track.last_frame_id!=frame_id
+            && at>=track.last_ms && at-track.last_ms<=3000 {
+            track.confirmations=track.confirmations.saturating_add(1);
+            track.min_score=track.min_score.min(score);
+            track.last_ms=at;
+            track.last_frame_id=frame_id;
+            return track;
+        }
+    }
+    ShopNameTrack{name:name.into(),key,first_ms:at,last_ms:at,last_frame_id:frame_id,
+        confirmations:1,min_score:score}
+}
 fn restamp(read:&mut RobustHudRead,at:u64){
     read.batch.observed_at_ms=at;
     if let Some(v)=read.batch.gold.as_mut(){v.observed_at_ms=at;}
@@ -122,6 +142,7 @@ struct Readers{
     #[cfg(any(windows,target_os="linux"))] resident_hud:Option<ResidentHudPool>,
     #[cfg(any(windows,target_os="linux"))] resident_text:Option<ResidentTesseractOcr>,
     hud_cache:HashMap<HudField,HudCacheEntry>,shop_cache:Option<JsonCacheEntry>,controls_cache:Option<JsonCacheEntry>,
+    shop_name_tracks:[Option<ShopNameTrack>;5],
 }
 impl Readers{
  fn new(root:&Path,tess:String,controls_path:Option<PathBuf>)->Result<Self,String>{
@@ -187,7 +208,46 @@ impl Readers{
     Ok(Self{hud,stage,ocr,shop,recovery,controls,board_profile,board,available,ocr_backend,text_ocr_backend,ocr_fallback_error,
         #[cfg(any(windows,target_os="linux"))] resident_hud,
         #[cfg(any(windows,target_os="linux"))] resident_text,
-        hud_cache:HashMap::new(),shop_cache:None,controls_cache:None})
+        hud_cache:HashMap::new(),shop_cache:None,controls_cache:None,
+        shop_name_tracks:std::array::from_fn(|_|None)})
+ }
+ fn reconcile_shop_names(&mut self,f:&FrameEnvelope,read:&mut screen::ScreenRead){
+    if read.panel_status!="located" {
+        self.shop_name_tracks=std::array::from_fn(|_|None);
+        return;
+    }
+    for (index,slot) in read.slots.iter_mut().enumerate(){
+        if slot.name_evidence.as_deref()==Some("atlas_strip_conflict") {
+            self.shop_name_tracks[index]=None;
+            continue;
+        }
+        let candidate=slot.strip_name_attempt.as_ref().filter(|attempt|attempt.reason=="eligible")
+            .and_then(|attempt|attempt.text.as_deref().zip(attempt.confidence));
+        let Some((name,score))=candidate else {
+            self.shop_name_tracks[index]=None;
+            continue;
+        };
+        if !score.is_finite() || score<0.85 {
+            self.shop_name_tracks[index]=None;
+            continue;
+        }
+        let track=advance_shop_name_track(self.shop_name_tracks[index].take(),name,score,
+            f.captured_at_ms,f.frame_id);
+        if track.confirmations>=2 && track.last_ms-track.first_ms>=250 {
+            if slot.observed_name.is_none() {
+                slot.observed_name=Some(track.name.clone());
+                slot.name_confidence=Some(track.min_score);
+                slot.name_evidence=Some("strip_temporal_consensus".into());
+                slot.status=if slot.observed_cost.is_some(){"offer_text_readable"}
+                    else{"partially_readable"}.into();
+            } else if slot.name_confidence.is_some_and(|confidence|confidence<0.90)
+                && slot.observed_name.as_ref().is_some_and(|current|
+                    screen::normalize(current)==track.key) {
+                slot.name_evidence=Some("atlas_strip_temporal_consensus".into());
+            }
+        }
+        self.shop_name_tracks[index]=Some(track);
+    }
  }
  fn shop_signature(&self,f:&FrameEnvelope)->Result<Vec<u8>,String>{
     let mut rects=Vec::new();
@@ -364,7 +424,8 @@ impl Readers{
         #[cfg(not(any(windows,target_os="linux")))]
         let shop_read=screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true);
         match shop_read {
-         Ok(read)=>{
+         Ok(mut read)=>{
+          self.reconcile_shop_names(f,&mut read);
           located=read.panel_status=="located";
           let cacheable=read.error.is_none();
           shop=serde_json::to_value(read).map_err(|e|e.to_string())?;
@@ -536,6 +597,19 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
 }
 #[cfg(test)] mod tests{
  use super::*;
+ #[test] fn shop_name_track_needs_distinct_ordered_frames_and_resets_on_change(){
+   let first=advance_shop_name_track(None,"Alune",0.89,1000,1);
+   let same_frame=advance_shop_name_track(Some(first.clone()),"Alune",0.88,1000,1);
+   assert_eq!(same_frame.confirmations,1);
+   let repeated=advance_shop_name_track(Some(first),"alune",0.88,1500,2);
+   assert_eq!(repeated.confirmations,2);
+   assert_eq!(repeated.min_score,0.88);
+   assert_eq!(repeated.first_ms,1000);
+   let changed=advance_shop_name_track(Some(repeated.clone()),"Ashe",0.96,2000,3);
+   assert_eq!(changed.confirmations,1);
+   let stale=advance_shop_name_track(Some(repeated),"Alune",0.90,5001,4);
+   assert_eq!(stale.confirmations,1);
+ }
  #[test] fn protocol_rejects_oversize_header(){assert!(header(&mut io::Cursor::new(vec![b'x';65537])).is_err())}
  #[test] fn protocol_eof(){assert!(header(&mut io::Cursor::new(Vec::<u8>::new())).unwrap().is_none())}
  #[test] fn payload_size_not_guessed(){let h=json!({"id":1,"source_ms":0,"width":2,"height":2,"bytes":16});assert!(frame(&h,&mut io::empty()).is_err())}

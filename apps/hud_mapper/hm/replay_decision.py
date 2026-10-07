@@ -16,6 +16,7 @@ from pathlib import Path
 import unicodedata
 from .economy_budget import EconomyBudget
 from .strategic_coach import StrategicCoach
+from .shop_name_evidence import readable_name
 
 
 def _key(value: str) -> str:
@@ -90,11 +91,8 @@ class ReplayDecisionEngine:
         bound = 0
         for slot in shop.get("slots") or []:
             name = slot.get("observed_name")
-            if (slot.get("status") != "offer_text_readable" or
-                    not isinstance(name, str) or
-                    float(slot.get("name_confidence") or 0) < .9 or
-                    type(slot.get("observed_cost")) is not int or
-                    not 1 <= slot["observed_cost"] <= 5):
+            if (slot.get("status") not in ("offer_text_readable", "partially_readable") or
+                    not readable_name(slot)):
                 continue
             matches = self.names.get(_key(name), set())
             if len(matches) == 1:
@@ -160,6 +158,8 @@ class ReplayDecisionEngine:
             return output
         candidates = [slot for slot in shop.get("slots") or []
                       if slot.get("catalog_status") == "unique_name_bound" and
+                      type(slot.get("observed_cost")) is int and
+                      1 <= slot["observed_cost"] <= 5 and
                       float(slot.get("cost_confidence") or 0) >= .9 and
                       copies[slot["unit_id"]] >= 2 and
                       gold >= slot["observed_cost"]]

@@ -12,11 +12,21 @@ from hm.capture_source import CapturedFrame
 from hm.core import neural_regions
 from hm.replay_coach import economy_prompt, inventory_prompt, coach_prompt
 from hm.replay_decision import ReplayDecisionEngine
+from hm.shop_name_evidence import readable_name
 from hm.board_hub_live import BoardHubLive
 from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_temporal_shop_name_is_bound_only_with_explicit_evidence(self):
+        slot = dict(observed_name="Alune", name_confidence=.88,
+                    name_evidence="strip_temporal_consensus")
+        self.assertTrue(readable_name(slot))
+        self.assertFalse(readable_name({**slot, "name_evidence":"strong_strip_only"}))
+        self.assertFalse(readable_name({**slot, "name_evidence":"atlas_strip_conflict",
+                                        "name_confidence":.99}))
+        self.assertFalse(readable_name({**slot, "name_confidence":float('nan')}))
+
     def test_shop_signature_samples_only_fixed_name_geometry(self):
         pixels = bytearray(1920 * 1080 * 3)
         for x, y in ((558, 1045), (760, 1045)):
@@ -247,6 +257,17 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertEqual(decided["decision"]["evidence"][0]["code"],"GOLD_UNVERIFIED")
         decided=engine.evaluate(answer,{**owned,"age_ms":3000})
         self.assertEqual(decided["decision"]["evidence"][0]["code"],"OWNED_UNITS_STALE")
+        answer["shop"]["slots"][0].update(name_confidence=.88,
+            name_evidence="strip_temporal_consensus")
+        self.assertEqual(engine.evaluate(answer)["catalog_binding"]["bound_offers"],1)
+        answer["shop"]["slots"][0]["name_evidence"]="strong_strip_only"
+        self.assertEqual(engine.evaluate(answer)["catalog_binding"]["bound_offers"],0)
+        answer["shop"]["slots"][0].update(name_evidence="strip_temporal_consensus",
+            status="partially_readable", observed_cost=None)
+        identified=engine.evaluate(answer,owned)
+        self.assertEqual(identified["catalog_binding"]["bound_offers"],1)
+        self.assertEqual(identified["shop"]["slots"][0]["unit_id"],unit_id)
+        self.assertNotEqual(identified["decision"]["action"]["type"],"buy")
 
     def test_reader_only_is_allowed_only_when_explicit(self):
         with tempfile.TemporaryDirectory() as td:

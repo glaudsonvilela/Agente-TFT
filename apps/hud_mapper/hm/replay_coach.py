@@ -2,6 +2,7 @@
 from __future__ import annotations
 import hashlib
 import json
+from .shop_name_evidence import readable_name
 
 
 def _hud_value(answer: dict, field: str):
@@ -100,7 +101,7 @@ def coach_prompt(answer: dict) -> dict:
         if (cadence.get('fresh', True) and slot is not None
                 and slot.get('status') == 'offer_text_readable'
                 and slot.get('unit_id') and slot.get('unit_id') == action.get('unit_id')
-                and float(slot.get('name_confidence') or 0) >= .9
+                and readable_name(slot)
                 and type(slot.get('observed_cost')) is int and type(gold) is int
                 and gold >= slot['observed_cost']):
             name = slot.get('observed_name')
