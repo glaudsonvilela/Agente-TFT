@@ -550,3 +550,129 @@ def test_neural_session_isolation_between_installations(tmp_path, monkeypatch):
     neural_id = created.json()["neural_session_id"]
     assert client.get(f"/v1/neural/sessions/{neural_id}", headers=a).status_code == 200
     assert client.get(f"/v1/neural/sessions/{neural_id}", headers=b).status_code == 403
+
+
+def _write_champion_bundle(path: Path, *, version: str, generation: int, model_identity: str):
+    metadata = b'{"schema_version":2,"coordinate_format":"normalized_tlbr","panels":["bench","shop"]}'
+    model = b"fake-onnx"
+    files = [
+        {
+            "path": "models/deployment-candidate.json",
+            "sha256": hashlib.sha256(metadata).hexdigest(),
+            "bytes": len(metadata),
+            "role": "l3_metadata",
+        },
+        {
+            "path": "models/candidate-model.onnx",
+            "sha256": hashlib.sha256(model).hexdigest(),
+            "bytes": len(model),
+            "role": "l3_onnx",
+        },
+    ]
+    package = {
+        "schema_version": 1,
+        "package_type": "agente_tft_neural_runtime_bundle",
+        "version": version,
+        "generation": generation,
+        "runtime_min_version": "0.7.0",
+        "model_identity_sha256": model_identity,
+        "files": files,
+    }
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("model-package.json", json.dumps(package))
+        archive.writestr("models/deployment-candidate.json", metadata)
+        archive.writestr("models/candidate-model.onnx", model)
+
+
+def test_champion_registry_publish_and_client_download(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    database = tmp_path / "trainer.sqlite3"
+    staging = tmp_path / "champion-staging"
+    staging.mkdir()
+    bundle = staging / "candidate.zip"
+    identity = "d" * 64
+    _write_champion_bundle(bundle, version="2026.10.06.1", generation=1, model_identity=identity)
+
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=database),
+        api_token="admin-secret",
+        clock_ms=lambda: 20_000,
+    ))
+    publish = client.post(
+        "/v1/neural/champion/publish",
+        headers={"Authorization": "Bearer admin-secret"},
+        json={
+            "channel": "stable",
+            "version": "2026.10.06.1",
+            "generation": 1,
+            "staged_filename": "candidate.zip",
+            "runtime_min_version": "0.7.0",
+            "model_identity_sha256": identity,
+            "training_provenance": {"fixture": True},
+        },
+    )
+    assert publish.status_code == 200
+    manifest = publish.json()
+    assert manifest["approved"] is True
+    assert manifest["generation"] == 1
+    assert manifest["model_identity_sha256"] == identity
+
+    neural_headers = _neural_client(client, "install-champion")
+    fetched = client.get("/v1/neural/champion?channel=stable", headers=neural_headers)
+    assert fetched.status_code == 200
+    assert fetched.json()["package_sha256"] == manifest["package_sha256"]
+
+    package = client.get(
+        "/v1/neural/champion/package/stable/1",
+        headers=neural_headers,
+    )
+    assert package.status_code == 200
+    assert hashlib.sha256(package.content).hexdigest() == manifest["package_sha256"]
+    assert package.headers["x-tft-package-sha256"] == manifest["package_sha256"]
+
+    forbidden = client.post(
+        "/v1/neural/champion/publish",
+        headers=neural_headers,
+        json={
+            "channel": "stable",
+            "version": "bad",
+            "generation": 2,
+            "staged_filename": "missing.zip",
+            "runtime_min_version": "0.7.0",
+            "model_identity_sha256": "e" * 64,
+        },
+    )
+    assert forbidden.status_code == 401
+
+
+def test_champion_registry_rejects_nonincreasing_generation(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    database = tmp_path / "trainer.sqlite3"
+    staging = tmp_path / "champion-staging"
+    staging.mkdir()
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=database),
+        api_token="admin-secret",
+        clock_ms=lambda: 20_000,
+    ))
+    for filename in ("one.zip", "same.zip"):
+        _write_champion_bundle(staging / filename, version="v1", generation=1, model_identity="f" * 64)
+    payload = {
+        "channel": "stable",
+        "version": "v1",
+        "generation": 1,
+        "staged_filename": "one.zip",
+        "runtime_min_version": "0.7.0",
+        "model_identity_sha256": "f" * 64,
+    }
+    assert client.post(
+        "/v1/neural/champion/publish",
+        headers={"Authorization": "Bearer admin-secret"},
+        json=payload,
+    ).status_code == 200
+    payload["staged_filename"] = "same.zip"
+    assert client.post(
+        "/v1/neural/champion/publish",
+        headers={"Authorization": "Bearer admin-secret"},
+        json=payload,
+    ).status_code == 409
