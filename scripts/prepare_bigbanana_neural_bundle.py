@@ -47,6 +47,16 @@ def main():
         sys.executable,str(ROOT/"scripts/prepare_hm45_learning_bundle.py"),
         "--selection",str(args.selection),"--output",str(learner),
     ],cwd=ROOT,check=True)
+    gates=learner/"model/runtime-gates.json"
+    subprocess.run([
+        sys.executable,
+        str(ROOT/"trainer/scripts/calibrate_unit_head_runtime_gates.py"),
+        "--report",str(learner/"model/report.json"),
+        "--output",str(gates),
+    ],cwd=ROOT,check=True)
+    gate_doc=json.loads(gates.read_text(encoding="utf-8"))
+    if gate_doc.get("runtime_gate_eligible") is not True:
+        die("frozen baseline has no zero-error runtime gate")
 
     seed=out/"runtime-seed"
     copy(args.l3_assets/"deployment-candidate.json",seed/"models/deployment-candidate.json")
@@ -67,6 +77,11 @@ def main():
         "contains_client_secret":False,
         "learner":"learner",
         "runtime_seed":"runtime-seed",
+        "initial_unit_head_gates":{
+            "min_probability":gate_doc["min_probability"],
+            "min_margin":gate_doc["min_margin"],
+            "legacy_probability_only":gate_doc.get("legacy_probability_only",False),
+        },
         "initial_champion_generation":1,
         "training_location":"BigBANANA",
     }
