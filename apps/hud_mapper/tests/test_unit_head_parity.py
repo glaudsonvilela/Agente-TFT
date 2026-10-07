@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import numpy as np
+from PIL import Image
 
-from hm.unit_head import _resize_bilinear_u8
+from hm.unit_head import _resize_bilinear_u8, _upper_88x80_v1
 
 
 def rust_like_resize_u8(rgb: np.ndarray, out_h: int, out_w: int) -> np.ndarray:
@@ -49,3 +50,48 @@ def test_vectorized_u8_resize_matches_rust_quantization():
     actual = _resize_bilinear_u8(source, 11, 13)
     assert actual.dtype == np.uint8
     assert np.array_equal(actual, expected)
+
+
+
+def rust_reference_tensor(raw: np.ndarray, side: int) -> np.ndarray:
+    transformed = rust_like_resize_u8(raw[24:104, 20:108], 144, 128)
+    out = np.zeros((3, side, side), dtype=np.float32)
+    f32 = np.float32
+    for y in range(side):
+        for x in range(side):
+            sx = f32((f32(x) + f32(0.5)) * f32(128) / f32(side) - f32(0.5))
+            sy = f32((f32(y) + f32(0.5)) * f32(144) / f32(side) - f32(0.5))
+            sx = f32(min(max(float(sx), 0.0), 127.0))
+            sy = f32(min(max(float(sy), 0.0), 143.0))
+            x0, y0 = int(np.floor(sx)), int(np.floor(sy))
+            x1, y1 = min(x0 + 1, 127), min(y0 + 1, 143)
+            fx, fy = f32(sx - f32(x0)), f32(sy - f32(y0))
+            for channel in range(3):
+                a = f32(
+                    f32(transformed[y0, x0, channel]) * f32(f32(1.0) - fx)
+                    + f32(transformed[y0, x1, channel]) * fx
+                )
+                b = f32(
+                    f32(transformed[y1, x0, channel]) * f32(f32(1.0) - fx)
+                    + f32(transformed[y1, x1, channel]) * fx
+                )
+                value = f32(a * f32(f32(1.0) - fy) + b * fy)
+                out[channel, y, x] = f32(value / f32(255.0))
+    return out
+
+
+def test_upper_88x80_runtime_matches_rust_training_tensor():
+    y, x = np.mgrid[0:144, 0:128]
+    raw = np.stack([
+        (x * 3 + y * 5) % 256,
+        (x * 7 + y * 11) % 256,
+        (x * 13 + y * 17) % 256,
+    ], axis=-1).astype(np.uint8)
+    image = Image.fromarray(raw, "RGB")
+    side = 96
+
+    actual = _upper_88x80_v1(image, (0, 0, 128, 144), side)
+    expected = rust_reference_tensor(raw, side)
+
+    assert actual.shape == (3, side, side)
+    assert np.max(np.abs(actual - expected)) < 1e-6
