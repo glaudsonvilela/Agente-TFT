@@ -29,12 +29,19 @@ class BoardHubLive:
         release = root / knowledge['reference']
         release_manifest = json.loads((release / 'release.json').read_text(encoding='utf-8'))
         items_bytes = (release / 'items.json').read_bytes()
+        units_bytes = (release / 'units.json').read_bytes()
+        traits_bytes = (release / 'traits.json').read_bytes()
         if (knowledge['set_key'] != self.manifest['set_key'] or
                 release_manifest['set']['key'] != knowledge['set_key'] or
                 release_manifest['tft_patch'] != knowledge['tft_patch'] or
-                hashlib.sha256(items_bytes).hexdigest() != release_manifest['components']['items']['sha256']):
+                hashlib.sha256(items_bytes).hexdigest() != release_manifest['components']['items']['sha256'] or
+                hashlib.sha256(units_bytes).hexdigest() != release_manifest['components']['units']['sha256'] or
+                hashlib.sha256(traits_bytes).hexdigest() != release_manifest['components']['traits']['sha256']):
             raise ValueError('Visual items and structured release differ')
         self.item_attribute_ids = {item['api_name'] for item in json.loads(items_bytes)['items']}
+        self.trait_names = {trait['name'] for trait in json.loads(traits_bytes)['traits']}
+        self.champion_traits = {unit['api_name']: set(unit['traits'])
+                                for unit in json.loads(units_bytes)['champions']}
         self.knowledge_release = release_manifest['release_sha256']
         self.knowledge_patch = knowledge['tft_patch']
         selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
@@ -114,6 +121,10 @@ class BoardHubLive:
                 snapshot['neural_units'] = dict(active=False, error=self.unit_neural_error, records=[])
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
         snapshot['trait_panel_observation'] = read.get('trait_panel')
+        from .trait_constraints import bind_observed_traits, roster_hypotheses
+        snapshot['trait_binding'] = bind_observed_traits(read.get('trait_panel'), self.trait_names)
+        snapshot['trait_roster_hypotheses'] = roster_hypotheses(
+            snapshot['trait_binding'], read.get('markers') or [], self.champion_traits)
         for marker in snapshot['observed_markers']:
             marker['identity_observation'] = unit_records.get(marker['marker_id'])
         snapshot['visual_readiness'] = dict(
