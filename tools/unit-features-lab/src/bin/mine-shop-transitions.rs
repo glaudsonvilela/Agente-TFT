@@ -34,9 +34,9 @@ fn slot_words(tsv: &str) -> Vec<Vec<(String, f32)>> {
 fn disappearances(
     before: &[Option<Vec<String>>],
     after: &[Option<Vec<String>>],
-    gap: u64,
+    gap_ms: u64,
 ) -> Vec<usize> {
-    if before.len() != 5 || after.len() != 5 || !(1..=2).contains(&gap) {
+    if before.len() != 5 || after.len() != 5 || !(1..=2000).contains(&gap_ms) {
         return vec![];
     }
     let stable = before
@@ -118,11 +118,15 @@ fn run() -> Result<()> {
     let mut transitions = Vec::new();
     let mut previous: Option<(
         u64,
+        u64,
         Vec<Option<Vec<String>>>,
         Vec<Option<f32>>,
         Vec<Option<Vec<String>>>,
         Vec<f32>,
         Value,
+        [u8; 5],
+        [f32; 5],
+        [u64; 5],
     )> = None;
     for line in fs::read_to_string(root.join("observations.jsonl"))?.lines() {
         let frame: Value = serde_json::from_str(line)?;
@@ -135,6 +139,12 @@ fn run() -> Result<()> {
         let time = frame["source_seconds_nominal"]
             .as_u64()
             .ok_or("timestamp")?;
+        let time_ms = frame["source_milliseconds_nominal"]
+            .as_u64()
+            .unwrap_or(time.checked_mul(1000).ok_or("timestamp overflow")?);
+        if time_ms / 1000 != time {
+            return Err("inconsistent millisecond timestamp".into());
+        }
         let rgb = image::open(root.join(file))?.to_rgb8();
         if (rgb.width(), rgb.height()) != (1920, 1080)
             || frame["frame_pixel_sha256"] != format!("{:x}", Sha256::digest(rgb.as_raw()))
@@ -156,7 +166,7 @@ fn run() -> Result<()> {
             }
         }
         let strip = image::imageops::resize(&mask, 2004, 78, image::imageops::FilterType::Triangle);
-        let path = output.join(format!("shop-strips/{time}.png"));
+        let path = output.join(format!("shop-strips/{time_ms}.png"));
         strip.save(&path)?;
         // Identical prepared pixels imply identical OCR input. Reuse text only;
         // timestamps, neighboring cards and bench proposals remain frame-local.
@@ -218,26 +228,73 @@ fn run() -> Result<()> {
             })
             .collect();
         let cards:Vec<_>=matched.iter().zip(&words).enumerate().map(|(slot,(m,w))|json!({"slot":slot,"unit_candidates":m.as_ref().map(|x|&x.0),"ocr_name_confidence":m.as_ref().map(|x|x.1),"ocr_words":w})).collect();
-        if let Some((old_time, old_ids, old_confidences, old_anchors, old_portraits, old_frame)) = &previous {
-            let gap = time
-                .checked_sub(*old_time)
+        let mut name_streaks = [1u8; 5];
+        let mut name_min_confidence = [0f32; 5];
+        let mut name_first_seen_ms = [time_ms; 5];
+        for slot in 0..5 {
+            name_min_confidence[slot] = confidences[slot].unwrap_or(0.);
+        }
+        if let Some((
+            old_time_ms,
+            old_time,
+            old_ids,
+            old_confidences,
+            old_anchors,
+            old_portraits,
+            old_frame,
+            old_streaks,
+            old_min_confidence,
+            old_first_seen_ms,
+        )) = &previous
+        {
+            let gap_ms = time_ms
+                .checked_sub(*old_time_ms)
                 .ok_or("nonmonotonic source times")?;
-            for slot in disappearances(old_anchors, &anchors, gap) {
+            if gap_ms == 0 {
+                return Err("duplicate source timestamp".into());
+            }
+            for slot in 0..5 {
+                if gap_ms <= 2000
+                    && identities[slot].is_some()
+                    && identities[slot] == old_ids[slot]
+                    && old_frame["frame_pixel_sha256"] != frame["frame_pixel_sha256"]
+                {
+                    name_streaks[slot] = old_streaks[slot].saturating_add(1);
+                    name_min_confidence[slot] =
+                        old_min_confidence[slot].min(name_min_confidence[slot]);
+                    name_first_seen_ms[slot] = old_first_seen_ms[slot];
+                }
+            }
+            for slot in disappearances(old_anchors, &anchors, gap_ms) {
                 if old_ids[slot].is_none()
                     || !portrait_disappeared(old_portraits[slot], portrait_brightness[slot])
                 {
                     continue;
                 }
                 transitions.push(json!({"source_id":report["source_id"],"partition":report["partition"],"before_seconds":old_time,"after_seconds":time,
+                    "before_milliseconds":old_time_ms,"after_milliseconds":time_ms,
                     "before_frame":old_frame["review_frame"],"after_frame":file,"before_pixel_sha256":old_frame["frame_pixel_sha256"],"after_pixel_sha256":frame["frame_pixel_sha256"],
                     "shop_slot":slot,"portrait_brightness_before":old_portraits[slot],"portrait_brightness_after":portrait_brightness[slot],
                     "shop_unit_candidates":old_ids[slot],"shop_ocr_name_confidence":old_confidences[slot],
+                    "shop_name_distinct_frame_confirmations":old_streaks[slot],"shop_name_min_ocr_confidence":old_min_confidence[slot],
+                    "shop_name_confirmation_span_ms":old_time_ms-old_first_seen_ms[slot],
                     "new_bench_proposals":new_bench_proposals(old_frame,&frame),
                     "purchase_confirmed":false,"crop_identity_confirmed":false,"review_required":true,"training_label":null}));
             }
         }
-        frames.push(json!({"source_seconds":time,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"portrait_brightness":portrait_brightness,"cards":cards}));
-        previous = Some((time, identities, confidences, anchors, portrait_brightness, frame));
+        frames.push(json!({"source_seconds":time,"source_milliseconds":time_ms,"review_frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],"portrait_brightness":portrait_brightness,"cards":cards}));
+        previous = Some((
+            time_ms,
+            time,
+            identities,
+            confidences,
+            anchors,
+            portrait_brightness,
+            frame,
+            name_streaks,
+            name_min_confidence,
+            name_first_seen_ms,
+        ));
         if frames.len() % 100 == 0 {
             let progress = json!({"status":"running", "frames":frames.len(), "ocr_calls":ocr_calls,
                 "transition_proposals":transitions.len(), "elapsed_seconds":started.elapsed().as_secs_f64()});
@@ -304,12 +361,12 @@ mod tests {
             .collect::<Vec<_>>();
         let mut after = before.clone();
         after[2] = None;
-        assert_eq!(disappearances(&before, &after, 1), vec![2]);
-        assert!(disappearances(&before, &after, 20).is_empty());
+        assert_eq!(disappearances(&before, &after, 250), vec![2]);
+        assert!(disappearances(&before, &after, 3000).is_empty());
         after[0] = Some(vec!["rerolled".into()]);
         after[1] = None;
-        assert!(disappearances(&before, &after, 1).is_empty());
-        assert!(disappearances(&before, &before, 1).is_empty());
+        assert!(disappearances(&before, &after, 250).is_empty());
+        assert!(disappearances(&before, &before, 250).is_empty());
     }
     #[test]
     fn moving_existing_bench_bars_are_not_new_units() {

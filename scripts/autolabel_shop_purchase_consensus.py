@@ -65,9 +65,29 @@ def dist(a: tuple[float, float], b: tuple[float, float]) -> float:
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
 
+def shop_name_verified(row: dict[str, Any], single_frame_threshold: float) -> bool:
+    """Accept either one strong read or a stable exact name across real frames."""
+    conf = row.get("shop_ocr_name_confidence")
+    if not isinstance(conf, (int, float)) or not math.isfinite(float(conf)):
+        return False
+    if float(conf) >= single_frame_threshold:
+        return True
+    repeated = row.get("shop_name_distinct_frame_confirmations")
+    minimum = row.get("shop_name_min_ocr_confidence")
+    span_ms = row.get("shop_name_confirmation_span_ms")
+    return (
+        isinstance(repeated, int) and not isinstance(repeated, bool) and repeated >= 3
+        and isinstance(minimum, (int, float)) and math.isfinite(float(minimum))
+        and float(minimum) >= 85.0
+        and isinstance(span_ms, int) and not isinstance(span_ms, bool)
+        and 250 <= span_ms <= 4000
+        and float(conf) >= 85.0
+    )
+
+
 def persistence_evidence(
     observations: list[dict[str, Any]],
-    after_seconds: int,
+    after_milliseconds: int,
     box: Any,
     max_seconds: int,
     max_distance: float,
@@ -79,12 +99,15 @@ def persistence_evidence(
     matches = []
     inspected = 0
     for frame in observations:
-        t = frame.get("source_seconds_nominal")
-        if not isinstance(t, int):
+        second = frame.get("source_seconds_nominal")
+        if not isinstance(second, int):
             continue
-        if t <= after_seconds:
+        t = frame.get("source_milliseconds_nominal", second * 1000)
+        if not isinstance(t, int) or t // 1000 != second:
             continue
-        if t > after_seconds + max_seconds:
+        if t <= after_milliseconds:
+            continue
+        if t > after_milliseconds + max_seconds * 1000:
             break
         inspected += 1
         best = None
@@ -100,7 +123,8 @@ def persistence_evidence(
         if best is not None and best[0] <= max_distance:
             matches.append(
                 {
-                    "source_seconds_nominal": t,
+                    "source_seconds_nominal": second,
+                    "source_milliseconds_nominal": t,
                     "distance_px": best[0],
                     "crop": best[1].get("crop"),
                     "pixel_sha256": best[1].get("pixel_sha256"),
@@ -177,9 +201,12 @@ def main() -> int:
         if not isinstance(conf, (int, float)) or not math.isfinite(float(conf)):
             excluded["missing_ocr_confidence"] += 1
             continue
-        if float(conf) < args.min_ocr_confidence:
-            excluded["ocr_confidence_below_threshold"] += 1
+        if not shop_name_verified(row, args.min_ocr_confidence):
+            excluded["ocr_confidence_below_threshold_or_unstable_name"] += 1
             continue
+        repeated = row.get("shop_name_distinct_frame_confirmations")
+        minimum = row.get("shop_name_min_ocr_confidence")
+        span_ms = row.get("shop_name_confirmation_span_ms")
 
         before = row.get("portrait_brightness_before")
         after = row.get("portrait_brightness_after")
@@ -196,7 +223,12 @@ def main() -> int:
 
         old_t = row.get("before_seconds")
         new_t = row.get("after_seconds")
-        if not isinstance(old_t, int) or not isinstance(new_t, int) or not (1 <= new_t - old_t <= 2):
+        old_ms = row.get("before_milliseconds", old_t * 1000 if isinstance(old_t, int) else None)
+        new_ms = row.get("after_milliseconds", new_t * 1000 if isinstance(new_t, int) else None)
+        if (not isinstance(old_t, int) or not isinstance(new_t, int)
+                or not isinstance(old_ms, int) or not isinstance(new_ms, int)
+                or old_ms // 1000 != old_t or new_ms // 1000 != new_t
+                or not 1 <= new_ms - old_ms <= 2000):
             excluded["transition_gap_not_dense"] += 1
             continue
 
@@ -219,7 +251,7 @@ def main() -> int:
 
         persistence = persistence_evidence(
             observations,
-            after_seconds=new_t,
+            after_milliseconds=new_ms,
             box=box,
             max_seconds=args.max_persistence_seconds,
             max_distance=args.max_persistence_distance_px,
@@ -234,6 +266,7 @@ def main() -> int:
                 "partition": partition,
                 "unit_id": unit_id,
                 "source_seconds_nominal": new_t,
+                "source_milliseconds_nominal": new_ms,
                 "crop": crop,
                 "crop_path": str(crop_path),
                 "pixel_sha256": pixel,
@@ -242,9 +275,12 @@ def main() -> int:
                 "evidence": {
                     "unique_shop_catalog_id": True,
                     "shop_ocr_name_confidence": float(conf),
+                    "shop_name_distinct_frame_confirmations": repeated,
+                    "shop_name_min_ocr_confidence": minimum,
+                    "shop_name_confirmation_span_ms": span_ms,
                     "portrait_brightness_before": float(before),
                     "portrait_brightness_after": float(after),
-                    "transition_gap_seconds": new_t - old_t,
+                    "transition_gap_milliseconds": new_ms - old_ms,
                     "unique_new_bench_proposal": True,
                     "temporal_persistence": persistence,
                 },
@@ -284,6 +320,8 @@ def main() -> int:
         "excluded": dict(sorted(excluded.items())),
         "thresholds": {
             "min_ocr_confidence": args.min_ocr_confidence,
+            "repeated_name_min_ocr_confidence": 85.0,
+            "repeated_name_min_distinct_frames": 3,
             "max_persistence_seconds": args.max_persistence_seconds,
             "max_persistence_distance_px": args.max_persistence_distance_px,
             "portrait_before_min": 0.10,
