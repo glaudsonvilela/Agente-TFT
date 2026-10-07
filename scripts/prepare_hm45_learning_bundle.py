@@ -120,6 +120,16 @@ def main() -> int:
     copy_file(annotations, portable_annotations)
     portable_model = output / "model" / "dino-head.json"
     copy_file(model, portable_model)
+    source_report = required(model.parent / "report.json", "selected model report")
+    report_doc = load_json(source_report)
+    try:
+        report_model_sha = report_doc["variants"]["dino"]["artifact_sha256"]
+    except (KeyError, TypeError):
+        die("selected model report lacks dino artifact hash")
+    if report_model_sha != model_sha:
+        die("selected model/report artifact mismatch")
+    portable_report = output / "model" / "report.json"
+    copy_file(source_report, portable_report)
     portable_encoder = output / "encoder" / "dino.onnx"
     copy_file(encoder, portable_encoder)
     shutil.copytree(reference, output / "reference")
@@ -157,6 +167,7 @@ def main() -> int:
         "champion": "optimizer-default-parity",
         "selection_status": selection["status"],
         "model_sha256": model_sha,
+        "model_report_sha256": sha256(portable_report),
         "encoder_sha256": encoder_sha,
         "annotations_sha256": sha256(portable_annotations),
         "reference_json_sha256": sha256(output / "reference" / "reference.json"),
