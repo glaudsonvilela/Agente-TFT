@@ -168,3 +168,83 @@ class ShadowSessionRecord(StrictModel):
     last_divergence: dict[str, Any] | None = None
     last_step: dict[str, Any] | None = None
     error: str | None = None
+
+
+class NeuralSessionStatus(str, Enum):
+    ACTIVE = "active"
+    SEALED = "sealed"
+    PROCESSING = "processing"
+    COMPLETE = "complete"
+    FAILED = "failed"
+
+
+class NeuralSessionRequest(StrictModel):
+    client_id: str = Field(min_length=1, max_length=128)
+    match_id: str = Field(min_length=1, max_length=128)
+    created_at_ms: int = Field(ge=0)
+    patch: str | None = Field(default=None, max_length=32)
+    set_key: str | None = Field(default=None, max_length=64)
+    capture_policy: str = Field(min_length=1, max_length=128)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class NeuralSessionRecord(StrictModel):
+    neural_session_id: str
+    client_id: str
+    match_id: str
+    created_at_ms: int
+    updated_at_ms: int
+    status: NeuralSessionStatus
+    frames_received: int = Field(ge=0)
+    bytes_received: int = Field(ge=0)
+    last_source_ms: int | None = Field(default=None, ge=0)
+    champion_model_sha256: str | None = None
+    shadow_candidate_sha256: str | None = None
+    error: str | None = None
+
+
+class NeuralFrameMetadata(StrictModel):
+    protocol_version: Literal[PROTOCOL_VERSION] = PROTOCOL_VERSION
+    neural_session_id: str = Field(min_length=1)
+    frame_id: int = Field(ge=0)
+    source_ms: int = Field(ge=0)
+    width: int = Field(ge=1, le=3840)
+    height: int = Field(ge=1, le=2160)
+    image_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    image_bytes: int = Field(ge=1, le=8 * 1024 * 1024)
+    content_type: Literal["image/jpeg", "image/png"]
+    capture_role: Literal["live_inference", "post_match_learning_evidence"]
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class NeuralInferenceResult(StrictModel):
+    protocol_version: Literal[PROTOCOL_VERSION] = PROTOCOL_VERSION
+    neural_session_id: str
+    frame_id: int = Field(ge=0)
+    source_ms: int = Field(ge=0)
+    status: Literal["accepted", "queued", "abstain", "error"]
+    champion_model_sha256: str | None = None
+    game_state: dict[str, Any] | None = None
+    observations: tuple[dict[str, Any], ...] = ()
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    inference_ms: float | None = Field(default=None, ge=0.0)
+    error: str | None = None
+
+
+class NeuralSealRequest(StrictModel):
+    sealed_at_ms: int = Field(ge=0)
+    match_end_reason: str = Field(min_length=1, max_length=128)
+    capture_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    frame_count: int = Field(ge=1, le=10000)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class NeuralLearningStatus(StrictModel):
+    neural_session_id: str
+    status: NeuralSessionStatus
+    champion_model_sha256: str | None = None
+    challenger_model_sha256: str | None = None
+    challenger_selected: bool = False
+    shadow_candidate_created: bool = False
+    metrics: dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None
