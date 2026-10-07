@@ -12,8 +12,9 @@ def _position(row):
 
 
 class ItemMovementTracker:
-    def __init__(self):
+    def __init__(self, recipes: dict[str, tuple[str, str]] | None = None):
         self.previous = None
+        self.recipes = recipes or {}
 
     def update(self, snapshot: dict, visual: dict, epoch: int | None = None) -> dict:
         now = snapshot.get('timestamp_ms')
@@ -25,6 +26,8 @@ class ItemMovementTracker:
             return dict(status='insufficient_frame_evidence', events=[])
         inventory = Counter(row['candidates'][0]['art_sha256'] for row in visual['inventory']
                             if row.get('candidates') and row['status'] == 'candidate_only')
+        inventory_ids = Counter(row['candidate_id'] for row in visual['inventory']
+                                if row.get('candidate_id') and row['status'] == 'candidate_only')
         equipped = {}
         for row in visual['equipped']:
             position = _position(row)
@@ -33,6 +36,7 @@ class ItemMovementTracker:
         positions = {_position(row) for row in snapshot['observed_markers']}
         positions.discard(None)
         current = dict(epoch=epoch, timestamp_ms=now, inventory=inventory,
+                       inventory_ids=inventory_ids,
                        equipped=equipped, positions=positions)
         before = self.previous
         self.previous = current
@@ -40,16 +44,31 @@ class ItemMovementTracker:
                 or not before['positions'] or before['positions'] != positions):
             return dict(status='observing', events=[])
         removed = before['inventory'] - inventory
-        added = [row for key, row in equipped.items()
+        removed_ids = before['inventory_ids'] - inventory_ids
+        added = [(key, row) for key, row in equipped.items()
                  if key not in before['equipped'] or
                  before['equipped'][key]['candidates'][0]['art_sha256'] != row['candidates'][0]['art_sha256']]
         events = []
         for art, count in removed.items():
-            matches = [row for row in added if row['candidates'][0]['art_sha256'] == art]
+            matches = [row for _, row in added if row['candidates'][0]['art_sha256'] == art]
             if count == 1 and len(matches) == 1:
                 row = matches[0]
                 events.append(dict(kind='equip_hypothesis', art_sha256=art,
                     item_candidate_id=row['candidate_id'], position_candidate=row['position_candidate'],
                     equipped_slot=row['slot'], source_interval_ms=now - before['timestamp_ms'],
+                    identity_verified=False, unit_verified=False, training_label=False))
+        for key, row in added:
+            composition = self.recipes.get(row.get('candidate_id'))
+            if not composition:
+                continue
+            needed = Counter(composition)
+            prior = before['equipped'].get(key)
+            if prior and prior.get('candidate_id') in needed:
+                needed.subtract([prior['candidate_id']])
+            if all(removed_ids[item_id] >= count for item_id, count in needed.items() if count > 0):
+                events.append(dict(kind='combine_hypothesis',
+                    item_candidate_id=row['candidate_id'], components=list(composition),
+                    position_candidate=row['position_candidate'], equipped_slot=row['slot'],
+                    source_interval_ms=now - before['timestamp_ms'],
                     identity_verified=False, unit_verified=False, training_label=False))
         return dict(status='candidate_events' if events else 'observing', events=events)

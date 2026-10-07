@@ -91,6 +91,31 @@ class ItemNativeTests(unittest.TestCase):
         self.assertFalse(frame(200, [], [(0, 'art-a')], epoch=3)['events'])
         self.assertFalse(frame(300, [], [(0, 'art-a')], epoch=3, panel='unavailable')['events'])
 
+    def test_components_can_form_only_a_recipe_bound_candidate_event(self):
+        tracker = ItemMovementTracker({'combined': ('sword', 'vest')})
+        position = dict(zone='board', row=1, cell_or_slot=3, status='candidate_only')
+
+        def frame(ms, inventory, equipped):
+            snapshot = dict(timestamp_ms=ms, position_status='candidate_only',
+                            inventory={'inventory': {'panel_status': 'located'}},
+                            observed_markers=[dict(position_candidate=position)])
+            def row(item_id, art):
+                return dict(status='candidate_only', candidate_id=item_id,
+                            candidates=[dict(art_sha256=art)])
+            visual = dict(active=True,
+                inventory=[dict(slot=n, **row(item_id, art))
+                           for n, (item_id, art) in enumerate(inventory)],
+                equipped=[dict(marker_id=1, slot=n, position_candidate=position,
+                               **row(item_id, art))
+                          for n, (item_id, art) in enumerate(equipped)])
+            return tracker.update(snapshot, visual, 1)
+
+        self.assertEqual(frame(1000, [('sword', 'a'), ('vest', 'b')], [])['events'], [])
+        events = frame(2000, [], [('combined', 'c')])['events']
+        self.assertEqual([row['kind'] for row in events], ['combine_hypothesis'])
+        self.assertEqual(events[0]['components'], ['sword', 'vest'])
+        self.assertFalse(events[0]['training_label'])
+
 
 if __name__ == '__main__':
     unittest.main()

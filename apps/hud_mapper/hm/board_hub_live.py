@@ -38,7 +38,8 @@ class BoardHubLive:
                 hashlib.sha256(units_bytes).hexdigest() != release_manifest['components']['units']['sha256'] or
                 hashlib.sha256(traits_bytes).hexdigest() != release_manifest['components']['traits']['sha256']):
             raise ValueError('Visual items and structured release differ')
-        self.item_attribute_ids = {item['api_name'] for item in json.loads(items_bytes)['items']}
+        item_attributes = json.loads(items_bytes)['items']
+        self.item_attribute_ids = {item['api_name'] for item in item_attributes}
         trait_rows = json.loads(traits_bytes)['traits']
         self.trait_names = {trait['name']: trait['name'] for trait in trait_rows}
         trait_ids = {trait['api_name']: trait['name'] for trait in trait_rows}
@@ -78,7 +79,11 @@ class BoardHubLive:
         self.equipped_templates = load_templates(selected, self.icons,
                                                  size=self.equipped['icon_size'])
         from .item_movement import ItemMovementTracker
-        self.item_movement = ItemMovementTracker()
+        visible_ids = {entry['id'] for entry in selected}
+        recipes = {item['api_name']: tuple(item['composition']) for item in item_attributes
+                   if item['api_name'] in visible_ids and len(item['composition']) == 2
+                   and set(item['composition']) <= visible_ids}
+        self.item_movement = ItemMovementTracker(recipes)
         self.item_visual = None
         self.item_visual_error = None
         try:

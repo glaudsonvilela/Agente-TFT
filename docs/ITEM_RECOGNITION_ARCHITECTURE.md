@@ -71,8 +71,9 @@ galeria uma vez e envia ao Rust recortes das coordenadas originais da captura,
 sem usar os pixels da prévia de 720p. O HUB registra três candidatos, margem,
 concordância com o comparador RMS anterior e latência. `hm.item_movement`
 registra hipóteses de transferência inventário → posição de tabuleiro em
-quadros consecutivos. Nenhuma hipótese vira rótulo de treino ou comando de
-equipar automaticamente.
+quadros consecutivos. Quando duas peças desaparecem e surge um item cuja
+receita consta do catálogo ativo, registra também uma hipótese de combinação.
+Nenhuma hipótese vira rótulo de treino ou comando de equipar automaticamente.
 
 Esta etapa ainda usa o comparador RMS anterior para localizar precisamente o
 ícone dentro de cada espaço. OCR de tooltip, calibração de confiança e medidas
