@@ -5,6 +5,10 @@ on:
       - 'rust/crates/capture-core/**'
       - 'rust/crates/image-preprocess/**'
       - 'tools/unit-features-lab/**'
+      - 'trainer/tests/test_autonomous_corpus.py'
+      - 'trainer/scripts/ingest_autonomous_corpus.py'
+      - 'scripts/run_post_session_shadow_learning.py'
+      - 'scripts/train_weighted_autonomous_challenger.py'
       - '.github/workflows/unit-features.yml'
   workflow_dispatch:
 permissions:
