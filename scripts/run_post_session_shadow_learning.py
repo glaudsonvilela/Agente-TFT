@@ -111,6 +111,8 @@ def verify_capture(session: Path) -> tuple[dict[str, Any], dict[str, Any], Path]
     for index, row in enumerate(frames):
         if not isinstance(row, dict) or row.get("index") != index:
             die("shadow-learning frame sequence is not contiguous")
+        if (row.get("width"), row.get("height")) != (1920, 1080):
+            die("shadow-learning frame is not canonical 1920x1080")
         image = session / "shadow-learning" / str(row.get("image", ""))
         if not image.is_file():
             die(f"learning frame missing: {image}")
