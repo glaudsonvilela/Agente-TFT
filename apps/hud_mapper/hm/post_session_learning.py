@@ -77,7 +77,7 @@ def _upload_worker(session: Path, job_path: Path) -> None:
                     "source_kind": (summary.get("source") or {}).get("source_kind"),
                     "stopped_by_match_end": bool(summary.get("stopped_by_match_end")),
                     "match_end_reason": summary.get("match_end_reason"),
-                    "client_neural_weights_bundled": False,
+                    "client_neural_weights_bundled": True,
                     "client_training_performed": False,
                 },
             )
@@ -196,7 +196,7 @@ def launch_post_session_learning(session_dir: str | Path) -> dict:
         "next_frame_index": int(existing.get("next_frame_index") or 0),
         "training_location": "server",
         "server_service": "tft.bigbanana.io",
-        "local_neural_weights_bundled": False,
+        "local_neural_weights_bundled": True,
         "local_training_performed": False,
         "active_model_changed": False,
         "human_review_required": False,
@@ -221,3 +221,45 @@ def launch_post_session_learning(session_dir: str | Path) -> dict:
         name="tft-server-neural-upload",
     ).start()
     return value
+
+
+def resume_pending_post_session_uploads(
+    sessions_root: str | Path,
+    *,
+    limit: int = 8,
+) -> list[dict]:
+    """Resume recent sealed uploads after app restart without player action."""
+    root = Path(sessions_root)
+    if not root.is_dir():
+        return []
+    sessions = sorted(
+        (p for p in root.iterdir() if p.is_dir()),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )[: max(1, min(limit, 32))]
+    results = []
+    for session in sessions:
+        job_path = session / "shadow-learning" / "post-session-job.json"
+        if job_path.is_file():
+            try:
+                state = _read(job_path)
+            except Exception:
+                state = {}
+            if state.get("status") in {"not_eligible"}:
+                continue
+            if state.get("status") == "server_learning_started":
+                # Evidence is already safely on BigBANANA; model updater polling
+                # handles a champion that may be published later.
+                results.append(state)
+                continue
+            state["worker_active"] = False
+            _write(job_path, state)
+        try:
+            results.append(launch_post_session_learning(session))
+        except Exception as exc:
+            results.append({
+                "status": "resume_failed",
+                "session": str(session),
+                "error": f"{type(exc).__name__}:{str(exc)[:200]}",
+            })
+    return results
