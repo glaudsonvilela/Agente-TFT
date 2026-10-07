@@ -11,6 +11,18 @@ def main():
     args=p.parse_args()
     root=args.data_root/"neural-jobs"; inbox=root/"inbox"; working=root/"working"; outbox=root/"outbox"; failed=root/"failed"
     for d in (inbox,working,outbox,failed):d.mkdir(parents=True,exist_ok=True)
+    # A container/process may die after inbox -> working. Recover those jobs
+    # before polling new work. Finished/failed jobs are not requeued.
+    for stale in sorted(working.glob("*.json")):
+        sid=stale.stem
+        if (outbox/f"{sid}.json").exists() or (failed/f"{sid}.json").exists():
+            stale.unlink(missing_ok=True)
+            continue
+        target=inbox/stale.name
+        if not target.exists():
+            os.replace(stale,target)
+        else:
+            stale.unlink(missing_ok=True)
     runner=Path("/workspace/trainer/scripts/process_neural_job.py")
     while True:
         jobs=sorted(inbox.glob("*.json"),key=lambda x:x.stat().st_mtime)
