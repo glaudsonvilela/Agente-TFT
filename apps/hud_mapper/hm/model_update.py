@@ -310,6 +310,24 @@ def active_model_metadata(root: Path | None = None) -> Path | None:
     return rollback_active_model(root=root, reason="active_model_health_check_failed")
 
 
+def active_bundle_for_model(model_path: str | Path, root: Path | None = None) -> Path | None:
+    """Return an approved bundle only for the model frozen into this session."""
+    if not model_path:
+        return None
+    root = root or _local_root()
+    active_metadata = active_model_metadata(root)
+    if active_metadata is None or active_metadata.resolve() != Path(model_path).resolve():
+        return None
+    try:
+        pointer = _json(root / "active.json")
+        bundle = Path(pointer["bundle_root"]).resolve()
+        if bundle.is_dir() and bundle.is_relative_to(root.resolve()):
+            return bundle
+    except (OSError, KeyError, TypeError, ValueError):
+        pass
+    return None
+
+
 class ModelUpdater:
     def __init__(
         self,

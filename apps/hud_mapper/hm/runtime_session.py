@@ -496,13 +496,24 @@ class HM4RuntimeSession(RuntimeSession):
         board_worker = None
         try:
             from .replay_coach import inventory_prompt
-            if self.core:
+            from .model_update import active_bundle_for_model
+            neural_bundle = active_bundle_for_model(self.options.model)
+            overlays = (neural_bundle / 'configs/catalog' if neural_bundle else None)
+            has_active_overlay = bool(overlays and any(
+                (overlays / name).is_file() for name in
+                ('active-unit-head-v1.json', 'active-unit-gallery-v1.json',
+                 'active-unit-identity-v1.json', 'active-item-neural-v1.json')))
+            use_remote_board = bool(self.core and not has_active_overlay)
+            self.versions['board_hub_execution'] = ('wsl_core' if use_remote_board
+                                                    else 'windows_local_approved_overlay' if has_active_overlay
+                                                    else 'windows_local')
+            if use_remote_board:
                 from hm45_vm_client import RemoteBoardHub
                 observer = RemoteBoardHub(self.core)
             else:
                 from .board_hub_live import BoardHubLive
                 from .board_worker import BoardWorker
-                observer = BoardHubLive(self.options.configs)
+                observer = BoardHubLive(self.options.configs, neural_root=neural_bundle)
                 board_worker = BoardWorker(self.options.worker, self.options.configs,
                                            log=Path(self.options.output) / 'board-stderr.log')
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
@@ -516,7 +527,7 @@ class HM4RuntimeSession(RuntimeSession):
                     reference = reference.convert('RGB')
                     reference_frame = SimpleNamespace(id=0, pts_ms=0, width=reference.width,
                         height=reference.height, rgb=reference.tobytes())
-                if self.core:
+                if use_remote_board:
                     observer.observe(reference_frame, calibrate=True)
                 else:
                     board_worker.observe(reference_frame, calibrate=True)
@@ -544,7 +555,7 @@ class HM4RuntimeSession(RuntimeSession):
                 if calibrate:
                     self.board_reference_requested.clear()
                 try:
-                    if self.core:
+                    if use_remote_board:
                         observed = observer.observe(reader_frame, calibrate=calibrate)
                     else:
                         board_read = board_worker.observe(reader_frame, calibrate)

@@ -243,6 +243,24 @@ def test_model_update_rolls_back_to_previous_on_active_health_failure(tmp_path, 
     assert restored["status"] == "active_rollback"
 
 
+def test_board_overlay_is_bound_to_session_model(tmp_path, monkeypatch):
+    import hm.model_update as update
+
+    root = tmp_path / "models"
+    bundle = root / "versions" / "000000000003-v3"
+    metadata = bundle / "models" / "deployment-candidate.json"
+    metadata.parent.mkdir(parents=True)
+    metadata.write_text("{}")
+    (root / "active.json").write_text(json.dumps({
+        "model_identity_sha256": "3" * 64,
+        "bundle_root": str(bundle),
+        "l3_metadata": str(metadata),
+    }))
+    monkeypatch.setattr(update, "_probe_l3", lambda path: "3" * 64)
+    assert update.active_bundle_for_model(metadata, root) == bundle.resolve()
+    assert update.active_bundle_for_model(tmp_path / "other-model.json", root) is None
+
+
 def test_model_update_refuses_low_local_disk_before_download(tmp_path, monkeypatch):
     import hm.model_update as update
 

@@ -93,7 +93,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       const boardStatus = readiness ?
         `${readiness.observed_unit_regions || 0} regiões observadas · ${readiness.candidate_units || 0} candidatos · ${readiness.verified_units || 0} unidades confirmadas` :
         'Aguardando a primeira leitura do tabuleiro.';
-      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Posições e campeões ainda não confirmados nesta sessão.<br><small>${escapeHtml(boardStatus)}</small></div></div>`;
+      const modelStatus = state?.unit_model_active ? 'Reconhecedor de campeões ativo' : 'Reconhecedor de campeões aguardando modelo';
+      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Posições e campeões ainda não confirmados nesta sessão.<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)}</small></div></div>`;
       const inventory = document.querySelector('.board-detail .inventory');
       if (inventory) inventory.innerHTML = '<span>Inventário · aguardando identificação confiável</span>';
     }

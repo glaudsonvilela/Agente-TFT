@@ -157,6 +157,9 @@ class StudioController:
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
                     "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
                     "visual_readiness": session.versions.get("visual_readiness"),
+                    "board_execution": session.versions.get("board_hub_execution"),
+                    "unit_model_active": bool(session.versions.get("unit_neural_active")),
+                    "item_model_active": bool(session.versions.get("item_neural_active")),
                     "data_patch": getattr(session.decision_engine, "patch", None),
                     "tip": safe_tip, "error": session.error or self.last_error,
                     "counts": {k: session.counts[k] for k in
