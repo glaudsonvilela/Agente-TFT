@@ -359,9 +359,9 @@ class App:
                 self._shown_tip_key=None
                 self.voice.last_tip_attempt=None
                 self.voice.set_context(None)
-                self.coach_header.configure(text="AGENTE  /  "+("REVISÃO ATIVA" if self.replay_review.get() else "REVISÃO DESATIVADA"))
+                self.coach_header.configure(text="AGENTE  /  "+("REVISÃO ATIVA" if self.replay_review.get() else "PARTIDA AO VIVO"))
                 self.tip_label.configure(text=("Aguardando leituras confiáveis do replay." if self.replay_review.get()
-                                               else "Ative Analisar replay para receber orientações."))
+                                               else "Aguardando percepção neural e leituras confiáveis da partida."))
             message=target_label(self.selection)+"\n\nAutoriza registrar imagens desta fonte para mapear a HUD?\n"
             if self.hm4 and self.replay_review.get():
                 message += "Confirme que a fonte exibirá um vídeo de partida já encerrada. As dicas de revisão usam apenas leituras observadas."
@@ -377,14 +377,14 @@ class App:
             uri=f'capture://{self.selection["kind"]}/{self.selection["id"]}'
             p=runtime_paths()
             cls=HM4RuntimeSession if self.hm4 else RuntimeSession
-            selected_model=self.model.get() if (not self.hm4 or self.replay_review.get()) else ""
+            selected_model=self.model.get()
             self.session=cls(Options(**p,video=uri,model=selected_model,output=output,
                 seconds=float(self.seconds.get()),map_hz=float(self.map_hz.get()),reader_hz=float(self.reader_hz.get()),
                 sample_hz=0.2 if self.vm_core else float(self.sample_hz.get()),
                 scenario=self.scenario.get(),controls=self.controls.get() or None,
                 board_reference=self.ref.get() or None,dataset_only=self.hm4 and not bool(selected_model),
                 replay_review=self.hm4 and self.replay_review.get(),
-                board_hub_enabled=self.hm4 and self.replay_review.get(),
+                board_hub_enabled=self.hm4,
                 vm_core=self.vm_core,native_preview=self.hm4,preview_hz=30,
                 preview_width=1280,preview_height=720,
                 max_samples=90 if self.vm_core else 600,
