@@ -29,6 +29,10 @@ def test_mixed_teacher_gold_requires_strict_direct_evidence():
         "human_review_required": False,
         "model_prediction_used_as_label": False,
         "recommended_training_weight": 0.5,
+        "teachers": {
+            "frozen_classifier": {"agrees_with_gold": False},
+            "supervised_retrieval": {"agrees_with_gold": True},
+        },
         "evidence": {
             "exact_catalog_name_ocr": True,
             "ocr_name_confidence": 96.0,
@@ -44,6 +48,10 @@ def test_mixed_teacher_gold_requires_strict_direct_evidence():
     with pytest.raises(SystemExit):
         module.assert_gold([row])
     row["evidence"]["temporal_confirmations"] = 2
+    row["teachers"]["supervised_retrieval"]["agrees_with_gold"] = False
+    with pytest.raises(SystemExit):
+        module.assert_gold([row])
+    row["teachers"]["supervised_retrieval"]["agrees_with_gold"] = True
     row["partition"] = "evaluation_unlabeled"
     with pytest.raises(SystemExit):
         module.assert_gold([row])

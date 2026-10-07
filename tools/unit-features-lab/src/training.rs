@@ -131,6 +131,13 @@ fn load_autonomous_rows(
                         && evidence["temporal_confirmations"]
                             .as_u64()
                             .is_some_and(|x| x >= 2)
+                        && row["teachers"]["frozen_classifier"]["agrees_with_gold"]
+                            .as_bool()
+                            .zip(
+                                row["teachers"]["supervised_retrieval"]["agrees_with_gold"]
+                                    .as_bool(),
+                            )
+                            .is_some_and(|(classifier, retrieval)| classifier != retrieval)
                         && row["recommended_training_weight"] == 0.5;
                     if !strict_direct {
                         return Err(format!("weak direct gold evidence at row {i}").into());

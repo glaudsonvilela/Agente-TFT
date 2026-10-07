@@ -126,6 +126,9 @@ def assert_gold(rows: Any) -> None:
             evidence = row.get("evidence") or {}
             association = evidence.get("selected_unit_association") or {}
             ring = association.get("selected_ring") or {}
+            teachers = row.get("teachers") or {}
+            classifier_agrees = (teachers.get("frozen_classifier") or {}).get("agrees_with_gold")
+            retrieval_agrees = (teachers.get("supervised_retrieval") or {}).get("agrees_with_gold")
             if (
                 row["label_source"] != "autonomous_tooltip_temporal_consensus_v1"
                 or evidence.get("exact_catalog_name_ocr") is not True
@@ -135,6 +138,9 @@ def assert_gold(rows: Any) -> None:
                 or ring.get("shape_pass") is not True
                 or not isinstance(evidence.get("temporal_confirmations"), int)
                 or evidence["temporal_confirmations"] < 2
+                or not isinstance(classifier_agrees, bool)
+                or not isinstance(retrieval_agrees, bool)
+                or classifier_agrees == retrieval_agrees
                 or row.get("recommended_training_weight") != 0.5
             ):
                 die("mixed-teacher direct gold requires strict game evidence and weight cap")

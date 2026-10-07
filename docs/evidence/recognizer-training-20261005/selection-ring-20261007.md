@@ -167,3 +167,15 @@ matched all 48. The collector now records its input media in the report and
 the dense-window planner rejects HLS/TS input or a sparse/dense media
 mismatch. Old HLS window times remain diagnostic; new dense discovery must
 start from a fresh sparse collection of the indexed media.
+
+The indexed training VOD sparse pass completed 1,374 review frames. An
+overlapping indexed evaluation window also confirmed that the old HLS
+Camille window had different frames at the same nominal millisecond. Its
+game UI labels are still visually anchored within that HLS window, but the
+timestamp cannot locate the event in the indexed source. All wider video
+discovery is being repeated from indexed media.
+
+A color-only head was trained on the same base split and five Camille
+corrections as a representation check. It reached 0.220 validation named
+macro recall (the DINO head reached 0.689) and also missed all eight
+evaluation Camille crops. Pure color histograms are not sufficient here.

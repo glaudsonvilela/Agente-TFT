@@ -1,8 +1,11 @@
 //! Measure a frozen visual head on game-derived tooltip labels from held-out sources.
 //! No label is allowed back into training and no model weights are changed.
-use agente_tft_image_preprocess::unit_features::UnitCrop;
+use agente_tft_image_preprocess::unit_features::{normalize, UnitCrop};
 use agente_tft_unit_features_lab::{
-    crop_transform::CropTransform, embedding_batch_size, embeddings, training::Head, Result,
+    crop_transform::CropTransform,
+    embedding_batch_size, embeddings,
+    training::{colors, Head},
+    Result,
 };
 use ort::session::Session;
 use serde_json::{json, Value};
@@ -79,6 +82,10 @@ fn run() -> Result<()> {
     let model_bytes = sealed(&spec, "model")?;
     let model: Value = serde_json::from_slice(&model_bytes)?;
     let head: Head = serde_json::from_value(model["head"].clone())?;
+    let feature_mode = str_field(&model, "feature_mode")?;
+    if !["dino", "colors", "dino_colors"].contains(&feature_mode) {
+        return Err("unknown held-out feature mode".into());
+    }
     let transform: CropTransform = model
         .get("crop_transform")
         .map(|v| serde_json::from_value(v.clone()))
@@ -146,9 +153,27 @@ fn run() -> Result<()> {
         .with_inter_op_spinning(false)?
         .commit_from_file(str_field(&spec, "encoder")?)?;
     let started = Instant::now();
-    let mut features = Vec::new();
+    let mut neural = Vec::new();
     for group in crops.chunks(batch) {
-        features.extend(embeddings(&mut session, group, side, false, false)?);
+        neural.extend(embeddings(&mut session, group, side, false, false)?);
+    }
+    let mut features = Vec::with_capacity(crops.len());
+    for ((crop, _), embedding) in crops.iter().zip(neural) {
+        let color = colors(crop);
+        let feature = match feature_mode {
+            "dino" => embedding,
+            "colors" => color,
+            "dino_colors" => {
+                let mut joined = embedding;
+                joined.extend(color);
+                if !normalize(&mut joined) {
+                    return Err("invalid combined feature".into());
+                }
+                joined
+            }
+            _ => unreachable!(),
+        };
+        features.push(feature);
     }
     let mut by_label = BTreeMap::<String, (u64, u64, u64)>::new();
     let mut rows = Vec::new();
@@ -175,7 +200,7 @@ fn run() -> Result<()> {
     let summary = json!({"schema_version":1,"evaluation_partition":"evaluation_unlabeled",
         "source_ids":source_names,"anchors":labels.len(),"covered_anchors":rows.iter().filter(|r|r["covered"]==true).count(),
         "top1_correct":rows.iter().filter(|r|r["correct"]==true).count(),"by_label":by_label,"rows":rows,
-        "model_sha256":hash(&model_bytes),"encoder_sha256":hash(&encoder_bytes),
+        "model_sha256":hash(&model_bytes),"encoder_sha256":hash(&encoder_bytes),"feature_mode":feature_mode,
         "training_performed":false,"runtime_approved":false,"inference_seconds":started.elapsed().as_secs_f64(),
         "limitations":["Tooltip selection samples are sparse and correlated; these counts are not live-game accuracy.",
         "This source may have influenced prior model selection even though it was excluded from the training split."]});
