@@ -83,6 +83,8 @@ def main():
             "legacy_probability_only":gate_doc.get("legacy_probability_only",False),
         },
         "initial_champion_generation":1,
+        "initial_unit_head":"optimizer-default-parity",
+        "initial_unit_head_in_stable_g1":True,
         "training_location":"BigBANANA",
     }
     (out/"bundle.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8")
