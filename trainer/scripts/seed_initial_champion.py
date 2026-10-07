@@ -49,6 +49,10 @@ def main():
     version="g000001-bootstrap"
     output=registry.staging/f"{version}.zip"
     publish=registry.staging/f"{version}.publish.json"
+    # If the server died after staging but before registry.publish(), no stable
+    # generation exists yet. Those known bootstrap files are safe to rebuild.
+    output.unlink(missing_ok=True)
+    publish.unlink(missing_ok=True)
     cmd=[
         sys.executable,str(args.repo/"trainer/scripts/build_champion_bundle.py"),
         "--version",version,"--generation","1",
