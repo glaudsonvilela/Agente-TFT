@@ -41,15 +41,25 @@ def _resize_bilinear(rgb, out_h: int, out_w: int):
     return top * (1.0 - yf) + bottom * yf
 
 
+def _resize_bilinear_u8(rgb, out_h: int, out_w: int):
+    import numpy as np
+
+    # Rust UnitCrop::from_frame writes every resized pixel back to u8 using
+    # round(), before any later tensor resize. Preserve that quantization
+    # boundary so the same DINO/head produces the same runtime evidence.
+    resized = _resize_bilinear(rgb, out_h, out_w)
+    return np.clip(np.rint(resized), 0, 255).astype(np.uint8)
+
+
 def _upper_88x80_v1(image, box, side: int):
     import numpy as np
 
     # unit_box is exactly the reviewed/training 128x144 crop contract.
-    raw = np.asarray(image.crop(box).convert("RGB"), dtype=np.float32)
+    raw = np.asarray(image.crop(box).convert("RGB"), dtype=np.uint8)
     if raw.shape != (144, 128, 3):
-        raw = _resize_bilinear(raw, 144, 128)
+        raw = _resize_bilinear_u8(raw, 144, 128)
     upper = raw[24:104, 20:108]
-    transformed = _resize_bilinear(upper, 144, 128)
+    transformed = _resize_bilinear_u8(upper, 144, 128)
     tensor = _resize_bilinear(transformed, side, side) / 255.0
     return tensor.transpose(2, 0, 1).astype(np.float32)
 
