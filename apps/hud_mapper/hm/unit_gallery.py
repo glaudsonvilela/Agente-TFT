@@ -88,18 +88,19 @@ def gallery_tensor(image, boxes, size):
 
 
 class UnitGalleryObserver:
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, neural_root: Path | None = None):
         import numpy as np
         import onnxruntime as ort
 
-        plan = json.loads(
-            (root / "configs/catalog/active-unit-gallery-v1.json").read_text(
-                encoding="utf-8"
-            )
-        )
+        neural_root = Path(neural_root) if neural_root is not None else root
+        plan_path = neural_root / "configs/catalog/active-unit-gallery-v1.json"
+        if not plan_path.is_file():
+            plan_path = root / "configs/catalog/active-unit-gallery-v1.json"
+            neural_root = root
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
         if plan.get("mode") != "diagnostic_candidates":
             raise ValueError("Gallery is not approved for semantic state")
-        folder = root / "models/unit-gallery"
+        folder = neural_root / "models/unit-gallery"
         budgets = {
             "encoder.onnx": 96 * 1024**2,
             "gallery.npy": 8 * 1024**2,
