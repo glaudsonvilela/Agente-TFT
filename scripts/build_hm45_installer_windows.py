@@ -31,12 +31,12 @@ assets = json.loads((ROOT / "build/hm4-live-assets/ASSET_REPORT.json").read_text
 if (manifest.get("schema_version") != 1 or
         manifest.get("distro_name") != "AgenteTFT-Core-v2" or
         manifest.get("rootfs_file") != "AgenteTFT-Core-v2.tar" or
-        manifest.get("analysis_health_contract") != "ocr_hp_b4_local_helper_v2" or
+        manifest.get("analysis_health_contract") != "l3_ocr_b4_roi_v1" or
         manifest.get("linux_container_self_test") is not True or
-        manifest.get("neural_location") != "server_only" or
-        manifest.get("local_neural_weights_bundled") is not False or
+        manifest.get("neural_location") != "local_inference_server_training" or
+        manifest.get("local_neural_weights_bundled") is not True or
         manifest.get("post_session_trainer_bundled") is not False or
-        manifest.get("model_sha256") is not None or
+        manifest.get("model_sha256") != assets.get("model_sha256") or
         manifest.get("board_reference_sha256") != assets.get("reference_sha256")):
     raise SystemExit("Refusing unverified HM4.5 core manifest")
 rootfs = core / manifest["rootfs_file"]
@@ -52,6 +52,8 @@ required_members = {
     "opt/agente-tft/bin/health-check",
     "opt/agente-tft/bin/agente-tft-e1-worker",
     "opt/agente-tft/bin/agente-tft-hm-hp",
+    "opt/agente-tft/models/deployment-candidate.json",
+    "opt/agente-tft/models/candidate-model.onnx",
 }
 missing_members = sorted(required_members - members)
 if missing_members:
@@ -81,9 +83,10 @@ report = {
     "rootfs_sha256": manifest["sha256"],
     "rootfs_bytes": rootfs.stat().st_size,
     "guest_contract": manifest["analysis_health_contract"],
-    "neural_location": "server_only",
-    "local_neural_weights_bundled": False,
+    "neural_location": "local_inference_server_training",
+    "local_neural_weights_bundled": True,
     "post_session_trainer_bundled": False,
+    "central_learning_server": "BigBANANA",
     "offline_voice_options": [],
     "voice_backend": "elevenlabs_api",
     "release_ready": False,
