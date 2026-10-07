@@ -53,14 +53,28 @@ def main() -> int:
         score=row.get("softmax_score_uncalibrated")
         margin=row.get("softmax_margin_uncalibrated")
         if (not isinstance(label,str) or not isinstance(pred,str)
-                or type(score) not in (int,float) or type(margin) not in (int,float)
-                or not math.isfinite(float(score)) or not math.isfinite(float(margin))
-                or not 0<=float(score)<=1 or not 0<=float(margin)<=1):
+                or type(score) not in (int,float)
+                or not math.isfinite(float(score))
+                or not 0<=float(score)<=1):
             die(f"validation row {i} lacks calibrated-gate inputs")
-        normalized.append((label,pred,float(score),float(margin)))
+        if margin is not None and (
+            type(margin) not in (int,float)
+            or not math.isfinite(float(margin))
+            or not 0<=float(margin)<=1
+        ):
+            die(f"validation row {i} has invalid margin")
+        normalized.append((label,pred,float(score),None if margin is None else float(margin)))
 
+    margin_presence={row[3] is not None for row in normalized}
+    if len(margin_presence)>1:
+        die("validation report mixes legacy and margin-aware predictions")
+    margin_available=True in margin_presence
+    normalized=[
+        (label,pred,score,margin if margin is not None else 0.0)
+        for label,pred,score,margin in normalized
+    ]
     probs=sorted({0.0,*[x[2] for x in normalized]})
-    margins=sorted({0.0,*[x[3] for x in normalized]})
+    margins=sorted({0.0,*[x[3] for x in normalized]}) if margin_available else [0.0]
     best=None
     explored=0
     feasible=0
@@ -91,6 +105,8 @@ def main() -> int:
         "source":"training_report.dino.validation.predictions",
         "min_probability":prob,
         "min_margin":margin,
+        "margin_available":margin_available,
+        "legacy_probability_only":not margin_available,
         "validation_rows":len(normalized),
         "validation_named":named,
         "accepted_total":accepted,
