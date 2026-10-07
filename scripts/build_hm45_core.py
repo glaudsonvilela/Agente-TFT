@@ -14,11 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "build/hm45-core"
 CONTEXT = BUILD / "context"
 APP = CONTEXT / "app"
-VERSION = "0.6.4"
+VERSION = "0.7.0"
 # Archive family only. Setup and runtime append the rootfs SHA-256 to the
 # registered distro name so updates never reuse an older guest or catalog.
 DISTRO = "AgenteTFT-Core-v2"
-IMAGE = "agente-tft-hm45-core:0.6.4"
+IMAGE = "agente-tft-hm45-core:0.7.0"
 
 
 def copy(source: Path, destination: Path) -> None:
@@ -58,7 +58,7 @@ def main() -> None:
     copy(ROOT / "training", APP / "training")
     copy(ROOT / "ingestion", APP / "ingestion")
     copy(ROOT / "configs", APP / "configs")
-    # Shared resource arithmetic only; no neural trainer or tensor dependency.
+    # Shared simulation arithmetic; the post-session recognizer learner is packaged separately below.
     for name in ("__init__.py", "economy.py", "round_economy.py", "state.py"):
         copy(ROOT / "trainer/simulation" / name, APP / "trainer/simulation" / name)
     copy(assets / "models", APP / "models")
