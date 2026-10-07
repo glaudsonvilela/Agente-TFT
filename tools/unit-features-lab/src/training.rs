@@ -729,7 +729,8 @@ pub fn run_cli() -> Result<()> {
             "encoder_sha256":spec["encoder_sha256"],"annotations_sha256":hash(&fs::read(str_field(&spec,"annotations")?)?),
             "input_size":side,"crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
             "runtime_approved":false,"probabilities_calibrated":false,"augmentation":spec["augmentation"],"optimizer":optimizer,
-            "autonomous_training":spec.get("autonomous_training")});
+            "autonomous_training":spec.get("autonomous_training"),
+            "autonomous_training_sources":spec.get("autonomous_training_sources")});
         let bytes = serde_json::to_vec(&model)?;
         fs::write(out.join(format!("{name}-head.json")), &bytes)?;
         let report = json!({"selected_epoch":epoch,"checkpoints":history,"evaluation":evaluation,
@@ -750,6 +751,7 @@ pub fn run_cli() -> Result<()> {
         "source_samples":source_samples,"reviewed_source_samples":reviewed_samples,
         "autonomous_source_samples":autonomous_source_samples,
         "autonomous_training":spec.get("autonomous_training"),
+        "autonomous_training_sources":spec.get("autonomous_training_sources"),
         "crop_transform":crop_transform,"embedding_batch_size":embedding_batch_size,
         "synthetic_training_views":augmented,"embedding_cache_hit_batches":cache_hits,
         "encoder_sha256":spec["encoder_sha256"],"runtime_approved":false,
