@@ -58,6 +58,7 @@ class ChampionRegistry:
                     p = Path(name)
                     if (
                         p.is_absolute()
+                        or "\\" in name
                         or ".." in p.parts
                         or name.endswith("/")
                         or name in names
@@ -93,6 +94,8 @@ class ChampionRegistry:
         files = doc.get("files")
         if not isinstance(files, list) or not files:
             raise ChampionRegistryError("model-package files missing")
+        declared_paths = set()
+        declared_roles = set()
         with zipfile.ZipFile(package) as archive:
             for row in files:
                 if not isinstance(row, dict):
@@ -100,19 +103,30 @@ class ChampionRegistry:
                 name = row.get("path")
                 digest = row.get("sha256")
                 size = row.get("bytes")
+                role = row.get("role")
                 if (
                     not isinstance(name, str)
                     or name not in names
                     or name == "model-package.json"
+                    or name in declared_paths
                     or not isinstance(digest, str)
                     or len(digest) != 64
                     or not isinstance(size, int)
                     or size < 1
+                    or not isinstance(role, str)
+                    or not role
+                    or role in declared_roles
                 ):
                     raise ChampionRegistryError("invalid model file contract")
+                declared_paths.add(name)
+                declared_roles.add(role)
                 payload = archive.read(name)
                 if len(payload) != size or hashlib.sha256(payload).hexdigest() != digest:
                     raise ChampionRegistryError(f"model file checksum mismatch: {name}")
+        if not {"l3_metadata", "l3_onnx"} <= declared_roles:
+            raise ChampionRegistryError("champion bundle missing mandatory L3 roles")
+        if names != declared_paths | {"model-package.json"}:
+            raise ChampionRegistryError("undeclared files in champion package")
 
     def publish(self, request: ChampionPublishRequest, published_at_ms: int) -> ChampionManifest:
         staged = (self.staging / request.staged_filename).resolve()
