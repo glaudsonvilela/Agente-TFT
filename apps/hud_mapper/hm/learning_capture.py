@@ -64,10 +64,12 @@ class ShadowLearningRecorder:
         self.skipped_interval = 0
         self.skipped_budget = 0
         self.skipped_geometry = 0
+        self.skipped_duplicate = 0
         self.normalized_frames = 0
         self.error: str | None = None
         self.closed = False
         self._next_source_ms: float | None = None
+        self._last_saved_source: tuple | None = None
         self._lock = threading.Lock()
 
         self.frames.mkdir(parents=True, exist_ok=False)
@@ -118,8 +120,12 @@ class ShadowLearningRecorder:
                     self.skipped_budget += 1
                     continue
                 started = time.perf_counter_ns()
-                image = Image.frombytes("RGB", (item.width, item.height), item.rgb)
                 source_rgb_sha = hashlib.sha256(item.rgb).hexdigest()
+                source_identity = (item.geometry_segment, item.width, item.height, source_rgb_sha)
+                if source_identity == self._last_saved_source:
+                    self.skipped_duplicate += 1
+                    continue
+                image = Image.frombytes("RGB", (item.width, item.height), item.rgb)
                 ratio = item.width / item.height
                 aspect_error = abs(ratio - (16 / 9)) / (16 / 9)
                 normalized = False
@@ -170,6 +176,7 @@ class ShadowLearningRecorder:
                     self.rows.append(row)
                     self.saved += 1
                     self.bytes += size
+                    self._last_saved_source = source_identity
         except Exception as exc:
             self.error = str(exc)
 
@@ -202,6 +209,7 @@ class ShadowLearningRecorder:
                 "skipped_interval": self.skipped_interval,
                 "skipped_budget": self.skipped_budget,
                 "skipped_geometry": self.skipped_geometry,
+                "skipped_duplicate": self.skipped_duplicate,
                 "normalized_frames": self.normalized_frames,
             },
             "encoded_bytes": self.bytes,

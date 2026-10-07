@@ -58,6 +58,23 @@ def test_shadow_learning_recorder_is_bounded_and_sealed(tmp_path):
     ]
 
 
+def test_paused_replay_does_not_upload_duplicate_training_frames(tmp_path):
+    session = tmp_path / "replay"
+    session.mkdir()
+    recorder = ShadowLearningRecorder(session, interval_ms=5000,
+        max_frames=60, max_bytes=128 * 1024**2, jpeg_quality=88)
+    assert recorder.submit(frame(1, 0))
+    paused = frame(2, 5000)
+    paused.rgb = frame(1, 0).rgb
+    assert recorder.submit(paused)
+    assert recorder.submit(frame(3, 10000))
+    sealed = recorder.close("replay", {"input_kind": "recorded_replay_on_screen"}, None)
+    assert sealed["frames"] == 2
+    manifest = json.loads((session / "shadow-learning" / "capture-manifest.json").read_text())
+    assert manifest["counts"]["skipped_duplicate"] == 1
+    assert manifest["source"]["input_kind"] == "recorded_replay_on_screen"
+
+
 def test_post_session_launcher_fails_closed_without_complete_session(tmp_path):
     session = tmp_path / "session"
     (session / "shadow-learning").mkdir(parents=True)

@@ -76,6 +76,7 @@ def _upload_worker(session: Path, job_path: Path) -> None:
                 capture_policy=str(manifest.get("policy") or "hm45_shadow_learning"),
                 metadata={
                     "source_kind": (summary.get("source") or {}).get("source_kind"),
+                    "input_kind": (manifest.get("source") or {}).get("input_kind"),
                     "stopped_by_match_end": bool(summary.get("stopped_by_match_end")),
                     "match_end_reason": summary.get("match_end_reason"),
                     "client_neural_weights_bundled": True,

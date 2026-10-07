@@ -169,7 +169,7 @@ class App:
         if self.hm4:
             auto=discover_model();self.model.set(auto);self.dest.set(default_hm4_output_root())
             ttk.Label(line,text=("Visão neural: diagnóstico ativo" if auto else "Leitores nativos ativos")).pack(side="left")
-            ttk.Checkbutton(line,text="Modo replay encerrado (não aprende)",variable=self.replay_review).pack(side="left",padx=8)
+            ttk.Checkbutton(line,text="Revisar replay na tela",variable=self.replay_review).pack(side="left",padx=8)
             voice_line=ttk.Frame(outer);voice_line.pack(fill="x",pady=2)
             ttk.Checkbutton(voice_line,text="Narrar orientações",variable=self.voice_enabled,
                             command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
@@ -374,11 +374,13 @@ class App:
                                                else "Aguardando percepção neural e leituras confiáveis da partida."))
             message=target_label(self.selection)+"\n\nAutoriza registrar imagens desta fonte para mapear a HUD?\n"
             if self.hm4 and self.replay_review.get():
-                message += "Confirme que a fonte exibirá um vídeo de partida já encerrada. As dicas de revisão usam apenas leituras observadas."
+                message += ("Confirme que a fonte exibirá uma partida encerrada. "
+                            "Amostras a cada cinco segundos poderão ser enviadas ao servidor para aprendizado após a revisão; "
+                            "suas avaliações ajustam as sugestões durante a revisão.")
             else:
                 message += ("Partida ao vivo: serão salvos frames de aprendizado em baixa frequência; "
                             "as avaliações das dicas ajustam a prioridade durante a partida. "
-                            "O treino neural com imagens começa após o encerramento. "
+                            "As amostras poderão ser enviadas ao servidor para treino neural após o encerramento. "
                             "Nenhum input automation é executado.")
             if not messagebox.askyesno("Confirmar captura",message):return
             if self.hm4:
@@ -730,7 +732,7 @@ class App:
                                                 fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
                     self.tip_label.configure(text=tip['text'])
                     self.coach_meta.configure(text=f'Frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms · evidência: {", ".join(tip.get("basis") or []) or "insuficiente"}')
-                    if tip.get('policy') == 'partial_state_live_v1' and not s.options.replay_review:
+                    if tip.get('policy') == 'partial_state_live_v1':
                         self.good_button.state(["!disabled"]);self.bad_button.state(["!disabled"])
                     else:
                         self.good_button.state(["disabled"]);self.bad_button.state(["disabled"])
@@ -808,7 +810,6 @@ class App:
             result=self.final_result;self.final_result=None;self.finalizing=False;self.last_finished=s.options.output
             learning_job=None
             if (result.get("post_session_learning_eligible")
-                    and not s.options.replay_review
                     and not self.smoke):
                 try:
                     from .post_session_learning import launch_post_session_learning

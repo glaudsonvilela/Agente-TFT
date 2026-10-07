@@ -10,11 +10,14 @@ strategic coach when such a state is available.
 
 Each experimental decision records its observed inputs, patch basis, action,
 and `training_label=false` in the normal session streams. The user can mark a
-visible suggestion **Ajudou** or **Não ajudou** during a live match. This
+visible suggestion **Ajudou** or **Não ajudou** during a live match or replay
+shown on screen. This
 updates a small local preference model immediately and saves its counts beside
 the session directory for later matches. A rating affects the priority between
 available suggestions; it does not make unreadable pixels readable. The same
-suggestion is rated only once per session. Replay review never writes ratings.
+suggestion is rated only once per session. Replay review samples frames at a
+slower five-second interval and keeps terminal-HP detection from ending a
+recorded video prematurely.
 
 This is online preference learning, not online neural-weight training. The
 existing low-rate frame capture and server upload after a completed match

@@ -455,15 +455,14 @@ class HM4RuntimeSession(RuntimeSession):
         self.shadow_learning_recorder = None
         self.shadow_learning_sealed = None
         self.shadow_learning_error = None
-        if not options.replay_review:
-            from .learning_capture import ShadowLearningRecorder
-            self.shadow_learning_recorder = ShadowLearningRecorder(
-                options.output,
-                interval_ms=2000.0,
-                max_frames=3600,
-                max_bytes=2 * 1024**3,
-                jpeg_quality=88,
-            )
+        from .learning_capture import ShadowLearningRecorder
+        self.shadow_learning_recorder = ShadowLearningRecorder(
+            options.output,
+            interval_ms=5000.0 if options.replay_review else 2000.0,
+            max_frames=3600,
+            max_bytes=2 * 1024**3,
+            jpeg_quality=88,
+        )
         profile = json.loads((Path(options.configs) / 'ui/board-hub-live-v1.json').read_text())
         self.hub_interval_ms = profile['sample_interval_ms']
         if type(self.hub_interval_ms) is not int or not 1000 <= self.hub_interval_ms < 2000:
@@ -480,8 +479,7 @@ class HM4RuntimeSession(RuntimeSession):
             preference_root = (Path(options.output).parent if Path(options.output).parent.name == 'sessions'
                                else Path(options.output))
             self.decision_engine = ReplayDecisionEngine(options.configs,
-                preference_path=(preference_root / 'coach-preferences.json'
-                                 if not options.replay_review else None))
+                preference_path=preference_root / 'coach-preferences.json')
             self.versions['replay_decision_policy'] = 'verified_third_copy_v1'
             self.versions['resource_engine'] = 'resource_budget_v1'
             self.versions['resource_engine_identity'] = self.decision_engine.resource_engine.identity
@@ -497,7 +495,7 @@ class HM4RuntimeSession(RuntimeSession):
 
     def feedback_tip(self, helpful: bool) -> bool:
         """Player feedback changes only advice priorities, never visual labels."""
-        if self.options.replay_review or type(helpful) is not bool or not self.decision_engine:
+        if type(helpful) is not bool or not self.decision_engine:
             return False
         with self.lock:
             tip = copy.deepcopy(self.latest_replay_tip)
@@ -525,7 +523,9 @@ class HM4RuntimeSession(RuntimeSession):
             try:
                 self.shadow_learning_sealed = recorder.close(
                     session_id=self.id,
-                    source=self.source_info,
+                    source={**self.source_info,
+                            'input_kind': ('recorded_replay_on_screen' if self.options.replay_review
+                                           else 'live_match_on_screen')},
                     runtime_model_sha256=self.versions.get('unit_neural_model_sha256')
                         or self.versions.get('model_sha256'),
                 )

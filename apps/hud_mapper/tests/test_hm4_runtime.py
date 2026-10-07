@@ -265,6 +265,25 @@ class HM4RuntimeTests(unittest.TestCase):
                 session.store.done.set()
                 session.store.thread.join(timeout=2)
 
+    def test_replay_on_screen_can_collect_evidence_and_explicit_feedback(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(__file__).resolve().parents[3]
+            worker=Path(td)/'worker';worker.write_bytes(b'x')
+            session=HM4RuntimeSession(Options(
+                video='capture://window/1',output=str(Path(td)/'replay'),model='',
+                worker=str(worker),configs=str(root/'configs'),dataset_only=True,
+                board_hub_enabled=True,replay_review=True))
+            try:
+                self.assertEqual(session.shadow_learning_recorder.interval_ms,5000)
+                session.latest_replay_tip={
+                    'policy':'partial_state_live_v1','decision_key':'provisional:replay-test',
+                    'family':'level','frame_id':2,'source_ms':5000}
+                self.assertTrue(session.feedback_tip(True))
+            finally:
+                session.shadow_learning_recorder.close('test',{},None)
+                session.store.done.set()
+                session.store.thread.join(timeout=2)
+
     def test_replay_coach_uses_observed_values_and_abstains(self):
         missing=economy_prompt({"hud":[{"field":"gold","status":"unknown","value":50}]})
         self.assertEqual(missing["status"],"abstain_missing_gold")
