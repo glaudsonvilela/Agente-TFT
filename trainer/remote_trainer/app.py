@@ -542,6 +542,7 @@ def create_app(
             _process_neural_session,
             app.state.store,
             app.state.neural_backend,
+            app.state.champion_registry,
             neural_session_id,
             app.state.clock_ms,
         )
@@ -821,6 +822,7 @@ def create_app(
 async def _process_neural_session(
     store: TrainerStore,
     backend: NeuralBackend,
+    champion_registry: ChampionRegistry | None,
     neural_session_id: str,
     clock_ms: Callable[[], int],
 ) -> None:
@@ -862,6 +864,29 @@ async def _process_neural_session(
 
     champion = result.get("champion_model_sha256")
     shadow = result.get("shadow_candidate_sha256")
+    publish_payload = result.get("champion_publish")
+    if publish_payload is not None:
+        if champion_registry is None:
+            await store.update_neural_status(
+                neural_session_id,
+                NeuralSessionStatus.FAILED,
+                clock_ms(),
+                error="champion_registry_unavailable",
+            )
+            return
+        try:
+            request = ChampionPublishRequest.model_validate(publish_payload)
+            published = champion_registry.publish(request, clock_ms())
+            champion = published.model_identity_sha256
+        except Exception as exc:
+            await store.update_neural_status(
+                neural_session_id,
+                NeuralSessionStatus.FAILED,
+                clock_ms(),
+                error=f"champion_publish_failed:{type(exc).__name__}",
+            )
+            return
+
     await store.update_neural_status(
         neural_session_id,
         NeuralSessionStatus.COMPLETE,
