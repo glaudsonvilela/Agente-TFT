@@ -1346,9 +1346,9 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "build_server_neural_transport_and_post_match_upload",
-    "success_condition": "Windows client can capture/seal a match and send live/post-match evidence to the server without bundling neural weights locally.",
-    "next_if_success": "Run first live match with server-side inference and automatic post-match server training in shadow.",
+    "status": "wire_and_deploy_real_server_neural_backend",
+    "success_condition": "BigBANANA loads champion neural model, /v1/neural health reports ready, HTTPS gateway accepts client session/frame flow, and a sealed Windows match completes server-side shadow learning.",
+    "next_if_success": "Enable live server inference stream and run first real Windows match with post-match autonomous training.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -2166,6 +2166,60 @@
     ],
     "active_model_changes_during_match": false,
     "human_review_required": false,
+    "runtime_approved": false
+  },
+  "server_side_neural_migration": {
+    "status": "implemented_contracts_pending_server_backend_deploy",
+    "authoritative_rule": "All neural inference and neural training live on the server. Windows/WSL contain no neural weights.",
+    "client": {
+      "neural_weights_bundled": false,
+      "dino_bundled": false,
+      "neural_trainer_bundled": false,
+      "responsibilities": [
+        "capture",
+        "local OCR/deterministic geometry",
+        "UI",
+        "sealed evidence",
+        "HTTPS transport"
+      ],
+      "post_match_upload": "resumable_https_to_bigbanana",
+      "service_url": "https://tft.bigbanana.io"
+    },
+    "local_wsl": {
+      "neural_location": "server_only",
+      "local_neural_weights_bundled": false,
+      "post_session_trainer_bundled": false,
+      "health_contract": "ocr_hp_b4_local_helper_v2",
+      "responsibilities": [
+        "OCR",
+        "HP",
+        "deterministic B4 helper"
+      ]
+    },
+    "server": {
+      "service": "trainer/remote_trainer",
+      "api_version": "0.2.0",
+      "evidence_storage": "sqlite-parent/neural-evidence",
+      "ephemeral_installation_tokens": true,
+      "endpoints": [
+        "POST /v1/neural/client-session",
+        "POST /v1/neural/sessions",
+        "POST /v1/neural/sessions/{id}/frames",
+        "POST /v1/neural/sessions/{id}/seal",
+        "GET /v1/neural/sessions/{id}/learning"
+      ],
+      "neural_backend_contract": "pluggable",
+      "current_backend_state": "NullNeuralBackend until server model worker is wired",
+      "admin_token_bundled_in_client": false
+    },
+    "security": {
+      "per_installation_session_token": true,
+      "session_owner_enforced": true,
+      "frame_sha256_verified": true,
+      "bounded_frame_bytes": true,
+      "local_admin_secret_bundled": false
+    },
+    "automatic_active_model_replacement": false,
     "runtime_approved": false
   }
 }
