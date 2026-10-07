@@ -17,7 +17,8 @@ from hm45_protocol import encode_rgb, recv_packet, send_packet
 
 
 class VMCore:
-    def __init__(self, distro: str, log: Path, command: list[str] | None = None):
+    def __init__(self, distro: str, log: Path, command: list[str] | None = None,
+                 environment: dict[str, str] | None = None):
         if command is None and os.name != "nt":
             raise RuntimeError("A VM WSL 2 requer Windows.")
         self.token = secrets.token_hex(32)
@@ -27,8 +28,16 @@ class VMCore:
         self.lock = threading.Lock()
         self.log = Path(log)
         self.log.parent.mkdir(parents=True, exist_ok=True)
-        cmd = command or ["wsl.exe", "--distribution", distro, "--exec", "python3",
-                          "/opt/agente-tft/hm45_core_server.py", "serve"]
+        if command is not None:
+            cmd = command
+        else:
+            env_args = []
+            for key, value in sorted((environment or {}).items()):
+                if not key.replace("_", "").isalnum() or not isinstance(value, str) or "\n" in value:
+                    raise ValueError("Invalid WSL environment override")
+                env_args.append(f"{key}={value}")
+            cmd = ["wsl.exe", "--distribution", distro, "--exec", "/usr/bin/env",
+                   *env_args, "python3", "/opt/agente-tft/hm45_core_server.py", "serve"]
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         self.proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE, bufsize=0, creationflags=flags)
