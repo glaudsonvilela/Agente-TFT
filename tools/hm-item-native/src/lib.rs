@@ -77,6 +77,10 @@ fn descriptor(
 
 /// Returns 0 on success. Caller validates owned buffer lengths before passing
 /// pointers. Negative values mean an invalid crop or buffer contract.
+///
+/// # Safety
+/// `pixels` must reference `pixel_len` readable bytes and `out` must reference
+/// `out_len` writable floats for the duration of the call.
 #[no_mangle]
 pub unsafe extern "C" fn tft_item_descriptor_rgb(
     pixels: *const u8,
@@ -111,6 +115,11 @@ pub unsafe extern "C" fn tft_item_descriptor_rgb(
 
 /// Gallery consists of `count` consecutive normalized feature vectors.
 /// Output positions are indices into the caller's pinned gallery manifest.
+///
+/// # Safety
+/// `query` must reference `FEATURES` floats, `gallery` must reference
+/// `count * FEATURES` floats, and both output pointers must reference
+/// `top_n` writable elements for the duration of the call.
 #[no_mangle]
 pub unsafe extern "C" fn tft_item_rank(
     query: *const f32,
@@ -138,7 +147,8 @@ pub unsafe extern "C" fn tft_item_rank(
         return -2;
     }
     let mut best = [(usize::MAX, f32::NEG_INFINITY); 3];
-    for (index, candidate) in gallery.chunks_exact(FEATURES).enumerate() {
+    for index in 0..count {
+        let candidate = &gallery[index * FEATURES..(index + 1) * FEATURES];
         let similarity: f32 = query.iter().zip(candidate).map(|(a, b)| a * b).sum();
         for place in 0..top_n {
             if similarity > best[place].1 {
