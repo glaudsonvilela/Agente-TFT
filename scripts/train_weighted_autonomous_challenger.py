@@ -308,7 +308,6 @@ def main() -> int:
         "autonomous_corpus_sha256": sha256_file(corpus_path) if corpus_path else None,
         "autonomous_corpus_sources": len(corpus_sources) if corpus_sources else 1,
         "minjo_kh_used_for_selection": False,
-        "autonomous_corpus_sources": len(corpus_sources) if corpus_sources else 1,
         "runtime_approved": False,
     }
     (output_root / "run-metadata.json").write_text(
