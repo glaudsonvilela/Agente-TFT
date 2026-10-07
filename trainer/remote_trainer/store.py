@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
+import shutil
 import sqlite3
 from collections import Counter
 from typing import Protocol
@@ -293,18 +295,41 @@ class TrainerStore:
         if root is None:
             raise ValueError("persistent neural evidence storage is required")
         async with self.lock:
+            active_statuses = {
+                NeuralSessionStatus.ACTIVE,
+                NeuralSessionStatus.SEALED,
+                NeuralSessionStatus.PROCESSING,
+            }
             unfinished = sum(
                 1
                 for row in self.neural_sessions.values()
                 if row.client_id == request.client_id
-                and row.status in {
-                    NeuralSessionStatus.ACTIVE,
-                    NeuralSessionStatus.SEALED,
-                    NeuralSessionStatus.PROCESSING,
-                }
+                and row.status in active_statuses
             )
             if unfinished >= 4:
                 raise ValueError("too many unfinished neural sessions for client")
+
+            max_global = int(os.environ.get("NEURAL_MAX_UNFINISHED_SESSIONS", "64"))
+            if not 1 <= max_global <= 4096:
+                raise ValueError("NEURAL_MAX_UNFINISHED_SESSIONS outside 1..4096")
+            global_unfinished = sum(
+                1
+                for row in self.neural_sessions.values()
+                if row.status in active_statuses
+            )
+            if global_unfinished >= max_global:
+                raise ValueError("global unfinished neural session limit reached")
+
+            min_free = int(os.environ.get(
+                "NEURAL_MIN_FREE_BYTES",
+                str(10 * 1024**3),
+            ))
+            if not 1024**3 <= min_free <= 1024**4:
+                raise ValueError("NEURAL_MIN_FREE_BYTES outside 1GiB..1TiB")
+            free = shutil.disk_usage(root).free
+            if free < min_free:
+                raise ValueError("insufficient neural evidence storage space")
+
             record = NeuralSessionRecord(
                 neural_session_id=str(uuid4()),
                 client_id=request.client_id,
