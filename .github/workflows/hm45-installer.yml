@@ -12,6 +12,14 @@ on:
       - 'scripts/build_hm45_installer_windows.py'
       - 'scripts/build_hm45_online_installer_windows.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
+      - 'trainer/scripts/**'
+      - 'trainer/remote_trainer/**'
+      - 'apps/hud_mapper/tests/test_post_session_learning.py'
+      - 'apps/hud_mapper/hm/vm_bridge.py'
+      - 'apps/hud_mapper/hm/unit_head.py'
+      - 'apps/hud_mapper/hm/post_session_learning.py'
+      - 'apps/hud_mapper/hm/neural_service.py'
+      - 'apps/hud_mapper/hm/model_update.py'
       - '.github/workflows/hm45-installer.yml'
   pull_request:
     paths:
@@ -37,6 +45,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install HM4 runtime contract dependencies
+        run: |
+          python -m pip install pytest Pillow numpy onnxruntime
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 contract dependencies failed' }
       - name: Test resumable setup and package gates
         run: |
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_setup.py' -v
@@ -45,6 +57,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Setup UI smoke failed' }
           python -m py_compile apps/hud_mapper/hm45_setup.py apps/hud_mapper/hm45_setup_core.py scripts/build_hm45_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'Setup compilation failed' }
+          $env:PYTHONPATH = "apps/hud_mapper;apps/e1_replay"
+          python -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py
+          if ($LASTEXITCODE -ne 0) { throw 'Zero-click neural update contracts failed' }
+          python -m py_compile apps/hud_mapper/hm/model_update.py apps/hud_mapper/hm/neural_service.py apps/hud_mapper/hm/post_session_learning.py apps/hud_mapper/hm/unit_head.py apps/hud_mapper/hm/vm_bridge.py
+          if ($LASTEXITCODE -ne 0) { throw 'HM4 neural client compilation failed' }
       - name: Check Inno Setup wizard syntax with nonrelease fixtures
         shell: pwsh
         run: |
