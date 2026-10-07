@@ -15,6 +15,8 @@ on:
       - 'trainer/scripts/**'
       - 'trainer/remote_trainer/**'
       - 'apps/hud_mapper/tests/test_post_session_learning.py'
+      - 'apps/hud_mapper/tests/test_unit_head_parity.py'
+      - 'apps/hud_mapper/tests/test_neural_service.py'
       - 'apps/hud_mapper/hm/vm_bridge.py'
       - 'apps/hud_mapper/hm/unit_head.py'
       - 'apps/hud_mapper/hm/post_session_learning.py'
@@ -63,8 +65,8 @@ jobs:
           python -m py_compile apps/hud_mapper/hm45_setup.py apps/hud_mapper/hm45_setup_core.py scripts/build_hm45_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'Setup compilation failed' }
           $env:PYTHONPATH = "apps/hud_mapper;apps/e1_replay"
-          python -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py
-          if ($LASTEXITCODE -ne 0) { throw 'Zero-click neural update contracts failed' }
+          python -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py apps/hud_mapper/tests/test_neural_service.py apps/hud_mapper/tests/test_unit_head_parity.py
+          if ($LASTEXITCODE -ne 0) { throw 'Zero-click neural/runtime parity contracts failed' }
           python -m py_compile apps/hud_mapper/hm/model_update.py apps/hud_mapper/hm/neural_service.py apps/hud_mapper/hm/post_session_learning.py apps/hud_mapper/hm/unit_head.py apps/hud_mapper/hm/vm_bridge.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4 neural client compilation failed' }
       - name: Check Inno Setup wizard syntax with nonrelease fixtures
