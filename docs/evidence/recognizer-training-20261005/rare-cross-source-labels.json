@@ -1,0 +1,105 @@
+{
+  "review": {
+    "named_added": 5,
+    "new_source_for_ids": [
+      "DA_Karma18"
+    ],
+    "independent_new_video_sources": 0,
+    "model_predictions_used_as_labels": false,
+    "independent_human_ground_truth": false,
+    "excluded_from_running_optimizer_study": true,
+    "additional_existing_source_examples_for_ids": [
+      "DA_18_Xayah"
+    ]
+  },
+  "existing_label_audit": {
+    "identities": [
+      "DA_Karma18",
+      "DA_18_Soraka"
+    ],
+    "reviewed": 30,
+    "changes": 0
+  },
+  "labels": [
+    {
+      "review_index": 6,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 3360,
+      "image": "unit-gallery-transfer-review-20261005/3360.png",
+      "key": "marker-4",
+      "label": "DA_Karma18",
+      "box": [
+        331,
+        678,
+        459,
+        822
+      ],
+      "crop_pixel_sha256": "098332475c05bb66d36d8fa24be7cabd8772fb9c70514f5b2b925ad2eea33a8d",
+      "basis": "Assistant full-frame plus named model render review; no independent human ground truth."
+    },
+    {
+      "review_index": 21,
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 600,
+      "image": "unit-gallery-rare-cross-source-20261005/twitch-2891052706-600.png",
+      "key": "marker-2",
+      "label": "DA_Karma18",
+      "box": [
+        767,
+        580,
+        895,
+        724
+      ],
+      "crop_pixel_sha256": "990651dc5a76bf2aaf7130b39f498ad33e5dc2f8fbb01147d28f160e619e6f91",
+      "basis": "Assistant full-frame plus named model render review; no independent human ground truth."
+    },
+    {
+      "review_index": 42,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 3660,
+      "image": "unit-gallery-rare-cross-source-20261005/twitch-2891050468-3660.png",
+      "key": "marker-7",
+      "label": "DA_Karma18",
+      "box": [
+        1189,
+        694,
+        1317,
+        838
+      ],
+      "crop_pixel_sha256": "2213af41cbeced0470bdd94945ad0195fe6145fcf391513ca7778e6db54055ad",
+      "basis": "Assistant full-frame plus named model render review; no independent human ground truth."
+    },
+    {
+      "review_index": 43,
+      "source_id": "twitch:2891050468",
+      "source_seconds_nominal": 11940,
+      "image": "unit-gallery-rare-cross-source-20261005/twitch-2891050468-11940.png",
+      "key": "marker-5",
+      "label": "DA_Karma18",
+      "box": [
+        1189,
+        694,
+        1317,
+        838
+      ],
+      "crop_pixel_sha256": "606c99279f4a5afa742de898bd0b37ac99780d9d97fd3a864519e14729da26e8",
+      "basis": "Assistant full-frame plus named model render review; no independent human ground truth."
+    },
+    {
+      "review_index": "full-frame-3360-bench-8",
+      "source_id": "twitch:2891052706",
+      "source_seconds_nominal": 3360,
+      "image": "unit-gallery-transfer-review-20261005/3360.png",
+      "key": "marker-8",
+      "label": "DA_18_Xayah",
+      "box": [
+        944,
+        696,
+        1072,
+        840
+      ],
+      "crop_pixel_sha256": "1bd5b9c9cb026e8c64c538c81b457ba67ec323546b5d4409c2343f73f7fdc28b",
+      "basis": "Assistant full-frame plus named model render review; no independent human ground truth."
+    }
+  ]
+}

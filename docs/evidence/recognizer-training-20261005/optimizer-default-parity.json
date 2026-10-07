@@ -1,0 +1,9 @@
+{
+  "recorded_at": "2026-10-05T09:01:41.854Z",
+  "weights_biases_labels_equal": true,
+  "all_train_validation_test_predictions_and_scores_equal": true,
+  "checkpoint_history_equal": true,
+  "selected_epoch": 800,
+  "metadata_change": "New artifacts record explicit optimizer parameters; raw artifact SHA changes, numeric head is identical.",
+  "runtime_approved": false
+}
