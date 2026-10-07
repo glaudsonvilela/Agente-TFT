@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-07T11:20:00-03:00",
+  "recorded_at": "2026-10-07T11:45:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,9 +1346,16 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "finish_ci_then_prepare_real_bigbanana_deploy",
-    "success_condition": "HM4.5 Windows zero-click contracts and central trainer CI pass on current head; then prepare neural bundle and deploy API+worker to BigBANANA.",
-    "next_if_success": "Run first real end-to-end match upload and observe central corpus/challenger/shadow flow.",
+    "status": "validate_ci_then_prepare_and_deploy_bigbanana_neural_bundle",
+    "steps": [
+      "CI: native unit features + remote trainer + HM4.5 Windows contracts",
+      "prepare BigBANANA neural bundle from current frozen selection/runtime seed",
+      "deploy trainer API + independent neural worker",
+      "verify public tft.bigbanana.io neural client/champion routes",
+      "run one real Windows match and confirm resumable upload",
+      "confirm server corpus ingestion and challenger outcome",
+      "run later independent matches until shadow promotion gate can be exercised"
+    ],
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -1859,7 +1866,17 @@
       "UI/design decisions that affect integration"
     ],
     "update_behavior": "Before introducing a new method, compare against recorded working/failed paths and preserve backwards-compatible fallbacks.",
-    "human_review_required": false
+    "human_review_required": false,
+    "latest_effective_methods": [
+      "Keep neural inference local for latency/offline; centralize heavy training on BigBANANA.",
+      "Train only after a sealed match; never mutate active weights during a match.",
+      "Use autonomous gold/silver/quarantine with no human-review critical path.",
+      "Preserve silver confidence tiers instead of flattening all weak labels.",
+      "Accumulate admitted sessions in a deduplicated central corpus.",
+      "Reuse persistent DINO embeddings to avoid recomputing historical crops.",
+      "Promote only after later independent shadow sessions, then update clients automatically while idle.",
+      "Keep two rollback generations and fail closed on model/package/runtime health errors."
+    ]
   },
   "khazix_multiteacher_v2_result": {
     "status": "complete_zero_silver",
@@ -2294,6 +2311,63 @@
     "local_inference": true,
     "local_training": false,
     "player_update_confirmation_required": false,
+    "runtime_approved": false
+  },
+  "central_autonomous_learning": {
+    "status": "implemented_pending_bigbanana_deploy_and_field_validation",
+    "architecture": "local_inference_central_learning_zero_click_distribution",
+    "local_client": {
+      "inference": true,
+      "training": false,
+      "match_weights_frozen": true,
+      "post_match_upload": "resumable_background",
+      "automatic_update": true,
+      "user_update_confirmation_required": false,
+      "activate_during_match": false,
+      "rollback_versions": 2,
+      "offline_behavior": "last_approved_model"
+    },
+    "bigbanana": {
+      "persistent_evidence": true,
+      "durable_worker_queue": true,
+      "client_compute_required_after_upload": false,
+      "central_corpus": {
+        "policy": "central_autonomous_corpus_v1",
+        "source_session_limit": 4096,
+        "global_pixel_deduplication": true,
+        "identity_conflict": "fail_closed",
+        "gold_weight": 1,
+        "silver_weights": "per-row up to 0.35, preserving 0.20/0.35 tiers",
+        "persistent_embedding_cache": true
+      },
+      "challenger_training": "latest stable champion + reviewed base + cumulative autonomous corpus",
+      "runtime_gate_calibration": "validation_zero_error_max_coverage_v1",
+      "shadow_promotion": {
+        "min_future_independent_sessions": 3,
+        "min_direct_gold_anchors": 6,
+        "per_session_not_worse": true,
+        "cumulative_strictly_better": true,
+        "wrong_accepted_max": 0,
+        "human_review_required": false
+      },
+      "champion_registry": {
+        "initial_generation": 1,
+        "monotonic_generation": true,
+        "package_hash_validation": true,
+        "zero_click_client_distribution": true
+      }
+    },
+    "security_and_resilience": {
+      "ephemeral_installation_tokens": true,
+      "session_owner_enforced": true,
+      "frame_sha256": true,
+      "idempotent_upload": true,
+      "api_restart_processing_survives": true,
+      "worker_restart_recovers_working_jobs": true,
+      "windows_exact_manifest_bytes_sealed": true,
+      "model_bundle_paths_private": false,
+      "server_paths_embedded_in_model": false
+    },
     "runtime_approved": false
   }
 }
