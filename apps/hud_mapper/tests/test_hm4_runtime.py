@@ -77,7 +77,7 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertFalse(value['cancelled'])
         self.assertFalse(value['stopped_by_user'])
 
-    def test_level_advice_requires_temporal_evidence_and_current_affordability(self):
+    def test_strict_level_requires_temporal_evidence_but_partial_tip_can_speak_earlier(self):
         engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
         answer={'origin':'observed_pixels','source_ms':1000,'hud':[
             dict(field=k,value=v,text=t,status='single_frame_observation',confidence=.97)
@@ -85,7 +85,10 @@ class HM4RuntimeTests(unittest.TestCase):
             'controls':{'cadence_delivery':{'fresh':True},'controls':[
                 dict(id='buy_xp',status='observed',appearance='active_appearance')],
                 'numeric_fields':[dict(id='buy_xp_price',status='observed',confidence=.95,value=4)]}}
-        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        first=coach_prompt(engine.evaluate(answer))
+        self.assertTrue(first['actionable'])
+        self.assertEqual(first['evidence_level'],'provisional')
+        self.assertFalse(first['training_label'])
         answer['source_ms']=1500;answer['hud'][1]['value']=6
         decision=engine.evaluate(answer)
         self.assertEqual(decision['decision']['action']['gold_cost'],4)
@@ -97,7 +100,65 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertTrue(coach_prompt(saving)['actionable'])
         answer['source_ms']=2500;answer['hud'][1]['value']=6
         answer['controls']['cadence_delivery']['fresh']=False
-        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        late=coach_prompt(engine.evaluate(answer))
+        self.assertTrue(late['actionable'])
+        self.assertEqual(late['evidence_level'],'provisional')
+
+    def test_partial_state_roll_is_bounded_and_never_claims_unit_identity(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.92)
+            for k,v in [('stage','3-5'),('gold',42),('level',6)]],
+            'hp':{'status':'accepted','hp':28},'hp_delivery':{'fresh':True}}
+        result=engine.evaluate(answer)
+        self.assertEqual(result['decision']['action']['type'],'roll')
+        self.assertLessEqual(result['decision']['action']['rolls_max'],2)
+        self.assertNotIn('unit_id',result['decision']['action'])
+        self.assertTrue(coach_prompt(result)['actionable'])
+        answer['hp_delivery']['fresh']=False
+        self.assertNotEqual(engine.evaluate(answer)['decision']['action']['type'],'roll')
+
+    def test_partial_shop_pair_uses_two_names_and_patch_cost_only(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        unit=engine.champion_attributes['DA_18_Alune']
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.93)
+            for k,v in [('stage','2-3'),('gold',30),('level',4)]],
+            'shop':{'cadence_delivery':{'fresh':True},'slots':[
+                {'slot':i,'status':'offer_text_readable','observed_name':unit['name'],
+                 'name_confidence':.95,'name_evidence':'strong_strip_only'} for i in (0,2)]}}
+        result=engine.evaluate(answer)
+        self.assertEqual(result['decision']['action']['type'],'buy_pair')
+        self.assertEqual(result['decision']['action']['shop_slots'],[0,2])
+        self.assertEqual(result['decision']['action']['catalog_cost_each'],unit['cost'])
+        self.assertEqual(result['decision']['training_label'],False)
+        answer['shop']['cadence_delivery']['fresh']=False
+        self.assertNotEqual(engine.evaluate(answer)['decision']['action']['type'],'buy_pair')
+
+    def test_live_feedback_updates_preference_without_becoming_visual_label(self):
+        with tempfile.TemporaryDirectory() as td:
+            engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'),
+                                        preference_path=Path(td)/'preferences.json')
+            model=engine.live_advice
+            self.assertTrue(model.rate('provisional:test','roll',True))
+            self.assertFalse(model.rate('provisional:test','roll',False))
+            self.assertEqual(model.feedback['roll'],[2,1])
+            reopened=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'),
+                                          preference_path=Path(td)/'preferences.json')
+            self.assertEqual(reopened.live_advice.feedback['roll'],[2,1])
+            self.assertFalse(reopened.live_advice.rate('unverified:test','roll',True))
+
+    def test_online_feedback_can_change_which_supported_tip_is_selected(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,text=t,status='single_frame_observation',confidence=.95)
+            for k,v,t in [('stage','4-1','4-1'),('gold',40,'40'),
+                          ('level',6,'6'),('xp',32,'32/36')]],
+            'hp':{'status':'accepted','hp':28},'hp_delivery':{'fresh':True}}
+        self.assertEqual(engine.live_advice.propose(answer)['family'],'roll')
+        for index in range(5):
+            self.assertTrue(engine.live_advice.rate(f'provisional:{index}','roll',False))
+        self.assertEqual(engine.live_advice.propose(answer)['family'],'level')
 
     def test_voice_cancels_a_superseded_decision_even_inside_its_deadline(self):
         voice=VoiceCoach();voice.enabled=True
@@ -193,6 +254,12 @@ class HM4RuntimeTests(unittest.TestCase):
                 self.assertIsNotNone(session.decision_engine)
                 self.assertIsNotNone(session.shadow_learning_recorder)
                 self.assertEqual(session.versions['decision_patch_basis'],'bundled_catalog_patch_lab')
+                session.latest_replay_tip={
+                    'policy':'partial_state_live_v1','decision_key':'provisional:live-test',
+                    'family':'economy','frame_id':1,'source_ms':1000}
+                self.assertTrue(session.feedback_tip(True))
+                self.assertFalse(session.feedback_tip(False))
+                self.assertEqual(session.counts['coach_feedback'],1)
             finally:
                 session.shadow_learning_recorder.close('test',{},None)
                 session.store.done.set()

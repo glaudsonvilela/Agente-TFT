@@ -110,7 +110,10 @@ class EconomyBudgetTests(unittest.TestCase):
         self.assertIn("Suba para o nível 5", coach_prompt(leveling)["speech_text"])
         answer["source_ms"] = 2500
         answer["controls"]["cadence_delivery"]["fresh"] = False
-        self.assertFalse(coach_prompt(engine.evaluate(answer))["actionable"])
+        provisional = coach_prompt(engine.evaluate(answer))
+        self.assertTrue(provisional["actionable"])
+        self.assertEqual(provisional["evidence_level"], "provisional")
+        self.assertIn("Confira o botão de XP", provisional["text"])
 
 
 if __name__ == "__main__":

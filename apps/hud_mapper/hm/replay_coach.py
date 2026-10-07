@@ -68,6 +68,18 @@ def coach_prompt(answer: dict) -> dict:
                 basis=['verified_board_state', 'attribute_coach_v1'],
                 strategy_basis=decision['scope'], learned_ranker=decision['learned_ranker'],
                 recommendations=recommendations)
+    if (answer.get('origin') == 'observed_pixels'
+            and decision.get('policy') == 'partial_state_live_v1'
+            and decision.get('evidence_level') == 'provisional'
+            and action.get('type') in ('roll', 'buy_xp', 'buy_pair', 'hold_interest')
+            and decision.get('decision_key') and decision.get('text')):
+        return dict(status='action', actionable=True, text=decision['text'],
+            speech_text=decision['text'], decision_key=decision['decision_key'],
+            speech_max_age_ms=5000, basis=decision['basis'],
+            strategy_basis='partial_state_live_v1',
+            evidence_level='provisional', policy=decision['policy'],
+            family=decision['family'], training_label=False,
+            learned_neural_weights=False)
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'hold_econ'
             and decision.get('policy') == 'resource_budget_v1'
             and (decision.get('evidence') or [{}])[0].get('code') == 'SAVE_FOR_LEVEL_RESERVE'):

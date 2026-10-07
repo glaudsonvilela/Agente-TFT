@@ -477,7 +477,11 @@ class HM4RuntimeSession(RuntimeSession):
         self.decision_engine = None
         if options.board_hub_enabled:
             from .replay_decision import ReplayDecisionEngine
-            self.decision_engine = ReplayDecisionEngine(options.configs)
+            preference_root = (Path(options.output).parent if Path(options.output).parent.name == 'sessions'
+                               else Path(options.output))
+            self.decision_engine = ReplayDecisionEngine(options.configs,
+                preference_path=(preference_root / 'coach-preferences.json'
+                                 if not options.replay_review else None))
             self.versions['replay_decision_policy'] = 'verified_third_copy_v1'
             self.versions['resource_engine'] = 'resource_budget_v1'
             self.versions['resource_engine_identity'] = self.decision_engine.resource_engine.identity
@@ -485,10 +489,30 @@ class HM4RuntimeSession(RuntimeSession):
             self.versions['strategic_coach_scope'] = self.decision_engine.strategic_coach.catalog['scope']
             self.versions['strategic_ranker_loaded'] = self.decision_engine.strategic_coach.model is not None
             self.versions['strategic_vision_state'] = 'pending_verified_observer'
+            self.versions['partial_state_advice'] = 'experimental_with_explicit_feedback'
             self.versions['replay_catalog_set'] = self.decision_engine.set_key
             self.versions['replay_catalog_version'] = self.decision_engine.catalog_version
             self.versions['decision_patch_basis'] = ('reported_replay_patch' if options.replay_review
                                                      else 'bundled_catalog_patch_lab')
+
+    def feedback_tip(self, helpful: bool) -> bool:
+        """Player feedback changes only advice priorities, never visual labels."""
+        if self.options.replay_review or type(helpful) is not bool or not self.decision_engine:
+            return False
+        with self.lock:
+            tip = copy.deepcopy(self.latest_replay_tip)
+        if not tip or tip.get('policy') != 'partial_state_live_v1':
+            return False
+        accepted = self.decision_engine.live_advice.rate(
+            tip.get('decision_key'), tip.get('family'), helpful)
+        if accepted:
+            self.store.emit('telemetry', dict(event='coach_player_feedback',
+                frame_id=tip['frame_id'], source_ms=tip['source_ms'],
+                decision_key=tip['decision_key'], family=tip['family'],
+                helpful=helpful, source='explicit_player_feedback',
+                visual_training_label=False, neural_weights_updated=False))
+            self.counts['coach_feedback'] += 1
+        return accepted
 
     def _source_frame_observed(self, frame):
         recorder = self.shadow_learning_recorder

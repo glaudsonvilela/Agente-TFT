@@ -208,6 +208,14 @@ class App:
             self.coach_meta=tk.Label(coach,text="As leituras mostram fatos; ações exigem evidência suficiente.",
                                      bg="#241746",fg="#c9bde8",font=("Segoe UI",9),anchor="w")
             self.coach_meta.pack(fill="x")
+            feedback_bar=tk.Frame(coach,bg="#241746")
+            feedback_bar.pack(fill="x",pady=(5,0))
+            self.good_button=ttk.Button(feedback_bar,text="Ajudou",state="disabled",
+                                        command=lambda:self.feedback_tip(True))
+            self.good_button.pack(side="left",padx=(0,5))
+            self.bad_button=ttk.Button(feedback_bar,text="Não ajudou",state="disabled",
+                                       command=lambda:self.feedback_tip(False))
+            self.bad_button.pack(side="left")
             coach.bind("<Configure>",lambda event:self.tip_label.configure(wraplength=max(300,event.width-36)))
         self.pipeline_label=ttk.Label(outer,text="Diagnóstico local: aguardando início da captura.",wraplength=1000)
         self.pipeline_label.pack(anchor="w",pady=3)
@@ -369,7 +377,8 @@ class App:
                 message += "Confirme que a fonte exibirá um vídeo de partida já encerrada. As dicas de revisão usam apenas leituras observadas."
             else:
                 message += ("Partida ao vivo: serão salvos frames de aprendizado em baixa frequência; "
-                            "os pesos ficam congelados durante a partida e o treino só pode iniciar após o encerramento. "
+                            "as avaliações das dicas ajustam a prioridade durante a partida. "
+                            "O treino neural com imagens começa após o encerramento. "
                             "Nenhum input automation é executado.")
             if not messagebox.askyesno("Confirmar captura",message):return
             if self.hm4:
@@ -399,6 +408,16 @@ class App:
 
     def stop(self):
         if self.session and not self.session.done.is_set():self.session.request_stop()
+    def feedback_tip(self, helpful):
+        if not self.session or self.session.done.is_set():return
+        try:
+            accepted=self.session.feedback_tip(helpful)
+        except OSError as exc:
+            self.coach_meta.configure(text=f"Não foi possível salvar sua avaliação: {exc}")
+            return
+        if accepted:
+            self.coach_meta.configure(text="Avaliação registrada. As próximas sugestões usam esta preferência.")
+            self.good_button.state(["disabled"]);self.bad_button.state(["disabled"])
     def configure_player(self):
         import tkinter as tk
         from tkinter import ttk,messagebox
@@ -703,12 +722,18 @@ class App:
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
                     label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'DIAGNÓSTICO'
+                    if tip.get('evidence_level') == 'provisional':
+                        label = 'SUGESTÃO EXPERIMENTAL'
                     if tip.get('strategy_basis') == 'attribute_planning_without_abilities':
                         label = 'DICA · ATRIBUTOS / SEM HABILIDADES'
                     self.coach_header.configure(text=f'AGENTE  /  {label}',
                                                 fg="#8cffbd" if tip.get('actionable') else "#bda8ff")
                     self.tip_label.configure(text=tip['text'])
                     self.coach_meta.configure(text=f'Frame {tip["frame_id"]} · atraso até a UI ~{age:.0f} ms · evidência: {", ".join(tip.get("basis") or []) or "insuficiente"}')
+                    if tip.get('policy') == 'partial_state_live_v1' and not s.options.replay_review:
+                        self.good_button.state(["!disabled"]);self.bad_button.state(["!disabled"])
+                    else:
+                        self.good_button.state(["disabled"]);self.bad_button.state(["disabled"])
                     if tip.get('actionable'):
                         alternatives = tip.get('recommendations') or []
                         families = {'roll':'Rolagem', 'composition':'Composição', 'position':'Posicionamento', 'equip':'Equipamentos'}
@@ -760,7 +785,7 @@ class App:
                 if visible==str(self.data_tab):
                     self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
                       sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
-                      note="Treino não roda neste executável; use o trainer offline após revisar as amostras."),ensure_ascii=False,indent=2))
+                      note="Avaliações ajustam sugestões durante a partida; treino neural das imagens começa após a sessão."),ensure_ascii=False,indent=2))
                 voice_label=("voz erro: "+self.voice.error if self.voice and self.voice.error else
                              ("voz ElevenLabs · reproduzida "+str(self.voice.played_count) if self.voice and self.voice.fallback_from and self.voice.enabled and self.voice.ready else
                               ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
