@@ -7,6 +7,7 @@ import zipfile
 from fastapi.testclient import TestClient
 
 from remote_trainer.app import create_app
+from remote_trainer.neural import FileQueueNeuralBackend
 from remote_trainer.store import NullTrainerBackend, TrainerStore
 
 
@@ -676,3 +677,114 @@ def test_champion_registry_rejects_nonincreasing_generation(tmp_path, monkeypatc
         headers={"Authorization": "Bearer admin-secret"},
         json=payload,
     ).status_code == 409
+
+
+def test_neural_admission_limit_returns_conflict(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    client = TestClient(create_app(store=store, clock_ms=lambda: 10_000))
+    headers = _neural_client(client, "install-limit")
+    for index in range(4):
+        response = client.post(
+            "/v1/neural/sessions",
+            headers=headers,
+            json={
+                "client_id": "install-limit",
+                "match_id": f"match-{index}",
+                "created_at_ms": index + 1,
+                "capture_policy": "test",
+            },
+        )
+        assert response.status_code == 201
+    rejected = client.post(
+        "/v1/neural/sessions",
+        headers=headers,
+        json={
+            "client_id": "install-limit",
+            "match_id": "match-over-limit",
+            "created_at_ms": 99,
+            "capture_policy": "test",
+        },
+    )
+    assert rejected.status_code == 409
+    assert "unfinished" in rejected.json()["detail"]
+
+
+def test_neural_frame_retry_is_idempotent(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    client = TestClient(create_app(
+        store=store,
+        neural_backend=FakeNeuralBackend(),
+        clock_ms=lambda: 10_000,
+    ))
+    headers = _neural_client(client, "install-idempotent")
+    created = client.post(
+        "/v1/neural/sessions",
+        headers=headers,
+        json={
+            "client_id": "install-idempotent",
+            "match_id": "match-retry",
+            "created_at_ms": 1,
+            "capture_policy": "test",
+        },
+    ).json()
+    neural_id = created["neural_session_id"]
+    body = b"same-jpeg"
+    params = {
+        "frame_id": 7,
+        "source_ms": 2000,
+        "width": 1920,
+        "height": 1080,
+        "image_sha256": hashlib.sha256(body).hexdigest(),
+        "capture_role": "post_match_learning_evidence",
+    }
+    first = client.post(
+        f"/v1/neural/sessions/{neural_id}/frames",
+        params=params,
+        headers={**headers, "Content-Type": "image/jpeg"},
+        content=body,
+    )
+    second = client.post(
+        f"/v1/neural/sessions/{neural_id}/frames",
+        params=params,
+        headers={**headers, "Content-Type": "image/jpeg"},
+        content=body,
+    )
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert second.json()["status"] == "queued"
+    record = client.get(
+        f"/v1/neural/sessions/{neural_id}",
+        headers=headers,
+    ).json()
+    assert record["frames_received"] == 1
+    assert record["bytes_received"] == len(body)
+
+
+def test_central_neural_health_reports_file_queue_backend(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_WORKER_QUEUE_ENABLED", "1")
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    with TestClient(create_app(store=store, clock_ms=lambda: 10_000)) as client:
+        health = client.get("/v1/training/health")
+        assert health.status_code == 200
+        value = health.json()
+        assert value["neural_backend_ready"] is True
+        central = value["central_neural"]
+        assert central["learning_backend"] == "file_queue_worker"
+        assert central["stable_generation"] is None
+        assert central["queue"] == {
+            "inbox": 0,
+            "working": 0,
+            "outbox": 0,
+            "failed": 0,
+        }
