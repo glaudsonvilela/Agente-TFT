@@ -55,6 +55,8 @@ struct AutonomousTrainingConfig {
     silver_labels: String,
     gold_weight: f32,
     silver_weight: f32,
+    #[serde(default)]
+    use_declared_silver_weights: bool,
 }
 
 fn validate_autonomous_weight(value: f32, name: &str) -> Result<()> {
@@ -71,6 +73,7 @@ fn load_autonomous_rows(
     ids: &HashSet<&str>,
     tier: &str,
     weight: f32,
+    use_declared_silver_weights: bool,
     seen_pixels: &mut HashSet<String>,
 ) -> Result<Vec<(Sample, f32)>> {
     validate_autonomous_weight(weight, tier)?;
@@ -79,6 +82,7 @@ fn load_autonomous_rows(
     let collection = collection.canonicalize()?;
     let mut result = Vec::new();
     for (i, row) in rows.iter().enumerate() {
+        let mut row_weight = weight;
         if row["source_id"].as_str() != Some(source_id)
             || row["human_review_required"] != false
             || row["training_eligible"] != true
@@ -106,7 +110,13 @@ fn load_autonomous_rows(
                 let declared = row["recommended_training_weight"]
                     .as_f64()
                     .ok_or("silver recommended weight")? as f32;
-                if (declared - weight).abs() > 1e-6 {
+                validate_autonomous_weight(declared, "silver declared weight")?;
+                if declared > weight + 1e-6 {
+                    return Err("silver declared weight exceeds configured maximum".into());
+                }
+                if use_declared_silver_weights {
+                    row_weight = declared;
+                } else if (declared - weight).abs() > 1e-6 {
                     return Err("silver declared/configured weight mismatch".into());
                 }
             }
@@ -144,7 +154,7 @@ fn load_autonomous_rows(
                 image: format!("autonomous:{source_id}:{time}"),
                 key: format!("{tier}:{i}:{pixel}"),
             },
-            weight,
+            row_weight,
         ));
     }
     Ok(result)
@@ -155,18 +165,30 @@ fn load_autonomous_training(
     reference: &Path,
     base_samples: &[Sample],
 ) -> Result<Vec<(Sample, f32)>> {
-    let Some(value) = spec.get("autonomous_training") else {
+    let single = spec.get("autonomous_training").filter(|v| !v.is_null());
+    let multiple = spec
+        .get("autonomous_training_sources")
+        .filter(|v| !v.is_null());
+
+    if single.is_some() && multiple.is_some() {
+        return Err("use autonomous_training or autonomous_training_sources, not both".into());
+    }
+
+    let configs: Vec<AutonomousTrainingConfig> = if let Some(value) = multiple {
+        let rows = value
+            .as_array()
+            .ok_or("autonomous_training_sources must be an array")?;
+        if rows.is_empty() || rows.len() > 512 {
+            return Err("autonomous_training_sources count outside 1..=512".into());
+        }
+        rows.iter()
+            .map(|v| serde_json::from_value(v.clone()))
+            .collect::<std::result::Result<_, _>>()?
+    } else if let Some(value) = single {
+        vec![serde_json::from_value(value.clone())?]
+    } else {
         return Ok(Vec::new());
     };
-    if value.is_null() {
-        return Ok(Vec::new());
-    }
-    let config: AutonomousTrainingConfig = serde_json::from_value(value.clone())?;
-    validate_autonomous_weight(config.gold_weight, "gold_weight")?;
-    validate_autonomous_weight(config.silver_weight, "silver_weight")?;
-    if config.gold_weight < config.silver_weight {
-        return Err("gold autonomous weight must be >= silver weight".into());
-    }
 
     let cat: Value = serde_json::from_slice(&fs::read(reference.join("champions.json"))?)?;
     let ids: HashSet<_> = cat["entries"]
@@ -178,26 +200,41 @@ fn load_autonomous_training(
 
     let mut seen_pixels: HashSet<String> =
         base_samples.iter().map(|s| hash(&s.crop.rgb)).collect();
-    let collection = PathBuf::from(&config.collection);
-    let mut rows = load_autonomous_rows(
-        Path::new(&config.gold_labels),
-        &collection,
-        &config.source_id,
-        &ids,
-        "gold_auto",
-        config.gold_weight,
-        &mut seen_pixels,
-    )?;
-    rows.extend(load_autonomous_rows(
-        Path::new(&config.silver_labels),
-        &collection,
-        &config.source_id,
-        &ids,
-        "silver_auto",
-        config.silver_weight,
-        &mut seen_pixels,
-    )?);
-    Ok(rows)
+    let mut seen_sources = HashSet::new();
+    let mut result = Vec::new();
+
+    for config in configs {
+        if !seen_sources.insert(config.source_id.clone()) {
+            return Err("duplicate autonomous source_id".into());
+        }
+        validate_autonomous_weight(config.gold_weight, "gold_weight")?;
+        validate_autonomous_weight(config.silver_weight, "silver_weight")?;
+        if config.gold_weight < config.silver_weight {
+            return Err("gold autonomous weight must be >= silver weight".into());
+        }
+        let collection = PathBuf::from(&config.collection);
+        result.extend(load_autonomous_rows(
+            Path::new(&config.gold_labels),
+            &collection,
+            &config.source_id,
+            &ids,
+            "gold_auto",
+            config.gold_weight,
+            false,
+            &mut seen_pixels,
+        )?);
+        result.extend(load_autonomous_rows(
+            Path::new(&config.silver_labels),
+            &collection,
+            &config.source_id,
+            &ids,
+            "silver_auto",
+            config.silver_weight,
+            config.use_declared_silver_weights,
+            &mut seen_pixels,
+        )?);
+    }
+    Ok(result)
 }
 
 fn effective_class_weights(
