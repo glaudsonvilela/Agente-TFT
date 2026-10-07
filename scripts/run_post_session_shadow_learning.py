@@ -126,12 +126,18 @@ def main() -> int:
     p.add_argument("--repo", type=Path, default=Path.cwd())
     p.add_argument("--session", type=Path, required=True)
     p.add_argument("--selection", type=Path, default=DEFAULT_SELECTION)
+    p.add_argument("--autonomous-corpus", type=Path)
     p.add_argument("--ffmpeg", default="ffmpeg")
     args = p.parse_args()
 
     repo = args.repo.expanduser().resolve()
     session = args.session.expanduser().resolve()
     selection = args.selection.expanduser().resolve()
+    autonomous_corpus = (
+        args.autonomous_corpus.expanduser().resolve()
+        if args.autonomous_corpus is not None
+        else None
+    )
     if not selection.is_file():
         die(f"frozen selection not found: {selection}")
     cargo_manifest = repo / "tools/unit-features-lab/Cargo.toml"
@@ -309,8 +315,65 @@ def main() -> int:
     if not isinstance(silver_rows, list):
         die("silver auto labels must be a list")
 
+    corpus_counts = None
+    if autonomous_corpus is not None:
+        write_state(state, status="ingesting_central_autonomous_corpus")
+        run_stream(
+            [
+                sys.executable,
+                str(repo / "trainer/scripts/ingest_autonomous_corpus.py"),
+                "--manifest", str(autonomous_corpus),
+                "--collection", str(dense),
+                "--gold", str(supported),
+                "--silver", str(silver),
+                "--source-id", source_id,
+            ],
+            repo,
+            work / "autonomous-corpus-ingest.log",
+        )
+        if not autonomous_corpus.is_file():
+            die("central autonomous corpus manifest was not created")
+        corpus_doc = load_json(autonomous_corpus)
+        if (
+            corpus_doc.get("schema_version") != 1
+            or corpus_doc.get("policy") != "central_autonomous_corpus_v1"
+            or not isinstance(corpus_doc.get("sources"), list)
+        ):
+            die("central autonomous corpus manifest is incompatible")
+        corpus_counts = corpus_doc.get("counts") or {}
+        current_in_corpus = any(
+            isinstance(row, dict) and row.get("source_id") == source_id
+            for row in corpus_doc["sources"]
+        )
+        if not current_in_corpus:
+            result = {
+                "status": "complete",
+                "outcome": "duplicate_supervision_no_training",
+                "session_id": session_id,
+                "source_id": source_id,
+                "supported_gold_anchors": len(supported_rows),
+                "silver_auto_labels": len(silver_rows),
+                "central_corpus_counts": corpus_counts,
+                "challenger_trained": False,
+                "shadow_candidate_created": False,
+                "active_model_changed": False,
+                "human_review_required": False,
+                "runtime_approved": False,
+            }
+            write_state(state, **result)
+            print("\nPOST_SESSION_SHADOW_LEARNING_OK=true")
+            print("OUTCOME=duplicate_supervision_no_training")
+            print(f"CENTRAL_CORPUS_SOURCES={corpus_counts.get('sources', 0)}")
+            print(f"CENTRAL_CORPUS_GOLD={corpus_counts.get('gold', 0)}")
+            print(f"CENTRAL_CORPUS_SILVER={corpus_counts.get('silver', 0)}")
+            return 0
+
     challenger = work / "challenger"
-    write_state(state, status="training_challenger")
+    write_state(
+        state,
+        status="training_challenger",
+        central_corpus_counts=corpus_counts,
+    )
     run_stream(
         [
             sys.executable,
@@ -321,6 +384,11 @@ def main() -> int:
             "--silver", str(silver),
             "--private-root", str(work),
             "--output-root", str(challenger),
+            *(
+                ["--autonomous-corpus", str(autonomous_corpus)]
+                if autonomous_corpus is not None
+                else []
+            ),
             "--skip-tests",
         ],
         repo,
@@ -360,6 +428,7 @@ def main() -> int:
         "tooltip_gold_auto_labels": len(tooltip_rows),
         "supported_gold_anchors": len(supported_rows),
         "silver_auto_labels": len(silver_rows),
+        "central_corpus_counts": corpus_counts,
         "challenger_trained": True,
         "selected_arm": selected_arm,
         "shadow_candidate_created": shadow_candidate_created,
@@ -373,6 +442,10 @@ def main() -> int:
     print(f"OUTCOME={result['outcome']}")
     print(f"SUPPORTED_GOLD_ANCHORS={len(supported_rows)}")
     print(f"SILVER_AUTO_LABELS={len(silver_rows)}")
+    if corpus_counts is not None:
+        print(f"CENTRAL_CORPUS_SOURCES={corpus_counts.get('sources', 0)}")
+        print(f"CENTRAL_CORPUS_GOLD={corpus_counts.get('gold', 0)}")
+        print(f"CENTRAL_CORPUS_SILVER={corpus_counts.get('silver', 0)}")
     print(f"SELECTED_ARM={selected_arm}")
     print(f"SHADOW_CANDIDATE_CREATED={str(shadow_candidate_created).lower()}")
     print("ACTIVE_MODEL_CHANGED=false")
