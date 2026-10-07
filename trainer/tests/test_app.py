@@ -405,3 +405,148 @@ def test_policy_lab_is_visible_without_activating_hud_simulator(tmp_path):
     assert metrics['simulator_ready'] is False
     assert metrics['paths_completed'] == 0
     assert 'Rede de decisões' in client.get('/dashboard').text
+
+
+class FakeNeuralBackend:
+    async def infer(self, metadata, image_bytes):
+        from remote_trainer.schemas import NeuralInferenceResult
+        return NeuralInferenceResult(
+            neural_session_id=metadata.neural_session_id,
+            frame_id=metadata.frame_id,
+            source_ms=metadata.source_ms,
+            status="accepted",
+            champion_model_sha256="a" * 64,
+            game_state={"revision": metadata.frame_id},
+            observations=({"kind": "fixture"},),
+            confidence=0.9,
+            inference_ms=4.0,
+        )
+
+    async def learn_from_sealed_session(self, neural_session_id, evidence_root):
+        assert evidence_root.is_dir()
+        return {
+            "champion_model_sha256": "a" * 64,
+            "shadow_candidate_sha256": "b" * 64,
+        }
+
+
+def _neural_client(client, installation_id="install-a"):
+    token = client.post(
+        "/v1/neural/client-session",
+        json={"installation_id": installation_id},
+    )
+    assert token.status_code == 200
+    value = token.json()["token"]
+    return {"Authorization": "Bearer " + value}
+
+
+def test_neural_client_session_is_disabled_by_default(tmp_path, monkeypatch):
+    monkeypatch.delenv("NEURAL_CLIENT_SESSIONS_ENABLED", raising=False)
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=tmp_path / "trainer.sqlite3")
+    ))
+    response = client.post(
+        "/v1/neural/client-session",
+        json={"installation_id": "install-a"},
+    )
+    assert response.status_code == 503
+
+
+def test_server_resident_neural_session_upload_and_shadow_learning(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    client = TestClient(create_app(
+        store=store,
+        neural_backend=FakeNeuralBackend(),
+        clock_ms=lambda: 10_000,
+    ))
+    headers = _neural_client(client)
+    created = client.post(
+        "/v1/neural/sessions",
+        headers=headers,
+        json={
+            "client_id": "install-a",
+            "match_id": "match-1",
+            "created_at_ms": 1000,
+            "patch": "18.3",
+            "set_key": "TFTSet18",
+            "capture_policy": "hm45_post_session_shadow_learning_capture_v1",
+            "metadata": {"local_neural_weights_bundled": False},
+        },
+    )
+    assert created.status_code == 201
+    neural_id = created.json()["neural_session_id"]
+
+    for frame_id, source_ms, body in ((11, 0, b"jpeg-one"), (12, 2000, b"jpeg-two")):
+        digest = hashlib.sha256(body).hexdigest()
+        response = client.post(
+            f"/v1/neural/sessions/{neural_id}/frames",
+            params={
+                "frame_id": frame_id,
+                "source_ms": source_ms,
+                "width": 1920,
+                "height": 1080,
+                "image_sha256": digest,
+                "capture_role": "post_match_learning_evidence",
+            },
+            headers={**headers, "Content-Type": "image/jpeg"},
+            content=body,
+        )
+        assert response.status_code == 200
+        assert response.json()["status"] == "accepted"
+        assert response.json()["champion_model_sha256"] == "a" * 64
+
+    sealed = client.post(
+        f"/v1/neural/sessions/{neural_id}/seal",
+        headers=headers,
+        json={
+            "sealed_at_ms": 9000,
+            "match_end_reason": "terminal_hp_confirmed",
+            "capture_manifest_sha256": "c" * 64,
+            "frame_count": 2,
+            "metadata": {"active_model_changed_during_match": False},
+        },
+    )
+    assert sealed.status_code == 200
+
+    learning = client.get(
+        f"/v1/neural/sessions/{neural_id}/learning",
+        headers=headers,
+    )
+    assert learning.status_code == 200
+    result = learning.json()
+    assert result["status"] == "complete"
+    assert result["champion_model_sha256"] == "a" * 64
+    assert result["challenger_model_sha256"] == "b" * 64
+    assert result["shadow_candidate_created"] is True
+
+    evidence = tmp_path / "neural-evidence" / neural_id / "frames"
+    assert (evidence / "000000000011.jpg").read_bytes() == b"jpeg-one"
+    assert (evidence / "000000000012.jpg").read_bytes() == b"jpeg-two"
+
+
+def test_neural_session_isolation_between_installations(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    client = TestClient(create_app(
+        store=TrainerStore(backend=NullTrainerBackend(), db_path=tmp_path / "trainer.sqlite3"),
+        neural_backend=FakeNeuralBackend(),
+        clock_ms=lambda: 10_000,
+    ))
+    a = _neural_client(client, "install-a")
+    b = _neural_client(client, "install-b")
+    created = client.post(
+        "/v1/neural/sessions",
+        headers=a,
+        json={
+            "client_id": "install-a",
+            "match_id": "match-1",
+            "created_at_ms": 1000,
+            "capture_policy": "test",
+        },
+    )
+    neural_id = created.json()["neural_session_id"]
+    assert client.get(f"/v1/neural/sessions/{neural_id}", headers=a).status_code == 200
+    assert client.get(f"/v1/neural/sessions/{neural_id}", headers=b).status_code == 403
