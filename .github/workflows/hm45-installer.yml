@@ -11,6 +11,7 @@ on:
       - 'scripts/hm45_installer/**'
       - 'scripts/build_hm45_installer_windows.py'
       - 'scripts/build_hm45_online_installer_windows.py'
+      - 'scripts/prepare_webview2_bootstrapper_windows.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - 'trainer/scripts/**'
       - 'trainer/remote_trainer/**'
@@ -35,6 +36,7 @@ on:
       - 'scripts/hm45_installer/**'
       - 'scripts/build_hm45_installer_windows.py'
       - 'scripts/build_hm45_online_installer_windows.py'
+      - 'scripts/prepare_webview2_bootstrapper_windows.py'
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - '.github/workflows/hm45-installer.yml'
       - 'apps/hud_mapper/hm/**'
@@ -93,6 +95,8 @@ jobs:
           tar -cf build/hm45-core/AgenteTFT-Core-v2.tar -C build/hm45-core fixture.txt
           Copy-Item scripts/hm45_installer/AgenteTFT_HM45.iss build/HM45.iss
           Copy-Item ui/tauri-design/icons/icon.ico build/hm45-design-icon.ico
+          python scripts/prepare_webview2_bootstrapper_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'Signed WebView2 bootstrapper download failed' }
           $iscc = @('C:/Program Files (x86)/Inno Setup 6/ISCC.exe', 'C:/Program Files/Inno Setup 6/ISCC.exe') | Where-Object { Test-Path $_ } | Select-Object -First 1
           if (-not $iscc) { throw 'ISCC.exe missing' }
           & $iscc build/HM45.iss

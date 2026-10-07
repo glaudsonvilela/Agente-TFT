@@ -69,6 +69,8 @@ for forbidden in (
 
 source = ROOT / "scripts/hm45_installer/AgenteTFT_HM45.iss"
 destination = ROOT / "build/HM45.iss"
+from prepare_webview2_bootstrapper_windows import prepare as prepare_webview2
+prepare_webview2()
 shutil.copy2(source, destination)
 shutil.copy2(ROOT / "ui/tauri-design/icons/icon.ico", ROOT / "build/hm45-design-icon.ico")
 iscc = next((path for path in (

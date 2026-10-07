@@ -29,6 +29,7 @@ Type: filesandordirs; Name: "{app}\_internal\supertonic"
 Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "hm45-core\core-package.json"; DestDir: "{app}\core"; Flags: ignoreversion
 Source: "hm45-core\AgenteTFT-Core-v2.tar"; DestDir: "{app}\core"; Flags: ignoreversion
+Source: "hm45-webview2\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: not IsWebView2Installed
 
 [Icons]
 Name: "{autoprograms}\Agente TFT HM4.5"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
@@ -36,11 +37,28 @@ Name: "{autodesktop}\Agente TFT HM4.5"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.
 Name: "{autoprograms}\Configurar VM do Agente TFT"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Parameters: "--setup-assistant"
 
 [Run]
+Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Preparando a interface do Agente TFT..."; Flags: runhidden; Check: not IsWebView2Installed; AfterInstall: VerifyWebView2
 Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Parameters: "--setup-assistant"; Description: "Configurar e testar a VM"; Flags: skipifsilent
 
 [Code]
 var
   OverviewPage: TWizardPage;
+
+function IsWebView2Installed: Boolean;
+var
+  Version: String;
+begin
+  Result := (RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and
+             (Version <> '') and (Version <> '0.0.0.0')) or
+            (RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and
+             (Version <> '') and (Version <> '0.0.0.0'));
+end;
+
+procedure VerifyWebView2;
+begin
+  if not IsWebView2Installed then
+    RaiseException('A interface WebView2 não foi instalada. Verifique a conexão com a Internet e tente novamente.');
+end;
 
 function InitializeSetup: Boolean;
 begin

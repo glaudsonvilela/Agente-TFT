@@ -171,6 +171,8 @@ with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as ar
             archive.write(p, Path(folder.name) / p.relative_to(folder))
 
 iss = root / 'build/HM4.iss'
+from prepare_webview2_bootstrapper_windows import prepare as prepare_webview2
+prepare_webview2()
 iss.write_text(r'''[Setup]
 AppName=Agente TFT Replay Screen Lab
 AppVersion=0.7.0
@@ -194,10 +196,28 @@ Type: filesandordirs; Name: "{app}\_internal\supertonic"
 
 [Files]
 Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "hm45-webview2\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: not IsWebView2Installed
 [Icons]
 Name: "{autoprograms}\Agente TFT Replay Screen Lab"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
 [Run]
-Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Description: "Abrir HUD Mapper HM4 Auto"; Flags: nowait postinstall skipifsilent
+Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Preparando a interface do Agente TFT..."; Flags: runhidden; Check: not IsWebView2Installed; AfterInstall: VerifyWebView2
+Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Description: "Abrir Agente TFT"; Flags: nowait postinstall skipifsilent
+[Code]
+function IsWebView2Installed: Boolean;
+var
+  Version: String;
+begin
+  Result := (RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and
+             (Version <> '') and (Version <> '0.0.0.0')) or
+            (RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and
+             (Version <> '') and (Version <> '0.0.0.0'));
+end;
+
+procedure VerifyWebView2;
+begin
+  if not IsWebView2Installed then
+    RaiseException('A interface WebView2 não foi instalada. Verifique a conexão com a Internet e tente novamente.');
+end;
 ''', encoding='utf-8')
 
 iscc = next((p for p in (
