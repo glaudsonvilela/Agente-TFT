@@ -1,6 +1,6 @@
 [Setup]
 AppName=Agente TFT · Laboratório HM4.5
-AppVersion=0.6.4
+AppVersion=0.7.0
 DefaultDirName={localappdata}\AgenteTFT-HM45
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest
@@ -68,9 +68,9 @@ begin
   OverviewPage := CreateCustomPage(wpWelcome, 'O que será instalado',
     'O aplicativo Windows e a VM leve são configurados pelo assistente.');
   AddParagraph(OverviewPage, 18,
-    'O Agente TFT usa captura Rust no Windows. A prévia fica no Windows em até 720p; os quadros para análise seguem por IP local à VM WSL 2. O arquivo do vídeo não é importado.');
+    'O Agente TFT usa captura Rust no Windows. Em partida ao vivo, amostras visuais de aprendizado são salvas localmente em baixa frequência; os pesos ficam congelados durante a partida e o treino só pode começar depois que a sessão é encerrada e selada.');
   AddParagraph(OverviewPage, 102,
-    'O assistente verifica o PC, instala a VM identificada pelo pacote desta versão e testa a análise. A versão anterior e outras distribuições WSL são preservadas.');
+    'O assistente verifica o PC, instala a VM WSL 2 desta versão e testa análise e learner pós-jogo. Um challenger vencedor vira apenas candidato shadow; o modelo ativo não é substituído automaticamente.');
   AddParagraph(OverviewPage, 200,
     'Se o Windows precisar habilitar o WSL 2, pedirá permissão de administrador. Caso exija reinício, o assistente mostrará o botão Reiniciar agora e continuará no próximo login.');
 end;
