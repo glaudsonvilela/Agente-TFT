@@ -19,6 +19,7 @@ import sys
 import threading
 import time
 from urllib.parse import unquote, urlsplit
+from urllib.request import urlopen
 
 from .runtime_app import default_hm4_output_root, discover_model, runtime_paths, target_label
 from .runtime_session import HM4RuntimeSession
@@ -324,6 +325,35 @@ class StudioHandler(BaseHTTPRequestHandler):
                 self.wfile.flush()
         except (BrokenPipeError, ConnectionResetError):
             pass
+
+
+def package_contract(output, *, probe_webview=True):
+    """Exercise the bundled studio and WebView2 imports without opening a GUI."""
+    if probe_webview:
+        import webview
+        from webview.platforms import edgechromium  # noqa: F401
+        if not callable(webview.create_window):
+            raise RuntimeError("O pacote da interface WebView2 está incompleto.")
+    root = design_root()
+    server = StudioServer(object(), root)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+    try:
+        with urlopen(server.url, timeout=5) as response:
+            page = response.read()
+        with urlopen(server.url.split("?")[0] + "connected.js", timeout=5) as response:
+            bridge = response.read()
+        if b"AGENTE TFT" not in page or b"connectedCoach" not in bridge:
+            raise RuntimeError("O layout conectado não foi incluído no pacote.")
+    finally:
+        server.shutdown()
+        server.server_close()
+    report = {"studio_assets_served": True, "webview_imported": bool(probe_webview),
+              "edgechromium_imported": bool(probe_webview)}
+    target = Path(output)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
+    return report
 
 
 def run_studio(*, browser=False):

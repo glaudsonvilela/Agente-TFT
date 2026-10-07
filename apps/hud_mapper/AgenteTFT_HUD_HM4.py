@@ -20,7 +20,7 @@ def main():
         return run("hm4")
     except Exception:
         traceback.print_exc()
-        if not any(x in sys.argv for x in ('--headless', '--ui-smoke', '--voice-smoke-output', '--replay-voice-validation')):
+        if not any(x in sys.argv for x in ('--headless', '--ui-smoke', '--voice-smoke-output', '--replay-voice-validation', '--studio-package-smoke-output')):
             from tkinter import messagebox
             error = traceback.format_exc().splitlines()[-1]
             messagebox.showerror('Agente TFT', error + '\n\nDetalhes em AgenteTFT-HUD-HM4/logs.')

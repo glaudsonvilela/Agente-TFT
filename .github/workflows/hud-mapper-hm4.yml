@@ -165,6 +165,20 @@ jobs:
         if: env.FULL_PACKAGE == 'true'
         run: python scripts/build_hud_mapper_hm4_windows.py
 
+      - name: Check packaged connected studio imports and assets
+        if: env.FULL_PACKAGE == 'true'
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
+          $report = Join-Path (Get-Location).Path 'build\hm4-studio-package-smoke.json'
+          $process = Start-Process -FilePath $app -ArgumentList @('--studio-package-smoke-output', $report) -Wait -PassThru
+          if ($process.ExitCode -ne 0 -or !(Test-Path $report)) {
+            Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 80 }
+            throw 'Packaged studio contract failed'
+          }
+          $result = Get-Content $report -Raw | ConvertFrom-Json
+          if (!$result.studio_assets_served -or !$result.edgechromium_imported) { throw 'Connected studio is incomplete' }
+
       - name: HM4.4 packaged resident OCR verification
         if: env.FULL_PACKAGE == 'true'
         shell: pwsh
@@ -210,6 +224,7 @@ jobs:
             dist/AgenteTFT-HUD-HM4-Auto-Setup.exe
             dist/HM4_PACKAGE_REPORT.json
             build/hm4-live-assets/ASSET_REPORT.json
+            build/hm4-studio-package-smoke.json
           retention-days: 30
           if-no-files-found: error
 
@@ -239,5 +254,6 @@ jobs:
             dist/HM4_COMPACTION_REPORT.json
             dist/HM4_PACKAGE_REPORT.json
             build/hm4-live-assets/ASSET_REPORT.json
+            build/hm4-studio-package-smoke.json
             dist/AgenteTFT-HUD-HM4-Auto/BUILD_MANIFEST.json
           retention-days: 30

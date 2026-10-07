@@ -5,10 +5,18 @@ import unittest
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
-from hm.studio_bridge import StudioController, StudioServer, design_root
+from hm.studio_bridge import StudioController, StudioServer, design_root, package_contract
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_package_contract_serves_connected_layout(self):
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
+        with TemporaryDirectory() as temp:
+            report = package_contract(Path(temp) / 'studio.json', probe_webview=False)
+            self.assertTrue(report['studio_assets_served'])
+            self.assertTrue((Path(temp) / 'studio.json').is_file())
+
     def test_closing_window_seals_finished_capture(self):
         class Session:
             finished = False

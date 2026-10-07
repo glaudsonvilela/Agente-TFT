@@ -138,6 +138,18 @@ jobs:
           if (!(Test-Path $smoke)) { throw 'Packaged voice smoke did not write its result' }
           $result = Get-Content $smoke -Raw | ConvertFrom-Json
           if (!$result.api_only -or $result.local_tts_models_bundled -or !$result.mock_transport_passed) { throw 'API voice package contract failed' }
+      - name: Check packaged connected studio imports and assets
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
+          $report = Join-Path (Get-Location).Path 'build\hm45-studio-package-smoke.json'
+          $process = Start-Process -FilePath $app -ArgumentList @('--studio-package-smoke-output', $report) -Wait -PassThru
+          if ($process.ExitCode -ne 0 -or !(Test-Path $report)) {
+            Get-ChildItem "$env:LOCALAPPDATA\AgenteTFT-HUD-HM4\logs\startup-*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 80 }
+            throw 'Packaged studio contract failed'
+          }
+          $result = Get-Content $report -Raw | ConvertFrom-Json
+          if (!$result.studio_assets_served -or !$result.edgechromium_imported) { throw 'Connected studio is incomplete' }
       - name: Recorded replay pixels to decision and mocked API transport
         shell: pwsh
         run: |
@@ -159,6 +171,7 @@ jobs:
             dist/AgenteTFT-HM45-Online-Setup.exe
             dist/HM45_ONLINE_REPORT.json
             build/hm45-voice-smoke.json
+            build/hm45-studio-package-smoke.json
             build/hm45-replay-voice/report.json
             build/hm45-replay-voice/decision.wav
             build/hm45-preview-endurance.json

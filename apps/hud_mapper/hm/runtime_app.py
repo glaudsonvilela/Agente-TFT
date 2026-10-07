@@ -814,6 +814,7 @@ def main(mode="hm3"):
     p.add_argument("--capture");p.add_argument("--capture-consent",action="store_true");p.add_argument("--headless",action="store_true")
     p.add_argument("--legacy-ui",action="store_true")
     p.add_argument("--studio-browser",action="store_true")
+    p.add_argument("--studio-package-smoke-output")
     p.add_argument("--ui-smoke",action="store_true");p.add_argument("--model");p.add_argument("--output");p.add_argument("--seconds",type=float,default=5)
     p.add_argument("--replay-review",action="store_true")
     p.add_argument("--voice-smoke-output")
@@ -821,6 +822,11 @@ def main(mode="hm3"):
     p.add_argument("--replay-voice-validation")
     p.add_argument("--map-hz",type=float,default=8);p.add_argument("--reader-hz",type=float,default=2 if mode=="hm4" else 1);p.add_argument("--sample-hz",type=float,default=1)
     a=p.parse_args()
+    if a.studio_package_smoke_output:
+        if not hm4:p.error("Studio smoke is HM4 only")
+        from .studio_bridge import package_contract
+        package_contract(a.studio_package_smoke_output)
+        return 0
     if a.replay_voice_validation:
         if not hm4 or not a.output:p.error('HM4 and output required')
         from .replay_voice_validation import run
