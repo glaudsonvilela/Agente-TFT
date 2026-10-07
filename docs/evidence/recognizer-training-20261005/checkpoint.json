@@ -2229,5 +2229,43 @@
     "server_training": "BigBANANA",
     "local_inference": true,
     "player_experience": "zero_click"
+  },
+  "supplementary_checkpoint_20261007": {
+    "recorded_at": "2026-10-07T14:07:45.234Z",
+    "recovered_from_local_commit": "7c9b5ad",
+    "role": "Historical October 5 experiment reports and five assistant-reviewed labels, preserved without superseding newer remote architecture or training state.",
+    "optimizer": {
+      "status": "complete_both_challengers_rejected",
+      "protocol": "docs/evidence/recognizer-training-20261005/optimizer-study-protocol.json",
+      "tests_passed": 22,
+      "backbone_finetuned": false,
+      "training_named": 642,
+      "training_explicit_negatives": 31,
+      "independent_final_holdout": false,
+      "runtime_approved": false,
+      "selection": "docs/evidence/recognizer-training-20261005/optimizer-study-selection.json",
+      "selected_head_sha256": "0fd97d6495d474c88cc7a34ed25184ffae4cf2b9c6169646404d6fa86ba81878",
+      "process_state": "No train-classifier or vod-collector process found at checkpoint; both optimizer final reports present."
+    },
+    "prepared_data": {
+      "annotations": "configs/training/unit-gallery-rare-cross-source-expanded-20261005.json",
+      "named_training": 647,
+      "explicit_negative_training": 31,
+      "single_source_ids": 9,
+      "new_sources_for_ids": [
+        "DA_Karma18"
+      ],
+      "additional_xayah_example_same_source": true,
+      "trained": false,
+      "audit": "docs/evidence/recognizer-training-20261005/rare-cross-source-audit.json",
+      "runtime_approved": false
+    },
+    "unrelated_local_work_preserved": [
+      "apps/hud_mapper/hm/board_hub_live.py",
+      "apps/hud_mapper/hm/runtime_app.py",
+      "apps/hud_mapper/hm/runtime_session.py",
+      "apps/hud_mapper/hm45_core_server.py",
+      "apps/hud_mapper/hm/native_unit_observer.py"
+    ]
   }
 }

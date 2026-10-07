@@ -1,0 +1,34 @@
+{
+  "recorded_at": "2026-10-07T14:05:45.213Z",
+  "status": "complete_retain_baseline",
+  "selected": "transfer-vertical",
+  "candidates": {
+    "transfer-vertical": {
+      "head_sha256": "0fd97d6495d474c88cc7a34ed25184ffae4cf2b9c6169646404d6fa86ba81878",
+      "epoch": 800,
+      "named": 32,
+      "correct": 21,
+      "macro": 0.6893939393939393,
+      "cross_entropy": 3.196618214249611
+    },
+    "optimizer-l2-1e4": {
+      "head_sha256": "5c2ee50bf96a2d39af6ced5a3354353a788df6f5ec661a865317d4b37123028d",
+      "epoch": 400,
+      "named": 32,
+      "correct": 20,
+      "macro": 0.6439393939393939,
+      "cross_entropy": 3.1800321638584137
+    },
+    "optimizer-l2-1e5": {
+      "head_sha256": "8e1db45783184b5e84d5d975a407c5bb881196fb5fee20862aea85dc20260357",
+      "epoch": 400,
+      "named": 32,
+      "correct": 20,
+      "macro": 0.6439393939393939,
+      "cross_entropy": 3.1505271792411804
+    }
+  },
+  "selection_basis": "Predeclared validation macro recall then cross entropy; both challengers lose to baseline. No new Minjo/KH runs required.",
+  "independent_final_holdout": false,
+  "runtime_approved": false
+}
