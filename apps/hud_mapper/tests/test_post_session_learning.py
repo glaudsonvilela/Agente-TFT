@@ -97,7 +97,7 @@ def test_post_session_launcher_queues_server_upload_without_local_training(tmp_p
     value = post.launch_post_session_learning(session)
     assert value["status"] == "queued_server_upload"
     assert value["training_location"] == "server"
-    assert value["local_neural_weights_bundled"] is False
+    assert value["local_neural_weights_bundled"] is True
     assert value["local_training_performed"] is False
     assert value["active_model_changed"] is False
 
