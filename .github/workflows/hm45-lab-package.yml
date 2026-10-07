@@ -75,6 +75,8 @@ jobs:
           'C:\Program Files\Tesseract-OCR' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           python -m pip install -r apps/hud_mapper/requirements.txt
           if ($LASTEXITCODE -ne 0) { throw 'Runtime dependencies failed' }
+          python -m pip install pytest
+          if ($LASTEXITCODE -ne 0) { throw 'Contract test dependency failed' }
           python -m pip install pyinstaller==6.13.0 jaraco.text==4.0.0 jaraco.context==6.0.0 jaraco.functools==4.1.0
           if ($LASTEXITCODE -ne 0) { throw 'Packaging dependencies failed' }
       - name: Verify HM4.5 protocol and setup
