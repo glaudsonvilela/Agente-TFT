@@ -127,7 +127,7 @@ def main():
     p.add_argument("--job",type=Path,required=True)
     p.add_argument("--data-root",type=Path,default=Path("/var/lib/agente-tft-trainer"))
     p.add_argument("--repo",type=Path,default=Path("/workspace"))
-    p.add_argument("--selection",type=Path,default=Path("/opt/agente-tft/learner/selection.json"))
+    p.add_argument("--seed-selection",type=Path,default=Path("/opt/agente-tft/learner/selection.json"))
     p.add_argument("--outbox",type=Path,required=True)
     p.add_argument("--failed",type=Path,required=True)
     args=p.parse_args()
@@ -136,6 +136,22 @@ def main():
     if job.get("schema_version")!=1 or not isinstance(job.get("neural_session_id"),str):
         die("invalid job")
     sid=job["neural_session_id"]
+
+    # Central champion state is persistent and becomes the baseline for the next
+    # challenger. The immutable bundle is used only to seed generation zero.
+    champion_root=args.data_root/"learning-champion"
+    champion_root.mkdir(parents=True,exist_ok=True)
+    selection_path=champion_root/"selection.json"
+    metadata_path=champion_root/"run-metadata.json"
+    if not selection_path.is_file():
+        seed=args.seed_selection
+        if not seed.is_file():die("seed selection missing")
+        seed_meta=seed.parent/"run-metadata.json"
+        if not seed_meta.is_file():die("seed run metadata missing")
+        shutil.copy2(seed,selection_path)
+        shutil.copy2(seed_meta,metadata_path)
+    if not metadata_path.is_file():die("central run metadata missing")
+
     work=args.data_root/"neural-work"/sid
     if work.exists(): shutil.rmtree(work)
     work.mkdir(parents=True)
@@ -149,14 +165,14 @@ def main():
         with log.open("w",encoding="utf-8") as handle:
             proc=subprocess.run([
                 sys.executable,str(args.repo/"scripts/run_post_session_shadow_learning.py"),
-                "--repo",str(args.repo),"--selection",str(args.selection),
+                "--repo",str(args.repo),"--selection",str(selection_path),
                 "--session",str(session),
             ],cwd=args.repo,env=env,stdout=handle,stderr=subprocess.STDOUT,text=True)
         if proc.returncode!=0:
             die(f"post-session pipeline failed:{proc.returncode}")
 
         state=load_json(session/"shadow-learning"/"post-session-v1"/"state.json")
-        selection=load_json(args.selection)
+        selection=load_json(selection_path)
         result={
             "schema_version":1,"neural_session_id":sid,
             "outcome":state.get("outcome"),
