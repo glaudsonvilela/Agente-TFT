@@ -48,7 +48,7 @@ def _resize_bilinear_u8(rgb, out_h: int, out_w: int):
     # round(), before any later tensor resize. Preserve that quantization
     # boundary so the same DINO/head produces the same runtime evidence.
     resized = _resize_bilinear(rgb, out_h, out_w)
-    return np.clip(np.rint(resized), 0, 255).astype(np.uint8)
+    return np.clip(np.floor(resized + 0.5), 0, 255).astype(np.uint8)
 
 
 def _upper_88x80_v1(image, box, side: int):
