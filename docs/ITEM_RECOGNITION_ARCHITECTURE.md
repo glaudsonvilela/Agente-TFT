@@ -52,6 +52,8 @@ avaliação independente mostrar perda por mudança de arte ou interface. Dados
 fixos de geometria, dados sazonais e registros confirmados ficam separados.
 O Data Dragon pode ser publicado depois do patch; nessa janela conservar o
 catálogo anterior com versão explícita e marcar ícones novos como desconhecidos.
+Se faltarem imagens na instalação, o HUB registra a quantidade ausente e
+continua com a galeria parcial, sem atribuir identidade aos itens não cobertos.
 
 ## Validação antes de dicas específicas de item
 
@@ -86,6 +88,11 @@ processou um quadro de replay de 1920×1080 e manteve a captura desacoplada da
 prévia. Nesse computador Linux, a inicialização do HUB levou 1,3 s e o quadro
 levou 71 ms; a gravação testada usa outro patch, então esses números são apenas
 de execução, não de acerto. A galeria nova tem cache limitado a 128 recortes.
+Um quadro sintético de 1920×1080, montado com a arte oficial da Espada G.p.C.,
+passou pelo HUB inteiro: os espaços de inventário e de unidade foram
+localizados, ambos deram o mesmo ID candidato e a região do ícone equipado
+apareceu no resultado. Esse ensaio confirma a integração e a geometria desse
+caso, sem estimar precisão de partidas reais.
 
 Fontes: [Riot TFT Data Dragon](https://developer.riotgames.com/docs/tft),
 [Prototypical Networks](https://arxiv.org/abs/1703.05175) e

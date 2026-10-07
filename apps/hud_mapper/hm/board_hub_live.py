@@ -61,8 +61,8 @@ class BoardHubLive:
         self.knowledge_patch = knowledge['tft_patch']
         selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
         missing = [entry['icon'] for entry in selected if not (self.icons / entry['icon']).is_file()]
-        if missing:
-            raise ValueError(f'Live icon bank incomplete: {len(missing)} assets missing')
+        available_selected = [entry for entry in selected if (self.icons / entry['icon']).is_file()]
+        self.missing_item_icons = len(missing)
         self.interval_ms = profile['sample_interval_ms']
         if type(self.interval_ms) is not int or not 1000 <= self.interval_ms <= 30000:
             raise ValueError('Invalid live board hub interval')
@@ -75,8 +75,8 @@ class BoardHubLive:
         self.inventory = config('match001-inventory-v1.json')
         # Pinned icon art is immutable during a session. Decode it once, not on
         # every B4 frame; a new catalog/session builds a new cache.
-        self.inventory_templates = load_templates(selected, self.icons)
-        self.equipped_templates = load_templates(selected, self.icons,
+        self.inventory_templates = load_templates(available_selected, self.icons)
+        self.equipped_templates = load_templates(available_selected, self.icons,
                                                  size=self.equipped['icon_size'])
         from .item_movement import ItemMovementTracker
         visible_ids = {entry['id'] for entry in selected}
@@ -88,7 +88,8 @@ class BoardHubLive:
         self.item_visual_error = None
         try:
             from .item_visual_native import ItemVisualNative
-            self.item_visual = ItemVisualNative(root, selected, self.icons, self.item_attribute_ids)
+            self.item_visual = ItemVisualNative(root, available_selected, self.icons,
+                                                self.item_attribute_ids)
         except (OSError, ValueError, ImportError, RuntimeError, AttributeError) as exc:
             self.item_visual_error = str(exc)
         self.item_neural=None
@@ -204,6 +205,7 @@ class BoardHubLive:
                        snapshot['item_visual_native'].get('equipped', []))
         snapshot['knowledge_release'] = self.knowledge_release
         snapshot['item_attributes_patch'] = self.knowledge_patch
+        snapshot['item_art_missing'] = self.missing_item_icons
         # A live recording has no verified patch binding or semantic labels.
         snapshot['live_diagnostic_only'] = True
         snapshot['board_reference_status'] = (read.get('reference_basis', 'reference_unspecified')
