@@ -181,10 +181,14 @@ def main() -> int:
     source_id = next(iter(source_ids))
 
     selection = load_json(selection_path)
-    if selection.get("status") != "selection_frozen_before_minjo_kh_evaluation":
-        die("baseline selection is not frozen before development evaluation")
-    if selection.get("selected_arm") != "optimizer-default-parity":
-        die("baseline selected arm is not optimizer-default-parity")
+    if selection.get("status") not in {
+        "selection_frozen_before_minjo_kh_evaluation",
+        "central_stable_champion",
+    }:
+        die("baseline selection is not an approved frozen/central champion")
+    baseline_arm = selection.get("selected_arm")
+    if not isinstance(baseline_arm, str) or not baseline_arm:
+        die("baseline selected arm missing")
     baseline_metrics = selection.get("selected_metrics")
     if not isinstance(baseline_metrics, dict):
         die("baseline validation metrics missing")
@@ -327,13 +331,13 @@ def main() -> int:
         }
     )
     challenger_key = metric_key(challenger_metrics)
-    selected = "weighted-autonomous" if challenger_key > baseline_key else "optimizer-default-parity"
+    selected = "weighted-autonomous" if challenger_key > baseline_key else baseline_arm
 
     result = {
         "status": "selection_frozen_before_minjo_kh_evaluation",
         "selection_rule": "validation_named_macro_recall_then_lower_cross_entropy",
         "baseline": {
-            "arm": "optimizer-default-parity",
+            "arm": baseline_arm,
             "model": str(baseline_model),
             "model_sha256": baseline_model_sha,
             "validation": {
