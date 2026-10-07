@@ -219,6 +219,62 @@ def create_app(
         if api_token is not None
         else os.environ.get("TRAINER_API_TOKEN")
     )
+    app.state.neural_reconciler_task = None
+
+    async def reconcile_neural_worker_results_once() -> int:
+        if not isinstance(app.state.neural_backend, FileQueueNeuralBackend):
+            return 0
+        async with app.state.store.lock:
+            ids = [
+                identifier
+                for identifier, record in app.state.store.neural_sessions.items()
+                if record.status == NeuralSessionStatus.PROCESSING
+            ]
+        completed = 0
+        for neural_session_id in ids:
+            result = app.state.neural_backend.consume_result(neural_session_id)
+            if result is None:
+                continue
+            await _finalize_neural_result(
+                app.state.store,
+                app.state.champion_registry,
+                neural_session_id,
+                result,
+                app.state.clock_ms,
+            )
+            completed += 1
+        return completed
+
+    async def neural_reconciler_loop() -> None:
+        while True:
+            try:
+                await reconcile_neural_worker_results_once()
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                # A broken result must not stop HTTP service; its session remains
+                # PROCESSING until the next reconciliation or a valid result.
+                pass
+            await asyncio.sleep(2)
+
+    @app.on_event("startup")
+    async def start_neural_reconciler() -> None:
+        if isinstance(app.state.neural_backend, FileQueueNeuralBackend):
+            app.state.neural_reconciler_task = asyncio.create_task(
+                neural_reconciler_loop(),
+                name="tft-neural-result-reconciler",
+            )
+
+    @app.on_event("shutdown")
+    async def stop_neural_reconciler() -> None:
+        task = app.state.neural_reconciler_task
+        if task is not None:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            app.state.neural_reconciler_task = None
 
     async def require_token(
         authorization: str | None = Header(default=None),
