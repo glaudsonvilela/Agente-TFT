@@ -473,7 +473,26 @@ def create_app(
         final = folder / f"{frame_id:012d}{suffix}"
         meta_path = folder / f"{frame_id:012d}.json"
         if final.exists() or meta_path.exists():
-            raise HTTPException(status_code=409, detail="frame_id already stored")
+            if not final.is_file() or not meta_path.is_file():
+                raise HTTPException(status_code=409, detail="partial existing frame state")
+            try:
+                existing = NeuralFrameMetadata.model_validate_json(
+                    meta_path.read_text(encoding="utf-8")
+                )
+            except Exception as exc:
+                raise HTTPException(status_code=409, detail="stored frame metadata invalid") from exc
+            if (
+                existing != metadata
+                or hashlib.sha256(final.read_bytes()).hexdigest() != metadata.image_sha256
+            ):
+                raise HTTPException(status_code=409, detail="frame_id already stored with different payload")
+            return NeuralInferenceResult(
+                neural_session_id=neural_session_id,
+                frame_id=metadata.frame_id,
+                source_ms=metadata.source_ms,
+                status="queued",
+                error=None,
+            )
         temporary = final.with_suffix(final.suffix + ".partial")
         try:
             with temporary.open("xb") as handle:
@@ -529,6 +548,12 @@ def create_app(
                 status_code=409,
                 detail="seal frame_count does not match received evidence",
             )
+        if record.status in {
+            NeuralSessionStatus.SEALED,
+            NeuralSessionStatus.PROCESSING,
+            NeuralSessionStatus.COMPLETE,
+        }:
+            return record
         root = app.state.store.evidence_root
         assert root is not None
         folder = root / neural_session_id
