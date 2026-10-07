@@ -53,7 +53,7 @@ def main():
     copy(args.l3_assets/"candidate-model.onnx",seed/"models/candidate-model.onnx")
 
     item_plan=ROOT/"configs/catalog/active-item-neural-v1.json"
-    item_dir=ROOT/"models/item-icons"
+    item_dir=args.l3_assets/"item-icons"
     if item_plan.is_file() and item_dir.is_dir():
         plan=json.loads(item_plan.read_text(encoding="utf-8"))
         files=plan.get("files")
