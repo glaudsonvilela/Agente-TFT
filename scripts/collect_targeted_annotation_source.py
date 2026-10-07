@@ -26,6 +26,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from native_lab import command as native_lab_command
 from typing import Any
 
 BOARD_PROFILE_SHA256 = "50023142d6cc2d1a920b116f5e3e6452c5be89fbbdd3f849e37d02f23ab552c9"
@@ -269,18 +270,7 @@ def main() -> int:
     )
 
     run_stream(
-        [
-            "cargo",
-            "run",
-            "--release",
-            "--manifest-path",
-            str(repo / "tools/unit-features-lab/Cargo.toml"),
-            "--bin",
-            "vod-collector",
-            "--",
-            "--spec",
-            str(spec_path),
-        ],
+        native_lab_command(repo, "vod-collector", ["--spec", str(spec_path)]),
         repo,
         log_path,
     )
