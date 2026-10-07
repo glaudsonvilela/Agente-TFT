@@ -253,7 +253,13 @@ class StudioController:
         self.stop_session()
         session = self.session
         if session and not session.finished:
-            session.done.wait(15)
+            # A reader can use its 12-second request deadline and the session
+            # still gives workers up to 30 seconds to join before sealing.
+            if not session.done.wait(40):
+                session.stop()
+                session.done.wait(5)
+            if not session.done.is_set():
+                self.last_error = "A sessão não encerrou no prazo; preserve a pasta parcial para diagnóstico."
             self._finalize(session)
         self.closed.set()
         with self.preview_condition:

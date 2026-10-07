@@ -9,6 +9,43 @@ from hm.studio_bridge import StudioController, StudioServer, design_root, packag
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_closing_stalled_capture_stops_then_seals(self):
+        class FirstWaitTimesOut(threading.Event):
+            def __init__(self):
+                super().__init__()
+                self.waits = 0
+            def wait(self, timeout=None):
+                self.waits += 1
+                return False if self.waits == 1 else super().wait(0)
+        class Session:
+            finished = False
+            options = type('Options', (), {'replay_review': True})()
+            def __init__(self):
+                self.done = FirstWaitTimesOut()
+                self.stops = 0
+            def request_stop(self):
+                pass
+            def stop(self):
+                self.stops += 1
+                self.done.set()
+            def finish(self):
+                self.finished = True
+                return {'execution_complete': True}
+        controller = object.__new__(StudioController)
+        controller.lock = threading.RLock()
+        controller.session = Session()
+        controller.last_result = controller.last_error = None
+        controller.closed = threading.Event()
+        controller.preview_condition = threading.Condition()
+        controller.voice = None
+        controller.model_updater = type('Updater', (), {
+            'activate_pending_if_idle': lambda self: None,
+            'check_async': lambda self: None,
+        })()
+        controller.close()
+        self.assertEqual(controller.session.stops, 1)
+        self.assertEqual(controller.last_result, {'execution_complete': True})
+
     def test_package_contract_serves_connected_layout(self):
         from tempfile import TemporaryDirectory
         from pathlib import Path
