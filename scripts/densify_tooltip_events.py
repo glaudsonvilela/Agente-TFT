@@ -85,6 +85,17 @@ def checked_run(command: list[str], log: Path) -> None:
         fail(f"command failed ({result.returncode}); see {log}")
 
 
+def dense_collection_spec(base: dict[str, Any], output: Path,
+                          start: int, end: int) -> dict[str, Any]:
+    if not 0 <= start < end:
+        fail("invalid dense window")
+    result = dict(base)
+    result.update(output=str(output), start_seconds=start,
+                  duration_seconds=end - start, sample_interval_seconds=1,
+                  review_interval_seconds=1, decode_mode="all")
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--proposals", type=Path, required=True)
@@ -140,10 +151,7 @@ def main() -> int:
         dense = root / "collection"
         mined = root / "tooltip-proposals"
         labeled = root / "identity-anchors"
-        dense_spec = dict(spec)
-        dense_spec.update(output=str(dense), start_seconds=start,
-                          duration_seconds=end - start, sample_interval_seconds=1,
-                          review_interval_seconds=1)
+        dense_spec = dense_collection_spec(spec, dense, start, end)
         spec_path = root / "collection-spec-private.json"
         if spec_path.exists() and read_json(spec_path) != dense_spec:
             fail(f"existing window spec changed: {spec_path}")

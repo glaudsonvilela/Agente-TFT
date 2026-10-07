@@ -92,3 +92,12 @@ the first window yielded four held-out Camille anchors. The remaining windows
 are still being processed. A matching full-video annotation-only collection
 from the separate training VOD is in progress. Neither collection updates
 model weights or grants runtime approval.
+
+The first dense pass exposed a collection error: it inherited the sparse
+`keyframes` decoder mode. In the Varus window, nominal seconds 430 and 431
+had the same frame and crop hashes, so they were correctly rejected as one
+observation rather than two confirmations. Dense windows now use the full
+decoder with one sampled frame per second. The earlier keyframe windows remain
+diagnostic only; new output directories preserve the evidence of the issue.
+The separate training VOD's full sparse annotation collection has completed:
+1,374 saved review frames and 6,466 unit crops, with zero inferred labels.

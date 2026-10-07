@@ -50,3 +50,13 @@ def test_wrong_source_partition_and_weak_halo_are_excluded():
     ], "vod-train", "training_pool_unlabeled", 180, 90, 30)
     assert windows == [{"start_seconds": 120, "end_seconds": 180,
                         "events": [{"second": 150, "unit_id": "DA_18_Camille"}]}]
+
+
+def test_dense_collection_decodes_real_frames_instead_of_repeating_keyframes(tmp_path):
+    base = {"decode_mode": "keyframes", "partition": "evaluation_unlabeled"}
+    dense = planner.dense_collection_spec(base, tmp_path / "dense", 390, 451)
+    assert dense["decode_mode"] == "all"
+    assert dense["sample_interval_seconds"] == 1
+    assert dense["review_interval_seconds"] == 1
+    assert dense["duration_seconds"] == 61
+    assert base["decode_mode"] == "keyframes"
