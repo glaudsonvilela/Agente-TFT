@@ -15,6 +15,39 @@ CANONICAL_READER_SIZE = (1920, 1080)
 ASPECT_16_9 = 16 / 9
 ASPECT_TOLERANCE = 0.005
 ASYNC_HP_MAX_AGE_MS = 2000.0
+SHOP_CHANGE_MIN_BITS = 15
+SHOP_CHANGE_MIN_GAP_MS = 500.0
+
+
+def shop_text_signature(frame):
+    """Sample only the fixed five shop name strips; no OCR or full-frame hash."""
+    if (frame.width, frame.height) != CANONICAL_READER_SIZE:
+        return None
+    pixels = memoryview(frame.rgb)
+    slots = []
+    for slot in range(5):
+        bits = bytearray()
+        for y in range(1045, 1069, 2):
+            for x in range(558 + 202 * slot, 711 + 202 * slot, 3):
+                offset = (y * frame.width + x) * 3
+                r, g, b = pixels[offset:offset + 3]
+                bits.append(min(r, g, b) >= 130 and max(r, g, b) - min(r, g, b) <= 100)
+        slots.append(bytes(bits))
+    return tuple(slots)
+
+
+def shop_read_due(source_ms, epoch, next_ms, signature, previous):
+    """Read changed shop text promptly; refresh an unchanged shop at its normal cadence."""
+    if previous is None or previous['epoch'] != epoch or source_ms < previous['source_ms']:
+        return True
+    if source_ms >= next_ms:
+        return True
+    if signature is None or previous['signature'] is None:
+        return False
+    if source_ms - previous['source_ms'] < SHOP_CHANGE_MIN_GAP_MS:
+        return False
+    return any(sum(a != b for a, b in zip(now, old)) >= SHOP_CHANGE_MIN_BITS
+               for now, old in zip(signature, previous['signature']))
 
 
 def hub_due(previous, frame, interval_ms):
@@ -151,6 +184,7 @@ class RuntimeSession(Session):
         super().__init__(options)
         self._last_native = None
         self._next_shop_ms = 0.0
+        self._last_shop_read = None
         self._latest_hp = None
 
     def _publish_coach(self, tip, frame, ready_ns):
@@ -296,7 +330,11 @@ class RuntimeSession(Session):
                         self.counts['reader_normalized_runs'] += 1
                     executed = True
                     self.counts['reader_native_runs'] += 1
-                    include_shop = (self.shop_interval_ms <= 0 or frame.pts_ms >= self._next_shop_ms)
+                    shop_signature = (shop_text_signature(reader_frame)
+                                      if self.shop_interval_ms > 0 else None)
+                    include_shop = (self.shop_interval_ms <= 0 or shop_read_due(
+                        frame.pts_ms, frame.epoch, self._next_shop_ms,
+                        shop_signature, self._last_shop_read))
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
                                    bytes=len(reader_frame.rgb), include_shop=include_shop)
@@ -327,6 +365,8 @@ class RuntimeSession(Session):
                             start_ms=(hp_start - start) / 1e6, duration_ms=hp['native_ms']))
                     if include_shop and self.shop_interval_ms > 0:
                         self._next_shop_ms = frame.pts_ms + self.shop_interval_ms
+                        self._last_shop_read = dict(epoch=frame.epoch,
+                            source_ms=frame.pts_ms, signature=shop_signature)
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))

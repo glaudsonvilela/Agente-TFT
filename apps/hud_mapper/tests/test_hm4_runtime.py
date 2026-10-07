@@ -5,7 +5,7 @@ from unittest.mock import patch
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
     HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source,
-    async_hp_delivery, terminal_hp_observation
+    async_hp_delivery, terminal_hp_observation, shop_read_due, shop_text_signature
 )
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
@@ -17,6 +17,29 @@ from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_shop_signature_samples_only_fixed_name_geometry(self):
+        pixels = bytearray(1920 * 1080 * 3)
+        for x, y in ((558, 1045), (760, 1045)):
+            offset = (y * 1920 + x) * 3
+            pixels[offset:offset + 3] = b'\xff\xff\xff'
+        signature = shop_text_signature(types.SimpleNamespace(
+            width=1920, height=1080, rgb=bytes(pixels)))
+        self.assertEqual(signature[0][0], 1)
+        self.assertEqual(signature[1][0], 1)
+        self.assertEqual(signature[2][0], 0)
+
+    def test_shop_name_change_triggers_early_read_without_repeating_static_ocr(self):
+        blank = tuple(bytes(24) for _ in range(5))
+        changed = list(blank)
+        changed[3] = bytes([1] * 16 + [0] * 8)
+        old = dict(epoch=1, source_ms=1000, signature=blank)
+        self.assertFalse(shop_read_due(1250, 1, 3000, tuple(changed), old))
+        self.assertTrue(shop_read_due(1500, 1, 3000, tuple(changed), old))
+        self.assertFalse(shop_read_due(1500, 1, 3000, blank, old))
+        self.assertTrue(shop_read_due(3000, 1, 3000, blank, old))
+        self.assertTrue(shop_read_due(1100, 2, 3000, blank, old))
+        self.assertTrue(shop_read_due(500, 1, 3000, blank, old))
+
     def test_terminal_hp_signal_is_fail_closed(self):
         self.assertTrue(terminal_hp_observation(
             {'status':'accepted','hp':0,'signed_hp':0}
