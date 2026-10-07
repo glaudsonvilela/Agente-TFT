@@ -138,6 +138,13 @@ def main() -> int:
         if not isinstance(t, (int, float)) or not math.isfinite(float(t)):
             excluded["invalid_timestamp"] += 1
             continue
+        nominal_ms = row.get("source_milliseconds_nominal")
+        if nominal_ms is None:
+            nominal_ms = int(round(float(t) * 1000))
+        if (not isinstance(nominal_ms, int) or nominal_ms < 0
+                or int(float(t)) != nominal_ms // 1000):
+            excluded["inconsistent_millisecond_timestamp"] += 1
+            continue
         pixel = top.get("pixel_sha256")
         crop = top.get("crop")
         if not isinstance(pixel, str) or len(pixel) != 64 or not isinstance(crop, str):
@@ -157,7 +164,8 @@ def main() -> int:
             {
                 "source_id": source_id,
                 "partition": partition,
-                "source_seconds_nominal": int(round(float(t))),
+                "source_seconds_nominal": int(float(t)),
+                "source_milliseconds_nominal": nominal_ms,
                 "unit_id": unit_id,
                 "ocr_name_confidence": float(conf),
                 "crop": crop,
@@ -173,15 +181,15 @@ def main() -> int:
 
     # Greedy track clustering by source/partition, exact ID, nearby time and position.
     clusters: list[list[dict[str, Any]]] = []
-    for item in sorted(prelim, key=lambda x: (x["source_id"], x["partition"], x["unit_id"], x["source_seconds_nominal"])):
+    for item in sorted(prelim, key=lambda x: (x["source_id"], x["partition"], x["unit_id"], x["source_milliseconds_nominal"])):
         placed = False
         for cluster in reversed(clusters):
             last = cluster[-1]
             if (last["unit_id"] != item["unit_id"] or last["source_id"] != item["source_id"]
                     or last["partition"] != item["partition"]):
                 continue
-            dt = item["source_seconds_nominal"] - last["source_seconds_nominal"]
-            if dt <= 0 or dt > args.max_track_gap_seconds:
+            dt_ms = item["source_milliseconds_nominal"] - last["source_milliseconds_nominal"]
+            if dt_ms <= 0 or dt_ms > args.max_track_gap_seconds * 1000:
                 continue
             if distance(last["center"], item["center"]) > args.max_track_distance_px:
                 continue
@@ -206,6 +214,7 @@ def main() -> int:
                     "source_id": item["source_id"],
                     "partition": item["partition"],
                     "source_seconds_nominal": item["source_seconds_nominal"],
+                    "source_milliseconds_nominal": item["source_milliseconds_nominal"],
                     "unit_id": item["unit_id"],
                     "crop": item["crop"],
                     "pixel_sha256": item["pixel_sha256"],

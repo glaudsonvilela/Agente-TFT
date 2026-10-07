@@ -103,6 +103,7 @@ fn load_autonomous_rows(
     for (i, row) in rows.iter().enumerate() {
         let mut row_weight = weight;
         if row["source_id"].as_str() != Some(source_id)
+            || row["partition"] != "training_pool_unlabeled"
             || row["human_review_required"] != false
             || row["training_eligible"] != true
         {
@@ -228,6 +229,14 @@ fn load_autonomous_training(
             return Err("gold autonomous weight must be >= silver weight".into());
         }
         let collection = PathBuf::from(&config.collection);
+        let collection_report: Value =
+            serde_json::from_slice(&fs::read(collection.join("report.json"))?)?;
+        if collection_report["status"] != "complete"
+            || collection_report["partition"] != "training_pool_unlabeled"
+            || collection_report["source_id"] != config.source_id
+        {
+            return Err("autonomous collection source/partition mismatch".into());
+        }
         result.extend(load_autonomous_rows(
             Path::new(&config.gold_labels),
             &collection,

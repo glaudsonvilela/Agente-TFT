@@ -83,3 +83,14 @@ def test_missing_partition_never_becomes_training_label(tmp_path, monkeypatch):
     result = run(tmp_path, monkeypatch, rows)
     assert result["labels"] == []
     assert result["report"]["excluded"]["missing_or_invalid_partition"] == 2
+
+
+def test_two_distinct_quarter_second_frames_can_confirm_one_tooltip(tmp_path, monkeypatch):
+    rows = [proposal("vod-train", 123), proposal("vod-train", 123)]
+    rows[0]["source_milliseconds_nominal"] = 123000
+    rows[1]["source_milliseconds_nominal"] = 123250
+    rows[1]["frame_pixel_sha256"] = "a" * 64
+    rows[1]["association_candidates"][1]["pixel_sha256"] = "b" * 64
+    result = run(tmp_path, monkeypatch, rows)
+    assert [row["source_milliseconds_nominal"] for row in result["labels"]] == [123000, 123250]
+    assert result["report"]["training_eligible_labels"] == 2

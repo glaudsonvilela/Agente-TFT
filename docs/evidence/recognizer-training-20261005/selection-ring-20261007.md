@@ -115,3 +115,22 @@ none had both a strong OCR name and a unique selected-unit halo in that one
 saved frame. This makes a ring-required *window planner* too restrictive.
 The dense consensus rule remains strict; discovery windows can be chosen from
 exact names and then seek multiple frames for visual confirmation.
+
+The collector now supports bounded 250 ms windows in annotation-only mode.
+It keeps an integer source time for existing consumers and records the
+millisecond time for temporal evidence. The miner gives every 250 ms frame a
+distinct OCR crop filename, and consensus compares millisecond gaps. In a
+12-second evaluation window, 48 distinct frames yielded nine tooltip
+proposals and eight direct Camille anchors. All eight remain evaluation-only.
+The frozen model missed all eight: seven predictions were Yunara and one
+Veigar. These eight crops come from one tooltip event and must not be counted
+as eight independent matches. A corresponding high-rate training window is
+now complete: 244 distinct frames, 33 tooltip proposals, seven strong
+name/selection associations and six temporally confirmed Camille crops.
+Fourteen proposals had name OCR below 94 and twelve had weak selection
+association. These six are eligible for adjudication from the separate
+training source; no weights have been updated. Frozen-teacher adjudication
+accepted one crop, marked four as mixed (retrieval said Camille while the
+classifier disagreed), and quarantined one where both teachers disagreed.
+The direct game UI evidence and teacher judgments remain separate. The
+held-out 0/8 result means this model cannot yet be promoted to live tips.

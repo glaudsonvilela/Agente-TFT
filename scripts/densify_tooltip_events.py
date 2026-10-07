@@ -26,8 +26,8 @@ def read_json(path: Path) -> Any:
         fail(f"cannot read {path}: {exc}")
 
 
-def selected_exact_event(row: dict[str, Any], source_id: str, partition: str,
-                         min_ocr: float) -> bool:
+def exact_name_event(row: dict[str, Any], source_id: str, partition: str,
+                     min_ocr: float, require_ring: bool) -> bool:
     unit_id = row.get("tooltip_unit_id")
     if not isinstance(unit_id, str) or not unit_id:
         return False
@@ -38,6 +38,11 @@ def selected_exact_event(row: dict[str, Any], source_id: str, partition: str,
     conf = row.get("ocr_name_confidence")
     if not isinstance(conf, (int, float)) or not min_ocr <= conf <= 100:
         return False
+    second = row.get("source_seconds_nominal")
+    if not isinstance(second, int) or second < 0:
+        return False
+    if not require_ring:
+        return True
     if row.get("selection_ring_status") not in {"unique_shape_candidate", "dominant_shape_candidate"}:
         return False
     marker = row.get("selected_ring_marker_candidate")
@@ -51,15 +56,15 @@ def selected_exact_event(row: dict[str, Any], source_id: str, partition: str,
         return False
     if selected[0]["selection_ring"].get("shape_pass") is not True:
         return False
-    second = row.get("source_seconds_nominal")
-    return isinstance(second, int) and second >= 0
+    return True
 
 
 def plan_windows(proposals: list[Any], source_id: str, partition: str,
-                 duration: int, min_ocr: float, radius: int) -> list[dict[str, Any]]:
+                 duration: int, min_ocr: float, radius: int,
+                 require_ring: bool = False) -> list[dict[str, Any]]:
     intervals = []
     for row in proposals:
-        if not isinstance(row, dict) or not selected_exact_event(row, source_id, partition, min_ocr):
+        if not isinstance(row, dict) or not exact_name_event(row, source_id, partition, min_ocr, require_ring):
             continue
         second = row["source_seconds_nominal"]
         start = max(0, second - radius)
@@ -86,13 +91,16 @@ def checked_run(command: list[str], log: Path) -> None:
 
 
 def dense_collection_spec(base: dict[str, Any], output: Path,
-                          start: int, end: int) -> dict[str, Any]:
+                          start: int, end: int, sample_ms: int = 250) -> dict[str, Any]:
     if not 0 <= start < end:
         fail("invalid dense window")
+    if sample_ms not in {250, 500, 1000}:
+        fail("dense sampling must be 250, 500 or 1000 ms")
     result = dict(base)
     result.update(output=str(output), start_seconds=start,
                   duration_seconds=end - start, sample_interval_seconds=1,
-                  review_interval_seconds=1, decode_mode="all")
+                  review_interval_seconds=1, sample_interval_ms=sample_ms,
+                  review_interval_ms=sample_ms, decode_mode="all")
     return result
 
 
@@ -107,6 +115,9 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-ocr-confidence", type=float, default=90)
     parser.add_argument("--radius-seconds", type=int, default=30)
+    parser.add_argument("--sample-ms", type=int, choices=(250, 500, 1000), default=250)
+    parser.add_argument("--require-ring", action="store_true",
+                        help="Plan only when the sparse frame already shows a unique halo")
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
 
@@ -131,11 +142,13 @@ def main() -> int:
     if not args.catalog.is_file() or not args.collector_bin.is_file() or not args.miner_bin.is_file():
         fail("catalog or Rust executable missing")
     windows = plan_windows(proposals, source_id, partition, duration,
-                           args.min_ocr_confidence, args.radius_seconds)
+                           args.min_ocr_confidence, args.radius_seconds, args.require_ring)
     args.output.mkdir(parents=True, exist_ok=True)
     plan = {"schema_version": 1, "source_id": source_id, "partition": partition,
             "min_ocr_confidence": args.min_ocr_confidence,
             "radius_seconds": args.radius_seconds, "windows": windows,
+            "dense_sample_ms": args.sample_ms,
+            "require_ring_at_discovery": args.require_ring,
             "sparse_proposals_are_labels": False}
     (args.output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
     print(f"DENSE_WINDOWS={len(windows)}")
@@ -151,7 +164,7 @@ def main() -> int:
         dense = root / "collection"
         mined = root / "tooltip-proposals"
         labeled = root / "identity-anchors"
-        dense_spec = dense_collection_spec(spec, dense, start, end)
+        dense_spec = dense_collection_spec(spec, dense, start, end, args.sample_ms)
         spec_path = root / "collection-spec-private.json"
         if spec_path.exists() and read_json(spec_path) != dense_spec:
             fail(f"existing window spec changed: {spec_path}")

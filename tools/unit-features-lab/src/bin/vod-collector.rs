@@ -142,16 +142,28 @@ fn run() -> Result<()> {
         return Err("partition policy".into());
     }
     let seconds = spec["duration_seconds"].as_u64().ok_or("duration")?;
-    let interval = spec["sample_interval_seconds"].as_u64().ok_or("interval")?;
+    let interval_ms = match spec.get("sample_interval_ms") {
+        Some(value) => value.as_u64().ok_or("sample interval ms")?,
+        None => spec["sample_interval_seconds"].as_u64().ok_or("interval")? * 1000,
+    };
     let offset = spec["start_seconds"].as_u64().ok_or("start")?;
-    if !(1..=43200).contains(&seconds) || !(1..=60).contains(&interval) {
+    if interval_ms < 1000 && decode_mode != "all" {
+        return Err("subsecond annotation requires full-frame decoding".into());
+    }
+    if !(1..=43200).contains(&seconds)
+        || ![250, 500].contains(&interval_ms) && !(1000..=60000).contains(&interval_ms)
+        || interval_ms < 1000 && seconds > 120
+    {
         return Err("video time budget".into());
     }
-    let review_interval = match spec.get("review_interval_seconds") {
-        Some(value) => value.as_u64().ok_or("review interval")?,
-        None => 60,
+    let review_interval_ms = match spec.get("review_interval_ms") {
+        Some(value) => value.as_u64().ok_or("review interval ms")?,
+        None => match spec.get("review_interval_seconds") {
+            Some(value) => value.as_u64().ok_or("review interval")? * 1000,
+            None => 60000,
+        },
     };
-    if !(interval..=3600).contains(&review_interval) || review_interval % interval != 0 {
+    if !(interval_ms..=3600000).contains(&review_interval_ms) || review_interval_ms % interval_ms != 0 {
         return Err("review interval must be a bounded multiple of sampling interval".into());
     }
     let out = PathBuf::from(string(&spec, "output")?);
@@ -218,7 +230,7 @@ fn run() -> Result<()> {
                 "-an",
                 "-sn",
                 "-vf",
-                &format!("fps=1/{interval}:start_time=0"),
+                &format!("fps=1000/{interval_ms}:start_time=0"),
                 "-pix_fmt",
                 "rgb24",
                 "-f",
@@ -241,7 +253,7 @@ fn run() -> Result<()> {
     let mut hashes = HashSet::new();
     let mut review_frames = 0;
     let frame_bytes = 1920 * 1080 * 3;
-    let target = seconds.div_ceil(interval);
+    let target = (seconds * 1000).div_ceil(interval_ms);
     while frames < target {
         let read_start = Instant::now();
         let mut pixels = vec![0; frame_bytes];
@@ -261,12 +273,13 @@ fn run() -> Result<()> {
         }
         decode_wait.push(read_start.elapsed().as_secs_f64() * 1000.);
         let t = Instant::now();
-        let source_s = offset + frames * interval;
+        let source_ms = offset * 1000 + frames * interval_ms;
+        let source_s = source_ms / 1000;
         let frame_sha = hash(&pixels);
         let duplicate = !hashes.insert(frame_sha.clone());
         let frame = FrameEnvelope {
             frame_id: frames,
-            captured_at_ms: source_s * 1000,
+            captured_at_ms: source_ms,
             width: 1920,
             height: 1080,
             stride_bytes: 1920 * 3,
@@ -369,9 +382,13 @@ fn run() -> Result<()> {
         timings.push(analysis_ms);
         proposals += rows.len() as u64;
         // Fixed review cadence, independent of model confidence (default: 60 s).
-        let review = (source_s - offset) % review_interval == 0;
+        let review = (source_ms - offset * 1000) % review_interval_ms == 0;
         let full_frame = if review {
-            let file = format!("frames/{source_s:06}.png");
+            let file = if interval_ms < 1000 {
+                format!("frames/{source_ms:09}.png")
+            } else {
+                format!("frames/{source_s:06}.png")
+            };
             image::save_buffer(
                 out.join(&file),
                 &frame.pixels,
@@ -380,7 +397,7 @@ fn run() -> Result<()> {
                 image::ColorType::Rgb8,
             )?;
             review_frames += 1;
-            writeln!(html,"<section><h2>{source_s}s</h2><a href='{file}'><img loading='lazy' src='{file}'></a><div class=crops>")?;
+            writeln!(html,"<section><h2>{:.2}s</h2><a href='{file}'><img loading='lazy' src='{file}'></a><div class=crops>",source_ms as f64 / 1000.0)?;
             for row in &rows {
                 writeln!(
                     html,
@@ -397,7 +414,7 @@ fn run() -> Result<()> {
         writeln!(
             ledger,
             "{}",
-            json!({"frame_index":frames,"source_id":spec["source_id"],"source_seconds_nominal":source_s,
+            json!({"frame_index":frames,"source_id":spec["source_id"],"source_seconds_nominal":source_s,"source_milliseconds_nominal":source_ms,
             "timestamp_basis":"ffmpeg_fps_grid_not_original_frame_pts","decode_mode":decode_mode,"frame_pixel_sha256":frame_sha,
             "exact_duplicate_frame":duplicate,"markers":markers,"units":rows,"review_frame":full_frame,
             "detection_ms":detector_ms,"analysis_and_crop_save_ms":analysis_ms,"decoder_wait_ms":decode_wait.last(),
@@ -407,7 +424,7 @@ fn run() -> Result<()> {
         if frames % 20 == 0 || frames == target {
             ledger.flush()?;
             html.flush()?;
-            let progress = json!({"frames":frames,"target_frames":target,"source_seconds_covered":(frames*interval).min(seconds),
+            let progress = json!({"frames":frames,"target_frames":target,"source_seconds_covered":(frames*interval_ms).min(seconds*1000) as f64 / 1000.0,
                 "unit_crops":proposals,"accepted_candidates":accepted,"frames_without_green_proposals":no_markers,
                 "elapsed_seconds":start.elapsed().as_secs_f64(),"analysis_ms_p50":percentile(&timings,0.5),
                 "analysis_ms_p95":percentile(&timings,0.95),"accuracy_measured":false,"status":"running"});
@@ -443,7 +460,9 @@ fn run() -> Result<()> {
     };
     let mut report = json!({"schema_version":1,"status":if complete{"complete"}else{"incomplete"},"decoder_success":status.success(),
         "source_id":spec["source_id"],"source_url":spec["source_url"],"start_seconds":offset,"requested_seconds":seconds,
-        "sample_interval_seconds":interval,"review_interval_seconds":review_interval,"frames":frames,"target_frames":target,"unit_crops":proposals,
+        "sample_interval_seconds":interval_ms as f64 / 1000.0,
+        "review_interval_seconds":review_interval_ms as f64 / 1000.0,
+        "frames":frames,"target_frames":target,"unit_crops":proposals,
         "accepted_candidates":accepted,"frames_without_green_proposals":no_markers,"green_markers":green_total,
         "unique_frame_hashes":hashes.len(),"saved_review_frames":review_frames,"top1_distribution":top_ids,"accepted_distribution":accept_ids,
         "elapsed_seconds":start.elapsed().as_secs_f64(),"analysis_ms_p50":percentile(&timings,0.5),"analysis_ms_p95":percentile(&timings,0.95),
@@ -456,6 +475,8 @@ fn run() -> Result<()> {
         "limitations":["Structural green-bar proposals with the recorded profile; no-proposal frames may be menu, combat, overlay or missed units.","Counts of model candidates are not precision/recall or catalog coverage.","Consecutive or duplicate crops are correlated; no pseudolabels enter training.","Sampling does not run inference on every decoded video frame.","Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."]});
     report["collection_mode"] = json!(mode.name());
     report["inference_performed"] = json!(inference.is_some());
+    report["sample_interval_ms"] = json!(interval_ms);
+    report["review_interval_ms"] = json!(review_interval_ms);
     fs::write(out.join("report.json"), serde_json::to_vec_pretty(&report)?)?;
     fs::write(
         out.join("progress.json"),

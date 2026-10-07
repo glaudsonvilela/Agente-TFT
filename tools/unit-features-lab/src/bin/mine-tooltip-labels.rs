@@ -169,7 +169,13 @@ fn run() -> Result<()> {
             return Err("review frame pixel checksum mismatch".into());
         }
         let roi = image::imageops::crop_imm(&rgb, 1650, 170, 270, 660).to_image();
-        let roi_path = out.join(format!("rois/{}.png", frame["source_seconds_nominal"]));
+        let nominal_ms = frame["source_milliseconds_nominal"].as_u64().unwrap_or(
+            frame["source_seconds_nominal"]
+                .as_u64()
+                .ok_or("source time")?
+                * 1000,
+        );
+        let roi_path = out.join(format!("rois/{nominal_ms}.png"));
         roi.save(&roi_path)?;
         let result = Command::new("tesseract")
             .arg(&roi_path)
@@ -256,6 +262,7 @@ fn run() -> Result<()> {
             None
         };
         proposals.push(json!({"source_id":report["source_id"],"partition":report["partition"],"source_seconds_nominal":frame["source_seconds_nominal"],
+            "source_milliseconds_nominal":nominal_ms,
             "frame":file,"frame_pixel_sha256":frame["frame_pixel_sha256"],
             "tooltip_unit_id":if found[0].0.len()==1 {Some(&found[0].0[0])} else {None},
             "tooltip_unit_candidates":found[0].0,"identity_requires_variant_review":found[0].0.len()!=1,"ocr_name_confidence":found[0].1,

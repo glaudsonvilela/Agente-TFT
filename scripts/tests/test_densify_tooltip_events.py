@@ -47,16 +47,26 @@ def test_wrong_source_partition_and_weak_halo_are_excluded():
         event(140, confidence=89),
         wrong_halo,
         event(150),
-    ], "vod-train", "training_pool_unlabeled", 180, 90, 30)
+    ], "vod-train", "training_pool_unlabeled", 180, 90, 30, require_ring=True)
     assert windows == [{"start_seconds": 120, "end_seconds": 180,
                         "events": [{"second": 150, "unit_id": "DA_18_Camille"}]}]
+
+
+def test_exact_name_can_trigger_dense_collection_without_sparse_halo():
+    weak_halo = event(11530)
+    weak_halo["selection_ring_status"] = "no_shape_candidate"
+    weak_halo["selected_ring_marker_candidate"] = None
+    assert len(planner.plan_windows([weak_halo], "vod-train", "training_pool_unlabeled",
+                                    13740, 90, 30)) == 1
+    assert planner.plan_windows([weak_halo], "vod-train", "training_pool_unlabeled",
+                                13740, 90, 30, require_ring=True) == []
 
 
 def test_dense_collection_decodes_real_frames_instead_of_repeating_keyframes(tmp_path):
     base = {"decode_mode": "keyframes", "partition": "evaluation_unlabeled"}
     dense = planner.dense_collection_spec(base, tmp_path / "dense", 390, 451)
     assert dense["decode_mode"] == "all"
-    assert dense["sample_interval_seconds"] == 1
-    assert dense["review_interval_seconds"] == 1
+    assert dense["sample_interval_ms"] == 250
+    assert dense["review_interval_ms"] == 250
     assert dense["duration_seconds"] == 61
     assert base["decode_mode"] == "keyframes"
