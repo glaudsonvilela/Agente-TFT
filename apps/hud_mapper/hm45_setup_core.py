@@ -64,10 +64,12 @@ def load_package(package_dir: Path) -> Package:
         raw = json.loads(manifest.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise SetupError("Pacote da VM ausente ou manifesto inválido.") from exc
-    if raw.get("schema_version") != 1 or raw.get("analysis_health_contract") != "ocr_hp_b4_local_helper_v2":
-        raise SetupError("Este pacote não comprova o helper local OCR/HP/B4 esperado.")
-    if raw.get("neural_location") != "server_only" or raw.get("local_neural_weights_bundled") is not False:
-        raise SetupError("O pacote local contém ou anuncia rede neural; a arquitetura exige neural no servidor.")
+    if raw.get("schema_version") != 1 or raw.get("analysis_health_contract") != "l3_ocr_b4_roi_v1":
+        raise SetupError("Este pacote não comprova L3/OCR/HP/B4 local esperado.")
+    if (raw.get("neural_location") != "local_inference_server_training"
+            or raw.get("local_neural_weights_bundled") is not True
+            or raw.get("post_session_trainer_bundled") is not False):
+        raise SetupError("Arquitetura inválida: inferência deve ser local e treinamento deve permanecer no servidor.")
     name = raw.get("distro_name", "")
     filename = raw.get("rootfs_file", "")
     digest = raw.get("sha256", "")
