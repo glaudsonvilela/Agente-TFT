@@ -289,6 +289,19 @@ class TrainerStore:
         request: NeuralSessionRequest,
         now_ms: int,
     ) -> NeuralSessionRecord:
+        async with self.lock:
+            unfinished = sum(
+                1
+                for row in self.neural_sessions.values()
+                if row.client_id == request.client_id
+                and row.status in {
+                    NeuralSessionStatus.ACTIVE,
+                    NeuralSessionStatus.SEALED,
+                    NeuralSessionStatus.PROCESSING,
+                }
+            )
+        if unfinished >= 4:
+            raise ValueError("too many unfinished neural sessions for client")
         record = NeuralSessionRecord(
             neural_session_id=str(uuid4()),
             client_id=request.client_id,
@@ -331,6 +344,10 @@ class TrainerStore:
                 raise ValueError(f"neural session is not active: {record.status.value}")
             if record.last_source_ms is not None and source_ms <= record.last_source_ms:
                 raise ValueError("neural frame source_ms must move forward")
+            if record.frames_received >= 3600:
+                raise ValueError("neural session frame budget exceeded")
+            if record.bytes_received + byte_count > 2 * 1024**3:
+                raise ValueError("neural session byte budget exceeded")
             record.frames_received += 1
             record.bytes_received += byte_count
             record.last_source_ms = source_ms
