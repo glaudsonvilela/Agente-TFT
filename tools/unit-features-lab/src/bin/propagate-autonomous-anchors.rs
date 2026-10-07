@@ -357,6 +357,7 @@ fn run() -> Result<()> {
 
         candidates.push(json!({
             "source_id":source_id,
+            "partition":"training_pool_unlabeled",
             "unit_id":best.0,
             "source_seconds_nominal":record.time,
             "crop":record.crop,

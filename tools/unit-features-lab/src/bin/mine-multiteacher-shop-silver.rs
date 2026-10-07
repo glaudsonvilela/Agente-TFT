@@ -331,6 +331,7 @@ fn run() -> Result<()> {
     let report: Value = serde_json::from_slice(&fs::read(root.join("report.json"))?)?;
     if report["status"] != "complete"
         || report["collection_mode"] != "annotation_only"
+        || report["partition"] != "training_pool_unlabeled"
         || report["inference_performed"] != false
         || report["training_performed"] != false
     {
@@ -608,6 +609,7 @@ fn run() -> Result<()> {
         for (u, d) in confirmed {
             labels.push(json!({
                 "source_id":source_id,
+                "partition":"training_pool_unlabeled",
                 "unit_id":d.label,
                 "source_seconds_nominal":u.time,
                 "crop":u.crop,

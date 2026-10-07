@@ -82,3 +82,13 @@ Camille anchors at nominal seconds 122–124. All three are explicitly marked
 `evaluation_unlabeled` and `training_eligible=false`. They can measure a
 challenger trained only on the separate training source, but cannot support
 the training corpus.
+
+The complete sparse evaluation scan inspected all 2,160 saved frames and
+found 52 tooltip proposals. A new reproducible dense-window orchestrator
+selects only exact catalog names with a plausible selected-unit halo, checks
+the source and partition against the collection report, and reruns the Rust
+collector and miner at one frame per second. It planned 16 evaluation windows;
+the first window yielded four held-out Camille anchors. The remaining windows
+are still being processed. A matching full-video annotation-only collection
+from the separate training VOD is in progress. Neither collection updates
+model weights or grants runtime approval.

@@ -146,8 +146,11 @@ def main() -> int:
     report = load_json(collection / "report.json")
     partition = report.get("partition") if isinstance(report, dict) else None
     source_id = report.get("source_id") if isinstance(report, dict) else None
-    if partition not in {"training_pool_unlabeled", "evaluation_unlabeled"} or not isinstance(source_id, str):
-        die("collection partition/source missing or invalid")
+    if (partition not in {"training_pool_unlabeled", "evaluation_unlabeled"}
+            or not isinstance(source_id, str) or not source_id
+            or report.get("status") != "complete"
+            or report.get("collection_mode") != "annotation_only"):
+        die("complete annotation-only collection and partition required")
     observations = load_jsonl(collection / "observations.jsonl")
     if not observations:
         die("collection observations are empty")
