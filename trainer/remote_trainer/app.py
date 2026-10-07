@@ -39,7 +39,12 @@ from .schemas import (
 )
 from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
 from .champion_registry import ChampionRegistry, ChampionRegistryError
-from .neural import NeuralBackend, NeuralBackendNotConfigured, NullNeuralBackend
+from .neural import (
+    FileQueueNeuralBackend,
+    NeuralBackend,
+    NeuralBackendNotConfigured,
+    NullNeuralBackend,
+)
 from .resources import ResourceSampler
 from .policy_learning import policy_learning_jobs, simulation_coverage, scene_learning_jobs
 
@@ -191,7 +196,15 @@ def create_app(
     )
     app.state.clock_ms = clock_ms
     app.state.resources = ResourceSampler()
-    app.state.neural_backend = neural_backend or NullNeuralBackend()
+    if neural_backend is not None:
+        app.state.neural_backend = neural_backend
+    elif (
+        app.state.store.db_path is not None
+        and os.environ.get("NEURAL_WORKER_QUEUE_ENABLED", "0") == "1"
+    ):
+        app.state.neural_backend = FileQueueNeuralBackend(app.state.store.db_path.parent)
+    else:
+        app.state.neural_backend = NullNeuralBackend()
     app.state.champion_registry = (
         ChampionRegistry(app.state.store.db_path.parent)
         if app.state.store.db_path is not None
@@ -561,6 +574,18 @@ def create_app(
             raise HTTPException(status_code=404, detail="neural session not found")
         if record.client_id != installation_id:
             raise HTTPException(status_code=403, detail="neural session/token mismatch")
+        if record.status == NeuralSessionStatus.PROCESSING:
+            result = app.state.neural_backend.consume_result(neural_session_id)
+            if result is not None:
+                await _finalize_neural_result(
+                    app.state.store,
+                    app.state.champion_registry,
+                    neural_session_id,
+                    result,
+                    app.state.clock_ms,
+                )
+                record = await app.state.store.get_neural_session(neural_session_id)
+                assert record is not None
         return NeuralLearningStatus(
             neural_session_id=neural_session_id,
             status=record.status,
@@ -819,6 +844,57 @@ def create_app(
 
 
 
+async def _finalize_neural_result(
+    store: TrainerStore,
+    champion_registry: ChampionRegistry | None,
+    neural_session_id: str,
+    result: dict,
+    clock_ms: Callable[[], int],
+) -> None:
+    if result.get("worker_failed") is True:
+        await store.update_neural_status(
+            neural_session_id,
+            NeuralSessionStatus.FAILED,
+            clock_ms(),
+            error=str(result.get("error") or "neural_worker_failed")[:300],
+        )
+        return
+
+    champion = result.get("champion_model_sha256")
+    shadow = result.get("shadow_candidate_sha256")
+    publish_payload = result.get("champion_publish")
+    if publish_payload is not None:
+        if champion_registry is None:
+            await store.update_neural_status(
+                neural_session_id,
+                NeuralSessionStatus.FAILED,
+                clock_ms(),
+                error="champion_registry_unavailable",
+            )
+            return
+        try:
+            request = ChampionPublishRequest.model_validate(publish_payload)
+            published = champion_registry.publish(request, clock_ms())
+            champion = published.model_identity_sha256
+        except Exception as exc:
+            await store.update_neural_status(
+                neural_session_id,
+                NeuralSessionStatus.FAILED,
+                clock_ms(),
+                error=f"champion_publish_failed:{type(exc).__name__}",
+            )
+            return
+
+    await store.update_neural_status(
+        neural_session_id,
+        NeuralSessionStatus.COMPLETE,
+        clock_ms(),
+        champion_model_sha256=champion if isinstance(champion, str) else None,
+        shadow_candidate_sha256=shadow if isinstance(shadow, str) else None,
+        error=None,
+    )
+
+
 async def _process_neural_session(
     store: TrainerStore,
     backend: NeuralBackend,
@@ -862,38 +938,14 @@ async def _process_neural_session(
         )
         return
 
-    champion = result.get("champion_model_sha256")
-    shadow = result.get("shadow_candidate_sha256")
-    publish_payload = result.get("champion_publish")
-    if publish_payload is not None:
-        if champion_registry is None:
-            await store.update_neural_status(
-                neural_session_id,
-                NeuralSessionStatus.FAILED,
-                clock_ms(),
-                error="champion_registry_unavailable",
-            )
-            return
-        try:
-            request = ChampionPublishRequest.model_validate(publish_payload)
-            published = champion_registry.publish(request, clock_ms())
-            champion = published.model_identity_sha256
-        except Exception as exc:
-            await store.update_neural_status(
-                neural_session_id,
-                NeuralSessionStatus.FAILED,
-                clock_ms(),
-                error=f"champion_publish_failed:{type(exc).__name__}",
-            )
-            return
-
-    await store.update_neural_status(
+    if result.get("queued") is True:
+        return
+    await _finalize_neural_result(
+        store,
+        champion_registry,
         neural_session_id,
-        NeuralSessionStatus.COMPLETE,
-        clock_ms(),
-        champion_model_sha256=champion if isinstance(champion, str) else None,
-        shadow_candidate_sha256=shadow if isinstance(shadow, str) else None,
-        error=None,
+        result,
+        clock_ms,
     )
 
 
