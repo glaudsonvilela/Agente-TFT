@@ -50,3 +50,7 @@ jobs:
       - name: Test remote trainer
         working-directory: trainer
         run: python -m pytest -q
+      - name: Compile central neural worker scripts
+        run: |
+          python -m py_compile             trainer/neural_worker.py             trainer/scripts/process_neural_job.py             trainer/scripts/build_champion_bundle.py             trainer/scripts/seed_initial_champion.py             trainer/scripts/calibrate_unit_head_runtime_gates.py             trainer/scripts/evaluate_shadow_candidate_gold.py             trainer/scripts/manage_shadow_promotion.py             scripts/prepare_bigbanana_neural_bundle.py
+          bash -n trainer/scripts/deploy_bigbanana_neural.sh
