@@ -15,6 +15,8 @@ from fastapi.responses import HTMLResponse
 
 from .schemas import (
     CancelResponse,
+    NeuralClientSessionRequest,
+    NeuralClientSessionResponse,
     NeuralFrameMetadata,
     NeuralInferenceResult,
     NeuralLearningStatus,
@@ -187,6 +189,10 @@ def create_app(
     app.state.clock_ms = clock_ms
     app.state.resources = ResourceSampler()
     app.state.neural_backend = neural_backend or NullNeuralBackend()
+    app.state.neural_tokens = {}
+    app.state.neural_client_sessions_enabled = (
+        os.environ.get("NEURAL_CLIENT_SESSIONS_ENABLED", "0") == "1"
+    )
     app.state.api_token = (
         api_token
         if api_token is not None
@@ -213,6 +219,48 @@ def create_app(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="invalid bearer token",
             )
+
+    async def require_neural_token(
+        authorization: str | None = Header(default=None),
+    ) -> str:
+        prefix = "Bearer "
+        if not authorization or not authorization.startswith(prefix):
+            raise HTTPException(status_code=401, detail="missing neural bearer token")
+        supplied = authorization[len(prefix):]
+        digest = hashlib.sha256(supplied.encode("utf-8")).hexdigest()
+        now = app.state.clock_ms()
+        for key, (_, expires_at_ms) in list(app.state.neural_tokens.items()):
+            if expires_at_ms <= now:
+                app.state.neural_tokens.pop(key, None)
+        record = app.state.neural_tokens.get(digest)
+        if record is None:
+            raise HTTPException(status_code=401, detail="invalid or expired neural token")
+        installation_id, expires_at_ms = record
+        if expires_at_ms <= now:
+            app.state.neural_tokens.pop(digest, None)
+            raise HTTPException(status_code=401, detail="expired neural token")
+        return installation_id
+
+    @app.post(
+        "/v1/neural/client-session",
+        response_model=NeuralClientSessionResponse,
+    )
+    async def create_neural_client_session(
+        request: NeuralClientSessionRequest,
+    ) -> NeuralClientSessionResponse:
+        if not app.state.neural_client_sessions_enabled:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="neural client sessions are not enabled",
+            )
+        token = secrets.token_urlsafe(48)
+        expires_at_ms = app.state.clock_ms() + 24 * 60 * 60 * 1000
+        digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        app.state.neural_tokens[digest] = (request.installation_id, expires_at_ms)
+        return NeuralClientSessionResponse(
+            token=token,
+            expires_at_ms=expires_at_ms,
+        )
 
     @app.get("/v1/training/health")
     async def health() -> dict[str, object]:
@@ -255,11 +303,13 @@ def create_app(
         "/v1/neural/sessions",
         response_model=NeuralSessionRecord,
         status_code=status.HTTP_201_CREATED,
-        dependencies=[Depends(require_token)],
     )
     async def create_neural_session(
         request: NeuralSessionRequest,
+        installation_id: str = Depends(require_neural_token),
     ) -> NeuralSessionRecord:
+        if request.client_id != installation_id:
+            raise HTTPException(status_code=403, detail="neural client_id/token mismatch")
         if app.state.store.evidence_root is None:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -273,7 +323,7 @@ def create_app(
     @app.get(
         "/v1/neural/sessions/{neural_session_id}",
         response_model=NeuralSessionRecord,
-        dependencies=[Depends(require_token)],
+        dependencies=[Depends(require_neural_token)],
     )
     async def get_neural_session(
         neural_session_id: str,
@@ -286,7 +336,7 @@ def create_app(
     @app.post(
         "/v1/neural/sessions/{neural_session_id}/frames",
         response_model=NeuralInferenceResult,
-        dependencies=[Depends(require_token)],
+        dependencies=[Depends(require_neural_token)],
     )
     async def submit_neural_frame(
         neural_session_id: str,
@@ -366,7 +416,7 @@ def create_app(
     @app.post(
         "/v1/neural/sessions/{neural_session_id}/seal",
         response_model=NeuralSessionRecord,
-        dependencies=[Depends(require_token)],
+        dependencies=[Depends(require_neural_token)],
     )
     async def seal_neural_session(
         neural_session_id: str,
@@ -415,7 +465,7 @@ def create_app(
     @app.get(
         "/v1/neural/sessions/{neural_session_id}/learning",
         response_model=NeuralLearningStatus,
-        dependencies=[Depends(require_token)],
+        dependencies=[Depends(require_neural_token)],
     )
     async def neural_learning_status(
         neural_session_id: str,
