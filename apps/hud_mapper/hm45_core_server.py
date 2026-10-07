@@ -1,7 +1,7 @@
-"""Headless WSL helper: deterministic OCR/HP/B4 over authenticated localhost TCP.
+"""Headless WSL core: L3, OCR/HP and B4 over authenticated localhost TCP.
 
-The neural network is server-side. This local helper contains no neural model
-weights and never performs neural inference or training.
+The Windows process owns capture and display. This process never opens a video
+file or a screen capture API. It accepts only bounded, lossless analysis inputs.
 """
 
 from __future__ import annotations
@@ -35,14 +35,17 @@ MAX_CLIENTS = 6
 class AnalysisCore:
     def __init__(self, root: Path = ROOT):
         from e1.protocol import NativeWorker
+        from hm.core import sha
+        from e1.model import MapObserver
         from hm.board_hub_live import BoardHubLive
 
         self.root = root
-        self.model = None
+        self.model = MapObserver(root / "models/deployment-candidate.json")
         self.board = BoardHubLive(str(root / "configs"))
         (root / "runtime").mkdir(parents=True, exist_ok=True)
         self.reader_lock = threading.Lock()
         self.hp_lock = threading.Lock()
+        self.model_lock = threading.Lock()
         self.hub_lock = threading.Lock()
         self.reader = None
         self.hp = None
@@ -63,18 +66,16 @@ class AnalysisCore:
             raise RuntimeError("OCR residente indisponível na VM.")
         self.ready = {
             "version": VERSION,
-            "model_sha256": None,
-            "model_metadata_sha256": None,
-            "reader_binary_sha256": __import__("hashlib").sha256((root / "bin/agente-tft-e1-worker").read_bytes()).hexdigest(),
-            "hp_binary_sha256": __import__("hashlib").sha256((root / "bin/agente-tft-hm-hp").read_bytes()).hexdigest(),
+            "model_sha256": self.model.hash,
+            "model_metadata_sha256": sha(root / "models/deployment-candidate.json"),
+            "reader_binary_sha256": sha(root / "bin/agente-tft-e1-worker"),
+            "hp_binary_sha256": sha(root / "bin/agente-tft-hm-hp"),
             "reader_ready": self.reader.ready,
             "hp_ready": self.hp.ready,
             "board_reference_sha256": self.board.manifest["reference_sha256"],
             "board_set_key": self.board.manifest["set_key"],
-            "analysis_health_contract": "ocr_hp_b4_local_helper_v2",
-            "neural_location": "server_only",
-            "local_neural_weights_bundled": False,
-            "capabilities": ["ocr_lossless_rgb", "hp_lossless_rgb", "b4_lossless_rgb", "board_independent_v1"],
+            "analysis_health_contract": "l3_ocr_b4_roi_v1",
+            "capabilities": ["l3_small_rgb", "ocr_lossless_rgb", "hp_lossless_rgb", "b4_lossless_rgb", "board_independent_v1"],
         }
 
     def close(self):
@@ -96,7 +97,27 @@ class AnalysisCore:
         if type(width) is not int or type(height) is not int:
             raise ProtocolError("Dimensões ausentes.")
         if op == "model":
-            raise ProtocolError("Neural inference is server-side; local model operation is disabled.")
+            if (len(payload) != 320 * 192 * 3 or header.get("codec") != "rgb8-small" or
+                    not 0 < width <= 8192 or not 0 < height <= 8192):
+                raise ProtocolError("Entrada L3 incompatível.")
+            import numpy as np
+            started = time.perf_counter_ns()
+            array = np.frombuffer(payload, dtype=np.uint8).reshape(192, 320, 3)
+            value = array.astype(np.float32).transpose(2, 0, 1)[None] / 255
+            with self.model_lock:
+                raw = self.model.session.run(["panels"], {"image": value})[0]
+            elapsed = (time.perf_counter_ns() - started) / 1e6
+            if raw.shape != (1, 2, 5) or not np.isfinite(raw).all():
+                raise RuntimeError("L3 retornou saída inválida.")
+            from hm.core import neural_regions
+            return dict(status="real_diagnostic_only", sha256=self.model.hash,
+                        raw=raw.tolist(), regions=neural_regions(raw, width, height),
+                        inference_ms=elapsed, resize_ms=float(header.get("resize_ms") or 0.0),
+                        frame_id=frame_id, model_scope=["bench_envelope", "shop_envelope"],
+                        shadow_mode="diagnostic_only", ground_truth=False,
+                        training_label_allowed=False, game_state_write_allowed=False,
+                        reader_input_allowed=False, map_usable_by_readers=False,
+                        model_trained=False, profile_promoted=False)
         if (width, height) != (1920, 1080):
             raise ProtocolError("OCR e B4 exigem frame canônico 1920×1080.")
         rgb = decode_rgb(header.get("codec"), payload, width, height)
@@ -216,6 +237,9 @@ def self_test(root: Path, version: str) -> int:
                 if not result.get("ok") or result.get("request_id") != frame_id:
                     raise RuntimeError(f"Teste IP local {op} falhou: {result.get('error')}")
                 return result["result"]
+            model = check("model", 1, bytes(320*192*3), 1920, 1080, "rgb8-small")
+            if model.get("sha256") != core.model.hash or len(model.get("regions") or []) != 2:
+                raise RuntimeError("L3 não retornou regiões válidas.")
             from hm45_protocol import encode_rgb
             codec, rgb = encode_rgb(bytes(1920*1080*3), 1920, 1080)
             reader = check("reader", 2, rgb, 1920, 1080, codec)
@@ -223,10 +247,8 @@ def self_test(root: Path, version: str) -> int:
             hub = check("hub", 4, rgb, 1920, 1080, codec)
             if reader.get("id") != 2 or hp.get("id") != 3 or "snapshot" not in hub:
                 raise RuntimeError("OCR/HP/B4 não retornaram resultados válidos.")
-            if (hub["snapshot"].get("neural_items") or {}).get("active"):
-                raise RuntimeError("Local item neural unexpectedly active.")
-            if (hub["snapshot"].get("neural_units") or {}).get("active"):
-                raise RuntimeError("Local unit neural unexpectedly active.")
+            if not (hub['snapshot'].get('neural_items') or {}).get('active'):
+                raise RuntimeError('Modelo neural de itens não carregou no núcleo.')
         print("AGENTETFT_CORE_HEALTH_OK", flush=True)
         return 0
     finally:
