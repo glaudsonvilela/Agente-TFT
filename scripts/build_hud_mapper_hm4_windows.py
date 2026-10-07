@@ -74,6 +74,8 @@ args = [
     '--hidden-import', 'hm.vm_bridge',
     '--hidden-import', 'hm.learning_capture',
     '--hidden-import', 'hm.post_session_learning',
+    '--hidden-import', 'hm.neural_service',
+    '--hidden-import', 'hm.model_update',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -126,6 +128,9 @@ manifest = dict(
     post_session_learning_job_bundled=True,
     post_session_linux_trainer_bundled=False,
     central_learning_server='BigBANANA',
+    zero_click_model_updates=True,
+    model_update_user_confirmation_required=False,
+    model_update_activate_during_match=False,
     capture='resident_Rust_WGC_D3D11',
     neural='local_inference_server_training',
     ocr='Tesseract_private',
@@ -209,6 +214,9 @@ report = dict(
     post_session_learning_job_bundled=True,
     post_session_linux_trainer_bundled=False,
     central_learning_server='BigBANANA',
+    zero_click_model_updates=True,
+    model_update_user_confirmation_required=False,
+    model_update_activate_during_match=False,
     automatic_model_discovery=True,
     reader_only_fallback=True,
     model_weights_included=True,
