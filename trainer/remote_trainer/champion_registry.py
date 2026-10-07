@@ -167,12 +167,7 @@ class ChampionRegistry:
         if manifest is None:
             raise ChampionRegistryError("champion not published")
         if generation != manifest.generation:
-            # Allow rollback/history fetches by generation if file exists.
-            prefix = f"{generation:012d}-"
-            candidates = sorted((self.champions / channel / "versions").glob(prefix + "*.zip"))
-            if len(candidates) != 1:
-                raise ChampionRegistryError("champion generation not found")
-            return manifest, candidates[0]
+            raise ChampionRegistryError("requested generation is not current champion")
         path = self.champions / channel / "versions" / f"{generation:012d}-{manifest.version}.zip"
         if not path.is_file():
             raise ChampionRegistryError("champion package missing")
