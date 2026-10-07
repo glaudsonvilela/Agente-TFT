@@ -8,7 +8,7 @@ import zipfile
 from types import SimpleNamespace
 
 from hm.learning_capture import ShadowLearningRecorder
-from hm.post_session_learning import launch_post_session_learning
+from hm.post_session_learning import _eligible, launch_post_session_learning
 from hm.model_update import ModelUpdater, active_model_metadata
 
 
@@ -91,6 +91,12 @@ def test_post_session_launcher_queues_server_upload_without_local_training(tmp_p
         "source": {"source_kind": "native_capture"},
     }))
     (session / "COMPLETE.json").write_text("{}")
+
+    summary, manifest, manifest_path = _eligible(session)
+    assert summary["execution_complete"] is True
+    sealed = json.loads((session / "shadow-learning" / "SEALED.json").read_text())
+    assert sealed["manifest_sha256"] == hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    assert len(manifest["frames"]) == 2
 
     import hm.post_session_learning as post
     monkeypatch.setattr(post, "_upload_worker", lambda *args, **kwargs: None)
