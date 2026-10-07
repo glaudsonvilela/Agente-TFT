@@ -18,7 +18,20 @@ the coin/cost icon was OCRed as `a3`, `ain`, or `a`, appended to the champion's
 name. The tooltip-specific matcher now strips one short trailing OCR glyph
 group when it begins with `a`; the strict shop-name matcher remains unchanged.
 
-Pending: rerun both VOD review sets, quantify false selection halos, and
-require repeated name, halo and tracked crop agreement before promoting an
-automatic label. Unrelated training files in the main worktree were not
-modified. The current active coaching catalog still targets patch 18.3B.
+The completed 360-frame review recovered five exact tooltip names. Four had
+one selected halo candidate; the combat frame had none. A separate 229-frame
+VOD recovered two exact tooltip names and no cyan halo candidates, because
+that arena uses a different selection effect. These are sparse event counts,
+not precision or recall. The 12-frame dense window around the Camille event
+produced two consecutive automatic anchors after the second halo was selected
+by strong dominance over a partially overlapping bar. The original
+cyan-count adjudicator could have attached a tooltip to the wrong unit. It
+now requires the halo shape and two distinct consecutive frames; its singleton
+exception and 20-second tracking window have been removed. The two sparse
+review sets correctly produce zero training anchors under this rule.
+
+Pending: compare more arena styles, validate the automatic anchors against a
+separate source, and adjudicate them against frozen supervised teachers before
+training. No model was updated and no live champion ID was released. Unrelated
+training files in the main worktree were not modified. The current active
+coaching catalog still targets patch 18.3B.

@@ -185,11 +185,27 @@ fn run() -> Result<()> {
                 "selection_ring":ring}));
         }
         units.sort_by(|a, b| b["cyan_pixels"].as_u64().cmp(&a["cyan_pixels"].as_u64()));
-        let rings: Vec<_> = units
+        let mut rings: Vec<_> = units
             .iter()
             .filter(|u| u["selection_ring"]["shape_pass"] == true)
             .collect();
-        let selected = if rings.len() == 1 {
+        rings.sort_by_key(|u| {
+            std::cmp::Reverse(u["selection_ring"]["cyan_pixels"].as_u64().unwrap_or(0))
+        });
+        let dominant = rings.len() > 1
+            && rings[0]["selection_ring"]["cyan_pixels"]
+                .as_u64()
+                .unwrap_or(0)
+                >= 500
+            && rings[0]["selection_ring"]["cyan_pixels"]
+                .as_u64()
+                .unwrap_or(0)
+                .saturating_mul(2)
+                >= rings[1]["selection_ring"]["cyan_pixels"]
+                    .as_u64()
+                    .unwrap_or(0)
+                    .saturating_mul(5);
+        let selected = if rings.len() == 1 || dominant {
             Some(rings[0]["marker_id"].clone())
         } else {
             None
@@ -199,7 +215,7 @@ fn run() -> Result<()> {
             "tooltip_unit_id":if found[0].0.len()==1 {Some(&found[0].0[0])} else {None},
             "tooltip_unit_candidates":found[0].0,"identity_requires_variant_review":found[0].0.len()!=1,"ocr_name_confidence":found[0].1,
             "tooltip_text":text,"association_candidates":units,"selected_ring_marker_candidate":selected,
-            "selection_ring_status":if rings.len()==1 {"unique_shape_candidate"} else if rings.is_empty() {"no_shape_candidate"} else {"ambiguous_shape_candidates"},
+            "selection_ring_status":if rings.len()==1 {"unique_shape_candidate"} else if dominant {"dominant_shape_candidate"} else if rings.is_empty() {"no_shape_candidate"} else {"ambiguous_shape_candidates"},
             "crop_identity_confirmed":false,
             "review_required":true,"training_label":null}));
         println!(

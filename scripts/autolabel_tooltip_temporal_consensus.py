@@ -48,34 +48,28 @@ def strong_association(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict
     units = row.get("association_candidates")
     if not isinstance(units, list) or not units:
         return None, {"reason": "no_association_candidates"}
-
-    top = units[0]
-    top_cyan = top.get("cyan_pixels")
-    if not isinstance(top_cyan, int):
-        return None, {"reason": "invalid_top_cyan"}
-
-    second_cyan = 0
-    if len(units) > 1 and isinstance(units[1].get("cyan_pixels"), int):
-        second_cyan = int(units[1]["cyan_pixels"])
-
-    gap = top_cyan - second_cyan
-    ratio = top_cyan / max(1, second_cyan)
-
-    ok = (
-        top_cyan >= 24
-        and gap >= 16
-        and ratio >= 1.8
-    )
-    return (
-        top if ok else None,
-        {
-            "top_cyan_pixels": top_cyan,
-            "second_cyan_pixels": second_cyan,
-            "cyan_gap": gap,
-            "cyan_ratio": ratio,
-            "association_pass": ok,
-        },
-    )
+    marker_id = row.get("selected_ring_marker_candidate")
+    status = row.get("selection_ring_status")
+    if status not in {"unique_shape_candidate", "dominant_shape_candidate"}:
+        return None, {"reason": "no_unique_selected_ring"}
+    selected = [u for u in units if u.get("marker_id") == marker_id]
+    if len(selected) != 1:
+        return None, {"reason": "ring_marker_not_unique"}
+    ring = selected[0].get("selection_ring")
+    if not isinstance(ring, dict) or ring.get("shape_pass") is not True:
+        return None, {"reason": "ring_shape_unverified"}
+    count = ring.get("cyan_pixels")
+    if not isinstance(count, int) or count < 250:
+        return None, {"reason": "ring_coverage_insufficient"}
+    competitors = [
+        (u.get("selection_ring") or {}).get("cyan_pixels", 0)
+        for u in units if u is not selected[0]
+        and (u.get("selection_ring") or {}).get("shape_pass") is True
+    ]
+    second = max(competitors, default=0)
+    if status == "dominant_shape_candidate" and not (count >= 500 and count * 2 >= second * 5):
+        return None, {"reason": "ring_dominance_unverified"}
+    return selected[0], {"selected_ring": ring, "second_ring_pixels": second, "association_pass": True}
 
 
 def main() -> int:
@@ -83,8 +77,8 @@ def main() -> int:
     parser.add_argument("--proposals", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-ocr-confidence", type=float, default=94.0)
-    parser.add_argument("--max-track-gap-seconds", type=float, default=20.0)
-    parser.add_argument("--max-track-distance-px", type=float, default=120.0)
+    parser.add_argument("--max-track-gap-seconds", type=float, default=2.0)
+    parser.add_argument("--max-track-distance-px", type=float, default=40.0)
     parser.add_argument("--min-temporal-confirmations", type=int, default=2)
     args = parser.parse_args()
 
@@ -96,6 +90,8 @@ def main() -> int:
         die("--min-ocr-confidence must be in (0,100]")
     if args.min_temporal_confirmations < 2:
         die("--min-temporal-confirmations must be >=2")
+    if not (0 < args.max_track_gap_seconds <= 2 and 0 < args.max_track_distance_px <= 40):
+        die("temporal tracking limits must remain within two seconds and 40 pixels")
 
     proposals = load_json(proposals_path)
     if not isinstance(proposals, list):
@@ -147,10 +143,15 @@ def main() -> int:
         if not isinstance(pixel, str) or len(pixel) != 64 or not isinstance(crop, str):
             excluded["invalid_crop_binding"] += 1
             continue
+        source_id = row.get("source_id")
+        frame_pixel = row.get("frame_pixel_sha256")
+        if not isinstance(source_id, str) or not source_id or not isinstance(frame_pixel, str) or len(frame_pixel) != 64:
+            excluded["invalid_frame_provenance"] += 1
+            continue
 
         prelim.append(
             {
-                "source_id": row.get("source_id"),
+                "source_id": source_id,
                 "source_seconds_nominal": int(round(float(t))),
                 "unit_id": unit_id,
                 "ocr_name_confidence": float(conf),
@@ -171,10 +172,10 @@ def main() -> int:
         placed = False
         for cluster in reversed(clusters):
             last = cluster[-1]
-            if last["unit_id"] != item["unit_id"]:
+            if last["unit_id"] != item["unit_id"] or last["source_id"] != item["source_id"]:
                 continue
             dt = item["source_seconds_nominal"] - last["source_seconds_nominal"]
-            if dt < 0 or dt > args.max_track_gap_seconds:
+            if dt <= 0 or dt > args.max_track_gap_seconds:
                 continue
             if distance(last["center"], item["center"]) > args.max_track_distance_px:
                 continue
@@ -188,17 +189,10 @@ def main() -> int:
     rejected_singletons = 0
     for track_id, cluster in enumerate(clusters, 1):
         unique_pixels = {x["pixel_sha256"] for x in cluster}
-        if len(unique_pixels) < args.min_temporal_confirmations:
-            # Ultra-strong singleton fallback, intentionally difficult to satisfy.
-            one = cluster[0]
-            assoc = one["association"]
-            if not (
-                one["ocr_name_confidence"] >= 99.0
-                and assoc["top_cyan_pixels"] >= 120
-                and assoc["second_cyan_pixels"] <= 8
-            ):
-                rejected_singletons += 1
-                continue
+        unique_frames = {x["frame_pixel_sha256"] for x in cluster}
+        if len(unique_pixels) < args.min_temporal_confirmations or len(unique_frames) < args.min_temporal_confirmations:
+            rejected_singletons += 1
+            continue
 
         for item in cluster:
             labels.append(
@@ -259,9 +253,8 @@ def main() -> int:
             "max_track_gap_seconds": args.max_track_gap_seconds,
             "max_track_distance_px": args.max_track_distance_px,
             "min_temporal_confirmations": args.min_temporal_confirmations,
-            "min_top_cyan_pixels": 24,
-            "min_cyan_gap": 16,
-            "min_cyan_ratio": 1.8,
+            "selected_ring_shape_required": True,
+            "singleton_fallback_allowed": False,
         },
         "human_review_required": False,
         "model_prediction_used_as_label": False,
