@@ -1,17 +1,21 @@
-"""Launch post-session shadow learning only after a sealed HM4 session.
+"""Upload a sealed HM4 match to the server-resident neural learner.
 
-Linux/source checkouts can execute the repository learner directly. Verified
-HM4.5 Windows packages launch the bundled learner inside their pinned WSL
-distro. Missing capabilities fail closed by persisting a queued job.
+The Windows client never trains and never owns neural weights. Upload is
+resumable; network failure preserves the local sealed evidence for retry.
 """
 from __future__ import annotations
 
+import hashlib
 import json
-import os
 from pathlib import Path
-import subprocess
-import sys
+import threading
 import time
+
+from .neural_service import NeuralServiceClient, NeuralServiceError
+
+
+def _read(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _write(path: Path, value: dict) -> None:
@@ -24,203 +28,196 @@ def _write(path: Path, value: dict) -> None:
     tmp.replace(path)
 
 
-def _queued(reason: str) -> dict:
-    return {
-        "schema_version": 1,
-        "status": "queued_waiting_for_packaged_wsl_trainer",
-        "reason": reason,
-        "training_started": False,
-        "active_model_changed": False,
-        "promotion_mode": "shadow_candidate_only",
-        "human_review_required": False,
-        "runtime_approved": False,
-    }
+def _manifest_sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _windows_core_package() -> tuple[str, dict] | None:
-    if os.name != "nt":
-        return None
-    app_root = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[3]
-    core = app_root / "core"
-    manifest_path = core / "core-package.json"
-    if not manifest_path.is_file():
-        return None
+def _eligible(session: Path) -> tuple[dict, dict, Path]:
+    summary_path = session / "summary.json"
+    sealed_path = session / "shadow-learning" / "SEALED.json"
+    manifest_path = session / "shadow-learning" / "capture-manifest.json"
+    complete_path = session / "COMPLETE.json"
+    if not all(p.is_file() for p in (summary_path, sealed_path, manifest_path, complete_path)):
+        raise ValueError("sealed_complete_session_required")
+    summary = _read(summary_path)
+    sealed = _read(sealed_path)
+    manifest = _read(manifest_path)
+    if summary.get("execution_complete") is not True:
+        raise ValueError("session_not_complete")
+    if sealed.get("ready_for_post_session_learning") is not True:
+        raise ValueError("learning_capture_not_ready")
+    if sealed.get("manifest_sha256") != _manifest_sha(manifest_path):
+        raise ValueError("learning_manifest_checksum_mismatch")
+    frames = manifest.get("frames")
+    if not isinstance(frames, list) or len(frames) < 2:
+        raise ValueError("insufficient_learning_frames")
+    if manifest.get("active_model_changed_during_session") is not False:
+        raise ValueError("live_model_mutability_contract_failed")
+    if manifest.get("training_performed_during_session") is not False:
+        raise ValueError("local_training_contract_failed")
+    return summary, manifest, manifest_path
+
+
+def _upload_worker(session: Path, job_path: Path) -> None:
     try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    if (
-        manifest.get("schema_version") != 1
-        or manifest.get("post_session_trainer_bundled") is not True
-        or manifest.get("post_session_trainer_health") is not True
-        or manifest.get("learner_minjo_kh_included") is not False
-    ):
-        return None
-    family = manifest.get("distro_name")
-    digest = manifest.get("sha256")
-    if not isinstance(family, str) or not isinstance(digest, str) or len(digest) != 64:
-        return None
-    return f"{family}-{digest}", manifest
+        summary, manifest, manifest_path = _eligible(session)
+        state = _read(job_path)
+        client = NeuralServiceClient()
+        client.connect()
 
+        neural_session_id = state.get("neural_session_id")
+        if not isinstance(neural_session_id, str) or not neural_session_id:
+            created = client.create_session(
+                match_id=str(summary.get("session_id") or session.name),
+                created_at_ms=int(time.time() * 1000),
+                patch=None,
+                set_key=None,
+                capture_policy=str(manifest.get("policy") or "hm45_shadow_learning"),
+                metadata={
+                    "source_kind": (summary.get("source") or {}).get("source_kind"),
+                    "stopped_by_match_end": bool(summary.get("stopped_by_match_end")),
+                    "match_end_reason": summary.get("match_end_reason"),
+                    "client_neural_weights_bundled": False,
+                    "client_training_performed": False,
+                },
+            )
+            neural_session_id = created.get("neural_session_id")
+            if not isinstance(neural_session_id, str) or not neural_session_id:
+                raise NeuralServiceError("Servidor não criou sessão neural válida.")
+            state.update(
+                neural_session_id=neural_session_id,
+                next_frame_index=0,
+                status="uploading",
+                server_neural_location=True,
+            )
+            _write(job_path, state)
 
-def _wsl_path(distro: str, path: Path) -> str:
-    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-    result = subprocess.run(
-        ["wsl.exe", "--distribution", distro, "--exec", "wslpath", "-u", str(path)],
-        text=True,
-        errors="replace",
-        capture_output=True,
-        timeout=20,
-        check=False,
-        creationflags=flags,
-    )
-    value = (result.stdout or "").replace("\x00", "").strip()
-    if result.returncode != 0 or not value.startswith("/"):
-        detail = (result.stderr or result.stdout or "").replace("\x00", "").strip()
-        raise RuntimeError("WSL não converteu a pasta da sessão: " + detail[:300])
-    return value
+        frames = manifest["frames"]
+        start = int(state.get("next_frame_index") or 0)
+        if not 0 <= start <= len(frames):
+            raise ValueError("invalid_resume_index")
 
+        for index in range(start, len(frames)):
+            row = frames[index]
+            image_path = session / "shadow-learning" / str(row["image"])
+            image = image_path.read_bytes()
+            if hashlib.sha256(image).hexdigest() != row["image_sha256"]:
+                raise ValueError(f"learning_frame_checksum_mismatch:{index}")
+            result = client.upload_frame(
+                neural_session_id,
+                frame_id=int(row["frame_id"]),
+                source_ms=int(round(float(row["source_ms"]))),
+                width=int(row["width"]),
+                height=int(row["height"]),
+                image=image,
+                content_type="image/jpeg",
+                capture_role="post_match_learning_evidence",
+            )
+            state.update(
+                status="uploading",
+                next_frame_index=index + 1,
+                frames_uploaded=index + 1,
+                latest_server_inference_status=result.get("status"),
+                last_error=None,
+            )
+            _write(job_path, state)
 
-def _launch_windows_wsl(session: Path, log: Path) -> dict | None:
-    package = _windows_core_package()
-    if package is None:
-        return None
-    distro, manifest = package
-    try:
-        linux_session = _wsl_path(distro, session)
-    except Exception as exc:
-        return _queued("wsl_session_path_failed:" + str(exc)[:300])
-
-    command = [
-        "wsl.exe",
-        "--distribution",
-        distro,
-        "--exec",
-        "/usr/bin/env",
-        "AGENTE_TFT_UNIT_LAB_BIN_DIR=/opt/agente-tft/bin",
-        "PYTHONPATH=/opt/agente-tft:/opt/agente-tft/apps/hud_mapper:/opt/agente-tft/apps/e1_replay",
-        "OMP_THREAD_LIMIT=1",
-        "OPENBLAS_NUM_THREADS=1",
-        "python3",
-        "/opt/agente-tft/scripts/run_post_session_shadow_learning.py",
-        "--repo",
-        "/opt/agente-tft",
-        "--selection",
-        "/opt/agente-tft/learner/selection.json",
-        "--session",
-        linux_session,
-        "--ffmpeg",
-        "/usr/bin/ffmpeg",
-    ]
-    try:
-        handle = log.open("ab")
-        process = subprocess.Popen(
-            command,
-            stdout=handle,
-            stderr=subprocess.STDOUT,
-            stdin=subprocess.DEVNULL,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
-                         | getattr(subprocess, "DETACHED_PROCESS", 0),
-            close_fds=True,
+        client.seal(
+            neural_session_id,
+            sealed_at_ms=int(time.time() * 1000),
+            match_end_reason=str(
+                summary.get("match_end_reason")
+                or ("user_stop" if summary.get("stopped_by_user") else "capture_end")
+            ),
+            capture_manifest_sha256=_manifest_sha(manifest_path),
+            frame_count=len(frames),
+            metadata={
+                "local_session_id": summary.get("session_id"),
+                "active_model_changed_during_match": False,
+                "local_training_performed": False,
+            },
         )
-        handle.close()
-    except OSError as exc:
-        return _queued("wsl_learner_launch_failed:" + str(exc)[:300])
-
-    return {
-        "schema_version": 1,
-        "status": "running_shadow_learning_wsl",
-        "pid": process.pid,
-        "started_unix": time.time(),
-        "distro": distro,
-        "rootfs_sha256": manifest.get("sha256"),
-        "learner_model_sha256": manifest.get("learner_model_sha256"),
-        "learner_encoder_sha256": manifest.get("learner_encoder_sha256"),
-        "linux_session": linux_session,
-        "training_started": True,
-        "active_model_changed": False,
-        "promotion_mode": "shadow_candidate_only",
-        "human_review_required": False,
-        "runtime_approved": False,
-    }
+        state.update(
+            status="server_learning_started",
+            next_frame_index=len(frames),
+            frames_uploaded=len(frames),
+            sealed_remote=True,
+            training_location="server",
+            local_training_performed=False,
+            active_model_changed=False,
+            last_error=None,
+        )
+        _write(job_path, state)
+    except Exception as exc:
+        try:
+            state = _read(job_path)
+        except Exception:
+            state = {}
+        state.update(
+            status="retry_server_upload",
+            training_location="server",
+            local_training_performed=False,
+            active_model_changed=False,
+            last_error=f"{type(exc).__name__}:{str(exc)[:300]}",
+        )
+        _write(job_path, state)
 
 
 def launch_post_session_learning(session_dir: str | Path) -> dict:
     session = Path(session_dir).resolve()
     job_path = session / "shadow-learning" / "post-session-job.json"
-    if job_path.is_file():
-        return json.loads(job_path.read_text(encoding="utf-8"))
-
-    summary_path = session / "summary.json"
-    sealed_path = session / "shadow-learning" / "SEALED.json"
-    complete_path = session / "COMPLETE.json"
-    if not all(p.is_file() for p in (summary_path, sealed_path, complete_path)):
+    try:
+        summary, manifest, _ = _eligible(session)
+    except Exception as exc:
         value = {
-            "schema_version": 1,
+            "schema_version": 2,
             "status": "not_eligible",
-            "reason": "sealed_complete_session_required",
-            "training_started": False,
+            "reason": str(exc),
+            "training_location": "server",
+            "local_training_performed": False,
             "active_model_changed": False,
         }
         _write(job_path, value)
         return value
 
-    summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    sealed = json.loads(sealed_path.read_text(encoding="utf-8"))
-    if (
-        summary.get("execution_complete") is not True
-        or sealed.get("ready_for_post_session_learning") is not True
-    ):
-        value = {
-            "schema_version": 1,
-            "status": "not_eligible",
-            "reason": "session_or_learning_capture_incomplete",
-            "training_started": False,
-            "active_model_changed": False,
-        }
-        _write(job_path, value)
-        return value
+    existing = _read(job_path) if job_path.is_file() else {}
+    if existing.get("status") == "server_learning_started":
+        return existing
+    if existing.get("worker_active") is True:
+        return existing
 
-    log = session / "shadow-learning" / "post-session-launch.log"
-
-    # Linux/source execution path.
-    repo = Path(__file__).resolve().parents[3]
-    runner = repo / "scripts" / "run_post_session_shadow_learning.py"
-    cargo = repo / "tools" / "unit-features-lab" / "Cargo.toml"
-    if runner.is_file() and cargo.is_file() and os.name != "nt":
-        with log.open("ab") as handle:
-            process = subprocess.Popen(
-                [
-                    sys.executable,
-                    str(runner),
-                    "--repo",
-                    str(repo),
-                    "--session",
-                    str(session),
-                ],
-                cwd=repo,
-                stdout=handle,
-                stderr=subprocess.STDOUT,
-                start_new_session=True,
-            )
-        value = {
-            "schema_version": 1,
-            "status": "running_shadow_learning",
-            "pid": process.pid,
-            "started_unix": time.time(),
-            "runner": str(runner),
-            "training_started": True,
-            "active_model_changed": False,
-            "promotion_mode": "shadow_candidate_only",
-            "human_review_required": False,
-            "runtime_approved": False,
-        }
-    elif os.name == "nt":
-        value = _launch_windows_wsl(session, log) or _queued(
-            "verified_post_session_trainer_not_available_in_installed_core"
-        )
-    else:
-        value = _queued("source_post_session_trainer_not_available")
-
+    value = {
+        **existing,
+        "schema_version": 2,
+        "status": "queued_server_upload",
+        "worker_active": True,
+        "match_id": str(summary.get("session_id") or session.name),
+        "frame_count": len(manifest["frames"]),
+        "next_frame_index": int(existing.get("next_frame_index") or 0),
+        "training_location": "server",
+        "server_service": "tft.bigbanana.io",
+        "local_neural_weights_bundled": False,
+        "local_training_performed": False,
+        "active_model_changed": False,
+        "human_review_required": False,
+        "runtime_approved": False,
+    }
     _write(job_path, value)
+
+    def work():
+        try:
+            _upload_worker(session, job_path)
+        finally:
+            try:
+                state = _read(job_path)
+                state["worker_active"] = False
+                _write(job_path, state)
+            except Exception:
+                pass
+
+    threading.Thread(
+        target=work,
+        daemon=True,
+        name="tft-server-neural-upload",
+    ).start()
     return value
