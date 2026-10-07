@@ -181,6 +181,8 @@ def main() -> int:
             (row for row in manifest["sources"] if row.get("source_id") == args.source_id),
             None,
         )
+        if existing_source is None and len(manifest["sources"]) >= 4096:
+            die("central autonomous corpus reached 4096 source-session limit")
         if existing_source is not None:
             print("AUTONOMOUS_CORPUS_RESUME=already_ingested")
             print(f"SOURCE_ID={args.source_id}")
