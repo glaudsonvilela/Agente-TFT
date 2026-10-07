@@ -111,9 +111,9 @@ class TrainerStore:
                     self.shadow_sessions[identifier] = ShadowSessionRecord.model_validate_json(payload)
                 elif kind == "neural_session":
                     record = NeuralSessionRecord.model_validate_json(payload)
-                    if record.status == NeuralSessionStatus.PROCESSING:
-                        record.status = NeuralSessionStatus.FAILED
-                        record.error = "server_restarted_during_neural_processing"
+                    # PROCESSING is durable: the neural worker uses a filesystem
+                    # queue independent of the API process and may finish after
+                    # this API restarts.
                     self.neural_sessions[identifier] = record
             for identifier, record in self.jobs.items():
                 if record.error == "server_restarted_before_completion":
