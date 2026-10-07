@@ -100,11 +100,11 @@ def _upload_worker(session: Path, job_path: Path) -> None:
 
         last_upload_started = None
         for index in range(start, len(frames)):
-            # Keep a deterministic ceiling below the public edge limit so a
-            # healthy fast connection never self-induces HTTP 429.
+            # Public neural edge is 10 req/s. Stay comfortably below it so
+            # long matches cannot self-induce HTTP 429 even without retry.
             now = time.monotonic()
             if last_upload_started is not None:
-                delay = 0.05 - (now - last_upload_started)
+                delay = 0.125 - (now - last_upload_started)
                 if delay > 0:
                     time.sleep(delay)
             last_upload_started = time.monotonic()
