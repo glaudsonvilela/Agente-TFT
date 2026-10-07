@@ -197,7 +197,9 @@ def main() -> int:
         sessions=central.get("sessions_by_status") or {}
         print("✦ AGENTE TFT · IA CENTRAL")
         print(f"Backend: {central.get('learning_backend','desconhecido')}")
-        print(f"Stable: g{central.get('stable_generation')} · {central.get('stable_version')}")
+        generation=central.get('stable_generation')
+        version=central.get('stable_version')
+        print("Stable: "+(f"g{generation} · {version}" if generation is not None else "ainda não publicado"))
         print(f"Fila: {queue.get('inbox',0)} esperando · {queue.get('working',0)} processando · {queue.get('failed',0)} falhas")
         print(f"Sessões: {sessions}")
         print("Treino pesado: BigBANANA · inferência: modelo aprovado local")
