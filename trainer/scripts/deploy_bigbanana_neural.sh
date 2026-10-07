@@ -73,7 +73,39 @@ if [[ -n "$edge_id" ]]; then
 fi
 
 health="$(curl -fsS http://127.0.0.1:8801/v1/training/health)"
-python3 - "$health" "$edge_reloaded" <<'PY'
+public_ok=false
+if [[ "${TFT_NEURAL_PUBLIC_SMOKE:-1}" == "1" ]]; then
+  installation="deploy-smoke-$(date +%s)-$"
+  session_json="$(curl -fsS --max-time 10 -H 'Content-Type: application/json' -d "{\"installation_id\":\"${installation}\"}" https://tft.bigbanana.io/v1/neural/client-session)"
+  token="$(python3 - "$session_json" <<'PYTOKEN'
+import json,sys
+doc=json.loads(sys.argv[1])
+token=doc.get("token")
+assert isinstance(token,str) and len(token)>=32
+print(token)
+PYTOKEN
+  )"
+  champion_json="$(curl -fsS --max-time 10 -H "Authorization: Bearer ${token}" 'https://tft.bigbanana.io/v1/neural/champion?channel=stable')"
+  local_generation="$(python3 - "$health" <<'PYLOCAL'
+import json,sys
+print(json.loads(sys.argv[1])["central_neural"]["stable_generation"])
+PYLOCAL
+  )"
+  public_generation="$(python3 - "$champion_json" <<'PYPUBLIC'
+import json,sys
+doc=json.loads(sys.argv[1])
+assert doc.get("approved") is True
+print(doc["generation"])
+PYPUBLIC
+  )"
+  if [[ "$public_generation" != "$local_generation" ]]; then
+    echo "BIGBANANA_NEURAL_DEPLOY_ERROR=public_generation_mismatch" >&2
+    exit 1
+  fi
+  public_ok=true
+fi
+
+python3 - "$health" "$edge_reloaded" "$public_ok" <<'PY'
 import json,sys
 doc=json.loads(sys.argv[1])
 central=doc["central_neural"]
@@ -83,6 +115,7 @@ print("LEARNING_BACKEND="+str(central["learning_backend"]))
 print("STABLE_GENERATION="+str(central["stable_generation"]))
 print("STABLE_VERSION="+str(central["stable_version"]))
 print("EDGE_RELOADED="+sys.argv[2])
+print("PUBLIC_ROUTE_OK="+sys.argv[3])
 print("TRAINING_LOCATION=BigBANANA")
 print("CLIENT_COMPUTE_REQUIRED=false")
 PY
