@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-07T11:45:00-03:00",
+  "recorded_at": "2026-10-07T12:25:00-03:00",
   "status": "training_and_validation_in_progress",
   "sources": [
     {
@@ -1346,16 +1346,10 @@
     "selection_changed_after_evaluation": false
   },
   "next_image_gate": {
-    "status": "validate_ci_then_prepare_and_deploy_bigbanana_neural_bundle",
-    "steps": [
-      "CI: native unit features + remote trainer + HM4.5 Windows contracts",
-      "prepare BigBANANA neural bundle from current frozen selection/runtime seed",
-      "deploy trainer API + independent neural worker",
-      "verify public tft.bigbanana.io neural client/champion routes",
-      "run one real Windows match and confirm resumable upload",
-      "confirm server corpus ingestion and challenger outcome",
-      "run later independent matches until shadow promotion gate can be exercised"
-    ],
+    "status": "generate_real_bigbanana_neural_bundle",
+    "command": "python3 scripts/prepare_bigbanana_neural_bundle.py --selection <frozen-selection>",
+    "success_condition": "BIGBANANA_NEURAL_BUNDLE_OK=true and INITIAL_CHAMPION_GENERATION=1",
+    "next_if_success": "Deploy trainer + neural-worker on BigBANANA and verify public stable generation through tft.bigbanana.io.",
     "human_review_required": false,
     "runtime_approved": false
   },
@@ -2368,6 +2362,37 @@
       "model_bundle_paths_private": false,
       "server_paths_embedded_in_model": false
     },
+    "runtime_approved": false
+  },
+  "bigbanana_central_learning_gate": {
+    "status": "code_contracts_green_ready_for_real_bundle",
+    "validated_head": "3638fa4735cf7992d7e251931931467ee3bed4d1",
+    "ci": {
+      "main": "success",
+      "hm45_windows": "success"
+    },
+    "central_corpus": {
+      "persistent": true,
+      "multi_source": true,
+      "deduplicated_by_pixel": true,
+      "gold_silver_provenance_enforced": true,
+      "raw_pruning_does_not_delete_corpus": true
+    },
+    "server_capacity": {
+      "max_unfinished_per_installation": 4,
+      "max_unfinished_global_default": 64,
+      "min_free_bytes_default": 10737418240,
+      "max_frames_per_session": 3600,
+      "max_bytes_per_session": 2147483648
+    },
+    "client_update": {
+      "zero_click": true,
+      "idle_only_activation": true,
+      "rollback": true,
+      "local_disk_headroom": true,
+      "stale_partial_cleanup": true
+    },
+    "next": "Generate the real BigBANANA neural-bundle from the frozen selection and existing HM4 L3 assets, then deploy API+worker and run public smoke.",
     "runtime_approved": false
   }
 }
