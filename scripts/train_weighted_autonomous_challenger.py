@@ -19,6 +19,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from native_lab import command as native_lab_command
 from typing import Any
 
 DEFAULT_SELECTION = Path(
@@ -309,18 +310,7 @@ def main() -> int:
     )
 
     run_stream(
-        [
-            "cargo",
-            "run",
-            "--release",
-            "--manifest-path",
-            str(repo / "tools/unit-features-lab/Cargo.toml"),
-            "--bin",
-            "train-classifier",
-            "--",
-            "--spec",
-            str(spec_path),
-        ],
+        native_lab_command(repo, "train-classifier", ["--spec", str(spec_path)]),
         repo,
         logs / "weighted-autonomous.log",
     )
