@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "local_bundle_prepared_pending_bigbanana_deploy_and_field_validation",
+  "source_selection": "optimizer-study-resume-20261005-101237/optimizer-study-selection.json",
+  "source_branch_commit": "609402b09d7e2667db0f6be5a3efe975870fa081",
+  "bundle_private_location": "SSD diagnostics/bigbanana-neural-bundle-20261007-1535",
+  "bundle_bytes_approximate": 564000000,
+  "bundle_manifest_sha256": "f50cc0c3c9e1a544e9d3753a9c65989fe9b160d4082ce78eef67af928b39a0be",
+  "learner_package_sha256": "0a0dfa7fecd69a333bec71e9631bfc73dd8200c912f61650bc0a47b5ce7332ef",
+  "unit_head_sha256": "39b05c0fff1c5d592c1b549c46fb0f72af17fc473bf0aeb41c7ed8302622a033",
+  "encoder_sha256": "5da185e587feee83a48d120cd57aa9f9f0c66d7adf3f6780764f6077a6cf8d35",
+  "l3_runtime_seed_sha256": "1b38fcee9dd43bba38b181cbc60ce877b04d24979787b65800d409c8a021ed4f",
+  "learner_image_files": 222,
+  "learner_image_bytes": 534479314,
+  "initial_champion_generation": 1,
+  "calibration": {
+    "policy": "validation_zero_error_max_coverage_v1",
+    "validation_named": 32,
+    "accepted_correct": 9,
+    "wrong_accepted": 0,
+    "named_coverage": 0.28125,
+    "legacy_probability_only": true,
+    "margin_available": false,
+    "holdout_used": false,
+    "runtime_gate_eligible": true
+  },
+  "runtime_approved": false,
+  "bigbanana_deployed": false,
+  "real_windows_match_validated": false,
+  "limitations": [
+    "Validation-based threshold covers only 9 of 32 named crops; it does not prove reliable live tips.",
+    "No independent final holdout was used for this gate.",
+    "Bundle files and media stay private on the SSD; this record contains only metadata and hashes."
+  ]
+}
