@@ -1,7 +1,7 @@
 [Setup]
 AppId=AgenteTFT-HM45-Online
 AppName=Agente TFT · Instalador online HM4.5
-AppVersion=0.6.4
+AppVersion=0.7.0
 CreateAppDir=no
 Uninstallable=no
 PrivilegesRequired=lowest
