@@ -26,7 +26,7 @@ def _distance(a: str, b: str, limit: int = 2) -> int:
     return row[-1]
 
 
-def bind_observed_traits(raw: dict | None, names: set[str]) -> dict:
+def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> dict:
     if not isinstance(raw, dict) or raw.get("status") not in ("raw_ocr", "cached_ocr"):
         return {"status": "unavailable", "traits": [], "unmatched": []}
     if raw.get("status") == "cached_ocr" and raw.get("age_ms", 99999) > 2000:
@@ -62,7 +62,13 @@ def bind_observed_traits(raw: dict | None, names: set[str]) -> dict:
             rows[-1].append(word)
         else:
             rows.append([word])
-    canonical = {_fold(name): name for name in names}
+    canonical: dict[str, str] = {}
+    for alias, name in (names.items() if isinstance(names, dict)
+                        else ((name, name) for name in names)):
+        key = _fold(alias)
+        if key in canonical and canonical[key] != name:
+            raise ValueError('Ambiguous folded trait alias')
+        canonical[key] = name
     matched, unmatched = [], []
     for row in rows:
         observed = " ".join(w["text"] for w in sorted(row, key=lambda w: w["box"][0]))

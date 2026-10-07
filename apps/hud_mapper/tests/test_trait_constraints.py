@@ -57,3 +57,18 @@ def test_short_word_on_separate_trait_row_blocks_roster_exhaustiveness():
     assert binding['status'] == 'partial_panel'
     assert binding['detected_text_rows'] == 2
     assert roster_hypotheses(binding, [dict(color='green', rect={'y': 573})], units)['rosters'] == []
+
+
+def test_english_vod_trait_names_bind_to_same_seasonal_ids():
+    root = Path(__file__).resolve().parents[3]
+    active = json.loads((root / 'configs/catalog/active-knowledge-release-v1.json').read_text())
+    release = root / active['reference']
+    pt = {row['api_name']: row['name'] for row in json.loads((release / 'traits.json').read_text())['traits']}
+    aliases = json.loads((root / 'configs/catalog/trait-aliases-set18-en-us-16.20.json').read_text())
+    assert aliases['target_release_sha256'] == json.loads((release / 'release.json').read_text())['release_sha256']
+    names = {name: name for name in pt.values()}
+    names.update({row['name']: pt[row['api_name']] for row in aliases['traits']})
+    words = [dict(text='Juggernaut', confidence=.66, box=[138, 375, 212, 391]),
+             dict(text='Lunar', confidence=.96, box=[140, 428, 178, 440])]
+    binding = bind_observed_traits({'status': 'raw_ocr', 'words': words}, names)
+    assert {row['name'] for row in binding['traits']} == {'Colosso', 'Lunar'}

@@ -39,7 +39,21 @@ class BoardHubLive:
                 hashlib.sha256(traits_bytes).hexdigest() != release_manifest['components']['traits']['sha256']):
             raise ValueError('Visual items and structured release differ')
         self.item_attribute_ids = {item['api_name'] for item in json.loads(items_bytes)['items']}
-        self.trait_names = {trait['name'] for trait in json.loads(traits_bytes)['traits']}
+        trait_rows = json.loads(traits_bytes)['traits']
+        self.trait_names = {trait['name']: trait['name'] for trait in trait_rows}
+        trait_ids = {trait['api_name']: trait['name'] for trait in trait_rows}
+        aliases_path = root / 'configs/catalog/trait-aliases-set18-en-us-16.20.json'
+        if aliases_path.is_file():
+            aliases = json.loads(aliases_path.read_text(encoding='utf-8'))
+            if (aliases.get('schema_version') != 1 or aliases.get('set_key') != knowledge['set_key'] or
+                    aliases.get('target_release_sha256') != release_manifest['release_sha256'] or
+                    {row['api_name'] for row in aliases.get('traits', [])} != set(trait_ids)):
+                raise ValueError('Trait translation does not match seasonal catalog')
+            for row in aliases['traits']:
+                alias, name = row['name'], trait_ids[row['api_name']]
+                if alias in self.trait_names and self.trait_names[alias] != name:
+                    raise ValueError('Ambiguous trait translation')
+                self.trait_names[alias] = name
         self.champion_traits = {unit['api_name']: set(unit['traits'])
                                 for unit in json.loads(units_bytes)['champions']}
         self.knowledge_release = release_manifest['release_sha256']
