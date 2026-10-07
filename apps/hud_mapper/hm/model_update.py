@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import sys
 import threading
 import time
 import zipfile
@@ -77,6 +78,60 @@ def _probe_l3(metadata: Path) -> str:
         return observer.hash
     except Exception as exc:
         raise ModelUpdateError(f"Health-check L3 falhou: {type(exc).__name__}") from exc
+
+
+def _runtime_root() -> Path:
+    return Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[3]))
+
+
+def _probe_optional_components(bundle_root: Path) -> dict:
+    checked = {}
+    runtime_root = _runtime_root()
+    unit_plan = bundle_root / "configs/catalog/active-unit-head-v1.json"
+    if unit_plan.is_file():
+        try:
+            from .unit_head import UnitHeadObserver
+            observer = UnitHeadObserver(runtime_root, bundle_root)
+            checked["unit_head_sha256"] = observer.sha
+        except Exception as exc:
+            raise ModelUpdateError(
+                f"Health-check do reconhecedor de unidades falhou: {type(exc).__name__}"
+            ) from exc
+
+    item_plan = bundle_root / "configs/catalog/active-item-neural-v1.json"
+    if item_plan.is_file():
+        try:
+            from .item_neural import ItemIconObserver
+            observer = ItemIconObserver(runtime_root, bundle_root)
+            checked["item_model_sha256"] = observer.sha
+        except Exception as exc:
+            raise ModelUpdateError(
+                f"Health-check do reconhecedor de itens falhou: {type(exc).__name__}"
+            ) from exc
+    return checked
+
+
+def rollback_active_model(
+    *,
+    root: Path | None = None,
+    reason: str = "runtime_load_failure",
+) -> Path | None:
+    root = root or _local_root()
+    try:
+        previous = _json(root / "previous.json")
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    path = _valid_pointer(previous, root)
+    if path is None:
+        return None
+    restored = {
+        **previous,
+        "status": "active_rollback",
+        "rollback_at_ms": int(time.time() * 1000),
+        "rollback_reason": reason,
+    }
+    _write_atomic(root / "active.json", restored)
+    return path
 
 
 def _verify_and_extract(
@@ -190,6 +245,7 @@ def _verify_and_extract(
     if l3_hash != server_manifest["model_identity_sha256"]:
         shutil.rmtree(destination, ignore_errors=True)
         raise ModelUpdateError("Identidade do modelo L3 não confere com o champion.")
+    optional_health = _probe_optional_components(destination)
 
     return {
         "manifest": manifest,
@@ -197,6 +253,7 @@ def _verify_and_extract(
         "l3_metadata": str(l3_metadata),
         "bundle_root": str(destination),
         "runtime_model_sha256": l3_hash,
+        "optional_health": optional_health,
     }
 
 
@@ -228,21 +285,7 @@ def active_model_metadata(root: Path | None = None) -> Path | None:
             return path
 
     # Automatic rollback: an invalid active model never blocks startup.
-    try:
-        previous = _json(root / "previous.json")
-    except (OSError, ValueError, json.JSONDecodeError):
-        return None
-    path = _valid_pointer(previous, root)
-    if path is None:
-        return None
-    restored = {
-        **previous,
-        "status": "active_rollback",
-        "rollback_at_ms": int(time.time() * 1000),
-        "rollback_reason": "active_model_health_check_failed",
-    }
-    _write_atomic(pointer, restored)
-    return path
+    return rollback_active_model(root=root, reason="active_model_health_check_failed")
 
 
 class ModelUpdater:
@@ -376,6 +419,7 @@ class ModelUpdater:
             "l3_metadata": ready["l3_metadata"],
             "roles": ready["roles"],
             "runtime_model_sha256": ready["runtime_model_sha256"],
+            "optional_health": ready["optional_health"],
             "downloaded_at_ms": int(time.time() * 1000),
         }
         _write_atomic(version_dir / "installed.json", record)
