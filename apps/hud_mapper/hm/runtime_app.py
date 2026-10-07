@@ -39,6 +39,13 @@ def _valid_candidate_model(meta):
         return False
 
 def discover_model():
+    try:
+        from .model_update import active_model_metadata
+        active=active_model_metadata()
+        if active and _valid_candidate_model(active):
+            return str(active)
+    except Exception:
+        pass
     home=Path(os.environ.get("USERPROFILE") or Path.home())
     local=Path(os.environ.get("LOCALAPPDATA") or home)
     frozen=Path(sys.executable).resolve().parent if getattr(sys,"frozen",False) else Path(__file__).resolve().parents[3]
@@ -98,6 +105,10 @@ class App:
         self._next_caption_ns=0
         self.render_ms=deque(maxlen=120);self.preview_times=deque(maxlen=120)
         self.voice=None
+        self.model_updater=None
+        if self.hm4:
+            from .model_update import ModelUpdater
+            self.model_updater=ModelUpdater(is_idle=lambda: not self.active() and not self.finalizing)
         if self.hm4:
             from .voice import VoiceCoach
             self.voice=VoiceCoach()
@@ -303,6 +314,26 @@ class App:
             if not tree.selection():return
             self.selection=dict(choices[tree.selection()[0]]);self.source_label.configure(text=target_label(self.selection));dialog.destroy()
         ttk.Button(dialog,text="Usar fonte selecionada",command=accept).pack(pady=8);dialog.after(40,poll)
+
+    def _schedule_neural_update_check(self):
+        if not self.hm4 or not self.model_updater or self.closing:
+            return
+        if not self.active() and not self.finalizing:
+            self.model_updater.activate_pending_if_idle()
+            self.model_updater.check_async()
+            latest=discover_model()
+            if latest and latest != self.model.get():
+                self.model.set(latest)
+        self.root.after(300000, self._schedule_neural_update_check)
+
+    def _check_neural_update_after_match(self):
+        if not self.model_updater:
+            return
+        self.model_updater.activate_pending_if_idle()
+        self.model_updater.check_async()
+        latest=discover_model()
+        if latest:
+            self.model.set(latest)
 
     def start(self):
         from tkinter import messagebox
@@ -749,6 +780,8 @@ class App:
                                       training_started=False,active_model_changed=False)
             if learning_job is not None:
                 result["post_session_learning_job"]=learning_job
+            if self.hm4 and result.get("execution_complete"):
+                self._check_neural_update_after_match()
             self.perf.delete("1.0","end");self.perf.insert("end",json.dumps(result,ensure_ascii=False,indent=2))
             label=("Concluído (encerrado pelo usuário)" if result.get("stopped_by_user") else "Concluído") if result.get("execution_complete") else "Parcial: "+str(result.get("error"))
             if learning_job:
