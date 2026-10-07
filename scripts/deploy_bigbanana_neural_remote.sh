@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUNDLE="$ROOT/trainer/neural-bundle"
 
-: "\${BIGBANANA_SSH_TARGET:?set BIGBANANA_SSH_TARGET, e.g. user@server}"
-: "\${BIGBANANA_REPO_DIR:?set BIGBANANA_REPO_DIR on the remote server}"
+: "${BIGBANANA_SSH_TARGET:?set BIGBANANA_SSH_TARGET, e.g. user@server}"
+: "${BIGBANANA_REPO_DIR:?set BIGBANANA_REPO_DIR on the remote server}"
 
 if [[ ! -f "$BUNDLE/bundle.json" ]]; then
   echo "BIGBANANA_REMOTE_DEPLOY_ERROR=local_neural_bundle_missing" >&2
@@ -15,7 +15,7 @@ fi
 
 for command in ssh rsync git; do
   command -v "$command" >/dev/null 2>&1 || {
-    echo "BIGBANANA_REMOTE_DEPLOY_ERROR=\${command}_missing" >&2
+    echo "BIGBANANA_REMOTE_DEPLOY_ERROR=${command}_missing" >&2
     exit 1
   }
 done
