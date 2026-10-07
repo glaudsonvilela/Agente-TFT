@@ -4,6 +4,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 
 MODULE = Path(__file__).resolve().parents[1] / "densify_tooltip_events.py"
 spec = importlib.util.spec_from_file_location("densify_tooltip_events", MODULE)
@@ -70,3 +72,15 @@ def test_dense_collection_decodes_real_frames_instead_of_repeating_keyframes(tmp
     assert dense["review_interval_ms"] == 250
     assert dense["duration_seconds"] == 61
     assert base["decode_mode"] == "keyframes"
+
+
+def test_dense_planner_rejects_hls_seek_and_mismatched_media(tmp_path):
+    indexed = tmp_path / "vod.mp4"
+    indexed.touch()
+    hls = tmp_path / "vod.m3u8"
+    hls.touch()
+    planner.verify_indexed_media({"input": str(indexed)}, {"input": str(indexed)})
+    with pytest.raises(SystemExit):
+        planner.verify_indexed_media({"input": str(hls)}, {"input": str(hls)})
+    with pytest.raises(SystemExit):
+        planner.verify_indexed_media({"input": str(hls)}, {"input": str(indexed)})

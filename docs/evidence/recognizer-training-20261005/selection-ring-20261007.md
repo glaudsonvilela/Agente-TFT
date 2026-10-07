@@ -151,3 +151,19 @@ Ornn side panel remained visible. Those seven diagnostic labels were kept
 off the training path. A quick within-frame equipment-art comparison did
 not distinguish the correct crop reliably, so it was not adopted. Unit to
 panel association remains the main blocker for wider autonomous labels.
+
+The warm halo detector now requires the left and right arcs to be within
+a factor of two. Re-mining that same training window at a *diagnostic* 90%
+OCR threshold reduced seven Ornn crops to two from the correct selected unit.
+This lower threshold is not used by the production training gate; it needs
+independent evaluation before promotion.
+
+Seek consistency was another separate data-quality failure. Two HLS windows
+at nominal second 9693 showed different rounds. The same local playlists
+were remuxed without recoding into indexed MP4s on the SSD. Overlapping
+250 ms collections from the indexed training video matched all 40 shared
+frame hashes; overlapping collections from the indexed evaluation video
+matched all 48. The collector now records its input media in the report and
+the dense-window planner rejects HLS/TS input or a sparse/dense media
+mismatch. Old HLS window times remain diagnostic; new dense discovery must
+start from a fresh sparse collection of the indexed media.

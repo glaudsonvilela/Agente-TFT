@@ -163,7 +163,9 @@ fn run() -> Result<()> {
             None => 60000,
         },
     };
-    if !(interval_ms..=3600000).contains(&review_interval_ms) || review_interval_ms % interval_ms != 0 {
+    if !(interval_ms..=3600000).contains(&review_interval_ms)
+        || review_interval_ms % interval_ms != 0
+    {
         return Err("review interval must be a bounded multiple of sampling interval".into());
     }
     let out = PathBuf::from(string(&spec, "output")?);
@@ -473,6 +475,7 @@ fn run() -> Result<()> {
         "decode_mode":decode_mode,"embedding_dimensions":inference.as_ref().map(|e|e.dim),"embedding_rows":if inference.is_some(){proposals}else{0},
         "embeddings_sha256":embeddings_sha,
         "limitations":["Structural green-bar proposals with the recorded profile; no-proposal frames may be menu, combat, overlay or missed units.","Counts of model candidates are not precision/recall or catalog coverage.","Consecutive or duplicate crops are correlated; no pseudolabels enter training.","Sampling does not run inference on every decoded video frame.","Timing includes detector, feature extraction, matching and crop PNG saves, not Windows capture/display."]});
+    report["input"] = spec["input"].clone();
     report["collection_mode"] = json!(mode.name());
     report["inference_performed"] = json!(inference.is_some());
     report["sample_interval_ms"] = json!(interval_ms);

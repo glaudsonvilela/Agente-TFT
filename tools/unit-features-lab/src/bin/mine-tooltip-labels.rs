@@ -31,6 +31,10 @@ fn tooltip_name_match(
 // The selection halo is a broad ellipse below the unit. Some arenas render it
 // saturated cyan, others pale blue. Counting blue anywhere in a crop mistakes
 // spells and the unit's own colours for a selection. This is an association cue.
+fn balanced_arcs(left: u32, right: u32) -> bool {
+    left.min(right).saturating_mul(2) >= left.max(right)
+}
+
 fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> {
     if box_xyxy.len() != 4 {
         return None;
@@ -103,7 +107,13 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
     // Pale blue is common in the brighter arenas and ordinary highlights;
     // require substantially more coverage than the saturated cyan channel.
     let pale_pass = totals[1] >= 1000 && left[1] >= 100 && right[1] >= 100 && span(1) >= 30;
-    let warm_pass = totals[2] >= 800 && left[2] >= 100 && right[2] >= 100 && span(2) >= 30;
+    // Warm character art often lights up one side of the sampled ellipse.
+    // A real warm selection halo has substantial arcs on both sides.
+    let warm_pass = totals[2] >= 800
+        && left[2] >= 100
+        && right[2] >= 100
+        && balanced_arcs(left[2], right[2])
+        && span(2) >= 30;
     let scores = [
         if cyan_pass { totals[0] } else { 0 },
         if pale_pass { totals[1] } else { 0 },
@@ -298,6 +308,12 @@ fn run() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn warm_arc_balance_rejects_observed_character_art_false_positive() {
+        assert!(balanced_arcs(433, 695));
+        assert!(!balanced_arcs(1195, 165));
+    }
     #[test]
     fn generic_lux_does_not_become_base_form_and_multiword_names_are_complete() {
         let catalog = json!({"entries":[

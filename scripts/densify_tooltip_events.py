@@ -104,6 +104,17 @@ def dense_collection_spec(base: dict[str, Any], output: Path,
     return result
 
 
+def verify_indexed_media(report: dict[str, Any], spec: dict[str, Any]) -> None:
+    """Sparse discovery and dense windows must seek the same indexed video."""
+    source = spec.get("input")
+    if not isinstance(source, str) or not source or not Path(source).is_file():
+        fail("local indexed video required for dense collection")
+    if Path(source).suffix.lower() in {".m3u8", ".ts"}:
+        fail("HLS/TS seeks changed scenes at the same nominal time; remux to MP4 first")
+    if report.get("input") != source:
+        fail("sparse collection and dense base spec must use the same indexed video")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--proposals", type=Path, required=True)
@@ -134,6 +145,7 @@ def main() -> int:
         fail("unknown collection partition")
     if spec.get("source_id") != source_id or spec.get("partition") != partition:
         fail("base spec and collection source/partition differ")
+    verify_indexed_media(report, spec)
     if spec.get("training_labels_allowed") is not False or spec.get("collection_mode") != "annotation_only":
         fail("base spec must be annotation-only with training labels disabled")
     duration = spec.get("duration_seconds")
