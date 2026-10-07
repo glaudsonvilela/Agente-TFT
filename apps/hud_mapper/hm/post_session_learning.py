@@ -113,16 +113,33 @@ def _upload_worker(session: Path, job_path: Path) -> None:
             image = image_path.read_bytes()
             if hashlib.sha256(image).hexdigest() != row["image_sha256"]:
                 raise ValueError(f"learning_frame_checksum_mismatch:{index}")
-            result = client.upload_frame(
-                neural_session_id,
-                frame_id=int(row["frame_id"]),
-                source_ms=int(round(float(row["source_ms"]))),
-                width=int(row["width"]),
-                height=int(row["height"]),
-                image=image,
-                content_type="image/jpeg",
-                capture_role="post_match_learning_evidence",
-            )
+            result = None
+            last_upload_error = None
+            for attempt in range(4):
+                try:
+                    result = client.upload_frame(
+                        neural_session_id,
+                        frame_id=int(row["frame_id"]),
+                        source_ms=int(round(float(row["source_ms"]))),
+                        width=int(row["width"]),
+                        height=int(row["height"]),
+                        image=image,
+                        content_type="image/jpeg",
+                        capture_role="post_match_learning_evidence",
+                    )
+                    break
+                except NeuralServiceError as exc:
+                    last_upload_error = exc
+                    if attempt >= 3:
+                        raise
+                    # The server endpoint is idempotent by frame_id+SHA. A
+                    # response may be lost after persistence, so retrying the
+                    # same frame is safe. Refresh the short-lived client token
+                    # too, which also recovers from an expired session.
+                    time.sleep(0.75 * (2 ** attempt))
+                    client.connect()
+            if result is None:
+                raise last_upload_error or NeuralServiceError("Upload neural sem resposta.")
             state.update(
                 status="uploading",
                 next_frame_index=index + 1,
