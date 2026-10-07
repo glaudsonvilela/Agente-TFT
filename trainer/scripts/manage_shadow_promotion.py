@@ -9,7 +9,8 @@ Promotion policy v1:
 - at least 3 independent evaluation sessions and 6 direct-gold anchors;
 - candidate may not be worse than its champion on any evaluation session;
 - cumulative candidate top1 must be strictly better than champion;
-- runtime-gated candidate may have zero wrong accepts;
+- runtime-gated candidate may have zero wrong accepts and must correctly
+  accept at least one direct-gold anchor in every evaluation session;
 - the candidate baseline SHA must still equal the current central champion SHA.
 
 No human approval is used.
@@ -104,6 +105,8 @@ def register_candidate(
             "per_session_not_worse":True,
             "cumulative_strictly_better":True,
             "wrong_accepted_max":0,
+            "accepted_correct_min_total":3,
+            "accepted_correct_min_each_session":1,
         },
         "human_review_required":False,
     }
@@ -171,9 +174,11 @@ def gate(meta:dict)->bool:
     candidate=sum(int(r.get("candidate_correct",0)) for r in rows)
     champion=sum(int(r.get("champion_correct",0)) for r in rows)
     wrong=sum(int(r.get("candidate_wrong_accepted",0)) for r in rows)
+    accepted=sum(int(r.get("candidate_accepted_correct",0)) for r in rows)
     return (
-        len(sessions)>=3 and total>=6 and wrong==0
+        len(sessions)>=3 and total>=6 and wrong==0 and accepted>=3
         and all(r.get("candidate_not_worse") is True for r in rows)
+        and all(int(r.get("candidate_accepted_correct",0))>=1 for r in rows)
         and candidate>champion
     )
 
