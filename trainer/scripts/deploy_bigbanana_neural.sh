@@ -22,8 +22,10 @@ if [[ ! -f "$BUNDLE" ]]; then
   echo "Run scripts/prepare_bigbanana_neural_bundle.py before deploy." >&2
   exit 1
 fi
-if [[ -z "${TRAINER_API_TOKEN:-}" ]]; then
-  echo "BIGBANANA_NEURAL_DEPLOY_ERROR=TRAINER_API_TOKEN_missing" >&2
+# Let Docker Compose resolve TRAINER_API_TOKEN from either the environment
+# or trainer/.env. This validates the secret contract without printing it.
+if ! docker compose -f "$COMPOSE" config >/dev/null 2>&1; then
+  echo "BIGBANANA_NEURAL_DEPLOY_ERROR=compose_or_secret_config_invalid" >&2
   exit 1
 fi
 
