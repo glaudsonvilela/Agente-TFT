@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 from PIL import Image
 
-from hm45_vm_client import VMCore, RemoteBoardHub, RemoteNativeWorker
+from hm45_vm_client import VMCore, RemoteBoardHub, RemoteNativeWorker, RemoteObserver
 
 
 def main() -> None:
@@ -30,24 +30,21 @@ def main() -> None:
                "-i", "agente-tft-hm45-core:0.7.0", "serve"]
     core = VMCore("unused", args.output.with_suffix(".stderr.log"), command=command)
     try:
+        model = RemoteObserver(core, "build/hm4-live-assets/models/deployment-candidate.json").observe(frame)
         request = dict(op="frame", id=frame.id, source_ms=0, width=frame.width, height=frame.height)
         reader = RemoteNativeWorker(core, "reader").request(request, rgb)
         hp = RemoteNativeWorker(core, "hp").request(request, rgb)
         hub = RemoteBoardHub(core).observe(frame, reader.get("board"))
-        assert reader["id"] == hp["id"] == frame.id
-        assert "snapshot" in hub and "regions" in hub
+        assert model["frame_id"] == reader["id"] == hp["id"] == frame.id
+        assert len(model["regions"]) == 2 and "snapshot" in hub and "regions" in hub
         assert all(value["vm_transport"]["codec"] == "rgb8" for value in (reader, hp, hub))
-        assert core.ready.get("neural_location") == "server_only"
-        assert core.ready.get("local_neural_weights_bundled") is False
-        assert not (hub["snapshot"].get("neural_items") or {}).get("active")
-        assert not (hub["snapshot"].get("neural_units") or {}).get("active")
+        assert core.ready.get("analysis_health_contract") == "l3_ocr_b4_roi_v1"
         result = {"sample": str(args.sample) if args.sample else "synthetic_black",
                   "image_size": [frame.width, frame.height],
-                  "reader": reader["vm_transport"],
+                  "model": model["vm_transport"], "reader": reader["vm_transport"],
                   "hp": hp["vm_transport"], "hub": hub["vm_transport"],
                   "board_read_present": bool(reader.get("board")),
-                  "neural_location": "server_only",
-                  "health": "OCR/HP/B4 local helper identity and lossless TCP OK; neural server-only"}
+                  "health": "L3/OCR/HP/B4 frame identity and lossless TCP OK"}
         args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
         print("HM45_VM_E2E=" + json.dumps(result))
     finally:
