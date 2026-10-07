@@ -275,6 +275,10 @@ class ModelUpdater:
             return
         active = self._active() or {}
         active_generation = active.get("generation")
+        try:
+            previous_generation = _json(self.root / "previous.json").get("generation")
+        except (OSError, ValueError, json.JSONDecodeError):
+            previous_generation = None
         rows = []
         for folder in versions.iterdir():
             if not folder.is_dir():
@@ -285,7 +289,7 @@ class ModelUpdater:
                 continue
             rows.append((generation, folder))
         rows.sort(reverse=True)
-        protected = {active_generation}
+        protected = {active_generation, previous_generation}
         for generation, folder in rows[:keep]:
             protected.add(generation)
         for generation, folder in rows:
