@@ -66,6 +66,25 @@ fn validate_autonomous_weight(value: f32, name: &str) -> Result<()> {
     Ok(())
 }
 
+fn effective_silver_weight(
+    declared: f32,
+    configured_max: f32,
+    use_declared: bool,
+) -> Result<f32> {
+    validate_autonomous_weight(declared, "silver declared weight")?;
+    validate_autonomous_weight(configured_max, "silver configured weight")?;
+    if declared > configured_max + 1e-6 {
+        return Err("silver declared weight exceeds configured maximum".into());
+    }
+    if use_declared {
+        Ok(declared)
+    } else if (declared - configured_max).abs() <= 1e-6 {
+        Ok(configured_max)
+    } else {
+        Err("silver declared/configured weight mismatch".into())
+    }
+}
+
 fn load_autonomous_rows(
     file: &Path,
     collection: &Path,
@@ -110,15 +129,11 @@ fn load_autonomous_rows(
                 let declared = row["recommended_training_weight"]
                     .as_f64()
                     .ok_or("silver recommended weight")? as f32;
-                validate_autonomous_weight(declared, "silver declared weight")?;
-                if declared > weight + 1e-6 {
-                    return Err("silver declared weight exceeds configured maximum".into());
-                }
-                if use_declared_silver_weights {
-                    row_weight = declared;
-                } else if (declared - weight).abs() > 1e-6 {
-                    return Err("silver declared/configured weight mismatch".into());
-                }
+                row_weight = effective_silver_weight(
+                    declared,
+                    weight,
+                    use_declared_silver_weights,
+                )?;
             }
             _ => return Err("unknown autonomous supervision tier".into()),
         }
@@ -832,6 +847,33 @@ mod tests {
         assert_eq!(epoch, second_epoch);
         assert_eq!(history, second_history);
         assert_eq!(first.labels, vec!["a", "b"]);
+    }
+
+    #[test]
+    fn cumulative_autonomous_config_keeps_declared_silver_weight_opt_in() {
+        let legacy: AutonomousTrainingConfig = serde_json::from_value(json!({
+            "collection":"one","source_id":"s1","gold_labels":"g","silver_labels":"s",
+            "gold_weight":1.0,"silver_weight":0.35
+        }))
+        .unwrap();
+        assert!(!legacy.use_declared_silver_weights);
+
+        let central: AutonomousTrainingConfig = serde_json::from_value(json!({
+            "collection":"two","source_id":"s2","gold_labels":"g2","silver_labels":"s2",
+            "gold_weight":1.0,"silver_weight":0.35,
+            "use_declared_silver_weights":true
+        }))
+        .unwrap();
+        assert!(central.use_declared_silver_weights);
+    }
+
+    #[test]
+    fn central_silver_weights_preserve_020_and_035_tiers() {
+        assert!((effective_silver_weight(0.20, 0.35, true).unwrap() - 0.20).abs() < 1e-6);
+        assert!((effective_silver_weight(0.35, 0.35, true).unwrap() - 0.35).abs() < 1e-6);
+        assert!(effective_silver_weight(0.20, 0.35, false).is_err());
+        assert!(effective_silver_weight(0.36, 0.35, true).is_err());
+        assert!((effective_silver_weight(0.35, 0.35, false).unwrap() - 0.35).abs() < 1e-6);
     }
 
     #[test]
