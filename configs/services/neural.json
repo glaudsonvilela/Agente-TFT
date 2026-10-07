@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "service_url": "https://tft.bigbanana.io",
+  "status": "server_route_pending_validation",
+  "neural_location": "server",
+  "local_model_weights_allowed": false,
+  "local_training_allowed": false
+}
