@@ -54,7 +54,10 @@ class StudioController:
                          name="studio-resume-learning").start()
         self._connect_voice_async()
         self.pump = threading.Thread(target=self._pump, daemon=True, name="studio-state-pump")
+        self.preview_pump = threading.Thread(target=self._preview_pump, daemon=True,
+                                             name="studio-preview-encode")
         self.pump.start()
+        self.preview_pump.start()
 
     def _resume_learning(self):
         try:
@@ -157,10 +160,12 @@ class StudioController:
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
                     "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
                     "visual_readiness": session.versions.get("visual_readiness"),
+                    "temporal_candidates": session.versions.get("temporal_candidates"),
                     "board_execution": session.versions.get("board_hub_execution"),
                     "unit_model_active": bool(session.versions.get("unit_neural_active")),
                     "item_model_active": bool(session.versions.get("item_neural_active")),
                     "data_patch": getattr(session.decision_engine, "patch", None),
+                    "screen_mode": session.versions.get("screen_mode"),
                     "tip": safe_tip, "error": session.error or self.last_error,
                     "counts": {k: session.counts[k] for k in
                                ("source_frames", "preview_frames", "reader_native_runs",
@@ -179,7 +184,6 @@ class StudioController:
                 "played": v.played_count if v else 0, "error": v.error if v else None}
 
     def _pump(self):
-        next_jpeg = 0.0
         next_model_check = 0.0
         while not self.closed.wait(.01):
             with self.lock:
@@ -194,28 +198,6 @@ class StudioController:
                         pass
             if session is None or session.finished:
                 continue
-            if time.monotonic() >= next_jpeg:
-                try:
-                    frame = session.preview.get(0)
-                except queue.Empty:
-                    pass
-                else:
-                    next_jpeg = time.monotonic() + 1/30  # At most 30 FPS encode.
-                    try:
-                        encode_start = time.perf_counter_ns()
-                        from PIL import Image
-                        raw = "BGRX" if len(frame.rgb) == frame.width * frame.height * 4 else "RGB"
-                        image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb, "raw", raw)
-                        out = BytesIO()
-                        image.save(out, "JPEG", quality=72, optimize=False)
-                        with self.preview_condition:
-                            self.preview_jpeg = out.getvalue()
-                            self.preview_sequence += 1
-                            self.preview_times.append(time.monotonic())
-                            self.preview_encode_ms.append((time.perf_counter_ns()-encode_start)/1e6)
-                            self.preview_condition.notify_all()
-                    except Exception as exc:
-                        self.last_error = f"Prévia: {exc}"
             tip = session.latest_replay_tip
             if tip and tip.get("actionable"):
                 tip_key = (tip.get("decision_key"), tip.get("text"))
@@ -234,6 +216,43 @@ class StudioController:
                     session.store.emit("telemetry", self.voice.events.popleft())
             if session.done.is_set():
                 self._finalize(session)
+
+    def _preview_pump(self):
+        """Encode the latest frame off the advice/voice delivery thread.
+
+        The capture queue has capacity one. Slow JPEG encoding therefore drops
+        old preview frames instead of delaying a new decision or spoken tip.
+        """
+        next_jpeg = 0.0
+        while not self.closed.wait(.01):
+            with self.lock:
+                session = self.session
+            if session is None or session.finished or time.monotonic() < next_jpeg:
+                continue
+            try:
+                frame = session.preview.get(0)
+            except queue.Empty:
+                continue
+            next_jpeg = time.monotonic() + 1/30
+            try:
+                encode_start = time.perf_counter_ns()
+                from PIL import Image
+                raw = "BGRX" if len(frame.rgb) == frame.width * frame.height * 4 else "RGB"
+                image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb, "raw", raw)
+                out = BytesIO()
+                image.save(out, "JPEG", quality=72, optimize=False)
+                encoded = out.getvalue()
+                with self.lock:
+                    if self.session is not session or session.finished:
+                        continue
+                with self.preview_condition:
+                    self.preview_jpeg = encoded
+                    self.preview_sequence += 1
+                    self.preview_times.append(time.monotonic())
+                    self.preview_encode_ms.append((time.perf_counter_ns()-encode_start)/1e6)
+                    self.preview_condition.notify_all()
+            except Exception as exc:
+                self.last_error = f"Prévia: {exc}"
 
     def _finalize(self, session):
         with self.lock:

@@ -401,6 +401,17 @@ class RuntimeSession(Session):
                 end = time.perf_counter_ns()
                 if not hit:
                     spans = answer.get('spans', [])
+                observed_fields = {row.get('field') for row in answer.get('hud') or []
+                    if row.get('status') == 'single_frame_observation'
+                    and row.get('value') is not None
+                    and isinstance(row.get('confidence'), (int, float))
+                    and row['confidence'] >= .85}
+                if answer.get('origin') != 'observed_pixels' or 'stage' not in observed_fields:
+                    self.versions['screen_mode'] = 'no_gameplay_hud'
+                elif 'gold' not in observed_fields:
+                    self.versions['screen_mode'] = 'stage_without_economy'
+                else:
+                    self.versions['screen_mode'] = 'gameplay_hud'
                 record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions, answer=answer,
                               queue_ms=(start - frame.ready_ns) / 1e6,
                               source_to_reader_ms=(end - frame.due_ns) / 1e6,
@@ -654,6 +665,7 @@ class HM4RuntimeSession(RuntimeSession):
                 self.versions['unit_neural_active'] = neural_units.get('active', False)
                 self.versions['unit_neural_model_sha256'] = neural_units.get('model_sha256')
                 self.versions['visual_readiness'] = observed['snapshot'].get('visual_readiness')
+                self.versions['temporal_candidates'] = observed['snapshot'].get('temporal_candidates')
                 end = time.perf_counter_ns()
                 regions = regions_to_source(observed['regions'], frame, plan)
                 record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions,

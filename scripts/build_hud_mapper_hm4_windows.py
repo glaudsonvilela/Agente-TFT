@@ -78,6 +78,7 @@ args = [
     '--hidden-import', 'hm.board_hub_live',
     '--hidden-import', 'hm.item_visual_native',
     '--hidden-import', 'hm.item_movement',
+    '--hidden-import', 'hm.temporal_candidates',
     '--hidden-import', 'hm.replay_coach',
     '--hidden-import', 'hm.replay_decision',
     '--hidden-import', 'hm.voice',

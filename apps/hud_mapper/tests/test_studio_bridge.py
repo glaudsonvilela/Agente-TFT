@@ -1,14 +1,64 @@
 from __future__ import annotations
 
 import threading
+import time
 import unittest
+from collections import deque
+from types import SimpleNamespace
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
+from hm.dataset import Latest
 from hm.studio_bridge import StudioController, StudioServer, design_root, package_contract
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_slow_preview_encoding_does_not_delay_tip_delivery(self):
+        preview = Latest()
+        preview.put(SimpleNamespace(width=2, height=1, rgb=b'\0' * 6))
+        session = SimpleNamespace(finished=False, preview=preview,
+            latest_replay_tip=dict(actionable=True, decision_key='test:buy',
+                                   text='Compre Rakan agora.', source_ms=2000),
+            done=threading.Event())
+        controller = object.__new__(StudioController)
+        controller.lock = threading.RLock()
+        controller.session = session
+        controller.closed = threading.Event()
+        controller.voice = None
+        controller.history = deque(maxlen=100)
+        controller.last_tip_key = None
+        controller.last_error = None
+        controller.preview_condition = threading.Condition()
+        controller.preview_jpeg = None
+        controller.preview_sequence = 0
+        controller.preview_times = deque(maxlen=90)
+        controller.preview_encode_ms = deque(maxlen=90)
+        controller.model_updater = SimpleNamespace()
+        encoding = threading.Event()
+        release = threading.Event()
+
+        def slow_save(*args, **kwargs):
+            encoding.set()
+            release.wait(2)
+
+        try:
+            with patch('PIL.Image.Image.save', slow_save):
+                worker = threading.Thread(target=controller._preview_pump, daemon=True)
+                advice = threading.Thread(target=controller._pump, daemon=True)
+                worker.start()
+                self.assertTrue(encoding.wait(1), 'preview did not start encoding')
+                advice.start()
+                deadline = time.monotonic() + 1
+                while not controller.history and time.monotonic() < deadline:
+                    time.sleep(.005)
+                self.assertEqual(controller.history[0]['text'], 'Compre Rakan agora.')
+        finally:
+            controller.closed.set()
+            release.set()
+            with controller.preview_condition:
+                controller.preview_condition.notify_all()
+
     def test_closing_stalled_capture_stops_then_seals(self):
         class FirstWaitTimesOut(threading.Event):
             def __init__(self):

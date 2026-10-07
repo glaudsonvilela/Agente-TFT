@@ -27,12 +27,15 @@ if (new URLSearchParams(location.search).has('connected')) {
     const label = actionable ? 'DICA AGORA' : 'LEITURA EM ANDAMENTO';
     document.querySelector('.coach-label').innerHTML = `<span>AGORA</span><span class="pill mini">${label}</span>`;
     const title = actionable ? tip.text :
-      (tip && tip.text && tip.age_ms <= 3000 ? tip.text : 'Aguardando uma leitura confiável.');
+      state?.screen_mode === 'gameplay_hud' ? 'Tabuleiro visível. Buscando a próxima ação.' :
+      state?.screen_mode === 'stage_without_economy' ? 'Partida detectada. Aguardando a loja e o ouro.' :
+      state?.screen_mode === 'no_gameplay_hud' ? 'Aguardando o tabuleiro do TFT na tela selecionada.' :
+      'Aguardando a primeira imagem da captura.';
     const recommendations = actionable ? (tip.recommendations || []) : [];
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
-                     'O Agente só orienta quando há evidência suficiente.'}</p>`+
+                     'As ações aparecem aqui durante a partida.'}</p>`+
       `<div class="advice-explanation" style="display:block">`+
       `Patch dos dados: ${escapeHtml(tip && tip.data_patch || 'a confirmar')}`+
       `${tip && tip.data_patch_basis==='bundled_catalog_patch_lab' ? ' (catálogo local de laboratório)' : ''} · `+
@@ -88,15 +91,22 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (source) source.textContent = selected ? selected.label : 'Nenhuma fonte selecionada';
     }
     if (current === 'board') {
-      const arena = document.querySelector('.board-detail .arena');
+      const arena = document.querySelector('.board-detail .arena, .board-detail .live-board-empty');
       const readiness = state?.visual_readiness;
+      const candidates = state?.temporal_candidates || {};
+      const units = (candidates.units || []).filter(row => row.candidate_id).slice(0, 10);
+      const items = (candidates.inventory || []).filter(row => row.candidate_id).slice(0, 10);
       const boardStatus = readiness ?
         `${readiness.observed_unit_regions || 0} regiões observadas · ${readiness.candidate_units || 0} candidatos · ${readiness.verified_units || 0} unidades confirmadas` :
         'Aguardando a primeira leitura do tabuleiro.';
       const modelStatus = state?.unit_model_active ? 'Reconhecedor de campeões ativo' : 'Reconhecedor de campeões aguardando modelo';
-      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Posições e campeões ainda não confirmados nesta sessão.<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)}</small></div></div>`;
+      const unitText = units.length ? '<br>Possíveis campeões: '+units.map(row =>
+        escapeHtml(row.candidate_name || row.candidate_id)).join(', ') : '';
+      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Leitura do tabuleiro em andamento.${unitText}<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)} · nomes ainda não confirmados</small></div></div>`;
       const inventory = document.querySelector('.board-detail .inventory');
-      if (inventory) inventory.innerHTML = '<span>Inventário · aguardando identificação confiável</span>';
+      if (inventory) inventory.innerHTML = '<span>Inventário · '+(items.length ?
+        'possíveis itens: '+items.map(row => escapeHtml(row.candidate_name || row.candidate_id)).join(', ') :
+        'aguardando leitura')+' · candidatos</span>';
     }
     if (current === 'history') {
       const panelTitle = document.querySelector('.timeline')?.closest('.panel')?.querySelector('.panel-title');
@@ -153,7 +163,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       const changed = !state || state.session_id !== next.session_id ||
         state.phase !== next.phase || state.error !== next.error ||
         ((state.preview_sequence || 0) === 0 && next.preview_sequence > 0) ||
-        (current === 'board' && JSON.stringify(state.visual_readiness) !== JSON.stringify(next.visual_readiness)) ||
+        (current === 'board' && (JSON.stringify(state.visual_readiness) !== JSON.stringify(next.visual_readiness) ||
+          JSON.stringify(state.temporal_candidates) !== JSON.stringify(next.temporal_candidates))) ||
         (current === 'history' && (state.history?.length || 0) !== (next.history?.length || 0)) ||
         (current === 'learning' && JSON.stringify(state.counts) !== JSON.stringify(next.counts));
       state = next;

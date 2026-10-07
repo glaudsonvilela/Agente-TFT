@@ -135,6 +135,34 @@ class HM4RuntimeTests(unittest.TestCase):
         answer['shop']['cadence_delivery']['fresh']=False
         self.assertNotEqual(engine.evaluate(answer)['decision']['action']['type'],'buy_pair')
 
+    def test_shop_pair_survives_missing_stage_and_level_in_early_game(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field='gold',value=4,status='single_frame_observation',confidence=.93)],
+            'shop':{'cadence_delivery':{'fresh':True},'slots':[
+                dict(slot=i,status='offer_text_readable',observed_name='Rakan',
+                     name_confidence=.95,name_evidence='strong_strip_only') for i in (2,4)]}}
+        result=coach_prompt(engine.evaluate(answer))
+        self.assertTrue(result['actionable'])
+        self.assertIn('Rakan',result['text'])
+        self.assertEqual(result['evidence_level'],'provisional')
+        answer['shop']['cadence_delivery']['fresh']=False
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+        answer['shop']['cadence_delivery']['fresh']=True
+        answer['hud'][0]['value']=1
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+
+    def test_interest_tip_uses_stage_and_gold_without_level(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.93)
+            for k,v in [('stage','2-3'),('gold',18)]]}
+        tip=coach_prompt(engine.evaluate(answer))
+        self.assertTrue(tip['actionable'])
+        self.assertEqual(tip['family'],'economy')
+        answer['hud'][0]['value']='1-4'
+        self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+
     def test_live_feedback_updates_preference_without_becoming_visual_label(self):
         with tempfile.TemporaryDirectory() as td:
             engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'),

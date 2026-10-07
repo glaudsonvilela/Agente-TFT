@@ -124,6 +124,7 @@ pub fn stream(args: &Args) -> Result<()> {
         let mut preview_cadence=args.preview_hz.map(Cadence::new);
         let mut frame_id=0u64;let mut analysis_frames=0u64;let mut preview_frames=0u64;let mut seen=0u64;
         let mut rate_skipped=0u64;let mut size_changes=0u64;
+        let mut stale_pool_frames_dropped=0u64;
         let mut staging:Option<ID3D11Texture2D>=None;let mut staging_dims=(0,0);
         let mut last_frame_at=start;
         let mut previous_write_ms=0.0;
@@ -133,7 +134,21 @@ pub fn stream(args: &Args) -> Result<()> {
                 if last_frame_at.elapsed()>Duration::from_secs(15) {return Err(bad("no frames for 15s; no hidden fallback"));}
                 continue;
             }
-            let frame=match pool.TryGetNextFrame() {Ok(f)=>f,Err(_)=>continue};
+            let mut frame=match pool.TryGetNextFrame() {Ok(f)=>f,Err(_)=>continue};
+            // A slow readback or pipe write may leave older frames in WGC's
+            // pool. The assistant needs the newest visible board, not a
+            // backlog of screenshots. Bound draining so a fast display cannot
+            // starve processing indefinitely.
+            for _ in 0..4 {
+                match pool.TryGetNextFrame() {
+                    Ok(newer) => {
+                        frame.Close()?;
+                        frame=newer;
+                        stale_pool_frames_dropped+=1;
+                    }
+                    Err(_) => break,
+                }
+            }
             let arrived_at=Instant::now();
             seen+=1;last_frame_at=arrived_at;
             let content=frame.ContentSize()?;
@@ -197,7 +212,9 @@ pub fn stream(args: &Args) -> Result<()> {
                     "width":width,"height":height,"source_width":content.Width,"source_height":content.Height,
                     "stride_bytes":width*if kind=="preview" {4} else {3},"capture_ns":capture_ns,"clock":"WGC_SystemRelativeTime_QPC_nanoseconds",
                     "qpc_acquired_ticks":begin,"qpc_sent_ticks":after_rgb,"qpc_frequency":frequency,"geometry_segment":size_changes,
-                    "frames_received":seen,"rate_skipped":rate_skipped,"pixel_format":if kind=="preview" {"BGRA8"} else {"RGB8"},
+                    "frames_received":seen,"rate_skipped":rate_skipped,
+                    "stale_pool_frames_dropped":stale_pool_frames_dropped,
+                    "pixel_format":if kind=="preview" {"BGRA8"} else {"RGB8"},
                     "gpu_copy_and_map_ms":ticks_to_ms(after_map-begin),"bgra_rgb_ms":ticks_to_ms(after_rgb-after_map),
                     "previous_ipc_write_ms":previous_write_ms,"capture_space":args.kind,
                     "capture_age_before_ipc_ms":after_rgb as f64*1000.0/frequency as f64-capture_ns as f64/1e6});
@@ -210,7 +227,9 @@ pub fn stream(args: &Args) -> Result<()> {
         session.Close()?;pool.RemoveFrameArrived(token)?;pool.Close()?;item.RemoveClosed(close_token)?;
         if analysis_frames==0 {return Err(bad("no captured analysis frame"));}
         packet(&json!({"type":"end","bytes":0,"frames":analysis_frames,"preview_frames":preview_frames,"received":seen,
-            "rate_skipped":rate_skipped,"size_changes":size_changes,"stop_requested":stop.load(Ordering::Relaxed),
+            "rate_skipped":rate_skipped,"size_changes":size_changes,
+            "stale_pool_frames_dropped":stale_pool_frames_dropped,
+            "stop_requested":stop.load(Ordering::Relaxed),
             "last_ipc_write_ms":previous_write_ms,"execution_complete":!closed.load(Ordering::Relaxed)}),&[])?;
         Ok(())
     }

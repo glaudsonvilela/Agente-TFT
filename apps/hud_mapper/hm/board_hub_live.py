@@ -84,6 +84,8 @@ class BoardHubLive:
                    if item['api_name'] in visible_ids and len(item['composition']) == 2
                    and set(item['composition']) <= visible_ids}
         self.item_movement = ItemMovementTracker(recipes)
+        from .temporal_candidates import TemporalCandidates
+        self.temporal_candidates = TemporalCandidates()
         self.item_visual = None
         self.item_visual_error = None
         try:
@@ -172,6 +174,8 @@ class BoardHubLive:
             unit = unit_records.get(item['marker_id']) or {}
             item['candidate_champion_id'] = unit.get('candidate_id')
             item['unit_identity_verified'] = False
+        snapshot['temporal_candidates'] = self.temporal_candidates.update(
+            snapshot, getattr(source, 'epoch', None))
         snapshot['trait_panel_observation'] = read.get('trait_panel')
         from .trait_constraints import bind_observed_traits, roster_hypotheses
         snapshot['trait_binding'] = bind_observed_traits(read.get('trait_panel'), self.trait_names)
@@ -203,6 +207,11 @@ class BoardHubLive:
             row.get('candidate_id') is not None
             for row in snapshot['item_visual_native'].get('inventory', []) +
                        snapshot['item_visual_native'].get('equipped', []))
+        snapshot['visual_readiness']['persistent_unit_candidates'] = sum(
+            row['candidate_id'] is not None for row in snapshot['temporal_candidates']['units'])
+        snapshot['visual_readiness']['persistent_item_candidates'] = sum(
+            row['candidate_id'] is not None for row in snapshot['temporal_candidates']['inventory'] +
+            snapshot['temporal_candidates']['equipped'])
         snapshot['knowledge_release'] = self.knowledge_release
         snapshot['item_attributes_patch'] = self.knowledge_patch
         snapshot['item_art_missing'] = self.missing_item_icons

@@ -90,18 +90,21 @@ class LiveAdvice:
     def propose(self, answer):
         if answer.get("origin") != "observed_pixels":
             return None
-        stage_row, gold_row, level_row = (_hud(answer, key)
-                                          for key in ("stage", "gold", "level"))
-        if not (stage_row and gold_row and level_row):
+        gold_row = _hud(answer, "gold")
+        if gold_row is None:
             return None
-        stage, gold, level = stage_row.get("value"), gold_row.get("value"), level_row.get("value")
-        match = re.fullmatch(r"([2-6])-([1-7])", str(stage))
-        if (not match or type(gold) is not int or not 0 <= gold <= 300
-                or type(level) is not int or not 2 <= level <= 10):
+        gold = gold_row.get("value")
+        if type(gold) is not int or not 0 <= gold <= 300:
             return None
+        stage_row, level_row = _hud(answer, "stage"), _hud(answer, "level")
+        stage = stage_row.get("value") if stage_row else None
+        level = level_row.get("value") if level_row else None
+        stage_match = re.fullmatch(r"([2-6])-([1-7])", str(stage))
+        level_valid = type(level) is int and 2 <= level <= 10
         options = []
         hp = _hp(answer)
-        if hp is not None and hp <= 35 and int(match[1]) >= 3 and level >= 6 and gold >= 34:
+        if (stage_match and level_valid and hp is not None and hp <= 35
+                and int(stage_match[1]) >= 3 and level >= 6 and gold >= 34):
             reserve = max(20, min(50, (gold // 10 - 1) * 10))
             rolls = min(2, (gold - reserve) // 2)
             if rolls >= 1:
@@ -110,7 +113,7 @@ class LiveAdvice:
                     f"Role até {rolls} vezes agora; pare com pelo menos {reserve} de ouro.",
                     ["hud.stage", "hud.gold", "hud.level", "hud.hp_fresh", "patch.roll_cost"]))
 
-        window = self.windows.get(stage)
+        window = self.windows.get(stage) if stage_match and level_valid else None
         xp_row = _hud(answer, "xp")
         if window and window["target_level"] == level + 1 and xp_row:
             xp = xp_row.get("value")
@@ -149,7 +152,7 @@ class LiveAdvice:
                     ["shop.two_exact_names", "patch.catalog_cost", "hud.gold"]))
                 break
 
-        if 8 <= gold < 50:
+        if stage_match and 8 <= gold < 50:
             target = ((gold // 10) + 1) * 10
             if target - gold <= 3:
                 options.append((self._priority("economy", .54), "economy",
