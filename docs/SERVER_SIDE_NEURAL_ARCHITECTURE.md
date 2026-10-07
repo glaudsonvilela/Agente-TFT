@@ -116,3 +116,25 @@ valendo os gates gold/silver/quarantine já definidos no projeto.
 Quanto mais instalações jogarem e enviarem partidas válidas, mais material o
 BigBANANA recebe para melhorar o modelo central. Depois de aprovada, a nova rede
 é distribuída para todas as instalações sem exigir que cada PC faça treinamento.
+
+
+## Atualização automática sem interação
+
+O jogador não precisa aprovar atualização de rede neural.
+
+O cliente consulta o BigBANANA automaticamente ao iniciar e novamente após cada
+partida concluída. Se houver um champion aprovado mais novo:
+
+1. baixa o pacote em segundo plano;
+2. valida versão, compatibilidade e SHA-256;
+3. mantém a partida atual usando o modelo já carregado;
+4. ativa o novo modelo somente quando o cliente estiver ocioso;
+5. realiza troca atômica;
+6. preserva as duas versões anteriores;
+7. se o novo modelo falhar ao carregar ou no health-check inicial, faz rollback
+   automático para o último champion válido.
+
+Sem internet, o software continua funcionando com o último modelo aprovado já
+instalado.
+
+Não existe botão "Atualizar IA" no caminho normal do jogador.
