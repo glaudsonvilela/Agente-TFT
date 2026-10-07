@@ -33,6 +33,9 @@ if (manifest.get("schema_version") != 1 or
         manifest.get("rootfs_file") != "AgenteTFT-Core-v2.tar" or
         manifest.get("analysis_health_contract") != "l3_ocr_b4_roi_v1" or
         manifest.get("linux_container_self_test") is not True or
+        manifest.get("post_session_trainer_bundled") is not True or
+        manifest.get("post_session_trainer_health") is not True or
+        manifest.get("learner_minjo_kh_included") is not False or
         manifest.get("model_sha256") != assets.get("model_sha256") or
         manifest.get("board_reference_sha256") != assets.get("reference_sha256")):
     raise SystemExit("Refusing unverified HM4.5 core manifest")
@@ -45,8 +48,20 @@ if actual_sha256 != manifest.get("sha256"):
     raise SystemExit("HM4.5 core SHA-256 mismatch")
 with tarfile.open(rootfs, "r") as archive:
     members = {member.name.lstrip("./") for member in archive.getmembers()}
-if "opt/agente-tft/bin/health-check" not in members:
-    raise SystemExit("HM4.5 guest health-check missing")
+required_members = {
+    "opt/agente-tft/bin/health-check",
+    "opt/agente-tft/bin/vod-collector",
+    "opt/agente-tft/bin/adjudicate-autonomous-gold",
+    "opt/agente-tft/bin/propagate-autonomous-anchors",
+    "opt/agente-tft/bin/train-classifier",
+    "opt/agente-tft/learner/selection.json",
+    "opt/agente-tft/learner/run-metadata.json",
+    "opt/agente-tft/learner/learner-package.json",
+    "opt/agente-tft/scripts/run_post_session_shadow_learning.py",
+}
+missing_members = sorted(required_members - members)
+if missing_members:
+    raise SystemExit(f"HM4.5 guest learner/core members missing: {missing_members}")
 
 source = ROOT / "scripts/hm45_installer/AgenteTFT_HM45.iss"
 destination = ROOT / "build/HM45.iss"
@@ -64,6 +79,10 @@ report = {
     "rootfs_sha256": manifest["sha256"],
     "rootfs_bytes": rootfs.stat().st_size,
     "guest_contract": manifest["analysis_health_contract"],
+    "post_session_trainer_bundled": True,
+    "learner_policy": manifest.get("learner_policy"),
+    "learner_model_sha256": manifest.get("learner_model_sha256"),
+    "learner_encoder_sha256": manifest.get("learner_encoder_sha256"),
     "offline_voice_options": [],
     "voice_backend": "elevenlabs_api",
     "release_ready": False,
