@@ -24,7 +24,21 @@ def main():
         else:
             stale.unlink(missing_ok=True)
     runner=Path("/workspace/trainer/scripts/process_neural_job.py")
+    pruner=Path("/workspace/trainer/scripts/prune_neural_storage.py")
+    raw_days=float(os.environ.get("NEURAL_RAW_RETENTION_DAYS","7"))
+    work_days=float(os.environ.get("NEURAL_WORK_RETENTION_DAYS","3"))
+    last_prune=0.0
     while True:
+        now=time.time()
+        if now-last_prune>=3600:
+            subprocess.run([
+                sys.executable,str(pruner),
+                "--data-root",str(args.data_root),
+                "--raw-days",str(raw_days),
+                "--work-days",str(work_days),
+                "--apply",
+            ],cwd="/workspace",env=os.environ.copy(),check=False)
+            last_prune=now
         jobs=sorted(inbox.glob("*.json"),key=lambda x:x.stat().st_mtime)
         if not jobs:
             time.sleep(args.poll_seconds);continue
