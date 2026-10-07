@@ -11,10 +11,12 @@ import zipfile
 from typing import Callable
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request, status
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from .schemas import (
     CancelResponse,
+    ChampionManifest,
+    ChampionPublishRequest,
     NeuralClientSessionRequest,
     NeuralClientSessionResponse,
     NeuralFrameMetadata,
@@ -36,6 +38,7 @@ from .schemas import (
     TrainingSessionRequest,
 )
 from .store import NullTrainerBackend, SimulatorNotConfigured, TrainerStore
+from .champion_registry import ChampionRegistry, ChampionRegistryError
 from .neural import NeuralBackend, NeuralBackendNotConfigured, NullNeuralBackend
 from .resources import ResourceSampler
 from .policy_learning import policy_learning_jobs, simulation_coverage, scene_learning_jobs
@@ -189,6 +192,11 @@ def create_app(
     app.state.clock_ms = clock_ms
     app.state.resources = ResourceSampler()
     app.state.neural_backend = neural_backend or NullNeuralBackend()
+    app.state.champion_registry = (
+        ChampionRegistry(app.state.store.db_path.parent)
+        if app.state.store.db_path is not None
+        else None
+    )
     app.state.neural_tokens = {}
     app.state.neural_client_sessions_enabled = (
         os.environ.get("NEURAL_CLIENT_SESSIONS_ENABLED", "0") == "1"
@@ -297,6 +305,73 @@ def create_app(
         page = Path(__file__).with_name("dashboard.html").read_text(encoding="utf-8")
         return HTMLResponse(page, headers={"Cache-Control": "no-store",
                                            "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'none'; object-src 'none'"})
+
+
+    @app.get(
+        "/v1/neural/champion",
+        response_model=ChampionManifest,
+    )
+    async def get_neural_champion(
+        channel: str = "stable",
+        installation_id: str = Depends(require_neural_token),
+    ) -> ChampionManifest:
+        del installation_id
+        if channel not in {"stable", "shadow"}:
+            raise HTTPException(status_code=422, detail="invalid champion channel")
+        registry = app.state.champion_registry
+        if registry is None:
+            raise HTTPException(status_code=503, detail="champion registry unavailable")
+        try:
+            manifest = registry.latest(channel)
+        except ChampionRegistryError as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        if manifest is None:
+            raise HTTPException(status_code=404, detail="champion not published")
+        return manifest
+
+    @app.get(
+        "/v1/neural/champion/package/{channel}/{generation}",
+    )
+    async def download_neural_champion(
+        channel: str,
+        generation: int,
+        installation_id: str = Depends(require_neural_token),
+    ):
+        del installation_id
+        if channel not in {"stable", "shadow"}:
+            raise HTTPException(status_code=422, detail="invalid champion channel")
+        registry = app.state.champion_registry
+        if registry is None:
+            raise HTTPException(status_code=503, detail="champion registry unavailable")
+        try:
+            manifest, package = registry.package_for(channel, generation)
+        except ChampionRegistryError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        return FileResponse(
+            package,
+            media_type="application/zip",
+            filename=f"agente-tft-neural-{channel}-{generation}.zip",
+            headers={
+                "X-TFT-Package-SHA256": manifest.package_sha256,
+                "Cache-Control": "private, max-age=60",
+            },
+        )
+
+    @app.post(
+        "/v1/neural/champion/publish",
+        response_model=ChampionManifest,
+        dependencies=[Depends(require_token)],
+    )
+    async def publish_neural_champion(
+        request: ChampionPublishRequest,
+    ) -> ChampionManifest:
+        registry = app.state.champion_registry
+        if registry is None:
+            raise HTTPException(status_code=503, detail="champion registry unavailable")
+        try:
+            return registry.publish(request, app.state.clock_ms())
+        except ChampionRegistryError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
     @app.post(
