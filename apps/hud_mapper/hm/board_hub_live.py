@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import hashlib
-import os
 from pathlib import Path
 from PIL import Image
 
@@ -56,10 +55,9 @@ class BoardHubLive:
         self.inventory_templates = load_templates(selected, self.icons)
         self.equipped_templates = load_templates(selected, self.icons,
                                                  size=self.equipped['icon_size'])
-        local_neural_disabled = os.environ.get('AGENTE_TFT_DISABLE_LOCAL_NEURAL') == '1'
         self.item_neural=None
-        self.item_neural_error='server_side_neural_only' if local_neural_disabled else None
-        if not local_neural_disabled and (root/'configs/catalog/active-item-neural-v1.json').is_file():
+        self.item_neural_error=None
+        if (root/'configs/catalog/active-item-neural-v1.json').is_file():
             try:
                 from .item_neural import ItemIconObserver
                 self.item_neural=ItemIconObserver(root)
@@ -67,14 +65,14 @@ class BoardHubLive:
                 self.item_neural_error=str(exc)
         self.unit_neural = None
         self.unit_neural_error = 'unit_model_not_installed'
-        if not local_neural_disabled and (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
+        if (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
             try:
                 from .unit_gallery import UnitGalleryObserver
                 self.unit_neural = UnitGalleryObserver(root)
                 self.unit_neural_error = None
             except (OSError, ValueError, ImportError, RuntimeError) as exc:
                 self.unit_neural_error = str(exc)
-        elif not local_neural_disabled and (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
+        elif (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
             try:
                 from .unit_identity import UnitIdentityObserver
                 self.unit_neural = UnitIdentityObserver(root)
