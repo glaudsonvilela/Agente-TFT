@@ -1,112 +1,118 @@
-# Agente TFT — arquitetura neural no servidor
+# Agente TFT — inferência local + aprendizado central no BigBANANA
 
-## Decisão
+## Decisão oficial
 
-A rede neural não é parte do software Windows e não é hospedada no WSL local.
+A rede neural **continua no software instalado** para inferência rápida durante a
+partida. O servidor BigBANANA é o centro de aprendizado: recebe evidências das
+partidas, melhora a rede, valida challengers e publica novas versões aprovadas
+para os clientes.
 
-O Windows é um cliente leve de captura e interface. O servidor é a autoridade
-para inferência neural, memória de aprendizado, treinamento, challengers e
-promoção de modelos.
+O objetivo é não depender da CPU/GPU do computador de cada usuário para a IA se
+autoaperfeiçoar, sem sacrificar latência nem exigir internet para cada inferência.
 
-## Cliente Windows
-
-Responsabilidades permitidas:
-
-- captura autorizada da tela/janela do TFT;
-- prévia local e HUD;
-- OCR/leitores não neurais quando úteis;
-- telemetria;
-- buffer local limitado;
-- geração de sessão selada após a partida;
-- transporte autenticado de frames/ROIs e evidências;
-- exibição de GameState, recomendações e estado do learner recebidos do servidor.
-
-O cliente não deve conter:
-
-- pesos do reconhecedor de campeões;
-- encoder DINO;
-- trainer neural;
-- challenger weights;
-- lógica de promoção de modelo;
-- dataset principal de treinamento.
-
-## Servidor
-
-O servidor mantém:
-
-- champion neural ativo;
-- DINO/encoder e heads;
-- inferência de percepção;
-- memória temporal;
-- supervisão autônoma gold/silver/quarantine;
-- dataset acumulado;
-- treinamento pós-partida;
-- comparação challenger x champion;
-- shadow candidates;
-- histórico de métricas e proveniência;
-- posteriormente, simulador e policy/value ranking.
-
-## Fluxo durante a partida
+## Durante a partida
 
 ```
-Windows capture
-      |
-      v
-ROI/frame scheduler
-      |
-      v
-authenticated transport
-      |
-      v
-SERVER neural inference
-      |
-      v
-structured GameState / recommendation
-      |
-      v
-Windows HUD
+TFT no Windows
+      ↓
+captura local
+      ↓
+rede neural aprovada instalada localmente
+      ↓
+GameState / coach / HUD
 ```
 
-Nenhum treinamento acontece durante a partida.
+Os pesos ficam congelados enquanto a partida está acontecendo.
 
-## Fluxo depois da partida
+Se o servidor estiver temporariamente indisponível, o software continua usando a
+última versão aprovada já instalada.
+
+## Depois da partida
 
 ```
-sealed Windows session
-      |
-      v
-upload resumível + hashes
-      |
-      v
-server autonomous supervision
-      |
-      v
+sessão local selada
+      ↓
+upload resumível de evidências
+      ↓
+BigBANANA
+      ↓
+supervisão autônoma
 gold / silver / quarantine
-      |
-      v
-server challenger training
-      |
-      v
-frozen validation
-      |
-      +--> worse/tie -> discard
-      |
-      +--> better -> shadow candidate
+      ↓
+treino central de challenger
+      ↓
+validação contra champion
+      ↓
+shadow / holdout
+      ↓
+modelo aprovado e versionado
 ```
 
-## Segurança de promoção
+O treinamento pesado acontece no servidor, não no PC do usuário.
 
-Um challenger não substitui o modelo ativo só porque venceu uma única partida
-ou uma única validação. O servidor registra o candidato em shadow e exige os
-gates independentes do projeto antes de promoção.
+## Distribuição de uma rede melhor
 
-## WSL local
+```
+BigBANANA publica manifest do champion
+      ↓
+software consulta atualização fora da partida
+      ↓
+compara versão/hash
+      ↓
+baixa pacote do novo modelo
+      ↓
+verifica SHA-256 + metadados
+      ↓
+instala atomicamente
+      ↓
+nova partida usa o novo champion local
+```
 
-O WSL pode continuar existindo como ferramenta de compatibilidade/transportes
-ou para componentes não neurais, mas não é a residência da rede neural nem do
-trainer.
+A troca de modelo nunca acontece no meio da partida.
 
-## Regra permanente
+O software guarda a versão anterior aprovada para rollback caso o novo pacote
+falhe na inicialização ou nos checks locais.
 
-Novos recursos neurais devem ser implementados primeiro no servidor. O cliente
-Windows deve permanecer pequeno, atualizável e sem pesos neurais proprietários.
+## Cliente Windows / Linux local
+
+Continua responsável por:
+
+- captura;
+- inferência neural local;
+- OCR e geometria;
+- HUD/coach;
+- memória curta da partida;
+- gravação/selagem das evidências;
+- upload pós-partida;
+- atualização segura do modelo aprovado.
+
+Não é responsável por:
+
+- treinamento pesado;
+- seleção de challenger global;
+- dataset global;
+- promoção definitiva do modelo.
+
+## BigBANANA
+
+É responsável por:
+
+- dataset central de partidas;
+- provenance e deduplicação;
+- auto-supervisão;
+- treinamento de challengers;
+- validação e shadow;
+- registro do champion;
+- publicação do pacote de modelo aprovado;
+- histórico de versões e rollback.
+
+## Regra de segurança
+
+Predição do modelo nunca se transforma sozinha em verdade de treino. Continuam
+valendo os gates gold/silver/quarantine já definidos no projeto.
+
+## Benefício
+
+Quanto mais instalações jogarem e enviarem partidas válidas, mais material o
+BigBANANA recebe para melhorar o modelo central. Depois de aprovada, a nova rede
+é distribuída para todas as instalações sem exigir que cada PC faça treinamento.
