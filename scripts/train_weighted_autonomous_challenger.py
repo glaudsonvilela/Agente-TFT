@@ -150,6 +150,7 @@ def main() -> int:
     p.add_argument("--silver", type=Path, default=DEFAULT_SILVER)
     p.add_argument("--private-root", type=Path, default=DEFAULT_PRIVATE_ROOT)
     p.add_argument("--output-root", type=Path)
+    p.add_argument("--autonomous-corpus", type=Path)
     p.add_argument("--skip-tests", action="store_true")
     args = p.parse_args()
 
@@ -179,6 +180,50 @@ def main() -> int:
     if len(source_ids) != 1:
         die(f"autonomous gold/silver must belong to exactly one source, got {sorted(source_ids)}")
     source_id = next(iter(source_ids))
+
+    corpus_sources = None
+    corpus_path = None
+    if args.autonomous_corpus is not None:
+        corpus_path = required(args.autonomous_corpus)
+        corpus = load_json(corpus_path)
+        if (
+            corpus.get("schema_version") != 1
+            or corpus.get("policy") != "central_autonomous_corpus_v1"
+            or not isinstance(corpus.get("sources"), list)
+            or not corpus["sources"]
+        ):
+            die("autonomous corpus manifest incompatible")
+        corpus_sources = []
+        seen_corpus_ids = set()
+        for index, row in enumerate(corpus["sources"]):
+            if not isinstance(row, dict):
+                die(f"autonomous corpus source {index} is not an object")
+            source = row.get("source_id")
+            if not isinstance(source, str) or not source or source in seen_corpus_ids:
+                die("autonomous corpus source_id invalid/duplicate")
+            seen_corpus_ids.add(source)
+            collection_path = required(Path(str(row.get("collection", ""))))
+            gold_path = required(Path(str(row.get("gold_labels", ""))))
+            silver_path = required(Path(str(row.get("silver_labels", ""))))
+            gold_weight = float(row.get("gold_weight", -1))
+            silver_weight = float(row.get("silver_weight", -1))
+            if not (0 < silver_weight <= gold_weight <= 1):
+                die("autonomous corpus weights invalid")
+            corpus_sources.append(
+                {
+                    "collection": str(collection_path),
+                    "source_id": source,
+                    "gold_labels": str(gold_path),
+                    "silver_labels": str(silver_path),
+                    "gold_weight": gold_weight,
+                    "silver_weight": silver_weight,
+                    "use_declared_silver_weights": bool(
+                        row.get("use_declared_silver_weights", False)
+                    ),
+                }
+            )
+        if source_id not in seen_corpus_ids:
+            die("current autonomous source is not present in central corpus")
 
     selection = load_json(selection_path)
     if selection.get("status") not in {
@@ -259,7 +304,11 @@ def main() -> int:
         "silver_count": len(silver_rows),
         "silver_weight": 0.35,
         "source_id": source_id,
+        "autonomous_corpus": str(corpus_path) if corpus_path else None,
+        "autonomous_corpus_sha256": sha256_file(corpus_path) if corpus_path else None,
+        "autonomous_corpus_sources": len(corpus_sources) if corpus_sources else 1,
         "minjo_kh_used_for_selection": False,
+        "autonomous_corpus_sources": len(corpus_sources) if corpus_sources else 1,
         "runtime_approved": False,
     }
     (output_root / "run-metadata.json").write_text(
@@ -297,16 +346,20 @@ def main() -> int:
         "embedding_batch_size": 1,
         "embedding_cache": str(cache),
         "optimizer": optimizer,
-        "autonomous_training": {
+        "output": str(challenger_out),
+    }
+    if corpus_sources is not None:
+        spec["autonomous_training_sources"] = corpus_sources
+    else:
+        spec["autonomous_training"] = {
             "collection": str(collection),
             "source_id": source_id,
             "gold_labels": str(gold),
             "silver_labels": str(silver),
             "gold_weight": 1.0,
             "silver_weight": 0.35,
-        },
-        "output": str(challenger_out),
-    }
+            "use_declared_silver_weights": True,
+        }
     spec_path = specs / "weighted-autonomous.json"
     spec_path.write_text(
         json.dumps(spec, indent=2, sort_keys=True) + "\n",
