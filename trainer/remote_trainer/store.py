@@ -289,6 +289,9 @@ class TrainerStore:
         request: NeuralSessionRequest,
         now_ms: int,
     ) -> NeuralSessionRecord:
+        root = self.evidence_root
+        if root is None:
+            raise ValueError("persistent neural evidence storage is required")
         async with self.lock:
             unfinished = sum(
                 1
@@ -300,26 +303,32 @@ class TrainerStore:
                     NeuralSessionStatus.PROCESSING,
                 }
             )
-        if unfinished >= 4:
-            raise ValueError("too many unfinished neural sessions for client")
-        record = NeuralSessionRecord(
-            neural_session_id=str(uuid4()),
-            client_id=request.client_id,
-            match_id=request.match_id,
-            created_at_ms=request.created_at_ms,
-            updated_at_ms=now_ms,
-            status=NeuralSessionStatus.ACTIVE,
-            frames_received=0,
-            bytes_received=0,
-            last_source_ms=None,
-        )
-        async with self.lock:
-            self.neural_sessions[record.neural_session_id] = record
-            self._persist("neural_session", record.neural_session_id, record)
-        root = self.evidence_root
-        if root is not None:
+            if unfinished >= 4:
+                raise ValueError("too many unfinished neural sessions for client")
+            record = NeuralSessionRecord(
+                neural_session_id=str(uuid4()),
+                client_id=request.client_id,
+                match_id=request.match_id,
+                created_at_ms=request.created_at_ms,
+                updated_at_ms=now_ms,
+                status=NeuralSessionStatus.ACTIVE,
+                frames_received=0,
+                bytes_received=0,
+                last_source_ms=None,
+            )
             folder = root / record.neural_session_id / "frames"
             folder.mkdir(parents=True, exist_ok=False)
+            try:
+                self.neural_sessions[record.neural_session_id] = record
+                self._persist("neural_session", record.neural_session_id, record)
+            except Exception:
+                self.neural_sessions.pop(record.neural_session_id, None)
+                try:
+                    folder.rmdir()
+                    folder.parent.rmdir()
+                except OSError:
+                    pass
+                raise
         return record
 
     async def get_neural_session(
