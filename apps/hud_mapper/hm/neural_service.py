@@ -11,6 +11,8 @@ import http.client
 import json
 from pathlib import Path
 import sys
+import threading
+import time
 from urllib.parse import urlencode, urlsplit
 
 from .voice_service import installation_id
@@ -18,6 +20,29 @@ from .voice_service import installation_id
 
 class NeuralServiceError(RuntimeError):
     pass
+
+
+_TOKEN_CACHE_LOCK = threading.Lock()
+_TOKEN_CACHE: dict[tuple[str, int, str], tuple[str, int]] = {}
+
+
+def _cached_token(host: str, port: int, installation: str) -> tuple[str, int] | None:
+    now_ms = time.time_ns() // 1_000_000
+    key = (host, port, installation)
+    with _TOKEN_CACHE_LOCK:
+        value = _TOKEN_CACHE.get(key)
+        if value is None:
+            return None
+        token, expires_at_ms = value
+        if expires_at_ms <= now_ms + 60_000:
+            _TOKEN_CACHE.pop(key, None)
+            return None
+        return token, expires_at_ms
+
+
+def _store_token(host: str, port: int, installation: str, token: str, expires_at_ms: int) -> None:
+    with _TOKEN_CACHE_LOCK:
+        _TOKEN_CACHE[(host, port, installation)] = (token, expires_at_ms)
 
 
 def _service_url(value: str | None = None) -> str:
@@ -94,7 +119,18 @@ class NeuralServiceClient:
         finally:
             connection.close()
 
-    def connect(self) -> dict:
+    def connect(self, *, force_refresh: bool = False) -> dict:
+        if not force_refresh:
+            cached = _cached_token(self.host, self.port, self.installation_id)
+            if cached is not None:
+                self.token, self.expires_at_ms = cached
+                return {
+                    "token": self.token,
+                    "expires_at_ms": self.expires_at_ms,
+                    "protocol_version": 1,
+                    "cached": True,
+                }
+
         value = self._json_request(
             "POST",
             "/v1/neural/client-session",
@@ -107,6 +143,7 @@ class NeuralServiceClient:
             raise NeuralServiceError("Servidor neural devolveu sessão inválida.")
         self.token = token
         self.expires_at_ms = expires
+        _store_token(self.host, self.port, self.installation_id, token, expires)
         return value
 
     def create_session(
