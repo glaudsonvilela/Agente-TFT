@@ -37,8 +37,8 @@ def run(args: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
 def main() -> None:
     assets = ROOT / "build/hm4-live-assets"
     report = json.loads((assets / "ASSET_REPORT.json").read_text(encoding="utf-8"))
-    if report.get("matching_item_entries", 0) < 100:
-        raise SystemExit("Pinned visual reference/icon bank was not verified")
+    if report.get("model_mode") != "shadow_diagnostic" or report.get("matching_item_entries", 0) < 100:
+        raise SystemExit("Pinned model and visual reference/icon bank were not verified")
     catalog = json.loads((ROOT / "configs/catalog/active-visual-reference-v1.json").read_text(encoding="utf-8"))
     knowledge = json.loads((ROOT / "configs/catalog/active-knowledge-release-v1.json").read_text(encoding="utf-8"))
     if CONTEXT.exists():
@@ -61,6 +61,7 @@ def main() -> None:
     copy(assets / catalog["icon_dir"], APP / catalog["icon_dir"])
     copy(ROOT / catalog["reference"], APP / catalog["reference"])
     copy(ROOT / knowledge["reference"], APP / knowledge["reference"])
+    copy(assets / "models", APP / "models")
     copy(ROOT / "scripts/hm45_core/health-check", APP / "bin/health-check")
 
     run(["docker", "build", "--pull", "--tag", IMAGE, str(CONTEXT)])
@@ -79,20 +80,21 @@ def main() -> None:
         digest = hashlib.file_digest(file, "sha256").hexdigest()
     manifest = dict(schema_version=1, distro_name=DISTRO, rootfs_file=rootfs.name,
                     sha256=digest, version=VERSION,
-                    analysis_health_contract="ocr_hp_b4_local_helper_v2",
+                    analysis_health_contract="l3_ocr_b4_roi_v1",
                     linux_container_self_test=True,
                     neural_model_location="server",
                     local_neural_weights_bundled=False,
                     post_session_trainer_bundled=False,
                     windows_wsl_field_test=False,
-                    model_sha256=None,
-                    neural_location="server_only",
-                    local_neural_weights_bundled=False,
+                    model_sha256=report["model_sha256"],
+                    neural_location="local_inference_server_training",
+                    local_neural_weights_bundled=True,
+                    post_session_trainer_bundled=False,
                     board_reference_sha256=report["reference_sha256"])
     (BUILD / "core-package.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(json.dumps(dict(rootfs=str(rootfs), bytes=rootfs.stat().st_size,
                           sha256=digest,
-                          health="OCR/HP/B4 local helper OK; neural stack is server-side")), flush=True)
+                          health="L3/OCR/HP/B4 local inference OK; training is server-side")), flush=True)
 
 
 if __name__ == "__main__":
