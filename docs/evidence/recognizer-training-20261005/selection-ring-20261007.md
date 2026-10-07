@@ -45,5 +45,12 @@ domain shift in the current crop/encoder representation, not an accuracy
 estimate. The model and live coach remain unchanged while that representation
 is corrected and independently measured.
 
+A third, warm halo channel found the selected Ornn in the second VOD's saved
+review frame. It did not add an automatic label: the OCR confidence for that
+frame was about 91.8, below the 94 threshold, and a dense one-minute window
+provided only one additional shape candidate. This illustrates the
+fail-closed rule for sparse or weak names. The corresponding Rust test checks
+that a warm ellipse passes while a one-sided warm flash fails.
+
 Pending: compare more arena styles, improve cross-arena foreground features,
 and evaluate a new model on matches kept out of training.

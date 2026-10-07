@@ -44,10 +44,10 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
         return None;
     };
     let cx = (x1 + x2) / 2;
-    let mut rows = [[0u32; 95]; 2];
-    let mut totals = [0u32; 2];
-    let mut left = [0u32; 2];
-    let mut right = [0u32; 2];
+    let mut rows = [[0u32; 95]; 3];
+    let mut totals = [0u32; 3];
+    let mut left = [0u32; 3];
+    let mut right = [0u32; 3];
     for dy in 0..95i64 {
         let y = y1 + 70 + dy;
         if y < 0 || y >= frame.height() as i64 {
@@ -62,6 +62,10 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
             let masks = [
                 p[0] < 130 && p[1] > 160 && p[2] > 170 && p[1] as i16 - p[0] as i16 > 70,
                 p[1] > 170 && p[2] > 180 && p[2] as i16 - p[0] as i16 > 25,
+                p[0] > 170
+                    && p[1] > 140
+                    && p[0] as i16 - p[2] as i16 > 25
+                    && p[1] as i16 - p[2] as i16 > 15,
             ];
             for (channel, present) in masks.into_iter().enumerate() {
                 if present {
@@ -99,12 +103,25 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
     // Pale blue is common in the brighter arenas and ordinary highlights;
     // require substantially more coverage than the saturated cyan channel.
     let pale_pass = totals[1] >= 1000 && left[1] >= 100 && right[1] >= 100 && span(1) >= 30;
+    let warm_pass = totals[2] >= 800 && left[2] >= 100 && right[2] >= 100 && span(2) >= 30;
+    let scores = [
+        if cyan_pass { totals[0] } else { 0 },
+        if pale_pass { totals[1] } else { 0 },
+        if warm_pass { totals[2] } else { 0 },
+    ];
+    let winning_style = scores
+        .iter()
+        .enumerate()
+        .max_by_key(|(_, score)| **score)
+        .map(|(i, _)| i);
     Some(json!({"cyan_pixels":totals[0],"pale_blue_pixels":totals[1],
             "left_arc_pixels":left[0],"right_arc_pixels":right[0],"vertical_span_p10_p90":span(0),
             "pale_left_arc_pixels":left[1],"pale_right_arc_pixels":right[1],"pale_vertical_span_p10_p90":span(1),
-            "selection_signal_pixels":if pale_pass {totals[1]} else {totals[0]},
-            "selection_halo_style":if pale_pass {"pale_blue"} else if cyan_pass {"saturated_cyan"} else {"none"},
-            "shape_pass":cyan_pass || pale_pass}))
+            "warm_pixels":totals[2],"warm_left_arc_pixels":left[2],"warm_right_arc_pixels":right[2],
+            "warm_vertical_span_p10_p90":span(2),
+            "selection_signal_pixels":scores.iter().max().copied().unwrap_or(0),
+            "selection_halo_style":match winning_style {Some(0) if cyan_pass=>"saturated_cyan",Some(1) if pale_pass=>"pale_blue",Some(2) if warm_pass=>"warm",_=>"none"},
+            "shape_pass":cyan_pass || pale_pass || warm_pass}))
 }
 fn run() -> Result<()> {
     let a: Vec<_> = std::env::args().collect();
@@ -317,6 +334,34 @@ mod tests {
             vec!["ornn"]
         );
         assert!(tooltip_name_match(&words("Lux player"), &exact, &families).is_none());
+    }
+
+    #[test]
+    fn warm_selection_halo_needs_both_sides_and_vertical_extent() {
+        let box_xyxy = vec![json!(100), json!(100), json!(228), json!(244)];
+        let mut frame = image::RgbImage::new(320, 320);
+        for y in 170..265 {
+            for x in 109..219 {
+                let dx = (x as f64 - 164.) / 44.;
+                let dy = (y as f64 - 215.) / 27.;
+                let radius = dx * dx + dy * dy;
+                if (0.5..=1.5).contains(&radius) {
+                    frame.put_pixel(x, y, image::Rgb([230, 190, 100]));
+                }
+            }
+        }
+        let halo = selection_ring(&frame, &box_xyxy).unwrap();
+        assert_eq!(halo["shape_pass"], true);
+        assert_eq!(halo["selection_halo_style"], "warm");
+        for y in 170..265 {
+            for x in 164..219 {
+                frame.put_pixel(x, y, image::Rgb([0, 0, 0]));
+            }
+        }
+        assert_eq!(
+            selection_ring(&frame, &box_xyxy).unwrap()["shape_pass"],
+            false
+        );
     }
 }
 fn main() {
