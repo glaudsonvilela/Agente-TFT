@@ -384,9 +384,10 @@ pub fn metrics_with_predictor(
         if p.len() != labels.len() || p.is_empty() || p.iter().any(|x| !x.is_finite() || *x < 0.) {
             return Err("invalid prediction distribution".into());
         }
-        let k = (0..p.len())
-            .max_by(|&a, &b| p[a].total_cmp(&p[b]).then(b.cmp(&a)))
-            .unwrap();
+        let mut order: Vec<_> = (0..p.len()).collect();
+        order.sort_by(|&a, &b| p[b].total_cmp(&p[a]).then(a.cmp(&b)));
+        let k = order[0];
+        let second = order[1];
         let correct = labels[k] == sample.label;
         let counts = per_class.entry(sample.label.clone()).or_default();
         counts.0 += 1;
@@ -400,7 +401,10 @@ pub fn metrics_with_predictor(
         loss -= truth.map(|i| p[i]).unwrap_or(0.).max(1e-12).ln() as f64;
         predictions.push(
             json!({"image":sample.image,"key":sample.key,"label":sample.label,
-            "predicted":labels[k],"softmax_score_uncalibrated":p[k],"identity_verified":false}),
+            "predicted":labels[k],"softmax_score_uncalibrated":p[k],
+            "runner_up":labels[second],"runner_up_score_uncalibrated":p[second],
+            "softmax_margin_uncalibrated":p[k]-p[second],
+            "identity_verified":false}),
         );
     }
     let named: Vec<_> = per_class
