@@ -70,8 +70,10 @@ class SetupContracts(unittest.TestCase):
             "distro_name": "AgenteTFT-Core-v1",
             "rootfs_file": self.tar.name,
             "sha256": hashlib.sha256(self.tar.read_bytes()).hexdigest(),
-            "version": "0.6.0",
-            "analysis_health_contract": "l3_ocr_b4_roi_v1",
+            "version": "0.7.0",
+            "analysis_health_contract": "ocr_hp_b4_local_helper_v2",
+            "neural_location": "server_only",
+            "local_neural_weights_bundled": False,
         }
         (self.core / "core-package.json").write_text(json.dumps(self.manifest), encoding="utf-8")
         self.fake = FakeWindows()
