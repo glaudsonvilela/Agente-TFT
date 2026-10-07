@@ -58,11 +58,11 @@ def strong_association(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict
     ring = selected[0].get("selection_ring")
     if not isinstance(ring, dict) or ring.get("shape_pass") is not True:
         return None, {"reason": "ring_shape_unverified"}
-    count = ring.get("cyan_pixels")
+    count = ring.get("selection_signal_pixels")
     if not isinstance(count, int) or count < 250:
         return None, {"reason": "ring_coverage_insufficient"}
     competitors = [
-        (u.get("selection_ring") or {}).get("cyan_pixels", 0)
+        (u.get("selection_ring") or {}).get("selection_signal_pixels", 0)
         for u in units if u is not selected[0]
         and (u.get("selection_ring") or {}).get("shape_pass") is True
     ]

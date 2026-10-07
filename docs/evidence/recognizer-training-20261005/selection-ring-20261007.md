@@ -30,8 +30,20 @@ now requires the halo shape and two distinct consecutive frames; its singleton
 exception and 20-second tracking window have been removed. The two sparse
 review sets correctly produce zero training anchors under this rule.
 
-Pending: compare more arena styles, validate the automatic anchors against a
-separate source, and adjudicate them against frozen supervised teachers before
-training. No model was updated and no live champion ID was released. Unrelated
-training files in the main worktree were not modified. The current active
-coaching catalog still targets patch 18.3B.
+No model was updated and no live champion ID was released. Unrelated training
+files in the main worktree were not modified. The current active coaching
+catalog still targets patch 18.3B.
+
+The second VOD's arena renders a pale blue halo. A second shape channel now
+finds the selected Camille on its bench without accepting the narrow combat
+effect in the first VOD. A 60-frame dense window from that distinct VOD
+produced three additional direct Camille anchors; together the two sources
+provide five distinct crop pixels. The frozen head supported one, gave mixed
+evidence for two and disagreed with two. Across both arenas, the minimum DINO
+similarity among the five same-unit anchors was 0.516. This is evidence of a
+domain shift in the current crop/encoder representation, not an accuracy
+estimate. The model and live coach remain unchanged while that representation
+is corrected and independently measured.
+
+Pending: compare more arena styles, improve cross-arena foreground features,
+and evaluate a new model on matches kept out of training.

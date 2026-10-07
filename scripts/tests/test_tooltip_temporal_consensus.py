@@ -18,12 +18,12 @@ def proposal(source: str, second: int, selected: int = 1) -> dict:
     selected_crop = {
         "marker_id": 1, "box": [100, 100, 228, 244], "cyan_pixels": 40,
         "crop": f"crops/{second}.png", "pixel_sha256": f"{second:064x}",
-        "selection_ring": {"shape_pass": True, "cyan_pixels": 800},
+        "selection_ring": {"shape_pass": True, "cyan_pixels": 800, "selection_signal_pixels": 800},
     }
     coloured_but_not_selected = {
         "marker_id": 0, "box": [300, 100, 428, 244], "cyan_pixels": 500,
         "crop": "crops/wrong.png", "pixel_sha256": "f" * 64,
-        "selection_ring": {"shape_pass": False, "cyan_pixels": 100},
+        "selection_ring": {"shape_pass": False, "cyan_pixels": 100, "selection_signal_pixels": 100},
     }
     return {
         "source_id": source, "source_seconds_nominal": second,

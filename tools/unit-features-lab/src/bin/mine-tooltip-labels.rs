@@ -15,19 +15,22 @@ fn tooltip_name_match(
         return Some(found);
     }
     // The portrait row ends with a coin icon and a one-digit price. Tesseract
-    // frequently reads this as `a3`, `ain`, or `a`. Remove just that short
+    // frequently reads this as `a3`, `e9`, `ain`, or `a`. Remove just that short
     // final glyph group; never truncate an arbitrary name or sentence.
     let (last, prefix) = words.split_last()?;
     let suffix = last.0.as_str();
-    if !suffix.starts_with('a') || suffix.len() > 3 || prefix.is_empty() {
+    if !(suffix.starts_with('a') || suffix.starts_with('e'))
+        || suffix.len() > 3
+        || prefix.is_empty()
+    {
         return None;
     }
     match_name(prefix, names, families)
 }
 
-// The selection halo is a broad cyan ellipse below the unit. Counting cyan
-// anywhere in a crop mistakes spell effects and the champion's own colours
-// for a selection. This shape test remains an association cue, not a label.
+// The selection halo is a broad ellipse below the unit. Some arenas render it
+// saturated cyan, others pale blue. Counting blue anywhere in a crop mistakes
+// spells and the unit's own colours for a selection. This is an association cue.
 fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> {
     if box_xyxy.len() != 4 {
         return None;
@@ -41,8 +44,10 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
         return None;
     };
     let cx = (x1 + x2) / 2;
-    let mut rows = [0u32; 95];
-    let (mut total, mut left, mut right) = (0u32, 0u32, 0u32);
+    let mut rows = [[0u32; 95]; 2];
+    let mut totals = [0u32; 2];
+    let mut left = [0u32; 2];
+    let mut right = [0u32; 2];
     for dy in 0..95i64 {
         let y = y1 + 70 + dy;
         if y < 0 || y >= frame.height() as i64 {
@@ -54,22 +59,28 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
                 continue;
             }
             let p = frame.get_pixel(x as u32, y as u32).0;
-            if p[0] < 130 && p[1] > 160 && p[2] > 170 && p[1] as i16 - p[0] as i16 > 70 {
-                total += 1;
-                rows[dy as usize] += 1;
-                if dx < 35 {
-                    left += 1;
-                }
-                if dx >= 75 {
-                    right += 1;
+            let masks = [
+                p[0] < 130 && p[1] > 160 && p[2] > 170 && p[1] as i16 - p[0] as i16 > 70,
+                p[1] > 170 && p[2] > 180 && p[2] as i16 - p[0] as i16 > 25,
+            ];
+            for (channel, present) in masks.into_iter().enumerate() {
+                if present {
+                    totals[channel] += 1;
+                    rows[channel][dy as usize] += 1;
+                    if dx < 35 {
+                        left[channel] += 1;
+                    }
+                    if dx >= 75 {
+                        right[channel] += 1;
+                    }
                 }
             }
         }
     }
-    let percentile = |numerator: u32| -> usize {
-        let target = (total * numerator).div_ceil(100);
+    let percentile = |channel: usize, numerator: u32| -> usize {
+        let target = (totals[channel] * numerator).div_ceil(100);
         let mut sum = 0u32;
-        for (i, count) in rows.iter().enumerate() {
+        for (i, count) in rows[channel].iter().enumerate() {
             sum += count;
             if sum >= target {
                 return i;
@@ -77,15 +88,23 @@ fn selection_ring(frame: &image::RgbImage, box_xyxy: &[Value]) -> Option<Value> 
         }
         94
     };
-    let span = if total > 0 {
-        percentile(90) - percentile(10)
-    } else {
-        0
+    let span = |channel: usize| -> usize {
+        if totals[channel] > 0 {
+            percentile(channel, 90) - percentile(channel, 10)
+        } else {
+            0
+        }
     };
-    Some(
-        json!({"cyan_pixels":total,"left_arc_pixels":left,"right_arc_pixels":right,
-        "vertical_span_p10_p90":span,"shape_pass":total>=250 && left>=40 && right>=40 && span>=30}),
-    )
+    let cyan_pass = totals[0] >= 250 && left[0] >= 40 && right[0] >= 40 && span(0) >= 30;
+    // Pale blue is common in the brighter arenas and ordinary highlights;
+    // require substantially more coverage than the saturated cyan channel.
+    let pale_pass = totals[1] >= 1000 && left[1] >= 100 && right[1] >= 100 && span(1) >= 30;
+    Some(json!({"cyan_pixels":totals[0],"pale_blue_pixels":totals[1],
+            "left_arc_pixels":left[0],"right_arc_pixels":right[0],"vertical_span_p10_p90":span(0),
+            "pale_left_arc_pixels":left[1],"pale_right_arc_pixels":right[1],"pale_vertical_span_p10_p90":span(1),
+            "selection_signal_pixels":if pale_pass {totals[1]} else {totals[0]},
+            "selection_halo_style":if pale_pass {"pale_blue"} else if cyan_pass {"saturated_cyan"} else {"none"},
+            "shape_pass":cyan_pass || pale_pass}))
 }
 fn run() -> Result<()> {
     let a: Vec<_> = std::env::args().collect();
@@ -190,18 +209,22 @@ fn run() -> Result<()> {
             .filter(|u| u["selection_ring"]["shape_pass"] == true)
             .collect();
         rings.sort_by_key(|u| {
-            std::cmp::Reverse(u["selection_ring"]["cyan_pixels"].as_u64().unwrap_or(0))
+            std::cmp::Reverse(
+                u["selection_ring"]["selection_signal_pixels"]
+                    .as_u64()
+                    .unwrap_or(0),
+            )
         });
         let dominant = rings.len() > 1
-            && rings[0]["selection_ring"]["cyan_pixels"]
+            && rings[0]["selection_ring"]["selection_signal_pixels"]
                 .as_u64()
                 .unwrap_or(0)
                 >= 500
-            && rings[0]["selection_ring"]["cyan_pixels"]
+            && rings[0]["selection_ring"]["selection_signal_pixels"]
                 .as_u64()
                 .unwrap_or(0)
                 .saturating_mul(2)
-                >= rings[1]["selection_ring"]["cyan_pixels"]
+                >= rings[1]["selection_ring"]["selection_signal_pixels"]
                     .as_u64()
                     .unwrap_or(0)
                     .saturating_mul(5);
@@ -250,7 +273,7 @@ mod tests {
     fn generic_lux_does_not_become_base_form_and_multiword_names_are_complete() {
         let catalog = json!({"entries":[
             {"id":"base","name":"Lux"},{"id":"elderwood","name":"Lux (Sabugueiro)"},
-            {"id":"yi","name":"Master Yi"}]});
+            {"id":"yi","name":"Master Yi"},{"id":"ornn","name":"Ornn"}]});
         let (exact, families) = name_indexes(&catalog).unwrap();
         let words = |s: &str| {
             s.split_whitespace()
@@ -275,11 +298,6 @@ mod tests {
         );
         assert!(match_name(&words("Lux player"), &exact, &families).is_none());
         assert!(match_name(&[("Lux".into(), 65.)], &exact, &families).is_none());
-        let words = |s: &str| {
-            s.split_whitespace()
-                .map(|s| (s.to_owned(), 95.))
-                .collect::<Vec<_>>()
-        };
         assert_eq!(
             tooltip_name_match(&words("Master Yi a3"), &exact, &families)
                 .unwrap()
@@ -291,6 +309,12 @@ mod tests {
                 .unwrap()
                 .0,
             vec!["base", "elderwood"]
+        );
+        assert_eq!(
+            tooltip_name_match(&words("Ornn e9"), &exact, &families)
+                .unwrap()
+                .0,
+            vec!["ornn"]
         );
         assert!(tooltip_name_match(&words("Lux player"), &exact, &families).is_none());
     }
