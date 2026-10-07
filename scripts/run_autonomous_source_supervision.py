@@ -14,6 +14,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from native_lab import command as native_lab_command
 
 DEFAULT_COLLECTION = Path(
     "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/"
@@ -130,19 +131,11 @@ def main() -> int:
     consensus_log = output / "tooltip-consensus.log"
 
     run_stream(
-        [
-            "cargo",
-            "run",
-            "--release",
-            "--manifest-path",
-            str(repo / "tools/unit-features-lab/Cargo.toml"),
-            "--bin",
+        native_lab_command(
+            repo,
             "mine-tooltip-labels",
-            "--",
-            str(collection),
-            str(catalog),
-            str(tooltip),
-        ],
+            [str(collection), str(catalog), str(tooltip)],
+        ),
         repo,
         tooltip_log,
     )
