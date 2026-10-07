@@ -1,0 +1,33 @@
+FROM rust:1.88-bookworm AS builder
+WORKDIR /src
+ENV CARGO_TARGET_DIR=/tmp/agente-target
+COPY rust/ rust/
+COPY tools/unit-features-lab/ tools/unit-features-lab/
+RUN cargo build --release --manifest-path tools/unit-features-lab/Cargo.toml \
+      --bin vod-collector \
+      --bin mine-shop-transitions \
+      --bin mine-tooltip-labels \
+      --bin adjudicate-autonomous-gold \
+      --bin propagate-autonomous-anchors \
+      --bin train-classifier
+
+FROM python:3.12-slim-bookworm
+ENV PYTHONUNBUFFERED=1 \
+    AGENTE_TFT_UNIT_LAB_BIN_DIR=/opt/agente-bin \
+    PYTHONPATH=/workspace:/workspace/apps/hud_mapper:/workspace/apps/e1_replay \
+    OMP_THREAD_LIMIT=1 \
+    OPENBLAS_NUM_THREADS=1
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ffmpeg tesseract-ocr tesseract-ocr-eng libgomp1 \
+ && rm -rf /var/lib/apt/lists/* \
+ && python3 -m pip install --no-cache-dir --only-binary=:all: \
+      Pillow==12.1.0 numpy==2.2.6 onnxruntime==1.23.2
+COPY --from=builder /tmp/agente-target/release/vod-collector /opt/agente-bin/vod-collector
+COPY --from=builder /tmp/agente-target/release/mine-shop-transitions /opt/agente-bin/mine-shop-transitions
+COPY --from=builder /tmp/agente-target/release/mine-tooltip-labels /opt/agente-bin/mine-tooltip-labels
+COPY --from=builder /tmp/agente-target/release/adjudicate-autonomous-gold /opt/agente-bin/adjudicate-autonomous-gold
+COPY --from=builder /tmp/agente-target/release/propagate-autonomous-anchors /opt/agente-bin/propagate-autonomous-anchors
+COPY --from=builder /tmp/agente-target/release/train-classifier /opt/agente-bin/train-classifier
+RUN chmod 755 /opt/agente-bin/*
+WORKDIR /workspace
+CMD ["sh","-lc","set -eu; test -f /opt/agente-tft/learner/selection.json; ORT=$(find /usr/local/lib/python3.12/site-packages/onnxruntime/capi -maxdepth 1 -type f -name 'libonnxruntime.so*' | head -n1); test -n \"$ORT\"; ln -sf \"$ORT\" /opt/agente-tft/learner/libonnxruntime.so; exec python3 /workspace/trainer/neural_worker.py"]
