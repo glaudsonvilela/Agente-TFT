@@ -315,6 +315,15 @@ class App:
             self.selection=dict(choices[tree.selection()[0]]);self.source_label.configure(text=target_label(self.selection));dialog.destroy()
         ttk.Button(dialog,text="Usar fonte selecionada",command=accept).pack(pady=8);dialog.after(40,poll)
 
+    def _resume_pending_server_learning(self):
+        if not self.hm4 or self.closing:
+            return
+        try:
+            from .post_session_learning import resume_pending_post_session_uploads
+            resume_pending_post_session_uploads(default_hm4_output_root())
+        except Exception:
+            pass
+
     def _schedule_neural_update_check(self):
         if not self.hm4 or not self.model_updater or self.closing:
             return
@@ -342,7 +351,9 @@ class App:
             if not self.selection:raise ValueError("Escolha monitor ou janela.")
             if not self.hm4 and not self.model.get():raise ValueError("Selecione deployment-candidate.json.")
             if not self.dest.get():raise ValueError("Escolha pasta de resultados.")
-            if self.hm4 and not self.model.get():self.model.set(discover_model())
+            if self.hm4:
+                latest_model=discover_model()
+                if latest_model:self.model.set(latest_model)
             if self.hm4:
                 self.voice.set_enabled(self.voice_enabled.get())
                 self._shown_tip_key=None
