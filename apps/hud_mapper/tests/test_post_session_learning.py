@@ -210,12 +210,14 @@ def test_model_update_rolls_back_to_previous_on_active_health_failure(tmp_path, 
         "generation": 1,
         "version": "v1",
         "model_identity_sha256": "1" * 64,
+        "bundle_root": str(old_dir),
         "l3_metadata": str(old_dir / "models" / "deployment-candidate.json"),
     }
     new = {
         "generation": 2,
         "version": "v2",
         "model_identity_sha256": "2" * 64,
+        "bundle_root": str(new_dir),
         "l3_metadata": str(new_dir / "models" / "deployment-candidate.json"),
     }
     root.mkdir(exist_ok=True)
