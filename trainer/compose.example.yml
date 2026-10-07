@@ -28,6 +28,9 @@ services:
       dockerfile: trainer/Dockerfile.neural-worker
     container_name: agente-tft-neural-worker
     restart: unless-stopped
+    environment:
+      NEURAL_RAW_RETENTION_DAYS: "7"
+      NEURAL_WORK_RETENTION_DAYS: "3"
     volumes:
       - ..:/workspace:ro
       - ./data:/var/lib/agente-tft-trainer
