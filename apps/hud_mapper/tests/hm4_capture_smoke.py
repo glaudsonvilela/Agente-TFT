@@ -73,7 +73,9 @@ def main():
             assert (out/"board-hub-observations.jsonl").is_file()
             assert (out/"replay-tips.jsonl").is_file()
         else:
-            assert report["counts"].get("mapped_frames",0)==0
+            # Live laboratory mode now runs the local diagnostic map too.
+            assert report["counts"].get("mapped_frames",0)>0
+            assert report["neural_scope"]==["bench","shop"]
         # Do not pass --reader-hz: prove the packaged HM4 default is 2 Hz.
         # Session elapsed includes preflight and sealing; cadence belongs to the
         # configured active capture window, not process startup/teardown.
@@ -93,7 +95,8 @@ def main():
         assert report["counts"].get("hp_submitted",0)>0
         assert report["counts"].get("hp_results",0)>0
         assert report["timings"]["hp_source_to_result"]["n"]>0
-        if not a.replay_review:assert report["neural_scope"]==[]
+        if not a.replay_review:
+            assert report["counts"].get("hub_resolution_skipped",0)>0
         assert manifest["samples"] and all(x["targets"] is None for x in manifest["samples"])
         assert not report["torch_loaded_in_mapper"] and not report["profile_promoted"]
         print("HM4_CAPTURE_SMOKE_OK")
