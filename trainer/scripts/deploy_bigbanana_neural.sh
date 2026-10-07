@@ -37,9 +37,12 @@ do
     exit 1
   fi
 done
-# Let Docker Compose resolve TRAINER_API_TOKEN from either the environment
-# or trainer/.env. This validates the secret contract without printing it.
-if ! docker compose -f "$COMPOSE" config >/dev/null 2>&1; then
+# Resolve trainer/.env from the trainer project directory regardless of
+# where the operator invoked this script. Environment variables still override it.
+if ! (
+  cd "$TRAINER"
+  docker compose -f "$COMPOSE" config >/dev/null 2>&1
+); then
   echo "BIGBANANA_NEURAL_DEPLOY_ERROR=compose_or_secret_config_invalid" >&2
   exit 1
 fi
