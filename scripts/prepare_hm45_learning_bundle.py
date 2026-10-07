@@ -19,6 +19,7 @@ DEFAULT_SELECTION = Path(
     "/mnt/sherlock-ssd/AgenteTFT/diagnostics/missing-classes-training-20261005/"
     "optimizer-study-resume-20261005-101237/optimizer-study-selection.json"
 )
+ROOT = Path(__file__).resolve().parents[1]
 WSL_ROOT = Path("/opt/agente-tft/learner")
 
 
@@ -42,7 +43,10 @@ def sha256(path: Path) -> str:
 
 
 def required(value: str | Path, name: str) -> Path:
-    path = Path(value).expanduser().resolve()
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = ROOT / path
+    path = path.resolve()
     if not path.exists():
         die(f"{name} not found: {path}")
     return path
