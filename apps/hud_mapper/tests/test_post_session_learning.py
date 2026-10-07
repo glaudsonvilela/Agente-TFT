@@ -241,3 +241,65 @@ def test_model_update_rolls_back_to_previous_on_active_health_failure(tmp_path, 
     restored = json.loads((root / "active.json").read_text())
     assert restored["generation"] == 1
     assert restored["status"] == "active_rollback"
+
+
+def test_model_update_refuses_low_local_disk_before_download(tmp_path, monkeypatch):
+    import hm.model_update as update
+
+    package = tmp_path / "champion.zip"
+    identity = "a" * 64
+    _champion_zip(package, generation=3, version="v3", identity=identity)
+    monkeypatch.setattr(update, "_probe_l3", lambda path: identity)
+    monkeypatch.setattr(
+        update.shutil,
+        "disk_usage",
+        lambda _: type("Disk", (), {
+            "total": 2 * 1024**3,
+            "used": 1536 * 1024**2,
+            "free": 512 * 1024**2,
+        })(),
+    )
+    updater = ModelUpdater(
+        root=tmp_path / "models",
+        is_idle=lambda: True,
+        client_factory=lambda: _FakeChampionClient(package, 3, "v3", identity),
+    )
+    try:
+        updater.check_once()
+    except update.ModelUpdateError as exc:
+        assert "Espaço local insuficiente" in str(exc)
+    else:
+        raise AssertionError("low-disk neural update must fail closed")
+
+
+def test_model_update_removes_stale_partial_before_download(tmp_path, monkeypatch):
+    import hm.model_update as update
+
+    package = tmp_path / "champion.zip"
+    identity = "b" * 64
+    _champion_zip(package, generation=4, version="v4", identity=identity)
+    monkeypatch.setattr(update, "_probe_l3", lambda path: identity)
+    monkeypatch.setattr(
+        update.shutil,
+        "disk_usage",
+        lambda _: type("Disk", (), {
+            "total": 10 * 1024**3,
+            "used": 1 * 1024**3,
+            "free": 9 * 1024**3,
+        })(),
+    )
+    root = tmp_path / "models"
+    downloads = root / "downloads"
+    downloads.mkdir(parents=True)
+    stale = downloads / "old.zip.partial"
+    stale.write_bytes(b"partial")
+
+    updater = ModelUpdater(
+        root=root,
+        is_idle=lambda: True,
+        client_factory=lambda: _FakeChampionClient(package, 4, "v4", identity),
+    )
+    result = updater.check_once()
+    assert result["status"] == "active"
+    assert result["generation"] == 4
+    assert not stale.exists()
