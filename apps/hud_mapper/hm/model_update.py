@@ -272,13 +272,23 @@ def _verify_and_extract(
 def _valid_pointer(value: dict, root: Path) -> Path | None:
     try:
         path = Path(value["l3_metadata"]).resolve()
-        if not path.is_file() or not path.is_relative_to(root.resolve()):
+        bundle_root = Path(value["bundle_root"]).resolve()
+        if (
+            not path.is_file()
+            or not path.is_relative_to(root.resolve())
+            or not bundle_root.is_dir()
+            or not bundle_root.is_relative_to(root.resolve())
+        ):
             return None
         expected = value.get("model_identity_sha256")
         if not isinstance(expected, str) or len(expected) != 64:
             return None
         if _probe_l3(path) != expected:
             return None
+        # Re-check optional neural overlays on every startup. A champion whose
+        # unit/item component was corrupted after installation must roll back
+        # just like a corrupted L3 model.
+        _probe_optional_components(bundle_root)
         return path
     except Exception:
         return None
