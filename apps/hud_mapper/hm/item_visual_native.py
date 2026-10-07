@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import ctypes
+from collections import OrderedDict
+import copy
 import hashlib
 import os
 from pathlib import Path
@@ -63,6 +65,8 @@ class ItemVisualNative:
         self.matrix = (ctypes.c_float * len(vectors))(*vectors)
         self.active_ids = active_ids
         self.reference_artworks = len(self.groups)
+        self.recent: OrderedDict[bytes, dict] = OrderedDict()
+        self.cache_hits = 0
 
     def _descriptor(self, pixels: bytes, width: int, height: int, rect: tuple[int, int, int, int]):
         if len(pixels) != width * height * 3:
@@ -87,6 +91,11 @@ class ItemVisualNative:
         query = self._descriptor(frame.rgb, frame.width, frame.height, crop)
         if query is None:
             return dict(status='invalid_crop', candidates=[])
+        key = hashlib.blake2b(bytes(query), digest_size=16).digest()
+        if key in self.recent:
+            self.cache_hits += 1
+            self.recent.move_to_end(key)
+            return dict(copy.deepcopy(self.recent[key]), source_rect=list(crop))
         amount = min(3, len(self.groups))
         indices = (ctypes.c_size_t * amount)()
         scores = (ctypes.c_float * amount)()
@@ -103,11 +112,15 @@ class ItemVisualNative:
                                similarity=round(float(scores[place]), 6),
                                art_sha256=group['art_sha256']))
         ids = ranked[0]['attribute_ids']
-        return dict(status='candidate_only', candidates=ranked,
+        result = dict(status='candidate_only', candidates=ranked,
                     candidate_id=ids[0] if len(ids) == 1 else None,
                     similarity_margin=round(ranked[0]['similarity'] - ranked[1]['similarity'], 6),
-                    identity_verified=False, source_rect=list(crop),
+                    identity_verified=False,
                     score_is_probability=False)
+        self.recent[key] = result
+        if len(self.recent) > 128:
+            self.recent.popitem(last=False)
+        return dict(copy.deepcopy(result), source_rect=list(crop))
 
     def observe(self, frame, snapshot: dict) -> dict:
         started = time.perf_counter()
@@ -119,7 +132,7 @@ class ItemVisualNative:
                 result['rms_top_artwork_agrees'] = bool(result.get('candidates') and
                     set(result['candidates'][0]['visual_ids']) &
                     set(leading.get('ids_with_same_template', [])))
-                inventory.append(dict(slot=slot['slot'], **result))
+                inventory.append(dict(slot=slot['slot'], canonical_rect=leading['sample_rect'], **result))
         equipped = []
         for marker in snapshot['observed_markers']:
             for slot in marker['equipped_slots']:
@@ -133,9 +146,11 @@ class ItemVisualNative:
                         set(leading.get('ids_with_same_template', [])))
                     equipped.append(dict(marker_id=marker['marker_id'], slot=slot['slot'],
                                          position_candidate=marker['position_candidate'],
+                                         canonical_rect=leading['sample_rect'],
                                          **result))
         return dict(active=True, mode='source_resolution_rust_gallery_candidates',
                     reference_artworks=self.reference_artworks,
                     inventory=inventory, equipped=equipped,
+                    cache_entries=len(self.recent), cache_hits=self.cache_hits,
                     matching_ms=round((time.perf_counter() - started) * 1000, 3),
                     game_state_write_allowed=False)

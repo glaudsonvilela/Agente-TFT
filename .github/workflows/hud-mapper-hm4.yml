@@ -9,6 +9,7 @@ on:
       - work/hud-mapper-hm43-async-hp-graceful-stop
       - work/hud-mapper-hm44-ocr-hub
       - work/live-hub-hm4-test
+      - work/neural-combat-stage-recovery
     paths:
       - 'apps/hud_mapper/**'
       - 'configs/ui/board-hub-live-v1.json'
@@ -21,6 +22,7 @@ on:
       - 'scripts/compare_hm4_audits.py'
       - 'scripts/compact_hm3_payload.py'
       - 'tools/hm-capture-native/**'
+      - 'tools/hm-item-native/**'
       - 'tools/hm-hp-native/**'
       - 'tools/e1-native/**'
       - 'tools/hm-ocr-cost/**'
@@ -115,6 +117,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'hm-capture-native build failed' }
           cargo build --release --manifest-path tools/hm-hp-native/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'hm-hp-native build failed' }
+          cargo test --manifest-path tools/hm-item-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'hm-item-native tests failed' }
+          cargo build --release --manifest-path tools/hm-item-native/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'hm-item-native build failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_item_visual_native.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Item gallery bridge tests failed' }
           cargo test --manifest-path rust/Cargo.toml -p agente-tft-ocr-tesseract -p agente-tft-perception-hud
           if ($LASTEXITCODE -ne 0) { throw 'OCR/perception tests failed' }
           cargo test --manifest-path tools/e1-native/Cargo.toml

@@ -84,7 +84,7 @@ class BoardHubLive:
         try:
             from .item_visual_native import ItemVisualNative
             self.item_visual = ItemVisualNative(root, selected, self.icons, self.item_attribute_ids)
-        except (OSError, ValueError, ImportError, RuntimeError) as exc:
+        except (OSError, ValueError, ImportError, RuntimeError, AttributeError) as exc:
             self.item_visual_error = str(exc)
         self.item_neural=None
         self.item_neural_error=None
@@ -131,8 +131,14 @@ class BoardHubLive:
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates,
                                       allow_unmatched_arena=True)
-            snapshot['neural_items']=(self.item_neural.observe(image,snapshot['inventory']['inventory'],self.inventory)
-                if self.item_neural else dict(active=False,error=self.item_neural_error))
+            try:
+                snapshot['neural_items'] = (self.item_neural.observe(
+                    image, snapshot['inventory']['inventory'], self.inventory)
+                    if self.item_neural else dict(active=False, error=self.item_neural_error))
+            except Exception as exc:
+                self.item_neural_error = f'{type(exc).__name__}: {exc}'
+                self.item_neural = None
+                snapshot['neural_items'] = dict(active=False, error=self.item_neural_error)
             try:
                 snapshot['neural_units'] = (self.unit_neural.observe(image, read) if self.unit_neural
                                             else dict(active=False, error=self.unit_neural_error, records=[]))
@@ -147,7 +153,8 @@ class BoardHubLive:
             snapshot['item_visual_native'] = (self.item_visual.observe(source, snapshot)
                 if self.item_visual else dict(active=False, error=self.item_visual_error,
                                               inventory=[], equipped=[]))
-        except (OSError, ValueError, RuntimeError) as exc:
+        except Exception as exc:
+            # Optional item matching must never terminate the capture/preview.
             self.item_visual_error = f'{type(exc).__name__}: {exc}'
             self.item_visual = None
             snapshot['item_visual_native'] = dict(active=False, error=self.item_visual_error,
@@ -155,6 +162,10 @@ class BoardHubLive:
         snapshot['item_movement'] = self.item_movement.update(
             snapshot, snapshot['item_visual_native'], getattr(source, 'epoch', None))
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
+        for item in snapshot['item_visual_native'].get('equipped', []):
+            unit = unit_records.get(item['marker_id']) or {}
+            item['candidate_champion_id'] = unit.get('candidate_id')
+            item['unit_identity_verified'] = False
         snapshot['trait_panel_observation'] = read.get('trait_panel')
         from .trait_constraints import bind_observed_traits, roster_hypotheses
         snapshot['trait_binding'] = bind_observed_traits(read.get('trait_panel'), self.trait_names)
@@ -222,6 +233,15 @@ class BoardHubLive:
                                   candidate_champion_id=identity.get('candidate_id'),
                                   candidate_champion_name=identity.get('candidate_name'),
                                   identity_status=identity.get('status', 'unavailable'),
+                                  game_state_write_allowed=False))
+        for item in snapshot['item_visual_native'].get('equipped', []):
+            regions.append(region(f"hub.equipped.{item['marker_id']}.{item['slot']}",
+                                  xyxy(item['canonical_rect']), item['status'],
+                                  item_id=None, candidate_item_id=item.get('candidate_id'),
+                                  candidate_items=item.get('candidates', []),
+                                  marker_id=item['marker_id'],
+                                  candidate_champion_id=item.get('candidate_champion_id'),
+                                  position_candidate=item.get('position_candidate'),
                                   game_state_write_allowed=False))
         return {'snapshot': snapshot, 'regions': regions}
 

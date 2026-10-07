@@ -52,6 +52,8 @@ class EquippedCandidateTests(unittest.TestCase):
                               row["position_candidate"]["cell_or_slot"]), (0, 1))
             self.assertEqual(row["slots"][0]["status"], "icon_candidate")
             self.assertEqual(row["slots"][0]["candidates"][0]["ids_with_same_template"], ["a"])
+            self.assertEqual(row["slots"][0]["candidates"][0]["sample_rect"],
+                             {"x": 625, "y": 330, "width": 23, "height": 23})
             self.assertEqual(row["slots"][1]["status"], "empty_appearance")
             self.assertIsNone(row["slots"][0]["item_id"])
             self.assertIsNone(row["unit_id"])

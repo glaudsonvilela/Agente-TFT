@@ -69,6 +69,9 @@ fn descriptor(
             }
         }
     }
+    if out.iter().all(|value| value.abs() < 1e-7) {
+        return None;
+    }
     Some(out)
 }
 
@@ -194,5 +197,11 @@ mod tests {
         assert_eq!(code, 0);
         assert_eq!(indices, [1, 0]);
         assert_eq!(scores, [1.0, 0.0]);
+    }
+
+    #[test]
+    fn flat_background_is_not_an_item_descriptor() {
+        let pixels = [42u8; 8 * 8 * 3];
+        assert!(descriptor(&pixels, 8, 8, [0, 0, 8, 8]).is_none());
     }
 }

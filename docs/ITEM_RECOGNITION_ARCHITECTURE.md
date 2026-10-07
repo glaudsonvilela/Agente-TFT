@@ -80,6 +80,12 @@ em partidas independentes continuam pendentes. O teste sintético de redução
 da galeria de 193 artes para 23 px acertou 192 artes; isso mede somente
 transformação dos PNGs oficiais, não a precisão do vídeo ao vivo.
 
+O teste de integração abriu o HUB com 328 entradas de item (193 artes únicas),
+processou um quadro de replay de 1920×1080 e manteve a captura desacoplada da
+prévia. Nesse computador Linux, a inicialização do HUB levou 1,3 s e o quadro
+levou 71 ms; a gravação testada usa outro patch, então esses números são apenas
+de execução, não de acerto. A galeria nova tem cache limitado a 128 recortes.
+
 Fontes: [Riot TFT Data Dragon](https://developer.riotgames.com/docs/tft),
 [Prototypical Networks](https://arxiv.org/abs/1703.05175) e
 [quantização ONNX Runtime](https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html).

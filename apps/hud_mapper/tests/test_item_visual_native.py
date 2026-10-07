@@ -44,8 +44,26 @@ class ItemNativeTests(unittest.TestCase):
             self.assertEqual(found['source_rect'], [0, 0, 16, 16])
             self.assertEqual(found['candidates'][0]['visual_ids'], ['a', 'a-alias'])
             self.assertEqual(gallery.reference_artworks, 2)
+            self.assertEqual(gallery.rank(source, dict(x=0, y=0, width=960, height=540))['candidate_id'], 'a')
+            self.assertEqual(gallery.cache_hits, 1)
             self.assertEqual(ItemVisualNative._source_rect(
                 dict(x=960, y=540, width=30, height=30), 1280, 720), (640, 360, 20, 20))
+            screen.paste(b, (16, 0))
+            source.rgb = screen.tobytes()
+            inventory_rect = dict(x=0, y=0, width=960, height=540)
+            equipped_rect = dict(x=960, y=0, width=960, height=540)
+            snapshot = dict(inventory={'candidate_slots': [dict(slot=1,
+                candidates=[dict(sample_rect=inventory_rect,
+                                 ids_with_same_template=['a'])])]},
+                observed_markers=[dict(marker_id=7, position_candidate={'zone': 'board'},
+                    equipped_slots=[dict(slot=0, status='icon_candidate',
+                        candidates=[dict(sample_rect=equipped_rect,
+                                         ids_with_same_template=['b'])])])])
+            observed = gallery.observe(source, snapshot)
+            self.assertEqual(observed['inventory'][0]['candidate_id'], 'a')
+            self.assertTrue(observed['inventory'][0]['rms_top_artwork_agrees'])
+            self.assertEqual(observed['equipped'][0]['candidate_id'], 'b')
+            self.assertEqual(observed['equipped'][0]['marker_id'], 7)
 
     def test_only_consecutive_visible_inventory_and_same_position_can_imply_transfer(self):
         tracker = ItemMovementTracker()
