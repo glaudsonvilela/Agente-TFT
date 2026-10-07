@@ -18,18 +18,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Download the pinned diagnostic model
+      - name: Prepare build-time visual reference inputs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p build/hm4-live-assets/models
           gh release download hub-l3-shadow-20261003 --dir build/hm4-live-assets/models --pattern candidate-model.onnx --pattern deployment-candidate.json
-      - name: Verify model and official item artwork
+      - name: Verify official visual reference assets
         run: python3 scripts/prepare_hm4_live_assets.py
       - name: Build and self-test the WSL root filesystem
         run: python3 scripts/build_hm45_core.py
       - name: Verify on a two-core, 768 MiB VM budget
-        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.6.4 self-test --version 0.6.4
+        run: docker run --rm --network=none --memory=768m --cpus=2 agente-tft-hm45-core:0.7.0 self-test --version 0.7.0
       - name: Exercise the host client through local IP
         run: |
           python3 -m pip install Pillow==12.1.0
@@ -84,6 +84,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 contracts failed' }
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'HM4 runtime contracts failed' }
+          python -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py
+          if ($LASTEXITCODE -ne 0) { throw 'Server-learning capture contracts failed' }
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_player_profile.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'Player profile contracts failed' }
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_voice_api.py' -v
@@ -104,7 +106,7 @@ jobs:
         run: |
           python tools/hm-capture-native/tests/windows_preview_endurance.py --seconds 330 --output build/hm45-preview-endurance.json
           if ($LASTEXITCODE -ne 0) { throw 'Native preview endurance failed' }
-      - name: Prepare the matching Windows model and official artwork
+      - name: Prepare build-time visual reference assets (model is not packaged)
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
