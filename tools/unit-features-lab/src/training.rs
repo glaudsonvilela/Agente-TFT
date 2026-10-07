@@ -193,8 +193,8 @@ fn load_autonomous_training(
         let rows = value
             .as_array()
             .ok_or("autonomous_training_sources must be an array")?;
-        if rows.is_empty() || rows.len() > 512 {
-            return Err("autonomous_training_sources count outside 1..=512".into());
+        if rows.is_empty() || rows.len() > 4096 {
+            return Err("autonomous_training_sources count outside 1..=4096".into());
         }
         rows.iter()
             .map(|v| serde_json::from_value(v.clone()))
