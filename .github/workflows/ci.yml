@@ -54,3 +54,4 @@ jobs:
         run: |
           python -m py_compile             trainer/neural_worker.py             trainer/scripts/process_neural_job.py             trainer/scripts/ingest_autonomous_corpus.py             trainer/scripts/build_champion_bundle.py             trainer/scripts/seed_initial_champion.py             trainer/scripts/calibrate_unit_head_runtime_gates.py             trainer/scripts/evaluate_shadow_candidate_gold.py             trainer/scripts/manage_shadow_promotion.py             trainer/scripts/prune_neural_storage.py             scripts/prepare_bigbanana_neural_bundle.py
           bash -n trainer/scripts/deploy_bigbanana_neural.sh
+          bash -n scripts/deploy_bigbanana_neural_remote.sh
