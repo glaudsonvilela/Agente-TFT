@@ -327,16 +327,18 @@ def create_app(
     )
     async def get_neural_session(
         neural_session_id: str,
+        installation_id: str = Depends(require_neural_token),
     ) -> NeuralSessionRecord:
         record = await app.state.store.get_neural_session(neural_session_id)
         if record is None:
             raise HTTPException(status_code=404, detail="neural session not found")
+        if record.client_id != installation_id:
+            raise HTTPException(status_code=403, detail="neural session/token mismatch")
         return record
 
     @app.post(
         "/v1/neural/sessions/{neural_session_id}/frames",
         response_model=NeuralInferenceResult,
-        dependencies=[Depends(require_neural_token)],
     )
     async def submit_neural_frame(
         neural_session_id: str,
@@ -348,7 +350,13 @@ def create_app(
         image_sha256: str,
         capture_role: str,
         content_type: str = Header(alias="Content-Type"),
+        installation_id: str = Depends(require_neural_token),
     ) -> NeuralInferenceResult:
+        record = await app.state.store.get_neural_session(neural_session_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail="neural session not found")
+        if record.client_id != installation_id:
+            raise HTTPException(status_code=403, detail="neural session/token mismatch")
         body = await request.body()
         try:
             metadata = NeuralFrameMetadata(
@@ -416,16 +424,18 @@ def create_app(
     @app.post(
         "/v1/neural/sessions/{neural_session_id}/seal",
         response_model=NeuralSessionRecord,
-        dependencies=[Depends(require_neural_token)],
     )
     async def seal_neural_session(
         neural_session_id: str,
         request: NeuralSealRequest,
         background_tasks: BackgroundTasks,
+        installation_id: str = Depends(require_neural_token),
     ) -> NeuralSessionRecord:
         record = await app.state.store.get_neural_session(neural_session_id)
         if record is None:
             raise HTTPException(status_code=404, detail="neural session not found")
+        if record.client_id != installation_id:
+            raise HTTPException(status_code=403, detail="neural session/token mismatch")
         if record.frames_received != request.frame_count:
             raise HTTPException(
                 status_code=409,
@@ -465,14 +475,16 @@ def create_app(
     @app.get(
         "/v1/neural/sessions/{neural_session_id}/learning",
         response_model=NeuralLearningStatus,
-        dependencies=[Depends(require_neural_token)],
     )
     async def neural_learning_status(
         neural_session_id: str,
+        installation_id: str = Depends(require_neural_token),
     ) -> NeuralLearningStatus:
         record = await app.state.store.get_neural_session(neural_session_id)
         if record is None:
             raise HTTPException(status_code=404, detail="neural session not found")
+        if record.client_id != installation_id:
+            raise HTTPException(status_code=403, detail="neural session/token mismatch")
         return NeuralLearningStatus(
             neural_session_id=neural_session_id,
             status=record.status,
