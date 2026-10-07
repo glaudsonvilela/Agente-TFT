@@ -248,3 +248,13 @@ class NeuralLearningStatus(StrictModel):
     shadow_candidate_created: bool = False
     metrics: dict[str, Any] = Field(default_factory=dict)
     error: str | None = None
+
+
+class NeuralClientSessionRequest(StrictModel):
+    installation_id: str = Field(min_length=1, max_length=128)
+
+
+class NeuralClientSessionResponse(StrictModel):
+    token: str = Field(min_length=32, max_length=4096)
+    expires_at_ms: int = Field(ge=0)
+    protocol_version: Literal[PROTOCOL_VERSION] = PROTOCOL_VERSION
