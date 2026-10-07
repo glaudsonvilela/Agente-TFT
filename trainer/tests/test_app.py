@@ -874,3 +874,78 @@ def test_file_queue_neural_learning_survives_client_and_reconciles(tmp_path, mon
         assert value["challenger_model_sha256"] == "b" * 64
         assert value["shadow_candidate_created"] is True
         assert not (backend.outbox / f"{neural_id}.json").exists()
+
+
+def test_neural_frame_retry_reconciles_disk_after_counter_crash(tmp_path, monkeypatch):
+    monkeypatch.setenv("NEURAL_CLIENT_SESSIONS_ENABLED", "1")
+    store = TrainerStore(
+        backend=NullTrainerBackend(),
+        db_path=tmp_path / "trainer.sqlite3",
+    )
+    client = TestClient(create_app(
+        store=store,
+        neural_backend=FakeNeuralBackend(),
+        clock_ms=lambda: 10_000,
+    ))
+    headers = _neural_client(client, "install-crash-reconcile")
+    created = client.post(
+        "/v1/neural/sessions",
+        headers=headers,
+        json={
+            "client_id": "install-crash-reconcile",
+            "match_id": "match-crash",
+            "created_at_ms": 1,
+            "capture_policy": "test",
+        },
+    ).json()
+    neural_id = created["neural_session_id"]
+
+    body = b"persisted-before-counter"
+    digest = hashlib.sha256(body).hexdigest()
+    frames = tmp_path / "neural-evidence" / neural_id / "frames"
+    image = frames / "000000000009.jpg"
+    meta = frames / "000000000009.json"
+    image.write_bytes(body)
+    from remote_trainer.schemas import NeuralFrameMetadata
+    metadata = NeuralFrameMetadata(
+        neural_session_id=neural_id,
+        frame_id=9,
+        source_ms=4000,
+        width=1920,
+        height=1080,
+        image_sha256=digest,
+        image_bytes=len(body),
+        content_type="image/jpeg",
+        capture_role="post_match_learning_evidence",
+    )
+    meta.write_text(metadata.model_dump_json(indent=2) + "\n", encoding="utf-8")
+
+    before = client.get(
+        f"/v1/neural/sessions/{neural_id}",
+        headers=headers,
+    ).json()
+    assert before["frames_received"] == 0
+
+    retried = client.post(
+        f"/v1/neural/sessions/{neural_id}/frames",
+        params={
+            "frame_id": 9,
+            "source_ms": 4000,
+            "width": 1920,
+            "height": 1080,
+            "image_sha256": digest,
+            "capture_role": "post_match_learning_evidence",
+        },
+        headers={**headers, "Content-Type": "image/jpeg"},
+        content=body,
+    )
+    assert retried.status_code == 200
+    assert retried.json()["status"] == "queued"
+
+    after = client.get(
+        f"/v1/neural/sessions/{neural_id}",
+        headers=headers,
+    ).json()
+    assert after["frames_received"] == 1
+    assert after["bytes_received"] == len(body)
+    assert after["last_source_ms"] == 4000
