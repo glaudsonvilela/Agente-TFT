@@ -105,6 +105,12 @@ def test_central_corpus_accumulates_sources_and_is_idempotent(tmp_path):
         "hm45-session:b",
     }
 
+    by_id = {row["source_id"]: row for row in doc["sources"]}
+    silver_a = json.loads(Path(by_id["hm45-session:a"]["silver_labels"]).read_text())
+    silver_b = json.loads(Path(by_id["hm45-session:b"]["silver_labels"]).read_text())
+    assert silver_a[0]["recommended_training_weight"] == 0.2
+    assert silver_b[0]["recommended_training_weight"] == 0.35
+
 
 def test_central_corpus_rejects_pixel_identity_conflict(tmp_path):
     manifest = tmp_path / "corpus" / "manifest.json"
