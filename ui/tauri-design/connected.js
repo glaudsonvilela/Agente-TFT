@@ -3,12 +3,21 @@
 // independently navigable and keeps its illustrative labels.
 if (new URLSearchParams(location.search).has('connected')) {
   const originalRender = render;
-  let sourceRows = [], selected = null, state = null, starting = false;
+  let sourceRows = [], selected = null, state = null, starting = false, profilePrompted = false;
   const api = () => window.pywebview && window.pywebview.api;
   const clean = value => String(value == null ? '' : value);
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const livePath = new URL('preview.mjpg', location.href).pathname;
+  const regions = ['BR','NA','LAN','LAS','EUW','EUNE','KR','JP','OCE','TR','RU','SEA','TW','VN'];
+  function profileForm(profile) {
+    return `<span class="eyebrow">SEU PERFIL LOCAL</span><h2>Bem-vindo ao Agente TFT</h2>`+
+      `<p>Coloque seu nick e região para começar. Nenhum login na Riot é necessário.</p>`+
+      `<div class="studio-profile-form"><label>Nick ou nome#tag<input id="studio-nickname" maxlength="80" value="${escapeHtml(profile?.nickname||'')}" placeholder="Seu nick"></label>`+
+      `<label>Região<select id="studio-region">${regions.map(x=>`<option value="${x}" ${x===(profile?.region||'BR')?'selected':''}>${x}</option>`).join('')}</select></label>`+
+      `<button class="primary" id="studio-profile-save">Salvar perfil</button></div>`+
+      `<p class="note">O perfil é informado por você e salvo neste computador.</p>`;
+  }
 
   function connectedCoach() {
     const tip = state && state.tip;
@@ -51,12 +60,15 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (footer) footer.style.display = 'none';
     document.querySelector('.sidebar-footer').innerHTML = '<span class="status-dot"></span> APLICATIVO LOCAL <span>01.0</span>';
     document.querySelector('.statusbar>span').innerHTML =
-      '<span class="status-dot"></span> CAPTURA LOCAL <i>·</i> REDE NEURAL';
+      '<span class="status-dot"></span> CAPTURA LOCAL <i>·</i> '+
+      (state?.visual_model_loaded ? 'VISÃO NEURAL DIAGNÓSTICA' : 'LEITURA NATIVA')+
+      ' <i>·</i> '+(state?.strategic_model_loaded ? 'ESTRATÉGIA NEURAL' : 'ESTRATÉGIA POR REGRAS');
     document.querySelector('#footer-context').textContent =
       state && state.session_id ? `Quadros ${state.counts?.source_frames || 0} · HUB ${state.counts?.hub_results || 0} · dicas ${state.counts?.replay_tips || 0}` :
       'Captura Rust · análise local · aprendizado pós partida';
     document.querySelector('.workspace-pill').innerHTML =
-      '<span class="status-dot"></span> Estúdio ao vivo <span class="dim">/</span> <b>Laboratório</b>';
+      '<span class="status-dot"></span> '+(state?.replay_review ? 'Revisão de replay':'Estúdio ao vivo')+
+      ' <span class="dim">/</span> <b>Laboratório</b>';
     const installerLink = document.querySelector('.sidebar-bottom button[data-route="installer"]');
     if (installerLink) installerLink.style.display = 'none';
     if (current === 'studio') {
@@ -77,7 +89,11 @@ if (new URLSearchParams(location.search).has('connected')) {
     }
     if (current === 'board') {
       const arena = document.querySelector('.board-detail .arena');
-      if (arena) arena.outerHTML = '<div class="live-board-empty">Posições e campeões ainda não confirmados nesta sessão.</div>';
+      const readiness = state?.visual_readiness;
+      const boardStatus = readiness ?
+        `${readiness.observed_unit_regions || 0} regiões observadas · ${readiness.candidate_units || 0} candidatos · ${readiness.verified_units || 0} unidades confirmadas` :
+        'Aguardando a primeira leitura do tabuleiro.';
+      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Posições e campeões ainda não confirmados nesta sessão.<br><small>${escapeHtml(boardStatus)}</small></div></div>`;
       const inventory = document.querySelector('.board-detail .inventory');
       if (inventory) inventory.innerHTML = '<span>Inventário · aguardando identificação confiável</span>';
     }
@@ -104,6 +120,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (table) table.innerHTML = '<div class="small-heading"><h2>Aprendizado pós partida</h2></div>'+
         `<p>${escapeHtml(state?.result?.post_session_learning_job?.status ||
         'Aguardando encerramento e validação da captura para enviar ao BigBANANA.')}</p>`+
+        `<p>Modelo local: ${escapeHtml(state?.model_update?.status || 'verificação ainda não concluída')}`+
+        `${state?.model_update?.generation ? ` · geração ${Number(state.model_update.generation)}` : ''}</p>`+
         '<p><a href="https://tft.bigbanana.io/" target="_blank" rel="noreferrer">Abrir painel do servidor ↗</a></p>';
     }
     if (current === 'simulator') {
@@ -113,6 +131,8 @@ if (new URLSearchParams(location.search).has('connected')) {
         '<p><a href="https://tft.bigbanana.io/" target="_blank" rel="noreferrer">Abrir painel do servidor ↗</a></p>';
     }
     if (current === 'settings') {
+      document.querySelector('.page-head')?.insertAdjacentHTML('afterend',
+        `<section class="panel settings-block">${profileForm(state?.profile)}</section>`);
       const rows = document.querySelectorAll('.settings-row');
       const description = rows[2]?.querySelector('p');
       if (description) description.textContent = 'Dicas atuais por ElevenLabs, reproduzidas no Windows.';
@@ -132,6 +152,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       const changed = !state || state.session_id !== next.session_id ||
         state.phase !== next.phase || state.error !== next.error ||
         ((state.preview_sequence || 0) === 0 && next.preview_sequence > 0) ||
+        (current === 'board' && JSON.stringify(state.visual_readiness) !== JSON.stringify(next.visual_readiness)) ||
         (current === 'history' && (state.history?.length || 0) !== (next.history?.length || 0)) ||
         (current === 'learning' && JSON.stringify(state.counts) !== JSON.stringify(next.counts));
       state = next;
@@ -141,6 +162,11 @@ if (new URLSearchParams(location.search).has('connected')) {
         const status = document.querySelector('.capture-controls small');
         if (status && state.session_id) status.textContent =
           `Captura ${state.phase} · prévia codificada ${state.preview_encoded_fps || 0} FPS · HUB ${state.counts?.hub_results || 0}`;
+      }
+      if (!state.profile && !profilePrompted) {
+        profilePrompted = true;
+        document.querySelector('#detail-content').innerHTML = profileForm(null);
+        document.querySelector('#detail-dialog').showModal();
       }
     } catch (error) { toast('Não foi possível consultar o motor local: '+clean(error)); }
   }
@@ -156,12 +182,20 @@ if (new URLSearchParams(location.search).has('connected')) {
       catch (error) { toast('Falha ao listar fontes: '+clean(error)); return; }
       const dialog = document.querySelector('#source-dialog');
       dialog.querySelector('p').textContent =
-        'Escolha uma fonte. Ao iniciar, você autoriza o registro local de quadros para análise e aprendizado após a partida.';
+        'Ao iniciar, você autoriza a captura local desta fonte. Partidas ao vivo podem ser enviadas para aprendizado após o encerramento; replays não são enviados.';
       dialog.querySelector('.source-options').innerHTML = sourceRows.map((row, index) =>
         `<button class="source-option ${index===0?'selected':''}" data-source-index="${index}" aria-pressed="${index===0}">`+
         `<span data-icon="${row.kind==='monitor'?'monitor':'window'}"></span><b>${escapeHtml(row.label)}</b>`+
         `<small>${row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('');
       selected = sourceRows[0] || null;
+      let replayChoice = dialog.querySelector('#studio-replay-choice');
+      if (!replayChoice) {
+        replayChoice = document.createElement('label');
+        replayChoice.id = 'studio-replay-choice';
+        replayChoice.className = 'studio-replay-choice';
+        replayChoice.innerHTML = '<input type="checkbox" id="studio-replay-mode"> Estou assistindo um replay já encerrado';
+        dialog.querySelector('.source-info').after(replayChoice);
+      }
       dialog.querySelector('#confirm-source').innerHTML = 'Iniciar captura <span>→</span>';
       hydrate();
       dialog.showModal();
@@ -181,9 +215,11 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (!selected || starting) return;
       starting = true;
       try {
-        await api().start_session(selected.kind, selected.id, false, true);
+        const replayReview = !!document.querySelector('#studio-replay-mode')?.checked;
+        await api().start_session(selected.kind, selected.id, replayReview, true);
         document.querySelector('#source-dialog').close();
-        toast('Captura local iniciada. O aprendizado será enviado após a partida.');
+        toast(replayReview ? 'Revisão iniciada. O replay não será usado para aprendizado.' :
+          'Captura local iniciada. O aprendizado será enviado após a partida.');
         await refresh();
       } catch (error) { toast('Captura não iniciada: '+clean(error)); }
       finally { starting = false; }
@@ -208,6 +244,21 @@ if (new URLSearchParams(location.search).has('connected')) {
       preferences.voice = response.enabled;
       button.setAttribute('aria-checked', String(response.enabled));
       toast(response.enabled ? 'Voz ativada.' : 'Voz desativada.');
+      return;
+    }
+    if (button.id === 'studio-profile-save') {
+      event.stopImmediatePropagation();
+      try {
+        const form = button.closest('.studio-profile-form');
+        const profile = await api().save_profile(
+          form.querySelector('#studio-nickname').value,
+          form.querySelector('#studio-region').value);
+        state = {...state, profile};
+        const dialog = document.querySelector('#detail-dialog');
+        if (dialog.open) dialog.close();
+        render(current);
+        toast('Perfil salvo neste computador.');
+      } catch(error) { toast(clean(error)); }
     }
   }, true);
 }

@@ -5,10 +5,40 @@ import unittest
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
-from hm.studio_bridge import StudioServer, design_root
+from hm.studio_bridge import StudioController, StudioServer, design_root
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_closing_window_seals_finished_capture(self):
+        class Session:
+            finished = False
+            options = type('Options', (), {'replay_review': True})()
+            def __init__(self):
+                self.done = threading.Event()
+                self.finish_calls = 0
+            def request_stop(self):
+                self.done.set()
+            def finish(self):
+                self.finish_calls += 1
+                self.finished = True
+                return {'execution_complete': True}
+
+        controller = object.__new__(StudioController)
+        controller.lock = threading.RLock()
+        controller.session = Session()
+        controller.last_result = controller.last_error = None
+        controller.closed = threading.Event()
+        controller.preview_condition = threading.Condition()
+        controller.voice = None
+        controller.model_updater = type('Updater', (), {
+            'activate_pending_if_idle': lambda self: None,
+            'check_async': lambda self: None,
+        })()
+        controller.close()
+        self.assertTrue(controller.closed.is_set())
+        self.assertEqual(controller.session.finish_calls, 1)
+        self.assertEqual(controller.last_result, {'execution_complete': True})
+
     def test_local_design_server_serves_only_its_tokenized_directory(self):
         server = StudioServer(object(), design_root())
         worker = threading.Thread(target=server.serve_forever, daemon=True)

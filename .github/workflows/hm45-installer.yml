@@ -24,6 +24,8 @@ on:
       - 'apps/hud_mapper/hm/model_update.py'
       - '.github/workflows/hm45-installer.yml'
       - 'apps/hud_mapper/hm/**'
+      - 'ui/tauri-design/**'
+      - 'apps/hud_mapper/tests/test_studio_bridge.py'
       - 'trainer/**'
   pull_request:
     paths:
@@ -36,6 +38,8 @@ on:
       - 'scripts/build_hud_mapper_hm4_windows.py'
       - '.github/workflows/hm45-installer.yml'
       - 'apps/hud_mapper/hm/**'
+      - 'ui/tauri-design/**'
+      - 'apps/hud_mapper/tests/test_studio_bridge.py'
       - 'apps/hud_mapper/tests/test_post_session_learning.py'
       - 'trainer/**'
   workflow_dispatch:
@@ -69,6 +73,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Zero-click neural/runtime parity contracts failed' }
           python -m py_compile apps/hud_mapper/hm/model_update.py apps/hud_mapper/hm/neural_service.py apps/hud_mapper/hm/post_session_learning.py apps/hud_mapper/hm/unit_head.py apps/hud_mapper/hm/vm_bridge.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4 neural client compilation failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_studio_bridge.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Studio bridge contract failed' }
+          python -m py_compile apps/hud_mapper/hm/studio_bridge.py scripts/build_hud_mapper_hm4_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'Studio packaging compilation failed' }
+          node --check ui/tauri-design/app.js
+          if ($LASTEXITCODE -ne 0) { throw 'Studio design JS failed' }
+          node --check ui/tauri-design/connected.js
+          if ($LASTEXITCODE -ne 0) { throw 'Studio integration JS failed' }
       - name: Check Inno Setup wizard syntax with nonrelease fixtures
         shell: pwsh
         run: |

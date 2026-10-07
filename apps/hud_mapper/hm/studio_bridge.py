@@ -45,9 +45,22 @@ class StudioController:
         self.preview_condition = threading.Condition()
         self.closed = threading.Event()
         self.voice = None
+        from .player_profile import load as load_profile
+        self.profile = load_profile()
+        from .model_update import ModelUpdater
+        self.model_updater = ModelUpdater(is_idle=lambda: self.session is None or self.session.finished)
+        threading.Thread(target=self._resume_learning, daemon=True,
+                         name="studio-resume-learning").start()
         self._connect_voice_async()
         self.pump = threading.Thread(target=self._pump, daemon=True, name="studio-state-pump")
         self.pump.start()
+
+    def _resume_learning(self):
+        try:
+            from .post_session_learning import resume_pending_post_session_uploads
+            resume_pending_post_session_uploads(default_hm4_output_root())
+        except Exception:
+            pass
 
     def _connect_voice_async(self):
         def connect():
@@ -57,6 +70,9 @@ class StudioController:
             try:
                 voice.configure(connect_service())
                 voice.set_enabled(True)
+                if not self.profile:
+                    from .player_profile import WELCOME
+                    voice.say(WELCOME, 0, force=True)
             except Exception:
                 voice.error = "Serviço de voz indisponível."
             self.voice = voice
@@ -111,12 +127,19 @@ class StudioController:
             self.voice.set_enabled(bool(enabled))
         return {"enabled": bool(self.voice and self.voice.enabled)}
 
+    def save_profile(self, nickname, region):
+        from .player_profile import save
+        self.profile = save(nickname, region)
+        return self.profile
+
     def state(self):
         with self.lock:
             session = self.session
             if session is None:
                 return {"phase": "idle", "tip": None, "error": self.last_error,
                         "voice": self._voice_state(), "result": self.last_result,
+                        "profile": self.profile,
+                        "model_update": self.model_updater.last_result,
                         "history": list(self.history)}
             tip = session.latest_replay_tip
             safe_tip = None
@@ -130,6 +153,10 @@ class StudioController:
                 safe_tip.pop("source_due_ns", None)
             return {"phase": "finished" if session.finished else session.phase,
                     "session_id": session.id, "replay_review": session.options.replay_review,
+                    "visual_model_loaded": bool(session.versions.get("neural_enabled")),
+                    "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
+                    "visual_readiness": session.versions.get("visual_readiness"),
+                    "data_patch": getattr(session.decision_engine, "patch", None),
                     "tip": safe_tip, "error": session.error or self.last_error,
                     "counts": {k: session.counts[k] for k in
                                ("source_frames", "preview_frames", "reader_native_runs",
@@ -138,6 +165,8 @@ class StudioController:
                     "preview_encoded_fps": sum(t >= time.monotonic() - 1 for t in self.preview_times),
                     "preview_encode_last_ms": self.preview_encode_ms[-1] if self.preview_encode_ms else None,
                     "voice": self._voice_state(), "result": self.last_result,
+                    "profile": self.profile,
+                    "model_update": self.model_updater.last_result,
                     "history": list(self.history)}
 
     def _voice_state(self):
@@ -147,9 +176,18 @@ class StudioController:
 
     def _pump(self):
         next_jpeg = 0.0
+        next_model_check = 0.0
         while not self.closed.wait(.01):
             with self.lock:
                 session = self.session
+            if time.monotonic() >= next_model_check:
+                next_model_check = time.monotonic() + 300
+                if session is None or session.finished:
+                    try:
+                        self.model_updater.activate_pending_if_idle()
+                        self.model_updater.check_async()
+                    except Exception:
+                        pass
             if session is None or session.finished:
                 continue
             if time.monotonic() >= next_jpeg:
@@ -202,6 +240,8 @@ class StudioController:
                 if self.last_result.get("post_session_learning_eligible") and not session.options.replay_review:
                     from .post_session_learning import launch_post_session_learning
                     self.last_result["post_session_learning_job"] = launch_post_session_learning(session.options.output)
+                self.model_updater.activate_pending_if_idle()
+                self.model_updater.check_async()
             except Exception as exc:
                 self.last_error = str(exc)
 

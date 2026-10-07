@@ -129,7 +129,7 @@ class Session:
                 self.core, self.model, self.worker, self.hp_worker = vm_bridge.start(o, self.id)
             else:
                 self.model=Observer(o.model) if o.model else None
-            self.versions=dict(model_sha256=self.model.hash if self.model else None,
+            self.versions.update(dict(model_sha256=self.model.hash if self.model else None,
                                model_load_ms=self.model.load_ms if self.model else None,
                                neural_enabled=self.model is not None,
                                configs=self.registry.hashes,
@@ -137,7 +137,7 @@ class Session:
                                hud='numeric_gray_v3',controls='explicit_S4_or_custom' if o.controls else 'S3_frozen',
                                hp='HP1_baseline_diagnostic',board='B1_optional',
                                trained_regions=['bench','shop'] if self.model else [],
-                               other_HUD_regions='registered_readers_not_neural_classes')
+                               other_HUD_regions='registered_readers_not_neural_classes'))
             if not o.vm_core:
                 worker_env=None
                 extra_env=getattr(self,'native_worker_env',None)

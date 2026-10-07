@@ -2,7 +2,15 @@
 
 HM4 mantém o motor de captura/leitura do HM3 e simplifica a experiência para o teste no Windows.
 
-## Fluxo
+## Fluxo atual do estúdio (07/10/2026)
+
+O HM4 abre por padrão a interface WebView2 baseada **nos mesmos arquivos da branch de design** em `ui/tauri-design`. Clique em **Escolher tela**, selecione monitor ou janela e confirme a captura. O Rust captura no Windows; a prévia chega por um canal local MJPEG de até 720p e 30 quadros codificados por segundo; a análise roda separadamente. O contador de FPS mostrado é o de codificação, não o FPS físico apresentado. A fluidez real precisa ser medida em Windows.
+
+O HUB e o motor de decisões podem orientar tanto uma partida ao vivo quanto um replay exibido na tela. Na partida ao vivo o catálogo empacotado recebe a marca **laboratório** e a versão de patch aparece junto da dica. Identidades de campeões e itens ainda precisam de evidência visual suficiente; candidatos não são apresentados como unidades confirmadas. A voz ElevenLabs é sintetizada no serviço e reproduzida no Windows. Ao encerrar uma partida ao vivo, a sessão é selada antes de iniciar o envio para aprendizado no BigBANANA. O aplicativo mantém os pesos congelados durante a partida.
+
+A interface Tk anterior permanece acessível com `--legacy-ui` para diagnóstico. O fluxo abaixo descreve essa interface antiga; ele não é mais a tela padrão.
+
+## Fluxo histórico da interface Tk
 
 1. Abra o HM4.
 2. Abra no Windows um vídeo de uma partida **já encerrada**, em tela cheia
@@ -55,8 +63,8 @@ células e ícones **candidatos**, com identidades nulas. Dicas de revisão são
 leituras de economia baseadas nos números observados. Ações de compra/equipamento
 exigem identidade verificada, evidência fresca e confiança explícita do motor;
 ícones candidatos sozinhos não geram dicas de equipar. Sem ouro observado, a
-leitura se abstém. O modo de dicas só é habilitado quando o
-usuário declara que a fonte é um vídeo de partida encerrada.
+leitura se abstém. O modo de revisão original exigia vídeo encerrado;
+o estúdio conectado também habilita dicas em partidas ao vivo.
 
 ## HM4.5 / 0.6.2 — voz via ElevenLabs e perfil local
 
@@ -76,11 +84,11 @@ o jogador não preenche credenciais da API. O cliente abre uma sessão anônima
 automaticamente. **Conectar voz** permite tentar novamente; **Testar áudio**
 produz uma solicitação explícita. A chave nunca é embutida no instalador.
 
-**Estado desta implementação:** o endereço em `configs/services/voice.json`
-ainda está vazio. O serviço não foi ativado nem o áudio real da ElevenLabs
-validado. Os contratos automatizados usam PCM silencioso simulado e não
-comprovam qualidade da voz, latência de internet ou áudio físico no Windows.
-Não entregar esta revisão como teste de voz pronta enquanto isso estiver pendente.
+**Estado atual:** `configs/services/voice.json` aponta para o serviço
+BigBANANA. Os contratos automatizados não comprovam qualidade da voz,
+latência de internet ou áudio físico no Windows. O estúdio conectado narra
+somente dicas atuais confirmadas; a primeira sessão Windows ainda precisa
+validar essa reprodução.
 
 A fila mantém no máximo uma fala aguardando. Solicitações têm prazo, limite de
 áudio de 2 MiB, cache em RAM de até 16 frases/4 MiB e espera após falhas.
@@ -107,8 +115,9 @@ conectado: a UI informa essa ausência, sem inventar partidas ou estatísticas.
 
 ### Limites ainda presentes
 
-- A política local tem janelas específicas de nível; não implementa recomendações
-  de rolagem, posicionamento ou equipamento.
+- O motor de estratégia por atributos pode formular alternativas de rolagem,
+  composição, posicionamento e itens. Ele se abstém quando as identidades ou
+  estados exigidos ainda não foram confirmados visualmente.
 - A rede visual atual não foi treinada para distinguir fila, menu e loading.
   O classificador experimental anterior separa apenas tabuleiro/não tabuleiro;
   não pode ser apresentado como reconhecimento dessas novas classes.

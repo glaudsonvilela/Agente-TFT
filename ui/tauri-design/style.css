@@ -36,3 +36,6 @@ dialog{color:var(--text);background:linear-gradient(140deg,#2c283e,#1d1e2b);bord
 .live-preview img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;position:relative;z-index:2}
 .live-preview-empty{position:absolute;inset:0;display:grid;place-items:center;color:#a7a7bf;font-size:13px;text-align:center;padding:24px}
 .live-board-empty{min-height:350px;display:grid;place-items:center;color:#c6c0d8;background:#151720;border-radius:18px;text-align:center;padding:24px}
+.studio-replay-choice{display:flex;align-items:center;gap:10px;margin:16px 0;color:#d7d1e9;font-size:12px;cursor:pointer}
+.studio-replay-choice input{accent-color:#9984ff;width:16px;height:16px}
+.studio-profile-form{display:grid;gap:14px;margin:18px 0}.studio-profile-form label{display:grid;gap:6px;color:#c9c3de;font-size:12px}.studio-profile-form input,.studio-profile-form select{width:100%;padding:10px 12px;border:1px solid #46425e;border-radius:8px;background:#1b1c27;color:#f4f2ff;font:inherit}.studio-profile-form .primary{justify-self:start}
