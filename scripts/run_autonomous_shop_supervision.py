@@ -16,6 +16,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from native_lab import command as native_lab_command
 
 DEFAULT_SOURCE = Path(
     "/mnt/sherlock-ssd/AgenteTFT/diagnostics/targeted-new-sources-20261005/"
@@ -200,19 +201,11 @@ def main() -> int:
         print(f"AUTONOMOUS_SHOP_SUPERVISION_RESUME=preserve_incomplete_miner:{preserved}")
     if miner_report is None:
         run_stream(
-        [
-            "cargo",
-            "run",
-            "--release",
-            "--manifest-path",
-            str(repo / "tools/unit-features-lab/Cargo.toml"),
-            "--bin",
+        native_lab_command(
+            repo,
             "mine-shop-transitions",
-            "--",
-            str(dense),
-            str(catalog),
-            str(miner),
-        ],
+            [str(dense), str(catalog), str(miner)],
+        ),
         repo,
         logs / f"{miner.name}.log",
         )
