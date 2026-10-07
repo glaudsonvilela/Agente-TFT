@@ -70,6 +70,15 @@ def _safe_member(info: zipfile.ZipInfo) -> bool:
     return True
 
 
+def _probe_l3(metadata: Path) -> str:
+    try:
+        from e1.model import MapObserver
+        observer = MapObserver(str(metadata))
+        return observer.hash
+    except Exception as exc:
+        raise ModelUpdateError(f"Health-check L3 falhou: {type(exc).__name__}") from exc
+
+
 def _verify_and_extract(
     package: Path,
     destination: Path,
@@ -176,25 +185,64 @@ def _verify_and_extract(
             shutil.rmtree(destination, ignore_errors=True)
             raise ModelUpdateError(f"Verificação pós-extração falhou: {row['path']}")
 
+    l3_metadata = destination / roles["l3_metadata"]
+    l3_hash = _probe_l3(l3_metadata)
+    if l3_hash != server_manifest["model_identity_sha256"]:
+        shutil.rmtree(destination, ignore_errors=True)
+        raise ModelUpdateError("Identidade do modelo L3 não confere com o champion.")
+
     return {
         "manifest": manifest,
         "roles": roles,
-        "l3_metadata": str(destination / roles["l3_metadata"]),
+        "l3_metadata": str(l3_metadata),
         "bundle_root": str(destination),
+        "runtime_model_sha256": l3_hash,
     }
+
+
+def _valid_pointer(value: dict, root: Path) -> Path | None:
+    try:
+        path = Path(value["l3_metadata"]).resolve()
+        if not path.is_file() or not path.is_relative_to(root.resolve()):
+            return None
+        expected = value.get("model_identity_sha256")
+        if not isinstance(expected, str) or len(expected) != 64:
+            return None
+        if _probe_l3(path) != expected:
+            return None
+        return path
+    except Exception:
+        return None
 
 
 def active_model_metadata(root: Path | None = None) -> Path | None:
     root = root or _local_root()
     pointer = root / "active.json"
     try:
-        value = _json(pointer)
-        path = Path(value["l3_metadata"])
-        if path.is_file() and path.is_relative_to(root.resolve()):
+        active = _json(pointer)
+    except (OSError, ValueError, json.JSONDecodeError):
+        active = None
+    if isinstance(active, dict):
+        path = _valid_pointer(active, root)
+        if path is not None:
             return path
-    except (OSError, ValueError, KeyError, json.JSONDecodeError):
+
+    # Automatic rollback: an invalid active model never blocks startup.
+    try:
+        previous = _json(root / "previous.json")
+    except (OSError, ValueError, json.JSONDecodeError):
         return None
-    return None
+    path = _valid_pointer(previous, root)
+    if path is None:
+        return None
+    restored = {
+        **previous,
+        "status": "active_rollback",
+        "rollback_at_ms": int(time.time() * 1000),
+        "rollback_reason": "active_model_health_check_failed",
+    }
+    _write_atomic(pointer, restored)
+    return path
 
 
 class ModelUpdater:
@@ -323,6 +371,7 @@ class ModelUpdater:
             "bundle_root": ready["bundle_root"],
             "l3_metadata": ready["l3_metadata"],
             "roles": ready["roles"],
+            "runtime_model_sha256": ready["runtime_model_sha256"],
             "downloaded_at_ms": int(time.time() * 1000),
         }
         _write_atomic(version_dir / "installed.json", record)
