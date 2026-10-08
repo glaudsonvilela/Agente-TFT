@@ -119,11 +119,32 @@ class SetupController:
         with self.lock:
             if not self.vm_ready:
                 raise ValueError("A VM ainda não passou no teste de saúde.")
-        subprocess.Popen([str(self.app_exe)], cwd=str(self.app_exe.parent),
-                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        handoff = self.log_path.parent / f"studio-handoff-{secrets.token_hex(8)}.txt"
+        environment = os.environ.copy()
+        environment["AGENTE_TFT_STUDIO_URL_FILE"] = str(handoff)
+        process = subprocess.Popen([str(self.app_exe)], cwd=str(self.app_exe.parent),
+                                   env=environment,
+                                   creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        deadline = time.monotonic() + 45
+        try:
+            while time.monotonic() < deadline:
+                if handoff.is_file():
+                    url = handoff.read_text(encoding="utf-8").strip()
+                    address = urlsplit(url)
+                    if (address.scheme == "http" and address.hostname == "127.0.0.1"
+                            and address.port and address.query == "connected=1"
+                            and address.fragment == "studio"):
+                        break
+                if process.poll() is not None:
+                    raise RuntimeError("O aplicativo encerrou antes de abrir a interface. Veja o registro de inicialização.")
+                time.sleep(.1)
+            else:
+                raise RuntimeError("O aplicativo não abriu a interface em 45 segundos. Veja o registro de inicialização.")
+        finally:
+            handoff.unlink(missing_ok=True)
         self._report("Agente TFT iniciado após verificação da VM.")
         self.closed.set()
-        return {"launched": True}
+        return {"launched": True, "url": url}
 
     def close(self):
         if self.state()["phase"] == "installing":

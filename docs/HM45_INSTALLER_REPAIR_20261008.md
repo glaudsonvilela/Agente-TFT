@@ -19,6 +19,7 @@
 - Uma captura ativa não é encerrada pela pausa das consultas da interface. Sem captura, o fechamento por inatividade ocorre após dez minutos; no assistente, após trinta minutos.
 - A sessão usa imediatamente o modelo local disponível. A consulta de atualizações continua em segundo plano para futuras sessões.
 - Quando a prévia já cabe em 720p, o capturador Rust copia linhas inteiras sem iterar sobre cada pixel. A codificação JPEG passou a esperar até o próximo quadro, sem a pausa fixa de 10 ms que podia perder o prazo de 30 FPS; as métricas de FPS são zeradas ao trocar de sessão.
+- Ao clicar em “Abrir Agente TFT”, o assistente espera a nova interface local responder e navega para ela na mesma janela. Se o processo encerrar ou não abrir no prazo, o erro permanece visível no assistente.
 
 ## Verificação realizada no Ubuntu
 
@@ -28,6 +29,8 @@
 - Testes Rust do iniciador: página servida em IP local, integridade do pacote e rejeição de pacote alterado: 4 aprovados.
 - Ensaio isolado do fluxo MJPEG por IP local: 297 quadros de aproximadamente 515 KiB em 9,83 segundos (30,1 FPS entregues; intervalo p95 de 33,8 ms). Isso testa o transporte local, não a captura Windows nem a decodificação visual no computador do usuário.
 - Ensaio local do codificador da interface com 120 quadros sintéticos em 4 segundos: 120 JPEGs produzidos (30 FPS), 7,75 ms no percentil 95 e nenhum quadro substituído. Isso não mede a aquisição WGC nem o navegador.
+- Ensaio local de 45 segundos do fluxo MJPEG com decodificação no Chromium: 1.349 mudanças de imagem observadas (29,98/s), intervalo p95 de 33,4 ms e nenhum intervalo acima de 100 ms. Isso mede o servidor e o navegador locais sem captura WGC.
+- Navegação real no Chromium entre o assistente visual simulado e o estúdio conectado: botão de abertura, resposta da ponte local e página final carregada na mesma janela.
 
 ## Fluidez: evidência e limite atual
 

@@ -490,7 +490,11 @@ def run_studio(*, browser=False):
     worker.start()
     try:
         from browser_shell import open_local_window
-        open_local_window(server.url, "studio-browser")
+        handoff = os.environ.get("AGENTE_TFT_STUDIO_URL_FILE")
+        if handoff:
+            Path(handoff).write_text(server.url, encoding="utf-8")
+        else:
+            open_local_window(server.url, "studio-browser")
         while not controller.closed.wait(1):
             # Browser timers can be suspended while the replay player is in
             # front. Never end an active capture merely because UI polling

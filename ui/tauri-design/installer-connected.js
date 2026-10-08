@@ -95,8 +95,12 @@ if (new URLSearchParams(location.search).has('realInstaller')) {
       else if (actual.phase === 'restart') {
         if (confirm('Salvou seu trabalho? O Windows será reiniciado agora.')) await api('restart');
       } else if (actual.phase === 'ready') {
-        await api('launch');
-        window.close();
+        const launched = await api('launch');
+        const target = new URL(launched?.url || '', location.href);
+        if (target.protocol !== 'http:' || target.hostname !== '127.0.0.1' || !target.port)
+          throw new Error('A interface local não respondeu.');
+        window.location.replace(target.href);
+        return;
       }
       await refresh();
     } catch (error) { toast(error.message); }
