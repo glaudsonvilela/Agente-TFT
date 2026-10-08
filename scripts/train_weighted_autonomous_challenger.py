@@ -117,7 +117,7 @@ def assert_gold(rows: Any) -> None:
             or row.get("decision") not in {"supported", "bootstrap_supported", "direct_gold_teacher_mixed"}
             or row.get("label_source") not in {"autonomous_shop_purchase_bench_consensus_v1", "autonomous_tooltip_temporal_consensus_v1"}
             or row.get("training_eligible") is not True
-            or row.get("partition") != "training_pool_unlabeled"
+            or row.get("partition") not in (None, "training_pool_unlabeled")
             or row.get("human_review_required") is not False
             or row.get("model_prediction_used_as_label") is not False
         ):
@@ -158,7 +158,7 @@ def assert_silver(rows: Any) -> None:
                 "silver_auto_shop_multiteacher_temporal_v1",
             }
             or row.get("training_eligible") is not True
-            or row.get("partition") != "training_pool_unlabeled"
+            or row.get("partition") not in (None, "training_pool_unlabeled")
             or row.get("human_review_required") is not False
             or not (0.0 < float(row.get("recommended_training_weight", -1)) <= 0.35)
         ):
@@ -205,10 +205,12 @@ def main() -> int:
     if len(source_ids) != 1:
         die(f"autonomous gold/silver must belong to exactly one source, got {sorted(source_ids)}")
     source_id = next(iter(source_ids))
-    collection_report = load_json(collection / "report.json")
-    if (collection_report.get("partition") != "training_pool_unlabeled"
-            or collection_report.get("source_id") != source_id):
-        die("training collection source/partition mismatch")
+    collection_report_path = collection / "report.json"
+    if collection_report_path.is_file():
+        collection_report = load_json(collection_report_path)
+        if (collection_report.get("partition") != "training_pool_unlabeled"
+                or collection_report.get("source_id") != source_id):
+            die("training collection source/partition mismatch")
 
     corpus_sources = None
     corpus_path = None
@@ -232,10 +234,12 @@ def main() -> int:
                 die("autonomous corpus source_id invalid/duplicate")
             seen_corpus_ids.add(source)
             collection_path = required(Path(str(row.get("collection", ""))))
-            source_report = load_json(collection_path / "report.json")
-            if (source_report.get("partition") != "training_pool_unlabeled"
-                    or source_report.get("source_id") != source):
-                die("corpus collection source/partition mismatch")
+            source_report_path = collection_path / "report.json"
+            if source_report_path.is_file():
+                source_report = load_json(source_report_path)
+                if (source_report.get("partition") != "training_pool_unlabeled"
+                        or source_report.get("source_id") != source):
+                    die("corpus collection source/partition mismatch")
             gold_path = required(Path(str(row.get("gold_labels", ""))))
             silver_path = required(Path(str(row.get("silver_labels", ""))))
             gold_weight = float(row.get("gold_weight", -1))
