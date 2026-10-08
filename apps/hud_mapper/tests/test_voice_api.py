@@ -105,6 +105,34 @@ class VoiceAPITests(unittest.TestCase):
         self.assertEqual(tip['speech_text'],'Role uma vez.')
         coach.close();coach.thread.join(1)
 
+    def test_confirmed_combat_commentary_is_spoken_without_action_feedback(self):
+        client=mock_client();played=threading.Event();calls=[]
+        original=client.synthesize
+        def synth(text,*,tone=None):
+            calls.append((text,tone));return original(text)
+        client.synthesize=synth
+        coach=VoiceCoach(client=client,playback=lambda wav:played.set(),load_settings=False)
+        coach.set_enabled(True)
+        now=time.monotonic_ns()
+        tip=dict(actionable=False,speakable=True,kind='combat',
+                 speech_text='Não foi dessa vez, hein.',voice_tone='thoughtful',
+                 decision_key='combat-loss:1:2-6',frame_id=10,source_due_ns=now,
+                 speech_max_age_ms=8000)
+        self.assertTrue(coach.observe_tip(tip,now)['queued'])
+        self.assertTrue(played.wait(1))
+        self.assertEqual(calls,[('Não foi dessa vez, hein.','thoughtful')])
+        coach.close();coach.thread.join(1)
+
+    def test_combat_commentary_bypasses_only_the_speech_cooldown(self):
+        coach=VoiceCoach(load_settings=False);coach.enabled=True
+        now=time.monotonic_ns()
+        coach.last_queued_ns=now
+        tip=dict(actionable=False,speakable=True,kind='combat',
+                 speech_text='Não foi dessa vez, hein.',decision_key='loss:one',
+                 frame_id=1,source_due_ns=now,speech_max_age_ms=8000)
+        self.assertTrue(coach.observe_tip(tip,now)['queued'])
+        self.assertIsNone(coach.observe_tip(tip,now))
+
     def test_unchanged_visible_text_retries_after_stale_observation(self):
         coach=VoiceCoach(load_settings=False);coach.enabled=True
         now=time.monotonic_ns()

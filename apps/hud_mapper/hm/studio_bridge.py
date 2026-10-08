@@ -174,7 +174,7 @@ class StudioController:
             safe_tip = None
             if tip:
                 safe_tip = {k: tip.get(k) for k in
-                            ("text", "status", "actionable", "frame_id", "source_ms",
+                            ("text", "status", "actionable", "speakable", "kind", "frame_id", "source_ms",
                              "source_due_ns", "data_patch", "data_patch_basis", "basis",
                             "strategy_basis", "recommendations", "decision_key",
                             "policy", "family")}
@@ -193,6 +193,7 @@ class StudioController:
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
                     "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
                     "visual_readiness": session.versions.get("visual_readiness"),
+                    "opponents": session.versions.get("opponent_tracking"),
                     "temporal_candidates": session.versions.get("temporal_candidates"),
                     "board_execution": session.versions.get("board_hub_execution"),
                     "unit_model_active": bool(session.versions.get("unit_neural_active")),
@@ -232,7 +233,7 @@ class StudioController:
             if session is None or session.finished:
                 continue
             tip = session.latest_replay_tip
-            if tip and tip.get("actionable"):
+            if tip and (tip.get("actionable") or tip.get("kind") == "combat"):
                 tip_key = (tip.get("decision_key"), tip.get("text"))
                 with self.lock:
                     if tip_key != self.last_tip_key:

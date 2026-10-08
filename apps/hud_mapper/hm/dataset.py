@@ -48,7 +48,7 @@ class Store:
                 try:stream,data,frame,sample=self.jobs.get(timeout=.1)
                 except queue.Empty:continue
                 started=time.perf_counter_ns()
-                if stream not in ('mapping-events','roi-observations','board-hub-observations','replay-tips','telemetry','periodic'):
+                if stream not in ('mapping-events','roi-observations','board-hub-observations','combat-events','replay-tips','telemetry','periodic'):
                     raise ValueError('Fluxo não registrado')
                 if stream not in files:files[stream]=(self.root/(stream+'.jsonl')).open('x',encoding='utf-8')
                 line=json.dumps(data,ensure_ascii=False,allow_nan=False)+'\n'

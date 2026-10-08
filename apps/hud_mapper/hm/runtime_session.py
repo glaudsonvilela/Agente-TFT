@@ -199,10 +199,13 @@ class RuntimeSession(Session):
                    ground_truth=False, game_state_updated=False)
         with self.lock:
             previous = self.latest_replay_tip
-            recent_action = (previous and previous.get('actionable')
+            recent_action = (previous and (previous.get('actionable') or previous.get('speakable'))
                 and previous.get('epoch') == frame.epoch
                 and 0 <= frame.pts_ms - previous.get('source_ms', -1) < 5000)
-            if tip.get('actionable') or not recent_action:
+            recent_combat = (previous and previous.get('kind') == 'combat'
+                and previous.get('epoch') == frame.epoch
+                and 0 <= frame.pts_ms - previous.get('source_ms', -1) < 3000)
+            if tip.get('speakable') or (tip.get('actionable') and not recent_combat) or not recent_action:
                 self.latest_replay_tip=tip
             if (tip['text']==getattr(self,'_last_replay_tip',None)
                     and frame.pts_ms<getattr(self,'_next_tip_ms',0)):
@@ -470,6 +473,25 @@ class RuntimeSession(Session):
                 if getattr(self, 'decision_engine', None):
                     from .replay_coach import coach_prompt
                     self._publish_coach(coach_prompt(answer),frame,end)
+                tracker = getattr(self, 'combat_events', None)
+                if tracker is not None:
+                    outcome = tracker.update(answer, epoch=frame.epoch, source_ms=frame.pts_ms)
+                    if outcome:
+                        opponents = getattr(self, 'opponent_tracker', None)
+                        linked = (opponents.register_loss(outcome, epoch=frame.epoch,
+                                                          source_ms=frame.pts_ms)
+                                  if opponents else None)
+                        if linked:
+                            outcome['opponent_candidate'] = linked
+                        self.store.emit('combat-events', dict(outcome, frame_id=frame.id,
+                                                               epoch=frame.epoch))
+                        self.counts['combat_loss_observations'] += 1
+                        self._publish_coach(dict(status='combat_commentary',
+                            kind='combat', actionable=False, speakable=True,
+                            speech_text=outcome['text'], text=outcome['text'],
+                            decision_key=f'combat-loss:{frame.epoch}:{outcome["stage"]}',
+                            speech_max_age_ms=8000, voice_tone='thoughtful',
+                            basis=outcome['basis'], training_label=False), frame, end)
         except Exception as exc:
             self.error = str(exc)
             self.stop()
@@ -490,6 +512,10 @@ class HM4RuntimeSession(RuntimeSession):
         super().__init__(options)
         self.ubuntu_mvp_diagnostics = __import__('os').environ.get('AGENTE_TFT_UBUNTU_MVP') == '1'
         self.latest_hud_diagnostic = None
+        from .combat_events import CombatEvents
+        self.combat_events = CombatEvents()
+        from .opponent_tracking import OpponentTracker
+        self.opponent_tracker = OpponentTracker()
         self.shadow_learning_recorder = None
         self.shadow_learning_sealed = None
         self.shadow_learning_error = None
@@ -692,6 +718,11 @@ class HM4RuntimeSession(RuntimeSession):
                         if candidates else None)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
                 neural_items=observed['snapshot'].get('neural_items') or {}
+                opponent_state = self.opponent_tracker.update(
+                    observed['snapshot'].get('opponent_panel_observation'),
+                    epoch=frame.epoch, source_ms=frame.pts_ms)
+                observed['snapshot']['opponents'] = opponent_state
+                self.versions['opponent_tracking'] = opponent_state
                 self.versions['item_neural_active']=neural_items.get('active',False)
                 self.versions['item_neural_model_sha256']=neural_items.get('model_sha256')
                 visual_items = observed['snapshot'].get('item_visual_native') or {}

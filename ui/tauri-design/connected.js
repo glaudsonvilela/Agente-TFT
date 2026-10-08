@@ -113,9 +113,11 @@ if (new URLSearchParams(location.search).has('connected')) {
     const card = document.querySelector('.advice-card');
     if (!card) return;
     const actionable = !!(tip && tip.actionable && (tip.age_ms == null || tip.age_ms <= 5000));
-    const label = actionable ? 'DICA AGORA' : 'LEITURA EM ANDAMENTO';
+    const combat = !!(tip && tip.kind === 'combat' && tip.speakable &&
+      (tip.age_ms == null || tip.age_ms <= 8000));
+    const label = actionable ? 'DICA AGORA' : combat ? 'COMBATE' : 'LEITURA EM ANDAMENTO';
     document.querySelector('.coach-label').innerHTML = `<span>AGORA</span><span class="pill mini">${label}</span>`;
-    const title = actionable ? tip.text :
+    const title = actionable || combat ? tip.text :
       state?.ubuntu_mvp && tip?.text ? 'Sem recomendação agora.' :
       state?.screen_mode === 'gameplay_hud' ? 'Tabuleiro visível. Buscando a próxima ação.' :
       state?.screen_mode === 'stage_without_economy' ? 'Partida detectada. Aguardando a loja e o ouro.' :
@@ -127,6 +129,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
+                     combat ? 'Comentário após a mudança confirmada de vida na luta.' :
                      state?.ubuntu_mvp && tip?.text ? escapeHtml(tip.text) :
                      state?.ubuntu_mvp ? 'Diagnóstico do mesmo motor usado no Windows.' :
                      'As ações aparecem aqui durante a partida.'}</p>`+
@@ -215,6 +218,27 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (inventory) inventory.innerHTML = '<span>Inventário · '+(items.length ?
         'possíveis itens: '+items.map(row => escapeHtml(row.candidate_name || row.candidate_id)).join(', ') :
         'aguardando leitura')+' · candidatos</span>';
+      const boardPanel = document.querySelector('.board-detail');
+      let opponentPanel = document.querySelector('.live-opponents');
+      if (boardPanel && !opponentPanel) {
+        opponentPanel = document.createElement('section');
+        opponentPanel.className = 'panel live-opponents';
+        boardPanel.insertAdjacentElement('afterend', opponentPanel);
+      }
+      if (opponentPanel) {
+        const opponentState = state?.opponents || {};
+        const rows = (opponentState.players || []).filter(row => row.name).slice(0, 7);
+        opponentPanel.innerHTML = `<div class="panel-top"><span class="panel-title">Adversários observados</span>`+
+          `<span class="pill">${rows.length} nomes</span></div>`+
+          (rows.length ? `<div class="opponent-rows">${rows.map(row =>
+            `<div class="opponent-row"><b>${escapeHtml(row.name)}</b>`+
+            `<span>${row.hp == null ? 'Vida —' : 'Vida '+escapeHtml(row.hp)}`+
+            `${row.losses_observed ? ' · derrotas contra ele '+escapeHtml(row.losses_observed) : ''}</span></div>`
+          ).join('')}</div>` : '<p class="note">Aguardando a lista de jogadores aparecer no vídeo.</p>')+
+          `<p class="opponent-note">${opponentState.current_opponent ?
+            'Confronto observado: '+escapeHtml(opponentState.current_opponent)+'. ' : ''}`+
+          `Composições dos adversários entram quando o tabuleiro de cada um for associado com segurança.</p>`;
+      }
     }
     if (current === 'history') {
       const panelTitle = document.querySelector('.timeline')?.closest('.panel')?.querySelector('.panel-title');

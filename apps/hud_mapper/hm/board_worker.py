@@ -37,6 +37,8 @@ class BoardWorker:
         board = answer["board"]
         if isinstance(answer.get("trait_panel"), dict):
             board["trait_panel"] = answer["trait_panel"]
+        if isinstance(answer.get("opponent_panel"), dict):
+            board["opponent_panel"] = answer["opponent_panel"]
         return board
 
     def close(self):

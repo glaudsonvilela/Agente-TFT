@@ -14,8 +14,10 @@
 mod engine;
 mod stage;
 mod trait_panel;
+mod opponent_panel;
 
-use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
+use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,
+          sync::mpsc::{self,TrySendError}};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat,PixelRect,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
@@ -529,8 +531,8 @@ fn run()->Result<(),String>{
     }Ok(())
 }
 
-// Dedicated geometry worker: no OCR engine, model, or game-state allocation.
-// A slow shop read must never hold up a fresh board frame.
+// Independent board worker. Its two small OCR panels run at a bounded cadence;
+// a slow shop read in the main worker cannot hold up a fresh board frame.
 fn board_only(root:&Path,tess:&str)->Result<(),String>{
     let profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;
     profile.validate()?;
@@ -544,6 +546,46 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
     let mut trait_resident=ResidentTesseractOcr::from_cli_path(tess,"eng").ok();
     let mut trait_cli=TesseractOcr::new(TesseractConfig{binary:tess.into(),language:"eng".into()});
     let mut previous_traits:Option<(u64,Vec<u8>,Value)>=None;
+    let (opponent_tx,opponent_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
+    let (opponent_result_tx,opponent_result_rx)=mpsc::channel::<Value>();
+    let opponent_tess=tess.to_string();
+    let opponent_thread=thread::Builder::new().name("opponent-panel-ocr".into()).spawn(move ||{
+        #[cfg(any(windows,target_os="linux"))]
+        let mut resident=ResidentTesseractOcr::from_cli_path(&opponent_tess,"eng").ok();
+        let mut text_cli=TesseractOcr::new(TesseractConfig{binary:opponent_tess.clone(),language:"eng".into()});
+        let mut numbers_cli=TesseractOcr::new(TesseractConfig{binary:opponent_tess,language:"eng".into()});
+        let mut previous:Option<(Vec<u8>,Value)>=None;
+        for frame in opponent_rx {
+            let started=Instant::now();
+            let pixels=exact_rect_signature(&frame,&[
+                opponent_panel::PANEL,opponent_panel::BATTLE_NAME,opponent_panel::HP_PANEL]);
+            let read=match pixels {
+                Ok(pixels)=>{
+                    let cached=previous.as_ref().and_then(|(old,value)|
+                        if old==&pixels {Some(value.clone())}else{None});
+                    if let Some(mut value)=cached {
+                        value["status"]=json!("exact_pixels_cached");
+                        value
+                    }else{
+                        #[cfg(any(windows,target_os="linux"))]
+                        let result=if let Some(engine)=resident.as_mut(){
+                            opponent_panel::observe(&frame,engine,&mut numbers_cli)
+                        }else{opponent_panel::observe(&frame,&mut text_cli,&mut numbers_cli)};
+                        #[cfg(not(any(windows,target_os="linux")))]
+                        let result=opponent_panel::observe(&frame,&mut text_cli,&mut numbers_cli);
+                        let value=result.unwrap_or_else(|error|json!({"status":"read_error","error":error}));
+                        previous=Some((pixels,value.clone()));
+                        value
+                    }
+                },Err(error)=>json!({"status":"read_error","error":error})
+            };
+            let mut read=read;
+            read["processing_ms"]=json!(ms(&started));
+            if opponent_result_tx.send(read).is_err(){break}
+        }
+    }).map_err(|e|format!("opponent OCR thread: {e}"))?;
+    let mut latest_opponents=json!({"status":"async_pending","words":[],"battle_name_words":[]});
+    let mut last_opponent_submit:Option<u64>=None;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
     writeln!(output,"{}",json!({"ready":true,"protocol":1,"board_only":true,"ocr_available":false,
         "pid":std::process::id()})).map_err(|e|e.to_string())?;
@@ -587,12 +629,37 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
                 previous_traits=Some((f.captured_at_ms,trait_pixels.unwrap_or_default(),value.clone()));
                 value
             }else{traits};
+            let mut fresh_opponents=false;
+            while let Ok(result)=opponent_result_rx.try_recv(){
+                latest_opponents=result;
+                fresh_opponents=true;
+            }
+            if last_opponent_submit.map_or(true,|at|
+                    f.captured_at_ms<at || f.captured_at_ms.saturating_sub(at)>=5000){
+                match opponent_tx.try_send(f.clone()){
+                    Ok(())=>last_opponent_submit=Some(f.captured_at_ms),
+                    Err(TrySendError::Full(_))=>{},
+                    Err(TrySendError::Disconnected(_))=>return Err("opponent OCR thread ended".into()),
+                }
+            }
+            let mut opponents=latest_opponents.clone();
+            if let Some(at)=opponents["source_ms"].as_u64(){
+                let age=f.captured_at_ms.saturating_sub(at);
+                opponents["age_ms"]=json!(age);
+                if age>10000 {opponents["status"]=json!("async_stale");}
+                else if !fresh_opponents && opponents["status"]=="raw_ocr" {
+                    opponents["status"]=json!("cadence_cached");
+                }
+            }
             json!({"id":id,"source_ms":f.captured_at_ms,"board":board,
-                "trait_panel":traits,"native_ms":ms(&started),
-                "ocr_process_calls":if active && traits["status"]=="raw_ocr" {1}else{0}})
+                "trait_panel":traits,"opponent_panel":opponents,"native_ms":ms(&started),
+                "ocr_process_calls":if active && traits["status"]=="raw_ocr" {1}else{0},
+                "opponent_ocr_async":true})
         };
         writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }
+    drop(opponent_tx);
+    let _=opponent_thread.join();
     Ok(())
 }
 #[cfg(test)] mod tests{

@@ -69,8 +69,9 @@ class VoiceCoach:
 
     def observe_tip(self, tip, now_ns):
         """Try once per fresh observation, independent of whether UI text changed."""
-        self.set_context(tip.get('decision_key') if tip and tip.get('actionable') else None)
-        if not tip or not tip.get('actionable') or not tip.get('speech_text') or not self.enabled:return None
+        speakable = bool(tip and (tip.get('actionable') or tip.get('speakable')))
+        self.set_context(tip.get('decision_key') if speakable else None)
+        if not speakable or not tip.get('speech_text') or not self.enabled:return None
         token=(tip.get('frame_id'),tip.get('source_due_ns'),tip.get('decision_key'),self.voice_id,self.ready)
         if token==self.last_tip_attempt:return None
         self.last_tip_attempt=token
@@ -79,6 +80,7 @@ class VoiceCoach:
         tone=tip.get('voice_tone') or ('urgent' if family=='roll' else
                                       'thoughtful' if family=='economy' else 'confident')
         queued=self.say(tip['speech_text'],age,decision_key=tip.get('decision_key'),tone=tone,
+                        urgent_event=tip.get('kind')=='combat',
                         max_age_ms=tip.get('speech_max_age_ms',3000),
                         source_frame_id=tip['frame_id'],source_ms=tip.get('source_ms'))
         result=dict(event='voice_tip_attempt',frame_id=tip['frame_id'],decision_key=tip.get('decision_key'),
@@ -118,7 +120,7 @@ class VoiceCoach:
     def say(self, text: str, source_age_ms: float, *, force: bool = False,
             decision_key: str | None = None, max_age_ms: float = 3000,
             source_frame_id: int | None = None, source_ms: float | None = None,
-            tone: str | None = None):
+            tone: str | None = None, urgent_event: bool = False):
         now = time.monotonic_ns()
         self.last_rejection=None
         if not self.enabled:self.last_rejection='voice_disabled'
@@ -126,7 +128,7 @@ class VoiceCoach:
         elif now<self.retry_after_ns:self.last_rejection='api_backoff'
         elif source_age_ms>2000 and not force:self.last_rejection='source_too_old'
         elif text==self.last_text and not force:self.last_rejection='already_queued_or_spoken'
-        elif now-self.last_queued_ns<8_000_000_000 and not force:self.last_rejection='speech_cooldown'
+        elif now-self.last_queued_ns<8_000_000_000 and not force and not urgent_event:self.last_rejection='speech_cooldown'
         if self.last_rejection:return False
         self.last_text = text
         self.last_queued_ns = now

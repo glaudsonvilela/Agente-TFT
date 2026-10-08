@@ -726,7 +726,7 @@ class App:
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
-                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'DIAGNÓSTICO'
+                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'COMBATE' if tip.get('kind') == 'combat' else 'DIAGNÓSTICO'
                     if tip.get('evidence_level') == 'provisional':
                         label = 'SUGESTÃO EXPERIMENTAL'
                     if tip.get('strategy_basis') == 'attribute_planning_without_abilities':
@@ -739,7 +739,7 @@ class App:
                         self.good_button.state(["!disabled"]);self.bad_button.state(["!disabled"])
                     else:
                         self.good_button.state(["disabled"]);self.bad_button.state(["disabled"])
-                    if tip.get('actionable'):
+                    if tip.get('actionable') or tip.get('kind') == 'combat':
                         alternatives = tip.get('recommendations') or []
                         families = {'roll':'Rolagem', 'composition':'Composição', 'position':'Posicionamento', 'equip':'Equipamentos'}
                         detail = ('\nAlternativas para este tabuleiro — reavalie após cada ação:\n' +

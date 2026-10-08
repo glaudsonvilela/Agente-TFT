@@ -186,6 +186,7 @@ class BoardHubLive:
         snapshot['temporal_candidates'] = self.temporal_candidates.update(
             snapshot, getattr(source, 'epoch', None))
         snapshot['trait_panel_observation'] = read.get('trait_panel')
+        snapshot['opponent_panel_observation'] = read.get('opponent_panel')
         from .trait_constraints import bind_observed_traits, roster_hypotheses
         snapshot['trait_binding'] = bind_observed_traits(read.get('trait_panel'), self.trait_names)
         snapshot['trait_roster_hypotheses'] = roster_hypotheses(
