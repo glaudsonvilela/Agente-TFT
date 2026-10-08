@@ -23,6 +23,7 @@ from urllib.request import urlopen
 from urllib.request import Request
 
 from .runtime_app import default_hm4_output_root, discover_model, runtime_paths, target_label
+from .voice import VOICE_NARRATION_ENABLED
 from .runtime_session import HM4RuntimeSession
 from .session import Options
 
@@ -56,7 +57,8 @@ class StudioController:
         self.model_updater = ModelUpdater(is_idle=lambda: self.session is None or self.session.finished)
         threading.Thread(target=self._resume_learning, daemon=True,
                          name="studio-resume-learning").start()
-        self._connect_voice_async()
+        if VOICE_NARRATION_ENABLED:
+            self._connect_voice_async()
         self.pump = threading.Thread(target=self._pump, daemon=True, name="studio-state-pump")
         self.preview_pump = threading.Thread(target=self._preview_pump, daemon=True,
                                              name="studio-preview-encode")
@@ -71,6 +73,8 @@ class StudioController:
             pass
 
     def _connect_voice_async(self):
+        if not VOICE_NARRATION_ENABLED:
+            return
         def connect():
             from .voice import VoiceCoach
             from .voice_service import connect as connect_service
@@ -138,12 +142,15 @@ class StudioController:
                 max_samples=90 if vm_core else 600,
                 max_bytes=384 * 1024**2 if vm_core else 1024**3,
                 capture_consent=True, capture_expected=selected)).start()
-            try:
-                from .speech_highlights import SpeechHighlightsRecorder
-                self.highlight_recorder = SpeechHighlightsRecorder(output)
-                self.highlight_result = {"status": "recording", "clips": 0}
-            except Exception as exc:
-                self.highlight_result = {"status": "error", "error": str(exc)}
+            if VOICE_NARRATION_ENABLED:
+                try:
+                    from .speech_highlights import SpeechHighlightsRecorder
+                    self.highlight_recorder = SpeechHighlightsRecorder(output)
+                    self.highlight_result = {"status": "recording", "clips": 0}
+                except Exception as exc:
+                    self.highlight_result = {"status": "error", "error": str(exc)}
+            else:
+                self.highlight_result = {"status": "paused", "clips": 0}
             return {"session_id": self.session.id, "output": output}
 
     def _record_spoken(self, wav, text, metadata, started_ns, ended_ns):
@@ -172,6 +179,8 @@ class StudioController:
         return {"stopping": True}
 
     def set_voice(self, enabled):
+        if not VOICE_NARRATION_ENABLED:
+            return {"enabled": False, "paused": True}
         if self.voice:
             self.voice.set_enabled(bool(enabled))
         return {"enabled": bool(self.voice and self.voice.enabled)}
@@ -231,6 +240,8 @@ class StudioController:
                     "item_model_active": bool(session.versions.get("item_neural_active")),
                     "data_patch": getattr(session.decision_engine, "patch", None),
                     "screen_mode": session.versions.get("screen_mode"),
+                    "decision_status": getattr(session, "latest_decision_status", None),
+                    "decision_reason": getattr(session, "latest_decision_reason", None),
                     "tip": safe_tip, "error": session.error or self.last_error,
                     "counts": {k: session.counts[k] for k in
                                ("source_frames", "preview_frames", "reader_native_runs",
@@ -247,7 +258,8 @@ class StudioController:
     def _voice_state(self):
         v = self.voice
         return {"ready": bool(v and v.ready), "enabled": bool(v and v.enabled),
-                "played": v.played_count if v else 0, "error": v.error if v else None}
+                "played": v.played_count if v else 0, "error": v.error if v else None,
+                "paused": not VOICE_NARRATION_ENABLED}
 
     def _pump(self):
         next_model_check = 0.0

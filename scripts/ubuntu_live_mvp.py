@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import sys
+from prepare_tessdata_best import prepare as prepare_ocr_model
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -78,6 +79,7 @@ def main(argv=None):
     stage = prepare(args.stage.resolve(), model_dir.resolve(),
                     args.worker.resolve(), args.hp_worker.resolve(),
                     args.item_assets.resolve(), args.item_native.resolve())
+    os.environ['TESSDATA_PREFIX'] = str(prepare_ocr_model())
     os.environ['AGENTE_TFT_UBUNTU_MVP'] = '1'
     if args.neural_bundle:
         os.environ['AGENTE_TFT_UBUNTU_NEURAL_BUNDLE'] = str(args.neural_bundle.resolve())

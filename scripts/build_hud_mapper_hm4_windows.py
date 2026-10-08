@@ -1,6 +1,7 @@
 """Build compact HM4 Auto: simple source selection, automatic output/model discovery."""
 from pathlib import Path
 import hashlib, importlib.metadata, json, os, shutil, subprocess, sys, zipfile
+from prepare_tessdata_best import MODEL_SHA256, prepare as prepare_ocr_model
 
 root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
@@ -22,28 +23,14 @@ if not (tess / 'tesseract.exe').is_file():
     raise SystemExit('Tesseract unavailable')
 td = stage / 'tesseract'
 (td / 'tessdata').mkdir(parents=True)
+ocr_model = prepare_ocr_model()
 shutil.copy2(tess / 'tesseract.exe', td / 'tesseract.exe')
 for p in tess.glob('*.dll'):
     shutil.copy2(p, td / p.name)
-for name in ('eng.traineddata', 'osd.traineddata'):
-    shutil.copy2(tess / 'tessdata' / name, td / 'tessdata' / name)
+shutil.copy2(ocr_model / 'eng.traineddata', td / 'tessdata/eng.traineddata')
 for name in ('configs', 'tessconfigs'):
     if (tess / 'tessdata' / name).is_dir():
         shutil.copytree(tess / 'tessdata' / name, td / 'tessdata' / name)
-
-# The montage encoder runs only after capture has stopped. It is kept out of
-# the live capture path and included privately so the feature works offline.
-ffmpeg_candidates = sorted(Path('C:/ProgramData/chocolatey/lib/ffmpeg').rglob('ffmpeg.exe'))
-if shutil.which('ffmpeg'):
-    ffmpeg_candidates.append(Path(shutil.which('ffmpeg')))
-ffmpeg_exe = next((p for p in ffmpeg_candidates if p.is_file()), None)
-if ffmpeg_exe is None:
-    raise SystemExit('FFmpeg.exe unavailable for the spoken-highlights montage')
-encoder = stage / 'ffmpeg'
-encoder.mkdir()
-shutil.copy2(ffmpeg_exe, encoder / 'ffmpeg.exe')
-for dll in ffmpeg_exe.parent.glob('*.dll'):
-    shutil.copy2(dll, encoder / dll.name)
 
 workers = [
     root / 'tools/e1-native/target/release/agente-tft-e1-worker.exe',
@@ -80,7 +67,6 @@ args = [
     '--add-data', f'{live_assets / "models"};models',
     '--add-data', f'{live_assets / live_plan["icon_dir"]};{live_plan["icon_dir"]}',
     '--add-data', f'{td};tesseract',
-    '--add-data', f'{encoder};ffmpeg',
     '--collect-binaries', 'onnxruntime', '--collect-data', 'onnxruntime',
     '--collect-binaries', 'onnx', '--collect-data', 'onnx',
     '--collect-submodules', 'jaraco', '--collect-data', 'jaraco.text',
@@ -107,7 +93,6 @@ args = [
     '--hidden-import', 'hm.model_update',
     '--hidden-import', 'hm.unit_head',
     '--hidden-import', 'hm.studio_bridge',
-    '--hidden-import', 'hm.speech_highlights',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -127,6 +112,7 @@ shutil.copy2(live_assets / 'ASSET_REPORT.json', folder / 'ASSET_REPORT.json')
 
 licenses = folder / 'THIRD_PARTY'
 licenses.mkdir()
+shutil.copy2(ocr_model / 'LICENSE', licenses / 'tessdata_best-LICENSE')
 for p in tess.rglob('*'):
     if p.is_file() and p.stat().st_size < 1024**2 and any(n in p.name.lower() for n in ('license', 'copying', 'copyright')):
         shutil.copy2(p, licenses / ('tesseract-' + '-'.join(p.relative_to(tess).parts)))
@@ -137,7 +123,7 @@ for package in ('numpy', 'Pillow', 'onnxruntime', 'onnx', 'protobuf', 'jaraco.te
             p = Path(distribution.locate_file(name))
             if p.is_file() and p.stat().st_size < 1024**2:
                 shutil.copy2(p, licenses / (package + '-' + str(name).replace('/', '-').replace('\\', '-')))
-forbidden = ('ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn', 'sherpa', 'supertonic', 'espeak', 'voice_styles')
+forbidden = ('ffmpeg', 'ffprobe', 'torch', 'libtorch', 'torchvision', 'torchaudio', 'cuda', 'cudnn', 'sherpa', 'supertonic', 'espeak', 'voice_styles')
 bad = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and any(x in p.relative_to(folder).as_posix().lower() for x in forbidden)]
 fonts = [str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file() and p.suffix.lower() in {'.ttf', '.otf', '.woff', '.woff2', '.fon', '.fnt', '.pfb', '.pfa', '.ttc'}
          and not p.relative_to(folder).as_posix().startswith('_internal/ui/tauri-design/assets/manrope-')]
@@ -146,6 +132,10 @@ if bad or fonts:
 
 files = {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
          for p in folder.rglob('*') if p.is_file()}
+bundled_ocr = [name for name in files if name.endswith('/tessdata/eng.traineddata')]
+traineddata = [name for name in files if '/tessdata/' in name and name.endswith('.traineddata')]
+if len(bundled_ocr) != 1 or traineddata != bundled_ocr or files[bundled_ocr[0]] != MODEL_SHA256:
+    raise SystemExit(f'Expected exactly one verified tessdata_best English model: {bundled_ocr}')
 manifest = dict(
     schema_version=1,
     commit=os.environ.get('GITHUB_SHA'),
@@ -155,8 +145,7 @@ manifest = dict(
     reader_only_fallback=True,
     manual_model_selection=False,
     replay_in_runtime=False,
-    ffmpeg_bundled=True,
-    ffmpeg_use='post_session_spoken_highlights_only',
+    ffmpeg_bundled=False,
     pytorch_bundled=False,
     trainer_bundled=False,
     shadow_learning_capture_bundled=True,
@@ -168,7 +157,8 @@ manifest = dict(
     model_update_activate_during_match=False,
     capture='resident_Rust_WGC_D3D11',
     neural='local_inference_server_training',
-    ocr='Tesseract_private',
+    ocr='Tesseract_tessdata_best_eng',
+    ocr_model_sha256=MODEL_SHA256,
     model_weights_included=True,
     model_sha256=asset_report['model_sha256'],
     board_hub_reference_sha256=asset_report['reference_sha256'],
@@ -176,6 +166,7 @@ manifest = dict(
     replay_screen_review_prompts=True,
     offline_voice_options=[],
     voice_backend='elevenlabs_api',
+    voice_narration_paused=True,
     voice_service_configured=bool(json.loads((root / 'configs/services/voice.json').read_text())['service_url']),
     voice_api_credentials_bundled=False,
     local_tts_models_bundled=False,
@@ -202,7 +193,7 @@ report = dict(
     exe_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),
     clr_free_local_ui=True,
     vm_installer_built_separately=True,
-    ffmpeg_bundled=True,
+    ffmpeg_bundled=False,
     pytorch_bundled=False,
     trainer_bundled=False,
     central_learning_server='BigBANANA',

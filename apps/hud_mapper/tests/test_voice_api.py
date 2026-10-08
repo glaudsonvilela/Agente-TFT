@@ -243,15 +243,23 @@ class VoiceAPITests(unittest.TestCase):
         self.assertTrue(coach.observe_tip(tip,now)['queued'])
         self.assertIsNone(coach.observe_tip(tip,now))
 
-    def test_unchanged_visible_text_retries_after_stale_observation(self):
+    def test_tip_age_uses_its_own_validity_window_and_retries_when_fresh(self):
         coach=VoiceCoach(load_settings=False);coach.enabled=True
         now=time.monotonic_ns()
         tip=dict(actionable=True,speech_text='Suba para o nível quatro.',decision_key='level4',
-                 frame_id=1,source_due_ns=now-3_000_000_000,speech_max_age_ms=4000)
+                 frame_id=1,source_due_ns=now-3_000_000_000,speech_max_age_ms=2000)
         self.assertFalse(coach.observe_tip(tip,now)['queued'])
         tip.update(frame_id=2,source_due_ns=now)
         self.assertTrue(coach.observe_tip(tip,now)['queued'])
         self.assertIsNone(coach.observe_tip(tip,now))
+
+    def test_tip_within_declared_validity_window_can_be_queued(self):
+        coach=VoiceCoach(load_settings=False);coach.enabled=True
+        now=time.monotonic_ns()
+        tip=dict(actionable=True,speech_text='Confira a loja.',decision_key='shop',
+                 frame_id=1,source_due_ns=now-3_000_000_000,speech_max_age_ms=5000)
+        self.assertTrue(coach.observe_tip(tip,now)['queued'])
+        coach.close()
 
     def test_api_failure_has_backoff_and_can_retry_same_tip_later(self):
         client=mock_client();failed=threading.Event()

@@ -13,6 +13,7 @@ from pathlib import Path
 from PIL import Image
 
 from training.index_full_match_states import REGIONS, read_text, reconcile_gold_reads
+from scripts.prepare_tessdata_best import prepare as prepare_ocr_model
 
 
 DEFAULT_LABELS = (
@@ -22,6 +23,7 @@ DEFAULT_LABELS = (
 
 
 def evaluate(frames_dir: Path, labels_path: Path) -> dict:
+    prepare_ocr_model()
     labels = json.loads(labels_path.read_text())
     manifest = json.loads((frames_dir.parent / "manifest.json").read_text())
     if (manifest["source_sha256"] != labels["source_sha256"]

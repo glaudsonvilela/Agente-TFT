@@ -129,6 +129,10 @@ if (new URLSearchParams(location.search).has('connected')) {
       state?.screen_mode === 'no_gameplay_hud' ? 'Aguardando o tabuleiro do TFT na tela selecionada.' :
       'Aguardando a primeira imagem da captura.';
     const recommendations = actionable ? (tip.recommendations || []) : [];
+    const decisionInfo = state?.decision_status === 'held_duplicate' ?
+      'O motor já mostrou essa ação e aguarda uma mudança na partida.' :
+      state?.decision_status === 'abstained' ?
+      'O motor não encontrou uma ação sustentada pelas leituras atuais.' : '';
     const canRate = actionable && tip.policy === 'partial_state_live_v1' &&
       tip.decision_key && !ratedTips.has(tip.decision_key);
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
@@ -136,7 +140,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
                      combat ? 'Comentário após a mudança observada de vida na luta.' :
                      previous ? 'Dica anterior da sessão. A próxima orientação aparecerá quando houver nova evidência.' :
-                     state?.ubuntu_mvp && tip?.text ? escapeHtml(tip.text) :
+                     tip?.text ? escapeHtml(tip.text) :
                      state?.ubuntu_mvp ? 'Diagnóstico do mesmo motor usado no Windows.' :
                      'As ações aparecem aqui durante a partida.'}</p>`+
       `<div class="advice-explanation" style="display:block">`+
@@ -144,6 +148,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       `${tip && tip.data_patch_basis==='bundled_catalog_patch_lab' ? ' (catálogo local de laboratório)' : ''} · `+
       `${previous ? 'Momento da dica: '+Math.round((previous.source_ms || 0)/1000)+' s' :
         'Idade da leitura: '+(tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—')}`+
+      `${previous && tip && !tip.actionable && tip.text ? '<br>Leitura atual: '+escapeHtml(tip.text) : ''}`+
+      `${!actionable && decisionInfo ? '<br>'+escapeHtml(decisionInfo) : ''}`+
       `${state?.ubuntu_mvp ? '<br>HUD: '+escapeHtml((state.hud_diagnostic?.fields||[]).map(x =>
         `${x.field}=${x.value ?? '—'} (${x.status || 'sem leitura'})`).join(' · ') || 'sem leitura')+
         ' · decisão: '+escapeHtml(state.hud_diagnostic?.decision_reason || 'nenhuma') : ''}`+
@@ -156,14 +162,15 @@ if (new URLSearchParams(location.search).has('connected')) {
       'Escolha a tela para iniciar a captura local.';
     const voice = state && state.voice;
     document.querySelector('#voice-label').textContent =
-      voice && voice.error ? 'Voz indisponível' : voice && voice.enabled ?
+      voice && voice.paused ? 'Voz pausada' : voice && voice.error ? 'Voz indisponível' : voice && voice.enabled ?
       'ElevenLabs · voz conectada' : 'Voz aguardando conexão';
-    document.querySelector('.voice-strip small').textContent = 'ElevenLabs · português BR';
+    document.querySelector('.voice-strip small').textContent = voice?.paused ? 'Dicas somente em texto' : 'ElevenLabs · português BR';
     document.querySelector('#play-voice').setAttribute('aria-label', 'Estado da voz');
     const audio = document.querySelector('#voice-audio');
     if (audio) audio.removeAttribute('src');
     const strip = document.querySelector('.voice-strip');
     if (strip) {
+      strip.style.display = voice?.paused ? 'none' : '';
       let highlights = document.querySelector('#coach-highlights');
       if (!highlights) {
         highlights = document.createElement('div');
@@ -303,6 +310,7 @@ if (new URLSearchParams(location.search).has('connected')) {
         `<section class="panel settings-block">${profileForm(state?.profile)}</section>`);
       const rows = document.querySelectorAll('.settings-row');
       const description = rows[2]?.querySelector('p');
+      if (rows[2]) rows[2].style.display = state?.voice?.paused ? 'none' : '';
       if (description) description.textContent = 'Dicas atuais por ElevenLabs, reproduzidas no Windows.';
     }
     connectedCoach();
@@ -424,7 +432,8 @@ if (new URLSearchParams(location.search).has('connected')) {
     }
     if (button.id === 'play-voice' || button.id === 'history-voice') {
       event.stopImmediatePropagation();
-      toast(state?.voice?.error || 'A voz narra apenas dicas atuais confirmadas.');
+      toast(state?.voice?.paused ? 'Voz pausada; acompanhe as dicas em texto.' :
+        state?.voice?.error || 'A voz narra apenas dicas atuais confirmadas.');
       return;
     }
     if (button.dataset.pref === 'voice') {
@@ -433,7 +442,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       const response = await api().set_voice(enabled);
       preferences.voice = response.enabled;
       button.setAttribute('aria-checked', String(response.enabled));
-      toast(response.enabled ? 'Voz ativada.' : 'Voz desativada.');
+      toast(response.paused ? 'Voz pausada; acompanhe as dicas em texto.' :
+        response.enabled ? 'Voz ativada.' : 'Voz desativada.');
       return;
     }
     if (button.id === 'studio-profile-save') {

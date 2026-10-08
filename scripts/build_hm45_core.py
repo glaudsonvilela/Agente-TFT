@@ -7,6 +7,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+from prepare_tessdata_best import MODEL_SHA256, prepare as prepare_ocr_model
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "build/hm45-core"
@@ -19,13 +20,13 @@ DISTRO = "AgenteTFT-Core-v2"
 IMAGE = "agente-tft-hm45-core:0.7.0"
 
 
-def copy(source: Path, destination: Path) -> None:
+def copy(source: Path, destination: Path, *, ignored: tuple[str, ...] = ()) -> None:
     if not source.exists():
         raise SystemExit(f"Missing HM4.5 core input: {source}")
     destination.parent.mkdir(parents=True, exist_ok=True)
     if source.is_dir():
         shutil.copytree(source, destination,
-                        ignore=shutil.ignore_patterns("target", "__pycache__", "*.pyc", ".pytest_cache"))
+                        ignore=shutil.ignore_patterns("target", "__pycache__", "*.pyc", ".pytest_cache", *ignored))
     else:
         shutil.copy2(source, destination)
 
@@ -48,8 +49,10 @@ def main() -> None:
     copy(ROOT / "rust", CONTEXT / "rust")
     copy(ROOT / "tools/e1-native", CONTEXT / "tools/e1-native")
     copy(ROOT / "tools/hm-hp-native", CONTEXT / "tools/hm-hp-native")
-    copy(ROOT / "apps/hud_mapper/hm", APP / "apps/hud_mapper/hm")
-    copy(ROOT / "apps/e1_replay/e1", APP / "apps/e1_replay/e1")
+    copy(ROOT / "apps/hud_mapper/hm", APP / "apps/hud_mapper/hm",
+         ignored=("app.py", "capture_app.py", "train.py", "seeds.py"))
+    copy(ROOT / "apps/e1_replay/e1", APP / "apps/e1_replay/e1",
+         ignored=("app.py", "pipeline.py", "source.py"))
     copy(ROOT / "apps/hud_mapper/hm45_core_server.py", APP / "hm45_core_server.py")
     copy(ROOT / "apps/hud_mapper/hm45_protocol.py", APP / "hm45_protocol.py")
     copy(ROOT / "training", APP / "training")
@@ -63,6 +66,9 @@ def main() -> None:
     copy(ROOT / knowledge["reference"], APP / knowledge["reference"])
     copy(assets / "models", APP / "models")
     copy(ROOT / "scripts/hm45_core/health-check", APP / "bin/health-check")
+    ocr_model = prepare_ocr_model()
+    copy(ocr_model / "eng.traineddata", CONTEXT / "tessdata_best/eng.traineddata")
+    copy(ocr_model / "LICENSE", CONTEXT / "tessdata_best/LICENSE")
 
     run(["docker", "build", "--pull", "--tag", IMAGE, str(CONTEXT)])
     health = run(["docker", "run", "--rm", "--network=none", IMAGE,
@@ -87,6 +93,8 @@ def main() -> None:
                     neural_location="local_inference_server_training",
                     local_neural_weights_bundled=True,
                     post_session_trainer_bundled=False,
+                    ocr_model="tessdata_best_eng",
+                    ocr_model_sha256=MODEL_SHA256,
                     board_reference_sha256=report["reference_sha256"])
     (BUILD / "core-package.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(json.dumps(dict(rootfs=str(rootfs), bytes=rootfs.stat().st_size,

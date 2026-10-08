@@ -15,6 +15,7 @@ import re
 import subprocess
 
 from PIL import Image, ImageEnhance
+from scripts.prepare_tessdata_best import DESTINATION, prepare as prepare_ocr_model
 
 
 REGIONS = {
@@ -40,6 +41,7 @@ def read_text(
     crop.save(stream, format="PNG")
     result = subprocess.run(
         ["tesseract", "stdin", "stdout", "--psm", str(psm), "-l", "eng",
+         "--tessdata-dir", str(DESTINATION),
          "-c", f"tessedit_char_whitelist={whitelist}"],
         input=stream.getvalue(), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
         check=True, env={**os.environ, "OMP_THREAD_LIMIT": "1"},
@@ -77,6 +79,7 @@ def reconcile_gold_reads(reads: dict[str, str]) -> tuple[int | None, str]:
 
 
 def index(frames_dir: Path, output: Path, start_seconds: float, fps: int, stride: int) -> int:
+    prepare_ocr_model()
     if fps <= 0 or stride <= 0:
         raise ValueError("fps and stride must be positive")
     frames = sorted(frames_dir.glob("frame-*.jpg"))

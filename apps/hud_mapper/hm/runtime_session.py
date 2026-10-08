@@ -426,7 +426,9 @@ class RuntimeSession(Session):
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
                         self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
-                        self.latest_decision_reason = decision_reason(answer['decision'])
+                        rank = answer.get('decision_rank') or {}
+                        self.latest_decision_status = rank.get('status')
+                        self.latest_decision_reason = rank.get('reason') or decision_reason(answer['decision'])
                         if answer['decision']['action']['type'] == 'wait':
                             self.counts['decision_abstentions'] += 1
                     canonical_regions = native_regions(answer, self.registry,
@@ -616,6 +618,7 @@ class HM4RuntimeSession(RuntimeSession):
         self._terminal_hp_first_source_ms = None
         self.latest_replay_tip = None
         self.latest_decision_reason = None
+        self.latest_decision_status = None
         self._latest_strategy_state = None
         self._latest_visual_candidates = None
         self.decision_engine = None

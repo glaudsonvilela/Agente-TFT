@@ -8,6 +8,9 @@ import time
 from collections import deque
 from .voice_api import ElevenLabsSpeech, SpeechError
 
+# Keep synthesis out of the capture and advice path while text coaching is evaluated.
+VOICE_NARRATION_ENABLED = False
+
 
 def _play_wav(wav: bytes):
     import winsound
@@ -55,8 +58,6 @@ class VoiceCoach:
         self.last_queued_ns = self.queued_count = self.played_count = self.stale_dropped_count = 0
         self.last_economy_ns = 0
         self.last_importance = 0
-        self.fallback_from = self.engine_process = None
-        self.isolated = False
         self.context_key = self.last_tip_attempt = self.last_rejection = None
         self.events = deque(maxlen=64)
         self.recent_played = {}
@@ -160,7 +161,7 @@ class VoiceCoach:
         if not self.enabled:self.last_rejection='voice_disabled'
         elif not text:self.last_rejection='empty_text'
         elif now<self.retry_after_ns:self.last_rejection='api_backoff'
-        elif source_age_ms>2000 and not force:self.last_rejection='source_too_old'
+        elif source_age_ms>max_age_ms and not force:self.last_rejection='source_too_old'
         elif not force and (self.recent_played.get(('decision', decision_key), 0) > now
                             if decision_key else False):
             self.last_rejection='decision_recently_spoken'

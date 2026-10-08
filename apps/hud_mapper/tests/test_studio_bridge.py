@@ -16,6 +16,14 @@ from hm.studio_bridge import StudioController, StudioServer, design_root, packag
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_voice_remains_paused_in_text_coaching_mode(self):
+        from hm.voice import VOICE_NARRATION_ENABLED
+        self.assertFalse(VOICE_NARRATION_ENABLED)
+        controller = object.__new__(StudioController)
+        controller.voice = None
+        self.assertEqual(controller.set_voice(True), {"enabled": False, "paused": True})
+        self.assertTrue(controller._voice_state()["paused"])
+
     def test_feedback_bridge_passes_the_visible_decision_key(self):
         calls = []
         controller = object.__new__(StudioController)
