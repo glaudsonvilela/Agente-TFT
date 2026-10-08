@@ -7,6 +7,7 @@
 - A verificação anterior do pacote confirmava que a página local abria, mas não executava o binário Rust que enumera as fontes de captura.
 - A moldura lilás vinha do fundo e das margens da apresentação do designer, que também eram aplicadas ao aplicativo instalado.
 - As primeiras páginas brancas eram do extrator Inno mostrado antes do assistente visual.
+- O primeiro ensaio do iniciador Rust empacotado no Windows terminou com `0xC00000FD` (estouro da pilha): o buffer de extração de 1 MiB cabia nos testes Rust, mas não na pilha da thread principal do `.exe` GUI. O buffer foi movido para a memória dinâmica e o executável completo deve passar novamente pelo ensaio de integridade.
 - O servidor da interface encerrava depois de 30 segundos sem consultas. Navegadores podem suspender consultas quando outra janela está em primeiro plano. O assistente da VM também encerrava depois de 60 segundos de inatividade.
 - O início da captura esperava até 30 segundos por um modelo atualizado do servidor. Uma falha de rede impedia o uso do modelo visual já incluído no pacote.
 

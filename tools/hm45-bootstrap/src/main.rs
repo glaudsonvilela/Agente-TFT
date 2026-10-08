@@ -90,7 +90,10 @@ fn extract_verified(executable: &Path, destination: Option<&Path>) -> Result<Str
         None => None,
     };
     let mut hash = Sha256::new();
-    let mut buffer = [0u8; 1024 * 1024];
+    // The Windows GUI main thread has a small default stack. Keep the copy
+    // buffer on the heap; a 1 MiB stack array crashed the packaged EXE before
+    // it could show a useful error.
+    let mut buffer = vec![0u8; 1024 * 1024];
     let mut consumed = 0u64;
     loop {
         let count = reader.read(&mut buffer).map_err(|e| e.to_string())?;
