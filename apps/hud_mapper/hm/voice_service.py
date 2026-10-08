@@ -37,7 +37,7 @@ class ServiceSpeech(ElevenLabsSpeech):
                 'O serviço de voz está indisponível no momento.')
 
     def open_request(self,text,*,tone=None):
-        connection=self.connection_factory(self.host,self.port,timeout=2)
+        connection=self.connection_factory(self.host,self.port,timeout=4)
         self.connection=connection
         payload={'text':text}
         if tone:payload['tone']=tone

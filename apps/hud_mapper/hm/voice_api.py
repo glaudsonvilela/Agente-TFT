@@ -98,7 +98,7 @@ class ElevenLabsSpeech:
         return messages.get(status,f'ElevenLabs indisponível (HTTP {status}).')
 
     def open_request(self,text,*,tone=None):
-        connection=self.connection_factory('api.elevenlabs.io',timeout=2)
+        connection=self.connection_factory('api.elevenlabs.io',timeout=4)
         self.connection=connection
         body=json.dumps(dict(text=text,model_id=self.model_id,language_code=LANGUAGE)).encode('utf-8')
         connection.request('POST',f'/v1/text-to-speech/{self.voice_id}?output_format={OUTPUT_FORMAT}',body,

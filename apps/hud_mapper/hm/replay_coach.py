@@ -76,7 +76,8 @@ def coach_prompt(answer: dict) -> dict:
             and decision.get('decision_key') and decision.get('text')):
         return dict(status='action', actionable=True, text=decision['text'],
             speech_text=decision['text'], decision_key=decision['decision_key'],
-            speech_max_age_ms=5000, basis=decision['basis'],
+            speech_max_age_ms=8000 if action.get('type') == 'prepare_level' else 5000,
+            basis=decision['basis'],
             strategy_basis='partial_state_live_v1',
             evidence_level='provisional', policy=decision['policy'],
             family=decision['family'], training_label=False,

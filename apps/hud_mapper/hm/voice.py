@@ -175,7 +175,12 @@ class VoiceCoach:
             except Exception as exc:
                 if generation == self.generation:
                     self.error = str(exc) if isinstance(exc, SpeechError) else "Não foi possível reproduzir o áudio."
-                    self.retry_after_ns = time.monotonic_ns()+30_000_000_000
+                    # A transient network timeout should not silence the
+                    # coach for half a round. Quota/auth failures still back off.
+                    long_backoff = any(word in self.error.lower() for word in
+                                       ('limite', 'créditos', 'chave', 'acesso'))
+                    self.retry_after_ns = time.monotonic_ns() + (
+                        30_000_000_000 if long_backoff else 8_000_000_000)
                     self._forget_cancelled(text, queued_ns)
                     self._event('voice_error', decision_key, queued_ns, source_age_ms, error=self.error, **metadata)
 
