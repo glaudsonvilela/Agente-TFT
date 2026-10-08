@@ -8,7 +8,7 @@ import unittest
 import wave
 from pathlib import Path
 from unittest.mock import patch
-from hm.voice import VoiceCoach
+from hm.voice import VoiceCoach, speech_importance
 from hm.voice_api import ElevenLabsSpeech, SpeechError
 from hm.voice_validation import MockConnection, mock_client
 from hm.pipeline_health import snapshot
@@ -74,6 +74,74 @@ class VoiceAPITests(unittest.TestCase):
         self.assertFalse(coach.enabled)
         coach.close()
 
+    def test_repeated_economy_speech_yields_to_new_context(self):
+        coach = VoiceCoach(load_settings=False)
+        coach.enabled = True
+        self.assertTrue(coach.say('Guarde um de ouro.', 0, family='economy'))
+        self.assertFalse(coach.say('Guarde dois de ouro.', 0, family='economy'))
+        self.assertEqual(coach.last_rejection, 'economy_speech_cooldown')
+        self.assertTrue(coach.say('Veja o adversário.', 0, kind='scout',
+                                  urgent_event=True))
+        coach.close()
+
+    def test_interest_reminder_stays_in_panel_without_speech(self):
+        coach = VoiceCoach(load_settings=False)
+        coach.enabled = True
+        coach.set_context('specific-buy')
+        tip = dict(actionable=True, action_type='hold_interest',
+                   speech_text='Guarde um de ouro.', decision_key='interest',
+                   frame_id=1, source_due_ns=time.monotonic_ns())
+        self.assertIsNone(coach.observe_tip(tip, time.monotonic_ns()))
+        self.assertEqual(coach.context_key, 'specific-buy')
+        self.assertEqual(coach.queued_count, 0)
+        coach.close()
+
+    def test_three_nearby_tips_keep_the_most_important_action(self):
+        coach = VoiceCoach(load_settings=False)
+        coach.enabled = True
+        now = time.monotonic_ns()
+        tips = [
+            dict(actionable=True, action_type='prepare_level', family='economy',
+                 speech_text='Prepare o próximo nível.', decision_key='plan',
+                 frame_id=1, source_due_ns=now),
+            dict(actionable=True, action_type='roll', family='roll',
+                 speech_text='Role agora.', decision_key='roll',
+                 frame_id=2, source_due_ns=now),
+            dict(actionable=True, action_type='buy_pair', family='buy',
+                 speech_text='Compre o par.', decision_key='pair',
+                 frame_id=3, source_due_ns=now),
+        ]
+        self.assertLess(speech_importance(tips[0]), speech_importance(tips[1]))
+        self.assertTrue(coach.observe_tip(tips[0], now)['queued'])
+        self.assertTrue(coach.observe_tip(tips[1], now)['queued'])
+        result = coach.observe_tip(tips[2], now)
+        self.assertFalse(result['queued'])
+        self.assertEqual(result['reason'], 'lower_priority_recent_tip')
+        self.assertEqual(coach.context_key, 'roll')
+        self.assertEqual(coach.pending.get_nowait()[0], 'Role agora.')
+        coach.close()
+
+    def test_priority_window_avoids_synthesis_for_superseded_tip(self):
+        client = mock_client()
+        synthesized = []
+        played = threading.Event()
+        original = client.synthesize
+        def synth(text, *, tone=None):
+            synthesized.append(text)
+            return original(text)
+        client.synthesize = synth
+        coach = VoiceCoach(client=client, playback=lambda wav: played.set(), load_settings=False)
+        coach.set_enabled(True)
+        self.assertTrue(coach.say('Prepare o nível.', 0, decision_key='plan',
+                                  importance=55))
+        self.assertTrue(coach.say('Role agora.', 0, decision_key='roll',
+                                  importance=100))
+        self.assertFalse(coach.say('Compre o par.', 0, decision_key='pair',
+                                   importance=90))
+        self.assertTrue(played.wait(2))
+        self.assertEqual(synthesized, ['Role agora.'])
+        coach.close(); coach.thread.join(1)
+
     def test_changed_voice_cancels_inflight_old_audio(self):
         entered=threading.Event();release=threading.Event();played=[]
         client=mock_client()
@@ -122,6 +190,31 @@ class VoiceAPITests(unittest.TestCase):
         self.assertTrue(played.wait(1))
         self.assertEqual(calls,[('Não foi dessa vez, hein.','thoughtful')])
         coach.close();coach.thread.join(1)
+
+    def test_highlight_callback_requires_successful_audio_playback(self):
+        played=[];completed=threading.Event()
+        coach=VoiceCoach(client=mock_client(),playback=lambda wav: None,load_settings=False)
+        coach.on_played=lambda *args: (played.append(args),completed.set())
+        coach.set_enabled(True)
+        coach.say('Role agora.',0,force=True,decision_key='roll:one',kind='strategy',family='roll')
+        self.assertTrue(completed.wait(1))
+        self.assertEqual(played[0][1],'Role agora.')
+        self.assertEqual(played[0][2]['decision_key'],'roll:one')
+        self.assertEqual(played[0][2]['family'],'roll')
+        self.assertLessEqual(played[0][3],played[0][4])
+        coach.close();coach.thread.join(1)
+
+        failed=[];error=threading.Event()
+        def fail(_wav):
+            error.set()
+            raise RuntimeError('playback unavailable')
+        coach=VoiceCoach(client=mock_client(),playback=fail,load_settings=False)
+        coach.on_played=lambda *args: failed.append(args)
+        coach.set_enabled(True)
+        coach.say('Role agora.',0,force=True,decision_key='roll:two')
+        self.assertTrue(error.wait(1))
+        coach.close();coach.thread.join(1)
+        self.assertFalse(failed)
 
     def test_combat_commentary_bypasses_only_the_speech_cooldown(self):
         coach=VoiceCoach(load_settings=False);coach.enabled=True

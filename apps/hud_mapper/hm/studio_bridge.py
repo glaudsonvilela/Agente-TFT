@@ -48,6 +48,8 @@ class StudioController:
         self.preview_condition = threading.Condition()
         self.closed = threading.Event()
         self.voice = None
+        self.highlight_recorder = None
+        self.highlight_result = None
         from .player_profile import load as load_profile
         self.profile = load_profile()
         from .model_update import ModelUpdater
@@ -77,6 +79,7 @@ class StudioController:
                 from .voice import linux_play_wav
                 playback = linux_play_wav
             voice = VoiceCoach(playback=playback, load_settings=False)
+            voice.on_played = self._record_spoken
             try:
                 voice.configure(connect_service())
                 voice.set_enabled(True)
@@ -116,6 +119,8 @@ class StudioController:
             output = str(Path(default_hm4_output_root()) /
                          ("hm4-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
             self.last_error = self.last_result = self.last_tip_key = None
+            self.highlight_recorder = None
+            self.highlight_result = None
             self.history.clear()
             self.preview_jpeg = None
             with self.preview_condition:
@@ -133,7 +138,32 @@ class StudioController:
                 max_samples=90 if vm_core else 600,
                 max_bytes=384 * 1024**2 if vm_core else 1024**3,
                 capture_consent=True, capture_expected=selected)).start()
+            try:
+                from .speech_highlights import SpeechHighlightsRecorder
+                self.highlight_recorder = SpeechHighlightsRecorder(output)
+                self.highlight_result = {"status": "recording", "clips": 0}
+            except Exception as exc:
+                self.highlight_result = {"status": "error", "error": str(exc)}
             return {"session_id": self.session.id, "output": output}
+
+    def _record_spoken(self, wav, text, metadata, started_ns, ended_ns):
+        recorder = getattr(self, 'highlight_recorder', None)
+        if recorder is not None:
+            recorder.spoken(wav, text, metadata, started_ns, ended_ns)
+
+    def _highlight_state(self):
+        result = getattr(self, 'highlight_result', None)
+        recorder = getattr(self, 'highlight_recorder', None)
+        if result is None:
+            return None
+        return dict(result, clips=(len(recorder.rows) if recorder else result.get('clips', 0)))
+
+    def highlight_video(self):
+        result = getattr(self, 'highlight_result', None) or {}
+        if result.get('status') != 'complete':
+            return None
+        path = Path(result['path'])
+        return path if path.is_file() else None
 
     def stop_session(self):
         with self.lock:
@@ -167,6 +197,7 @@ class StudioController:
             if session is None:
                 return {"phase": "idle", "tip": None, "error": self.last_error,
                         "voice": self._voice_state(), "result": self.last_result,
+                        "highlights": self._highlight_state(),
                         "profile": self.profile,
                         "model_update": self.model_updater.last_result,
                         "history": list(self.history)}
@@ -174,7 +205,7 @@ class StudioController:
             safe_tip = None
             if tip:
                 safe_tip = {k: tip.get(k) for k in
-                            ("text", "status", "actionable", "speakable", "kind", "frame_id", "source_ms",
+                            ("text", "status", "actionable", "speakable", "kind", "action_type", "frame_id", "source_ms",
                              "source_due_ns", "data_patch", "data_patch_basis", "basis",
                             "strategy_basis", "recommendations", "decision_key",
                             "policy", "family")}
@@ -208,6 +239,7 @@ class StudioController:
                     "preview_encoded_fps": preview_fps,
                     "preview_encode_last_ms": preview_encode_ms,
                     "voice": self._voice_state(), "result": self.last_result,
+                    "highlights": self._highlight_state(),
                     "profile": self.profile,
                     "model_update": self.model_updater.last_result,
                     "history": list(self.history)}
@@ -311,6 +343,10 @@ class StudioController:
                             event = None
                 if event and getattr(session, "store", None):
                     session.store.emit("telemetry", event)
+                recorder = getattr(self, 'highlight_recorder', None)
+                if recorder is not None:
+                    recorder.preview(encoded, time.monotonic_ns(),
+                                     getattr(frame, 'pts_ms', 0) or 0)
             except Exception as exc:
                 self.last_error = f"Prévia: {exc}"
 
@@ -320,6 +356,12 @@ class StudioController:
                 return
             try:
                 self.last_result = session.finish()
+                recorder = getattr(self, 'highlight_recorder', None)
+                if recorder is not None:
+                    self.highlight_result = {"status": "rendering", "clips": len(recorder.rows)}
+                    threading.Thread(target=self._render_highlights,
+                        args=(session.options.output, recorder), daemon=False,
+                        name="tft-highlight-render").start()
                 if self.last_result.get("post_session_learning_eligible") and not session.options.replay_review:
                     from .post_session_learning import launch_post_session_learning
                     self.last_result["post_session_learning_job"] = launch_post_session_learning(session.options.output)
@@ -327,6 +369,18 @@ class StudioController:
                 self.model_updater.check_async()
             except Exception as exc:
                 self.last_error = str(exc)
+
+    def _render_highlights(self, output, recorder):
+        try:
+            from .speech_highlights import compile_highlights
+            recorder.seal()
+            video = compile_highlights(output)
+            self.highlight_result = ({"status": "complete", "path": str(video),
+                                      "clips": len(recorder.rows)} if video else
+                                     {"status": "no_spoken_tips", "clips": len(recorder.rows)})
+        except Exception as exc:
+            self.highlight_result = {"status": "error", "error": str(exc),
+                                     "clips": len(recorder.rows)}
 
     def close(self):
         self.stop_session()
@@ -428,6 +482,25 @@ class StudioHandler(BaseHTTPRequestHandler):
             return
         if relative == "preview.mjpg":
             self._preview()
+            return
+        if relative == "highlights.mp4":
+            video = getattr(server.controller, 'highlight_video', lambda: None)()
+            if video is None:
+                self.send_error(404)
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "video/mp4")
+            self.send_header("Content-Length", str(video.stat().st_size))
+            self.send_header("Content-Disposition", 'attachment; filename="melhores-momentos-agente-tft.mp4"')
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            try:
+                with video.open('rb') as stream:
+                    while chunk := stream.read(256 * 1024):
+                        self.wfile.write(chunk)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
             return
         file = (server.root / relative).resolve()
         if not file.is_relative_to(server.root) or not file.is_file():

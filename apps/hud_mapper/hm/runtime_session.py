@@ -379,6 +379,7 @@ class RuntimeSession(Session):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
                     answer['reader_input_transform'] = plan
+                    visual_candidates = None
                     decision_engine = getattr(self, 'decision_engine', None)
                     if decision_engine and answer.get('origin') == 'observed_pixels':
                         with self.lock:
@@ -392,7 +393,6 @@ class RuntimeSession(Session):
                                 (time.perf_counter_ns() - strategy_entry['due_ns']) / 1e6)
                             if frame.pts_ms < strategy_entry['source_ms']:
                                 strategy_state = None
-                        visual_candidates = None
                         if visual_entry and visual_entry['epoch'] == frame.epoch:
                             age_ms = max(frame.pts_ms - visual_entry['source_ms'],
                                 (time.perf_counter_ns() - visual_entry['due_ns']) / 1e6)
@@ -479,7 +479,7 @@ class RuntimeSession(Session):
                 self.counts['read_frames'] += 1
                 if getattr(self, 'decision_engine', None):
                     from .replay_coach import coach_prompt
-                    self._publish_coach(coach_prompt(answer),frame,end)
+                    self._publish_coach(coach_prompt(answer), frame, end)
                 tracker = getattr(self, 'combat_events', None)
                 if tracker is not None:
                     outcome = tracker.update(answer, epoch=frame.epoch, source_ms=frame.pts_ms)
@@ -497,7 +497,8 @@ class RuntimeSession(Session):
                             kind='combat', actionable=False, speakable=True,
                             speech_text=outcome['text'], text=outcome['text'],
                             decision_key=f'combat-loss:{frame.epoch}:{outcome["stage"]}',
-                            speech_max_age_ms=8000, voice_tone='thoughtful',
+                            speech_max_age_ms=8000,
+                            voice_tone='urgent' if outcome['damage'] >= 10 else 'thoughtful',
                             basis=outcome['basis'], training_label=False), frame, end)
         except Exception as exc:
             self.error = str(exc)

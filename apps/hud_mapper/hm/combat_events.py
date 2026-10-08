@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import re
 
+MAX_OCCLUDED_HP_MS = 45_000
+
 
 def _stage(answer):
     rows = [row for row in answer.get('hud') or []
@@ -54,7 +56,9 @@ class CombatEvents:
             return None
         if (self.epoch != epoch or self.last_ms is None
                 or source_ms <= self.last_ms
-                or source_ms - self.last_ms > 10000
+                # The standings can be hidden by the Damage Dealt panel for
+                # most of a fight. Keep the last stable HP through one round.
+                or source_ms - self.last_ms > MAX_OCCLUDED_HP_MS
                 or not _adjacent(self.stage, stage)):
             self._reset(epoch, source_ms, stage, hp)
             return None
@@ -82,9 +86,15 @@ class CombatEvents:
         self.baseline, self.baseline_reads = hp, 2
         self.pending = None
         self.announced_stage = stage
+        damage = before-after
+        text = (f'Essa luta custou {damage} de vida. Não dá para repetir isso: veja quem caiu primeiro e proteja sua fonte de dano na próxima.'
+                if damage >= 10 else
+                f'Não foi dessa vez, hein. Perdemos {damage} de vida; um pequeno ajuste de posição pode ajudar na próxima.'
+                if damage <= 5 else
+                f'Perdemos {damage} de vida nessa luta. Veja quem ficou exposto e ajuste antes da próxima rodada.')
         return dict(event='combat_loss_observed', stage=stage, hp_before=before,
-                    hp_after=after, damage=before-after, source_ms=source_ms,
+                    hp_after=after, damage=damage, source_ms=source_ms,
                     basis=['hud.stage', 'player.hp.temporal_drop'],
                     training_label=False, outcome_prediction=False,
                     result_verified=False, inference='repeated_hp_drop_with_stable_stage',
-                    text='Não foi dessa vez, hein. Vamos ajustar para a próxima luta.')
+                    text=text)

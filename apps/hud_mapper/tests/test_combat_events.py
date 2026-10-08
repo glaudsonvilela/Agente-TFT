@@ -36,6 +36,22 @@ class CombatEventsTest(unittest.TestCase):
                                          source_ms=3000))
         self.assertIsNone(tracker.update(answer('2-6', 80), epoch=2, source_ms=4000))
 
+    def test_damage_panel_can_occlude_hp_during_one_fight(self):
+        tracker = CombatEvents()
+        self.assertIsNone(tracker.update(answer('3-5', 67), epoch=1, source_ms=1000))
+        self.assertIsNone(tracker.update(answer('3-5', 67), epoch=1, source_ms=2000))
+        self.assertIsNone(tracker.update(answer('3-5', 55), epoch=1, source_ms=20000))
+        observed = tracker.update(answer('3-5', 55), epoch=1, source_ms=24000)
+        self.assertEqual(observed['damage'], 12)
+        self.assertEqual(observed['stage'], '3-5')
+
+    def test_hp_gap_across_multiple_rounds_resets(self):
+        tracker = CombatEvents()
+        tracker.update(answer('3-5', 67), epoch=1, source_ms=1000)
+        tracker.update(answer('3-5', 67), epoch=1, source_ms=2000)
+        self.assertIsNone(tracker.update(answer('3-7', 45), epoch=1, source_ms=60000))
+        self.assertIsNone(tracker.update(answer('3-7', 45), epoch=1, source_ms=61000))
+
 
 if __name__ == '__main__':
     unittest.main()

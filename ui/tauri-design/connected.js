@@ -129,7 +129,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
-                     combat ? 'Comentário após a mudança confirmada de vida na luta.' :
+                     combat ? 'Comentário após a mudança observada de vida na luta.' :
                      state?.ubuntu_mvp && tip?.text ? escapeHtml(tip.text) :
                      state?.ubuntu_mvp ? 'Diagnóstico do mesmo motor usado no Windows.' :
                      'As ações aparecem aqui durante a partida.'}</p>`+
@@ -155,6 +155,23 @@ if (new URLSearchParams(location.search).has('connected')) {
     document.querySelector('#play-voice').setAttribute('aria-label', 'Estado da voz');
     const audio = document.querySelector('#voice-audio');
     if (audio) audio.removeAttribute('src');
+    const strip = document.querySelector('.voice-strip');
+    if (strip) {
+      let highlights = document.querySelector('#coach-highlights');
+      if (!highlights) {
+        highlights = document.createElement('div');
+        highlights.id = 'coach-highlights';
+        highlights.className = 'coach-highlights';
+        strip.insertAdjacentElement('afterend', highlights);
+      }
+      const result = state?.highlights;
+      highlights.innerHTML = result?.status === 'complete' ?
+        `<a href="${new URL('highlights.mp4', location.href).href}" download="melhores-momentos-agente-tft.mp4">Baixar melhores momentos com a voz do coach ↗</a>` :
+        result?.status === 'rendering' ? 'Montando os melhores momentos com voz…' :
+        result?.status === 'recording' ? `Falas gravadas: ${Number(result.clips || 0)}` :
+        result?.status === 'no_spoken_tips' ? 'Nenhuma fala do coach foi reproduzida nesta sessão.' :
+        result?.status === 'error' ? 'Não foi possível montar o vídeo desta sessão.' : '';
+    }
   }
 
   function connectedPage() {

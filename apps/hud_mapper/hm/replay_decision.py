@@ -85,9 +85,9 @@ class ReplayDecisionEngine:
     def _fallback_decision(self, output, reason, visual_candidates=None):
         provisional = self.live_advice.propose(output, visual_candidates)
         economy = self._economy(output)
-        # Low HP makes a limited stabilization roll more timely than a normal
-        # leveling window. All other exact economic actions retain priority.
-        if provisional and provisional['family'] == 'roll':
+        # A fresh shop match or an urgent roll is more useful during its short
+        # window than a recurring economic reminder.
+        if provisional and provisional['family'] in ('roll', 'buy', 'synergy'):
             return provisional
         if economy and economy.get('action', {}).get('type') != 'wait':
             return economy

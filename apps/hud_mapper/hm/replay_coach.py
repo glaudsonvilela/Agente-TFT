@@ -80,7 +80,7 @@ def coach_prompt(answer: dict) -> dict:
             basis=decision['basis'],
             strategy_basis='partial_state_live_v1',
             evidence_level='provisional', policy=decision['policy'],
-            family=decision['family'], training_label=False,
+            family=decision['family'], action_type=action['type'], training_label=False,
             learned_neural_weights=False)
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'hold_econ'
             and decision.get('policy') == 'resource_budget_v1'
