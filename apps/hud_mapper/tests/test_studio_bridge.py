@@ -152,6 +152,40 @@ class StudioBridgeTests(unittest.TestCase):
             self.assertTrue(report['studio_assets_served'])
             self.assertTrue((Path(temp) / 'studio.json').is_file())
 
+    def test_single_frame_endpoint_waits_for_new_sequence(self):
+        from tempfile import TemporaryDirectory
+        controller = SimpleNamespace(closed=threading.Event(),
+                                     preview_condition=threading.Condition(),
+                                     preview_sequence=1, preview_jpeg=b'first')
+        with TemporaryDirectory() as temp:
+            server = StudioServer(controller, temp)
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            worker.start()
+            base = server.url.split('?')[0] + 'frame.jpg?after='
+            try:
+                with urlopen(base + '0', timeout=3) as response:
+                    self.assertEqual(response.read(), b'first')
+                    self.assertEqual(response.headers['X-Frame-Sequence'], '1')
+                def publish():
+                    time.sleep(.05)
+                    with controller.preview_condition:
+                        controller.preview_sequence = 2
+                        controller.preview_jpeg = b'second'
+                        controller.preview_condition.notify_all()
+                threading.Thread(target=publish, daemon=True).start()
+                with urlopen(base + '1', timeout=3) as response:
+                    self.assertEqual(response.read(), b'second')
+                    self.assertEqual(response.headers['X-Frame-Sequence'], '2')
+                with urlopen(base + '2', timeout=3) as response:
+                    self.assertEqual(response.status, 204)
+                    self.assertEqual(response.read(), b'')
+            finally:
+                controller.closed.set()
+                with controller.preview_condition:
+                    controller.preview_condition.notify_all()
+                server.shutdown()
+                server.server_close()
+
     def test_installer_handoff_reuses_the_open_browser_window(self):
         from tempfile import TemporaryDirectory
         from pathlib import Path

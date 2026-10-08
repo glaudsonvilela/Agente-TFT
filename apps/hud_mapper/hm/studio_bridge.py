@@ -18,7 +18,7 @@ import secrets
 import sys
 import threading
 import time
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from urllib.request import urlopen
 from urllib.request import Request
 
@@ -412,6 +412,9 @@ class StudioHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         relative = path[len(prefix):] or "index.html"
+        if relative == "frame.jpg":
+            self._frame()
+            return
         if relative == "preview.mjpg":
             self._preview()
             return
@@ -427,6 +430,40 @@ class StudioHandler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         self.wfile.write(data)
+
+    def _frame(self):
+        """Return one fresh frame so the browser can release each decoded image."""
+        try:
+            raw = parse_qs(urlsplit(self.path).query).get("after", ["0"])
+            if len(raw) != 1:
+                raise ValueError
+            after = int(raw[0])
+            if not 0 <= after <= 2**63 - 1:
+                raise ValueError
+        except ValueError:
+            self.send_error(400, "Invalid frame sequence")
+            return
+        controller = self.server.controller
+        with controller.preview_condition:
+            fresh = controller.preview_condition.wait_for(
+                lambda: ((controller.preview_sequence > after and controller.preview_jpeg is not None)
+                         or controller.closed.is_set()), timeout=2)
+            sequence = controller.preview_sequence
+            jpeg = controller.preview_jpeg
+        if not fresh or controller.closed.is_set() or jpeg is None:
+            self.send_response(204)
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "image/jpeg")
+        self.send_header("Content-Length", str(len(jpeg)))
+        self.send_header("X-Frame-Sequence", str(sequence))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(jpeg)
 
     def _preview(self):
         self.send_response(200)

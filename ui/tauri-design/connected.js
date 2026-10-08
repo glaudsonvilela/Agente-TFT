@@ -19,7 +19,54 @@ if (new URLSearchParams(location.search).has('connected')) {
   const clean = value => String(value == null ? '' : value);
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const livePath = new URL('preview.mjpg', location.href).pathname;
+  let previewGeneration = 0, previewRequest = null;
+  const previewDrawTimes = [];
+  function startPreview() {
+    ++previewGeneration;
+    if (previewRequest) previewRequest.abort();
+    previewDrawTimes.length = 0;
+    const canvas = document.querySelector('#live-preview-canvas');
+    if (!canvas) return;
+    const generation = previewGeneration;
+    const context = canvas.getContext('2d', {alpha: false, desynchronized: true});
+    if (!context) return;
+    let after = 0, errors = 0;
+    (async () => {
+      while (generation === previewGeneration && canvas.isConnected) {
+        const request = new AbortController();
+        previewRequest = request;
+        try {
+          const response = await fetch(new URL('frame.jpg?after=' + after, location.href),
+            {cache: 'no-store', signal: request.signal});
+          if (response.status === 204) continue;
+          if (!response.ok) throw new Error('Prévia indisponível.');
+          const sequence = Number(response.headers.get('X-Frame-Sequence'));
+          if (!Number.isSafeInteger(sequence) || sequence <= after) throw new Error('Quadro inválido.');
+          const bitmap = await createImageBitmap(await response.blob());
+          try {
+            if (generation !== previewGeneration || !canvas.isConnected) break;
+            if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
+              canvas.width = bitmap.width;
+              canvas.height = bitmap.height;
+            }
+            context.drawImage(bitmap, 0, 0);
+            const drawnAt = performance.now();
+            previewDrawTimes.push(drawnAt);
+            while (previewDrawTimes.length && previewDrawTimes[0] < drawnAt - 1000)
+              previewDrawTimes.shift();
+            after = sequence;
+            errors = 0;
+          } finally { bitmap.close(); }
+        } catch (error) {
+          if (request.signal.aborted) break;
+          ++errors;
+          await new Promise(resolve => setTimeout(resolve, Math.min(1000, errors * 100)));
+        } finally {
+          if (previewRequest === request) previewRequest = null;
+        }
+      }
+    })();
+  }
   const regions = ['BR','NA','LAN','LAS','EUW','EUNE','KR','JP','OCE','TR','RU','SEA','TW','VN'];
   async function loadSources(dialog) {
     const revision = ++sourceLoadRevision;
@@ -122,7 +169,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (current === 'studio') {
       const arena = document.querySelector('.panel .arena');
       if (arena) arena.outerHTML = `<div class="live-preview">${state && state.preview_sequence > 0 ?
-        `<img src="${livePath}" alt="Prévia da fonte selecionada" />` : ''}`+
+        `<canvas id="live-preview-canvas" width="1280" height="720" role="img" aria-label="Prévia da fonte selecionada"></canvas>` : ''}`+
         `<div class="live-preview-empty">${state && state.session_id ? 'Aguardando o primeiro quadro da captura…' : 'Selecione um monitor ou janela para acompanhar.'}</div></div>`;
       const status = document.querySelector('.capture-controls small');
       if (status) status.textContent = state && state.session_id ?
@@ -194,6 +241,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (description) description.textContent = 'Dicas atuais por ElevenLabs, reproduzidas no Windows.';
     }
     connectedCoach();
+    startPreview();
   }
 
   render = function(route) { originalRender(route); connectedPage(); };
@@ -217,9 +265,12 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (changed) render(current);
       else {
         connectedCoach();
+        const now = performance.now();
+        while (previewDrawTimes.length && previewDrawTimes[0] < now - 1000)
+          previewDrawTimes.shift();
         const status = document.querySelector('.capture-controls small');
         if (status && state.session_id) status.textContent =
-          `Captura ${state.phase} · prévia codificada ${state.preview_encoded_fps || 0} FPS · HUB ${state.counts?.hub_results || 0}`;
+          `Captura ${state.phase} · prévia exibida ${previewDrawTimes.length} FPS · HUB ${state.counts?.hub_results || 0}`;
       }
       if (!state.profile && !profilePrompted) {
         profilePrompted = true;
