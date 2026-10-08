@@ -1,11 +1,20 @@
 'use strict';
-// Runs only inside the installed WebView2 shell. The design preview remains
+// Runs only in the installed local studio. The design preview remains
 // independently navigable and keeps its illustrative labels.
 if (new URLSearchParams(location.search).has('connected')) {
   const originalRender = render;
   let sourceRows = [], selected = null, state = null, starting = false, profilePrompted = false;
   const ratedTips = new Set();
-  const api = () => window.pywebview && window.pywebview.api;
+  const localApi = new Proxy({}, {get: (_target, method) => async (...args) => {
+    const response = await fetch(new URL(`api/${method}`, location.href), {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({args}), cache: 'no-store'
+    });
+    const payload = await response.json();
+    if (!response.ok || !payload.ok) throw new Error(payload.error || 'Motor local indisponível.');
+    return payload.result;
+  }});
+  const api = () => localApi;
   const clean = value => String(value == null ? '' : value);
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));

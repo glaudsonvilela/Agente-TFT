@@ -110,7 +110,7 @@ class StudioBridgeTests(unittest.TestCase):
         from tempfile import TemporaryDirectory
         from pathlib import Path
         with TemporaryDirectory() as temp:
-            report = package_contract(Path(temp) / 'studio.json', probe_webview=False)
+            report = package_contract(Path(temp) / 'studio.json')
             self.assertTrue(report['studio_assets_served'])
             self.assertTrue((Path(temp) / 'studio.json').is_file())
 

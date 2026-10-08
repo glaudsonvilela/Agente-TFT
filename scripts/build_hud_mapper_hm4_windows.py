@@ -5,10 +5,6 @@ import hashlib, importlib.metadata, json, os, shutil, subprocess, sys, zipfile
 root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
     raise SystemExit('Windows build host required')
-try:
-    importlib.metadata.version('pywebview')
-except importlib.metadata.PackageNotFoundError as exc:
-    raise SystemExit('Instale apps/hud_mapper/requirements.txt para incluir a interface WebView2.') from exc
 live_assets = root / 'build/hm4-live-assets'
 asset_report = json.loads((live_assets / 'ASSET_REPORT.json').read_text(encoding='utf-8'))
 if asset_report.get('model_mode') != 'shadow_diagnostic' or asset_report.get('matching_item_entries', 0) < 100:
@@ -83,6 +79,8 @@ args = [
     '--hidden-import', 'hm.replay_decision',
     '--hidden-import', 'hm.voice',
     '--hidden-import', 'hm45_setup',
+    '--hidden-import', 'hm45_setup_web',
+    '--hidden-import', 'browser_shell',
     '--hidden-import', 'hm45_setup_core',
     '--hidden-import', 'hm45_vm_client',
     '--hidden-import', 'hm45_protocol',
@@ -93,8 +91,6 @@ args = [
     '--hidden-import', 'hm.model_update',
     '--hidden-import', 'hm.unit_head',
     '--hidden-import', 'hm.studio_bridge',
-    '--hidden-import', 'webview.platforms.edgechromium',
-    '--collect-data', 'webview', '--collect-binaries', 'webview',
 ]
 for worker in workers:
     args += ['--add-binary', f'{worker};bin']
@@ -180,91 +176,20 @@ with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as ar
         if p.is_file():
             archive.write(p, Path(folder.name) / p.relative_to(folder))
 
-iss = root / 'build/HM4.iss'
-from prepare_webview2_bootstrapper_windows import prepare as prepare_webview2
-prepare_webview2()
-iss.write_text(r'''[Setup]
-AppName=Agente TFT Replay Screen Lab
-AppVersion=0.7.0
-DefaultDirName={localappdata}\AgenteTFT-HUD-HM4
-DefaultGroupName=Agente TFT
-PrivilegesRequired=lowest
-OutputDir=..\dist
-OutputBaseFilename=AgenteTFT-HUD-HM4-Auto-Setup
-Compression=lzma2/ultra64
-SolidCompression=yes
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
-UninstallDisplayIcon={app}\AgenteTFT-HUD-HM4-Auto.exe
-DisableProgramGroupPage=yes
-WizardStyle=modern
-[InstallDelete]
-Type: filesandordirs; Name: "{app}\_internal\voices"
-Type: filesandordirs; Name: "{app}\_internal\sherpa_onnx"
-Type: filesandordirs; Name: "{app}\_internal\sherpa_onnx_core"
-Type: filesandordirs; Name: "{app}\_internal\supertonic"
-
-[Files]
-Source: "..\dist\AgenteTFT-HUD-HM4-Auto\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "hm45-webview2\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: not IsWebView2Installed
-[Icons]
-Name: "{autoprograms}\Agente TFT Replay Screen Lab"; Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"
-[Run]
-Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Preparando a interface do Agente TFT..."; Flags: runhidden; Check: not IsWebView2Installed; AfterInstall: VerifyWebView2
-Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Description: "Abrir Agente TFT"; Flags: nowait postinstall skipifsilent
-[Code]
-function IsWebView2Installed: Boolean;
-var
-  Version: String;
-begin
-  Result := (RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and
-             (Version <> '') and (Version <> '0.0.0.0')) or
-            (RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and
-             (Version <> '') and (Version <> '0.0.0.0'));
-end;
-
-procedure VerifyWebView2;
-begin
-  if not IsWebView2Installed then
-    RaiseException('A interface WebView2 não foi instalada. Verifique a conexão com a Internet e tente novamente.');
-end;
-''', encoding='utf-8')
-
-iscc = next((p for p in (
-    Path('C:/Program Files (x86)/Inno Setup 6/ISCC.exe'),
-    Path('C:/Program Files/Inno Setup 6/ISCC.exe')
-) if p.is_file()), None)
-if not iscc:
-    raise SystemExit('Inno Setup 6 unavailable')
-subprocess.run([str(iscc), str(iss)], check=True, cwd=root)
-
-setup = dist / 'AgenteTFT-HUD-HM4-Auto-Setup.exe'
 exe = folder / 'AgenteTFT-HUD-HM4-Auto.exe'
 report = dict(
     runtime_uncompressed_bytes=sum(p.stat().st_size for p in folder.rglob('*') if p.is_file()),
     zip_bytes=zip_path.stat().st_size,
-    installer_bytes=setup.stat().st_size,
     zip_sha256=hashlib.sha256(zip_path.read_bytes()).hexdigest(),
-    installer_sha256=hashlib.sha256(setup.read_bytes()).hexdigest(),
     exe_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),
-    forbidden_payloads=bad,
-    font_files=fonts,
+    clr_free_local_ui=True,
+    vm_installer_built_separately=True,
     ffmpeg_bundled=False,
     pytorch_bundled=False,
     trainer_bundled=False,
-    shadow_learning_capture_bundled=True,
-    post_session_learning_job_bundled=True,
-    post_session_linux_trainer_bundled=False,
     central_learning_server='BigBANANA',
-    zero_click_model_updates=True,
-    model_update_user_confirmation_required=False,
-    model_update_activate_during_match=False,
-    automatic_model_discovery=True,
-    reader_only_fallback=True,
-    model_weights_included=True,
     model_sha256=asset_report['model_sha256'],
     board_hub_reference_sha256=asset_report['reference_sha256'],
-    replay_screen_review_prompts=True,
     compaction_removed_bytes=compaction['removed_bytes'],
     compaction_removed_files=len(compaction['removed_files']),
 )

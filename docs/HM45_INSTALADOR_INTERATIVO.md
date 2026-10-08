@@ -1,12 +1,10 @@
 # Instalador guiado HM4.5
 
-O arquivo entregue ao usuário será `AgenteTFT-HM45-Online-Setup.exe`, um
-iniciador pequeno. Ele baixa `AgenteTFT-HM45-Setup.exe` de uma prévia de versão
-no GitHub, verifica o SHA-256 fixado no iniciador e abre o assistente completo.
-O pacote baixado contém aplicativo Windows e VM WSL 2; a configuração começa
-na mesma sequência, sem comandos manuais para o usuário. Uma conexão com a
-internet é necessária no início; após o download, a instalação completa não
-depende da rede.
+O arquivo entregue ao usuário é `AgenteTFT-HM45-Setup.exe`. Ele contém o
+aplicativo Windows e a VM WSL 2 no mesmo pacote. Depois da extração, abre o
+assistente com o layout de `ui/tauri-design`, ligado ao instalador real por
+API local autenticada. O aplicativo e o assistente abrem numa janela local do
+Edge ou Chrome, sem Python.NET/CLR.
 
 ## O que o usuário verá
 
@@ -21,8 +19,7 @@ depende da rede.
    testes internos e a conexão IP Windows–VM passam. Um erro mantém o diagnóstico visível e grava
    `%LOCALAPPDATA%\AgenteTFT-HM45\setup.log`.
 
-O Inno Setup mostra uma única página explicativa antes da cópia e cria atalhos
-no menu Iniciar e na área de trabalho. O assistente abre automaticamente,
+O Inno Setup faz a extração e cria atalhos no menu Iniciar e na área de trabalho. O assistente visual abre automaticamente,
 verifica o PC e requer apenas o clique **Instalar VM** antes das etapas de
 sistema. Ao voltar de um reinício, ele retoma sem repetir a introdução.
 
@@ -62,13 +59,7 @@ O relatório do instalador mantém `release_ready=false` até um teste no Window
 com WSL 2 real, captura Rust e replay na tela. O pacote HM4 já publicado não
 é substituído por este fluxo.
 
-O iniciador online é gerado por `scripts/build_hm45_online_installer_windows.py`
-a partir do instalador completo já verificado. O URL aponta para uma tag de
-prévia de versão fixa, e o SHA-256 do pacote completo é incorporado ao
-iniciador. O pacote completo e o iniciador precisam ser enviados para a mesma
-prévia de versão no GitHub. Artefatos temporários de CI não servem como fonte
-permanente: expiram e podem exigir autenticação. O instalador online mostra o
-progresso e recusa abrir um download incompleto ou com hash diferente.
+O iniciador online anterior não é gerado nem entregue neste fluxo VM único.
 
 ## Caminho dos quadros e limites de desempenho
 

@@ -2,9 +2,9 @@
 
 HM4 mantém o motor de captura/leitura do HM3 e simplifica a experiência para o teste no Windows.
 
-## Fluxo atual do estúdio (07/10/2026)
+## Fluxo atual do estúdio (08/10/2026)
 
-O HM4 abre por padrão a interface WebView2 baseada **nos mesmos arquivos da branch de design** em `ui/tauri-design`. Clique em **Escolher tela**, selecione monitor ou janela e confirme a captura. O Rust captura no Windows; a prévia chega por um canal local MJPEG de até 720p e 30 quadros codificados por segundo; a análise roda separadamente. O contador de FPS mostrado é o de codificação, não o FPS físico apresentado. A fluidez real precisa ser medida em Windows.
+O HM4 abre por padrão os arquivos do design em `ui/tauri-design` numa janela local do Microsoft Edge (ou Chrome, com navegador padrão como reserva). O motor comunica com essa janela por uma API autenticada em `127.0.0.1`, sem Python.NET/CLR. Clique em **Escolher tela**, selecione monitor ou janela e confirme a captura. O Rust captura no Windows; a prévia chega por um canal local MJPEG de até 720p e 30 quadros codificados por segundo; a análise roda separadamente. O contador de FPS mostrado é o de codificação, não o FPS físico apresentado. A fluidez real precisa ser medida em Windows.
 
 O HUB e o motor de decisões podem orientar tanto uma partida ao vivo quanto um replay exibido na tela. Na partida ao vivo o catálogo empacotado recebe a marca **laboratório** e a versão de patch aparece junto da dica. Identidades de campeões e itens ainda precisam de evidência visual suficiente; candidatos não são apresentados como unidades confirmadas. A voz ElevenLabs é sintetizada no serviço e reproduzida no Windows. Ao encerrar uma partida ao vivo, a sessão é selada antes de iniciar o envio para aprendizado no BigBANANA. O aplicativo mantém os pesos congelados durante a partida.
 
@@ -12,9 +12,9 @@ Quando um modelo aprovado com componentes visuais de campeões ou itens for inst
 
 Na primeira abertura, o estúdio pede nick e região e salva esse perfil localmente. A aba de histórico do estúdio mostra as dicas desta sessão; estatísticas ranked externas ainda não estão conectadas nessa tela. Ao selecionar um replay já encerrado, marque essa opção no diálogo de fonte: o replay é analisado na tela e não é enviado para aprendizado.
 
-Os instaladores verificam o WebView2 e levam o bootstrapper assinado da Microsoft; caso o componente ainda falte, sua instalação precisa de Internet. O contrato do pacote verifica que os arquivos da interface e as importações WebView2 foram incluídos. Abertura visual, fluidez e fala física continuam exigindo uma sessão Windows real.
+O instalador VM usa a tela do design com estados reais de verificação, importação, reinício e conclusão. O contrato do pacote verifica arquivos e APIs locais do estúdio e do instalador. Abertura visual, fluidez e fala física continuam exigindo uma sessão Windows real.
 
-A interface Tk anterior permanece acessível com `--legacy-ui` para diagnóstico. O fluxo abaixo descreve essa interface antiga; ele não é mais a tela padrão.
+A interface Tk anterior do runtime permanece acessível com `--legacy-ui` para diagnóstico. O fluxo abaixo descreve essa interface antiga; ele não é mais a tela padrão.
 
 ## Fluxo histórico da interface Tk
 
@@ -55,10 +55,10 @@ A captura continua sendo o processo Rust residente sobre Windows.Graphics.Captur
 
 ## Entrega
 
-O build Windows produz:
+O build Windows produz o aplicativo e o instalador com VM:
 
 - `AgenteTFT-HUD-HM4-Auto-Windows-x64.zip`
-- `AgenteTFT-HUD-HM4-Auto-Setup.exe`
+- `AgenteTFT-HM45-Setup.exe`
 - `HM4_PACKAGE_REPORT.json`
 
 O pacote de revisão inclui os pesos L3 e 156 ícones oficiais do escopo visual

@@ -2,4 +2,3 @@ Pillow==12.1.0
 numpy==2.2.6
 onnxruntime==1.23.2
 onnx==1.17.0
-pywebview==6.2.1; sys_platform == "win32"

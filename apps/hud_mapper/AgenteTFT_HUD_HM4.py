@@ -13,6 +13,9 @@ def main():
         if sys.stdout is None:
             sys.stdout = log
     try:
+        if '--setup-package-smoke-output' in sys.argv:
+            from hm45_setup_web import package_contract
+            return 0 if package_contract(Path(sys.argv[sys.argv.index('--setup-package-smoke-output') + 1])) else 2
         if '--setup-assistant' in sys.argv:
             from hm45_setup import main as setup_main
             return setup_main()
@@ -20,7 +23,7 @@ def main():
         return run("hm4")
     except Exception:
         traceback.print_exc()
-        if not any(x in sys.argv for x in ('--headless', '--ui-smoke', '--voice-smoke-output', '--replay-voice-validation', '--studio-package-smoke-output')):
+        if not any(x in sys.argv for x in ('--headless', '--ui-smoke', '--voice-smoke-output', '--replay-voice-validation', '--studio-package-smoke-output', '--setup-package-smoke-output')):
             from tkinter import messagebox
             error = traceback.format_exc().splitlines()[-1]
             messagebox.showerror('Agente TFT', error + '\n\nDetalhes em AgenteTFT-HUD-HM4/logs.')

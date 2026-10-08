@@ -1,4 +1,4 @@
-"""Local WebView2 studio for the GitHub design, backed by the HM4 runtime.
+"""Local browser studio for the GitHub design, backed by the HM4 runtime.
 
 The UI and the frame stream are intentionally separate. Only the latest
 preview frame may be encoded; analysis and voice never wait for a browser.
@@ -20,6 +20,7 @@ import threading
 import time
 from urllib.parse import unquote, urlsplit
 from urllib.request import urlopen
+from urllib.request import Request
 
 from .runtime_app import default_hm4_output_root, runtime_paths, target_label
 from .runtime_session import HM4RuntimeSession
@@ -305,6 +306,8 @@ class StudioServer(ThreadingHTTPServer):
         self.controller = controller
         self.root = Path(root).resolve()
         self.token = secrets.token_urlsafe(24)
+        self.last_api_at = time.monotonic()
+        self.api_seen = False
         super().__init__(("127.0.0.1", 0), StudioHandler)
 
     @property
@@ -313,8 +316,53 @@ class StudioServer(ThreadingHTTPServer):
 
 
 class StudioHandler(BaseHTTPRequestHandler):
+    API_METHODS = frozenset(("state", "list_sources", "start_session", "stop_session",
+                             "set_voice", "rate_tip", "save_profile"))
+
     def log_message(self, *_args):
         pass
+
+    def do_POST(self):
+        server = self.server
+        origin = self.headers.get("Origin")
+        authority = f"127.0.0.1:{server.server_port}"
+        base = f"http://{authority}"
+        path = urlsplit(self.path).path
+        prefix = f"/{server.token}/api/"
+        if (self.headers.get("Host") != authority or origin not in (None, base)
+                or not path.startswith(prefix)):
+            self.send_error(403)
+            return
+        method = path[len(prefix):]
+        if method not in self.API_METHODS:
+            self.send_error(404)
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if length < 2 or length > 16384 or self.headers.get("Content-Type", "").split(";", 1)[0] != "application/json":
+                raise ValueError("Requisição inválida.")
+            payload = json.loads(self.rfile.read(length))
+            args = payload.get("args")
+            if not isinstance(args, list) or len(args) > 5:
+                raise ValueError("Argumentos inválidos.")
+            result = getattr(server.controller, method)(*args)
+            body = json.dumps({"ok": True, "result": result}).encode("utf-8")
+            code = 200
+        except (ValueError, TypeError, KeyError) as exc:
+            body = json.dumps({"ok": False, "error": str(exc)}).encode("utf-8")
+            code = 400
+        except Exception as exc:
+            body = json.dumps({"ok": False, "error": str(exc)}).encode("utf-8")
+            code = 500
+        server.last_api_at = time.monotonic()
+        server.api_seen = True
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_GET(self):
         server = self.server
@@ -366,15 +414,13 @@ class StudioHandler(BaseHTTPRequestHandler):
             pass
 
 
-def package_contract(output, *, probe_webview=True):
-    """Exercise the bundled studio and WebView2 imports without opening a GUI."""
-    if probe_webview:
-        import webview
-        from webview.platforms import edgechromium  # noqa: F401
-        if not callable(webview.create_window):
-            raise RuntimeError("O pacote da interface WebView2 está incompleto.")
+def package_contract(output):
+    """Exercise the bundled studio and local API without opening a GUI."""
     root = design_root()
-    server = StudioServer(object(), root)
+    class ProbeController:
+        def state(self):
+            return {"phase": "idle"}
+    server = StudioServer(ProbeController(), root)
     worker = threading.Thread(target=server.serve_forever, daemon=True)
     worker.start()
     try:
@@ -384,11 +430,18 @@ def package_contract(output, *, probe_webview=True):
             bridge = response.read()
         if b"AGENTE TFT" not in page or b"connectedCoach" not in bridge:
             raise RuntimeError("O layout conectado não foi incluído no pacote.")
+        request = Request(server.url.split("?")[0] + "api/state", data=b'{"args":[]}',
+                          headers={"Content-Type": "application/json", "Origin":
+                                   f"http://127.0.0.1:{server.server_port}"})
+        with urlopen(request, timeout=5) as response:
+            api_result = json.load(response)
+        if api_result != {"ok": True, "result": {"phase": "idle"}}:
+            raise RuntimeError("A ponte local da interface não respondeu.")
     finally:
         server.shutdown()
         server.server_close()
-    report = {"studio_assets_served": True, "webview_imported": bool(probe_webview),
-              "edgechromium_imported": bool(probe_webview)}
+    report = {"studio_assets_served": True, "local_api_responded": True,
+              "clr_free_shell": True}
     target = Path(output)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
@@ -404,19 +457,11 @@ def run_studio(*, browser=False):
     worker = threading.Thread(target=server.serve_forever, daemon=True, name="studio-local-web")
     worker.start()
     try:
-        if browser:
-            import webbrowser
-            webbrowser.open(server.url)
-            while not controller.closed.wait(1):
-                pass
-        else:
-            import webview
-            window = webview.create_window("Agente TFT", server.url, width=1440, height=900,
-                                           min_size=(960, 600), js_api=controller)
-            try:
-                webview.start(gui="edgechromium")
-            except Exception as exc:
-                raise RuntimeError("A interface WebView2 não iniciou. Instale ou repare o Microsoft Edge WebView2 Runtime e tente novamente.") from exc
+        from browser_shell import open_local_window
+        open_local_window(server.url, "studio-browser")
+        while not controller.closed.wait(1):
+            if server.api_seen and time.monotonic() - server.last_api_at > 30:
+                break
     finally:
         controller.close()
         server.shutdown()

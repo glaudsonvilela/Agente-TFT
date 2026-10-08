@@ -84,6 +84,8 @@ jobs:
         run: |
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm45_*.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 contracts failed' }
+          python -m unittest discover -s apps/hud_mapper/tests -p 'test_studio_bridge.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Local studio bridge contracts failed' }
           python -m unittest discover -s apps/hud_mapper/tests -p 'test_hm4_runtime.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'HM4 runtime contracts failed' }
           python -m pytest -q apps/hud_mapper/tests/test_post_session_learning.py
@@ -125,8 +127,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows app build failed' }
           python scripts/build_hm45_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'HM4.5 installer build failed' }
-          python scripts/build_hm45_online_installer_windows.py
-          if ($LASTEXITCODE -ne 0) { throw 'HM4.5 online installer build failed' }
       - name: Check packaged API voice client without paid network calls
         shell: pwsh
         run: |
@@ -140,7 +140,7 @@ jobs:
           if (!(Test-Path $smoke)) { throw 'Packaged voice smoke did not write its result' }
           $result = Get-Content $smoke -Raw | ConvertFrom-Json
           if (!$result.api_only -or $result.local_tts_models_bundled -or !$result.mock_transport_passed) { throw 'API voice package contract failed' }
-      - name: Check packaged connected studio imports and assets
+      - name: Check packaged local studio and designer installer
         shell: pwsh
         run: |
           $app = (Resolve-Path .\dist\AgenteTFT-HUD-HM4-Auto\AgenteTFT-HUD-HM4-Auto.exe).Path
@@ -151,7 +151,12 @@ jobs:
             throw 'Packaged studio contract failed'
           }
           $result = Get-Content $report -Raw | ConvertFrom-Json
-          if (!$result.studio_assets_served -or !$result.edgechromium_imported) { throw 'Connected studio is incomplete' }
+          if (!$result.studio_assets_served -or !$result.local_api_responded -or !$result.clr_free_shell) { throw 'Connected studio is incomplete' }
+          $setupReport = Join-Path (Get-Location).Path 'build\hm45-setup-package-smoke.json'
+          $setupProcess = Start-Process -FilePath $app -ArgumentList @('--setup-package-smoke-output', $setupReport) -Wait -PassThru
+          if ($setupProcess.ExitCode -ne 0 -or !(Test-Path $setupReport)) { throw 'Packaged designer installer contract failed' }
+          $setupResult = Get-Content $setupReport -Raw | ConvertFrom-Json
+          if (!$setupResult.designer_assets_served -or !$setupResult.local_setup_api_responded -or !$setupResult.clr_free_shell) { throw 'Designer installer is incomplete' }
       - name: Recorded replay pixels to decision and mocked API transport
         shell: pwsh
         run: |
@@ -170,10 +175,9 @@ jobs:
           path: |
             dist/AgenteTFT-HM45-Setup.exe
             dist/HM45_INSTALLER_REPORT.json
-            dist/AgenteTFT-HM45-Online-Setup.exe
-            dist/HM45_ONLINE_REPORT.json
             build/hm45-voice-smoke.json
             build/hm45-studio-package-smoke.json
+            build/hm45-setup-package-smoke.json
             build/hm45-replay-voice/report.json
             build/hm45-replay-voice/decision.wav
             build/hm45-preview-endurance.json
