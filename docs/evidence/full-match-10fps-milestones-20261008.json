@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "sampling_fps": 10,
+  "source_interval_seconds": [
+    2375,
+    3900
+  ],
+  "frames_total": 15250,
+  "milestones": [
+    {
+      "frame": "frame-005000.jpg",
+      "source_seconds": 2874.9,
+      "frame_sha256": "742c963d9288136d9ae7f65d096028ab31cfaec9f96d44436ea9aa4c2d00a1b1",
+      "visible_state": {
+        "stage": "2-5",
+        "player_hp": 90,
+        "gold": 20,
+        "level": 4,
+        "phase": "combat"
+      },
+      "review": "manually_checked_single_frame",
+      "action_label": null,
+      "causal_claim": null
+    },
+    {
+      "frame": "frame-006500.jpg",
+      "source_seconds": 3024.9,
+      "frame_sha256": "f0f40e9a2fb21a547ddf8fdb5ab19d2bb967666eef5e65fdf3eef7dcb0e88bf8",
+      "visible_state": {
+        "stage": "3-1",
+        "player_hp": 80,
+        "gold": 50,
+        "level": 5,
+        "phase": "planning"
+      },
+      "review": "manually_checked_single_frame",
+      "action_label": null,
+      "causal_claim": null
+    },
+    {
+      "frame": "frame-008000.jpg",
+      "source_seconds": 3174.9,
+      "frame_sha256": "948525b0b18beaf606088b659ddc533b7f816c88f00c4663b2058d052f6f54ef",
+      "visible_state": {
+        "stage": "3-2",
+        "player_hp": 57,
+        "gold": 57,
+        "level": 6,
+        "phase": "combat"
+      },
+      "review": "manually_checked_single_frame",
+      "action_label": null,
+      "causal_claim": null
+    },
+    {
+      "frame": "frame-011000.jpg",
+      "source_seconds": 3474.9,
+      "frame_sha256": "a2b525d81589ce381b1df39f6559a43b8f6e5a1162c4aaf8da7cdd49a6818836",
+      "visible_state": {
+        "stage": "3-7",
+        "player_hp": 40,
+        "gold": 66,
+        "level": 7,
+        "phase": "planning"
+      },
+      "review": "manually_checked_single_frame",
+      "action_label": null,
+      "causal_claim": null
+    },
+    {
+      "frame": "frame-012500.jpg",
+      "source_seconds": 3624.9,
+      "frame_sha256": "c13241919bde1ec9ed14996b02eeb4cc0550b9b55a8b9fa32ff5fb8365bfdeb7",
+      "visible_state": {
+        "stage": "4-2",
+        "player_hp": 25,
+        "gold": 41,
+        "level": 8,
+        "phase": "combat"
+      },
+      "review": "manually_checked_single_frame",
+      "action_label": null,
+      "causal_claim": null
+    },
+    {
+      "frame": "frame-014000.jpg",
+      "source_seconds": 3774.9,
+      "frame_sha256": "352c296bdaa594a99eaece31c0905623462587bf7eab7d8f415d205105cee3d8",
+      "visible_state": {
+        "stage": "4-5",
+        "player_hp": 13,
+        "gold": 0,
+        "level": 9,
+        "phase": "planning"
+      },
+      "review": "manually_checked_single_frame",
+      "action_label": null,
+      "causal_claim": null
+    },
+    {
+      "frame": "frame-015151.jpg",
+      "source_seconds": 3890.0,
+      "frame_sha256": "a60c5e0eb73a59dd3d9438111cd6b628898210ea68ce92a25c8ca66addaf97fe",
+      "visible_state": {
+        "placement": 7,
+        "player_hp": 0,
+        "phase": "result"
+      },
+      "review": "manually_checked_result_screen",
+      "action_label": null,
+      "causal_claim": null
+    }
+  ]
+}
