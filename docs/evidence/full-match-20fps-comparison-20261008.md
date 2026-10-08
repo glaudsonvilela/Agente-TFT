@@ -52,3 +52,10 @@ Long stretches of static planning or combat need not be processed at 20 fps
 just to double the images. A separate, held-out evaluation of labeled actions
 and player decisions is needed before claiming that the IA learned to play
 better.
+
+## Sampling decision
+
+After reviewing the comparison, the project will continue with **10 fps** for
+full-match visual evidence. The 20-fps extraction remains an archived
+comparison on the SSD; it is not the default input for subsequent indexing or
+training. The indexing tool already defaults to 10 fps.
