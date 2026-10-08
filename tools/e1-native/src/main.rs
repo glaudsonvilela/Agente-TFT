@@ -24,6 +24,7 @@ mod fast_marker_track;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,
           sync::mpsc::{self,TrySendError}};
+use std::sync::{Arc,atomic::{AtomicBool,Ordering},mpsc::SyncSender};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat,PixelRect,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
@@ -124,6 +125,17 @@ fn exact_rect_signature(frame:&FrameEnvelope,rects:&[PixelRect])->Result<Vec<u8>
         out.extend_from_slice(&roi.pixels);
     }
     Ok(out)
+}
+fn submit_if_idle(tx:&SyncSender<Arc<FrameEnvelope>>,busy:&AtomicBool,
+                  frame:&Arc<FrameEnvelope>,name:&str)->Result<bool,String>{
+    if busy.swap(true,Ordering::AcqRel){return Ok(false);}
+    match tx.try_send(Arc::clone(frame)){
+        Ok(())=>Ok(true),
+        Err(TrySendError::Full(_))=>{busy.store(false,Ordering::Release);Ok(false)},
+        Err(TrySendError::Disconnected(_))=>{
+            busy.store(false,Ordering::Release);Err(format!("{name} OCR thread ended"))
+        },
+    }
 }
 fn restamp_json(value:&mut Value,at:u64,source_frame_id:u64,source_ms:u64,delivered_frame_id:u64){
     if let Some(obj)=value.as_object_mut(){
@@ -651,10 +663,16 @@ fn markers_only(root:&Path)->Result<(),String>{
         let f=frame(&h,&mut input)?;
         let started=Instant::now();
         let mut markers=bars::detect(&f,profile.scan_rect,&profile.bars)?;
+        let bars_ms=ms(&started);
         markers.extend(fast_marker_track::detect_avatar_bars(&f,profile.scan_rect));
+        let avatar_ms=ms(&started)-bars_ms;
         let tracks=tracker.update(&markers,number(&h,"epoch")?,f.captured_at_ms);
+        let tracking_ms=ms(&started)-bars_ms-avatar_ms;
         writeln!(output,"{}",json!({"id":id,"source_ms":f.captured_at_ms,
-            "origin":"rust_fast_marker_tracker_v1","markers":tracks,"native_ms":ms(&started)}))
+            "origin":"rust_fast_marker_tracker_v1","markers":tracks,"native_ms":ms(&started),
+            "spans":[{"stage":"bar_detect","duration_ms":bars_ms},
+                     {"stage":"avatar_detect","duration_ms":avatar_ms},
+                     {"stage":"marker_track","duration_ms":tracking_ms}]}))
             .map_err(|e|e.to_string())?;
         output.flush().map_err(|e|e.to_string())?;
     }
@@ -672,7 +690,9 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
     }
     let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
     let mut reader=scene::SceneReader::from_anchors(profile.clone(),reference)?;
-    let (trait_tx,trait_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
+    let (trait_tx,trait_rx)=mpsc::sync_channel::<Arc<FrameEnvelope>>(1);
+    let trait_busy=Arc::new(AtomicBool::new(false));
+    let trait_busy_worker=Arc::clone(&trait_busy);
     let (trait_result_tx,trait_result_rx)=mpsc::channel::<Value>();
     let trait_tess=tess.to_string();
     let trait_thread=thread::Builder::new().name("trait-panel-ocr".into()).spawn(move ||{
@@ -704,12 +724,16 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             };
             let mut read=read;
             read["processing_ms"]=json!(ms(&started));
-            if trait_result_tx.send(read).is_err(){break}
+            let delivered=trait_result_tx.send(read).is_ok();
+            trait_busy_worker.store(false,Ordering::Release);
+            if !delivered{break}
         }
     }).map_err(|e|format!("trait OCR thread: {e}"))?;
     let mut latest_traits=json!({"status":"async_pending","words":[]});
     let mut last_trait_submit:Option<u64>=None;
-    let (opponent_tx,opponent_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
+    let (opponent_tx,opponent_rx)=mpsc::sync_channel::<Arc<FrameEnvelope>>(1);
+    let opponent_busy=Arc::new(AtomicBool::new(false));
+    let opponent_busy_worker=Arc::clone(&opponent_busy);
     let (opponent_result_tx,opponent_result_rx)=mpsc::channel::<Value>();
     let opponent_tess=tess.to_string();
     let opponent_thread=thread::Builder::new().name("opponent-panel-ocr".into()).spawn(move ||{
@@ -746,7 +770,9 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             };
             let mut read=read;
             read["processing_ms"]=json!(ms(&started));
-            if opponent_result_tx.send(read).is_err(){break}
+            let delivered=opponent_result_tx.send(read).is_ok();
+            opponent_busy_worker.store(false,Ordering::Release);
+            if !delivered{break}
         }
     }).map_err(|e|format!("opponent OCR thread: {e}"))?;
     let mut latest_opponents=json!({"status":"async_pending","words":[],"battle_name_words":[]});
@@ -759,7 +785,7 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
         let id=number(&h,"id")?;
         if h["op"]=="stop" {break;}
         if h["op"]!="frame" && h["op"]!="reference" {return Err("unknown board-only operation".into());}
-        let f=frame(&h,&mut input)?;
+        let f=Arc::new(frame(&h,&mut input)?);
         let started=Instant::now();
         let out=if h["op"]=="reference" {
             match scene::SceneReader::new(profile.clone(),&f) {
@@ -768,8 +794,7 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             }
         } else {
             let board=reader.read(&f)?;
-            let active=serde_json::to_value(&board).map_err(|e|e.to_string())?["markers"]
-                .as_array().is_some_and(|rows| !rows.is_empty());
+            let active=!board.markers.is_empty();
             let mut fresh_traits=false;
             while let Ok(result)=trait_result_rx.try_recv(){
                 latest_traits=result;
@@ -777,10 +802,8 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             }
             if active && last_trait_submit.map_or(true,|at|
                     f.captured_at_ms<at || f.captured_at_ms.saturating_sub(at)>=1000){
-                match trait_tx.try_send(f.clone()){
-                    Ok(())=>last_trait_submit=Some(f.captured_at_ms),
-                    Err(TrySendError::Full(_))=>{},
-                    Err(TrySendError::Disconnected(_))=>return Err("trait OCR thread ended".into()),
+                if submit_if_idle(&trait_tx,&trait_busy,&f,"trait")?{
+                    last_trait_submit=Some(f.captured_at_ms);
                 }
             }
             let mut traits=if active {latest_traits.clone()}
@@ -802,10 +825,8 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             }
             if last_opponent_submit.map_or(true,|at|
                     f.captured_at_ms<at || f.captured_at_ms.saturating_sub(at)>=5000){
-                match opponent_tx.try_send(f.clone()){
-                    Ok(())=>last_opponent_submit=Some(f.captured_at_ms),
-                    Err(TrySendError::Full(_))=>{},
-                    Err(TrySendError::Disconnected(_))=>return Err("opponent OCR thread ended".into()),
+                if submit_if_idle(&opponent_tx,&opponent_busy,&f,"opponent")?{
+                    last_opponent_submit=Some(f.captured_at_ms);
                 }
             }
             let mut opponents=latest_opponents.clone();
@@ -832,6 +853,18 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
 }
 #[cfg(test)] mod tests{
  use super::*;
+ #[test] fn async_ocr_submission_never_queues_an_outdated_second_frame(){
+   let make=|id|Arc::new(FrameEnvelope{frame_id:id,captured_at_ms:id,width:1,height:1,
+       stride_bytes:3,pixel_format:PixelFormat::Rgb8,source_id:"test".into(),pixels:vec![0;3]});
+   let (tx,rx)=mpsc::sync_channel(1);
+   let busy=AtomicBool::new(false);
+   assert!(submit_if_idle(&tx,&busy,&make(1),"test").unwrap());
+   assert!(!submit_if_idle(&tx,&busy,&make(2),"test").unwrap());
+   assert_eq!(rx.try_recv().unwrap().frame_id,1);
+   busy.store(false,Ordering::Release);
+   assert!(submit_if_idle(&tx,&busy,&make(3),"test").unwrap());
+   assert_eq!(rx.try_recv().unwrap().frame_id,3);
+ }
  #[test] fn numeric_hud_cache_reuses_stable_glyphs_and_rechecks_on_change_or_age(){
    use agente_tft_contracts::Confidence;
    let mut original=vec![20u8;12*12*3];
