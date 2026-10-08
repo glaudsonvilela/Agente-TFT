@@ -54,6 +54,23 @@ def test_stale_or_unmatched_trait_text_does_not_constrain_roster():
     assert roster_hypotheses(stale, [dict(color='green', rect={'y': 300})], units)['rosters'] == []
 
 
+def test_async_trait_text_remains_visible_without_becoming_a_second_read():
+    names, _ = _catalog()
+    words = [dict(text='Solar', confidence=.99, box=[140, 428, 180, 440])]
+    for status in ('cadence_cached', 'exact_pixels_cached'):
+        raw = {'status': status, 'age_ms': 1000, 'words': words}
+        assert [row['name'] for row in bind_observed_traits(raw, names)['traits']] == ['Solar']
+        assert bind_observed_traits({**raw, 'age_ms': 3000}, names)['status'] == 'stale'
+    tracker = TraitCountConsensus()
+    binding = {'traits': [dict(name='Solar', method='exact_text', confidence=.96,
+                               row_box=[140, 428, 180, 440])]}
+    count = dict(text='3', confidence=.97, box=[118, 428, 126, 440])
+    assert tracker.update({'status': 'raw_ocr', 'words': [count]}, binding,
+                          epoch=1, source_ms=1000) == {}
+    assert tracker.update({'status': 'cadence_cached', 'age_ms': 1000, 'words': [count]},
+                          binding, epoch=1, source_ms=2000) == {}
+
+
 def test_low_confidence_full_trait_word_can_bind_without_accepting_noise():
     names, _ = _catalog()
     words = [dict(text='Enfeiticador', confidence=.36, box=[140, 325, 228, 337]),

@@ -43,6 +43,8 @@ class StudioController:
         self.history = deque(maxlen=100)
         self.preview_jpeg = None
         self.preview_sequence = 0
+        self.preview_source_ms = None
+        self.preview_epoch = None
         self.preview_times = deque(maxlen=90)
         self.preview_encode_ms = deque(maxlen=90)
         self.next_preview_telemetry = 0.0
@@ -127,6 +129,8 @@ class StudioController:
             self.highlight_result = None
             self.history.clear()
             self.preview_jpeg = None
+            self.preview_source_ms = None
+            self.preview_epoch = None
             with self.preview_condition:
                 self.preview_times.clear()
                 self.preview_encode_ms.clear()
@@ -227,6 +231,10 @@ class StudioController:
             return {"phase": "finished" if session.finished else session.phase,
                     "ubuntu_mvp": bool(getattr(session, 'ubuntu_mvp_diagnostics', False)),
                     "hud_diagnostic": getattr(session, 'latest_hud_diagnostic', None),
+                    "live_diagnostic": getattr(session, 'latest_live_diagnostic', None),
+                    "hub_diagnostic": getattr(session, 'latest_hub_diagnostic', None),
+                    "preview_source_ms": self.preview_source_ms,
+                    "preview_epoch": self.preview_epoch,
                     "source_label": (getattr(getattr(session, 'source', None), 'target', None)
                                      or {}).get('label'),
                     "session_id": session.id, "replay_review": session.options.replay_review,
@@ -333,6 +341,8 @@ class StudioController:
                         continue
                     with self.preview_condition:
                         self.preview_jpeg = encoded
+                        self.preview_source_ms = getattr(frame, 'pts_ms', None)
+                        self.preview_epoch = getattr(frame, 'epoch', None)
                         self.preview_sequence += 1
                         now = time.monotonic()
                         self.preview_times.append(now)
@@ -546,6 +556,8 @@ class StudioHandler(BaseHTTPRequestHandler):
                          or controller.closed.is_set()), timeout=2)
             sequence = controller.preview_sequence
             jpeg = controller.preview_jpeg
+            source_ms = getattr(controller, 'preview_source_ms', None)
+            epoch = getattr(controller, 'preview_epoch', None)
         if not fresh or controller.closed.is_set() or jpeg is None:
             self.send_response(204)
             self.send_header("Cache-Control", "no-store")
@@ -556,6 +568,10 @@ class StudioHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "image/jpeg")
         self.send_header("Content-Length", str(len(jpeg)))
         self.send_header("X-Frame-Sequence", str(sequence))
+        if source_ms is not None:
+            self.send_header("X-Source-Ms", str(source_ms))
+        if epoch is not None:
+            self.send_header("X-Source-Epoch", str(epoch))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()

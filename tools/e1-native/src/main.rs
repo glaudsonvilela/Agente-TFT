@@ -552,10 +552,43 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
     }
     let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
     let mut reader=scene::SceneReader::from_anchors(profile.clone(),reference)?;
-    #[cfg(any(windows,target_os="linux"))]
-    let mut trait_resident=ResidentTesseractOcr::from_cli_path(tess,"eng").ok();
-    let mut trait_cli=TesseractOcr::new(TesseractConfig{binary:tess.into(),language:"eng".into()});
-    let mut previous_traits:Option<(u64,Vec<u8>,Value)>=None;
+    let (trait_tx,trait_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
+    let (trait_result_tx,trait_result_rx)=mpsc::channel::<Value>();
+    let trait_tess=tess.to_string();
+    let trait_thread=thread::Builder::new().name("trait-panel-ocr".into()).spawn(move ||{
+        #[cfg(any(windows,target_os="linux"))]
+        let mut resident=ResidentTesseractOcr::from_cli_path(&trait_tess,"eng").ok();
+        let mut cli=TesseractOcr::new(TesseractConfig{binary:trait_tess,language:"eng".into()});
+        let mut previous:Option<(Vec<u8>,Value)>=None;
+        for frame in trait_rx {
+            let started=Instant::now();
+            let read=match exact_rect_signature(&frame,&[trait_panel::PANEL]) {
+                Ok(pixels)=>{
+                    let cached=previous.as_ref().and_then(|(old,value)|
+                        if old==&pixels {Some(value.clone())}else{None});
+                    if let Some(mut value)=cached {
+                        value["status"]=json!("exact_pixels_cached");
+                        value
+                    }else{
+                        #[cfg(any(windows,target_os="linux"))]
+                        let result=if let Some(engine)=resident.as_mut(){
+                            trait_panel::observe(&frame,engine)
+                        }else{trait_panel::observe(&frame,&mut cli)};
+                        #[cfg(not(any(windows,target_os="linux")))]
+                        let result=trait_panel::observe(&frame,&mut cli);
+                        let value=result.unwrap_or_else(|error|json!({"status":"read_error","error":error}));
+                        previous=Some((pixels,value.clone()));
+                        value
+                    }
+                },Err(error)=>json!({"status":"read_error","error":error})
+            };
+            let mut read=read;
+            read["processing_ms"]=json!(ms(&started));
+            if trait_result_tx.send(read).is_err(){break}
+        }
+    }).map_err(|e|format!("trait OCR thread: {e}"))?;
+    let mut latest_traits=json!({"status":"async_pending","words":[]});
+    let mut last_trait_submit:Option<u64>=None;
     let (opponent_tx,opponent_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
     let (opponent_result_tx,opponent_result_rx)=mpsc::channel::<Value>();
     let opponent_tess=tess.to_string();
@@ -617,30 +650,31 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             let board=reader.read(&f)?;
             let active=serde_json::to_value(&board).map_err(|e|e.to_string())?["markers"]
                 .as_array().is_some_and(|rows| !rows.is_empty());
-            let trait_pixels=if active {Some(exact_rect_signature(&f,&[
-                trait_panel::PANEL])?)}else{None};
-            let traits=if active {
-                if let Some((at,pixels,old))=&previous_traits {
-                    if f.captured_at_ms.saturating_sub(*at)<5000 &&
-                            trait_pixels.as_ref()==Some(pixels) {
-                        let mut cached=old.clone();
-                        cached["status"]=json!("cached_ocr");
-                        cached["age_ms"]=json!(f.captured_at_ms.saturating_sub(*at));
-                        cached
-                    }else{Value::Null}
-                }else{Value::Null}
-            }else{Value::Null};
-            let traits=if active && traits.is_null(){
-                #[cfg(any(windows,target_os="linux"))]
-                let read=if let Some(engine)=trait_resident.as_mut(){
-                    trait_panel::observe(&f,engine)
-                }else{trait_panel::observe(&f,&mut trait_cli)};
-                #[cfg(not(any(windows,target_os="linux")))]
-                let read=trait_panel::observe(&f,&mut trait_cli);
-                let value=read.unwrap_or_else(|error|json!({"status":"read_error","error":error}));
-                previous_traits=Some((f.captured_at_ms,trait_pixels.unwrap_or_default(),value.clone()));
-                value
-            }else{traits};
+            let mut fresh_traits=false;
+            while let Ok(result)=trait_result_rx.try_recv(){
+                latest_traits=result;
+                fresh_traits=true;
+            }
+            if active && last_trait_submit.map_or(true,|at|
+                    f.captured_at_ms<at || f.captured_at_ms.saturating_sub(at)>=1000){
+                match trait_tx.try_send(f.clone()){
+                    Ok(())=>last_trait_submit=Some(f.captured_at_ms),
+                    Err(TrySendError::Full(_))=>{},
+                    Err(TrySendError::Disconnected(_))=>return Err("trait OCR thread ended".into()),
+                }
+            }
+            let mut traits=if active {latest_traits.clone()}
+                else {json!({"status":"panel_not_visible","words":[]})};
+            if active {
+                if let Some(at)=traits["source_ms"].as_u64(){
+                    let age=f.captured_at_ms.saturating_sub(at);
+                    traits["age_ms"]=json!(age);
+                    if age>10000 {traits["status"]=json!("async_stale");}
+                    else if !fresh_traits && traits["status"]=="raw_ocr" {
+                        traits["status"]=json!("cadence_cached");
+                    }
+                }
+            }
             let mut fresh_opponents=false;
             while let Ok(result)=opponent_result_rx.try_recv(){
                 latest_opponents=result;
@@ -665,11 +699,13 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             }
             json!({"id":id,"source_ms":f.captured_at_ms,"board":board,
                 "trait_panel":traits,"opponent_panel":opponents,"native_ms":ms(&started),
-                "ocr_process_calls":if active && traits["status"]=="raw_ocr" {1}else{0},
-                "opponent_ocr_async":true})
+                "ocr_process_calls":if active && fresh_traits && traits["status"]=="raw_ocr" {1}else{0},
+                "trait_ocr_async":true,"opponent_ocr_async":true})
         };
         writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }
+    drop(trait_tx);
+    let _=trait_thread.join();
     drop(opponent_tx);
     let _=opponent_thread.join();
     Ok(())

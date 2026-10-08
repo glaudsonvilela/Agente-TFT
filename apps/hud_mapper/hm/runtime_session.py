@@ -8,6 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from PIL import Image
 from .core import native_regions, valid_box
+from .live_diagnostics import build_hub_diagnostic, build_live_diagnostic
 from .session import Session
 
 READER_CACHE_MAX_MS = 750.0
@@ -480,6 +481,11 @@ class RuntimeSession(Session):
                               cache_policy='full_immutable_source_RGB_equality_750ms',
                               native_executed=executed,
                               image_size=[frame.width, frame.height], ground_truth=False)
+                self.latest_live_diagnostic = build_live_diagnostic(
+                    answer, regions, frame_id=frame.id, source_ms=frame.pts_ms,
+                    epoch=frame.epoch, width=frame.width, height=frame.height,
+                    reader_ms=record['reader_elapsed_ms'],
+                    source_to_reader_ms=record['source_to_reader_ms'])
                 with self.lock:
                     for reg in regions:
                         self.coverage[(reg['id'], reg['status'])] += 1
@@ -619,6 +625,8 @@ class HM4RuntimeSession(RuntimeSession):
         self.latest_replay_tip = None
         self.latest_decision_reason = None
         self.latest_decision_status = None
+        self.latest_live_diagnostic = None
+        self.latest_hub_diagnostic = None
         self._latest_strategy_state = None
         self._latest_visual_candidates = None
         self.decision_engine = None
@@ -772,17 +780,13 @@ class HM4RuntimeSession(RuntimeSession):
                     continue
                 started = time.perf_counter_ns()
                 if (started - frame.due_ns) / 1e6 > 2000:
-                    with self.lock:
-                        self._latest_strategy_state = None
-                        self._latest_visual_candidates = None
+                    # A late frame is not new evidence. Retain the last
+                    # observation; consumers enforce its age independently.
                     self.counts['hub_stale_input_dropped'] += 1
                     continue
                 plan = reader_plan(frame, self.normalize_reader_input)
                 reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
                 if reader_frame is None:
-                    with self.lock:
-                        self._latest_strategy_state = None
-                        self._latest_visual_candidates = None
                     self.counts['hub_resolution_skipped'] += 1
                     continue
                 calibrate = self.board_reference_requested.is_set()
@@ -790,18 +794,21 @@ class HM4RuntimeSession(RuntimeSession):
                     self.board_reference_requested.clear()
                 try:
                     if use_remote_board:
+                        observer_start = time.perf_counter_ns()
                         observed = observer.observe(reader_frame, calibrate=calibrate)
+                        board_worker_ms = None
                     else:
+                        worker_start = time.perf_counter_ns()
                         board_read = board_worker.observe(reader_frame, calibrate)
+                        board_worker_ms = (time.perf_counter_ns() - worker_start) / 1e6
+                        observer_start = time.perf_counter_ns()
                         observed = observer.observe(reader_frame, board_read, source_frame=frame)
+                    board_observer_ms = (time.perf_counter_ns() - observer_start) / 1e6
                 except (ValueError, RuntimeError) as exc:
                     if not calibrate:
                         raise
                     self.versions['board_reference_status'] = 'failed'
                     self.versions['board_reference_error'] = str(exc)
-                    with self.lock:
-                        self._latest_strategy_state = None
-                        self._latest_visual_candidates = None
                     continue
                 if calibrate:
                     self.versions['board_reference_sha256'] = hashlib.sha256(reader_frame.rgb).hexdigest()
@@ -815,10 +822,10 @@ class HM4RuntimeSession(RuntimeSession):
                         source_ms=frame.pts_ms, due_ns=frame.due_ns) if state else None)
                     candidates = observed['snapshot'].get('temporal_candidates')
                     trait_counts = observed['snapshot'].get('confirmed_trait_counts') or {}
-                    self._latest_visual_candidates = (dict(candidates={
-                        **copy.deepcopy(candidates), 'trait_counts': copy.deepcopy(trait_counts)},
-                        epoch=frame.epoch, source_ms=frame.pts_ms, due_ns=frame.due_ns)
-                        if candidates else None)
+                    if candidates:
+                        self._latest_visual_candidates = dict(candidates={
+                            **copy.deepcopy(candidates), 'trait_counts': copy.deepcopy(trait_counts)},
+                            epoch=frame.epoch, source_ms=frame.pts_ms, due_ns=frame.due_ns)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
                 neural_items=observed['snapshot'].get('neural_items') or {}
                 with self.lock:
@@ -872,6 +879,12 @@ class HM4RuntimeSession(RuntimeSession):
                               scheduling='independent_of_hud_ocr_latest_frame',
                               board_reference_status=self.versions.get('board_reference_status'),
                               game_state_updated=False)
+                self.latest_hub_diagnostic = build_hub_diagnostic(
+                    observed['snapshot'], regions, frame_id=frame.id,
+                    source_ms=frame.pts_ms, epoch=frame.epoch,
+                    width=frame.width, height=frame.height,
+                    processing_ms=record['hub_processing_ms'],
+                    worker_ms=board_worker_ms, observer_ms=board_observer_ms)
                 with self.lock:
                     for reg in regions:
                         self.coverage[(reg['id'], reg['status'])] += 1

@@ -1,0 +1,111 @@
+"""Small, factual snapshot for the local live inspection view.
+
+This is display data, never a training label or an input to a decision.
+"""
+from __future__ import annotations
+
+import math
+
+from .core import valid_box
+
+
+HUD_FIELDS = frozenset(('stage', 'gold', 'level', 'xp'))
+
+
+def _number(value):
+    return value if type(value) in (int, float) and math.isfinite(value) else None
+
+
+def build_live_diagnostic(answer, regions, *, frame_id, source_ms, epoch,
+                          width, height, reader_ms, source_to_reader_ms):
+    """Keep observations, unverified candidates, and Rust scores separate."""
+    boxes = []
+    for region in regions:
+        name = str(region.get('id') or '')
+        if not (name.startswith('hud.') or name.startswith('shop.') or name == 'player.hp'):
+            continue
+        box = region.get('box')
+        if not isinstance(box, list) or not valid_box(box, width, height):
+            continue
+        status = region.get('status') or 'unknown'
+        value = region.get('value')
+        if name.startswith('shop.') and not name.endswith(('.name', '.cost')):
+            continue
+        boxes.append(dict(id=name, box=[round(x, 2) for x in box],
+                          status=status, value=value if type(value) in (str, int, float) else None,
+                          confidence=_number(region.get('confidence'))))
+    hud = [{key: row.get(key) for key in ('field', 'value', 'status', 'confidence')}
+           for row in answer.get('hud') or [] if row.get('field') in HUD_FIELDS]
+    shop = [{key: slot.get(key) for key in ('slot', 'status', 'observed_name', 'observed_cost',
+             'name_confidence', 'cost_confidence', 'catalog_status', 'unit_id')}
+            for slot in (answer.get('shop') or {}).get('slots') or []][:5]
+    rank = answer.get('decision_rank') or {}
+    options = answer.get('decision_candidates') or []
+    ranked = []
+    for row in (rank.get('ranked') or [])[:8]:
+        index = row.get('index')
+        option = options[index] if type(index) is int and 0 <= index < len(options) else {}
+        ranked.append(dict(index=index, action=row.get('action_type'),
+                           target=(option.get('action') or {}).get('target'),
+                           utility=_number(row.get('utility')),
+                           base_utility=_number(row.get('base_utility')),
+                           novelty_penalty=_number(row.get('novelty_penalty')),
+                           persistence_bonus=_number(row.get('persistence_bonus')),
+                           plan_alignment_bonus=_number(row.get('plan_alignment_bonus')),
+                           recent_repeats=row.get('recent_repeats'),
+                           selected=index == rank.get('selected_index')))
+    decision = answer.get('decision') or {}
+    action = decision.get('action') or {}
+    return dict(frame_id=frame_id, source_ms=source_ms, epoch=epoch,
+                image_size=[width, height], origin=answer.get('origin'),
+                reader_ms=round(reader_ms, 1),
+                source_to_reader_ms=round(source_to_reader_ms, 1),
+                hud=hud, shop=shop, boxes=boxes,
+                rust=dict(status=rank.get('status'), reason=rank.get('reason'),
+                          native_ms=_number(rank.get('native_ms')),
+                          selected_index=rank.get('selected_index'),
+                          action=action.get('type'), ranked=ranked,
+                          memory_error=rank.get('memory_error')))
+
+
+def build_hub_diagnostic(snapshot, regions, *, frame_id, source_ms, epoch,
+                         width, height, processing_ms, worker_ms=None, observer_ms=None):
+    """Expose tracked board candidates without calling them verified units."""
+    temporal = snapshot.get('temporal_candidates') or {}
+    by_marker = {row.get('marker_id'): row for row in (temporal.get('units') or [])
+                 if isinstance(row, dict) and type(row.get('marker_id')) is int}
+    boxes = []
+    for region in regions:
+        rid = str(region.get('id') or '')
+        box = region.get('box')
+        if not isinstance(box, list) or not valid_box(box, width, height):
+            continue
+        if rid.startswith('hub.marker.'):
+            marker_id = (region.get('value') or {}).get('marker_id') if isinstance(region.get('value'), dict) else None
+            candidate = by_marker.get(marker_id) or {}
+            name = candidate.get('candidate_name') or candidate.get('current_candidate_name')
+            x1, y1, x2, y2 = box
+            # Only the health bar is observed. This larger rectangle is a
+            # visual guide around it, not a detector's silhouette box.
+            guide = [max(0, x1-12), max(0, y1-20), min(width, x2+12), min(height, y2+84)]
+            boxes.append(dict(id=rid, box=[round(v, 2) for v in guide],
+                              observed_box=[round(v, 2) for v in box],
+                              label=name if isinstance(name, str) and name else 'unidade não identificada',
+                              status=candidate.get('status') or region.get('status'),
+                              geometry='bar_anchored_approximation',
+                              identity_verified=candidate.get('identity_verified') is True,
+                              support_frames=candidate.get('support_frames')))
+        elif rid.startswith(('hub.inventory.', 'hub.equipped.')):
+            value = region.get('value')
+            boxes.append(dict(id=rid, box=[round(v, 2) for v in box],
+                              label=value if isinstance(value, str) and value else 'item não identificado',
+                              status=region.get('status') or 'unknown',
+                              geometry='observed_icon_region', identity_verified=False))
+    return dict(frame_id=frame_id, source_ms=source_ms, epoch=epoch,
+                image_size=[width, height], processing_ms=round(processing_ms, 1),
+                worker_ms=round(worker_ms, 1) if worker_ms is not None else None,
+                observer_ms=round(observer_ms, 1) if observer_ms is not None else None,
+                boxes=boxes[:50],
+                candidate_units=sum(1 for row in boxes if row['id'].startswith('hub.marker.')),
+                verified_units=sum(1 for row in boxes if row['id'].startswith('hub.marker.')
+                                   and row['identity_verified']))

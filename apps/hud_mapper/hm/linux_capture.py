@@ -92,6 +92,7 @@ class LinuxX11CaptureSource:
 
     def _read(self):
         index = 0
+        first_capture_ns = None
         try:
             while not self.stop.is_set():
                 chunks = bytearray()
@@ -103,7 +104,9 @@ class LinuxX11CaptureSource:
                 if len(chunks) != self.frame_bytes:
                     break
                 now = time.perf_counter_ns()
-                frame = CapturedFrame(index, 0.0, now, now, self.ready['width'],
+                if first_capture_ns is None:
+                    first_capture_ns = now
+                frame = CapturedFrame(index, (now-first_capture_ns)/1e6, now, now, self.ready['width'],
                                       self.ready['height'], bytes(chunks), 0,
                                       dict(backend='ffmpeg_x11grab', capture_ns=now,
                                            frame_id=index, target=self.target['device']))
@@ -144,7 +147,7 @@ class LinuxX11CaptureSource:
             if pts_ms > max_seconds*1000:
                 reached_duration = True
                 break
-            yield CapturedFrame(frame.id, pts_ms, frame.due_ns, frame.ready_ns,
+            yield CapturedFrame(frame.id, frame.pts_ms, frame.due_ns, frame.ready_ns,
                                 frame.width, frame.height, frame.rgb, frame.epoch,
                                 frame.capture)
         if self.error and not cancelled.is_set():

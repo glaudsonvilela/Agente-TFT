@@ -67,9 +67,10 @@ def _distance(a: str, b: str, limit: int = 2) -> int:
 
 
 def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> dict:
-    if not isinstance(raw, dict) or raw.get("status") not in ("raw_ocr", "cached_ocr"):
+    cached = ("cached_ocr", "cadence_cached", "exact_pixels_cached")
+    if not isinstance(raw, dict) or raw.get("status") not in ("raw_ocr", *cached):
         return {"status": "unavailable", "traits": [], "unmatched": []}
-    if raw.get("status") == "cached_ocr" and raw.get("age_ms", 99999) > 2000:
+    if raw.get("status") in cached and raw.get("age_ms", 99999) > 2000:
         return {"status": "stale", "traits": [], "unmatched": []}
     # The text baseline repeats every 53 px. A short OCR fragment such as
     # "FI" still proves that a row exists, even when its name cannot be bound.

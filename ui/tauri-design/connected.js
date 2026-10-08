@@ -19,8 +19,124 @@ if (new URLSearchParams(location.search).has('connected')) {
   const clean = value => String(value == null ? '' : value);
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  let diagnosticMemory = {sessionId: null, hud: new Map(), shop: new Map(), hub: null};
   let previewGeneration = 0, previewRequest = null;
   const previewDrawTimes = [];
+  function drawObservedBoxes(context, imageWidth, imageHeight, sourceMs, epoch) {
+    const read = state?.live_diagnostic;
+    if (!read || !Number.isFinite(sourceMs) || !Number.isFinite(epoch) ||
+        read.epoch !== epoch || sourceMs < read.source_ms || sourceMs - read.source_ms > 3000) return;
+    const size = read.image_size || [];
+    if (!(size[0] > 0 && size[1] > 0)) return;
+    const sx = imageWidth / size[0], sy = imageHeight / size[1];
+    context.save();
+    context.font = 'bold 13px sans-serif';
+    context.lineWidth = 2;
+    for (const row of read.boxes || []) {
+      if (row.value == null || row.value === '' || !Array.isArray(row.box) || row.box.length !== 4) continue;
+      const observed = row.status === 'single_frame_observation' || row.status === 'observed';
+      if (!observed) continue;
+      const [x1,y1,x2,y2] = row.box;
+      const x = x1*sx, y = y1*sy, w = (x2-x1)*sx, h = (y2-y1)*sy;
+      if (![x,y,w,h].every(Number.isFinite) || w <= 0 || h <= 0) continue;
+      const label = `${row.id.replace(/^hud\.|^shop\./, '')}: ${clean(row.value)}`;
+      context.strokeStyle = row.id.startsWith('shop.') ? '#68e0bb' : '#f7c774';
+      context.strokeRect(x, y, w, h);
+      const labelWidth = Math.min(imageWidth - x, context.measureText(label).width + 10);
+      context.fillStyle = '#090d16e8';
+      context.fillRect(x, Math.max(0, y-20), labelWidth, 19);
+      context.fillStyle = '#fff';
+      context.fillText(label, x+5, Math.max(14, y-6), Math.max(0, labelWidth-10));
+    }
+    context.restore();
+  }
+  function drawHubBoxes(context, imageWidth, imageHeight, sourceMs, epoch) {
+    const hub = state?.hub_diagnostic;
+    if (!hub || !Number.isFinite(sourceMs) || !Number.isFinite(epoch) ||
+        hub.epoch !== epoch || sourceMs < hub.source_ms || sourceMs - hub.source_ms > 3500) return;
+    const size = hub.image_size || [];
+    if (!(size[0] > 0 && size[1] > 0)) return;
+    const sx = imageWidth / size[0], sy = imageHeight / size[1];
+    context.save();
+    context.font = 'bold 12px sans-serif';
+    context.lineWidth = 2;
+    context.setLineDash([6,4]);
+    for (const row of hub.boxes || []) {
+      if (!Array.isArray(row.box) || row.box.length !== 4) continue;
+      const [x1,y1,x2,y2] = row.box;
+      const x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
+      if (![x,y,w,h].every(Number.isFinite) || w <= 0 || h <= 0) continue;
+      const unit = row.id.startsWith('hub.marker.');
+      context.strokeStyle = unit ? '#cf8bff' : '#62d5e8';
+      context.strokeRect(x,y,w,h);
+      context.setLineDash([]);
+      const label = unit ? `${row.label} · candidato` : `${row.label} · item?`;
+      const labelWidth = Math.min(imageWidth-x,context.measureText(label).width+10);
+      context.fillStyle = '#090d16e8';
+      context.fillRect(x,Math.max(0,y-19),labelWidth,18);
+      context.fillStyle = '#fff';
+      context.fillText(label,x+5,Math.max(13,y-5),Math.max(0,labelWidth-10));
+      context.setLineDash([6,4]);
+    }
+    context.restore();
+  }
+  function renderLiveDiagnostics() {
+    const panel = document.querySelector('#live-diagnostic-grid');
+    if (!panel) return;
+    const scrollPositions = Array.from(panel.children, child => child.scrollTop);
+    const read = state?.live_diagnostic;
+    const rust = read?.rust || {};
+    if (diagnosticMemory.sessionId !== state?.session_id) {
+      diagnosticMemory = {sessionId: state?.session_id, hud: new Map(), shop: new Map(), hub: null};
+    }
+    const currentMs = Number.isFinite(state?.preview_source_ms) ? state.preview_source_ms : read?.source_ms;
+    const recent = entry => entry && entry.epoch === state?.preview_epoch &&
+      Number.isFinite(currentMs) && currentMs >= entry.sourceMs && currentMs - entry.sourceMs <= 15000;
+    const age = entry => `última leitura há ${((currentMs-entry.sourceMs)/1000).toFixed(1)} s`;
+    const hudRows = read?.hud?.length ? read.hud :
+      Array.from(diagnosticMemory.hud.keys(), field => ({field, status: 'unavailable'}));
+    const hud = hudRows.map(row => {
+      const seen = row.value != null && row.status === 'single_frame_observation';
+      if (seen) diagnosticMemory.hud.set(row.field, {value: row.value, sourceMs: read.source_ms, epoch: read.epoch});
+      const previous = diagnosticMemory.hud.get(row.field);
+      const fallback = !seen && recent(previous);
+      return `<div class="live-data-row"><span>${escapeHtml(row.field)}</span><b>${escapeHtml(seen ? row.value : fallback ? previous.value : '—')}</b><small>${fallback ? age(previous)+' · não atual' : escapeHtml(row.status || 'sem leitura')}${seen && Number.isFinite(row.confidence) ? ' · '+Math.round(row.confidence*100)+'%' : ''}</small></div>`;
+    }).join('');
+    const shopRows = read?.shop?.length ? read.shop :
+      Array.from({length: 5}, (_, slot) => ({slot, status: 'unavailable'}));
+    const shop = shopRows.map(row => {
+      const seen = !!row.observed_name && row.status !== 'unavailable' && row.status !== 'unknown';
+      if (seen) diagnosticMemory.shop.set(row.slot, {name: row.observed_name, sourceMs: read.source_ms, epoch: read.epoch});
+      const previous = diagnosticMemory.shop.get(row.slot);
+      const fallback = !seen && recent(previous);
+      return `<div class="live-data-row"><span>Loja ${Number(row.slot)+1}</span><b>${escapeHtml(seen ? row.observed_name : fallback ? previous.name : 'não identificado')}</b><small>${fallback ? age(previous)+' · não visível agora' : escapeHtml(row.status || 'sem leitura')}${seen && row.observed_cost != null ? ' · '+escapeHtml(row.observed_cost)+' ouro' : ''}</small></div>`;
+    }).join('');
+    const currentHub = state?.hub_diagnostic;
+    if (currentHub?.boxes?.length) diagnosticMemory.hub = currentHub;
+    const hub = currentHub?.boxes?.length ? currentHub :
+      recent(diagnosticMemory.hub && {sourceMs: diagnosticMemory.hub.source_ms,
+        epoch: diagnosticMemory.hub.epoch}) ? diagnosticMemory.hub : currentHub;
+    const hubFromMemory = hub && hub !== currentHub;
+    const units = (hub?.boxes || []).filter(row => row.id.startsWith('hub.marker.'));
+    const hubAge = hub && state?.preview_epoch === hub.epoch && Number.isFinite(state?.preview_source_ms)
+      ? Math.max(0, state.preview_source_ms - hub.source_ms) : null;
+    const hubAgeLabel = hubAge != null && (hubFromMemory || hubAge > 3500)
+      ? ` · ${hubFromMemory ? 'última detecção' : 'atrasado'} ${(hubAge/1000).toFixed(1)} s` : '';
+    const items = (hub?.boxes || []).filter(row =>
+      (row.id.startsWith('hub.inventory.') || row.id.startsWith('hub.equipped.')) &&
+      row.label !== 'item não identificado');
+    const board = units.slice(0,12).map(row => `<div class="live-data-row"><span>Peça</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')} · ${Number(row.support_frames || 0)} quadros · ${row.identity_verified ? 'verificada' : 'não verificada'}</small></div>`).join('');
+    const itemRows = items.slice(0,8).map(row => `<div class="live-data-row"><span>Item</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')}</small></div>`).join('');
+    const opponents = (state?.opponents?.players || []).filter(row => row.name).slice(0,7).map(row =>
+      `<div class="live-data-row"><span>Rival</span><b>${escapeHtml(row.name)}</b><small>${row.hp == null ? 'vida sem leitura' : 'vida '+escapeHtml(row.hp)}</small></div>`).join('');
+    const ranked = (rust.ranked || []).map(row => `<div class="live-rank-row ${row.selected?'selected':''}"><span>${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')}</span><strong>${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}</strong><small>base ${Number.isFinite(row.base_utility) ? row.base_utility.toFixed(3) : '—'} · repetição −${Number.isFinite(row.novelty_penalty) ? row.novelty_penalty.toFixed(3) : '—'} · persistência +${Number.isFinite(row.persistence_bonus) ? row.persistence_bonus.toFixed(3) : '—'}</small></div>`).join('');
+    const tip = state?.tip;
+    const freshTip = tip?.actionable && Number.isFinite(tip.age_ms) && tip.age_ms <= 5000;
+    panel.innerHTML = `<section class="live-data-panel"><h3>Leituras da imagem <small>quadro ${escapeHtml(read?.frame_id ?? '—')} · ${read ? (read.source_ms/1000).toFixed(1)+' s' : 'aguardando'}</small></h3>${hud || '<p>Aguardando primeira leitura.</p>'}<h4>Loja</h4>${shop || '<p>Nomes ainda não lidos.</p>'}<h4>Tabuleiro e banco · ${units.length} regiões${hubAgeLabel}</h4>${board || '<p>Nenhuma unidade localizada neste quadro.</p>'}<h4>Itens</h4>${itemRows || '<p>Nenhum item nomeado neste quadro.</p>'}<h4>Adversários</h4>${opponents || '<p>Nomes ainda não lidos.</p>'}<p class="live-footnote">Caixas roxas são posições aproximadas a partir das barras de vida; nomes continuam candidatos até confirmação. Não são rótulos de treino.</p></section>`+
+      `<section class="live-math-panel"><h3>Cálculo Rust <small>${escapeHtml(rust.status || 'aguardando')}</small></h3><p>HUD ${Number.isFinite(read?.reader_ms) ? read.reader_ms.toFixed(0)+' ms' : '—'} · tabuleiro ${Number.isFinite(hub?.processing_ms) ? hub.processing_ms.toFixed(0)+' ms' : '—'} · motor ${Number.isFinite(rust.native_ms) ? rust.native_ms.toFixed(0)+' ms' : '—'}</p>${ranked || '<p>Sem alternativas calculadas neste quadro.</p>'}<p class="live-footnote">${Number.isFinite(hub?.worker_ms) ? 'Detecção '+hub.worker_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.observer_ms) ? 'reconhecimento '+hub.observer_ms.toFixed(0)+' ms. ' : ''}Pontuação relativa, não probabilidade de vitória.${rust.reason ? ' Motivo: '+escapeHtml(rust.reason) : ''}</p></section>`+
+      `<section class="live-moves-panel"><h3>Jogada indicada <small>${freshTip?'agora':'sem nova dica'}</small></h3><strong>${escapeHtml(freshTip ? tip.text : 'Aguardando uma ação sustentada pela leitura.')}</strong><p>${freshTip ? 'Momento '+(tip.source_ms/1000).toFixed(1)+' s · '+escapeHtml(tip.action_type || 'ação') : 'A leitura continua mesmo quando o motor não recomenda agir.'}</p><h4>Alternativas avaliadas</h4>${ranked ? (rust.ranked || []).slice(0,3).map(row => `<div class="live-move-row">${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')} <b>${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}</b></div>`).join('') : '<p>Nenhuma ainda.</p>'}</section>`;
+    Array.from(panel.children, (child, index) => { child.scrollTop = scrollPositions[index] || 0; });
+  }
   function startPreview() {
     ++previewGeneration;
     if (previewRequest) previewRequest.abort();
@@ -41,6 +157,8 @@ if (new URLSearchParams(location.search).has('connected')) {
           if (response.status === 204) continue;
           if (!response.ok) throw new Error('Prévia indisponível.');
           const sequence = Number(response.headers.get('X-Frame-Sequence'));
+          const sourceMs = Number(response.headers.get('X-Source-Ms'));
+          const epoch = Number(response.headers.get('X-Source-Epoch'));
           if (!Number.isSafeInteger(sequence) || sequence <= after) throw new Error('Quadro inválido.');
           const bitmap = await createImageBitmap(await response.blob());
           try {
@@ -50,6 +168,10 @@ if (new URLSearchParams(location.search).has('connected')) {
               canvas.height = bitmap.height;
             }
             context.drawImage(bitmap, 0, 0);
+            drawObservedBoxes(context, bitmap.width, bitmap.height, sourceMs, epoch);
+            drawHubBoxes(context, bitmap.width, bitmap.height, sourceMs, epoch);
+            const empty = canvas.parentElement.querySelector('.live-preview-empty');
+            if (empty) empty.hidden = true;
             const drawnAt = performance.now();
             previewDrawTimes.push(drawnAt);
             while (previewDrawTimes.length && previewDrawTimes[0] < drawnAt - 1000)
@@ -209,10 +331,22 @@ if (new URLSearchParams(location.search).has('connected')) {
     const installerLink = document.querySelector('.sidebar-bottom button[data-route="installer"]');
     if (installerLink) installerLink.style.display = 'none';
     if (current === 'studio') {
+      // Design samples must not look like observed champions in the live view.
+      for (const node of document.querySelectorAll('#main > .page-enter > .section-title, #main > .page-enter > .roster, #main > .page-enter > .insight-strip'))
+        node.style.display = 'none';
       const arena = document.querySelector('.panel .arena');
       if (arena) arena.outerHTML = `<div class="live-preview">${state && state.preview_sequence > 0 ?
         `<canvas id="live-preview-canvas" width="1280" height="720" role="img" aria-label="Prévia da fonte selecionada"></canvas>` : ''}`+
         `<div class="live-preview-empty">${state && state.session_id ? 'Aguardando o primeiro quadro da captura…' : 'Selecione um monitor ou janela para acompanhar.'}</div></div>`;
+      const previewPanel = document.querySelector('.live-preview')?.closest('.panel');
+      if (previewPanel) {
+        const layout = document.createElement('div');
+        layout.className = 'live-inspection-layout';
+        previewPanel.parentNode.insertBefore(layout, previewPanel);
+        layout.appendChild(previewPanel);
+        layout.insertAdjacentHTML('beforeend', '<div id="live-diagnostic-grid" class="live-diagnostic-grid"></div>');
+      }
+      renderLiveDiagnostics();
       const status = document.querySelector('.capture-controls small');
       if (status) status.textContent = state && state.session_id ?
         `Captura ${state.phase} · prévia local até 720p` : 'Captura ainda não iniciada';
@@ -222,8 +356,9 @@ if (new URLSearchParams(location.search).has('connected')) {
         play.setAttribute('aria-label', state && state.session_id ? 'Encerrar sessão':'Escolher fonte para iniciar');
       }
       const source = document.querySelector('#source-name');
-      if (source) source.textContent = selected ? selected.label :
-        state?.source_label || 'Nenhuma fonte selecionada';
+      if (source) source.textContent = state?.session_id ?
+        (state.source_label || 'Fonte em uso') :
+        (selected?.label || 'Nenhuma fonte selecionada');
     }
     if (current === 'board') {
       const arena = document.querySelector('.board-detail .arena, .board-detail .live-board-empty');
@@ -338,6 +473,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (changed) render(current);
       else {
         connectedCoach();
+        if (current === 'studio') renderLiveDiagnostics();
         const now = performance.now();
         while (previewDrawTimes.length && previewDrawTimes[0] < now - 1000)
           previewDrawTimes.shift();
