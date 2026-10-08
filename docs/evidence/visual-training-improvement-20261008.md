@@ -24,3 +24,12 @@ continues to decide whether a new model replaces the baseline.
 To measure improvement, compare per-match accuracy and macro recall against
 the retained model on independent matches after new confirmed examples arrive.
 The queue alone does not train or promote a model.
+
+Deployment check on BigBANANA: the eight previously processed sessions now have
+review queues with 175 unit crops in total and zero new labels. Those older
+sessions contain no item-change events. On a two-minute full-HUD source video,
+the selector chose 58 frames: 35 shop changes, three bench/item-area changes,
+one board change, and 19 periodic frames. A separate board-only clip produced
+no shop events, as expected. This checks acquisition behavior; it is not a
+recognition-accuracy measurement. New Windows sessions are still needed to
+measure the gain in confirmed labels and independent-match accuracy.

@@ -32,6 +32,7 @@ def fingerprint(path: Path) -> int:
 
 def build_queue(capture: dict, collection: Path, max_units: int = 64,
                 max_item_contexts: int = 32) -> dict:
+    collection = collection.resolve()
     frames = capture["frames"]
     observations = collection / "observations.jsonl"
     units: list[dict] = []
@@ -45,7 +46,7 @@ def build_queue(capture: dict, collection: Path, max_units: int = 64,
         frame = frames[index]
         event = frame.get("capture_event") or "unspecified"
         frame_path = collection / str(observation.get("review_frame") or "")
-        if not frame_path.is_file():
+        if not frame_path.resolve().is_relative_to(collection) or not frame_path.is_file():
             continue
         context = {
             "frame_index": index,
@@ -61,13 +62,15 @@ def build_queue(capture: dict, collection: Path, max_units: int = 64,
         for unit in observation.get("units") or []:
             pixel_sha = unit.get("pixel_sha256")
             crop = collection / str(unit.get("crop") or "")
-            if not isinstance(pixel_sha, str) or pixel_sha in seen_pixels or not crop.is_file():
+            if (not isinstance(pixel_sha, str) or pixel_sha in seen_pixels
+                    or not crop.resolve().is_relative_to(collection) or not crop.is_file()):
                 continue
             seen_pixels.add(pixel_sha)
             candidates = unit.get("candidates") or []
             margin = None
             if len(candidates) >= 2:
                 scores = [candidate.get("score", candidate.get("confidence"))
+                          if isinstance(candidate, dict) else None
                           for candidate in candidates[:2]]
                 if all(isinstance(score, (int, float)) for score in scores):
                     margin = abs(scores[0] - scores[1])
