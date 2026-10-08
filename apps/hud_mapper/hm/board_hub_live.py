@@ -64,6 +64,7 @@ class BoardHubLive:
         self.knowledge_release = release_manifest['release_sha256']
         self.knowledge_patch = knowledge['tft_patch']
         selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
+        self.selected_item_entries = selected
         missing = [entry['icon'] for entry in selected if not (self.icons / entry['icon']).is_file()]
         available_selected = [entry for entry in selected if (self.icons / entry['icon']).is_file()]
         self.missing_item_icons = len(missing)
@@ -148,7 +149,8 @@ class BoardHubLive:
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates,
-                                      allow_unmatched_arena=True)
+                                      allow_unmatched_arena=True,
+                                      selected_entries=self.selected_item_entries)
             timings['snapshot_ms'] = (time.perf_counter_ns()-started)/1e6
             stage_started = time.perf_counter_ns()
             try:

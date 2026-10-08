@@ -72,50 +72,83 @@ class LinuxX11CaptureSource:
         self.lock = threading.Lock()
         self.log_tail = []
         self.frame_bytes = width*height*3
+        self.capture_epoch_ns = time.perf_counter_ns()
         # On four-core desktops, leave CPU room for the player and the UI.
         desktop_cap = 15 if (os.cpu_count() or 1) <= 4 else 20
-        self.frame_rate = min(desktop_cap, max(2, int(round(preview_hz or hz))))
-        command = ['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error',
+        self.frame_rate = min(4 if self.preview_frames else desktop_cap,
+                              max(4 if self.preview_frames else 2, int(round(hz))))
+        source = ['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error',
                    '-f', 'x11grab', '-draw_mouse', '0', '-video_size', f'{width}x{height}',
-                   '-framerate', str(self.frame_rate), '-i', f'{os.environ["DISPLAY"]}+{x},{y}',
-                   '-an', '-pix_fmt', 'rgb24', '-f', 'rawvideo', 'pipe:1']
+                   '-framerate']
+        command = source + [str(self.frame_rate), '-i', f'{os.environ["DISPLAY"]}+{x},{y}',
+                            '-an', '-pix_fmt', 'rgb24', '-f', 'rawvideo', 'pipe:1']
         self.proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE, bufsize=0)
+        self.preview_proc = None
+        self.preview_reader = None
+        self.preview_stderr = None
+        if self.preview_frames is not None:
+            target_width, target_height = preview_size or (960, 540)
+            scale = min(1.0, target_width / width, target_height / height)
+            self.preview_width = max(1, round(width * scale))
+            self.preview_height = max(1, round(height * scale))
+            self.preview_frame_bytes = self.preview_width * self.preview_height * 3
+            self.preview_rate = min(desktop_cap, max(2, int(round(preview_hz))))
+            preview_command = source + [str(self.preview_rate), '-i',
+                f'{os.environ["DISPLAY"]}+{x},{y}', '-an', '-filter_threads', '1',
+                '-vf', f'scale={self.preview_width}:{self.preview_height}:flags=fast_bilinear',
+                '-pix_fmt', 'rgb24', '-f', 'rawvideo', 'pipe:1']
+            try:
+                self.preview_proc = subprocess.Popen(preview_command,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
+            except Exception:
+                self.proc.terminate()
+                self.proc.wait(timeout=2)
+                self.proc.stdout.close()
+                self.proc.stderr.close()
+                raise
+            self.preview_reader = threading.Thread(target=self._read_preview, daemon=True,
+                                                   name='tft-x11-preview')
+            self.preview_stderr = threading.Thread(target=self._stderr,
+                args=(self.preview_proc,), daemon=True, name='tft-x11-preview-stderr')
         self.reader = threading.Thread(target=self._read, daemon=True,
                                        name='tft-x11-capture')
-        self.stderr = threading.Thread(target=self._stderr, daemon=True,
+        self.stderr = threading.Thread(target=self._stderr, args=(self.proc,), daemon=True,
                                        name='tft-x11-stderr')
         self.reader.start()
         self.stderr.start()
+        if self.preview_reader:
+            self.preview_reader.start()
+            self.preview_stderr.start()
 
-    def _stderr(self):
-        for raw in iter(self.proc.stderr.readline, b''):
+    def _stderr(self, proc):
+        for raw in iter(proc.stderr.readline, b''):
             self.log_tail = (self.log_tail + [raw.decode('utf-8', 'replace')[-1000:]])[-20:]
+
+    @staticmethod
+    def _read_exact(proc, size):
+        pixels = bytearray(size)
+        view = memoryview(pixels)
+        offset = 0
+        while offset < size:
+            received = proc.stdout.readinto(view[offset:])
+            if not received:
+                return None
+            offset += received
+        return bytes(pixels)
 
     def _read(self):
         index = 0
-        first_capture_ns = None
         try:
             while not self.stop.is_set():
-                chunks = bytearray()
-                while len(chunks) < self.frame_bytes and not self.stop.is_set():
-                    chunk = self.proc.stdout.read(min(1 << 20, self.frame_bytes-len(chunks)))
-                    if not chunk:
-                        break
-                    chunks.extend(chunk)
-                if len(chunks) != self.frame_bytes:
+                pixels = self._read_exact(self.proc, self.frame_bytes)
+                if pixels is None:
                     break
                 now = time.perf_counter_ns()
-                if first_capture_ns is None:
-                    first_capture_ns = now
-                frame = CapturedFrame(index, (now-first_capture_ns)/1e6, now, now, self.ready['width'],
-                                      self.ready['height'], bytes(chunks), 0,
+                frame = CapturedFrame(index, (now-self.capture_epoch_ns)/1e6, now, now,
+                                      self.ready['width'], self.ready['height'], pixels, 0,
                                       dict(backend='ffmpeg_x11grab', capture_ns=now,
                                            frame_id=index, target=self.target['device']))
-                if self.preview_frames is not None:
-                    self.preview_frames.put(frame)
-                    self.preview_received += 1
-                    self.last_preview_received_ns = now
                 try:
                     self.pending.get_nowait()
                     self.source_replaced += 1
@@ -130,6 +163,28 @@ class LinuxX11CaptureSource:
                 self.error = str(exc)
         finally:
             self.reader_done.set()
+
+    def _read_preview(self):
+        index = 0
+        try:
+            while not self.stop.is_set():
+                pixels = self._read_exact(self.preview_proc, self.preview_frame_bytes)
+                if pixels is None:
+                    break
+                now = time.perf_counter_ns()
+                frame = CapturedFrame(index, (now-self.capture_epoch_ns)/1e6, now, now,
+                                      self.preview_width, self.preview_height, pixels, 0,
+                                      dict(backend='ffmpeg_x11grab_scaled_preview', capture_ns=now,
+                                           frame_id=index, target=self.target['device']))
+                self.preview_frames.put(frame)
+                self.preview_received += 1
+                self.last_preview_received_ns = now
+                index += 1
+            if not self.stop.is_set():
+                self.error = ''.join(self.log_tail)[-1200:] or 'Prévia X11 encerrada.'
+        except Exception as exc:
+            if not self.stop.is_set():
+                self.error = str(exc)
 
     def frames(self, cancelled, max_seconds=300):
         first = None
@@ -163,15 +218,18 @@ class LinuxX11CaptureSource:
                 return
             self.closed = True
             self.stop.set()
-            if self.proc.poll() is None:
-                self.proc.terminate()
-                try:
-                    self.proc.wait(timeout=2)
-                except subprocess.TimeoutExpired:
-                    self.proc.kill()
-            self.proc.stdout.close()
-            self.proc.stderr.close()
-            if self.reader is not threading.current_thread():
-                self.reader.join(2)
-            if self.stderr is not threading.current_thread():
-                self.stderr.join(2)
+            for proc in (self.proc, self.preview_proc):
+                if proc is None:
+                    continue
+                if proc.poll() is None:
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=2)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                proc.stdout.close()
+                proc.stderr.close()
+            for thread in (self.reader, self.stderr, self.preview_reader,
+                           self.preview_stderr):
+                if thread is not None and thread is not threading.current_thread():
+                    thread.join(2)

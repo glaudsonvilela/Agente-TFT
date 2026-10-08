@@ -3,6 +3,7 @@ import copy
 import json
 from pathlib import Path
 import unittest
+import numpy as np
 
 from training.board_hub_inventory import observe, validate_profile
 
@@ -36,6 +37,24 @@ class InventoryTests(unittest.TestCase):
         result = observe(frame, WIDTH, HEIGHT, PROFILE)
         self.assertEqual(result["panel_status"], "unavailable")
         self.assertEqual({slot["status"] for slot in result["slots"]}, {"unavailable"})
+
+    def test_vectorized_regions_match_scalar_reader(self):
+        frame = bytearray(WIDTH * HEIGHT * 3)
+        rng = np.random.default_rng(19)
+        for rect in [PROFILE["anchor"]] + [
+            {"x": PROFILE["slot_origin"]["x"] + PROFILE["icon_inner_offset"]["x"],
+             "y": PROFILE["slot_origin"]["y"] + index * PROFILE["slot_step_y"]
+                  + PROFILE["icon_inner_offset"]["y"],
+             **PROFILE["icon_inner_size"]}
+            for index in range(PROFILE["slot_count"])
+        ]:
+            pixels = rng.integers(0, 256, (rect["height"], rect["width"], 3), dtype=np.uint8)
+            for row in range(rect["height"]):
+                start = ((rect["y"] + row) * WIDTH + rect["x"]) * 3
+                frame[start:start + rect["width"] * 3] = pixels[row].tobytes()
+        scalar = observe(frame, WIDTH, HEIGHT, PROFILE)
+        array = np.frombuffer(frame, dtype=np.uint8).reshape(HEIGHT, WIDTH, 3)
+        self.assertEqual(observe(frame, WIDTH, HEIGHT, PROFILE, frame_array=array), scalar)
 
     def test_resolution_buffer_and_profile_errors(self):
         frame = bytearray(WIDTH * HEIGHT * 3)

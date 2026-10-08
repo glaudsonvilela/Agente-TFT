@@ -14,6 +14,7 @@ from urllib.request import urlopen
 from ingestion.knowledge_release import canonical, digest, require
 from ingestion.riot_ddragon_reference import BASE
 from training.board_hub_inventory import observe
+from training.board_hub_frame import PreparedFrame
 
 
 def load_reference(folder: Path) -> tuple[dict, list[dict]]:
@@ -156,15 +157,17 @@ def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
 
 
 def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path,
-        match_scope: str = "all", preloaded_templates: tuple[TemplateBank, int] | None = None) -> dict:
-    import numpy as np
-
-    rgb = image.convert("RGB")
-    inventory = observe(rgb.tobytes(), rgb.width, rgb.height, profile)
-    selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
+        match_scope: str = "all", preloaded_templates: tuple[TemplateBank, int] | None = None,
+        prepared_frame: PreparedFrame | None = None, selected_entries: list[dict] | None = None) -> dict:
+    prepared = prepared_frame or PreparedFrame.from_image(image)
+    rgb = prepared.rgb
+    inventory = observe(prepared.pixels, rgb.width, rgb.height, profile,
+                        frame_array=prepared.array)
+    selected = selected_entries if selected_entries is not None else select_entries(
+        entries, manifest.get("set_key", ""), match_scope)
     templates, available = preloaded_templates if preloaded_templates is not None else load_templates(selected, icon_dir)
     # Keep the full frame byte-sized; only tiny candidate patches need floats.
-    frame = np.asarray(rgb, dtype=np.uint8)
+    frame = prepared.array
     rows = []
     for slot in inventory["slots"]:
         if slot["status"] != "icon_candidate":

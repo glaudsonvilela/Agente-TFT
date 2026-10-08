@@ -59,6 +59,7 @@ pub struct Observation {
 pub struct Reader {
     config: Config,
     cached: Option<(Vec<u8>, Observation, u64, u64)>,
+    selected_location: Option<String>,
 }
 
 impl Reader {
@@ -67,6 +68,7 @@ impl Reader {
         Ok(Self {
             config,
             cached: None,
+            selected_location: None,
         })
     }
 
@@ -104,7 +106,18 @@ impl Reader {
         let mut values = Vec::<String>::new();
         let mut accepted = None;
         let mut attempts = Vec::new();
-        for (candidate, roi) in self.config.candidates.iter().zip(&rois) {
+        let previous_value = self.cached.as_ref().and_then(|(_, observation, _, _)|
+            observation.read.as_ref().map(|read| read.recognized_text.as_str()));
+        let mut order: Vec<usize> = (0..self.config.candidates.len()).collect();
+        if let Some(selected) = &self.selected_location {
+            if let Some(index) = order.iter().position(|&index| self.config.candidates[index].name == *selected) {
+                order.swap(0, index);
+            }
+        }
+        let mut reused_location = false;
+        for index in order {
+            let candidate = &self.config.candidates[index];
+            let roi = &rois[index];
             let mut agreeing = Vec::new();
             for scale in [1, 2] {
                 // The stage glyph touches a very small crop. Numeric HUD padding
@@ -131,16 +144,27 @@ impl Reader {
                 attempts.push(trace);
             }
             if agreeing.len() == 2 && agreeing[0].0 == agreeing[1].0 && accepted.is_none() {
+                // A stable, previously verified location needs no second OCR
+                // probe. On a changed value or failed read, inspect all ROIs.
+                let stable = self.selected_location.as_deref() == Some(candidate.name.as_str())
+                    && previous_value == Some(agreeing[0].0.as_str());
                 accepted = Some((
                     candidate,
                     agreeing[0].0.clone(),
                     agreeing[0].1.min(agreeing[1].1),
                 ));
+                if stable {
+                    reused_location = true;
+                    break;
+                }
             }
         }
         let mut details = json!({"profile":"stage_localization_v1",
             "preprocess":"raw_grayscale_borderless_1x_2x","attempts":attempts,
-            "temporal_consensus":false,"reason":"no_scale_consensus"});
+            "temporal_consensus":false,"reason":"no_scale_consensus",
+            "selected_location_reused":reused_location});
+        let attempts_made = details["attempts"].as_array().map_or(0, Vec::len);
+        let mut selected_name = None;
         let read = if values.len() > 1 {
             details["reason"] = json!("conflicting_candidates");
             None
@@ -156,6 +180,7 @@ impl Reader {
             details["reason"] = json!("two_scale_consensus");
             details["selected_candidate"] = json!(candidate.name);
             details["normalized_rect"] = json!(candidate.rect);
+            selected_name = Some(candidate.name.clone());
             Some(RobustHudRead {
                 batch,
                 recognized_text: value,
@@ -164,7 +189,7 @@ impl Reader {
                     upscale_factor: 1,
                     invert: false,
                 },
-                attempts_made: rois.len() * 2,
+                attempts_made,
             })
         } else {
             None
@@ -174,6 +199,7 @@ impl Reader {
             details,
             cache_hit: false,
         };
+        self.selected_location = selected_name;
         self.cached = Some((
             signature,
             observation.clone(),
@@ -320,6 +346,31 @@ mod tests {
             .unwrap();
         assert!(!result.cache_hit);
         assert_eq!(result.read.unwrap().recognized_text, "1-1");
+    }
+    #[test]
+    fn stable_stage_location_reads_two_scales_after_background_changes() {
+        let (mut reader, mut frame) = setup();
+        reader.observe(&frame, &mut fake(&[None, None, Some(("1-4", 0.97)), Some(("1-4", 0.98))])).unwrap();
+        frame.frame_id = 2;
+        frame.pixels[(10 * 1920 + 830) * 3] = 80;
+        let result = reader.observe(&frame, &mut fake(&[Some(("1-4", 0.97)), Some(("1-4", 0.98))])).unwrap();
+        assert_eq!(result.read.unwrap().attempts_made, 2);
+        assert_eq!(result.details["selected_location_reused"], true);
+        assert_eq!(result.details["attempts"].as_array().unwrap().len(), 2);
+    }
+    #[test]
+    fn changed_stage_value_checks_other_location_for_conflicts() {
+        let (mut reader, mut frame) = setup();
+        reader.observe(&frame, &mut fake(&[None, None, Some(("1-4", 0.97)), Some(("1-4", 0.98))])).unwrap();
+        frame.frame_id = 2;
+        frame.pixels[(10 * 1920 + 830) * 3] = 80;
+        let result = reader.observe(&frame, &mut fake(&[
+            Some(("1-5", 0.97)), Some(("1-5", 0.98)),
+            Some(("2-1", 0.97)), Some(("2-1", 0.98)),
+        ])).unwrap();
+        assert!(result.read.is_none());
+        assert_eq!(result.details["reason"], "conflicting_candidates");
+        assert_eq!(result.details["attempts"].as_array().unwrap().len(), 4);
     }
     #[test]
     fn stage_preparation_keeps_the_crop_borderless_at_both_scales() {

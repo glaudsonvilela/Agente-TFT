@@ -344,7 +344,9 @@ class StudioController:
             next_jpeg = time.monotonic() + 1/30
             try:
                 encode_start = time.perf_counter_ns()
-                preview_size = (session.options.preview_width, session.options.preview_height)
+                options = getattr(session, 'options', None)
+                preview_size = (getattr(options, 'preview_width', 1280),
+                                getattr(options, 'preview_height', 720))
                 if fast_backend and len(frame.rgb) == frame.width * frame.height * 3:
                     cv2, np = fast_backend
                     scale = min(1.0, preview_size[0] / frame.width,
@@ -368,7 +370,7 @@ class StudioController:
                     if image.width > preview_size[0] or image.height > preview_size[1]:
                         image.thumbnail(preview_size, Image.Resampling.BILINEAR)
                     out = BytesIO()
-                    image.save(out, "JPEG", quality=60 if session.ubuntu_mvp_diagnostics else 72,
+                    image.save(out, "JPEG", quality=60 if getattr(session, 'ubuntu_mvp_diagnostics', False) else 72,
                                optimize=False)
                     encoded = out.getvalue()
                 with self.lock:

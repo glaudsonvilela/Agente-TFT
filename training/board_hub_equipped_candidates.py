@@ -7,6 +7,7 @@ from pathlib import Path
 
 from training.board_hub_item_candidates import (TemplateBank, load_reference,
                                                 load_templates, rank_patches, select_entries)
+from training.board_hub_frame import PreparedFrame
 from training.board_hub_position_candidates import project
 
 
@@ -55,11 +56,12 @@ def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profi
 def run(image, read: dict, board: dict, position_profile: dict, equipped_profile: dict,
         manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all",
         preloaded_templates: tuple[TemplateBank, int] | None = None,
-        allow_unmatched_arena: bool = False) -> dict:
-    import numpy as np
+        allow_unmatched_arena: bool = False, prepared_frame: PreparedFrame | None = None,
+        selected_entries: list[dict] | None = None) -> dict:
 
     validate(equipped_profile, board)
-    rgb = image.convert("RGB")
+    prepared = prepared_frame or PreparedFrame.from_image(image)
+    rgb = prepared.rgb
     if (rgb.width, rgb.height) != (board["reference_width"], board["reference_height"]):
         raise ValueError("equipped frame resolution mismatch")
     positions = project(read, position_profile, board,
@@ -68,10 +70,11 @@ def run(image, read: dict, board: dict, position_profile: dict, equipped_profile
         return {"status": "projection_unavailable", "markers": [], "item_identity_established": False,
                 "unit_identity_established": False, "game_state_updated": False}
     locations = {row["marker_id"]: row for row in positions["candidates"]}
-    selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
+    selected = selected_entries if selected_entries is not None else select_entries(
+        entries, manifest.get("set_key", ""), match_scope)
     templates, available = (preloaded_templates if preloaded_templates is not None else
                             load_templates(selected, icon_dir, size=equipped_profile["icon_size"]))
-    frame = np.asarray(rgb, dtype=np.uint8)
+    frame = prepared.array
     rows = []
     for marker in read["markers"]:
         if marker["color"] != "green":
