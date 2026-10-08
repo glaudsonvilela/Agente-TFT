@@ -1,0 +1,9 @@
+[package]
+name = "agente-tft-hm45-bootstrap"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8"
+serde_json = "1"
+sha2 = "0.10"

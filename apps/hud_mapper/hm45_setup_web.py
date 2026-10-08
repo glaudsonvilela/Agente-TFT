@@ -227,10 +227,14 @@ def run_setup(app_exe: Path, *, resume=False, resume_headless=False) -> int:
     server = SetupServer(controller, root)
     threading.Thread(target=server.serve_forever, daemon=True, name="hm45-setup-web").start()
     try:
-        open_local_window(server.url, "setup-browser")
+        handoff = os.environ.get("AGENTE_TFT_BOOTSTRAP_URL_FILE")
+        if handoff:
+            Path(handoff).write_text(server.url, encoding="utf-8")
+        else:
+            open_local_window(server.url, "setup-browser")
         while not controller.closed.wait(1):
             if (server.api_seen and controller.state()["phase"] not in ("checking", "installing")
-                    and time.monotonic() - server.last_api_at > 60):
+                    and time.monotonic() - server.last_api_at > 1800):
                 break
     finally:
         server.shutdown()

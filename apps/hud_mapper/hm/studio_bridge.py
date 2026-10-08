@@ -440,8 +440,21 @@ def package_contract(output):
     finally:
         server.shutdown()
         server.server_close()
+    capture_present = None
+    targets_enumerated = None
+    target_count = None
+    if os.name == "nt":
+        from .capture_source import native_path, list_targets
+        configs = runtime_paths()["configs"]
+        capture_present = native_path(configs).is_file()
+        if not capture_present:
+            raise RuntimeError("O capturador Rust não está no pacote Windows.")
+        targets = list_targets(configs)
+        targets_enumerated = True
+        target_count = len(targets)
     report = {"studio_assets_served": True, "local_api_responded": True,
-              "clr_free_shell": True}
+              "clr_free_shell": True, "native_capture_present": capture_present,
+              "targets_enumerated": targets_enumerated, "target_count": target_count}
     target = Path(output)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
@@ -460,7 +473,11 @@ def run_studio(*, browser=False):
         from browser_shell import open_local_window
         open_local_window(server.url, "studio-browser")
         while not controller.closed.wait(1):
-            if server.api_seen and time.monotonic() - server.last_api_at > 30:
+            # Browser timers can be suspended while the replay player is in
+            # front. Never end an active capture merely because UI polling
+            # paused; let its own duration/stop contract finish the session.
+            active = controller.session is not None and not controller.session.finished
+            if server.api_seen and not active and time.monotonic() - server.last_api_at > 600:
                 break
     finally:
         controller.close()

@@ -101,7 +101,9 @@ jobs:
           if (-not $iscc) { throw 'ISCC.exe missing' }
           & $iscc build/HM45.iss
           if ($LASTEXITCODE -ne 0) { throw 'Inno wizard compilation failed' }
+          Copy-Item dist/AgenteTFT-HM45-Inner-Setup.exe dist/AgenteTFT-HM45-Setup.exe
           python scripts/build_hm45_online_installer_windows.py
           if ($LASTEXITCODE -ne 0) { throw 'Online bootstrap compilation failed' }
           Remove-Item dist/AgenteTFT-HM45-Setup.exe
+          Remove-Item dist/AgenteTFT-HM45-Inner-Setup.exe
           Remove-Item dist/AgenteTFT-HM45-Online-Setup.exe

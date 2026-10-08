@@ -2,8 +2,9 @@
 // Runs only in the installed local studio. The design preview remains
 // independently navigable and keeps its illustrative labels.
 if (new URLSearchParams(location.search).has('connected')) {
+  document.body.classList.add('connected-app');
   const originalRender = render;
-  let sourceRows = [], selected = null, state = null, starting = false, profilePrompted = false;
+  let sourceRows = [], selected = null, state = null, starting = false, profilePrompted = false, sourceLoadRevision = 0;
   const ratedTips = new Set();
   const localApi = new Proxy({}, {get: (_target, method) => async (...args) => {
     const response = await fetch(new URL(`api/${method}`, location.href), {
@@ -20,6 +21,37 @@ if (new URLSearchParams(location.search).has('connected')) {
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const livePath = new URL('preview.mjpg', location.href).pathname;
   const regions = ['BR','NA','LAN','LAS','EUW','EUNE','KR','JP','OCE','TR','RU','SEA','TW','VN'];
+  async function loadSources(dialog) {
+    const revision = ++sourceLoadRevision;
+    sourceRows = [];
+    selected = null;
+    const options = dialog.querySelector('.source-options');
+    const confirm = dialog.querySelector('#confirm-source');
+    const message = dialog.querySelector('#source-message');
+    options.innerHTML = '<div class="source-wait">Buscando monitores e janelas…</div>';
+    message.textContent = '';
+    message.hidden = true;
+    confirm.disabled = true;
+    try {
+      const rows = await api().list_sources();
+      if (revision !== sourceLoadRevision) return;
+      if (!Array.isArray(rows)) throw new Error('O capturador retornou uma lista inválida.');
+      sourceRows = rows;
+      options.innerHTML = rows.length ? rows.map((row, index) =>
+        `<button class="source-option ${index===0?'selected':''}" data-source-index="${index}" aria-pressed="${index===0}">`+
+        `<span data-icon="${row.kind==='monitor'?'monitor':'window'}"></span><b>${escapeHtml(row.label)}</b>`+
+        `<small>${row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('') :
+        '<div class="source-wait">Nenhum monitor ou janela disponível nesta sessão do Windows.</div>';
+      selected = rows[0] || null;
+      confirm.disabled = !selected;
+      hydrate();
+    } catch (error) {
+      if (revision !== sourceLoadRevision) return;
+      options.innerHTML = '';
+      message.textContent = 'Não foi possível listar as telas: '+clean(error);
+      message.hidden = false;
+    }
+  }
   function profileForm(profile) {
     return `<span class="eyebrow">SEU PERFIL LOCAL</span><h2>Bem-vindo ao Agente TFT</h2>`+
       `<p>Coloque seu nick e região para começar. Nenhum login na Riot é necessário.</p>`+
@@ -217,16 +249,9 @@ if (new URLSearchParams(location.search).has('connected')) {
     }
     if (button.id === 'choose-source') {
       event.stopImmediatePropagation();
-      try { sourceRows = await api().list_sources(); }
-      catch (error) { toast('Falha ao listar fontes: '+clean(error)); return; }
       const dialog = document.querySelector('#source-dialog');
       dialog.querySelector('p').textContent =
         'Ao iniciar, você autoriza a captura local desta fonte. Partidas ao vivo podem ser enviadas para aprendizado após o encerramento; replays não são enviados.';
-      dialog.querySelector('.source-options').innerHTML = sourceRows.map((row, index) =>
-        `<button class="source-option ${index===0?'selected':''}" data-source-index="${index}" aria-pressed="${index===0}">`+
-        `<span data-icon="${row.kind==='monitor'?'monitor':'window'}"></span><b>${escapeHtml(row.label)}</b>`+
-        `<small>${row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('');
-      selected = sourceRows[0] || null;
       let replayChoice = dialog.querySelector('#studio-replay-choice');
       if (!replayChoice) {
         replayChoice = document.createElement('label');
@@ -238,12 +263,18 @@ if (new URLSearchParams(location.search).has('connected')) {
       dialog.querySelector('#confirm-source').innerHTML = 'Iniciar captura <span>→</span>';
       hydrate();
       dialog.showModal();
+      await loadSources(dialog);
+      return;
+    }
+    if (button.id === 'retry-sources') {
+      event.stopImmediatePropagation();
+      await loadSources(document.querySelector('#source-dialog'));
       return;
     }
     if (button.dataset.sourceIndex != null) {
       event.stopImmediatePropagation();
       selected = sourceRows[Number(button.dataset.sourceIndex)];
-      document.querySelectorAll('.source-option').forEach(el => {
+      document.querySelectorAll('#source-dialog .source-option').forEach(el => {
         el.classList.toggle('selected', el===button);
         el.setAttribute('aria-pressed', String(el===button));
       });
@@ -260,7 +291,11 @@ if (new URLSearchParams(location.search).has('connected')) {
         toast(replayReview ? 'Revisão iniciada. O replay não será usado para aprendizado.' :
           'Captura local iniciada. O aprendizado será enviado após a partida.');
         await refresh();
-      } catch (error) { toast('Captura não iniciada: '+clean(error)); }
+      } catch (error) {
+        const message = document.querySelector('#source-message');
+        message.textContent = 'Captura não iniciada: '+clean(error);
+        message.hidden = false;
+      }
       finally { starting = false; }
       return;
     }

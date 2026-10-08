@@ -5,7 +5,7 @@ DefaultDirName={localappdata}\AgenteTFT-HM45
 DefaultGroupName=Agente TFT
 PrivilegesRequired=lowest
 OutputDir=..\dist
-OutputBaseFilename=AgenteTFT-HM45-Setup
+OutputBaseFilename=AgenteTFT-HM45-Inner-Setup
 Compression=lzma2/ultra64
 SolidCompression=yes
 ArchitecturesAllowed=x64compatible
@@ -13,6 +13,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\AgenteTFT-HUD-HM4-Auto.exe
 DisableProgramGroupPage=yes
 DisableDirPage=yes
+UsePreviousAppDir=no
 DisableReadyPage=yes
 DisableWelcomePage=yes
 DisableFinishedPage=yes
@@ -46,7 +47,5 @@ Filename: "{app}\AgenteTFT-HUD-HM4-Auto.exe"; Parameters: "--setup-assistant"; D
 [Code]
 function InitializeSetup: Boolean;
 begin
-  Result := not WizardSilent;
-  if not Result then
-    MsgBox('Este pacote requer a instalação guiada para verificar o WSL 2 e a VM.', mbError, MB_OK);
+  Result := True;
 end;

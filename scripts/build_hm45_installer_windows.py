@@ -11,6 +11,7 @@ import os
 import shutil
 import subprocess
 import tarfile
+import struct
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,9 +78,39 @@ iscc = next((path for path in (
 if iscc is None:
     raise SystemExit("Inno Setup 6 unavailable")
 subprocess.run([str(iscc), str(destination)], cwd=ROOT, check=True)
+inner = ROOT / "dist/AgenteTFT-HM45-Inner-Setup.exe"
+if not inner.is_file():
+    raise SystemExit("Inno did not produce its internal payload")
+bootstrap_manifest = ROOT / "tools/hm45-bootstrap/Cargo.toml"
+bootstrap_target = ROOT / "build/hm45-bootstrap-target"
+subprocess.run(["cargo", "test", "--locked", "--manifest-path", str(bootstrap_manifest),
+                "--target-dir", str(bootstrap_target)], cwd=ROOT, check=True)
+subprocess.run(["cargo", "build", "--locked", "--release", "--manifest-path",
+                str(bootstrap_manifest), "--target-dir", str(bootstrap_target)], cwd=ROOT, check=True)
+bootstrap = bootstrap_target / "release/agente-tft-hm45-bootstrap.exe"
+if not bootstrap.is_file():
+    raise SystemExit("Designer bootstrap did not compile")
 setup = ROOT / "dist/AgenteTFT-HM45-Setup.exe"
+with inner.open("rb") as source, setup.open("wb") as target:
+    with bootstrap.open("rb") as shell:
+        shutil.copyfileobj(shell, target, 1024 * 1024)
+    shutil.copyfileobj(source, target, 1024 * 1024)
+    with inner.open("rb") as checksum_input:
+        target.write(hashlib.file_digest(checksum_input, "sha256").digest())
+    target.write(struct.pack("<Q", inner.stat().st_size))
+    target.write(b"AGTFT001")
+smoke_path = ROOT / "build/hm45-bootstrap-smoke.json"
+subprocess.run([str(setup), "--bootstrap-smoke-output", str(smoke_path)], cwd=ROOT,
+               timeout=120, check=True)
+smoke = json.loads(smoke_path.read_text(encoding="utf-8"))
+if not all(smoke.get(key) is True for key in
+           ("payload_verified", "designer_embedded", "bootstrap_api_embedded")):
+    raise SystemExit(f"Bootstrapped installer failed its integrity/design smoke: {smoke}")
+inner.unlink()
+with setup.open("rb") as package_input:
+    installer_sha256 = hashlib.file_digest(package_input, "sha256").hexdigest()
 report = {
-    "installer_sha256": hashlib.sha256(setup.read_bytes()).hexdigest(),
+    "installer_sha256": installer_sha256,
     "installer_bytes": setup.stat().st_size,
     "rootfs_sha256": manifest["sha256"],
     "rootfs_bytes": rootfs.stat().st_size,
@@ -90,6 +121,8 @@ report = {
     "central_learning_server": "BigBANANA",
     "offline_voice_options": [],
     "voice_backend": "elevenlabs_api",
+    "designer_from_first_window": True,
+    "bootstrap_smoke": smoke,
     "release_ready": False,
     "reason": "Requires a real Windows/WSL2 field test before publication",
 }
