@@ -41,10 +41,11 @@ def _hp(answer):
 class LiveAdvice:
     """Small, bounded policy over observed HUD/shop signals and patch arithmetic."""
 
-    def __init__(self, *, economy, windows, champions, preference_path=None):
+    def __init__(self, *, economy, windows, champions, trait_breakpoints=None, preference_path=None):
         self.economy = economy
         self.windows = {row["stage"]: row for row in windows}
         self.champions = champions
+        self.trait_breakpoints = trait_breakpoints or {}
         self.preference_path = Path(preference_path) if preference_path else None
         self.lock = threading.Lock()
         self.feedback = {family: [1, 1] for family in FAMILIES}
@@ -190,6 +191,43 @@ class LiveAdvice:
 
             visual = visual_candidates if isinstance(visual_candidates, dict) else {}
             age = visual.get('age_ms')
+            counts = visual.get('trait_counts') or {}
+            if (visual.get('status') == 'candidate_persistence'
+                    and type(age) in (int, float) and math.isfinite(age)
+                    and 0 <= age <= 3500 and isinstance(counts, dict)):
+                for offer in offers:
+                    unit = self.champions[offer['unit_id']]
+                    cost = unit.get('cost')
+                    if (type(offer.get('slot')) is not int or type(cost) is not int
+                            or cost > gold or (type(offer.get('observed_cost')) is int
+                                and offer['observed_cost'] != cost)):
+                        continue
+                    for trait in unit.get('traits') or []:
+                        count = counts.get(trait)
+                        if type(count) is not int or not 1 <= count <= 9:
+                            continue
+                        next_tier = next((tier for tier in self.trait_breakpoints.get(trait, [])
+                                          if tier > count), None)
+                        if next_tier is None:
+                            continue
+                        completes = count + 1 == next_tier
+                        action = {'type': 'trait_shop_review', 'unit_id': offer['unit_id'],
+                                  'shop_slot': offer['slot'], 'trait': trait,
+                                  'visible_trait_count': count, 'next_breakpoint': next_tier,
+                                  'completes_breakpoint_if_fielded': completes}
+                        if completes:
+                            message = (f"Se {unit['name']} ainda não está em campo, colocá-lo "
+                                       f"pode levar {trait} de {count} para {next_tier}. "
+                                       "Confira se cabe no tabuleiro antes de comprar.")
+                        else:
+                            message = (f"A loja tem {unit['name']}, mas {trait} está em {count} "
+                                       f"e o próximo bônus pede {next_tier}. "
+                                       "Não compre só por esse traço.")
+                        options.append((self._priority('synergy', .72 if completes else .57),
+                            'synergy', action, message,
+                            ['shop.unique_name_bound', 'hub.confirmed_trait_count',
+                             'patch.trait_breakpoint', 'hud.gold']))
+
             if (visual.get('status') == 'candidate_persistence'
                     and type(age) in (int, float) and math.isfinite(age)
                     and 0 <= age <= 3500):

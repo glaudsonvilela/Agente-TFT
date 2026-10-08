@@ -55,12 +55,19 @@ class ReplayDecisionEngine:
         release = root / knowledge["reference"]
         release_manifest = json.loads((release / "release.json").read_text(encoding="utf-8"))
         units_bytes = (release / "units.json").read_bytes()
+        traits_bytes = (release / "traits.json").read_bytes()
         if (knowledge["set_key"] != self.set_key or knowledge["tft_patch"] != self.patch or
                 release_manifest["set"]["key"] != self.set_key or
                 release_manifest["tft_patch"] != self.patch or
-                release_manifest["components"]["units"]["sha256"] != hashlib.sha256(units_bytes).hexdigest()):
+                release_manifest["components"]["units"]["sha256"] != hashlib.sha256(units_bytes).hexdigest() or
+                release_manifest["components"]["traits"]["sha256"] != hashlib.sha256(traits_bytes).hexdigest()):
             raise ValueError("Champion attributes and selected patch differ")
         units = json.loads(units_bytes)["champions"]
+        traits = json.loads(traits_bytes)["traits"]
+        trait_breakpoints = {trait['name']: sorted({effect['min_units']
+            for effect in trait.get('effects') or []
+            if type(effect.get('min_units')) is int and effect['min_units'] >= 2})
+            for trait in traits}
         self.champion_attributes = {unit["api_name"]: unit for unit in units}
         if set(self.champion_attributes) != {entry["id"] for entry in champions["entries"]}:
             raise ValueError("Champion attributes and visual identities differ")
@@ -80,7 +87,8 @@ class ReplayDecisionEngine:
             raise ValueError('Strategic coach and observed catalog context differ')
         self.live_advice = LiveAdvice(economy=self.resource_engine,
             windows=self.economy_policy['level_windows'],
-            champions=self.champion_attributes, preference_path=preference_path)
+            champions=self.champion_attributes, trait_breakpoints=trait_breakpoints,
+            preference_path=preference_path)
 
     def _fallback_decision(self, output, reason, visual_candidates=None):
         provisional = self.live_advice.propose(output, visual_candidates)

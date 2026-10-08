@@ -32,7 +32,7 @@ def speech_importance(tip: dict) -> int:
         return 0
     priorities = {
         'roll': 100, 'equip': 95, 'buy_pair': 90, 'buy': 88,
-        'buy_synergy': 85, 'buy_xp': 80, 'position': 78,
+        'buy_synergy': 85, 'trait_shop_review': 82, 'buy_xp': 80, 'position': 78,
         'composition': 75, 'rebuild_after_level': 70,
         'prepare_level': 55, 'hold_econ': 20,
     }
@@ -93,8 +93,8 @@ class VoiceCoach:
     def observe_tip(self, tip, now_ns):
         """Try once per fresh observation, independent of whether UI text changed."""
         speakable = bool(tip and (tip.get('actionable') or tip.get('speakable')))
-        # A recurring interest reminder belongs in the panel, not in the
-        # spoken coach. Voice time is reserved for a concrete change or choice.
+        # Keep recurring interest reminders on screen; they are not a coach's
+        # substitute for a decision based on the board or a fresh shop.
         if tip and tip.get('action_type') == 'hold_interest':
             return None
         if not speakable or not tip.get('speech_text') or not self.enabled:return None

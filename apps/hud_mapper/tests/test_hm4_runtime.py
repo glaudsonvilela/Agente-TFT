@@ -204,6 +204,28 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertNotEqual(engine.evaluate(answer,visual_candidates=visual)
                             ['decision']['action']['type'],'buy_synergy')
 
+    def test_confirmed_trait_count_can_review_shop_without_claiming_owned_units(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field='gold',value=39,status='single_frame_observation',confidence=.95)],
+            'shop':{'cadence_delivery':{'fresh':True},'slots':[
+                dict(slot=0,status='offer_text_readable',observed_name='Akali',
+                     name_confidence=.96,name_evidence='strong_strip_only',observed_cost=1)]}}
+        visual=dict(status='candidate_persistence',age_ms=1000,units=[],
+                    trait_counts={'Inferno':3})
+        result=engine.evaluate(answer,visual_candidates=visual)
+        self.assertEqual(result['decision']['action']['type'],'trait_shop_review')
+        self.assertIn('próximo bônus pede 5',result['decision']['text'])
+        self.assertFalse(result['decision']['training_label'])
+        self.assertEqual(coach_prompt(result)['action_type'],'trait_shop_review')
+        visual['trait_counts']['Inferno']=4
+        completing=engine.evaluate(answer,visual_candidates=visual)
+        self.assertTrue(completing['decision']['action']['completes_breakpoint_if_fielded'])
+        self.assertIn('Se Akali ainda não está em campo',completing['decision']['text'])
+        visual['age_ms']=3501
+        self.assertNotEqual(engine.evaluate(answer,visual_candidates=visual)
+                            ['decision']['action']['type'],'trait_shop_review')
+
     def test_interest_tip_uses_stage_and_gold_without_level(self):
         engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
         answer={'origin':'observed_pixels','source_ms':1000,'hud':[

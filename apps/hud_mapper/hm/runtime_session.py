@@ -722,7 +722,9 @@ class HM4RuntimeSession(RuntimeSession):
                     self._latest_strategy_state = (dict(state=copy.deepcopy(state), epoch=frame.epoch,
                         source_ms=frame.pts_ms, due_ns=frame.due_ns) if state else None)
                     candidates = observed['snapshot'].get('temporal_candidates')
-                    self._latest_visual_candidates = (dict(candidates=copy.deepcopy(candidates),
+                    trait_counts = observed['snapshot'].get('confirmed_trait_counts') or {}
+                    self._latest_visual_candidates = (dict(candidates={
+                        **copy.deepcopy(candidates), 'trait_counts': copy.deepcopy(trait_counts)},
                         epoch=frame.epoch, source_ms=frame.pts_ms, due_ns=frame.due_ns)
                         if candidates else None)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')

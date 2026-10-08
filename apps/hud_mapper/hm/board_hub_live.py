@@ -9,10 +9,12 @@ from PIL import Image
 from training.board_hub_item_candidates import load_reference, load_templates, select_entries
 from training.board_hub_snapshot import build_snapshot
 from .core import region, xyxy
+from .trait_constraints import TraitCountConsensus
 
 
 class BoardHubLive:
     def __init__(self, configs: str, neural_root: str | Path | None = None):
+        self.trait_count_consensus = TraitCountConsensus()
         root = Path(configs).absolute().parent
         neural_root = Path(neural_root).absolute() if neural_root else root
         profile = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
@@ -189,6 +191,9 @@ class BoardHubLive:
         snapshot['opponent_panel_observation'] = read.get('opponent_panel')
         from .trait_constraints import bind_observed_traits, roster_hypotheses
         snapshot['trait_binding'] = bind_observed_traits(read.get('trait_panel'), self.trait_names)
+        snapshot['confirmed_trait_counts'] = self.trait_count_consensus.update(
+            read.get('trait_panel'), snapshot['trait_binding'],
+            epoch=getattr(source, 'epoch', None), source_ms=getattr(source, 'pts_ms', None))
         snapshot['trait_roster_hypotheses'] = roster_hypotheses(
             snapshot['trait_binding'], read.get('markers') or [], self.champion_traits)
         for marker in snapshot['observed_markers']:

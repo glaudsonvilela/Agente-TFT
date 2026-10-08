@@ -1,7 +1,21 @@
 import json
 from pathlib import Path
 
-from hm.trait_constraints import bind_observed_traits, roster_hypotheses
+from hm.trait_constraints import TraitCountConsensus, bind_observed_traits, roster_hypotheses
+
+
+def test_trait_count_needs_two_fresh_matching_reads():
+    tracker = TraitCountConsensus()
+    binding = {'traits': [dict(name='Inferno', method='exact_text', confidence=.96,
+                               row_box=[140, 375, 190, 387])]}
+    raw = {'status': 'raw_ocr', 'words': [dict(text='3', confidence=.97,
+                                             box=[118, 382, 126, 395])]}
+    assert tracker.update(raw, binding, epoch=1, source_ms=1000) == {}
+    assert tracker.update(raw, binding, epoch=1, source_ms=2000) == {'Inferno': 3}
+    assert tracker.update(raw, binding, epoch=2, source_ms=3000) == {}
+    assert tracker.update(raw, binding, epoch=2, source_ms=7000) == {}
+    assert tracker.update({**raw, 'words': [dict(text='4', confidence=.4,
+        box=[118, 382, 126, 395])]}, binding, epoch=2, source_ms=8000) == {}
 
 
 def _catalog():
