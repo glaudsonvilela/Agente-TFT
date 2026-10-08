@@ -23,12 +23,13 @@
 - Ao clicar em “Abrir Agente TFT”, o assistente espera a nova interface local responder e navega para ela na mesma janela. Se o processo encerrar ou não abrir no prazo, o erro permanece visível no assistente.
 - A conexão MJPEG deixa de reenviar uma imagem antiga quando não chega quadro novo; o ensaio de regressão cobre uma pausa superior a dois segundos.
 - A leitura de FPS e a troca de sessão agora usam a mesma sincronização da prévia. Um quadro da sessão anterior não pode substituir a imagem da sessão nova. A cada cinco segundos, o log registra FPS codificado, tempo de codificação, quadros nativos recebidos e substituições na fila para análise posterior.
+- A prévia conectada agora pede somente o próximo JPEG ao servidor local, desenha no canvas e libera a imagem decodificada após cada quadro. O aplicativo mostra o FPS efetivamente desenhado. A requisição pendente é cancelada ao trocar de tela ou fechar a janela.
 
 ## Verificação realizada no Ubuntu
 
 - Teste com navegador Chromium: escolher a janela, iniciar sessão local simulada, apresentar falha da enumeração e recuperar com nova consulta.
 - Teste visual em Chromium a 1120 × 800: primeira tela do instalador com o fundo escuro e a arte do designer, sem borda externa.
-- Testes Python de ponte local e assistente da VM: 10 aprovados, incluindo o início de captura sem esperar o servidor.
+- Testes Python de ponte local e assistente da VM: 15 aprovados, incluindo o início de captura sem esperar o servidor e a entrega de um quadro novo sem repetir a imagem antiga.
 - Testes Rust do iniciador: página servida em IP local, integridade do pacote e rejeição de pacote alterado: 4 aprovados.
 - Ensaio isolado do fluxo MJPEG por IP local: 297 quadros de aproximadamente 515 KiB em 9,83 segundos (30,1 FPS entregues; intervalo p95 de 33,8 ms). Isso testa o transporte local, não a captura Windows nem a decodificação visual no computador do usuário.
 - Ensaio local do codificador da interface com 120 quadros sintéticos em 4 segundos: 120 JPEGs produzidos (30 FPS), 7,75 ms no percentil 95 e nenhum quadro substituído. Isso não mede a aquisição WGC nem o navegador.
@@ -36,6 +37,9 @@
 - Ensaio de resistência do mesmo caminho por 330 segundos, com JPEGs sintéticos de cerca de 512 KiB: 9.866 mudanças observadas (29,9/s), intervalo p95 de 33,4 ms e duas pausas acima de 100 ms. Não houve degradação progressiva visível nesse recorte; captura WGC e analisador não participaram.
 - Dez quadros de uma sessão TFT anterior, reduzidos para no máximo 720p com qualidade JPEG 72, produziram arquivos com mediana de 115 KiB (máximo 143 KiB) e mediana de codificação de 3,61 ms no Ubuntu. É uma amostra pequena, mas o ensaio sintético acima transferiu quadros aproximadamente quatro vezes maiores.
 - Navegação real no Chromium entre o assistente visual simulado e o estúdio conectado: botão de abertura, resposta da ponte local e página final carregada na mesma janela.
+- O elemento MJPEG antigo manteve os quadros, mas o total de memória residente dos processos Chromium foi de cerca de 1.375 MiB no início para 1.535 MiB após 330 segundos, mesmo sem o resto da interface. Uma página Chromium parada ficou próxima de 900 MiB nas duas medições.
+- Com pedidos individuais e liberação explícita das imagens decodificadas, foram desenhados 9.908 quadros em 330 segundos (30,02 FPS), sem erro nem intervalo acima de 100 ms. O processo Python que serviu os quadros permaneceu perto de 53 MiB. O total dos processos Chromium foi de 956 para 1.136 MiB; parte desse salto veio da abertura de um processo auxiliar de aproximadamente 160 MiB do próprio Chromium durante o teste. Esses totais não isolam com precisão a memória do decodificador, mas a nova rota manteve cerca de 400 MiB a menos que a rota MJPEG nas duas janelas de medição.
+- A interface conectada completa desenhou uma imagem TFT em mudança, indicou 30 FPS exibidos e não registrou erro JavaScript em um ensaio curto. Fechar a janela durante um quadro pendente não deixa mais exceção no servidor.
 
 ## Fluidez: evidência e limite atual
 

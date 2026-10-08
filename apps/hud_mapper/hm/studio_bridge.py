@@ -463,7 +463,10 @@ class StudioHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
-        self.wfile.write(jpeg)
+        try:
+            self.wfile.write(jpeg)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def _preview(self):
         self.send_response(200)
