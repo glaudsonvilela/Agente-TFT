@@ -127,6 +127,11 @@ class ReplayDecisionEngine:
             return output
         if not choices:
             return output
+        if worker.ready.get('rank_advice') is not True:
+            output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
+            output['decision_rank'] = {'status': 'abstained',
+                                       'reason': 'RUST_MOTOR_VERSION_UNSUPPORTED'}
+            return output
         gold = _gold(output)
         hp_row = output.get('hp') or {}
         hp_delivery = output.get('hp_delivery') or {}
@@ -138,10 +143,17 @@ class ReplayDecisionEngine:
                 source_ms=output['source_ms'], candidates=choices[:24],
                 context=context), timeout=2)
             index = result.get('selected_index')
-            if (result.get('origin') != 'rust_live_opportunity_v1'
-                    or type(index) is not int or not 0 <= index < min(24, len(choices))):
-                raise ValueError('native motor abstained')
-        except (RuntimeError, TimeoutError, ValueError, OSError) as exc:
+            if result.get('origin') != 'rust_live_opportunity_v1':
+                raise ValueError('unexpected native motor response')
+            if index is None and result.get('ranked') == []:
+                output['decision'] = ReplayDecisionEngine._wait('NO_ACTIONABLE_NATIVE_CANDIDATE')
+                output['decision_rank'] = {'status': 'abstained',
+                                           'reason': 'NO_ACTIONABLE_NATIVE_CANDIDATE',
+                                           'native_ms': result.get('native_ms')}
+                return output
+            if type(index) is not int or not 0 <= index < min(24, len(choices)):
+                raise ValueError('invalid native motor selection')
+        except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
             output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
             output['decision_rank'] = {'status': 'abstained', 'reason': str(exc)}
             return output

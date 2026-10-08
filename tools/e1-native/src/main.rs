@@ -515,7 +515,7 @@ fn run()->Result<(),String>{
     }
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
-    writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"rank_advice":true,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
         "spatial_text_ocr_backend":readers.text_ocr_backend,"numeric_hud_ocr_fallback_error":readers.ocr_fallback_error,"pid":std::process::id()})).map_err(|e|e.to_string())?;
     output.flush().map_err(|e|e.to_string())?;
     while let Some(h)=header(&mut input)?{
