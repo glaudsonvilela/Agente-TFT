@@ -18,6 +18,7 @@ mod opponent_panel;
 mod live_rank;
 mod combat_facts;
 mod match_memory;
+mod match_brain;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,
           sync::mpsc::{self,TrySendError}};
@@ -518,7 +519,7 @@ fn run()->Result<(),String>{
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
     let mut memory=match_memory::from_environment();
-    writeln!(output,"{}",json!({"ready":true,"protocol":1,"rank_advice":true,"match_memory":true,"combat_facts":true,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"rank_advice":true,"ack_advice":true,"match_event":true,"match_memory":true,"combat_facts":true,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
         "spatial_text_ocr_backend":readers.text_ocr_backend,"numeric_hud_ocr_fallback_error":readers.ocr_fallback_error,"pid":std::process::id()})).map_err(|e|e.to_string())?;
     output.flush().map_err(|e|e.to_string())?;
     while let Some(h)=header(&mut input)?{
@@ -527,6 +528,8 @@ fn run()->Result<(),String>{
        Some("frame")=>readers.observe(&frame(&h,&mut input)?,h["include_shop"].as_bool().unwrap_or(true))?,
        Some("fixture")=>engine::fixture(id,number(&h,"source_ms")?,number(&h,"case")? as usize)?,
        Some("rank_advice")=>live_rank::rank(&h,&mut memory)?,
+       Some("ack_advice")=>live_rank::acknowledge(&h,&mut memory)?,
+       Some("match_event")=>live_rank::observe_event(&h,&mut memory)?,
        Some("combat_facts")=>combat_facts::analyze(&h)?,
        Some("reference")=>{
         let f=frame(&h,&mut input)?;readers.board=Some(scene::SceneReader::new(readers.board_profile.clone(),&f)?);

@@ -106,8 +106,12 @@ class EconomyBudgetTests(unittest.TestCase):
         ):
             leveling = engine.evaluate(answer)
         self.assertEqual(leveling["decision"]["action"]["type"], "buy_xp")
-        self.assertEqual(leveling["decision"]["resource_quote"]["gold_after"], 20)
-        self.assertIn("Suba para o nível 5", coach_prompt(leveling)["speech_text"])
+        verified = next(option for option in leveling["decision_options"]
+                        if option.get("resource_quote") and
+                        option["action"]["type"] == "buy_xp")
+        self.assertEqual(verified["resource_quote"]["gold_after"], 20)
+        self.assertIn("Suba para o nível 5",
+                      coach_prompt({**leveling, "decision": verified})["speech_text"])
         answer["source_ms"] = 2500
         answer["controls"]["cadence_delivery"]["fresh"] = False
         provisional = coach_prompt(engine.evaluate(answer))

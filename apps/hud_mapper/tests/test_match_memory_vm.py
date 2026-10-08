@@ -48,6 +48,52 @@ class MatchMemoryVMTests(unittest.TestCase):
                 'match_id': '../outside', 'candidates': [],
                 'context': {}, 'observation': {}}, b'')
 
+    def test_only_a_presented_tip_is_acknowledged_across_vm(self):
+        match_id = '0123456789abcdef0123456789abcdef'
+        class Reader:
+            def request(self, request, payload=b'', timeout=12):
+                self.seen = request
+                return {'id': request['id'], 'origin': 'rust_match_brain_ack_v1',
+                        'acknowledged': True}
+        server = object.__new__(AnalysisCore)
+        server.reader_lock = threading.Lock()
+        server.reader = Reader()
+        class VM:
+            ready = {'reader_ready': {'ack_advice': True}}
+            def request(self, op, frame_id, width=0, height=0, rgb=b'', **fields):
+                return server.dispatch({'op': op, 'frame_id': frame_id,
+                    'width': width, 'height': height, **fields}, rgb), 0.2
+        client = RemoteNativeWorker(VM(), 'reader')
+        result = client.request({'op': 'ack_advice', 'id': 7, 'match_id': match_id,
+            'epoch': 0, 'source_ms': 2000, 'stage': '3-2',
+            'decision_key': 'provisional:test'})
+        self.assertTrue(result['acknowledged'])
+        self.assertEqual(server.reader.seen['decision_key'], 'provisional:test')
+
+    def test_combat_event_reaches_persistent_worker_without_pixels(self):
+        match_id = '0123456789abcdef0123456789abcdef'
+        class Reader:
+            def request(self, request, payload=b'', timeout=12):
+                self.seen = request
+                assert payload == b''
+                return {'id': request['id'], 'stored': True}
+        server = object.__new__(AnalysisCore)
+        server.reader_lock = threading.Lock()
+        server.reader = Reader()
+        class VM:
+            ready = {'reader_ready': {'match_event': True}}
+            def request(self, op, frame_id, width=0, height=0, rgb=b'', **fields):
+                assert (width, height, rgb) == (0, 0, b'')
+                return server.dispatch({'op': op, 'frame_id': frame_id,
+                    'width': width, 'height': height, **fields}, rgb), 0.2
+        client = RemoteNativeWorker(VM(), 'reader')
+        event = {'event': 'combat_loss_observed', 'damage': 8,
+                 'cause_status': 'unresolved'}
+        result = client.request({'op': 'match_event', 'id': 7, 'match_id': match_id,
+            'epoch': 0, 'source_ms': 2000, 'event': event})
+        self.assertTrue(result['stored'])
+        self.assertEqual(server.reader.seen['event'], event)
+
 
 if __name__ == '__main__':
     unittest.main()

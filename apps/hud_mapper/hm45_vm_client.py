@@ -195,13 +195,19 @@ class RemoteNativeWorker:
 
     def request(self, header: dict, payload: bytes = b"", timeout: int = 12) -> dict:
         del timeout  # The connection has its own bounded socket deadline.
-        if header.get('op') in ('rank_advice', 'combat_facts'):
+        if header.get('op') in ('rank_advice', 'ack_advice', 'match_event', 'combat_facts'):
             if payload or self.kind != 'reader':
                 raise ValueError('Cálculo remoto não aceita pixels nem worker HP.')
             op = header['op']
             fields = ({key: header[key] for key in
                       ('match_id', 'epoch', 'source_ms', 'candidates', 'context', 'observation')}
                       if op == 'rank_advice' else
+                      {key: header[key] for key in
+                       ('match_id', 'epoch', 'source_ms', 'decision_key', 'stage')}
+                      if op == 'ack_advice' else
+                      {key: header[key] for key in
+                       ('match_id', 'epoch', 'source_ms', 'event')}
+                      if op == 'match_event' else
                       {key: header[key] for key in ('hp_before', 'hp_after')})
             result, network_core_ms = self.core.request(op, header['id'], **fields)
             result['vm_core_ms'] = network_core_ms

@@ -19,6 +19,15 @@ SHOP_CHANGE_MIN_BITS = 15
 SHOP_CHANGE_MIN_GAP_MS = 500.0
 
 
+def decision_reason(decision):
+    evidence = decision.get('evidence') or []
+    evidence_code = (evidence[0].get('code') if evidence and
+        isinstance(evidence[0], dict) else None)
+    return ((decision.get('economy') or {}).get('code') or evidence_code
+        or decision.get('decision_key') or decision.get('policy')
+        or decision.get('action', {}).get('type') or 'NO_DECISION_REASON')
+
+
 def shop_text_signature(frame):
     """Sample only the fixed five shop name strips; no OCR or full-frame hash."""
     if (frame.width, frame.height) != CANONICAL_READER_SIZE:
@@ -188,7 +197,7 @@ class RuntimeSession(Session):
         self._latest_hp = None
 
     def _publish_coach(self, tip, frame, ready_ns):
-        if tip is None:return
+        if tip is None:return False
         tip = dict(tip, frame_id=frame.id, source_ms=frame.pts_ms,
                    source_due_ns=frame.due_ns, ready_ns=ready_ns, epoch=frame.epoch,
                    input_kind=('previously_recorded_video_on_screen' if self.options.replay_review
@@ -209,12 +218,13 @@ class RuntimeSession(Session):
                 self.latest_replay_tip=tip
             if (tip['text']==getattr(self,'_last_replay_tip',None)
                     and frame.pts_ms<getattr(self,'_next_tip_ms',0)):
-                return
+                return False
             self._last_replay_tip=tip['text']
             self._next_tip_ms=frame.pts_ms+5000
             self.counts['coach_updates']+=1
             if tip.get('actionable'):self.counts['replay_tips']+=1
         self.store.emit('replay-tips',tip)
+        return True
 
 
     def _hp_loop(self):
@@ -416,7 +426,7 @@ class RuntimeSession(Session):
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
                         self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
-                        self.latest_decision_reason = (answer['decision'].get('economy') or {}).get('code') or answer['decision']['evidence'][0]['code']
+                        self.latest_decision_reason = decision_reason(answer['decision'])
                         if answer['decision']['action']['type'] == 'wait':
                             self.counts['decision_abstentions'] += 1
                     canonical_regions = native_regions(answer, self.registry,
@@ -488,9 +498,26 @@ class RuntimeSession(Session):
                     self.store.emit('roi-observations', record, frame, save)
                 self.native_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['read_frames'] += 1
-                if getattr(self, 'decision_engine', None):
+                if (getattr(self, 'decision_engine', None) and
+                        (answer.get('decision_rank') or {}).get('status') != 'held_duplicate'):
                     from .replay_coach import coach_prompt
-                    self._publish_coach(coach_prompt(answer), frame, end)
+                    tip = coach_prompt(answer)
+                    published = self._publish_coach(tip, frame, end)
+                    if (published and tip.get('actionable') and
+                            (answer.get('decision_rank') or {}).get('status') == 'selected' and
+                            answer.get('match_memory_id') and tip.get('decision_key') and
+                            self.worker.ready.get('ack_advice') is True):
+                        try:
+                            self.worker.request(dict(op='ack_advice', id=frame.id,
+                                match_id=answer['match_memory_id'], epoch=frame.epoch,
+                                source_ms=round(frame.pts_ms),
+                                stage=(answer['decision_rank'].get('whole_state') or {}).get('stage'),
+                                decision_key=tip['decision_key']), timeout=2)
+                        except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
+                            self.counts['coach_ack_failed'] += 1
+                            self.store.emit('telemetry',dict(event='coach_ack_failed',
+                                frame_id=frame.id, source_ms=frame.pts_ms,
+                                error_type=type(exc).__name__))
                 tracker = getattr(self, 'combat_events', None)
                 if tracker is not None:
                     outcome = tracker.update(answer, epoch=frame.epoch, source_ms=frame.pts_ms)
@@ -524,6 +551,22 @@ class RuntimeSession(Session):
                         self.store.emit('combat-events', dict(outcome, frame_id=frame.id,
                                                                epoch=frame.epoch))
                         self.counts['combat_loss_observations'] += 1
+                        if (answer.get('match_memory_id') and
+                                self.worker.ready.get('match_event') is True and
+                                type(outcome.get('damage')) is int and
+                                1 <= outcome['damage'] <= 100):
+                            try:
+                                event = {key: outcome.get(key) for key in
+                                         ('event', 'stage', 'hp_before', 'hp_after',
+                                          'damage', 'cause_status')}
+                                self.worker.request(dict(op='match_event', id=frame.id,
+                                    match_id=answer['match_memory_id'], epoch=frame.epoch,
+                                    source_ms=round(frame.pts_ms), event=event), timeout=2)
+                            except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
+                                self.counts['match_event_failed'] += 1
+                                self.store.emit('telemetry', dict(event='match_event_failed',
+                                    frame_id=frame.id, source_ms=frame.pts_ms,
+                                    error_type=type(exc).__name__))
                         # A bare HP delta belongs in the diagnostic record;
                         # it must not replace a useful coach decision on screen.
         except Exception as exc:
@@ -601,7 +644,7 @@ class HM4RuntimeSession(RuntimeSession):
             return False
         with self.lock:
             tip = copy.deepcopy(self.latest_replay_tip)
-        if (not tip or tip.get('policy') != 'partial_state_live_v1'
+        if (not tip or tip.get('policy') not in ('partial_state_live_v1', 'integrated_match_v1')
                 or (decision_key is not None and decision_key != tip.get('decision_key'))):
             return False
         accepted = self.decision_engine.live_advice.rate(
@@ -665,6 +708,24 @@ class HM4RuntimeSession(RuntimeSession):
             from .replay_coach import inventory_prompt
             from .model_update import active_bundle_for_model
             neural_bundle = active_bundle_for_model(self.options.model)
+            # The Ubuntu replay lab may use a fully staged bundle before the
+            # desktop updater activates it. Validate the pinned files first;
+            # the installed Windows flow continues to use active_bundle_for_model.
+            if (neural_bundle is None and getattr(self, 'ubuntu_mvp_diagnostics', False)):
+                import os
+                staged = os.environ.get('AGENTE_TFT_UBUNTU_NEURAL_BUNDLE')
+                if staged:
+                    from .model_update import _valid_pointer
+                    candidate = Path(staged).resolve()
+                    metadata = candidate / 'models/deployment-candidate.json'
+                    package = json.loads((candidate / 'model-package.json').read_text())
+                    pointer = dict(l3_metadata=str(metadata), bundle_root=str(candidate),
+                        model_identity_sha256=package['model_identity_sha256'])
+                    root = candidate.parents[1]
+                    if (metadata.resolve() != Path(self.options.model).resolve() or
+                            _valid_pointer(pointer, root) is None):
+                        raise ValueError('Ubuntu MVP neural bundle failed validation')
+                    neural_bundle = candidate
             overlays = (neural_bundle / 'configs/catalog' if neural_bundle else None)
             has_active_overlay = bool(overlays and any(
                 (overlays / name).is_file() for name in

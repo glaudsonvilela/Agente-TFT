@@ -135,12 +135,16 @@ class ReplayDecisionEngine:
               and (output.get('hp_delivery') or {}).get('fresh') is True
               and type(hp_row.get('hp')) is int else None)
         offers = [{key: row.get(key) for key in
-                   ('slot', 'unit_id', 'catalog_status', 'status', 'observed_cost') if key in row}
+                   ('slot', 'unit_id', 'observed_name', 'catalog_status', 'status', 'observed_cost',
+                    'catalog_traits', 'trait_breakpoints') if key in row}
                   for row in (shop.get('slots') or [])[:5] if isinstance(row, dict)]
         opponents = visual.get('opponents') or {}
         return dict(stage=hud('stage'), gold=hud('gold'), level=hud('level'), xp=hud('xp'),
             hp=hp,
-            shop=offers, board=candidates('units', 24), inventory=candidates('inventory', 24),
+            shop=offers, shop_fresh=(shop.get('cadence_delivery') or {}).get('fresh') is True,
+            trait_counts={key:value for key,value in (visual.get('trait_counts') or {}).items()
+                if isinstance(key,str) and type(value) is int and 0 <= value <= 10},
+            board=candidates('units', 24), inventory=candidates('inventory', 24),
             equipped=candidates('equipped', 24),
             board_identity_verified=visual.get('identity_verified') is True,
             opponents=dict(current_opponent=opponents.get('current_opponent'),
@@ -149,6 +153,57 @@ class ReplayDecisionEngine:
                 players=[{key: row.get(key) for key in
                           ('name', 'hp', 'status', 'losses_observed') if key in row}
                          for row in (opponents.get('players') or [])[:8] if isinstance(row, dict)]))
+
+    @staticmethod
+    def _render_native_candidate(candidate, output):
+        """Attach words to a Rust decision only when its source offer still matches."""
+        if candidate.get('policy') != 'integrated_match_v1':
+            return candidate
+        action = candidate.get('action') or {}
+        kind = action.get('type')
+        if kind == 'trait_shop_review':
+            slot = action.get('shop_slot')
+            trait = action.get('trait')
+            count = action.get('visible_trait_count')
+            breakpoint = action.get('next_breakpoint')
+            if (type(slot) is not int or not 0 <= slot < 5 or
+                    not isinstance(trait, str) or not trait or
+                    type(count) is not int or type(breakpoint) is not int or
+                    count + 1 != breakpoint):
+                raise ValueError('invalid integrated trait action')
+            offers = [row for row in (output.get('shop') or {}).get('slots') or []
+                      if row.get('slot') == slot and row.get('unit_id') == action.get('unit_id')
+                      and row.get('catalog_status') == 'unique_name_bound'
+                      and row.get('status') == 'offer_text_readable'
+                      and trait in (row.get('catalog_traits') or [])
+                      and breakpoint in (row.get('trait_breakpoints') or {}).get(trait, [])
+                      and readable_name(row)]
+            if len(offers) != 1:
+                raise ValueError('integrated trait offer changed before presentation')
+            result = copy.deepcopy(candidate)
+            result['text'] = (f"{offers[0]['observed_name']} está na loja e pode levar "
+                              f"{trait} de {count} para {breakpoint} se entrar em campo. "
+                              "Considere comprar para completar o traço.")
+            return result
+        if kind != 'buy_pair':
+            raise ValueError('unsupported integrated action')
+        slots = action.get('shop_slots')
+        if not isinstance(slots, list) or len(slots) != 2:
+            raise ValueError('invalid integrated shop slots')
+        offers = [row for row in (output.get('shop') or {}).get('slots') or []
+                  if row.get('slot') in slots and row.get('unit_id') == action.get('unit_id')
+                  and row.get('catalog_status') == 'unique_name_bound'
+                  and row.get('status') == 'offer_text_readable'
+                  and readable_name(row)]
+        if len(offers) != 2 or len({row.get('observed_name') for row in offers}) != 1:
+            raise ValueError('integrated offer changed before presentation')
+        cost = action.get('catalog_cost_each')
+        if type(cost) is not int or any(row.get('observed_cost') != cost for row in offers):
+            raise ValueError('integrated cost changed before presentation')
+        result = copy.deepcopy(candidate)
+        result['text'] = (f"Há duas cópias de {offers[0]['observed_name']} na loja. "
+                          f"Considere comprar o par por {cost * 2} de ouro.")
+        return result
 
     @staticmethod
     def rank_with_native(output, worker, *, match_id=None, epoch=0, visual_candidates=None):
@@ -182,10 +237,20 @@ class ReplayDecisionEngine:
             index = result.get('selected_index')
             if result.get('origin') != 'rust_live_opportunity_v1':
                 raise ValueError('unexpected native motor response')
+            if index is None and result.get('held_duplicate') is True:
+                output['decision'] = ReplayDecisionEngine._wait('DUPLICATE_ALREADY_PRESENTED')
+                output['decision_rank'] = {'status': 'held_duplicate',
+                    'native_ms': result.get('native_ms'),
+                    'whole_state': result.get('whole_state'),
+                    'match_pool': result.get('match_pool'),
+                    'memory': result.get('memory'),
+                    'memory_error': result.get('memory_error')}
+                return output
             if index is None and result.get('ranked') == []:
                 if record_only:
                     output['decision_rank'] = {'status': 'memory_only',
                         'native_ms': result.get('native_ms'),
+                        'match_pool': result.get('match_pool'),
                         'memory': result.get('memory'),
                         'memory_error': result.get('memory_error')}
                     return output
@@ -196,17 +261,30 @@ class ReplayDecisionEngine:
                                            'memory': result.get('memory'),
                                            'memory_error': result.get('memory_error')}
                 return output
-            if type(index) is not int or not 0 <= index < min(24, len(choices)):
+            if type(index) is not int or not 0 <= index < 32:
                 raise ValueError('invalid native motor selection')
+            selected = result.get('selected_candidate')
+            if index < len(choices):
+                if selected is not None and selected.get('action') != choices[index].get('action'):
+                    raise ValueError('native choice does not match offered action')
+                native_key = selected.get('decision_key') if isinstance(selected, dict) else None
+                selected = copy.deepcopy(choices[index])
+                if isinstance(native_key, str) and native_key:
+                    selected['decision_key'] = native_key
+            elif not isinstance(selected, dict):
+                raise ValueError('native derived option missing')
+            selected = ReplayDecisionEngine._render_native_candidate(selected, output)
         except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
             if not record_only:
                 output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
             output['decision_rank'] = {'status': 'abstained', 'reason': str(exc)}
             return output
-        output['decision'] = choices[index]
+        output['decision'] = selected
         output['decision']['calculation_source'] = 'rust_live_opportunity_v1'
         output['decision_rank'] = dict(status='selected', selected_index=index,
             ranked=result.get('ranked') or [], native_ms=result.get('native_ms'),
+            whole_state=result.get('whole_state'),
+            match_pool=result.get('match_pool'),
             memory=result.get('memory'), memory_error=result.get('memory_error'))
         return output
 
@@ -233,6 +311,11 @@ class ReplayDecisionEngine:
                 slot["catalog_status"] = "unique_name_bound"
                 slot["catalog_set"] = self.set_key
                 slot["catalog_version"] = self.catalog_version
+                traits = self.champion_attributes[slot["unit_id"]].get("traits") or []
+                slot["catalog_traits"] = list(traits)
+                slot["trait_breakpoints"] = {
+                    trait: self.live_advice.trait_breakpoints.get(trait, [])
+                    for trait in traits}
                 bound += 1
             elif matches:
                 slot["catalog_status"] = "ambiguous_name"

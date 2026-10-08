@@ -60,6 +60,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Agente TFT: laboratório ao vivo no Ubuntu X11')
     parser.add_argument('--stage', type=Path, default=SSD / 'diagnostics/ubuntu-live-mvp')
     parser.add_argument('--model-dir', type=Path, default=DEFAULT_MODEL_DIR)
+    parser.add_argument('--neural-bundle', type=Path,
+                        help='Pacote visual completo já instalado no SSD para o laboratório Ubuntu.')
     parser.add_argument('--worker', type=Path,
                         default=REPO / 'tools/e1-native/target/release/agente-tft-e1-worker')
     parser.add_argument('--hp-worker', type=Path, default=DEFAULT_HP)
@@ -72,10 +74,13 @@ def main(argv=None):
     venv_python = args.stage.resolve() / '.venv/bin/python'
     if venv_python.is_file() and Path(sys.prefix) != venv_python.parent.parent:
         os.execv(str(venv_python), [str(venv_python), __file__, *(argv or sys.argv[1:])])
-    stage = prepare(args.stage.resolve(), args.model_dir.resolve(),
+    model_dir = args.neural_bundle / 'models' if args.neural_bundle else args.model_dir
+    stage = prepare(args.stage.resolve(), model_dir.resolve(),
                     args.worker.resolve(), args.hp_worker.resolve(),
                     args.item_assets.resolve(), args.item_native.resolve())
     os.environ['AGENTE_TFT_UBUNTU_MVP'] = '1'
+    if args.neural_bundle:
+        os.environ['AGENTE_TFT_UBUNTU_NEURAL_BUNDLE'] = str(args.neural_bundle.resolve())
     os.environ['AGENTE_TFT_MODEL'] = str(stage / 'models/deployment-candidate.json')
     os.environ['LOCALAPPDATA'] = str(stage / 'local-data')
     sys._MEIPASS = str(stage)

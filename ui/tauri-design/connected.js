@@ -70,6 +70,7 @@ if (new URLSearchParams(location.search).has('connected')) {
   const regions = ['BR','NA','LAN','LAS','EUW','EUNE','KR','JP','OCE','TR','RU','SEA','TW','VN'];
   async function loadSources(dialog) {
     const revision = ++sourceLoadRevision;
+    const preferredLabel = selected?.label || state?.source_label;
     sourceRows = [];
     selected = null;
     const options = dialog.querySelector('.source-options');
@@ -83,13 +84,14 @@ if (new URLSearchParams(location.search).has('connected')) {
       const rows = await api().list_sources();
       if (revision !== sourceLoadRevision) return;
       if (!Array.isArray(rows)) throw new Error('O capturador retornou uma lista inválida.');
+      const chosenIndex = Math.max(0, rows.findIndex(row => row.label === preferredLabel));
       sourceRows = rows;
       options.innerHTML = rows.length ? rows.map((row, index) =>
-        `<button class="source-option ${index===0?'selected':''}" data-source-index="${index}" aria-pressed="${index===0}">`+
+        `<button class="source-option ${index===chosenIndex?'selected':''}" data-source-index="${index}" aria-pressed="${index===chosenIndex}">`+
         `<span data-icon="${row.kind==='monitor'?'monitor':'window'}"></span><b>${escapeHtml(row.label)}</b>`+
         `<small>${row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('') :
         '<div class="source-wait">Nenhum monitor ou janela disponível nesta sessão do Windows.</div>';
-      selected = rows[0] || null;
+      selected = rows[chosenIndex] || null;
       confirm.disabled = !selected;
       hydrate();
     } catch (error) {
@@ -115,9 +117,12 @@ if (new URLSearchParams(location.search).has('connected')) {
     const actionable = !!(tip && tip.actionable && (tip.age_ms == null || tip.age_ms <= 5000));
     const combat = !!(tip && tip.kind === 'combat' && tip.speakable &&
       (tip.age_ms == null || tip.age_ms <= 8000));
-    const label = actionable ? 'DICA AGORA' : combat ? 'COMBATE' : 'LEITURA EM ANDAMENTO';
-    document.querySelector('.coach-label').innerHTML = `<span>AGORA</span><span class="pill mini">${label}</span>`;
-    const title = actionable || combat ? tip.text :
+    const previous = !actionable && !combat ? state?.history?.[0] : null;
+    const label = actionable ? 'DICA AGORA' : combat ? 'COMBATE' :
+      previous ? 'ÚLTIMA DICA' : 'LEITURA EM ANDAMENTO';
+    document.querySelector('.coach-label').innerHTML =
+      `<span>${previous ? 'SESSÃO' : 'AGORA'}</span><span class="pill mini">${label}</span>`;
+    const title = actionable || combat ? tip.text : previous ? previous.text :
       state?.ubuntu_mvp && tip?.text ? 'Sem recomendação agora.' :
       state?.screen_mode === 'gameplay_hud' ? 'Tabuleiro visível. Buscando a próxima ação.' :
       state?.screen_mode === 'stage_without_economy' ? 'Partida detectada. Aguardando a loja e o ouro.' :
@@ -130,13 +135,15 @@ if (new URLSearchParams(location.search).has('connected')) {
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
                      combat ? 'Comentário após a mudança observada de vida na luta.' :
+                     previous ? 'Dica anterior da sessão. A próxima orientação aparecerá quando houver nova evidência.' :
                      state?.ubuntu_mvp && tip?.text ? escapeHtml(tip.text) :
                      state?.ubuntu_mvp ? 'Diagnóstico do mesmo motor usado no Windows.' :
                      'As ações aparecem aqui durante a partida.'}</p>`+
       `<div class="advice-explanation" style="display:block">`+
-      `Patch dos dados: ${escapeHtml(tip && tip.data_patch || 'a confirmar')}`+
+      `Patch dos dados: ${escapeHtml((actionable || combat ? tip : previous)?.data_patch || tip?.data_patch || 'a confirmar')}`+
       `${tip && tip.data_patch_basis==='bundled_catalog_patch_lab' ? ' (catálogo local de laboratório)' : ''} · `+
-      `Idade da leitura: ${tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—'}`+
+      `${previous ? 'Momento da dica: '+Math.round((previous.source_ms || 0)/1000)+' s' :
+        'Idade da leitura: '+(tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—')}`+
       `${state?.ubuntu_mvp ? '<br>HUD: '+escapeHtml((state.hud_diagnostic?.fields||[]).map(x =>
         `${x.field}=${x.value ?? '—'} (${x.status || 'sem leitura'})`).join(' · ') || 'sem leitura')+
         ' · decisão: '+escapeHtml(state.hud_diagnostic?.decision_reason || 'nenhuma') : ''}`+

@@ -69,7 +69,7 @@ def coach_prompt(answer: dict) -> dict:
                 strategy_basis=decision['scope'], learned_ranker=decision['learned_ranker'],
                 recommendations=recommendations)
     if (answer.get('origin') == 'observed_pixels'
-            and decision.get('policy') == 'partial_state_live_v1'
+            and decision.get('policy') in ('partial_state_live_v1', 'integrated_match_v1')
             and decision.get('evidence_level') == 'provisional'
             and action.get('type') in ('roll', 'buy_xp', 'buy_pair', 'buy_synergy',
                                        'trait_shop_review',
@@ -79,7 +79,7 @@ def coach_prompt(answer: dict) -> dict:
             speech_text=decision['text'], decision_key=decision['decision_key'],
             speech_max_age_ms=8000 if action.get('type') == 'prepare_level' else 5000,
             basis=decision['basis'],
-            strategy_basis='partial_state_live_v1',
+            strategy_basis=decision['policy'],
             evidence_level='provisional', policy=decision['policy'],
             calculation_source=decision.get('calculation_source'),
             family=decision['family'], action_type=action['type'], training_label=False,

@@ -87,7 +87,7 @@ class AnalysisCore:
             "board_reference_sha256": self.board.manifest["reference_sha256"],
             "board_set_key": self.board.manifest["set_key"],
             "analysis_health_contract": "l3_ocr_b4_roi_v1",
-            "capabilities": ["l3_small_rgb", "ocr_lossless_rgb", "hp_lossless_rgb", "b4_lossless_rgb", "board_independent_v1", "rank_advice_v1", "match_memory_v1"],
+            "capabilities": ["l3_small_rgb", "ocr_lossless_rgb", "hp_lossless_rgb", "b4_lossless_rgb", "board_independent_v1", "rank_advice_v1", "ack_advice_v1", "match_event_v1", "match_memory_v1"],
         }
 
     def close(self):
@@ -108,20 +108,39 @@ class AnalysisCore:
         width, height = header.get("width"), header.get("height")
         if type(width) is not int or type(height) is not int:
             raise ProtocolError("Dimensões ausentes.")
-        if op in ("rank_advice", "combat_facts"):
+        if op in ("rank_advice", "ack_advice", "match_event", "combat_facts"):
             if payload or (width, height) != (0, 0):
                 raise ProtocolError("Cálculo não aceita pixels.")
-            if op == "rank_advice":
+            if op in ("rank_advice", "ack_advice", "match_event"):
                 match_id = header.get('match_id')
                 if (not isinstance(match_id, str) or
-                        re.fullmatch(r'[0-9a-f]{32}', match_id) is None or
-                        not isinstance(header.get('candidates'), list) or
-                        len(header['candidates']) > 24 or
-                        not isinstance(header.get('context'), dict) or
-                        not isinstance(header.get('observation'), dict)):
+                        re.fullmatch(r'[0-9a-f]{32}', match_id) is None):
                     raise ProtocolError("Estado da partida inválido.")
-                request = {key: header[key] for key in
-                           ('match_id', 'epoch', 'source_ms', 'candidates', 'context', 'observation')}
+                if op == "rank_advice":
+                    if (not isinstance(header.get('candidates'), list) or
+                            len(header['candidates']) > 24 or
+                            not isinstance(header.get('context'), dict) or
+                            not isinstance(header.get('observation'), dict)):
+                        raise ProtocolError("Estado da partida inválido.")
+                    request = {key: header[key] for key in
+                               ('match_id', 'epoch', 'source_ms', 'candidates', 'context', 'observation')}
+                elif op == "ack_advice":
+                    if (not isinstance(header.get('decision_key'), str) or
+                            not 0 < len(header['decision_key']) <= 256 or
+                            not isinstance(header.get('stage'), (str, type(None)))):
+                        raise ProtocolError("Confirmação de dica inválida.")
+                    request = {key: header[key] for key in
+                               ('match_id', 'epoch', 'source_ms', 'decision_key', 'stage')}
+                else:
+                    event = header.get('event')
+                    if (not isinstance(event, dict) or
+                            event.get('event') != 'combat_loss_observed' or
+                            type(event.get('damage')) is not int or
+                            not 1 <= event['damage'] <= 100 or
+                            event.get('cause_status') != 'unresolved'):
+                        raise ProtocolError("Evento da partida inválido.")
+                    request = {key: header[key] for key in
+                               ('match_id', 'epoch', 'source_ms', 'event')}
             else:
                 request = {key: header[key] for key in ('hp_before', 'hp_after')}
             with self.reader_lock:

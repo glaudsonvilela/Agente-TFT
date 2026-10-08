@@ -6,7 +6,8 @@ from unittest.mock import patch
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
     HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source,
-    async_hp_delivery, terminal_hp_observation, shop_read_due, shop_text_signature
+    async_hp_delivery, terminal_hp_observation, shop_read_due, shop_text_signature,
+    decision_reason
 )
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
@@ -19,6 +20,12 @@ from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_integrated_rust_decision_without_legacy_evidence_does_not_end_capture(self):
+        self.assertEqual(decision_reason({'policy':'integrated_match_v1',
+            'decision_key':'provisional:whole:trait:Sejuani:Defendente:3:4:2',
+            'action':{'type':'trait_shop_review'}}),
+            'provisional:whole:trait:Sejuani:Defendente:3:4:2')
+
     def test_action_stays_visible_briefly_when_next_reader_has_only_a_diagnostic(self):
         session=object.__new__(HM4RuntimeSession)
         session.options=types.SimpleNamespace(replay_review=False)

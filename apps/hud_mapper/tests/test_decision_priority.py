@@ -23,6 +23,24 @@ class DecisionPriorityTests(unittest.TestCase):
         self.assertEqual(answer['decision']['calculation_source'], 'rust_live_opportunity_v1')
         self.assertNotIn('decision_options', answer)
 
+    def test_native_semantic_key_replaces_reader_specific_key_for_acknowledgment(self):
+        action = {'type': 'trait_shop_review', 'unit_id': 'DA_18_Ornn',
+                  'trait': 'Defendente', 'visible_trait_count': 3,
+                  'next_breakpoint': 4}
+        class Motor:
+            ready = {'rank_advice': True}
+            def request(self, request, timeout):
+                return {'origin': 'rust_live_opportunity_v1', 'selected_index': 0,
+                        'selected_candidate': {'action': action,
+                            'decision_key': 'goal:trait:DA_18_Ornn:Defendente:4'},
+                        'ranked': [{'index': 0, 'utility': .6}]}
+        answer = {'id': 8, 'source_ms': 100, 'hud': [], 'decision_options': [
+            {'policy': 'partial_state_live_v1', 'action': action,
+             'decision_key': 'python-hash', 'text': 'Exemplo.'}]}
+        ReplayDecisionEngine.rank_with_native(answer, Motor())
+        self.assertEqual(answer['decision']['decision_key'],
+                         'goal:trait:DA_18_Ornn:Defendente:4')
+
     def test_native_failure_abstains_instead_of_using_python_priority(self):
         class Motor:
             ready = {'rank_advice': True}
@@ -59,6 +77,67 @@ class DecisionPriorityTests(unittest.TestCase):
         ReplayDecisionEngine.rank_with_native(answer, Motor())
         self.assertEqual(answer['decision']['action']['type'], 'wait')
         self.assertEqual(answer['decision_rank']['reason'], 'NO_ACTIONABLE_NATIVE_CANDIDATE')
+
+    def test_integrated_pair_is_presented_only_against_the_same_visible_shop(self):
+        pair = {'policy': 'integrated_match_v1', 'evidence_level': 'provisional',
+                'decision_key': 'provisional:whole:pair:TFT_A:0-2',
+                'family': 'buy', 'basis': ['shop.two_fresh_exact_names', 'hud.gold'],
+                'action': {'type': 'buy_pair', 'unit_id': 'TFT_A',
+                           'shop_slots': [0, 2], 'catalog_cost_each': 2}}
+        class Motor:
+            ready = {'rank_advice': True}
+            def request(self, request, timeout):
+                return {'origin': 'rust_live_opportunity_v1', 'selected_index': 0,
+                        'selected_candidate': pair, 'ranked': [{'index': 0, 'utility': .4}]}
+        offer = lambda slot: {'slot': slot, 'unit_id': 'TFT_A',
+                              'catalog_status': 'unique_name_bound',
+                              'status': 'offer_text_readable', 'observed_name': 'Ornn',
+                              'observed_cost': 2, 'name_confidence': .98}
+        answer = {'id': 1, 'source_ms': 100, 'hud': [], 'decision_options': [],
+                  'shop': {'slots': [offer(0), offer(2)]}}
+        ReplayDecisionEngine.rank_with_native(answer, Motor())
+        self.assertEqual(answer['decision']['action']['type'], 'buy_pair')
+        self.assertIn('Ornn', answer['decision']['text'])
+
+    def test_integrated_trait_tip_checks_current_offer_and_patch_breakpoint(self):
+        candidate = {'policy': 'integrated_match_v1',
+                     'decision_key': 'provisional:whole:trait:TFT_Sejuani:Defendente:3:4:2',
+                     'action': {'type': 'trait_shop_review', 'unit_id': 'TFT_Sejuani',
+                                'shop_slot': 2, 'trait': 'Defendente',
+                                'visible_trait_count': 3, 'next_breakpoint': 4}}
+        class Motor:
+            ready = {'rank_advice': True}
+            def request(self, request, timeout):
+                return {'origin': 'rust_live_opportunity_v1', 'selected_index': 0,
+                        'selected_candidate': candidate, 'ranked': [{'index': 0, 'utility': .5}]}
+        offer = {'slot': 2, 'unit_id': 'TFT_Sejuani', 'observed_name': 'Sejuani',
+                 'catalog_status': 'unique_name_bound', 'status': 'offer_text_readable',
+                 'catalog_traits': ['Defendente'],
+                 'trait_breakpoints': {'Defendente': [2, 4, 6]},
+                 'name_confidence': .98}
+        answer = {'id': 1, 'source_ms': 100, 'hud': [], 'decision_options': [],
+                  'shop': {'slots': [offer]}}
+        ReplayDecisionEngine.rank_with_native(answer, Motor())
+        self.assertEqual(answer['decision']['action']['unit_id'], 'TFT_Sejuani')
+        self.assertIn('3 para 4', answer['decision']['text'])
+        answer['shop']['slots'][0]['trait_breakpoints']['Defendente'] = [2, 6]
+        ReplayDecisionEngine.rank_with_native(answer, Motor())
+        self.assertEqual(answer['decision_rank']['status'], 'abstained')
+
+    def test_duplicate_is_held_without_erasing_the_observation(self):
+        class Motor:
+            ready = {'rank_advice': True}
+            def request(self, request, timeout):
+                self.request_seen = request
+                return {'origin': 'rust_live_opportunity_v1', 'selected_index': None,
+                        'held_duplicate': True, 'ranked': [{'index': 0, 'utility': .3}]}
+        motor = Motor()
+        answer = {'id': 1, 'source_ms': 100, 'hud': [], 'decision_options': [
+            {'policy': 'partial_state_live_v1', 'action': {'type': 'prepare_level'}}]}
+        ReplayDecisionEngine.rank_with_native(answer, motor,
+            match_id='0123456789abcdef0123456789abcdef')
+        self.assertEqual(answer['decision_rank']['status'], 'held_duplicate')
+        self.assertEqual(len(motor.request_seen['candidates']), 1)
 
     def test_memory_receives_partial_observations_even_without_a_tip(self):
         class Motor:
