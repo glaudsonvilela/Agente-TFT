@@ -19,6 +19,8 @@ DEFAULT_ITEM_ASSETS = (REPO / 'build/hm4-live-assets'
                        if (REPO / 'build/hm4-live-assets/ASSET_REPORT.json').is_file()
                        else SSD / 'work/Agente-TFT/build/hm4-live-assets')
 DEFAULT_ITEM_NATIVE = REPO / 'tools/hm-item-native/target/release/libagente_tft_hm_item_native.so'
+DEFAULT_WORKER = (Path(os.environ['CARGO_TARGET_DIR']) if os.environ.get('CARGO_TARGET_DIR')
+                  else REPO / 'tools/e1-native/target') / 'release/agente-tft-e1-worker'
 
 
 def link(target: Path, location: Path):
@@ -64,7 +66,7 @@ def main(argv=None):
     parser.add_argument('--neural-bundle', type=Path,
                         help='Pacote visual completo já instalado no SSD para o laboratório Ubuntu.')
     parser.add_argument('--worker', type=Path,
-                        default=REPO / 'tools/e1-native/target/release/agente-tft-e1-worker')
+                        default=DEFAULT_WORKER)
     parser.add_argument('--hp-worker', type=Path, default=DEFAULT_HP)
     parser.add_argument('--item-assets', type=Path, default=DEFAULT_ITEM_ASSETS)
     parser.add_argument('--item-native', type=Path, default=DEFAULT_ITEM_NATIVE)
