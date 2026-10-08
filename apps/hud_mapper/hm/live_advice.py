@@ -131,6 +131,27 @@ class LiveAdvice:
                         f"Suba ao nível {level + 1} nesta rodada; o cálculo indica {quote['gold_cost']} de ouro. Confira o botão de XP.",
                         ["hud.stage", "hud.gold", "hud.level", "hud.xp", "patch.xp_rules"]))
 
+        # A quiet round before a configured level window is still a useful
+        # coaching moment. This is a provisional plan, not a claim that the
+        # player's board is strong enough or that XP should be bought now.
+        if stage_match and level_valid and gold >= 10:
+            current_round = int(stage_match[1]) * 7 + int(stage_match[2])
+            upcoming = sorted(
+                ((int(match[1]) * 7 + int(match[2]), target, rule)
+                 for target, rule in self.windows.items()
+                 if (match := re.fullmatch(r"([2-6])-([1-7])", target))
+                 and rule["target_level"] == level + 1),
+                key=lambda row: row[0])
+            for target_round, target, rule in upcoming:
+                if 1 <= target_round - current_round <= 3:
+                    options.append((self._priority("economy", .48), "economy",
+                        {"type": "prepare_level", "target_level": level + 1,
+                         "target_stage": target, "reserve_gold": rule["reserve_gold"]},
+                        f"Vamos mirar o nível {level + 1} na {target}. Nesta rodada, "
+                        "guarde ouro; compre só se a loja fortalecer seu tabuleiro de verdade.",
+                        ["hud.stage", "hud.level", "hud.gold", "patch.level_window"]))
+                    break
+
         shop = answer.get("shop") or {}
         cadence = shop.get("cadence_delivery") or {}
         if cadence.get("fresh") is True:

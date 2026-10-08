@@ -215,6 +215,19 @@ class HM4RuntimeTests(unittest.TestCase):
         answer['hud'][0]['value']='1-4'
         self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
 
+    def test_upcoming_level_window_produces_a_plan_before_the_exact_round(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.93)
+            for k,v in [('stage','2-6'),('gold',22),('level',5)]]}
+        result=engine.evaluate(answer)
+        self.assertEqual(result['decision']['action']['type'],'prepare_level')
+        self.assertEqual(result['decision']['action']['target_stage'],'3-2')
+        tip=coach_prompt(result)
+        self.assertTrue(tip['actionable'])
+        self.assertIn('nível 6',tip['speech_text'])
+        self.assertFalse(tip['learned_neural_weights'])
+
     def test_live_feedback_updates_preference_without_becoming_visual_label(self):
         with tempfile.TemporaryDirectory() as td:
             engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'),

@@ -45,3 +45,14 @@ O vídeo usado é de outro conjunto de TFT. Ele comprova a cadeia de captura,
 leitura, dica e voz e mostra uma lacuna nas regras por estágio. Não valida os
 nomes dos campeões, itens ou a qualidade estratégica para o patch atual.
 Nenhum peso neural foi alterado por este ensaio.
+
+## Ajuste posterior do coach
+
+Reapliquei o motor de decisões às 122 leituras salvas, sem reproduzir o vídeo
+nem criar rótulos de treinamento. Antes havia 95 leituras sem ação e 27 de
+juros. A regra de preparação da próxima janela de nível transformou 57 dessas
+leituras em um mesmo plano provisório para o nível 6 na 3-2; 38 continuaram sem
+ação e 27 mantiveram a dica de juros. Isso representa uma oportunidade de
+fala adicional, não 57 falas distintas: a entrega evita repetir a mesma dica.
+O plano usa apenas estágio, nível, ouro e a janela configurada; ele não valida
+força do tabuleiro e não foi escolhido pelo ranqueador neural.
