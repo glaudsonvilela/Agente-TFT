@@ -1082,6 +1082,8 @@ class HM4RuntimeSession(RuntimeSession):
                               reader_input_transform=plan, ground_truth=False,
                               source_to_hub_ms=(end-frame.due_ns)/1e6,
                               hub_processing_ms=(end-started)/1e6,
+                              hub_worker_ms=board_worker_ms,
+                              hub_observer_ms=board_observer_ms,
                               hub_normalize_ms=normalize_ms,
                               scheduling='independent_of_hud_ocr_latest_frame',
                               board_reference_status=self.versions.get('board_reference_status'),
@@ -1099,6 +1101,8 @@ class HM4RuntimeSession(RuntimeSession):
                         source_due_ns=frame.due_ns, ready_ns=end,
                         total_ms=record['source_to_hub_ms'],
                         processing_ms=record['hub_processing_ms'],
+                        worker_ms=board_worker_ms, observer_ms=board_observer_ms,
+                        observer_stages_ms=observed['snapshot'].get('diagnostic_timings_ms', {}),
                         vm_transport=observed.get('vm_transport')))
                 self.store.emit('board-hub-observations', record)
                 completed_unit = observed['snapshot'].get('unit_async_result')

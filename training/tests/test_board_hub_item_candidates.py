@@ -7,7 +7,8 @@ import unittest
 import numpy as np
 from PIL import Image
 
-from training.board_hub_item_candidates import load_reference, load_templates, rank_patches, run
+from training.board_hub_item_candidates import (load_reference, load_templates,
+                                                rank_patches, rank_patch_groups, run)
 
 
 ROOT = Path(__file__).parents[2]
@@ -15,6 +16,29 @@ PROFILE = json.loads((ROOT / "configs/ui/match001-inventory-v1.json").read_text(
 
 
 class ItemCandidateTests(unittest.TestCase):
+    def test_frame_batch_matches_separate_searches_and_keeps_cache_isolated(self):
+        with tempfile.TemporaryDirectory() as temp:
+            icon_dir = Path(temp)
+            entries = []
+            for name, color in (("red", (230, 20, 20)), ("green", (20, 230, 20)),
+                                ("blue", (20, 20, 230))):
+                Image.new("RGB", (23, 23), color).save(icon_dir / f"{name}.png")
+                entries.append({"id": name, "icon": f"{name}.png"})
+            batched, _ = load_templates(entries, icon_dir, size=23)
+            separate, _ = load_templates(entries, icon_dir, size=23)
+            groups = [
+                [np.full((23, 23, 3), color, dtype=np.uint8)]
+                for color in ((230, 20, 20), (20, 230, 20), (20, 20, 230),
+                              (230, 20, 20))
+            ]
+            expected = [rank_patches(patches, separate) for patches in groups]
+            actual = rank_patch_groups(groups, batched)
+            self.assertEqual(actual, expected)
+            self.assertEqual(batched.cache_misses, separate.cache_misses)
+            self.assertEqual(batched.cache_hits, separate.cache_hits)
+            actual[0][0]["catalog_options"].append({"visual_id": "injected"})
+            self.assertEqual(rank_patch_groups(groups, batched), expected)
+
     def test_exact_icon_cache_reuses_pixels_without_stale_results_or_growth(self):
         with tempfile.TemporaryDirectory() as temp:
             icon_dir = Path(temp)

@@ -328,6 +328,15 @@ class Session:
                          hp_native=stats([x['native_ms'] for x in hp_reading]),
                          hub_source_to_result=stats([x['total_ms'] for x in hub_reading]),
                          hub_processing=stats([x['processing_ms'] for x in hub_reading]),
+                         hub_worker=stats([x['worker_ms'] for x in hub_reading
+                                           if isinstance(x.get('worker_ms'), (int, float))]),
+                         hub_observer=stats([x['observer_ms'] for x in hub_reading
+                                             if isinstance(x.get('observer_ms'), (int, float))]),
+                         hub_observer_stages={key: stats([x['observer_stages_ms'][key]
+                             for x in hub_reading if isinstance(
+                                 x.get('observer_stages_ms', {}).get(key), (int, float))])
+                             for key in ('snapshot_ms', 'item_neural_ms', 'unit_neural_ms',
+                                         'item_visual_native_ms')},
                          tip_source_to_ui_estimate=stats([x['total_ms'] for x in tip_ui]),
                          coach_source_to_ui_estimate=stats([x['total_ms'] for x in coach_ui]),
                          stages={k:stats(v) for k,v in stages.items()}),

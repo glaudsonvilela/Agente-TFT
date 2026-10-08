@@ -104,37 +104,65 @@ def load_templates(entries: list[dict], icon_dir: Path, size: int = 28) -> tuple
     return TemplateBank(groups, matrix, norms, size), available
 
 
-def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
+def rank_patch_groups(groups: list[list], templates: TemplateBank) -> list[list[dict]]:
+    """Rank independent icon searches with one matrix operation per frame."""
     import numpy as np
 
-    if not patches or not templates.groups:
-        return []
-    # Inventory and equipped icons often stay pixel-identical across replay
-    # frames. Keep only a small per-session cache so long sessions do not grow.
-    fingerprint = hashlib.blake2b(
-        b"".join(patch.tobytes() for patch in patches), digest_size=16).digest()
-    if fingerprint in templates.recent_rankings:
-        templates.cache_hits += 1
-        templates.recent_rankings.move_to_end(fingerprint)
-        return copy.deepcopy(templates.recent_rankings[fingerprint])
-    templates.cache_misses += 1
-    observed = np.stack([patch.reshape(-1) for patch in patches]).astype(np.float64)
+    results = [[] for _ in groups]
+    if not templates.groups:
+        return results
+    missing = []
+    pending = {}
+    for index, patches in enumerate(groups):
+        if not patches:
+            continue
+        # Exact crop bytes, never the previous frame's proposed identity.
+        key = hashlib.blake2b(
+            b"".join(patch.tobytes() for patch in patches), digest_size=16).digest()
+        if key in templates.recent_rankings:
+            templates.cache_hits += 1
+            templates.recent_rankings.move_to_end(key)
+            results[index] = copy.deepcopy(templates.recent_rankings[key])
+        elif key in pending:
+            templates.cache_hits += 1
+            pending[key][2].append(index)
+        else:
+            templates.cache_misses += 1
+            pending[key] = (patches, key, [index])
+            missing.append(pending[key])
+    if not missing:
+        return results
+    observed = np.concatenate([
+        np.stack([patch.reshape(-1) for patch in patches])
+        for patches, _, _ in missing]).astype(np.float64)
     norms = np.einsum('ij,ij->i', observed, observed)
     squared = norms[:, None] + templates.squared_norms[None, :] - 2 * observed @ templates.matrix.T
-    best_patch = np.argmin(squared, axis=0)
-    scores = np.sqrt(np.maximum(0, squared.min(axis=0)) / (templates.size * templates.size * 3))
-    ranked = np.argsort(scores)[:3]
-    result = [{"ids_with_same_template": sorted(set(templates.groups[index]["ids"])),
-             "catalog_options": [{"visual_id": item_id,
-                                  "name": templates.groups[index]["labels"][item_id]}
-                                 for item_id in sorted(templates.groups[index]["labels"])],
-             "template_sha256": templates.groups[index]["template_hash"],
-             "sample_index": int(best_patch[index]),
-             "rms": round(float(scores[index]), 3)} for index in ranked]
-    templates.recent_rankings[fingerprint] = copy.deepcopy(result)
-    if len(templates.recent_rankings) > 64:
-        templates.recent_rankings.popitem(last=False)
-    return result
+    start = 0
+    for patches, key, positions in missing:
+        group_scores = squared[start:start + len(patches)]
+        start += len(patches)
+        best_patch = np.argmin(group_scores, axis=0)
+        scores = np.sqrt(np.maximum(0, group_scores.min(axis=0)) /
+                         (templates.size * templates.size * 3))
+        ranked = np.argsort(scores)[:3]
+        result = [{"ids_with_same_template": sorted(set(templates.groups[item]["ids"])),
+                 "catalog_options": [{"visual_id": item_id,
+                                      "name": templates.groups[item]["labels"][item_id]}
+                                     for item_id in sorted(templates.groups[item]["labels"])],
+                 "template_sha256": templates.groups[item]["template_hash"],
+                 "sample_index": int(best_patch[item]),
+                 "rms": round(float(scores[item]), 3)} for item in ranked]
+        templates.recent_rankings[key] = copy.deepcopy(result)
+        templates.recent_rankings.move_to_end(key)
+        if len(templates.recent_rankings) > 64:
+            templates.recent_rankings.popitem(last=False)
+        for index in positions:
+            results[index] = copy.deepcopy(result)
+    return results
+
+
+def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
+    return rank_patch_groups([patches], templates)[0]
 
 
 def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
