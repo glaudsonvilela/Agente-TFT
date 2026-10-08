@@ -485,6 +485,26 @@ class RuntimeSession(Session):
                 if tracker is not None:
                     outcome = tracker.update(answer, epoch=frame.epoch, source_ms=frame.pts_ms)
                     if outcome:
+                        # HP loss alone never establishes a combat cause. The
+                        # resident motor verifies arithmetic; causal coaching
+                        # remains silent until independently observed events
+                        # can support an explanation.
+                        tip = None
+                        try:
+                            from .combat_events import combat_observation_tip
+                            if self.worker.ready.get('combat_facts') is not True:
+                                raise ValueError('RUST_COMBAT_FACTS_UNAVAILABLE')
+                            facts = self.worker.request(dict(op='combat_facts', id=frame.id,
+                                hp_before=outcome['hp_before'], hp_after=outcome['hp_after']),
+                                timeout=2)
+                            if facts.get('id') != frame.id:
+                                raise ValueError('RUST_COMBAT_FACTS_INVALID')
+                            tip = combat_observation_tip(outcome, facts)
+                            outcome['calculation_source'] = tip['calculation_source']
+                            outcome['text'] = tip['text']
+                            outcome['missing_evidence'] = tip['missing_evidence']
+                        except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
+                            outcome['calculation_error'] = type(exc).__name__
                         opponents = getattr(self, 'opponent_tracker', None)
                         linked = (opponents.register_loss(outcome, epoch=frame.epoch,
                                                           source_ms=frame.pts_ms)
@@ -494,13 +514,8 @@ class RuntimeSession(Session):
                         self.store.emit('combat-events', dict(outcome, frame_id=frame.id,
                                                                epoch=frame.epoch))
                         self.counts['combat_loss_observations'] += 1
-                        self._publish_coach(dict(status='combat_commentary',
-                            kind='combat', actionable=False, speakable=True,
-                            speech_text=outcome['text'], text=outcome['text'],
-                            decision_key=f'combat-loss:{frame.epoch}:{outcome["stage"]}',
-                            speech_max_age_ms=8000,
-                            voice_tone='urgent' if outcome['damage'] >= 10 else 'thoughtful',
-                            basis=outcome['basis'], training_label=False), frame, end)
+                        # A bare HP delta belongs in the diagnostic record;
+                        # it must not replace a useful coach decision on screen.
         except Exception as exc:
             self.error = str(exc)
             self.stop()

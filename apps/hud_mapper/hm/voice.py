@@ -59,6 +59,7 @@ class VoiceCoach:
         self.isolated = False
         self.context_key = self.last_tip_attempt = self.last_rejection = None
         self.events = deque(maxlen=64)
+        self.recent_played = {}
         self.playback = playback
         self.on_played = None
         self.generation = 0
@@ -82,6 +83,7 @@ class VoiceCoach:
         self.voices = {self.voice_id: "ElevenLabs · voz configurada"}
         self.ready = True  # Credentials configured; not proof of a successful API call.
         self.error = self.last_text = self.last_tip_attempt = None
+        self.recent_played.clear()
         self.last_queued_ns = self.last_economy_ns = self.retry_after_ns = 0
         self.last_importance = 0
         if old:
@@ -159,6 +161,11 @@ class VoiceCoach:
         elif not text:self.last_rejection='empty_text'
         elif now<self.retry_after_ns:self.last_rejection='api_backoff'
         elif source_age_ms>2000 and not force:self.last_rejection='source_too_old'
+        elif not force and (self.recent_played.get(('decision', decision_key), 0) > now
+                            if decision_key else False):
+            self.last_rejection='decision_recently_spoken'
+        elif not force and self.recent_played.get(('text', text), 0) > now:
+            self.last_rejection='phrase_recently_spoken'
         elif text==self.last_text and not force:self.last_rejection='already_queued_or_spoken'
         elif (now-self.last_queued_ns<8_000_000_000 and not force
                 and importance<self.last_importance):
@@ -234,6 +241,14 @@ class VoiceCoach:
                 (self.playback or _play_wav)(wav)
                 play_ended_ns = time.monotonic_ns()
                 self.played_count += 1
+                # Suppress the same action even if another phrase interrupts
+                # it. Record only completed playback so API failures can retry.
+                expires = play_ended_ns + 90_000_000_000
+                self.recent_played = {key: until for key, until in self.recent_played.items()
+                                      if until > play_ended_ns}
+                self.recent_played[('text', text)] = expires
+                if decision_key:
+                    self.recent_played[('decision', decision_key)] = expires
                 self.error = None
                 self._event('voice_play_completed', decision_key, queued_ns, source_age_ms,
                             physical_audio_measured=False, **metadata)

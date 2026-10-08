@@ -1,6 +1,6 @@
 import unittest
 
-from hm.combat_events import CombatEvents
+from hm.combat_events import CombatEvents, combat_observation_tip
 
 
 def answer(stage, hp, *, confidence=.96, fresh=True):
@@ -44,6 +44,8 @@ class CombatEventsTest(unittest.TestCase):
         observed = tracker.update(answer('3-5', 55), epoch=1, source_ms=24000)
         self.assertEqual(observed['damage'], 12)
         self.assertEqual(observed['stage'], '3-5')
+        self.assertEqual(observed['cause_status'], 'unresolved')
+        self.assertNotIn('text', observed)
 
     def test_hp_gap_across_multiple_rounds_resets(self):
         tracker = CombatEvents()
@@ -51,6 +53,17 @@ class CombatEventsTest(unittest.TestCase):
         tracker.update(answer('3-5', 67), epoch=1, source_ms=2000)
         self.assertIsNone(tracker.update(answer('3-7', 45), epoch=1, source_ms=60000))
         self.assertIsNone(tracker.update(answer('3-7', 45), epoch=1, source_ms=61000))
+
+    def test_hp_drop_is_displayed_without_a_fabricated_combat_cause(self):
+        outcome=dict(hp_before=86,hp_after=79,damage=7,basis=['player.hp.temporal_drop'])
+        facts=dict(origin='rust_combat_facts_v1',hp_before=86,hp_after=79,damage=7,
+                   cause_status='unresolved',causal_explanation=None)
+        tip=combat_observation_tip(outcome,facts)
+        self.assertEqual(tip['text'],'Vida: 86 → 79 (-7). Causa não identificada.')
+        self.assertFalse(tip['speakable'])
+        self.assertNotIn('speech_text',tip)
+        with self.assertRaises(ValueError):
+            combat_observation_tip(outcome,dict(facts,causal_explanation='carry exposto'))
 
 
 if __name__ == '__main__':

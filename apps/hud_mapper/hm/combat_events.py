@@ -87,14 +87,30 @@ class CombatEvents:
         self.pending = None
         self.announced_stage = stage
         damage = before-after
-        text = (f'Essa luta custou {damage} de vida. Não dá para repetir isso: veja quem caiu primeiro e proteja sua fonte de dano na próxima.'
-                if damage >= 10 else
-                f'Não foi dessa vez, hein. Perdemos {damage} de vida; um pequeno ajuste de posição pode ajudar na próxima.'
-                if damage <= 5 else
-                f'Perdemos {damage} de vida nessa luta. Veja quem ficou exposto e ajuste antes da próxima rodada.')
         return dict(event='combat_loss_observed', stage=stage, hp_before=before,
                     hp_after=after, damage=damage, source_ms=source_ms,
                     basis=['hud.stage', 'player.hp.temporal_drop'],
                     training_label=False, outcome_prediction=False,
-                    result_verified=False, inference='repeated_hp_drop_with_stable_stage',
-                    text=text)
+                    result_verified=False, cause_status='unresolved',
+                    inference='repeated_hp_drop_with_stable_stage')
+
+
+def combat_observation_tip(outcome, facts):
+    """Show Rust-calculated damage; HP alone never authorizes a causal speech."""
+    if (not isinstance(facts, dict) or facts.get('origin') != 'rust_combat_facts_v1'
+            or type(facts.get('hp_before')) is not int
+            or type(facts.get('hp_after')) is not int
+            or type(facts.get('damage')) is not int
+            or facts['hp_before'] != outcome.get('hp_before')
+            or facts['hp_after'] != outcome.get('hp_after')
+            or facts['damage'] != outcome.get('damage')
+            or facts.get('cause_status') != 'unresolved'
+            or facts.get('causal_explanation') is not None):
+        raise ValueError('RUST_COMBAT_FACTS_INVALID')
+    return dict(status='combat_observation', kind='combat', actionable=False,
+                speakable=False,
+                text=(f"Vida: {facts['hp_before']} → {facts['hp_after']} "
+                      f"(-{facts['damage']}). Causa não identificada."),
+                cause_status='unresolved', calculation_source='rust_combat_facts_v1',
+                missing_evidence=facts.get('missing_evidence') or [],
+                basis=outcome['basis'], training_label=False)

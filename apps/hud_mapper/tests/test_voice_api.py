@@ -216,6 +216,23 @@ class VoiceAPITests(unittest.TestCase):
         coach.close();coach.thread.join(1)
         self.assertFalse(failed)
 
+    def test_spoken_action_is_not_repeated_after_intervening_phrase(self):
+        played=[]
+        coach=VoiceCoach(client=mock_client(),playback=lambda wav:played.append(wav),
+                         load_settings=False)
+        coach.set_enabled(True)
+        self.assertTrue(coach.say('Compre Ornn.',0,force=True,decision_key='ornn'))
+        until=time.monotonic()+2
+        while len(played)<1 and time.monotonic()<until:time.sleep(.01)
+        self.assertEqual(len(played),1)
+        self.assertTrue(coach.say('Role agora.',0,force=True,decision_key='roll'))
+        until=time.monotonic()+2
+        while len(played)<2 and time.monotonic()<until:time.sleep(.01)
+        self.assertEqual(len(played),2)
+        self.assertFalse(coach.say('Compre Ornn.',0,decision_key='ornn'))
+        self.assertEqual(coach.last_rejection,'decision_recently_spoken')
+        coach.close();coach.thread.join(1)
+
     def test_combat_commentary_bypasses_only_the_speech_cooldown(self):
         coach=VoiceCoach(load_settings=False);coach.enabled=True
         now=time.monotonic_ns()
