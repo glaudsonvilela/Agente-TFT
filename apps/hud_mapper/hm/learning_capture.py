@@ -1,7 +1,7 @@
 """Bounded shadow-learning capture for a live HM4/HM4.5 session.
 
 The active runtime never trains. This recorder samples immutable source RGB
-frames at a fixed low cadence into an isolated post-session evidence stream.
+frames at a low cadence and on visible changes into an isolated evidence stream.
 Writes occur on a dedicated thread; capture/reader queues never wait for JPEG
 encoding or disk I/O.
 """
@@ -21,10 +21,70 @@ from PIL import Image
 class LearningFrame:
     frame_id: int
     source_ms: float
+    original_source_ms: float
     width: int
     height: int
     rgb: bytes
     geometry_segment: int
+    capture_event: str
+
+
+class EvidenceEventDetector:
+    """Cheap, resolution-independent change detector over three small regions.
+
+    These are acquisition hints, never champion or item labels. Sampling raw
+    bytes avoids image conversion on the capture thread.
+    """
+
+    regions = {
+        "shop_change": (558, 1039, 1560, 1074, 32, 4, 0.055),
+        "board_change": (410, 215, 1510, 765, 20, 10, 0.24),
+        "bench_or_item_change": (340, 765, 1570, 940, 24, 5, 0.18),
+    }
+
+    def __init__(self, sample_interval_ms: float = 500.0):
+        self.sample_interval_ms = sample_interval_ms
+        self.next_sample_ms: float | None = None
+        self.epoch: int | None = None
+        self.previous: dict[str, bytes] = {}
+
+    def observe(self, frame) -> tuple[str, ...]:
+        source_ms = float(frame.pts_ms)
+        epoch = int(getattr(frame, "epoch", 0))
+        if epoch != self.epoch or (self.next_sample_ms is not None
+                                   and source_ms < self.next_sample_ms - self.sample_interval_ms):
+            self.epoch = epoch
+            self.previous.clear()
+            self.next_sample_ms = None
+        if self.next_sample_ms is not None and source_ms < self.next_sample_ms:
+            return ()
+        self.next_sample_ms = source_ms + self.sample_interval_ms
+        if not isinstance(frame.rgb, bytes) or len(frame.rgb) != frame.width * frame.height * 3:
+            return ()
+        pixels = memoryview(frame.rgb)
+        changed = []
+        for name, (x0, y0, x1, y1, cols, rows, threshold) in self.regions.items():
+            sampled = bytearray()
+            for row in range(rows):
+                y = min(frame.height - 1, int((y0 + (row + .5) * (y1 - y0) / rows)
+                                              * frame.height / 1080))
+                for col in range(cols):
+                    x = min(frame.width - 1, int((x0 + (col + .5) * (x1 - x0) / cols)
+                                                  * frame.width / 1920))
+                    offset = (y * frame.width + x) * 3
+                    sampled.extend((pixels[offset] >> 5, pixels[offset + 1] >> 5,
+                                    pixels[offset + 2] >> 5))
+            current = bytes(sampled)
+            old = self.previous.get(name)
+            self.previous[name] = current
+            if old is not None:
+                changed_pixels = sum(
+                    max(abs(current[i + channel] - old[i + channel]) for channel in range(3)) >= 2
+                    for i in range(0, len(current), 3)
+                )
+                if changed_pixels / (cols * rows) >= threshold:
+                    changed.append(name)
+        return tuple(changed)
 
 
 class ShadowLearningRecorder:
@@ -69,6 +129,12 @@ class ShadowLearningRecorder:
         self.error: str | None = None
         self.closed = False
         self._next_source_ms: float | None = None
+        self._last_submitted_ms: float | None = None
+        self._last_epoch: int | None = None
+        self._source_offset_ms = 0.0
+        self._last_timeline_ms: float | None = None
+        self.event_detector = EvidenceEventDetector()
+        self.event_counts: dict[str, int] = {}
         self._last_saved_source: tuple | None = None
         self._lock = threading.Lock()
 
@@ -84,7 +150,22 @@ class ShadowLearningRecorder:
         if self.closed:
             return False
         source_ms = float(frame.pts_ms)
-        if self._next_source_ms is not None and source_ms < self._next_source_ms:
+        epoch = int(getattr(frame, "epoch", 0))
+        if self._last_epoch != epoch or (self._last_submitted_ms is not None
+                                         and source_ms < self._last_submitted_ms):
+            self._next_source_ms = None
+            self._last_submitted_ms = None
+            self._last_epoch = epoch
+            if self._last_timeline_ms is not None:
+                self._source_offset_ms = max(
+                    self._source_offset_ms,
+                    self._last_timeline_ms + 1000.0 - source_ms,
+                )
+        events = self.event_detector.observe(frame)
+        periodic_due = self._next_source_ms is None or source_ms >= self._next_source_ms
+        event_due = bool(events) and (self._last_submitted_ms is None
+                                      or source_ms - self._last_submitted_ms >= 750)
+        if not periodic_due and not event_due:
             self.skipped_interval += 1
             return False
         if self.saved >= self.max_frames or self.bytes >= self.max_bytes:
@@ -95,16 +176,22 @@ class ShadowLearningRecorder:
 
         item = LearningFrame(
             frame_id=int(frame.id),
-            source_ms=source_ms,
+            source_ms=source_ms + self._source_offset_ms,
+            original_source_ms=source_ms,
             width=int(frame.width),
             height=int(frame.height),
             rgb=frame.rgb,
-            geometry_segment=int(getattr(frame, "epoch", 0)),
+            geometry_segment=epoch,
+            capture_event=events[0] if event_due else "periodic",
         )
-        self._next_source_ms = source_ms + self.interval_ms
         self.submitted += 1
         try:
             self.pending.put_nowait(item)
+            self._last_submitted_ms = source_ms
+            self._last_timeline_ms = item.source_ms
+            if periodic_due:
+                self._next_source_ms = source_ms + self.interval_ms
+            self.event_counts[item.capture_event] = self.event_counts.get(item.capture_event, 0) + 1
             return True
         except queue.Full:
             self.dropped_queue += 1
@@ -156,6 +243,7 @@ class ShadowLearningRecorder:
                     "index": self.saved,
                     "frame_id": item.frame_id,
                     "source_ms": item.source_ms,
+                    "original_source_ms": item.original_source_ms,
                     "source_width": item.width,
                     "source_height": item.height,
                     "width": 1920,
@@ -167,6 +255,7 @@ class ShadowLearningRecorder:
                     "source_rgb_sha256": source_rgb_sha,
                     "learning_rgb_sha256": hashlib.sha256(learning_rgb).hexdigest(),
                     "capture_role": "post_session_learning_evidence",
+                    "capture_event": item.capture_event,
                     "ground_truth": False,
                     "training_label": None,
                     "model_prediction_used_as_label": False,
@@ -211,6 +300,7 @@ class ShadowLearningRecorder:
                 "skipped_geometry": self.skipped_geometry,
                 "skipped_duplicate": self.skipped_duplicate,
                 "normalized_frames": self.normalized_frames,
+                "submitted_by_event": self.event_counts,
             },
             "encoded_bytes": self.bytes,
             "learning_geometry": "canonical_1920x1080_rgb_jpeg_v1",

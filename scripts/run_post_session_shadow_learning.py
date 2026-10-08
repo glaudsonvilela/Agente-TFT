@@ -214,6 +214,21 @@ def main() -> int:
         work / "shop-supervision.log",
     )
 
+    # Every session yields a bounded human review queue, including sessions
+    # with zero independently supported gold anchors. Queue entries are never
+    # promoted to labels by this pipeline.
+    run_stream(
+        [
+            sys.executable,
+            str(repo / "scripts/build_visual_review_queue.py"),
+            "--capture-manifest", str(capture_manifest),
+            "--collection", str(dense),
+            "--output", str(work / "visual-review-queue.json"),
+        ],
+        repo,
+        work / "visual-review.log",
+    )
+
     shop_gold = shop / "shop-consensus" / "auto-labels.json"
     shop_rows = load_json(shop_gold)
     if not isinstance(shop_rows, list):

@@ -75,6 +75,49 @@ def test_paused_replay_does_not_upload_duplicate_training_frames(tmp_path):
     assert manifest["source"]["input_kind"] == "recorded_replay_on_screen"
 
 
+def test_shop_and_bench_changes_are_saved_before_periodic_deadline(tmp_path):
+    session = tmp_path / "events"
+    session.mkdir()
+    recorder = ShadowLearningRecorder(session, interval_ms=5000,
+        max_frames=60, max_bytes=128 * 1024**2, jpeg_quality=88)
+
+    def changed_frame(index, source_ms, regions):
+        width, height = 192, 108
+        pixels = bytearray(width * height * 3)
+        for x0, y0, x1, y1 in regions:
+            for y in range(y0, y1):
+                for x in range(x0, x1):
+                    offset = (y * width + x) * 3
+                    pixels[offset:offset + 3] = b"\xff\xff\xff"
+        return SimpleNamespace(id=index, pts_ms=source_ms, width=width,
+                               height=height, rgb=bytes(pixels), epoch=0)
+
+    assert recorder.submit(changed_frame(1, 0, []))
+    shop = [(55, 103, 157, 108)]
+    assert recorder.submit(changed_frame(2, 1000, shop))
+    assert not recorder.submit(changed_frame(3, 1500, shop))
+    assert recorder.submit(changed_frame(4, 2000, shop + [(34, 76, 158, 95)]))
+    recorder.close("events", {"source_kind": "native_capture"}, None)
+    manifest = json.loads((session / "shadow-learning" / "capture-manifest.json").read_text())
+    assert [row["capture_event"] for row in manifest["frames"]] == [
+        "periodic", "shop_change", "bench_or_item_change",
+    ]
+    assert all(row["ground_truth"] is False for row in manifest["frames"])
+
+
+def test_replay_seek_resets_learning_deadline(tmp_path):
+    session = tmp_path / "seek"
+    session.mkdir()
+    recorder = ShadowLearningRecorder(session, interval_ms=5000,
+        max_frames=60, max_bytes=128 * 1024**2, jpeg_quality=88)
+    assert recorder.submit(frame(1, 10000))
+    rewind = frame(2, 1000)
+    rewind.epoch = 1
+    assert recorder.submit(rewind)
+    sealed = recorder.close("seek", {"input_kind": "recorded_replay_on_screen"}, None)
+    assert sealed["frames"] == 2
+
+
 def test_post_session_launcher_fails_closed_without_complete_session(tmp_path):
     session = tmp_path / "session"
     (session / "shadow-learning").mkdir(parents=True)
