@@ -98,6 +98,21 @@ impl Cadence {
     }
 }
 
+// WGC arrivals are event driven and can be slightly faster than the preview
+// target. Select one arrival per fixed time slot. Rebasing the deadline on an
+// early/late arrival discarded roughly one in four frames from a 33 Hz source.
+struct PreviewCadence { period: f64, origin: Option<f64>, last_slot: i64 }
+impl PreviewCadence {
+    fn new(hz: f64) -> Self { Self { period: 1.0 / hz, origin: None, last_slot: -1 } }
+    fn take(&mut self, now: f64) -> bool {
+        let origin = *self.origin.get_or_insert(now);
+        let slot = ((now - origin + self.period * 0.25) / self.period).floor() as i64;
+        if slot <= self.last_slot { return false; }
+        self.last_slot = slot;
+        true
+    }
+}
+
 fn packet(header: &Value, pixels: &[u8]) -> Result<()> {
     let bytes = serde_json::to_vec(header)?;
     if bytes.len() > 65536 || pixels.len() > 128 * 1024 * 1024 {
@@ -169,13 +184,18 @@ fn main() {
 mod tests {
     use super::*;
     #[test] fn preview_cadence_tolerates_sixty_hz_jitter() {
-        let mut cadence=Cadence::new(30.0);
+        let mut cadence=PreviewCadence::new(30.0);
         let count=(0..600).filter(|i| {
             cadence.take(*i as f64/60.0 + if i%2==0 {0.0002} else {-0.0002})
         }).count();
         assert_eq!(count,300);
         assert!(cadence.take(20.0));
         assert!(!cadence.take(20.001));
+    }
+    #[test] fn preview_cadence_keeps_thirty_from_thirty_three_hz_source() {
+        let mut cadence=PreviewCadence::new(30.0);
+        let count=(0..328).filter(|i| cadence.take(*i as f64/32.8)).count();
+        assert_eq!(count,300);
     }
     #[test] fn native_preview_preserves_bgra_and_ignores_stride_padding() {
         let input=[3,2,1,255,99,99,99,99,6,5,4,255,88,88,88,88];

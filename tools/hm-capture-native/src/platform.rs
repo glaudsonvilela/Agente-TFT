@@ -1,5 +1,5 @@
 //! Documented WGC + D3D11 only. Selection uses public desktop metadata, never game memory.
-use crate::{bad, packet, preview_bgra, rgb_from_bgra, Cadence, Args, Result};
+use crate::{bad, packet, preview_bgra, rgb_from_bgra, Cadence, PreviewCadence, Args, Result};
 use serde::Serialize;
 use serde_json::json;
 use std::{io::BufRead, sync::{Arc, atomic::{AtomicBool, Ordering}, mpsc}, time::{Duration, Instant}};
@@ -121,7 +121,7 @@ pub fn stream(args: &Args) -> Result<()> {
             "screen_capture_active":true,"input_automation":false}), &[])?;
         session.StartCapture()?;
         let start=Instant::now();let mut analysis_cadence=Cadence::new(args.hz);
-        let mut preview_cadence=args.preview_hz.map(Cadence::new);
+        let mut preview_cadence=args.preview_hz.map(PreviewCadence::new);
         let mut frame_id=0u64;let mut analysis_frames=0u64;let mut preview_frames=0u64;let mut seen=0u64;
         let mut rate_skipped=0u64;let mut size_changes=0u64;
         let mut stale_pool_frames_dropped=0u64;
