@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import socket
 import threading
 import time
 import unittest
@@ -203,6 +204,30 @@ class StudioBridgeTests(unittest.TestCase):
                             if path.startswith('/') else path, timeout=2)
                 self.assertIn(error.exception.code, (403, 404))
         finally:
+            server.shutdown()
+            server.server_close()
+
+    def test_preview_stream_does_not_resend_a_stale_frame(self):
+        controller = SimpleNamespace(closed=threading.Event(),
+            preview_condition=threading.Condition(), preview_sequence=1,
+            preview_jpeg=b'jpeg-fixture')
+        server = StudioServer(controller, design_root())
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            with socket.create_connection(('127.0.0.1', server.server_port), timeout=3) as client:
+                path = '/' + server.token + '/preview.mjpg'
+                client.sendall(f'GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{server.server_port}\r\n\r\n'.encode())
+                first = b''
+                while b'jpeg-fixture\r\n' not in first:
+                    first += client.recv(4096)
+                client.settimeout(2.3)
+                with self.assertRaises(socket.timeout):
+                    client.recv(1)
+        finally:
+            controller.closed.set()
+            with controller.preview_condition:
+                controller.preview_condition.notify_all()
             server.shutdown()
             server.server_close()
 

@@ -413,9 +413,11 @@ class StudioHandler(BaseHTTPRequestHandler):
         try:
             while not self.server.controller.closed.is_set():
                 with self.server.controller.preview_condition:
-                    self.server.controller.preview_condition.wait_for(
+                    fresh = self.server.controller.preview_condition.wait_for(
                         lambda: self.server.controller.preview_sequence != sequence
                         or self.server.controller.closed.is_set(), timeout=2)
+                    if not fresh or self.server.controller.closed.is_set():
+                        continue
                     sequence = self.server.controller.preview_sequence
                     jpeg = self.server.controller.preview_jpeg
                 if not jpeg:
