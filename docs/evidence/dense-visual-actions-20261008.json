@@ -8,6 +8,7 @@
   "actions": [
     {
       "type": "reroll",
+      "reroll_cost": 2,
       "before": "frame-0021.jpg",
       "after": "frame-0022.jpg",
       "before_sha256": "5b6329f5988ee0a58f48eddfa3523ec21b781ecb673c9e0c4e240bb434d492d5",
@@ -21,6 +22,7 @@
     },
     {
       "type": "reroll",
+      "reroll_cost": 2,
       "before": "frame-0024.jpg",
       "after": "frame-0025.jpg",
       "before_sha256": "b0a420261828aebdfad894d0c112eb23fd300567daacb081566b750d47fba673",
@@ -34,6 +36,7 @@
     },
     {
       "type": "reroll",
+      "reroll_cost": 2,
       "before": "frame-0031.jpg",
       "after": "frame-0032.jpg",
       "before_sha256": "1a6006bab88ef8a7832107c148f72cc4c09b290ccf42213a234ae9c564f63805",
@@ -47,6 +50,7 @@
     },
     {
       "type": "buy_unit",
+      "unit_cost": 4,
       "unit": "Morgana",
       "before": "frame-0037.jpg",
       "after": "frame-0038.jpg",
@@ -61,6 +65,7 @@
     },
     {
       "type": "reroll",
+      "reroll_cost": 2,
       "before": "frame-0039.jpg",
       "after": "frame-0040.jpg",
       "before_sha256": "16f32fd448afa048cf2e5425ee5473a7dc2e54a71e1ba99e507a11e776fb872e",
@@ -74,6 +79,7 @@
     },
     {
       "type": "sell_unit",
+      "sale_gold": 4,
       "before": "frame-0042.jpg",
       "after": "frame-0043.jpg",
       "before_sha256": "60992d73eba9e10a2cf80104695ebe2374156fc773c18410322205fa146791d6",
@@ -85,6 +91,7 @@
     },
     {
       "type": "reroll",
+      "reroll_cost": 2,
       "before": "frame-0056.jpg",
       "after": "frame-0057.jpg",
       "before_sha256": "08a32b15f8abd58c114400453f41d4186387951096df5b366f20b6facf103a20",

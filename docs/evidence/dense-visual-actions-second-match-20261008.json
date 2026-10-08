@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "source_sha256": "4fc0840e3687b4b92019ad342538207754ac5388078cdb2ed1031b9d7608093f",
+  "source_resolution": [1920, 1080],
+  "clip_start_seconds_approx": 14485,
+  "sampling_fps": 5,
+  "label_provenance": "manual_visual_review_of_adjacent_frames; strong visual inference, no input-event log",
+  "actions": [
+    {
+      "type": "buy_xp",
+      "xp_cost": 4,
+      "xp_gained": 4,
+      "before": "frame-0007.jpg",
+      "after": "frame-0008.jpg",
+      "before_sha256": "b1057d50d21f1dbcae9aba1f5f4e024e322904e7c5ec3eaf47cf5c67c1a574e4",
+      "after_sha256": "7c2fed940208f50fa524f1973b49348fcdc4829f34798e6eb7888b876449fe98",
+      "stage": "3-7",
+      "gold_before": 61,
+      "gold_after": 57,
+      "level_before": 7,
+      "level_after": 7,
+      "xp_before": 25,
+      "xp_after": 29,
+      "xp_to_next_before": 54,
+      "visual_evidence": "Gold falls by the displayed 4-gold Buy XP price and the level-7 XP bar advances from 25/54 to 29/54."
+    },
+    {
+      "type": "buy_xp",
+      "xp_cost": 4,
+      "xp_gained": 4,
+      "before": "frame-0052.jpg",
+      "after": "frame-0053.jpg",
+      "before_sha256": "31bcde1984b694e788f44c0329d3cb9d602a4e7c99e3df7167a58153d7e0be30",
+      "after_sha256": "8a476b1bb16658e5174a11854e48b3f7e66892c53881de408e9e28313ee712e1",
+      "stage": "4-1",
+      "gold_before": 63,
+      "gold_after": 59,
+      "level_before": 7,
+      "level_after": 7,
+      "xp_before": 35,
+      "xp_after": 39,
+      "xp_to_next_before": 54,
+      "visual_evidence": "Gold falls by 4 and the level-7 XP bar advances from 35/54 to 39/54; shop offers remain unchanged."
+    },
+    {
+      "type": "buy_xp",
+      "xp_cost": 4,
+      "xp_gained": 4,
+      "before": "frame-0056.jpg",
+      "after": "frame-0057.jpg",
+      "before_sha256": "4678941b51cb0d3018ffb8f9eda200ddda550e2d98536ccf911e87391194158e",
+      "after_sha256": "a74fe00e5b154b9ac57fd995bc020965b6a435a9caa40293111efa18a946893e",
+      "stage": "4-1",
+      "gold_before": 47,
+      "gold_after": 43,
+      "level_before": 7,
+      "level_after": 8,
+      "xp_before": 51,
+      "xp_after": 1,
+      "xp_to_next_before": 54,
+      "visual_evidence": "Gold falls by 4 as 51/54 XP crosses the level threshold; the HUD becomes level 8 with 1/66 XP."
+    }
+  ],
+  "hard_cases": [
+    {
+      "before": "frame-0023.jpg",
+      "after": "frame-0024.jpg",
+      "before_sha256": "44c65ea1aebb338885d23dec692abb62e83547b32dcba5474cf8a637736be6f4",
+      "after_sha256": "830dbcaccf385a00cc9d348cf24795072243e4aeb2e89de26827032319e00714",
+      "review_status": "natural_round_transition",
+      "stage_before": "3-7",
+      "stage_after": "4-1",
+      "gold_before": 53,
+      "gold_after": 64,
+      "visual_evidence": "The round changes from 3-7 to 4-1, the Planning banner appears, gold increases, and the shop refreshes naturally. This is not a paid reroll."
+    }
+  ]
+}

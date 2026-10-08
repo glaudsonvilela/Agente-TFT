@@ -17,9 +17,12 @@ from PIL import Image
 REGIONS = {
     "stage": (740, 0, 825, 43),
     "gold": (1004, 873, 1060, 918),
+    "xp": (345, 874, 545, 924),
     "shop": (552, 925, 1557, 1080),
     "bench": (335, 665, 1535, 840),
     "board": (575, 230, 1450, 665),
+    "items": (0, 250, 105, 835),
+    "opponents": (1690, 160, 1920, 815),
 }
 
 
@@ -61,6 +64,11 @@ def mine(frames_dir: Path, output: Path) -> list[dict]:
             "review_status": "unreviewed_visual_transition",
         })
         previous = current
+    for region in REGIONS:
+        for rank, row in enumerate(sorted(rows,
+                                           key=lambda candidate: candidate["region_change"][region],
+                                           reverse=True), 1):
+            row.setdefault("review_rank_by_region", {})[region] = rank
     rows.sort(key=lambda row: row["review_priority"], reverse=True)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w") as stream:

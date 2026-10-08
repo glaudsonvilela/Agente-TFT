@@ -8,7 +8,10 @@ import json
 from pathlib import Path
 
 
-EXPECTED_GOLD_DELTA = {"reroll": -2, "buy_unit": -4, "sell_unit": 4}
+GOLD_FIELDS = {"reroll": ("reroll_cost", -1),
+               "buy_unit": ("unit_cost", -1),
+               "sell_unit": ("sale_gold", 1),
+               "buy_xp": ("xp_cost", -1)}
 
 
 def validate(manifest_path: Path, frames_dir: Path) -> dict[str, int]:
@@ -36,11 +39,13 @@ def validate(manifest_path: Path, frames_dir: Path) -> dict[str, int]:
         if not row.get("visual_evidence"):
             raise ValueError("missing independent visual rationale")
     for row in actions:
-        expected = EXPECTED_GOLD_DELTA.get(row["type"])
-        if expected is None or row["gold_after"] - row["gold_before"] != expected:
+        cost_field, direction = GOLD_FIELDS.get(row["type"], (None, None))
+        if cost_field is None or cost_field not in row or row[cost_field] < 0 or (
+                row[cost_field] == 0 and row["type"] != "reroll") or (
+                row["gold_after"] - row["gold_before"] != direction * row[cost_field]):
             raise ValueError(f"gold delta does not support label: {row['before']}")
-        if row["stage"] != "4-2":
-            raise ValueError("action crosses the reviewed round")
+        if not row.get("stage") or "-" not in row["stage"]:
+            raise ValueError("action needs a stable reviewed round")
         if row["type"] in {"reroll", "buy_unit"}:
             if len(row["shop_before"]) != 5 or len(row["shop_after"]) != 5:
                 raise ValueError("shop snapshot must have five slots")
@@ -51,8 +56,22 @@ def validate(manifest_path: Path, frames_dir: Path) -> dict[str, int]:
                            if a is not None and b is None]
             if disappeared != [row["unit"]]:
                 raise ValueError("bought unit did not disappear from exactly one shop slot")
+        if row["type"] == "buy_xp":
+            if row["level_after"] not in (row["level_before"], row["level_before"] + 1):
+                raise ValueError("invalid level transition")
+            expected_xp = row["xp_before"] + row["xp_gained"]
+            if row["level_after"] > row["level_before"]:
+                expected_xp -= row["xp_to_next_before"]
+            if row["xp_after"] != expected_xp:
+                raise ValueError("XP bar does not support buy_xp")
     for row in hard_cases:
-        if row["review_status"] != "not_a_reroll" or row["gold_before"] != row["gold_after"]:
+        if row["review_status"] == "not_a_reroll":
+            valid = row["gold_before"] == row["gold_after"]
+        elif row["review_status"] == "natural_round_transition":
+            valid = row["stage_before"] != row["stage_after"]
+        else:
+            valid = False
+        if not valid:
             raise ValueError("invalid hard-case review")
     return {"reviewed_actions": len(actions), "hard_cases": len(hard_cases),
             "reviewed_frame_pairs": len(seen)}
