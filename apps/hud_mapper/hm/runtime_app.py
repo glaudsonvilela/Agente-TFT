@@ -25,6 +25,9 @@ def runtime_paths():
     native=root/"tools/e1-native/target/release"/("agente-tft-e1-worker"+exe)
     worker=bundled if bundled.is_file() else native
     os.environ.setdefault("OMP_THREAD_LIMIT","1")
+    # Small item-gallery dot products run faster without a BLAS worker pool;
+    # this also keeps the video preview responsive on modest PCs.
+    os.environ.setdefault("OPENBLAS_NUM_THREADS","1")
     return dict(worker=str(worker),configs=str(root/"configs"),tesseract=tess_cmd,
                 ffmpeg="HM3_RUNTIME_DISABLED",ffprobe="HM3_RUNTIME_DISABLED")
 

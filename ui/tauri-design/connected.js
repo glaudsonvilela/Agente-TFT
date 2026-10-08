@@ -197,13 +197,20 @@ if (new URLSearchParams(location.search).has('connected')) {
       const candidates = state?.temporal_candidates || {};
       const units = (candidates.units || []).filter(row => row.candidate_id).slice(0, 10);
       const items = (candidates.inventory || []).filter(row => row.candidate_id).slice(0, 10);
+      const equipped = (candidates.equipped || []).filter(row => row.candidate_id).slice(0, 10);
       const boardStatus = readiness ?
         `${readiness.observed_unit_regions || 0} regiões observadas · ${readiness.candidate_units || 0} candidatos · ${readiness.verified_units || 0} unidades confirmadas` :
         'Aguardando a primeira leitura do tabuleiro.';
       const modelStatus = state?.unit_model_active ? 'Reconhecedor de campeões ativo' : 'Reconhecedor de campeões aguardando modelo';
       const unitText = units.length ? '<br>Possíveis campeões: '+units.map(row =>
         escapeHtml(row.candidate_name || row.candidate_id)).join(', ') : '';
-      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Leitura do tabuleiro em andamento.${unitText}<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)} · nomes ainda não confirmados</small></div></div>`;
+      const equipmentText = equipped.length ? '<br>Itens equipados observados: '+equipped.map(row => {
+        const place = row.position || [];
+        const location = place[0] === 'board' && Number.isInteger(place[1]) && Number.isInteger(place[2]) ?
+          ` (linha ${place[1]+1}, casa ${place[2]+1} aproximada)` : '';
+        return escapeHtml(row.candidate_name || row.candidate_id)+escapeHtml(location);
+      }).join(', ') : '';
+      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Leitura do tabuleiro em andamento.${unitText}${equipmentText}<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)} · nomes ainda não confirmados</small></div></div>`;
       const inventory = document.querySelector('.board-detail .inventory');
       if (inventory) inventory.innerHTML = '<span>Inventário · '+(items.length ?
         'possíveis itens: '+items.map(row => escapeHtml(row.candidate_name || row.candidate_id)).join(', ') :

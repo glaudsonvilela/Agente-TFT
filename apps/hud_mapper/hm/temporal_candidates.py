@@ -16,11 +16,11 @@ def _position(value):
 
 
 class TemporalCandidates:
-    """Track only the same visible slot/hex for a few recent HUB observations.
+    """Track a visible slot/hex, or a marker when its position is unknown.
 
     Support is a count of repeated frames, not a calibrated probability or
-    independent validation. A moved unit gets a different track and must build
-    evidence again.
+    independent validation. Marker IDs can be reassigned between frames, so a
+    moved or reordered marker must build evidence again.
     """
 
     def __init__(self, *, max_age_ms=5000, history=3):
@@ -50,21 +50,26 @@ class TemporalCandidates:
                 current.append(('units', ('unit', position), row.get('candidate_id'),
                                 dict(position=list(position), marker_id=row['marker_id'],
                                      current_candidate_name=row.get('candidate_name'))))
-        visual = snapshot.get('item_visual_native') or {}
+        visual = snapshot.get('item_evidence') or snapshot.get('item_visual_native') or {}
         for row in visual.get('inventory', []):
             if type(row.get('slot')) is int:
-                names = (row.get('candidates') or [{}])[0].get('names') or []
+                names = ([row['candidate_name']] if row.get('candidate_name') else
+                         (row.get('candidates') or [{}])[0].get('names') or [])
                 current.append(('inventory', ('inventory', row['slot']), row.get('candidate_id'),
                                 dict(slot=row['slot'],
                                      current_candidate_name=names[0] if len(names) == 1 else None)))
         for row in visual.get('equipped', []):
             position = _position(row.get('position_candidate'))
-            if position and type(row.get('slot')) is int:
-                names = (row.get('candidates') or [{}])[0].get('names') or []
-                current.append(('equipped', ('equipped', position, row['slot']),
+            marker_id = row.get('marker_id')
+            if type(row.get('slot')) is int and (position or type(marker_id) is int):
+                names = ([row['candidate_name']] if row.get('candidate_name') else
+                         (row.get('candidates') or [{}])[0].get('names') or [])
+                key = (('equipped', position, row['slot']) if position else
+                       ('equipped_marker', marker_id, row['slot']))
+                current.append(('equipped', key,
                                 row.get('candidate_id'),
-                                dict(position=list(position), slot=row['slot'],
-                                     marker_id=row.get('marker_id'),
+                                dict(position=list(position) if position else None,
+                                     slot=row['slot'], marker_id=marker_id,
                                      current_candidate_name=names[0] if len(names) == 1 else None)))
 
         visible = {key for _, key, _, _ in current}

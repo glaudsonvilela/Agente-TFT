@@ -50,6 +50,22 @@ class TemporalCandidateTests(unittest.TestCase):
         result = memory.update(unknown, epoch=1)
         self.assertEqual(result['units'], [])
 
+    def test_equipped_icon_can_persist_on_a_marker_without_known_cell(self):
+        memory = TemporalCandidates()
+        one = frame(1000)
+        one['observed_markers'][0]['position_candidate'] = None
+        one['item_evidence'] = {'inventory': [], 'equipped': [
+            {'marker_id': 7, 'slot': 0, 'position_candidate': None,
+             'candidate_id': 'emblem', 'candidate_name': 'Emblema'}]}
+        self.assertIsNone(memory.update(one, epoch=1)['equipped'][0]['candidate_id'])
+        two = frame(2000)
+        two['observed_markers'][0]['position_candidate'] = None
+        two['item_evidence'] = one['item_evidence']
+        result = memory.update(two, epoch=1)
+        self.assertEqual(result['equipped'][0]['candidate_name'], 'Emblema')
+        self.assertIsNone(result['equipped'][0]['position'])
+        self.assertEqual(result['units'], [])
+
 
 if __name__ == '__main__':
     unittest.main()

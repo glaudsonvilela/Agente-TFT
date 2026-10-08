@@ -167,8 +167,17 @@ class BoardHubLive:
             self.item_visual = None
             snapshot['item_visual_native'] = dict(active=False, error=self.item_visual_error,
                                                    inventory=[], equipped=[])
+        for row in snapshot['inventory']['candidate_slots']:
+            for candidate in row['candidates']:
+                self._bind_exact_attribute_ids(candidate)
+        for marker in snapshot['observed_markers']:
+            for slot in marker['equipped_slots']:
+                for candidate in slot['candidates']:
+                    self._bind_exact_attribute_ids(candidate)
         snapshot['item_movement'] = self.item_movement.update(
             snapshot, snapshot['item_visual_native'], getattr(source, 'epoch', None))
+        from .item_evidence import reconcile
+        snapshot['item_evidence'] = reconcile(snapshot)
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
         for item in snapshot['item_visual_native'].get('equipped', []):
             unit = unit_records.get(item['marker_id']) or {}
@@ -191,13 +200,6 @@ class BoardHubLive:
             blockers=['UNIT_IDENTITY_VALIDATION_PENDING', 'STARS_UNVERIFIED',
                       'GROUND_POSITIONS_UNVERIFIED', 'ITEMS_UNVERIFIED',
                       'PERSPECTIVE_AND_PHASE_UNVERIFIED'])
-        for row in snapshot['inventory']['candidate_slots']:
-            for candidate in row['candidates']:
-                self._bind_exact_attribute_ids(candidate)
-        for marker in snapshot['observed_markers']:
-            for slot in marker['equipped_slots']:
-                for candidate in slot['candidates']:
-                    self._bind_exact_attribute_ids(candidate)
         from .equipment_identity import associate_equipment, item_candidate
         snapshot['unit_equipment_candidates'] = associate_equipment(
             snapshot['observed_markers'], unit_records)
@@ -205,8 +207,8 @@ class BoardHubLive:
             item_candidate(row) for row in snapshot['inventory']['candidate_slots']]
         snapshot['visual_readiness']['candidate_items'] = sum(
             row.get('candidate_id') is not None
-            for row in snapshot['item_visual_native'].get('inventory', []) +
-                       snapshot['item_visual_native'].get('equipped', []))
+            for row in snapshot['item_evidence']['inventory'] +
+                       snapshot['item_evidence']['equipped'])
         snapshot['visual_readiness']['persistent_unit_candidates'] = sum(
             row['candidate_id'] is not None for row in snapshot['temporal_candidates']['units'])
         snapshot['visual_readiness']['persistent_item_candidates'] = sum(
@@ -229,12 +231,16 @@ class BoardHubLive:
             candidates = (item or {}).get('candidates') or []
             leading = candidates[0] if candidates else None
             options = leading['catalog_options'] if leading else []
-            names={option['name'] for option in options}
             native = next((row for row in snapshot['item_visual_native'].get('inventory', [])
                            if row['slot'] == slot['slot']), {})
+            reconciled = next((row for row in snapshot['item_evidence']['inventory']
+                               if row['slot'] == slot['slot']), {})
             regions.append(region(f"hub.inventory.{slot['slot']}", xyxy(slot['rect']), slot['status'],
-                                  value=next(iter(names)) if len(names)==1 else None,
+                                  value=reconciled.get('candidate_name'),
                                   value_is_unverified_candidate=bool(candidates), item_id=None,
+                                  candidate_item_id=reconciled.get('candidate_id'),
+                                  item_evidence_status=reconciled.get('status'),
+                                  item_evidence=reconciled.get('evidence', []),
                                   candidate_items=options,
                                   native_candidate_item_id=native.get('candidate_id'),
                                   native_item_candidates=native.get('candidates', []),
@@ -251,9 +257,14 @@ class BoardHubLive:
                                   identity_status=identity.get('status', 'unavailable'),
                                   game_state_write_allowed=False))
         for item in snapshot['item_visual_native'].get('equipped', []):
+            reconciled = next((row for row in snapshot['item_evidence']['equipped']
+                               if row['marker_id'] == item['marker_id'] and row['slot'] == item['slot']), {})
             regions.append(region(f"hub.equipped.{item['marker_id']}.{item['slot']}",
                                   xyxy(item['canonical_rect']), item['status'],
-                                  item_id=None, candidate_item_id=item.get('candidate_id'),
+                                  item_id=None, candidate_item_id=reconciled.get('candidate_id'),
+                                  candidate_item_name=reconciled.get('candidate_name'),
+                                  item_evidence_status=reconciled.get('status'),
+                                  item_evidence=reconciled.get('evidence', []),
                                   candidate_items=item.get('candidates', []),
                                   marker_id=item['marker_id'],
                                   candidate_champion_id=item.get('candidate_champion_id'),
