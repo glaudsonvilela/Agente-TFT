@@ -177,15 +177,42 @@ def scripted_action(world,seat,content):
     return Action('hold')
 
 
-def play(content,seed=0,policy=scripted_action):
-    world=new_match(content,seed); history=[]; placements={}
-    for round_id in range(content['match_rules']['max_rounds']):
-        world=begin_round(world,content)
+def play(content,seed=0,policy=scripted_action,*,start_world=None,first_action=None,
+         focus_seat=None,record_actions=False):
+    """Play a synthetic match, optionally branching from an observed planning state.
+
+    A supplied first action is taken exactly once. Later choices use ``policy``.
+    This lets paired counterfactuals share the same initial world and opponents.
+    """
+    world=deepcopy(start_world) if start_world is not None else new_match(content,seed)
+    validate_world(world,content)
+    if first_action is not None and (focus_seat is None or
+            not 0 <= focus_seat < len(world.players) or world.round_phase!='planning'):
+        raise IllegalAction('first action requires a planning world and active seat')
+    history=[];placements={}; actions=[]
+    max_rounds=content['match_rules']['max_rounds']
+    while world.round_number < max_rounds or world.round_phase=='planning':
+        if world.round_phase=='between_rounds':
+            world=begin_round(world,content)
+        round_id=world.round_number-1
         active=[i for i,p in enumerate(world.players) if p.hp>0]
         for seat in active:
-            for _ in range(content['match_rules']['planning_actions']):
+            remaining=content['match_rules']['planning_actions']
+            if first_action is not None and seat==focus_seat:
+                action=first_action
+                first_action=None
+                if record_actions:
+                    actions.append(dict(round=world.round_number,seat=seat,kind=action.kind,
+                                        args=action.args,source='counterfactual_first_action'))
+                if action.kind=='hold': continue
+                world=apply(world,seat,action,content)
+                remaining-=1
+            for _ in range(remaining):
                 action=policy(world,seat,content)
                 if action.kind=='hold': break
+                if record_actions:
+                    actions.append(dict(round=world.round_number,seat=seat,kind=action.kind,
+                                        args=action.args,source='policy'))
                 world=apply(world,seat,action,content)
         world,record=resolve_round(world,content,seed*1000+round_id)
         # Simultaneous eliminations share their mean place; no invented tie-break rule.
@@ -197,6 +224,8 @@ def play(content,seed=0,policy=scripted_action):
             if survivors: placements[str(survivors[0])]=1.
             break
     completed=len([p for p in world.players if p.hp>0])<=1
-    return dict(scope='experimental_hex_lab',seed=seed,rounds=len(history),completed=completed,
+    result=dict(scope='experimental_hex_lab',seed=seed,rounds=len(history),completed=completed,
                 truncated=not completed,placements=placements,history=history,
                 combat_calls=sum(len(r['fights']) for r in history),runtime_promoted=False)
+    if record_actions: result['actions']=actions
+    return result
