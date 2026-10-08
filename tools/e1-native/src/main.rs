@@ -58,7 +58,34 @@ fn frame(h:&Value,r:&mut impl Read)->Result<FrameEnvelope,String>{
 fn span(t:&Instant,name:&str,start:f64)->Value{json!({"stage":name,"start_ms":start,"duration_ms":t.elapsed().as_secs_f64()*1000.-start})}
 fn ms(t:&Instant)->f64{t.elapsed().as_secs_f64()*1000.}
 #[derive(Clone)]
-struct HudCacheEntry{pixels:Vec<u8>,read:Option<RobustHudRead>,source_frame_id:u64,source_ms:u64}
+struct HudCacheEntry{
+    pixels:Vec<u8>,glyph_mask:Vec<u8>,read:Option<RobustHudRead>,
+    source_frame_id:u64,source_ms:u64,
+}
+const HUD_OCR_RECHECK_MS:u64=1500;
+// The numeric HUD has light glyphs over animated dark panels. Keep only the
+// glyph silhouette; RGB equality misses harmless animation between frames.
+fn hud_glyph_mask(pixels:&[u8])->Option<Vec<u8>>{
+    let mut mask=vec![0u8;pixels.len().div_ceil(24)];
+    let mut foreground=0usize;
+    for (index,rgb) in pixels.chunks_exact(3).enumerate(){
+        let luma=(77u16*rgb[0] as u16+150u16*rgb[1] as u16+29u16*rgb[2] as u16)>>8;
+        if luma>=140 {
+            mask[index/8]|=1<<(index%8);
+            foreground+=1;
+        }
+    }
+    (foreground>=8).then_some(mask)
+}
+fn hud_cache_basis(entry:&HudCacheEntry,pixels:&[u8],glyph_mask:Option<&[u8]>,at:u64)->Option<&'static str>{
+    entry.read.as_ref()?;
+    if at<entry.source_ms || at-entry.source_ms>HUD_OCR_RECHECK_MS{return None;}
+    if entry.pixels==pixels{return Some("exact_roi_rgb");}
+    if let Some(mask)=glyph_mask {
+        if entry.glyph_mask==mask{return Some("bright_glyph_mask");}
+    }
+    None
+}
 #[derive(Clone)]
 struct JsonCacheEntry{pixels:Vec<u8>,value:Value,source_frame_id:u64,source_ms:u64,panel_located:Option<bool>}
 #[derive(Clone)]
@@ -395,12 +422,13 @@ impl Readers{
             continue;
         }
         let roi=extract_roi(f,region.rect).map_err(|e|e.to_string())?;
+        let glyph_mask=hud_glyph_mask(&roi.pixels);
         if let Some(entry)=self.hud_cache.get(&region.field) {
-          if entry.pixels==roi.pixels {
+          if let Some(basis)=hud_cache_basis(entry,&roi.pixels,glyph_mask.as_deref(),f.captured_at_ms){
             let mut read=entry.read.clone();
             if let Some(value)=read.as_mut(){restamp(value,f.captured_at_ms);}
             parallel.push((index,region.field,Ok(read),ms(&t),0.0,true,
-                           Some((entry.source_frame_id,entry.source_ms))));
+                           Some((entry.source_frame_id,entry.source_ms,basis))));
             continue;
           }
         }
@@ -439,13 +467,15 @@ impl Readers{
       })?;
       for (index,field,result,started,duration,pixels) in fresh {
         if let Ok(read)=&result {
-          self.hud_cache.insert(field,HudCacheEntry{pixels,read:read.clone(),
+          self.hud_cache.insert(field,HudCacheEntry{glyph_mask:hud_glyph_mask(&pixels).unwrap_or_default(),pixels,read:read.clone(),
               source_frame_id:f.frame_id,source_ms:f.captured_at_ms});
         }
         parallel.push((index,field,result,started,duration,false,None));
       }
       parallel.sort_by_key(|x|x.0);
       let mut hud_cache_hits=0usize;
+      let mut numeric_cache_hits=0usize;
+      let mut glyph_cache_hits=0usize;
       for (_,field,result,started,duration,cache_hit,cached_from) in parallel {
         let mut row=json!({"field":field,"value":null,"source_ms":f.captured_at_ms,"status":"unknown"});
         if field==HudField::Stage {
@@ -454,9 +484,13 @@ impl Readers{
         }
         if cache_hit {
           hud_cache_hits+=1;
-          if let Some((frame_id,source_ms))=cached_from {
-            row["cache_delivery"]=json!({"exact_roi_rgb":true,"source_frame_id":frame_id,
-                                          "source_ms":source_ms,"delivered_frame_id":f.frame_id});
+          if let Some((frame_id,source_ms,basis))=cached_from {
+            numeric_cache_hits+=1;
+            if basis=="bright_glyph_mask"{glyph_cache_hits+=1;}
+            row["cache_delivery"]=json!({"basis":basis,"source_frame_id":frame_id,
+                "source_ms":source_ms,"delivered_frame_id":f.frame_id,
+                "last_ocr_age_ms":f.captured_at_ms.saturating_sub(source_ms),
+                "visual_confirmation_ms":f.captured_at_ms});
           }
         }
         match result {
@@ -476,11 +510,13 @@ impl Readers{
         obs.push(row);
         spans.push(json!({"stage":format!("hud_{field:?}").to_lowercase(),"start_ms":started,
                          "duration_ms":duration,"parallel_group":"hud_numeric_v1",
-                         "cache_exact_hit":cache_hit,"cache_basis":"exact_roi_rgb_bytes_v1"}));
+                         "cache_exact_hit":cache_hit && (field==HudField::Stage || cached_from.map(|x|x.2)==Some("exact_roi_rgb")),
+                         "cache_glyph_hit":cached_from.map(|x|x.2)==Some("bright_glyph_mask")}));
       }
       spans.push(json!({"stage":"hud_parallel_wall","start_ms":hud_wall_started,
                         "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len(),
-                        "exact_roi_cache_hits":hud_cache_hits}));
+                        "exact_roi_cache_hits":hud_cache_hits-glyph_cache_hits,
+                        "numeric_cache_hits":numeric_cache_hits,"glyph_cache_hits":glyph_cache_hits}));
       let started=ms(&t);
       if !include_shop {
         shop=match self.shop_cache.as_ref() {
@@ -530,7 +566,7 @@ impl Readers{
     Ok(json!({"id":f.frame_id,"source_ms":f.captured_at_ms,"origin":"observed_pixels",
       "hud":obs,"shop":shop,"controls":controls,"board":board,"state":state,"report":report,"decision":decision,
       "spans":spans,"native_ms":ms(&t),"hud_accepted_attempts_lower_bound":attempted,
-      "hud_cache_policy":"exact_roi_rgb_bytes_v1","hud_process_calls_exact":null,
+      "hud_cache_policy":"numeric_bright_glyph_mask_1500ms_recheck_v1","hud_process_calls_exact":null,
       "shop_requested":include_shop,"resolution_compatible":valid_size,"ocr_available":self.available,
        "numeric_hud_ocr_backend":self.ocr_backend,"spatial_text_ocr_backend":self.text_ocr_backend,
         "numeric_hud_ocr_fallback_error":self.ocr_fallback_error,
@@ -796,6 +832,31 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
 }
 #[cfg(test)] mod tests{
  use super::*;
+ #[test] fn numeric_hud_cache_reuses_stable_glyphs_and_rechecks_on_change_or_age(){
+   use agente_tft_contracts::Confidence;
+   let mut original=vec![20u8;12*12*3];
+   for x in 2..10 {for y in 2..10 {
+     let i=(y*12+x)*3;
+     original[i..i+3].copy_from_slice(&[210,210,210]);
+   }}
+   let read=RobustHudRead{batch:Default::default(),recognized_text:"8".into(),
+       confidence:Confidence::new(0.9).unwrap(),preprocess:Default::default(),attempts_made:2};
+   let entry=HudCacheEntry{glyph_mask:hud_glyph_mask(&original).unwrap(),
+       pixels:original.clone(),read:Some(read),source_frame_id:1,source_ms:1000};
+   let mut background_changed=original.clone();
+   background_changed[0..3].copy_from_slice(&[40,40,40]);
+   let mask=hud_glyph_mask(&background_changed).unwrap();
+   assert_eq!(hud_cache_basis(&entry,&background_changed,Some(&mask),1200),Some("bright_glyph_mask"));
+   assert_eq!(hud_cache_basis(&entry,&background_changed,Some(&mask),2501),None);
+   assert_eq!(hud_cache_basis(&entry,&background_changed,Some(&mask),999),None);
+   let mut glyph_changed=background_changed.clone();
+   glyph_changed[(3*12+3)*3..(3*12+3)*3+3].copy_from_slice(&[20,20,20]);
+   let changed_mask=hud_glyph_mask(&glyph_changed).unwrap();
+   assert_eq!(hud_cache_basis(&entry,&glyph_changed,Some(&changed_mask),1200),None);
+   assert_eq!(hud_cache_basis(&entry,&original,Some(&entry.glyph_mask),1500),Some("exact_roi_rgb"));
+   assert_eq!(hud_cache_basis(&entry,&original,Some(&entry.glyph_mask),3000),None);
+   assert!(hud_glyph_mask(&vec![0u8;12*12*3]).is_none());
+ }
  #[test] fn shop_name_track_needs_distinct_ordered_frames_and_resets_on_change(){
    let first=advance_shop_name_track(None,"Alune",0.89,1000,1);
    let same_frame=advance_shop_name_track(Some(first.clone()),"Alune",0.88,1000,1);

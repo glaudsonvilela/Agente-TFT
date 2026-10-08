@@ -532,7 +532,8 @@ class RuntimeSession(Session):
                             'frame_id': frame.id,
                             'age_source_ms': frame.pts_ms,
                             'origin': answer.get('origin'),
-                            'fields': [{k: row.get(k) for k in ('field', 'status', 'value', 'confidence')}
+                            'fields': [{k: row.get(k) for k in ('field', 'status', 'value', 'confidence',
+                                                                  'cache_delivery')}
                                        for row in answer.get('hud') or []
                                        if row.get('field') in ('stage', 'gold', 'level', 'xp')],
                             'decision_reason': self.latest_decision_reason,

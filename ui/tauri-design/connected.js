@@ -383,7 +383,9 @@ if (new URLSearchParams(location.search).has('connected')) {
       `${previous && tip && !tip.actionable && tip.text ? '<br>Leitura atual: '+escapeHtml(tip.text) : ''}`+
       `${!actionable && decisionInfo ? '<br>'+escapeHtml(decisionInfo) : ''}`+
       `${state?.ubuntu_mvp ? '<br>HUD: '+escapeHtml((state.hud_diagnostic?.fields||[]).map(x =>
-        `${x.field}=${x.value ?? '—'} (${x.status || 'sem leitura'})`).join(' · ') || 'sem leitura')+
+        `${x.field}=${x.value ?? '—'} (${x.cache_delivery ?
+          `RAM${Number.isFinite(x.cache_delivery.last_ocr_age_ms) ? ' '+Math.round(x.cache_delivery.last_ocr_age_ms)+' ms' : ''}` :
+          (x.status || 'sem leitura')})`).join(' · ') || 'sem leitura')+
         ' · decisão: '+escapeHtml(state.hud_diagnostic?.decision_reason || 'nenhuma') : ''}`+
       `${recommendations.length ? '<br>'+recommendations.map(x => escapeHtml(x.text)).join('<br>') : ''}`+
       `</div>`+
