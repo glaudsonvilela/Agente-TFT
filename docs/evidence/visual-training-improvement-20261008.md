@@ -55,7 +55,10 @@ Its remaining 1,253 unique unlabeled crops contributed 64 review candidates,
 not training labels. Tooltip supervision added no further gold. The challenger
 trained with all 10 corpus gold examples again scored 20/32 correct and
 0.643939 macro recall on the frozen validation set, so the 21/32 baseline
-remained selected. A third distinct 1080p match is being analyzed. The 360p
-archive videos were not used for this OCR
+remained selected. A third distinct 1080p match produced 286 sampled frames
+and 778 unique unit crops. It yielded one possible shop transition and two
+tooltip proposals, but zero confirmed gold after the strict consensus checks.
+Another 64 unlabeled crops were selected for review. The 360p archive videos
+were not used for this OCR
 path: the collector requires native 1920x1080 pixels and upscaling would not
 restore the missing text detail.
