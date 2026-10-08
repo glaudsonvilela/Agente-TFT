@@ -72,7 +72,7 @@ def coach_prompt(answer: dict) -> dict:
             and decision.get('policy') == 'partial_state_live_v1'
             and decision.get('evidence_level') == 'provisional'
             and action.get('type') in ('roll', 'buy_xp', 'buy_pair', 'buy_synergy',
-                                       'hold_interest', 'prepare_level')
+                                       'hold_interest', 'prepare_level', 'rebuild_after_level')
             and decision.get('decision_key') and decision.get('text')):
         return dict(status='action', actionable=True, text=decision['text'],
             speech_text=decision['text'], decision_key=decision['decision_key'],

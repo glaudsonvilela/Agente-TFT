@@ -1,7 +1,8 @@
 //! Compact stage localization, independent of seasonal champion/item catalogs.
 //! Both known HUD positions are read at two scales. Conflicting values abstain.
-use agente_tft_capture_core::{extract_roi, FrameEnvelope, NormalizedRect};
+use agente_tft_capture_core::{extract_roi, FrameEnvelope, NormalizedRect, PixelFormat, RoiFrame};
 use agente_tft_contracts::Confidence;
+use agente_tft_image_preprocess::GrayImage;
 use agente_tft_perception_hud::{
     parse_candidate, parse_stage, HudField, HudOcrEngine, HudPreprocessConfig, OcrCandidate,
     RobustHudRead,
@@ -105,16 +106,11 @@ impl Reader {
         let mut attempts = Vec::new();
         for (candidate, roi) in self.config.candidates.iter().zip(&rois) {
             let mut agreeing = Vec::new();
-            for scale in [3, 4] {
-                let config = HudPreprocessConfig {
-                    upscale_factor: scale,
-                    invert: true,
-                };
-                // Neutral grayscale preparation; recognition retains stage's
-                // hyphen whitelist and parser, never the level parser.
-                let image = engine
-                    .prepare_roi(HudField::Level, roi, config)
-                    .map_err(|e| format!("{e:?}"))?;
+            for scale in [1, 2] {
+                // The stage glyph touches a very small crop. Numeric HUD padding
+                // caused Tesseract to read 3-1 as 5-1 on real 1080p footage.
+                // Keep the crop borderless and ask two resolutions to agree.
+                let image = raw_stage_gray(roi, scale)?;
                 let recognized = engine.recognize(HudField::Stage, &image)?;
                 let mut trace =
                     json!({"candidate":candidate.name,"scale":scale,"text":null,"confidence":null});
@@ -142,7 +138,8 @@ impl Reader {
                 ));
             }
         }
-        let mut details = json!({"profile":"stage_localization_v1","attempts":attempts,
+        let mut details = json!({"profile":"stage_localization_v1",
+            "preprocess":"raw_grayscale_borderless_1x_2x","attempts":attempts,
             "temporal_consensus":false,"reason":"no_scale_consensus"});
         let read = if values.len() > 1 {
             details["reason"] = json!("conflicting_candidates");
@@ -164,8 +161,8 @@ impl Reader {
                 recognized_text: value,
                 confidence,
                 preprocess: HudPreprocessConfig {
-                    upscale_factor: 3,
-                    invert: true,
+                    upscale_factor: 1,
+                    invert: false,
                 },
                 attempts_made: rois.len() * 2,
             })
@@ -185,6 +182,32 @@ impl Reader {
         ));
         Ok(observation)
     }
+}
+
+fn raw_stage_gray(roi: &RoiFrame, scale: u32) -> Result<GrayImage, String> {
+    let (width, height) = (roi.rect.width as usize, roi.rect.height as usize);
+    let bpp = roi.pixel_format.bytes_per_pixel();
+    if width == 0 || height == 0 || width > 256 || height > 128 || !(1..=2).contains(&scale)
+        || roi.bytes_per_pixel != bpp || (roi.stride_bytes as usize) < width * bpp
+        || roi.pixels.len() < roi.stride_bytes as usize * height
+    {
+        return Err("invalid stage crop".into());
+    }
+    let s = scale as usize;
+    let mut pixels = Vec::with_capacity(width * height * s * s);
+    for y in 0..height * s {
+        for x in 0..width * s {
+            let at = (y / s) * roi.stride_bytes as usize + (x / s) * bpp;
+            let p = &roi.pixels[at..at + bpp];
+            let (r, g, b) = match roi.pixel_format {
+                PixelFormat::Bgra8 => (p[2], p[1], p[0]),
+                _ => (p[0], p[1], p[2]),
+            };
+            pixels.push(((77u16 * r as u16 + 150u16 * g as u16 + 29u16 * b as u16) >> 8) as u8);
+        }
+    }
+    Ok(GrayImage { width: (width * s) as u32, height: (height * s) as u32,
+        stride_bytes: (width * s) as u32, pixels })
 }
 
 #[cfg(test)]
@@ -297,5 +320,17 @@ mod tests {
             .unwrap();
         assert!(!result.cache_hit);
         assert_eq!(result.read.unwrap().recognized_text, "1-1");
+    }
+    #[test]
+    fn stage_preparation_keeps_the_crop_borderless_at_both_scales() {
+        let roi = RoiFrame { source_frame_id: 1, captured_at_ms: 1,
+            rect: agente_tft_capture_core::PixelRect { x: 0, y: 0, width: 2, height: 1 },
+            stride_bytes: 6, pixel_format: PixelFormat::Rgb8, bytes_per_pixel: 3,
+            pixels: vec![0, 0, 0, 255, 255, 255] };
+        let one = raw_stage_gray(&roi, 1).unwrap();
+        let two = raw_stage_gray(&roi, 2).unwrap();
+        assert_eq!((one.width, one.height, one.pixels), (2, 1, vec![0, 255]));
+        assert_eq!((two.width, two.height, two.pixels),
+            (4, 2, vec![0, 0, 255, 255, 0, 0, 255, 255]));
     }
 }

@@ -228,6 +228,18 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertIn('nível 6',tip['speech_text'])
         self.assertFalse(tip['learned_neural_weights'])
 
+    def test_early_level_replaces_preparation_with_economy_plan(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.95)
+            for k,v in [('stage','3-1'),('gold',21),('level',6)]]}
+        result=engine.evaluate(answer)
+        self.assertEqual(result['decision']['action']['type'],'rebuild_after_level')
+        tip=coach_prompt(result)
+        self.assertTrue(tip['actionable'])
+        self.assertIn('30 de ouro',tip['speech_text'])
+        self.assertFalse(tip['learned_neural_weights'])
+
     def test_live_feedback_updates_preference_without_becoming_visual_label(self):
         with tempfile.TemporaryDirectory() as td:
             engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'),

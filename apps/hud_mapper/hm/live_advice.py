@@ -139,16 +139,31 @@ class LiveAdvice:
             upcoming = sorted(
                 ((int(match[1]) * 7 + int(match[2]), target, rule)
                  for target, rule in self.windows.items()
-                 if (match := re.fullmatch(r"([2-6])-([1-7])", target))
-                 and rule["target_level"] == level + 1),
+                 if (match := re.fullmatch(r"([2-6])-([1-7])", target))),
                 key=lambda row: row[0])
             for target_round, target, rule in upcoming:
-                if 1 <= target_round - current_round <= 3:
+                if (1 <= target_round - current_round <= 3
+                        and rule["target_level"] == level + 1):
                     options.append((self._priority("economy", .48), "economy",
                         {"type": "prepare_level", "target_level": level + 1,
                          "target_stage": target, "reserve_gold": rule["reserve_gold"]},
                         f"Vamos mirar o nível {level + 1} na {target}. Nesta rodada, "
                         "guarde ouro; compre só se a loja fortalecer seu tabuleiro de verdade.",
+                        ["hud.stage", "hud.level", "hud.gold", "patch.level_window"]))
+                    break
+
+            # The player may reach the scheduled level before its window. Once
+            # that happens, the old preparation tip no longer applies; give a
+            # single, concrete economy plan for the observed state instead.
+            for target_round, target, rule in upcoming:
+                if (1 <= target_round - current_round <= 2
+                        and rule["target_level"] == level and gold < rule["reserve_gold"]):
+                    options.append((self._priority("economy", .45), "economy",
+                        {"type": "rebuild_after_level", "level": level,
+                         "target_stage": target, "target_gold": rule["reserve_gold"]},
+                        f"Você já está no nível {level} antes da {target}. "
+                        f"Reconstrua a economia até {rule['reserve_gold']} de ouro; "
+                        "gaste antes apenas se a loja melhorar seu tabuleiro agora.",
                         ["hud.stage", "hud.level", "hud.gold", "patch.level_window"]))
                     break
 
