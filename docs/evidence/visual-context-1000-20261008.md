@@ -2,7 +2,7 @@
 
 ## What was actually observed
 
-- Two hash-verified, high-level TFT VOD copies supplied the visual sample. The embedded-webpage guide source was excluded from this visual run.
+- Two hash-verified, high-level TFT VOD copies supplied the visual sample. Both source files are 640×360, which limits OCR of shop names and item text even when frames are resized. The embedded-webpage guide source was excluded from this visual run.
 - 1,000 time-spaced moments have before, during, and after frames, 5 seconds apart. Selection did not use transcript content, but the initial 2,000 timestamp pool came from speech segments. It is **not** yet independent full-video visual sampling.
 - The older TFT scene gate proposed 1,060 candidates. A stage-HUD brightness check retained 1,010, from which 1,000 were selected. The gate had limited evaluation on one earlier match. Manual spot checks found browser/menu false positives before the brightness check; spot checks of the retained sample do not establish a full scene accuracy rate.
 - A frozen int8 DINO image encoder embedded board, shop, and opponent regions. A small temporal head trained only on these images to match views from the same moment. Speech was not fed to this model.
