@@ -124,6 +124,8 @@ class StudioBridgeTests(unittest.TestCase):
                 self.fail('capture waited for the remote model'))
             controller.history = deque(maxlen=100)
             controller.preview_jpeg = None
+            controller.preview_times = deque(maxlen=90)
+            controller.preview_encode_ms = deque(maxlen=90)
             controller.last_error = controller.last_result = controller.last_tip_key = None
             target = {'kind': 'monitor', 'id': '1', 'label': 'Monitor',
                       'bounds': [0, 0, 1920, 1080]}

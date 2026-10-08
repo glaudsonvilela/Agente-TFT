@@ -113,6 +113,8 @@ class StudioController:
             self.last_error = self.last_result = self.last_tip_key = None
             self.history.clear()
             self.preview_jpeg = None
+            self.preview_times.clear()
+            self.preview_encode_ms.clear()
             self.session = HM4RuntimeSession(Options(
                 **paths, video=f"capture://{kind}/{identity}", output=output,
                 model=model, dataset_only=False, seconds=7200,
@@ -241,13 +243,19 @@ class StudioController:
         old preview frames instead of delaying a new decision or spoken tip.
         """
         next_jpeg = 0.0
-        while not self.closed.wait(.01):
+        while not self.closed.is_set():
             with self.lock:
                 session = self.session
-            if session is None or session.finished or time.monotonic() < next_jpeg:
+            if session is None or session.finished:
+                next_jpeg = 0.0
+                self.closed.wait(.05)
+                continue
+            remaining = next_jpeg - time.monotonic()
+            if remaining > 0:
+                self.closed.wait(remaining)
                 continue
             try:
-                frame = session.preview.get(0)
+                frame = session.preview.get(.03)
             except queue.Empty:
                 continue
             next_jpeg = time.monotonic() + 1/30

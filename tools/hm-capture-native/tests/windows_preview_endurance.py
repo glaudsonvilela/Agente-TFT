@@ -34,6 +34,9 @@ def main():
     configs=Path('configs').resolve()
     target=next(r for r in list_targets(configs) if r['kind']=='window' and r['label']=='TFT owned preview endurance')
     capture=None;rows=[];draws=[];ages=[];error=None
+    stages={key: [] for key in ('gpu_copy_and_map_ms', 'bgra_rgb_ms',
+                                'previous_ipc_write_ms', 'capture_age_before_ipc_ms')}
+    delivery_ms=[];frame_gaps_ms=[];previous_frame_due=None
     try:
         capture=CaptureSource(f'capture://window/{target["id"]}',configs,args.seconds,2,
                               consent=True,expected=target,preview_hz=30,preview_size=(1280,720))
@@ -50,6 +53,13 @@ def main():
                 renderer.draw(canvas,frame.width,frame.height,frame.rgb)
                 draws.append((time.perf_counter()-draw_start)*1000)
                 ages.append((time.perf_counter_ns()-frame.due_ns)/1e6)
+                delivery_ms.append((frame.ready_ns-frame.due_ns)/1e6)
+                for key, values in stages.items():
+                    value=frame.capture.get(key)
+                    if isinstance(value,(int,float)):values.append(value)
+                if previous_frame_due is not None:
+                    frame_gaps_ms.append((frame.due_ns-previous_frame_due)/1e6)
+                previous_frame_due=frame.due_ns
                 count+=1
             except queue.Empty:
                 pass
@@ -71,13 +81,22 @@ def main():
     first=statistics.mean(r['fps'] for r in early) if early else 0
     last=statistics.mean(r['fps'] for r in late) if late else 0
     memory_delta=(late[-1]['memory']['private_bytes']-early[0]['memory']['private_bytes']) if early and late else None
-    ordered=sorted(draws)
+    def p95(values):
+        ordered=sorted(values)
+        return ordered[int((len(ordered)-1)*.95)] if ordered else None
     report=dict(scope='preview_transport_and_drawing_only',seconds=args.seconds,
         source='owned_high_entropy_animated_window',target_fps=30,early_fps=first,late_fps=last,
-        render_p95_ms=ordered[int((len(ordered)-1)*.95)] if ordered else None,
+        render_p95_ms=p95(draws),
         private_memory_delta_bytes=memory_delta,rows=rows,error=error,
         whole_application_or_user_pc_validated=False,
-        source_to_draw_p95_ms=sorted(ages)[int((len(ages)-1)*.95)] if ages else None)
+        source_to_draw_p95_ms=p95(ages),
+        native_stage_p95_ms={key:p95(values) for key,values in stages.items()},
+        ipc_delivery_p95_ms=p95(delivery_ms),
+        drawn_frame_gap_p95_ms=p95(frame_gaps_ms),
+        drawn_gaps_over_66ms=sum(gap>66 for gap in frame_gaps_ms),
+        native_preview_received=capture.preview_received if capture else None,
+        preview_queue_replaced=capture.preview_frames.replaced if capture and capture.preview_frames else None,
+        native_end=capture.end if capture else None)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps({k:v for k,v in report.items() if k!='rows'}),flush=True)

@@ -68,6 +68,14 @@ fn preview_bgra(data: &[u8], width: usize, height: usize, pitch: usize,
     }
     let (w,h) = preview_size(width,height,max_width,max_height);
     let mut pixels=vec![0;w*h*4];
+    if w == width && h == height {
+        let row_bytes = w * 4;
+        for y in 0..h {
+            pixels[y*row_bytes..(y+1)*row_bytes]
+                .copy_from_slice(&data[y*pitch..y*pitch+row_bytes]);
+        }
+        return Ok((w,h,pixels));
+    }
     let offsets:Vec<usize>=(0..w).map(|x| x*width/w*4).collect();
     for y in 0..h {
         let row=y*height/h*pitch;
@@ -173,6 +181,12 @@ mod tests {
         let input=[3,2,1,255,99,99,99,99,6,5,4,255,88,88,88,88];
         assert_eq!(preview_bgra(&input,1,2,8,1280,720).unwrap(),(1,2,vec![3,2,1,255,6,5,4,255]));
         assert!(preview_bgra(&input[..10],1,2,8,1280,720).is_err());
+    }
+    #[test] fn native_preview_copies_full_size_rows_without_padding() {
+        let input=[3,2,1,255,6,5,4,255,99,99,99,99,
+                   9,8,7,255,12,11,10,255,88,88,88,88];
+        assert_eq!(preview_bgra(&input,2,2,12,1280,720).unwrap(),
+                   (2,2,vec![3,2,1,255,6,5,4,255,9,8,7,255,12,11,10,255]));
     }
     #[test] fn bgr_rows_ignore_padding() {
         assert_eq!(rgb_from_bgra(&[3,2,1,255,99,99,99,99,6,5,4,0,88,88,88,88],1,2,8).unwrap(),[1,2,3,4,5,6]);
