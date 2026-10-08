@@ -38,3 +38,13 @@ The current 1,000-triplet experiment measured visual continuity only (153/457 to
 - Earlier visual training report: `/mnt/sherlock-ssd/AgenteTFT/diagnostics/visual-learning-1000-game-v4-20261008/report.json`
 
 No external project code, video, or model weight is copied into Git.
+
+## Dense 1080p action pilot
+
+A second pass used a 15-second planning interval from the same native 1920×1080 VOD. Frames were sampled at 5 fps (75 images, 74 adjacent transitions). The local review queue ranks changes in the stage, gold, shop, bench, and board regions; **it does not assign an action label**. Manual before/after review established five rerolls, one Morgana purchase, and one unit sale. Each record in [the review manifest](dense-visual-actions-20261008.json) has source/frame hashes, gold, shop evidence where visible, and a rationale. The hashes were checked against the local images. This is a strong visual inference, not input-event ground truth.
+
+The top-ranked transition was **not** a reroll: dragging a unit over the sell zone hid the shop, then revealed it. Another reviewed pair had the shop reappear after dragging while gold stayed at 68; it is recorded as a hard case rather than a negative label for all actions. These examples show why shop pixel difference or a single OCR reading cannot safely become a training target.
+
+The queue and review can be reproduced locally with `training/mine_dense_action_candidates.py` and `training/validate_dense_action_review.py`. The source VOD and 75 JPEGs stay on the SSD under `/mnt/sherlock-ssd/AgenteTFT/diagnostics/dense-visual-vod-20261008/`. The review manifest is small enough for Git; no media, weights, or private media URL are committed.
+
+This seed demonstrates that high-resolution short transitions expose real decisions lost by 5-second gaps. It is **one match and three action classes**, heavily dominated by rerolls. It cannot support a general TFT action policy or an out-of-match accuracy claim yet. Next, mine distinct matches and phases, collect deliberate counterexamples and input-event labels from our own replay/capture where possible, then evaluate a visual action model with entire matches held out. Preserve unknown labels when board/item/opponent state is obscured.

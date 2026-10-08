@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "source_sha256": "4fc0840e3687b4b92019ad342538207754ac5388078cdb2ed1031b9d7608093f",
+  "source_resolution": [1920, 1080],
+  "clip_start_seconds_approx": 3567,
+  "sampling_fps": 5,
+  "label_provenance": "manual_visual_review_of_adjacent_frames; strong visual inference, no input-event log",
+  "actions": [
+    {
+      "type": "reroll",
+      "before": "frame-0021.jpg",
+      "after": "frame-0022.jpg",
+      "before_sha256": "5b6329f5988ee0a58f48eddfa3523ec21b781ecb673c9e0c4e240bb434d492d5",
+      "after_sha256": "495fe8193c5aaef9a10555bbfc8072537ca415158f64b275f0984bc0945da767",
+      "stage": "4-2",
+      "gold_before": 64,
+      "gold_after": 62,
+      "shop_before": ["Ezreal", "Akali", "Lillia", null, null],
+      "shop_after": ["Gromp", "Ornn", "Krug", "Master Yi", "Cassiopeia"],
+      "visual_evidence": "All shop slots refresh while stage stays 4-2 and gold falls by the displayed 2-gold reroll price."
+    },
+    {
+      "type": "reroll",
+      "before": "frame-0024.jpg",
+      "after": "frame-0025.jpg",
+      "before_sha256": "b0a420261828aebdfad894d0c112eb23fd300567daacb081566b750d47fba673",
+      "after_sha256": "7b560d2e21b13f5474717ff9a319cb905cec864e4ce80beaebadbf36aed3710f",
+      "stage": "4-2",
+      "gold_before": 62,
+      "gold_after": 60,
+      "shop_before": ["Gromp", "Ornn", "Krug", "Master Yi", "Cassiopeia"],
+      "shop_after": ["Brambleback", "Malphite", "Hecarim", "Vi", "Warwick"],
+      "visual_evidence": "The full shop changes and gold falls by 2 in the same planning round."
+    },
+    {
+      "type": "reroll",
+      "before": "frame-0031.jpg",
+      "after": "frame-0032.jpg",
+      "before_sha256": "1a6006bab88ef8a7832107c148f72cc4c09b290ccf42213a234ae9c564f63805",
+      "after_sha256": "9b015908b7dc9c52468de0c9954b245ddb6cbb2d9f962b44fa8781415d363d4f",
+      "stage": "4-2",
+      "gold_before": 56,
+      "gold_after": 54,
+      "shop_before": ["Brambleback", null, "Hecarim", "Vi", "Warwick"],
+      "shop_after": ["Ezreal", "Morgana", "Alistar", "Veigar", "Kayle"],
+      "visual_evidence": "The full shop changes and gold falls by 2; stage and level remain stable."
+    },
+    {
+      "type": "buy_unit",
+      "unit": "Morgana",
+      "before": "frame-0037.jpg",
+      "after": "frame-0038.jpg",
+      "before_sha256": "c77eda7428bae1632f3fa89f4b6017932d54b50d3e4dced873e872f35c3c62f1",
+      "after_sha256": "3566765704ad4d557b6ceffd0fa7aa71d6b4a0dacbf8c7ce118e07b1820cecd2",
+      "stage": "4-2",
+      "gold_before": 54,
+      "gold_after": 50,
+      "shop_before": ["Ezreal", "Morgana", "Alistar", "Veigar", "Kayle"],
+      "shop_after": ["Ezreal", null, "Alistar", "Veigar", "Kayle"],
+      "visual_evidence": "Morgana disappears from slot 2, a matching unit appears on the bench, and gold falls by her displayed 4-gold cost."
+    },
+    {
+      "type": "reroll",
+      "before": "frame-0039.jpg",
+      "after": "frame-0040.jpg",
+      "before_sha256": "16f32fd448afa048cf2e5425ee5473a7dc2e54a71e1ba99e507a11e776fb872e",
+      "after_sha256": "6e8841a04f2ea242e23467b9b461929d55fc133f20100ec313d849475f457b60",
+      "stage": "4-2",
+      "gold_before": 50,
+      "gold_after": 48,
+      "shop_before": ["Ezreal", null, "Alistar", "Veigar", "Kayle"],
+      "shop_after": ["Shen", "Malphite", "Elder Dragon", "Elise", "Master Yi"],
+      "visual_evidence": "The full shop refreshes while gold falls by the displayed 2-gold reroll price."
+    },
+    {
+      "type": "sell_unit",
+      "before": "frame-0042.jpg",
+      "after": "frame-0043.jpg",
+      "before_sha256": "60992d73eba9e10a2cf80104695ebe2374156fc773c18410322205fa146791d6",
+      "after_sha256": "ee07e207b8782da4e94cf76c3d0d5b84c1911597bab4420ef63701580dc432aa",
+      "stage": "4-2",
+      "gold_before": 48,
+      "gold_after": 52,
+      "visual_evidence": "A unit is dragged over the Sell for 4g zone; gold then rises by 4. Unit identity is not asserted."
+    },
+    {
+      "type": "reroll",
+      "before": "frame-0056.jpg",
+      "after": "frame-0057.jpg",
+      "before_sha256": "08a32b15f8abd58c114400453f41d4186387951096df5b366f20b6facf103a20",
+      "after_sha256": "7a83e4695709b38caf0d50585fda36232cb6e9466e5f5d20b593191598eefa44",
+      "stage": "4-2",
+      "gold_before": 33,
+      "gold_after": 31,
+      "shop_before": ["Shen", "Aphelios", null, null, "Cinderling"],
+      "shop_after": ["Lillia", "Brambleback", "Lillia", "Mama Beak", "Kennen"],
+      "visual_evidence": "The full shop refreshes and gold falls by 2 without a round change."
+    }
+  ],
+  "hard_cases": [
+    {
+      "before": "frame-0014.jpg",
+      "after": "frame-0015.jpg",
+      "before_sha256": "de9b985c23cc4dc817fa7a08435af22ad360e421d9780ee873fcd0275cb5df5b",
+      "after_sha256": "1a20a172b3ba159d1f682adf025744d52a1d5eb41151387ae69aee0106b92f33",
+      "gold_before": 68,
+      "gold_after": 68,
+      "review_status": "not_a_reroll",
+      "visual_evidence": "The shop reappears after a unit drag had hidden it; gold and shop offers do not change. Other actions are not inferred."
+    }
+  ]
+}
