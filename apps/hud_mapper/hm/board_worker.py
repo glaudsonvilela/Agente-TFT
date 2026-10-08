@@ -43,3 +43,28 @@ class BoardWorker:
 
     def close(self):
         self.worker.close()
+
+
+class FastMarkerWorker:
+    """Independent Rust geometry tracker; never assigns champion names or ownership."""
+
+    def __init__(self, binary, configs, log=None):
+        environment = dict(os.environ, AGENTE_TFT_MARKERS_ONLY="1")
+        self.worker = NativeWorker(binary, configs, log=log, env=environment)
+        if self.worker.ready.get("fast_marker_tracking") is not True:
+            self.close()
+            raise ValueError("Native reader lacks fast marker tracking")
+
+    def observe(self, frame):
+        header = dict(op="markers", id=frame.id, epoch=frame.epoch,
+                      source_ms=round(frame.pts_ms), width=frame.width,
+                      height=frame.height, bytes=len(frame.rgb))
+        answer = self.worker.request(header, frame.rgb, timeout=5)
+        if (answer.get("source_ms") != header["source_ms"] or
+                answer.get("origin") != "rust_fast_marker_tracker_v1" or
+                not isinstance(answer.get("markers"), list)):
+            raise ValueError("Marker result is not bound to the submitted frame")
+        return answer
+
+    def close(self):
+        self.worker.close()

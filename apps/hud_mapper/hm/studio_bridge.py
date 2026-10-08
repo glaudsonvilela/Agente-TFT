@@ -142,7 +142,8 @@ class StudioController:
                 scenario="studio-live-lab" if not replay_review else "studio-replay-review",
                 replay_review=bool(replay_review), board_hub_enabled=True,
                 vm_core=vm_core, native_preview=True, preview_hz=30,
-                preview_width=1280, preview_height=720,
+                preview_width=960 if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1' else 1280,
+                preview_height=540 if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1' else 720,
                 max_samples=90 if vm_core else 600,
                 max_bytes=384 * 1024**2 if vm_core else 1024**3,
                 capture_consent=True, capture_expected=selected)).start()
@@ -233,6 +234,7 @@ class StudioController:
                     "hud_diagnostic": getattr(session, 'latest_hud_diagnostic', None),
                     "live_diagnostic": getattr(session, 'latest_live_diagnostic', None),
                     "hub_diagnostic": getattr(session, 'latest_hub_diagnostic', None),
+                    "fast_diagnostic": getattr(session, 'latest_fast_diagnostic', None),
                     "preview_source_ms": self.preview_source_ms,
                     "preview_epoch": self.preview_epoch,
                     "source_label": (getattr(getattr(session, 'source', None), 'target', None)
@@ -262,6 +264,11 @@ class StudioController:
                     "profile": self.profile,
                     "model_update": self.model_updater.last_result,
                     "history": list(self.history)}
+
+    def fast_diagnostic(self):
+        with self.lock:
+            session = self.session
+            return getattr(session, 'latest_fast_diagnostic', None) if session else None
 
     def _voice_state(self):
         v = self.voice
@@ -309,6 +316,15 @@ class StudioController:
         The capture queue has capacity one. Slow JPEG encoding therefore drops
         old preview frames instead of delaying a new decision or spoken tip.
         """
+        fast_backend = None
+        if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+            try:
+                import cv2
+                import numpy as np
+                cv2.setNumThreads(1)
+                fast_backend = (cv2, np)
+            except ImportError:
+                pass
         next_jpeg = 0.0
         while not self.closed.is_set():
             with self.lock:
@@ -328,14 +344,33 @@ class StudioController:
             next_jpeg = time.monotonic() + 1/30
             try:
                 encode_start = time.perf_counter_ns()
-                from PIL import Image
-                raw = "BGRX" if len(frame.rgb) == frame.width * frame.height * 4 else "RGB"
-                image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb, "raw", raw)
-                if image.width > 1280 or image.height > 720:
-                    image.thumbnail((1280, 720), Image.Resampling.BILINEAR)
-                out = BytesIO()
-                image.save(out, "JPEG", quality=72, optimize=False)
-                encoded = out.getvalue()
+                preview_size = (session.options.preview_width, session.options.preview_height)
+                if fast_backend and len(frame.rgb) == frame.width * frame.height * 3:
+                    cv2, np = fast_backend
+                    scale = min(1.0, preview_size[0] / frame.width,
+                                preview_size[1] / frame.height)
+                    width = max(1, round(frame.width * scale))
+                    height = max(1, round(frame.height * scale))
+                    rgb = np.frombuffer(frame.rgb, dtype=np.uint8).reshape(
+                        frame.height, frame.width, 3)
+                    if scale < 1:
+                        rgb = cv2.resize(rgb, (width, height), interpolation=cv2.INTER_AREA)
+                    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+                    ok, jpeg = cv2.imencode('.jpg', bgr,
+                        [cv2.IMWRITE_JPEG_QUALITY, 60])
+                    if not ok:
+                        raise RuntimeError('Falha ao codificar a prévia JPEG.')
+                    encoded = jpeg.tobytes()
+                else:
+                    from PIL import Image
+                    raw = "BGRX" if len(frame.rgb) == frame.width * frame.height * 4 else "RGB"
+                    image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb, "raw", raw)
+                    if image.width > preview_size[0] or image.height > preview_size[1]:
+                        image.thumbnail(preview_size, Image.Resampling.BILINEAR)
+                    out = BytesIO()
+                    image.save(out, "JPEG", quality=60 if session.ubuntu_mvp_diagnostics else 72,
+                               optimize=False)
+                    encoded = out.getvalue()
                 with self.lock:
                     if self.session is not session or session.finished:
                         continue
@@ -441,7 +476,7 @@ class StudioServer(ThreadingHTTPServer):
 
 class StudioHandler(BaseHTTPRequestHandler):
     API_METHODS = frozenset(("state", "list_sources", "start_session", "stop_session",
-                             "set_voice", "rate_tip", "save_profile"))
+                             "set_voice", "rate_tip", "save_profile", "fast_diagnostic"))
 
     def log_message(self, *_args):
         pass

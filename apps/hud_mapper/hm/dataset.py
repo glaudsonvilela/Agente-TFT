@@ -49,7 +49,8 @@ class Store:
                 except queue.Empty:continue
                 started=time.perf_counter_ns()
                 if stream not in ('mapping-events','roi-observations','board-hub-observations',
-                                  'opponent-crop-observations','combat-events','replay-tips',
+                                  'opponent-crop-observations','visual-track-observations',
+                                  'unit-inference-observations','combat-events','replay-tips',
                                   'telemetry','periodic'):
                     raise ValueError('Fluxo não registrado')
                 if stream not in files:files[stream]=(self.root/(stream+'.jsonl')).open('x',encoding='utf-8')

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import time
 from pathlib import Path
 from PIL import Image
 
@@ -13,7 +14,8 @@ from .trait_constraints import TraitCountConsensus
 
 
 class BoardHubLive:
-    def __init__(self, configs: str, neural_root: str | Path | None = None):
+    def __init__(self, configs: str, neural_root: str | Path | None = None,
+                 async_unit_recognition: bool = False):
         self.trait_count_consensus = TraitCountConsensus()
         root = Path(configs).absolute().parent
         neural_root = Path(neural_root).absolute() if neural_root else root
@@ -128,6 +130,10 @@ class BoardHubLive:
                 self.unit_neural_error = None
             except (OSError, ValueError, ImportError, RuntimeError) as exc:
                 self.unit_neural_error = str(exc)
+        self.async_unit = None
+        if async_unit_recognition and self.unit_neural is not None:
+            from .async_unit_observer import AsyncUnitObserver
+            self.async_unit = AsyncUnitObserver(self.unit_neural)
 
     def observe(self, canonical_frame, board_read: dict | None, source_frame=None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
@@ -135,12 +141,16 @@ class BoardHubLive:
         read = board_read if isinstance(board_read, dict) and board_read.get('profile') == self.board['id'] else {
             'timestamp_ms': round(canonical_frame.pts_ms), 'profile': self.board['id'],
             'projection_status': 'unresolved', 'markers': []}
+        timings = {}
+        started = time.perf_counter_ns()
         with Image.frombytes('RGB', (canonical_frame.width, canonical_frame.height), canonical_frame.rgb) as image:
             snapshot = build_snapshot(image, read, self.board, self.position, self.equipped,
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates,
                                       allow_unmatched_arena=True)
+            timings['snapshot_ms'] = (time.perf_counter_ns()-started)/1e6
+            stage_started = time.perf_counter_ns()
             try:
                 snapshot['neural_items'] = (self.item_neural.observe(
                     image, snapshot['inventory']['inventory'], self.inventory)
@@ -149,16 +159,35 @@ class BoardHubLive:
                 self.item_neural_error = f'{type(exc).__name__}: {exc}'
                 self.item_neural = None
                 snapshot['neural_items'] = dict(active=False, error=self.item_neural_error)
+            timings['item_neural_ms'] = (time.perf_counter_ns()-stage_started)/1e6
+            stage_started = time.perf_counter_ns()
             try:
-                snapshot['neural_units'] = (self.unit_neural.observe(image, read) if self.unit_neural
-                                            else dict(active=False, error=self.unit_neural_error, records=[]))
+                if self.async_unit is not None:
+                    completed = self.async_unit.update(image, read,
+                        frame_id=canonical_frame.id,
+                        source_ms=round(canonical_frame.pts_ms),
+                        epoch=getattr(source_frame or canonical_frame, 'epoch', None))
+                    snapshot['neural_units'] = dict(active=self.async_unit.last_error is None, records=[],
+                        mode='async_diagnostic_candidates', model_sha256=self.unit_neural.sha
+                        if hasattr(self.unit_neural, 'sha') else None,
+                        pending=self.async_unit.pending is not None,
+                        submitted=self.async_unit.submitted,
+                        completed=self.async_unit.completed,
+                        skipped_busy=self.async_unit.dropped,
+                        error=self.async_unit.last_error)
+                    snapshot['unit_async_result'] = completed
+                else:
+                    snapshot['neural_units'] = (self.unit_neural.observe(image, read) if self.unit_neural
+                                                else dict(active=False, error=self.unit_neural_error, records=[]))
             except Exception as exc:
                 # Quarantine this optional model for the rest of the session.
                 # A damaged model must not close screen capture or reuse IDs.
                 self.unit_neural_error = f'{type(exc).__name__}: {exc}'
                 self.unit_neural = None
                 snapshot['neural_units'] = dict(active=False, error=self.unit_neural_error, records=[])
+            timings['unit_neural_ms'] = (time.perf_counter_ns()-stage_started)/1e6
         source = source_frame if source_frame is not None else canonical_frame
+        stage_started = time.perf_counter_ns()
         try:
             snapshot['item_visual_native'] = (self.item_visual.observe(source, snapshot)
                 if self.item_visual else dict(active=False, error=self.item_visual_error,
@@ -169,6 +198,8 @@ class BoardHubLive:
             self.item_visual = None
             snapshot['item_visual_native'] = dict(active=False, error=self.item_visual_error,
                                                    inventory=[], equipped=[])
+        timings['item_visual_native_ms'] = (time.perf_counter_ns()-stage_started)/1e6
+        snapshot['diagnostic_timings_ms'] = {key:round(value,1) for key,value in timings.items()}
         for row in snapshot['inventory']['candidate_slots']:
             for candidate in row['candidates']:
                 self._bind_exact_attribute_ids(candidate)

@@ -72,7 +72,9 @@ class LinuxX11CaptureSource:
         self.lock = threading.Lock()
         self.log_tail = []
         self.frame_bytes = width*height*3
-        self.frame_rate = min(12, max(2, int(round(preview_hz or hz))))
+        # On four-core desktops, leave CPU room for the player and the UI.
+        desktop_cap = 15 if (os.cpu_count() or 1) <= 4 else 20
+        self.frame_rate = min(desktop_cap, max(2, int(round(preview_hz or hz))))
         command = ['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error',
                    '-f', 'x11grab', '-draw_mouse', '0', '-video_size', f'{width}x{height}',
                    '-framerate', str(self.frame_rate), '-i', f'{os.environ["DISPLAY"]}+{x},{y}',

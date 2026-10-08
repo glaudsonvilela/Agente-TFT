@@ -67,6 +67,21 @@ class LiveDiagnosticTests(unittest.TestCase):
         self.assertEqual(result['boxes'][0]['geometry'], 'bar_anchored_approximation')
         self.assertEqual(result['boxes'][1]['label'], 'Lágrima da Deusa')
 
+    def test_async_unit_result_is_source_bound_and_never_verified(self):
+        snapshot = {'neural_units': {'pending': True, 'completed': 1},
+                    'unit_async_result': {'source_ms': 4000, 'epoch': 2,
+                        'result': {'processing_ms': 1250, 'records': [{
+                            'marker_id': 3, 'candidate_name': 'Shen',
+                            'softmax_score_uncalibrated': .4,
+                            'identity_verified': False}]}}}
+        current = build_hub_diagnostic(snapshot, [], frame_id=8, source_ms=5000,
+            epoch=2, width=1920, height=1080, processing_ms=50)
+        stale = build_hub_diagnostic(snapshot, [], frame_id=9, source_ms=5000,
+            epoch=3, width=1920, height=1080, processing_ms=50)
+        self.assertEqual(current['unit_inference']['candidates'][0]['candidate_name'], 'Shen')
+        self.assertFalse(current['unit_inference']['identity_verified'])
+        self.assertEqual(stale['unit_inference']['candidates'], [])
+
 
 if __name__ == '__main__':
     unittest.main()

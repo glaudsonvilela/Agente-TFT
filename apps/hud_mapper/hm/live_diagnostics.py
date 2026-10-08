@@ -36,9 +36,10 @@ def build_live_diagnostic(answer, regions, *, frame_id, source_ms, epoch,
                           confidence=_number(region.get('confidence'))))
     hud = [{key: row.get(key) for key in ('field', 'value', 'status', 'confidence')}
            for row in answer.get('hud') or [] if row.get('field') in HUD_FIELDS]
+    shop_read = answer.get('shop') or {}
     shop = [{key: slot.get(key) for key in ('slot', 'status', 'observed_name', 'observed_cost',
              'name_confidence', 'cost_confidence', 'catalog_status', 'unit_id')}
-            for slot in (answer.get('shop') or {}).get('slots') or []][:5]
+            for slot in shop_read.get('slots') or []][:5]
     rank = answer.get('decision_rank') or {}
     options = answer.get('decision_candidates') or []
     ranked = []
@@ -60,7 +61,11 @@ def build_live_diagnostic(answer, regions, *, frame_id, source_ms, epoch,
                 image_size=[width, height], origin=answer.get('origin'),
                 reader_ms=round(reader_ms, 1),
                 source_to_reader_ms=round(source_to_reader_ms, 1),
-                hud=hud, shop=shop, boxes=boxes,
+                hud=hud, shop=shop,
+                shop_panel_status=shop_read.get('panel_status'),
+                shop_read_fresh=(shop_read.get('cadence_delivery') or {}).get('fresh') is True,
+                shop_read_age_ms=_number((shop_read.get('cadence_delivery') or {}).get('age_ms')),
+                boxes=boxes,
                 rust=dict(status=rank.get('status'), reason=rank.get('reason'),
                           native_ms=_number(rank.get('native_ms')),
                           selected_index=rank.get('selected_index'),
@@ -84,6 +89,8 @@ def build_hub_diagnostic(snapshot, regions, *, frame_id, source_ms, epoch,
             marker_id = (region.get('value') or {}).get('marker_id') if isinstance(region.get('value'), dict) else None
             candidate = by_marker.get(marker_id) or {}
             name = candidate.get('candidate_name') or candidate.get('current_candidate_name')
+            if not candidate.get('identity_verified') and (candidate.get('support_frames') or 0) < 2:
+                name = None
             x1, y1, x2, y2 = box
             # Only the health bar is observed. This larger rectangle is a
             # visual guide around it, not a detector's silhouette box.
@@ -101,10 +108,38 @@ def build_hub_diagnostic(snapshot, regions, *, frame_id, source_ms, epoch,
                               label=value if isinstance(value, str) and value else 'item não identificado',
                               status=region.get('status') or 'unknown',
                               geometry='observed_icon_region', identity_verified=False))
+    item_candidates = []
+    native_items = snapshot.get('item_visual_native') or {}
+    for zone in ('inventory', 'equipped'):
+        for row in (native_items.get(zone) or [])[:12]:
+            top = (row.get('candidates') or [{}])[0]
+            item_candidates.append(dict(zone=zone, marker_id=row.get('marker_id'),
+                slot=row.get('slot'), names=top.get('names') or [],
+                similarity=_number(top.get('similarity')),
+                status=row.get('status') or 'unknown', identity_verified=False))
+    async_units = snapshot.get('unit_async_result') or {}
+    source_bound = (async_units.get('epoch') == epoch and
+                    type(async_units.get('source_ms')) is int and
+                    0 <= source_ms - async_units['source_ms'] <= 5000)
+    result = async_units.get('result') or {} if source_bound else {}
+    unit_candidates = [{key: row.get(key) for key in
+                        ('marker_id', 'box', 'candidate_name', 'status',
+                         'softmax_score_uncalibrated', 'softmax_margin_uncalibrated',
+                         'candidates', 'identity_verified')}
+                       for row in (result.get('records') or [])[:16]]
     return dict(frame_id=frame_id, source_ms=source_ms, epoch=epoch,
                 image_size=[width, height], processing_ms=round(processing_ms, 1),
                 worker_ms=round(worker_ms, 1) if worker_ms is not None else None,
                 observer_ms=round(observer_ms, 1) if observer_ms is not None else None,
+                diagnostic_timings_ms=snapshot.get('diagnostic_timings_ms') or {},
+                unit_inference=dict(pending=(snapshot.get('neural_units') or {}).get('pending'),
+                    completed=(snapshot.get('neural_units') or {}).get('completed'),
+                    skipped_busy=(snapshot.get('neural_units') or {}).get('skipped_busy'),
+                    source_ms=async_units.get('source_ms') if source_bound else None,
+                    processing_ms=_number(result.get('processing_ms')),
+                    candidates=unit_candidates,
+                    identity_verified=False),
+                item_candidates=item_candidates[:16],
                 boxes=boxes[:50],
                 candidate_units=sum(1 for row in boxes if row['id'].startswith('hub.marker.')),
                 verified_units=sum(1 for row in boxes if row['id'].startswith('hub.marker.')

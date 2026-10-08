@@ -68,12 +68,16 @@ def main(argv=None):
     parser.add_argument('--hp-worker', type=Path, default=DEFAULT_HP)
     parser.add_argument('--item-assets', type=Path, default=DEFAULT_ITEM_ASSETS)
     parser.add_argument('--item-native', type=Path, default=DEFAULT_ITEM_NATIVE)
+    parser.add_argument('--no-browser', action='store_true',
+                        help='Serve o estúdio sem abrir uma segunda janela de navegador.')
     args = parser.parse_args(argv)
     if os.environ.get('XDG_SESSION_TYPE') != 'x11' or not os.environ.get('DISPLAY'):
         parser.error('Entre no Ubuntu usando a sessão Xorg para capturar o monitor.')
     os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
-    venv_python = args.stage.resolve() / '.venv/bin/python'
-    if venv_python.is_file() and Path(sys.prefix) != venv_python.parent.parent:
+    venv_python = next((candidate for candidate in (
+        args.stage.resolve() / '.venv/bin/python',
+        SSD / 'simulator-lab/build-cache/venv/bin/python') if candidate.is_file()), None)
+    if venv_python and Path(sys.prefix) != venv_python.parent.parent:
         os.execv(str(venv_python), [str(venv_python), __file__, *(argv or sys.argv[1:])])
     model_dir = args.neural_bundle / 'models' if args.neural_bundle else args.model_dir
     stage = prepare(args.stage.resolve(), model_dir.resolve(),
@@ -92,7 +96,7 @@ def main(argv=None):
     from hm.studio_bridge import run_studio
     print('Agente TFT Ubuntu MVP: selecione o monitor em que o vídeo está rodando.', flush=True)
     print(f'Registros da sessão: {stage / "local-data/AgenteTFT-HUD-HM4/sessions"}', flush=True)
-    return run_studio(browser=True)
+    return run_studio(browser=not args.no_browser)
 
 
 if __name__ == '__main__':

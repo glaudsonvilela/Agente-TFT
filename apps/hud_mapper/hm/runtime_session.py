@@ -2,13 +2,14 @@
 from __future__ import annotations
 from dataclasses import replace
 from concurrent.futures import ThreadPoolExecutor
-import copy, hashlib, queue, threading, time
+import copy, hashlib, os, queue, threading, time
 import json
 from pathlib import Path
 from types import SimpleNamespace
 from PIL import Image
 from .core import native_regions, valid_box
 from .live_diagnostics import build_hub_diagnostic, build_live_diagnostic
+from .dataset import Latest
 from .session import Session
 
 READER_CACHE_MAX_MS = 750.0
@@ -58,6 +59,27 @@ def shop_read_due(source_ms, epoch, next_ms, signature, previous):
         return False
     return any(sum(a != b for a, b in zip(now, old)) >= SHOP_CHANGE_MIN_BITS
                for now, old in zip(signature, previous['signature']))
+
+
+def async_shop_delivery(frame, latest):
+    """Expose aged shop OCR with its actual source frame, never as fresh evidence."""
+    if (not latest or latest['epoch'] != frame.epoch or
+            not 0 <= frame.pts_ms - latest['source_ms'] <= 3500):
+        return {}
+    age_ms = round(frame.pts_ms - latest['source_ms'])
+    delivered = {}
+    for key in ('shop', 'controls'):
+        value = latest['answer'].get(key)
+        if isinstance(value, dict):
+            delivered[key] = copy.deepcopy(value)
+            delivered[key]['cadence_delivery'] = dict(
+                fresh=age_ms == 0,
+                source_frame_id=latest['frame_id'],
+                source_ms=latest['source_ms'],
+                delivered_frame_id=frame.id,
+                age_ms=age_ms,
+                policy='async_shop_source_bound_v1')
+    return delivered
 
 
 def hub_due(previous, frame, interval_ms):
@@ -115,11 +137,12 @@ def regions_to_source(regions, source_frame, plan):
     sy = source_frame.height / CANONICAL_READER_SIZE[1]
     out = copy.deepcopy(regions)
     for reg in out:
-        box = reg.get('box')
-        if box and valid_box(box, *CANONICAL_READER_SIZE):
-            reg['reader_box_1920x1080'] = list(box)
-            reg['box'] = [box[0]*sx, box[1]*sy, box[2]*sx, box[3]*sy]
-            reg['reader_geometry_transform'] = plan['method']
+        for key in ('box', 'avatar_box'):
+            box = reg.get(key)
+            if box and valid_box(box, *CANONICAL_READER_SIZE):
+                reg[f'reader_{key}_1920x1080'] = list(box)
+                reg[key] = [box[0]*sx, box[1]*sy, box[2]*sx, box[3]*sy]
+                reg['reader_geometry_transform'] = plan['method']
         points = reg.get('guide_points')
         if isinstance(points, list):
             for point in points:
@@ -177,6 +200,42 @@ def async_hp_delivery(frame, latest, max_age_ms=ASYNC_HP_MAX_AGE_MS):
         return dict(status='async_stale', signed_hp=None, hp=None,
                     last_observation=source_hp), {**meta, 'mode':'async_stale', 'fresh':False}
     return source_hp, meta
+
+
+def fast_player_hp(frame, latest, last_accepted=None):
+    """A source-bound HP badge for display beside an unverified avatar track."""
+    value, meta = async_hp_delivery(frame, latest)
+    result = dict(status=value.get('status'), value=None, box=None,
+                  source_frame_id=meta.get('source_frame_id'),
+                  source_ms=meta.get('source_ms'), age_ms=meta.get('age_ms'),
+                  fresh=False, avatar_link_verified=False)
+    if not meta.get('fresh') or value.get('status') != 'accepted' or \
+            type(value.get('hp')) is not int or not 0 <= value['hp'] <= 100:
+        if (last_accepted and last_accepted.get('epoch') == frame.epoch and
+                0 <= frame.pts_ms - last_accepted['source_ms'] <= 3000):
+            result.update(status='last_observed', value=last_accepted['value'],
+                          source_frame_id=last_accepted['source_frame_id'],
+                          source_ms=last_accepted['source_ms'],
+                          age_ms=frame.pts_ms-last_accepted['source_ms'],
+                          last_read_status=value.get('status'))
+        return result
+    result['value'] = value['hp']
+    result['fresh'] = True
+    result['confidence'] = value.get('confidence')
+    candidates = (value.get('location') or {}).get('candidates') or []
+    if len(candidates) == 1:
+        rect = candidates[0].get('hp_rect') or {}
+        coords = [rect.get(key) for key in ('x', 'y', 'width', 'height')]
+        if all(type(part) is int for part in coords):
+            x, y, width, height = coords
+            plan = latest.get('input_transform') or {}
+            reader_width, reader_height = plan.get('reader_size') or CANONICAL_READER_SIZE
+            box = [x * frame.width / reader_width, y * frame.height / reader_height,
+                   (x + width) * frame.width / reader_width,
+                   (y + height) * frame.height / reader_height]
+            if valid_box(box, frame.width, frame.height):
+                result['box'] = box
+    return result
 
 
 class RuntimeSession(Session):
@@ -350,10 +409,13 @@ class RuntimeSession(Session):
                     executed = True
                     self.counts['reader_native_runs'] += 1
                     shop_signature = (shop_text_signature(reader_frame)
-                                      if self.shop_interval_ms > 0 else None)
+                                      if self.shop_interval_ms > 0 and
+                                      getattr(self, 'shop_pending', None) is None else None)
                     include_shop = (self.shop_interval_ms <= 0 or shop_read_due(
                         frame.pts_ms, frame.epoch, self._next_shop_ms,
                         shop_signature, self._last_shop_read))
+                    if getattr(self, 'shop_pending', None) is not None:
+                        include_shop = False
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
                                    bytes=len(reader_frame.rgb), include_shop=include_shop)
@@ -386,6 +448,10 @@ class RuntimeSession(Session):
                         self._next_shop_ms = frame.pts_ms + self.shop_interval_ms
                         self._last_shop_read = dict(epoch=frame.epoch,
                             source_ms=frame.pts_ms, signature=shop_signature)
+                    if getattr(self, 'shop_pending', None) is not None:
+                        with self.lock:
+                            latest_shop = copy.deepcopy(getattr(self, '_latest_shop', None))
+                        answer.update(async_shop_delivery(frame, latest_shop))
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
@@ -627,6 +693,11 @@ class HM4RuntimeSession(RuntimeSession):
         self.latest_decision_status = None
         self.latest_live_diagnostic = None
         self.latest_hub_diagnostic = None
+        self.latest_fast_diagnostic = None
+        self.fast_pending = Latest() if self.ubuntu_mvp_diagnostics else None
+        self.shop_pending = Latest() if self.ubuntu_mvp_diagnostics else None
+        self._latest_shop = None
+        self._last_shop_submission = None
         self._latest_strategy_state = None
         self._latest_visual_candidates = None
         self.decision_engine = None
@@ -708,13 +779,147 @@ class HM4RuntimeSession(RuntimeSession):
         self.board_reference_requested.set()
 
     def submit_hub_frame(self, frame):
+        if self.shop_pending is not None and hub_due(
+                self._last_shop_submission, frame, 2000):
+            self._last_shop_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.shop_pending.put(frame)
+            self.counts['shop_async_submitted'] += 1
+        if self.fast_pending is not None and hub_due(
+                getattr(self, '_last_fast_submission', None), frame, 250):
+            self._last_fast_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.fast_pending.put(frame)
+            self.counts['fast_marker_submitted'] += 1
         if hub_due(getattr(self, '_last_hub_submission', None), frame, self.hub_interval_ms):
             self._last_hub_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
             self.hub_pending.put(frame)
             self.counts['hub_submitted'] += 1
 
+    def _shop_loop(self):
+        """Keep expensive shop text OCR out of the HUD/decision reader lane."""
+        from e1.protocol import NativeWorker
+        worker = None
+        try:
+            environment = dict(os.environ, AGENTE_TFT_RESIDENT_OCR='auto',
+                AGENTE_TFT_SHOP_ONLY='1')
+            worker = NativeWorker(self.options.worker, self.options.configs,
+                self.options.tesseract, self.options.controls,
+                Path(self.options.output) / 'shop-stderr.log', env=environment)
+            if not worker.ready.get('shop_only'):
+                raise RuntimeError('O leitor da loja não iniciou no modo exclusivo.')
+            while not self.cancel.is_set():
+                try:
+                    frame = self.shop_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                if (time.perf_counter_ns() - frame.due_ns) / 1e6 > 3000:
+                    self.counts['shop_async_stale_input_dropped'] += 1
+                    continue
+                plan = reader_plan(frame, self.normalize_reader_input)
+                reader_frame, _ = materialize_reader_frame(frame, plan)
+                if reader_frame is None:
+                    self.counts['shop_async_resolution_skipped'] += 1
+                    continue
+                request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
+                    width=reader_frame.width, height=reader_frame.height,
+                    bytes=len(reader_frame.rgb), include_shop=True)
+                answer = worker.request(request, reader_frame.rgb, timeout=12)
+                with self.lock:
+                    self._latest_shop = dict(frame_id=frame.id, source_ms=frame.pts_ms,
+                        epoch=frame.epoch, answer={key: answer.get(key)
+                            for key in ('shop', 'controls')},
+                        native_ms=answer.get('native_ms'))
+                self.counts['shop_async_results'] += 1
+        except Exception as exc:
+            self.versions['shop_async_error'] = f'{type(exc).__name__}: {exc}'
+            self.counts['shop_async_errors'] += 1
+        finally:
+            if worker:
+                worker.close()
+
+    def _fast_marker_loop(self):
+        from .board_worker import FastMarkerWorker
+        worker = None
+        try:
+            worker = FastMarkerWorker(self.options.worker, self.options.configs,
+                log=Path(self.options.output) / 'fast-marker-stderr.log')
+            while not self.cancel.is_set():
+                try:
+                    frame = self.fast_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                started = time.perf_counter_ns()
+                if (started - frame.due_ns) / 1e6 > 1000:
+                    self.counts['fast_marker_stale_input_dropped'] += 1
+                    continue
+                plan = reader_plan(frame, self.normalize_reader_input)
+                reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
+                if reader_frame is None:
+                    self.counts['fast_marker_resolution_skipped'] += 1
+                    continue
+                answer = worker.observe(reader_frame)
+                regions = []
+                for marker in answer['markers']:
+                    rect = marker.get('rect') or {}
+                    x, y = rect.get('x'), rect.get('y')
+                    w, h = rect.get('width'), rect.get('height')
+                    if not all(isinstance(value, int) for value in (x, y, w, h)):
+                        continue
+                    body = marker.get('avatar_body_proposal') or {}
+                    body_box = ([body['x'], body['y'],
+                                 body['x'] + body['width'], body['y'] + body['height']]
+                                if all(type(body.get(key)) is int for key in
+                                       ('x', 'y', 'width', 'height')) else None)
+                    if body_box and not valid_box(body_box, reader_frame.width, reader_frame.height):
+                        body_box = None
+                    regions.append(dict(id=f"track.{marker['track_id']}",
+                        box=[x, y, x+w, y+h], color=marker['color'],
+                        avatar_box=body_box,
+                        avatar_region_status='bar_anchored_proposal' if body_box else None,
+                        track_id=marker['track_id'],
+                        ownership_verified=False,
+                        identity_verified=False,
+                        status='bar_observed'))
+                regions = regions_to_source(regions, frame, plan)
+                with self.lock:
+                    latest_hp = self._latest_hp
+                    last_accepted_hp = getattr(self, '_last_fast_accepted_hp', None)
+                player_hp = fast_player_hp(frame, latest_hp, last_accepted_hp)
+                if player_hp['fresh']:
+                    with self.lock:
+                        self._last_fast_accepted_hp = dict(
+                            epoch=frame.epoch, value=player_hp['value'],
+                            source_frame_id=player_hp['source_frame_id'],
+                            source_ms=player_hp['source_ms'])
+                finished = time.perf_counter_ns()
+                self.latest_fast_diagnostic = dict(
+                    status='observed', frame_id=frame.id, source_ms=frame.pts_ms,
+                    epoch=frame.epoch, image_size=[frame.width, frame.height],
+                    markers=regions, player_hp=player_hp,
+                    worker_ms=answer.get('native_ms'),
+                    normalize_ms=normalize_ms,
+                    processing_ms=(finished-started)/1e6,
+                    source_to_result_ms=(finished-frame.due_ns)/1e6)
+                if regions:
+                    self.store.emit('visual-track-observations', dict(
+                        frame_id=frame.id, source_ms=frame.pts_ms, epoch=frame.epoch,
+                        image_size=[frame.width, frame.height],
+                        markers=regions, ground_truth=False, training_label=None,
+                        model_prediction_used_as_label=False))
+                self.counts['fast_marker_results'] += 1
+        except Exception as exc:
+            self.latest_fast_diagnostic = dict(status='unavailable', error=str(exc), markers=[])
+            self.counts['fast_marker_errors'] += 1
+        finally:
+            if worker:
+                worker.close()
+
     def _hub_loop(self):
         board_worker = None
+        observer = None
         try:
             from .replay_coach import inventory_prompt
             from .model_update import active_bundle_for_model
@@ -752,7 +957,8 @@ class HM4RuntimeSession(RuntimeSession):
             else:
                 from .board_hub_live import BoardHubLive
                 from .board_worker import BoardWorker
-                observer = BoardHubLive(self.options.configs, neural_root=neural_bundle)
+                observer = BoardHubLive(self.options.configs, neural_root=neural_bundle,
+                    async_unit_recognition=self.ubuntu_mvp_diagnostics)
                 board_worker = BoardWorker(self.options.worker, self.options.configs,
                                            log=Path(self.options.output) / 'board-stderr.log',
                                            tesseract=self.options.tesseract)
@@ -894,6 +1100,18 @@ class HM4RuntimeSession(RuntimeSession):
                         processing_ms=record['hub_processing_ms'],
                         vm_transport=observed.get('vm_transport')))
                 self.store.emit('board-hub-observations', record)
+                completed_unit = observed['snapshot'].get('unit_async_result')
+                if completed_unit:
+                    self.store.emit('unit-inference-observations', dict(
+                        frame_id=completed_unit['frame_id'],
+                        source_ms=completed_unit['source_ms'],
+                        epoch=completed_unit['epoch'],
+                        model_sha256=(completed_unit['result'] or {}).get('model_sha256'),
+                        recognizer=(completed_unit['result'] or {}).get('recognizer'),
+                        processing_ms=(completed_unit['result'] or {}).get('processing_ms'),
+                        candidates=(completed_unit['result'] or {}).get('records') or [],
+                        ground_truth=False, training_label=None,
+                        model_prediction_used_as_label=False))
                 self.hub_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['hub_results'] += 1
                 self._publish_coach(inventory_prompt(observed['snapshot']),frame,end)
@@ -903,3 +1121,5 @@ class HM4RuntimeSession(RuntimeSession):
         finally:
             if board_worker:
                 board_worker.close()
+            if getattr(observer, 'async_unit', None):
+                observer.async_unit.close()

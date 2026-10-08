@@ -20,6 +20,7 @@ mod combat_facts;
 mod match_memory;
 mod match_brain;
 mod match_plan;
+mod fast_marker_track;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,
           sync::mpsc::{self,TrySendError}};
@@ -161,9 +162,10 @@ impl Readers{
     let controls=controls::ControlsReader::new(c,&shop,&recovery)?;
     let board_profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;board_profile.validate()?;
     let resident_mode=std::env::var("AGENTE_TFT_RESIDENT_OCR").unwrap_or_else(|_|"0".into());
+    let shop_only=std::env::var("AGENTE_TFT_SHOP_ONLY").as_deref()==Ok("1");
     #[cfg(any(windows,target_os="linux"))]
-    let make_resident_suite=||->Result<(ResidentHudPool,ResidentTesseractOcr),String>{
-        let hud=ResidentHudPool::new(&tess)?;
+    let make_resident_suite=||->Result<(Option<ResidentHudPool>,ResidentTesseractOcr),String>{
+        let hud=if shop_only {None}else{Some(ResidentHudPool::new(&tess)?)};
         let text=ResidentTesseractOcr::from_cli_path(&tess,"eng")?.with_numeric_gray();
         Ok((hud,text))
     };
@@ -172,10 +174,10 @@ impl Readers{
         ""|"0"=>(None,None,None),
         "1"|"required"=>{
             let (hud,text)=make_resident_suite()?;
-            (Some(hud),Some(text),None)
+            (hud,Some(text),None)
         },
         "auto"=>match make_resident_suite(){
-            Ok((hud,text))=>(Some(hud),Some(text),None),
+            Ok((hud,text))=>(hud,Some(text),None),
             Err(error)=>(None,None,Some(error)),
         },
         other=>return Err(format!("invalid AGENTE_TFT_RESIDENT_OCR mode: {other}")),
@@ -200,11 +202,11 @@ impl Readers{
     let ocr=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()}).with_numeric_gray();
     // A resident suite can read frames even when the companion CLI cannot start.
     #[cfg(any(windows,target_os="linux"))]
-    let available=resident_hud.is_some() || ocr.available();
+    let available=resident_hud.is_some() || resident_text.is_some() || ocr.available();
     #[cfg(not(any(windows,target_os="linux")))]
     let available=ocr.available();
     let anchors_path=root.join("ui/standard-arena-anchors-v1.json");
-    let board=if anchors_path.is_file() {
+    let board=if !shop_only && anchors_path.is_file() {
         let anchors:Value=load(&anchors_path)?;
         if anchors["schema_version"]!=1 || anchors["profile"]!=board_profile.id {
             return Err("packaged arena profile mismatch".into());
@@ -271,6 +273,103 @@ impl Readers{
         if let Some(rect)=spec.free_count_rect{rects.push(rect);}
     }
     exact_rect_signature(f,&rects)
+ }
+ fn observe_shop_fields(&mut self,f:&FrameEnvelope)->Result<(Value,Value,Vec<Value>),String>{
+      let t=Instant::now();
+      let mut spans=Vec::new();
+      let mut shop:Value;
+      let mut controls:Value;
+      let mut located=false;
+      let started=ms(&t);
+      let shop_pixels=self.shop_signature(f)?;
+      let shop_hit=self.shop_cache.as_ref().is_some_and(|entry|entry.pixels==shop_pixels);
+      if shop_hit {
+        let entry=self.shop_cache.as_ref().expect("shop cache checked");
+        shop=entry.value.clone();
+        located=entry.panel_located==Some(true);
+        restamp_json(&mut shop,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
+      } else {
+        #[cfg(any(windows,target_os="linux"))]
+        let shop_read=if let Some(engine)=self.resident_text.as_mut(){
+            screen::perceive_with_name_fallback(f,&self.shop,engine,Some(&self.recovery),true)
+        }else{
+            screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true)
+        };
+        #[cfg(not(any(windows,target_os="linux")))]
+        let shop_read=screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true);
+        match shop_read {
+         Ok(mut read)=>{
+          self.reconcile_shop_names(f,&mut read);
+          located=read.panel_status=="located";
+          let cacheable=read.error.is_none();
+          shop=serde_json::to_value(read).map_err(|e|e.to_string())?;
+          if cacheable {
+            self.shop_cache=Some(JsonCacheEntry{pixels:shop_pixels,value:shop.clone(),
+                source_frame_id:f.frame_id,source_ms:f.captured_at_ms,panel_located:Some(located)});
+          }
+         },Err(e)=>{shop=json!({"error":e,"status":"failed"});self.shop_cache=None;}
+        }
+      }
+      spans.push(json!({"stage":"shop_cards","start_ms":started,"duration_ms":ms(&t)-started,
+                        "cache_exact_hit":shop_hit,"cache_basis":"all_shop_reader_pixels_v1"}));
+
+      let started=ms(&t);
+      let control_pixels=self.controls_signature(f)?;
+      let controls_hit=self.controls_cache.as_ref().is_some_and(|entry|
+          entry.pixels==control_pixels && entry.panel_located==Some(located));
+      if controls_hit {
+        let entry=self.controls_cache.as_ref().expect("controls cache checked");
+        controls=entry.value.clone();
+        restamp_json(&mut controls,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
+      } else {
+        match self.controls.read_visual(f,located){
+          Ok(mut c)=>{
+            #[cfg(any(windows,target_os="linux"))]
+            let result=if let Some(engine)=self.resident_text.as_mut(){
+                control_text::read_numbers(f,&self.controls.profile,&mut c,engine)
+            }else{
+                control_text::read_numbers(f,&self.controls.profile,&mut c,&mut self.ocr)
+            };
+            #[cfg(not(any(windows,target_os="linux")))]
+            let result=control_text::read_numbers(f,&self.controls.profile,&mut c,&mut self.ocr);
+            let cacheable=result.is_ok() && c.error.is_none();
+            match result {
+             Ok(())=>{
+              controls=serde_json::to_value(c).map_err(|e|e.to_string())?;
+              if cacheable {
+                self.controls_cache=Some(JsonCacheEntry{pixels:control_pixels,value:controls.clone(),
+                    source_frame_id:f.frame_id,source_ms:f.captured_at_ms,panel_located:Some(located)});
+              }
+             },
+             Err(e)=>{controls=json!({"error":e,"status":"failed"});self.controls_cache=None;},
+            }
+          },Err(e)=>{controls=json!({"error":e,"status":"failed"});self.controls_cache=None;},
+        }
+      }
+      spans.push(json!({"stage":"shop_controls","start_ms":started,"duration_ms":ms(&t)-started,
+                        "cache_exact_hit":controls_hit,"cache_basis":"all_controls_reader_pixels_v1"}));
+      for value in [&mut shop,&mut controls] {
+          if value.is_object() && value["error"].is_null() {
+              value["cadence_delivery"]=json!({"fresh":true,"delivered_frame_id":f.frame_id,
+                  "delivered_source_ms":f.captured_at_ms,"age_ms":0,"policy":"current_frame_v1"});
+          }
+      }
+      Ok((shop,controls,spans))
+ }
+ fn observe_shop_only(&mut self,f:&FrameEnvelope)->Result<Value,String>{
+      let t=Instant::now();
+      let valid_size=(f.width,f.height)==(self.hud.reference_width,self.hud.reference_height);
+      if !valid_size || !self.available {
+          return Ok(json!({"id":f.frame_id,"source_ms":f.captured_at_ms,
+              "shop":{"panel_status":"unavailable","slots":[]},
+              "controls":{"status":"unavailable"},"resolution_compatible":valid_size,
+              "ocr_available":self.available,"native_ms":ms(&t)}));
+      }
+      let (shop,controls,spans)=self.observe_shop_fields(f)?;
+      Ok(json!({"id":f.frame_id,"source_ms":f.captured_at_ms,
+          "origin":"observed_pixels","shop":shop,"controls":controls,
+          "spans":spans,"native_ms":ms(&t),"resolution_compatible":true,
+          "ocr_available":self.available}))
  }
  fn observe(&mut self,f:&FrameEnvelope,include_shop:bool)->Result<Value,String>{
     let t=Instant::now();let mut spans=vec![];let mut obs=vec![];let mut state=GameState::empty(f.captured_at_ms);
@@ -383,7 +482,6 @@ impl Readers{
                         "duration_ms":ms(&t)-hud_wall_started,"parallel_fields":self.hud.regions.len(),
                         "exact_roi_cache_hits":hud_cache_hits}));
       let started=ms(&t);
-      let mut located=false;
       if !include_shop {
         shop=match self.shop_cache.as_ref() {
           Some(entry)=>{
@@ -414,84 +512,14 @@ impl Readers{
         spans.push(json!({"stage":"shop_cadence_reuse","start_ms":started,"duration_ms":ms(&t)-started,
                           "shop_executed":false,"policy":"hm4_shop_2s_v1"}));
       } else {
-      let shop_pixels=self.shop_signature(f)?;
-      let shop_hit=self.shop_cache.as_ref().is_some_and(|entry|entry.pixels==shop_pixels);
-      if shop_hit {
-        let entry=self.shop_cache.as_ref().expect("shop cache checked");
-        shop=entry.value.clone();
-        located=entry.panel_located==Some(true);
-        restamp_json(&mut shop,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
-      } else {
-        #[cfg(any(windows,target_os="linux"))]
-        let shop_read=if let Some(engine)=self.resident_text.as_mut(){
-            screen::perceive_with_name_fallback(f,&self.shop,engine,Some(&self.recovery),true)
-        }else{
-            screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true)
-        };
-        #[cfg(not(any(windows,target_os="linux")))]
-        let shop_read=screen::perceive_with_name_fallback(f,&self.shop,&mut self.ocr,Some(&self.recovery),true);
-        match shop_read {
-         Ok(mut read)=>{
-          self.reconcile_shop_names(f,&mut read);
-          located=read.panel_status=="located";
-          let cacheable=read.error.is_none();
-          shop=serde_json::to_value(read).map_err(|e|e.to_string())?;
-          if cacheable {
-            self.shop_cache=Some(JsonCacheEntry{pixels:shop_pixels,value:shop.clone(),
-                source_frame_id:f.frame_id,source_ms:f.captured_at_ms,panel_located:Some(located)});
-          }
-         },Err(e)=>{shop=json!({"error":e,"status":"failed"});self.shop_cache=None;}
-        }
-      }
-      spans.push(json!({"stage":"shop_cards","start_ms":started,"duration_ms":ms(&t)-started,
-                        "cache_exact_hit":shop_hit,"cache_basis":"all_shop_reader_pixels_v1"}));
-
-      let started=ms(&t);
-      let control_pixels=self.controls_signature(f)?;
-      let controls_hit=self.controls_cache.as_ref().is_some_and(|entry|
-          entry.pixels==control_pixels && entry.panel_located==Some(located));
-      if controls_hit {
-        let entry=self.controls_cache.as_ref().expect("controls cache checked");
-        controls=entry.value.clone();
-        restamp_json(&mut controls,f.captured_at_ms,entry.source_frame_id,entry.source_ms,f.frame_id);
-      } else {
-        match self.controls.read_visual(f,located){
-          Ok(mut c)=>{
-            #[cfg(any(windows,target_os="linux"))]
-            let result=if let Some(engine)=self.resident_text.as_mut(){
-                control_text::read_numbers(f,&self.controls.profile,&mut c,engine)
-            }else{
-                control_text::read_numbers(f,&self.controls.profile,&mut c,&mut self.ocr)
-            };
-            #[cfg(not(any(windows,target_os="linux")))]
-            let result=control_text::read_numbers(f,&self.controls.profile,&mut c,&mut self.ocr);
-            let cacheable=result.is_ok() && c.error.is_none();
-            match result {
-             Ok(())=>{
-              controls=serde_json::to_value(c).map_err(|e|e.to_string())?;
-              if cacheable {
-                self.controls_cache=Some(JsonCacheEntry{pixels:control_pixels,value:controls.clone(),
-                    source_frame_id:f.frame_id,source_ms:f.captured_at_ms,panel_located:Some(located)});
-              }
-             },
-             Err(e)=>{controls=json!({"error":e,"status":"failed"});self.controls_cache=None;},
-            }
-          },Err(e)=>{controls=json!({"error":e,"status":"failed"});self.controls_cache=None;},
-        }
-      }
-      spans.push(json!({"stage":"shop_controls","start_ms":started,"duration_ms":ms(&t)-started,
-                        "cache_exact_hit":controls_hit,"cache_basis":"all_controls_reader_pixels_v1"}));
+      let (read_shop,read_controls,mut shop_spans)=self.observe_shop_fields(f)?;
+      shop=read_shop;
+      controls=read_controls;
+      spans.append(&mut shop_spans);
       }
     }
-    if include_shop {
-        for value in [&mut shop,&mut controls] {
-            if value.is_object() && value["error"].is_null() {
-                value["cadence_delivery"]=json!({"fresh":true,"delivered_frame_id":f.frame_id,
-                    "delivered_source_ms":f.captured_at_ms,"age_ms":0,"policy":"current_frame_v1"});
-            }
-        }
-    }
-    if valid_size {if let Some(reader)=&self.board {let started=ms(&t);
+    if valid_size && std::env::var("AGENTE_TFT_SKIP_BOARD").as_deref()!=Ok("1") {
+      if let Some(reader)=&self.board {let started=ms(&t);
       board=match reader.read(f){Ok(b)=>serde_json::to_value(b).map_err(|e|e.to_string())?,Err(e)=>json!({"error":e})};
       spans.push(span(&t,"board_b1",started));
     }}
@@ -514,8 +542,15 @@ fn main(){if let Err(e)=run(){eprintln!("E1_WORKER_ERROR={e}");std::process::exi
 fn run()->Result<(),String>{
     let args:Vec<_>=std::env::args().skip(1).collect();
     if args.len()<2 || args[0]!="--configs"{return Err("usage: e1-worker --configs <dir> [tesseract] [controls.json]".into())}
+    if std::env::var("AGENTE_TFT_MARKERS_ONLY").as_deref()==Ok("1") {
+        return markers_only(Path::new(&args[1]));
+    }
     if std::env::var("AGENTE_TFT_BOARD_ONLY").as_deref()==Ok("1") {
         return board_only(Path::new(&args[1]),args.get(2).map(String::as_str).unwrap_or("tesseract"));
+    }
+    if std::env::var("AGENTE_TFT_SHOP_ONLY").as_deref()==Ok("1") {
+        return shop_only(Path::new(&args[1]),args.get(2).map(String::as_str).unwrap_or("tesseract"),
+            args.get(3).map(PathBuf::from));
     }
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
@@ -539,6 +574,55 @@ fn run()->Result<(),String>{
       };
       writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }Ok(())
+}
+
+// The shop lane performs only shop and control OCR. HUD, board and strategy
+// stay in their own workers so a two-second shop read cannot duplicate them.
+fn shop_only(root:&Path,tess:&str,controls_path:Option<PathBuf>)->Result<(),String>{
+    let mut readers=Readers::new(root,tess.to_string(),controls_path)?;
+    let mut input=io::BufReader::new(io::stdin());
+    let mut output=io::BufWriter::new(io::stdout());
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"shop_only":true,
+        "ocr_available":readers.available,"pid":std::process::id()}))
+        .map_err(|e|e.to_string())?;
+    output.flush().map_err(|e|e.to_string())?;
+    while let Some(h)=header(&mut input)? {
+        if h["op"]=="stop" {break;}
+        if h["op"]!="frame" {return Err("unknown shop operation".into());}
+        let f=frame(&h,&mut input)?;
+        let out=readers.observe_shop_only(&f)?;
+        writeln!(output,"{out}").map_err(|e|e.to_string())?;
+        output.flush().map_err(|e|e.to_string())?;
+    }
+    Ok(())
+}
+
+// Cheap, OCR-free visual continuity for the diagnostic preview. Color and track
+// position are observations, not unit identity or side-of-board evidence.
+fn markers_only(root:&Path)->Result<(),String>{
+    let profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;
+    profile.validate()?;
+    let mut tracker=fast_marker_track::FastMarkerTrack::default();
+    let mut input=io::BufReader::new(io::stdin());
+    let mut output=io::BufWriter::new(io::stdout());
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"fast_marker_tracking":true,
+        "ocr_available":false,"pid":std::process::id()})).map_err(|e|e.to_string())?;
+    output.flush().map_err(|e|e.to_string())?;
+    while let Some(h)=header(&mut input)? {
+        let id=number(&h,"id")?;
+        if h["op"]=="stop" {break;}
+        if h["op"]!="markers" {return Err("unknown marker operation".into());}
+        let f=frame(&h,&mut input)?;
+        let started=Instant::now();
+        let mut markers=bars::detect(&f,profile.scan_rect,&profile.bars)?;
+        markers.extend(fast_marker_track::detect_avatar_bars(&f,profile.scan_rect));
+        let tracks=tracker.update(&markers,number(&h,"epoch")?,f.captured_at_ms);
+        writeln!(output,"{}",json!({"id":id,"source_ms":f.captured_at_ms,
+            "origin":"rust_fast_marker_tracker_v1","markers":tracks,"native_ms":ms(&started)}))
+            .map_err(|e|e.to_string())?;
+        output.flush().map_err(|e|e.to_string())?;
+    }
+    Ok(())
 }
 
 // Independent board worker. Its two small OCR panels run at a bounded cadence;

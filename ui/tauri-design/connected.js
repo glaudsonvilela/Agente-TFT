@@ -20,8 +20,87 @@ if (new URLSearchParams(location.search).has('connected')) {
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   let diagnosticMemory = {sessionId: null, hud: new Map(), shop: new Map(), hub: null};
+  let fastSnapshot = null, fastRequestBusy = false, fastFrameId = null, fastEpoch = null;
+  const markerTrails = new Map();
   let previewGeneration = 0, previewRequest = null;
   const previewDrawTimes = [];
+  function candidateForMarker(marker, fast) {
+    const hub = state?.hub_diagnostic;
+    if (!hub || hub.epoch !== fast.epoch || fast.source_ms < hub.source_ms ||
+        fast.source_ms - hub.source_ms > 3500) return null;
+    const box = marker.box;
+    if (!Array.isArray(box)) return null;
+    const cx = (box[0]+box[2])/2, cy = (box[1]+box[3])/2;
+    const nearest = (hub.boxes || []).filter(row => row.id.startsWith('hub.marker.') &&
+      Array.isArray(row.observed_box)).map(row => {
+        const b = row.observed_box;
+        return {row, distance: Math.hypot(cx-(b[0]+b[2])/2, cy-(b[1]+b[3])/2)};
+      }).sort((a,b) => a.distance-b.distance)[0];
+    return nearest && nearest.distance < 80 && nearest.row.support_frames >= 2 &&
+      nearest.row.label !== 'unidade não identificada'
+      ? nearest.row.label : null;
+  }
+  function drawFastTracks(context, imageWidth, imageHeight, sourceMs, epoch) {
+    const fast = fastSnapshot || state?.fast_diagnostic;
+    if (fast?.status !== 'observed' || !Number.isFinite(sourceMs) ||
+        fast.epoch !== epoch || sourceMs < fast.source_ms || sourceMs-fast.source_ms > 1400) return;
+    const size = fast.image_size || [];
+    if (!(size[0] > 0 && size[1] > 0)) return;
+    const sx=imageWidth/size[0], sy=imageHeight/size[1];
+    context.save();
+    context.font='bold 12px sans-serif';
+    for (const marker of fast.markers || []) {
+      const box=marker.box;
+      if (!Array.isArray(box) || box.length !== 4) continue;
+      const [x1,y1,x2,y2]=box;
+      const x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
+      if (![x,y,w,h].every(Number.isFinite) || w <= 0 || h <= 0) continue;
+      const color=marker.color === 'green' ? '#71f0aa' : marker.color === 'purple' ? '#b29aff' : '#ff8c8c';
+      const points=markerTrails.get(marker.track_id) || [];
+      if (points.length > 1) {
+        context.beginPath();
+        points.forEach((point,index) => index ? context.lineTo(point.x*sx,point.y*sy)
+          : context.moveTo(point.x*sx,point.y*sy));
+        context.strokeStyle=color+'b0';context.lineWidth=2;context.stroke();
+      }
+      context.strokeStyle=color;context.lineWidth=2;
+      context.strokeRect(x,y,w,Math.max(4,h));
+      if (marker.color === 'purple' && Array.isArray(marker.avatar_box) &&
+          marker.avatar_box.length === 4) {
+        const [ax1,ay1,ax2,ay2]=marker.avatar_box;
+        const ax=ax1*sx,ay=ay1*sy,aw=(ax2-ax1)*sx,ah=(ay2-ay1)*sy;
+        if ([ax,ay,aw,ah].every(Number.isFinite) && aw>0 && ah>0) {
+          context.setLineDash([5,4]);
+          context.strokeRect(ax,ay,aw,ah);
+          context.setLineDash([]);
+          context.beginPath();context.arc(ax+aw/2,ay+ah*.72,3,0,Math.PI*2);
+          context.fillStyle=color;context.fill();
+        }
+      }
+      const candidate=candidateForMarker(marker,fast);
+      const hp=fast.player_hp;
+      const hpText=marker.color === 'purple' && Number.isInteger(hp?.value)
+        ? ` · ${hp.fresh ? 'HP jogador' : 'último HP'} ${hp.value}` : '';
+      const label=`#${marker.track_id} ${marker.color === 'purple' ? 'avatar?'+hpText : candidate ? candidate+' ?' : marker.color}`;
+      const labelWidth=Math.min(imageWidth-x,context.measureText(label).width+10);
+      context.fillStyle='#090d16e8';context.fillRect(x,Math.max(0,y-20),labelWidth,18);
+      context.fillStyle='#fff';context.fillText(label,x+5,Math.max(13,y-6),Math.max(0,labelWidth-10));
+    }
+    const hp=fast.player_hp;
+    const hpBox=hp?.box;
+    if (Number.isInteger(hp?.value) && Array.isArray(hpBox) && hpBox.length === 4) {
+      const [x1,y1,x2,y2]=hpBox;
+      const x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
+      if ([x,y,w,h].every(Number.isFinite) && w>0 && h>0) {
+        context.strokeStyle='#ffd276';context.lineWidth=2;context.strokeRect(x,y,w,h);
+        const label=`HP jogador ${hp.value}`;
+        const labelWidth=Math.min(imageWidth-x,context.measureText(label).width+10);
+        context.fillStyle='#090d16e8';context.fillRect(x,Math.max(0,y-20),labelWidth,18);
+        context.fillStyle='#fff';context.fillText(label,x+5,Math.max(13,y-6),Math.max(0,labelWidth-10));
+      }
+    }
+    context.restore();
+  }
   function drawObservedBoxes(context, imageWidth, imageHeight, sourceMs, epoch) {
     const read = state?.live_diagnostic;
     if (!read || !Number.isFinite(sourceMs) || !Number.isFinite(epoch) ||
@@ -67,6 +146,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       const x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
       if (![x,y,w,h].every(Number.isFinite) || w <= 0 || h <= 0) continue;
       const unit = row.id.startsWith('hub.marker.');
+      if (unit && fastSnapshot?.status === 'observed' &&
+          fastSnapshot.epoch === epoch && sourceMs-fastSnapshot.source_ms <= 1400) continue;
       context.strokeStyle = unit ? '#cf8bff' : '#62d5e8';
       context.strokeRect(x,y,w,h);
       context.setLineDash([]);
@@ -88,6 +169,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     const rust = read?.rust || {};
     if (diagnosticMemory.sessionId !== state?.session_id) {
       diagnosticMemory = {sessionId: state?.session_id, hud: new Map(), shop: new Map(), hub: null};
+      markerTrails.clear(); fastSnapshot = null; fastFrameId = null; fastEpoch = null;
     }
     const currentMs = Number.isFinite(state?.preview_source_ms) ? state.preview_source_ms : read?.source_ms;
     const recent = entry => entry && entry.epoch === state?.preview_epoch &&
@@ -105,11 +187,19 @@ if (new URLSearchParams(location.search).has('connected')) {
     const shopRows = read?.shop?.length ? read.shop :
       Array.from({length: 5}, (_, slot) => ({slot, status: 'unavailable'}));
     const shop = shopRows.map(row => {
-      const seen = !!row.observed_name && row.status !== 'unavailable' && row.status !== 'unknown';
-      if (seen) diagnosticMemory.shop.set(row.slot, {name: row.observed_name, sourceMs: read.source_ms, epoch: read.epoch});
+      const shopAge = Number.isFinite(read?.shop_read_age_ms) ? read.shop_read_age_ms : null;
+      const seen = !!row.observed_name && read?.shop_panel_status === 'located' &&
+        (read?.shop_read_fresh === true || (shopAge != null && shopAge <= 3500)) &&
+        row.status !== 'unknown';
+      if (seen) diagnosticMemory.shop.set(row.slot, {name: row.observed_name,
+        catalogStatus: row.catalog_status, sourceMs: read.source_ms-(shopAge || 0), epoch: read.epoch});
       const previous = diagnosticMemory.shop.get(row.slot);
       const fallback = !seen && recent(previous);
-      return `<div class="live-data-row"><span>Loja ${Number(row.slot)+1}</span><b>${escapeHtml(seen ? row.observed_name : fallback ? previous.name : 'não identificado')}</b><small>${fallback ? age(previous)+' · não visível agora' : escapeHtml(row.status || 'sem leitura')}${seen && row.observed_cost != null ? ' · '+escapeHtml(row.observed_cost)+' ouro' : ''}</small></div>`;
+      const name = seen ? row.observed_name : fallback ? previous.name : 'não identificado';
+      const catalog = seen ? row.catalog_status : fallback ? previous.catalogStatus : null;
+      const certainty = catalog === 'name_not_in_patch' ? 'OCR fora do catálogo' :
+        catalog === 'unique_name_bound' ? 'nome candidato do catálogo' : 'OCR sem confirmação';
+      return `<div class="live-data-row"><span>Loja ${Number(row.slot)+1}</span><b>${escapeHtml(name)}</b><small>${fallback ? age(previous)+' · não visível agora' : seen ? certainty+(shopAge ? ' · há '+(shopAge/1000).toFixed(1)+' s' : '') : escapeHtml(row.status || 'sem leitura')}${seen && row.observed_cost != null ? ' · '+escapeHtml(row.observed_cost)+' ouro' : ''}</small></div>`;
     }).join('');
     const currentHub = state?.hub_diagnostic;
     if (currentHub?.boxes?.length) diagnosticMemory.hub = currentHub;
@@ -126,14 +216,33 @@ if (new URLSearchParams(location.search).has('connected')) {
       (row.id.startsWith('hub.inventory.') || row.id.startsWith('hub.equipped.')) &&
       row.label !== 'item não identificado');
     const board = units.slice(0,12).map(row => `<div class="live-data-row"><span>Peça</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')} · ${Number(row.support_frames || 0)} quadros · ${row.identity_verified ? 'verificada' : 'não verificada'}</small></div>`).join('');
-    const itemRows = items.slice(0,8).map(row => `<div class="live-data-row"><span>Item</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')}</small></div>`).join('');
+    const fast = fastSnapshot || state?.fast_diagnostic;
+    const fastAge = fast?.status === 'observed' && fast.epoch === state?.preview_epoch &&
+      Number.isFinite(currentMs) ? Math.max(0,currentMs-fast.source_ms) : null;
+    const tracks = (fast?.markers || []).slice(0,16).map(marker => {
+      const name=candidateForMarker(marker,fast);
+      const hp=fast?.player_hp;
+      const hpText=marker.color === 'purple' && Number.isInteger(hp?.value)
+        ? ` · ${hp.fresh ? 'HP jogador' : 'último HP'} ${hp.value} (há ${(hp.age_ms/1000).toFixed(1)} s)` : '';
+      return `<div class="live-data-row"><span>Rastro #${escapeHtml(marker.track_id)}</span><b>${escapeHtml(marker.color === 'purple' ? 'avatar provável' : name || 'nome pendente')}</b><small>barra ${escapeHtml(marker.color)}${escapeHtml(hpText)}${marker.avatar_box ? ' · região do bonequinho estimada' : ''} · vínculo com jogador não confirmado</small></div>`;
+    }).join('');
+    const playerHp=fast?.player_hp;
+    const hpRow=Number.isInteger(playerHp?.value)
+      ? `<div class="live-data-row"><span>${playerHp.fresh ? 'HP do jogador' : 'Último HP lido'}</span><b>${escapeHtml(playerHp.value)}</b><small>OCR no quadro ${escapeHtml(playerHp.source_frame_id)} · há ${(playerHp.age_ms/1000).toFixed(1)} s · avatar ainda provável</small></div>`
+      : `<div class="live-data-row"><span>HP do jogador</span><b>—</b><small>${escapeHtml(playerHp?.status || 'aguardando leitura')}</small></div>`;
+    const inference = hub?.unit_inference || {};
+    const inferred = (inference.candidates || []).slice(0,8).map(row =>
+      `<div class="live-data-row"><span>Modelo · barra #${escapeHtml(row.marker_id)}</span><b>${escapeHtml(row.candidate_name || 'incerto')}</b><small>${Number.isFinite(row.softmax_score_uncalibrated) ? row.softmax_score_uncalibrated.toFixed(3) : '—'} · score não calibrado · sem confirmação</small></div>`).join('');
+    const itemRows = (hub?.item_candidates || []).slice(0,8).map(row =>
+      `<div class="live-data-row"><span>${row.zone === 'equipped' ? 'Equipado' : 'Banco'}</span><b>${escapeHtml((row.names || []).join(' / ') || 'identidade incerta')}</b><small>${escapeHtml(row.status)} · similaridade ${Number.isFinite(row.similarity) ? row.similarity.toFixed(2) : '—'} · não confirmado</small></div>`).join('') ||
+      items.slice(0,8).map(row => `<div class="live-data-row"><span>Item</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')} · não confirmado</small></div>`).join('');
     const opponents = (state?.opponents?.players || []).filter(row => row.name).slice(0,7).map(row =>
       `<div class="live-data-row"><span>Rival</span><b>${escapeHtml(row.name)}</b><small>${row.hp == null ? 'vida sem leitura' : 'vida '+escapeHtml(row.hp)}</small></div>`).join('');
     const ranked = (rust.ranked || []).map(row => `<div class="live-rank-row ${row.selected?'selected':''}"><span>${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')}</span><strong>${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}</strong><small>base ${Number.isFinite(row.base_utility) ? row.base_utility.toFixed(3) : '—'} · repetição −${Number.isFinite(row.novelty_penalty) ? row.novelty_penalty.toFixed(3) : '—'} · persistência +${Number.isFinite(row.persistence_bonus) ? row.persistence_bonus.toFixed(3) : '—'}</small></div>`).join('');
     const tip = state?.tip;
     const freshTip = tip?.actionable && Number.isFinite(tip.age_ms) && tip.age_ms <= 5000;
-    panel.innerHTML = `<section class="live-data-panel"><h3>Leituras da imagem <small>quadro ${escapeHtml(read?.frame_id ?? '—')} · ${read ? (read.source_ms/1000).toFixed(1)+' s' : 'aguardando'}</small></h3>${hud || '<p>Aguardando primeira leitura.</p>'}<h4>Loja</h4>${shop || '<p>Nomes ainda não lidos.</p>'}<h4>Tabuleiro e banco · ${units.length} regiões${hubAgeLabel}</h4>${board || '<p>Nenhuma unidade localizada neste quadro.</p>'}<h4>Itens</h4>${itemRows || '<p>Nenhum item nomeado neste quadro.</p>'}<h4>Adversários</h4>${opponents || '<p>Nomes ainda não lidos.</p>'}<p class="live-footnote">Caixas roxas são posições aproximadas a partir das barras de vida; nomes continuam candidatos até confirmação. Não são rótulos de treino.</p></section>`+
-      `<section class="live-math-panel"><h3>Cálculo Rust <small>${escapeHtml(rust.status || 'aguardando')}</small></h3><p>HUD ${Number.isFinite(read?.reader_ms) ? read.reader_ms.toFixed(0)+' ms' : '—'} · tabuleiro ${Number.isFinite(hub?.processing_ms) ? hub.processing_ms.toFixed(0)+' ms' : '—'} · motor ${Number.isFinite(rust.native_ms) ? rust.native_ms.toFixed(0)+' ms' : '—'}</p>${ranked || '<p>Sem alternativas calculadas neste quadro.</p>'}<p class="live-footnote">${Number.isFinite(hub?.worker_ms) ? 'Detecção '+hub.worker_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.observer_ms) ? 'reconhecimento '+hub.observer_ms.toFixed(0)+' ms. ' : ''}Pontuação relativa, não probabilidade de vitória.${rust.reason ? ' Motivo: '+escapeHtml(rust.reason) : ''}</p></section>`+
+    panel.innerHTML = `<section class="live-data-panel"><h3>Leituras da imagem <small>quadro ${escapeHtml(read?.frame_id ?? '—')} · ${read ? (read.source_ms/1000).toFixed(1)+' s' : 'aguardando'}</small></h3>${hud || '<p>Aguardando primeira leitura.</p>'}<h4>Loja</h4>${shop || '<p>Nomes ainda não lidos.</p>'}<h4>Rastros rápidos · ${fast?.markers?.length || 0} barras${fastAge == null ? '' : ' · '+(fastAge/1000).toFixed(1)+' s'}</h4>${hpRow}${tracks || '<p>Sem barra localizada. Avatar e lado do jogador ainda sem confirmação.</p>'}<h4>Tabuleiro e banco · ${units.length} regiões${hubAgeLabel}</h4>${board || '<p>Nenhuma unidade localizada neste quadro.</p>'}<h4>Reconhecimento de campeões</h4>${inferred || '<p>Modelo processando ou sem candidato neste quadro.</p>'}<h4>Itens</h4>${itemRows || '<p>Nenhum item nomeado neste quadro.</p>'}<h4>Adversários</h4>${opponents || '<p>Nomes ainda não lidos.</p>'}<p class="live-footnote">Rastros acompanham barras visíveis; cor não prova se a unidade é sua ou do adversário. Nomes são candidatos, não rótulos de treino.</p></section>`+
+      `<section class="live-math-panel"><h3>Cálculo Rust <small>${escapeHtml(rust.status || 'aguardando')}</small></h3><p>HUD ${Number.isFinite(read?.reader_ms) ? read.reader_ms.toFixed(0)+' ms' : '—'} · tabuleiro ${Number.isFinite(hub?.processing_ms) ? hub.processing_ms.toFixed(0)+' ms' : '—'} · motor ${Number.isFinite(rust.native_ms) ? rust.native_ms.toFixed(0)+' ms' : '—'}</p>${ranked || '<p>Sem alternativas calculadas neste quadro.</p>'}<p class="live-footnote">${Number.isFinite(hub?.worker_ms) ? 'Barras '+hub.worker_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.diagnostic_timings_ms?.snapshot_ms) ? 'base visual '+hub.diagnostic_timings_ms.snapshot_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.diagnostic_timings_ms?.unit_neural_ms) ? 'nomes '+hub.diagnostic_timings_ms.unit_neural_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.diagnostic_timings_ms?.item_visual_native_ms) ? 'itens '+hub.diagnostic_timings_ms.item_visual_native_ms.toFixed(0)+' ms. ' : ''}Pontuação relativa, não probabilidade de vitória.${rust.reason ? ' Motivo: '+escapeHtml(rust.reason) : ''}</p></section>`+
       `<section class="live-moves-panel"><h3>Jogada indicada <small>${freshTip?'agora':'sem nova dica'}</small></h3><strong>${escapeHtml(freshTip ? tip.text : 'Aguardando uma ação sustentada pela leitura.')}</strong><p>${freshTip ? 'Momento '+(tip.source_ms/1000).toFixed(1)+' s · '+escapeHtml(tip.action_type || 'ação') : 'A leitura continua mesmo quando o motor não recomenda agir.'}</p><h4>Alternativas avaliadas</h4>${ranked ? (rust.ranked || []).slice(0,3).map(row => `<div class="live-move-row">${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')} <b>${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}</b></div>`).join('') : '<p>Nenhuma ainda.</p>'}</section>`;
     Array.from(panel.children, (child, index) => { child.scrollTop = scrollPositions[index] || 0; });
   }
@@ -170,6 +279,7 @@ if (new URLSearchParams(location.search).has('connected')) {
             context.drawImage(bitmap, 0, 0);
             drawObservedBoxes(context, bitmap.width, bitmap.height, sourceMs, epoch);
             drawHubBoxes(context, bitmap.width, bitmap.height, sourceMs, epoch);
+            drawFastTracks(context, bitmap.width, bitmap.height, sourceMs, epoch);
             const empty = canvas.parentElement.querySelector('.live-preview-empty');
             if (empty) empty.hidden = true;
             const drawnAt = performance.now();
@@ -489,6 +599,42 @@ if (new URLSearchParams(location.search).has('connected')) {
     } catch (error) { toast('Não foi possível consultar o motor local: '+clean(error)); }
   }
   setInterval(refresh, 900);
+  async function refreshFastMarkers() {
+    if (fastRequestBusy || current !== 'studio' || !state?.session_id) return;
+    fastRequestBusy = true;
+    try {
+      const next = await api().fast_diagnostic();
+      if (!next || next.status !== 'observed') {
+        fastSnapshot = next;
+        return;
+      }
+      if (fastEpoch !== next.epoch || (fastSnapshot && next.source_ms < fastSnapshot.source_ms)) {
+        markerTrails.clear();
+        fastFrameId = null;
+      }
+      fastEpoch = next.epoch;
+      if (fastFrameId !== next.frame_id) {
+        fastFrameId = next.frame_id;
+        for (const marker of next.markers || []) {
+          const box = marker.box;
+          if (!Array.isArray(box) || box.length !== 4) continue;
+          const trail = markerTrails.get(marker.track_id) || [];
+          trail.push({x:(box[0]+box[2])/2,y:(box[1]+box[3])/2,ms:next.source_ms});
+          markerTrails.set(marker.track_id,trail.filter(point =>
+            next.source_ms-point.ms <= 1500).slice(-10));
+        }
+        for (const [id,trail] of markerTrails) {
+          if (!trail.length || next.source_ms-trail.at(-1).ms > 1500) markerTrails.delete(id);
+        }
+      }
+      fastSnapshot = next;
+    } catch (_error) {
+      // The main state panel reports capture errors; this optional overlay may lag.
+    } finally {
+      fastRequestBusy = false;
+    }
+  }
+  setInterval(refreshFastMarkers, 220);
   refresh();
 
   document.addEventListener('click', async event => {

@@ -144,6 +144,8 @@ class Session:
                 extra_env=getattr(self,'native_worker_env',None)
                 if extra_env:
                     worker_env.update(extra_env)
+                if o.board_hub_enabled and not o.board_reference:
+                    worker_env['AGENTE_TFT_SKIP_BOARD']='1'
                 self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log',env=worker_env)
             self.versions['numeric_hud_ocr_backend']=self.worker.ready.get('numeric_hud_ocr_backend')
             self.versions['spatial_text_ocr_backend']=self.worker.ready.get('spatial_text_ocr_backend')
@@ -175,6 +177,10 @@ class Session:
                 if not hasattr(self, '_hub_loop'):
                     raise ValueError('HUB de revisão indisponível neste runtime')
                 targets.append(self._hub_loop)
+                if getattr(self, 'fast_pending', None) is not None:
+                    targets.append(self._fast_marker_loop)
+                if getattr(self, 'shop_pending', None) is not None:
+                    targets.append(self._shop_loop)
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
