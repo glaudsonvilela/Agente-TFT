@@ -33,3 +33,29 @@ one board change, and 19 periodic frames. A separate board-only clip produced
 no shop events, as expected. This checks acquisition behavior; it is not a
 recognition-accuracy measurement. New Windows sessions are still needed to
 measure the gain in confirmed labels and independent-match accuracy.
+
+On October 8, two compact packages of already adjudicated game-derived gold
+were imported into the BigBANANA corpus: two crops from one full-HUD match and
+six strictly supported crops from another VOD. The corpus now holds nine gold
+crops from three source groups. Two mixed-teacher rows were excluded. A new
+weighted challenger trained on the enlarged corpus but scored 20/32 correct
+and 0.643939 macro recall on the frozen validation set. The retained baseline
+scored 21/32 and 0.689394; no new model was promoted. This is a failed
+improvement attempt, not a success metric for the acquisition pipeline.
+
+A separate native 1080p gameplay source produced 331 sampled frames and 842
+unit crops. Strict shop acquisition checks found four possible transitions but
+zero confirmed labels; tooltip supervision also found zero. Its unlabeled
+review queue contains 64 selected crops from 841 unique candidates. This
+source therefore did not change the training corpus. A second distinct 1080p
+match produced 335 sampled frames and 1,255 crops. It yielded one shop purchase
+and bench persistence anchor for Elise; the independent adjudicator supported
+that anchor. The central corpus now holds 10 gold crops from four source groups.
+Its remaining 1,253 unique unlabeled crops contributed 64 review candidates,
+not training labels. Tooltip supervision added no further gold. The challenger
+trained with all 10 corpus gold examples again scored 20/32 correct and
+0.643939 macro recall on the frozen validation set, so the 21/32 baseline
+remained selected. A third distinct 1080p match is being analyzed. The 360p
+archive videos were not used for this OCR
+path: the collector requires native 1920x1080 pixels and upscaling would not
+restore the missing text detail.

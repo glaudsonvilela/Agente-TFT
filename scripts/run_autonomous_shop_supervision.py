@@ -80,7 +80,7 @@ def retry_path(path: Path) -> Path:
     die(f"too many preserved retry directories beside {path}")
 
 
-def valid_dense(path: Path, source_id: str) -> dict | None:
+def valid_dense(path: Path, source_id: str, source_url: str) -> dict | None:
     report_path = path / "report.json"
     if not report_path.is_file():
         return None
@@ -93,6 +93,7 @@ def valid_dense(path: Path, source_id: str) -> dict | None:
         and report.get("training_performed") is False
         and report.get("inference_performed") is False
         and report.get("source_id") == source_id
+        and report.get("source_url") == source_url
     ):
         return report
     return None
@@ -118,6 +119,9 @@ def main() -> int:
     p.add_argument("--source-id", default=SOURCE_ID)
     p.add_argument("--source-url", default=SOURCE_URL)
     args = p.parse_args()
+
+    if args.source_id != SOURCE_ID and args.source_url == SOURCE_URL:
+        die("a custom source ID requires its matching --source-url")
 
     repo = args.repo.expanduser().resolve()
     source = args.source.expanduser().resolve()
@@ -151,7 +155,7 @@ def main() -> int:
 
     # Reuse a complete dense annotation-only collection. Preserve an incomplete
     # attempt and create a fresh sibling instead of deleting or overwriting it.
-    dense_report = valid_dense(dense, args.source_id) if dense.exists() else None
+    dense_report = valid_dense(dense, args.source_id, args.source_url) if dense.exists() else None
     if dense.exists() and dense_report is None:
         preserved = dense
         dense = retry_path(dense)
@@ -177,7 +181,7 @@ def main() -> int:
             repo,
             logs / "dense-collection.log",
         )
-        dense_report = valid_dense(dense, args.source_id)
+        dense_report = valid_dense(dense, args.source_id, args.source_url)
         if dense_report is None:
             die("new dense collection did not satisfy autonomous shop contract")
 

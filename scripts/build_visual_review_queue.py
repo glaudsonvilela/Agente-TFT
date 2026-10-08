@@ -30,6 +30,25 @@ def fingerprint(path: Path) -> int:
                for y in range(8) for x in range(8))
 
 
+def capture_from_collection(collection: Path) -> dict:
+    """Build review timing for authorized video collections without a client seal."""
+    report = json.loads((collection / "report.json").read_text(encoding="utf-8"))
+    observations = [json.loads(line) for line in
+                    (collection / "observations.jsonl").read_text(encoding="utf-8").splitlines()]
+    observations.sort(key=lambda row: row["frame_index"])
+    if any(row.get("frame_index") != index for index, row in enumerate(observations)):
+        raise ValueError("video collection frame indexes are not contiguous")
+    return {
+        "session_id": report.get("source_id"),
+        "frames": [
+            {"frame_id": row["frame_index"],
+             "source_ms": round(float(row.get("source_seconds_nominal", index * 2)) * 1000),
+             "capture_event": "unspecified"}
+            for index, row in enumerate(observations)
+        ],
+    }
+
+
 def build_queue(capture: dict, collection: Path, max_units: int = 64,
                 max_item_contexts: int = 32) -> dict:
     collection = collection.resolve()
@@ -125,11 +144,12 @@ def build_queue(capture: dict, collection: Path, max_units: int = 64,
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--capture-manifest", type=Path, required=True)
+    parser.add_argument("--capture-manifest", type=Path)
     parser.add_argument("--collection", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    capture = json.loads(args.capture_manifest.read_text(encoding="utf-8"))
+    capture = (json.loads(args.capture_manifest.read_text(encoding="utf-8"))
+               if args.capture_manifest else capture_from_collection(args.collection))
     queue = build_queue(capture, args.collection)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(queue, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from build_visual_review_queue import build_queue
+from build_visual_review_queue import build_queue, capture_from_collection
 
 
 def test_review_queue_separates_unit_crops_from_unlocalized_item_context(tmp_path: Path):
@@ -23,6 +23,10 @@ def test_review_queue_separates_unit_crops_from_unlocalized_item_context(tmp_pat
     ]
     (collection / "observations.jsonl").write_text(
         "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    (collection / "report.json").write_text(json.dumps({"source_id": "vod:one"}))
+    inferred = capture_from_collection(collection)
+    assert inferred["session_id"] == "vod:one"
+    assert [row["source_ms"] for row in inferred["frames"]] == [0, 2000]
     capture = {"session_id": "test-match", "frames": [
         {"frame_id": 1, "source_ms": 0, "capture_event": "periodic"},
         {"frame_id": 2, "source_ms": 15000, "capture_event": "bench_or_item_change"},
