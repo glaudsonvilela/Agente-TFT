@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from io import BytesIO
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -23,17 +24,25 @@ REGIONS = {
 }
 
 
-def read_text(image: Image.Image, region: tuple[int, int, int, int], whitelist: str) -> str:
+def read_text(
+    image: Image.Image,
+    region: tuple[int, int, int, int],
+    whitelist: str,
+    *,
+    psm: int = 7,
+    contrast: float = 2,
+) -> str:
     crop = image.crop(region).convert("L")
-    crop = ImageEnhance.Contrast(crop).enhance(2)
+    if contrast != 1:
+        crop = ImageEnhance.Contrast(crop).enhance(contrast)
     crop = crop.resize((crop.width * 3, crop.height * 3), Image.Resampling.LANCZOS)
     stream = BytesIO()
     crop.save(stream, format="PNG")
     result = subprocess.run(
-        ["tesseract", "stdin", "stdout", "--psm", "7", "-l", "eng",
+        ["tesseract", "stdin", "stdout", "--psm", str(psm), "-l", "eng",
          "-c", f"tessedit_char_whitelist={whitelist}"],
         input=stream.getvalue(), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-        check=True,
+        check=True, env={**os.environ, "OMP_THREAD_LIMIT": "1"},
     )
     return result.stdout.decode("utf-8", errors="replace").strip()
 
@@ -47,6 +56,24 @@ def parse_fields(raw: dict[str, str]) -> dict[str, int | str | None]:
         "gold": int(gold.group(1)) if gold else None,
         "level": int(level.group(1)) if level else None,
     }
+
+
+def reconcile_gold_reads(reads: dict[str, str]) -> tuple[int | None, str]:
+    """Require the primary OCR reading to agree with another preprocessing view.
+
+    These views are correlated, so agreement is evidence, not a ground-truth
+    label. Disagreement stays unknown for human review.
+    """
+    values = {
+        name: int(text) if re.fullmatch(r"\d{1,3}", text.strip()) else None
+        for name, text in reads.items()
+    }
+    primary = values["gray_psm13"]
+    if primary is None:
+        return None, "unreadable"
+    if primary in (values["gray_psm7"], values["contrast_psm7"]):
+        return primary, "corroborated"
+    return None, "disagreement"
 
 
 def index(frames_dir: Path, output: Path, start_seconds: float, fps: int, stride: int) -> int:
@@ -69,16 +96,26 @@ def index(frames_dir: Path, output: Path, start_seconds: float, fps: int, stride
             with Image.open(path) as image:
                 if image.size != (1920, 1080):
                     raise ValueError(f"expected 1920x1080: {path}")
+                gold_reads = {
+                    "gray_psm13": read_text(image, REGIONS["gold"], "0123456789", psm=13, contrast=1),
+                    "gray_psm7": read_text(image, REGIONS["gold"], "0123456789", contrast=1),
+                    "contrast_psm7": read_text(image, REGIONS["gold"], "0123456789"),
+                }
+                gold, gold_status = reconcile_gold_reads(gold_reads)
                 raw = {
                     "stage": read_text(image, REGIONS["stage"], "0123456789-"),
-                    "gold": read_text(image, REGIONS["gold"], "0123456789"),
+                    "gold": gold_reads["gray_psm13"],
                     "level": read_text(image, REGIONS["level"], "0123456789"),
                 }
+            parsed = parse_fields(raw)
+            parsed["gold"] = gold
             row = {
                 "frame": path.name,
                 "source_seconds": round(start_seconds + (frame_number - 1) / fps, 3),
                 "raw_ocr": raw,
-                "parsed": parse_fields(raw),
+                "gold_ocr_views": gold_reads,
+                "gold_review_status": gold_status,
+                "parsed": parsed,
                 "action_label": None,
                 "outcome_label": None,
             }

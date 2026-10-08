@@ -38,9 +38,14 @@ finish. The VOD also shows opponent boards, shop choices, item icons, tooltips,
 combat, carousel, and overlays. Some overlays hide the shop or gold while the
 stage remains visible; a player model must preserve an explicit unknown state.
 
-The sparse HUD index contains **153 observations** at ten-second intervals,
-with raw OCR and parsed *candidates*: stage in 118, gold in 105, level in 115.
-These counts are coverage, **not accuracy**. One obvious stage OCR error read
+The cross-checked sparse HUD index contains **153 observations** at ten-second
+intervals, with raw OCR and parsed *candidates*: stage in 118, gold in 88,
+level in 115. For gold, another 58 reads were unreadable and 7 had OCR
+disagreement. The earlier index reported 105 gold candidates, including
+confirmed `31`/`37`/`7` misreads. These counts are coverage, **not accuracy**.
+The new index is `hud-samples-10s-crosschecked.jsonl` in the SSD directory
+above (SHA-256 `4864d524dc365a1b10d5cd15d6e6b0dd4a054b299f426318638b1a8446e2cc35`).
+One obvious stage OCR error read
 `5-2` from a `3-2` frame. The index intentionally carries no action or
 outcome labels. The full 10-fps frames are retained for short actions that a
 ten-second index would miss.
@@ -55,6 +60,26 @@ hashes are in [the hard-case review](full-match-transition-hard-cases-20261008.j
 The seven previously reviewed stage-4-2 actions (five rerolls, one Morgana
 purchase, one sale) occur within this full match and remain visual inferences,
 not recorded input events.
+
+A later [stage-3-2 episode review](full-match-10fps-episode-3-2-20261008.json)
+uses five adjacent observations to verify four successive XP purchases:
+gold **67 → 63 → 59 → 55 → 51**, XP **4/20 → 8/20 → 12/20 → 16/20 →
+level 6, 0/36**. The same episode records player HP **70 → 57** after the
+subsequent combat; it does not attribute that loss to the XP decision. The
+review also corrects an OCR error that read 51 gold as 31.
+
+The error came from the offline indexer's contrast-enhanced gold crop: the
+visible `51` became `31` under Tesseract's PSM 7. The indexer now compares a
+plain grayscale PSM 13 reading with grayscale and contrast-enhanced PSM 7
+readings. It records every reading and marks disagreement as unknown, so an
+uncertain number cannot silently become a training label. On [22 manually
+reviewed gold crops](full-match-gold-ocr-review-20261008.json), the original
+method got 16 right; the cross-checked method got 21 right, left one unknown,
+and made no wrong numeric claim. This is a small regression set, not a general
+accuracy estimate. The separate Rust worker read `51`, `57`, and `0` correctly
+on the sampled frames where the old Python index read `31`, `37`, and `7`.
+Stage localization in that Rust sample still disagreed between two OCR scales,
+so its stage remained unknown; that is a separate issue for further review.
 
 ## Relation to a player IA
 

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "source_sha256": "4fc0840e3687b4b92019ad342538207754ac5388078cdb2ed1031b9d7608093f",
+  "sampling_fps": 10,
+  "stage": "3-2",
+  "label_provenance": "manual_review_of_visible_HUD_progression; strong_visual_inference_without_input_event_log",
+  "observations": [
+    {"frame": "frame-007381.jpg", "source_seconds": 3113.0, "sha256": "032862e35fceef9a99d3b8bdb0ea4cf8c1f7bb7f6e7a79cf87793d0dd7329bb2", "gold": 67, "level": 5, "xp": 4, "xp_to_next_level": 20},
+    {"frame": "frame-007382.jpg", "source_seconds": 3113.1, "sha256": "0c1a171daf574671fdb0eaf1f8eef143ffff407f3f5659e9d1b3b125c4135ad4", "gold": 63, "level": 5, "xp": 8, "xp_to_next_level": 20},
+    {"frame": "frame-007384.jpg", "source_seconds": 3113.3, "sha256": "a654418a117241c3e18b69815d33d17113d355720b8a811a8a28c082448b2842", "gold": 59, "level": 5, "xp": 12, "xp_to_next_level": 20},
+    {"frame": "frame-007386.jpg", "source_seconds": 3113.5, "sha256": "e23e7909dd191bfadfc40ad404829e209747d11c58e94659e3404de512330e16", "gold": 55, "level": 5, "xp": 16, "xp_to_next_level": 20},
+    {"frame": "frame-007389.jpg", "source_seconds": 3113.8, "sha256": "db104e1afc6049c5e0ec546533c627d5b1a7bfa760b74c300f63a07f26bbf34e", "gold": 51, "level": 6, "xp": 0, "xp_to_next_level": 36}
+  ],
+  "inferred_actions": [
+    {"type": "buy_xp", "cost_gold": 4, "xp_gained": 4, "before_frame": "frame-007381.jpg", "after_frame": "frame-007382.jpg"},
+    {"type": "buy_xp", "cost_gold": 4, "xp_gained": 4, "before_frame": "frame-007382.jpg", "after_frame": "frame-007384.jpg"},
+    {"type": "buy_xp", "cost_gold": 4, "xp_gained": 4, "before_frame": "frame-007384.jpg", "after_frame": "frame-007386.jpg"},
+    {"type": "buy_xp", "cost_gold": 4, "xp_gained": 4, "before_frame": "frame-007386.jpg", "after_frame": "frame-007389.jpg", "result": "level_6"}
+  ],
+  "later_observations": [
+    {"frame": "frame-007555.jpg", "source_seconds": 3130.4, "sha256": "4982521883a618b4829a1d52d718e73375bdc45b73f361377c2184d3b56126d7", "player_hp": 70, "visible_phase": "combat_start"},
+    {"frame": "frame-007951.jpg", "source_seconds": 3170.0, "sha256": "0678f1cddd1f23be97dbb02f165d7bc7c81ac82d6369b15770ec78d4e9f71f6a", "player_hp": 57, "visible_phase": "combat_result"}
+  ],
+  "review_notes": [
+    "The four gold drops exactly match four 4-gold XP purchases. XP rises from 4/20 to 16/20, then level changes from 5 to 6 and XP resets to 0/36.",
+    "Sparse OCR read 31 gold after leveling; manual inspection of the frame clearly shows 51. The corrected value is used here.",
+    "The subsequent 70-to-57 HP change is an observed combat outcome, not proof that buying XP caused the loss.",
+    "Unobserved placement, shop, or item actions remain unknown. This is one reviewed episode, not an exhaustive match annotation."
+  ]
+}
