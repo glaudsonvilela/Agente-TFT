@@ -32,6 +32,20 @@ class VoiceAPITests(unittest.TestCase):
         self.assertLessEqual(len(client.cache),16)
         client.close();self.assertFalse(client.cache)
 
+    def test_delivery_tags_require_an_expressive_model(self):
+        calls=[]
+        class Connection(MockConnection):
+            def request(self,method,path,body,headers):
+                calls.append(json.loads(body))
+        flash=ElevenLabsSpeech('key','voice',connection_factory=Connection)
+        flash.synthesize('Role uma vez.',tone='urgent')
+        self.assertEqual(calls[-1]['text'],'Role uma vez.')
+        expressive=ElevenLabsSpeech('key','voice',model_id='eleven_v4',connection_factory=Connection)
+        expressive.synthesize('Role uma vez.',tone='urgent')
+        self.assertEqual(calls[-1]['text'],'[urgent, focused] Role uma vez.')
+        self.assertEqual(calls[-1]['model_id'],'eleven_v4')
+        with self.assertRaises(SpeechError):expressive.synthesize('Teste',tone='[laughs]')
+
     def test_http_errors_redact_body_and_never_follow_redirects(self):
         for status in (301,401,403,404,429,500):
             class Connection(MockConnection):
@@ -72,6 +86,24 @@ class VoiceAPITests(unittest.TestCase):
         coach.configure(mock_client());release.set()
         time.sleep(.05);coach.close();coach.thread.join(1)
         self.assertFalse(played)
+
+    def test_action_family_sets_audio_tone_without_changing_visible_tip(self):
+        client=mock_client();calls=[];played=threading.Event()
+        original=client.synthesize
+        def synth(text,*,tone=None):
+            calls.append((text,tone));return original(text)
+        client.synthesize=synth
+        coach=VoiceCoach(client=client,playback=lambda wav:played.set(),load_settings=False)
+        coach.set_enabled(True)
+        now=time.monotonic_ns()
+        tip=dict(actionable=True,speech_text='Role uma vez.',family='roll',
+                 decision_key='roll:one',frame_id=1,source_due_ns=now,
+                 speech_max_age_ms=8000)
+        self.assertTrue(coach.observe_tip(tip,now)['queued'])
+        self.assertTrue(played.wait(1))
+        self.assertEqual(calls,[('Role uma vez.','urgent')])
+        self.assertEqual(tip['speech_text'],'Role uma vez.')
+        coach.close();coach.thread.join(1)
 
     def test_unchanged_visible_text_retries_after_stale_observation(self):
         coach=VoiceCoach(load_settings=False);coach.enabled=True
@@ -134,5 +166,7 @@ class VoiceServiceTests(unittest.TestCase):
         self.assertEqual(calls[0][0],'/v1/voice')
         self.assertEqual(calls[0][1],{'text':'Bem-vindo!'})
         self.assertNotIn('xi-api-key',calls[0][2])
+        service.synthesize('Role uma vez.',tone='urgent')
+        self.assertEqual(calls[1][1],{'text':'Role uma vez.','tone':'urgent'})
 
 if __name__=='__main__':unittest.main()

@@ -75,7 +75,10 @@ class VoiceCoach:
         if token==self.last_tip_attempt:return None
         self.last_tip_attempt=token
         age=max(0.,(now_ns-tip['source_due_ns'])/1e6)
-        queued=self.say(tip['speech_text'],age,decision_key=tip.get('decision_key'),
+        family=tip.get('family')
+        tone=tip.get('voice_tone') or ('urgent' if family=='roll' else
+                                      'thoughtful' if family=='economy' else 'confident')
+        queued=self.say(tip['speech_text'],age,decision_key=tip.get('decision_key'),tone=tone,
                         max_age_ms=tip.get('speech_max_age_ms',3000),
                         source_frame_id=tip['frame_id'],source_ms=tip.get('source_ms'))
         result=dict(event='voice_tip_attempt',frame_id=tip['frame_id'],decision_key=tip.get('decision_key'),
@@ -114,7 +117,8 @@ class VoiceCoach:
 
     def say(self, text: str, source_age_ms: float, *, force: bool = False,
             decision_key: str | None = None, max_age_ms: float = 3000,
-            source_frame_id: int | None = None, source_ms: float | None = None):
+            source_frame_id: int | None = None, source_ms: float | None = None,
+            tone: str | None = None):
         now = time.monotonic_ns()
         self.last_rejection=None
         if not self.enabled:self.last_rejection='voice_disabled'
@@ -132,14 +136,15 @@ class VoiceCoach:
             pass
         self.pending.put_nowait((text, now, self.voice_id, force, source_age_ms,
                                  decision_key, min(8000, max(0, max_age_ms)),
-                                 dict(frame_id=source_frame_id,source_ms=source_ms,voice_id=self.voice_id),self.generation))
+                                 dict(frame_id=source_frame_id,source_ms=source_ms,voice_id=self.voice_id,
+                                      voice_tone=tone),self.generation,tone))
         self.queued_count += 1
         return True
 
     def _run(self):
         while not self.closed:
             try:
-                text, queued_ns, voice_id, force, source_age_ms, decision_key, max_age_ms, metadata, generation = self.pending.get(timeout=.2)
+                text, queued_ns, voice_id, force, source_age_ms, decision_key, max_age_ms, metadata, generation, tone = self.pending.get(timeout=.2)
             except queue.Empty:
                 continue
             client = self.client
@@ -152,7 +157,7 @@ class VoiceCoach:
                 continue
             try:
                 started = time.monotonic_ns()
-                wav = client.synthesize(text)
+                wav = client.synthesize(text,tone=tone) if tone else client.synthesize(text)
                 self.last_generation_ms = (time.monotonic_ns()-started)/1e6
                 if generation != self.generation:
                     continue

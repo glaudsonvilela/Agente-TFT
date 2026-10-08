@@ -36,10 +36,12 @@ class ServiceSpeech(ElevenLabsSpeech):
                 429:'Serviço de voz ocupado ou limite atingido. Tente mais tarde.'}.get(status,
                 'O serviço de voz está indisponível no momento.')
 
-    def open_request(self,text):
+    def open_request(self,text,*,tone=None):
         connection=self.connection_factory(self.host,self.port,timeout=2)
         self.connection=connection
-        connection.request('POST','/v1/voice',json.dumps({'text':text}).encode('utf-8'),
+        payload={'text':text}
+        if tone:payload['tone']=tone
+        connection.request('POST','/v1/voice',json.dumps(payload).encode('utf-8'),
                            {'Authorization':'Bearer '+self._key,'Content-Type':'application/json','Accept':'audio/pcm'})
         return connection
 
