@@ -92,6 +92,7 @@ args = [
     '--hidden-import', 'hm.temporal_candidates',
     '--hidden-import', 'hm.replay_coach',
     '--hidden-import', 'hm.replay_decision',
+    '--hidden-import', 'hm.match_identity',
     '--hidden-import', 'hm.voice',
     '--hidden-import', 'hm45_setup',
     '--hidden-import', 'hm45_setup_web',

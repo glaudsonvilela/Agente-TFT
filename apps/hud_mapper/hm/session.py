@@ -139,10 +139,11 @@ class Session:
                                trained_regions=['bench','shop'] if self.model else [],
                                other_HUD_regions='registered_readers_not_neural_classes'))
             if not o.vm_core:
-                worker_env=None
+                worker_env=os.environ.copy()
+                worker_env['AGENTE_TFT_MATCH_CACHE_ROOT']=str(Path(o.output) / 'match-cache')
                 extra_env=getattr(self,'native_worker_env',None)
                 if extra_env:
-                    worker_env=os.environ.copy();worker_env.update(extra_env)
+                    worker_env.update(extra_env)
                 self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log',env=worker_env)
             self.versions['numeric_hud_ocr_backend']=self.worker.ready.get('numeric_hud_ocr_backend')
             self.versions['spatial_text_ocr_backend']=self.worker.ready.get('spatial_text_ocr_backend')

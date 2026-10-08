@@ -103,13 +103,6 @@ class ReplayDecisionEngine:
             score = {'buy_xp': .84, 'hold_econ': .38}.get(kind, .55)
             choices.append({**economy, 'rank_score': score,
                             'rank_source': 'verified_economy_priority_v1'})
-        for candidate in choices:
-            kind = candidate.get('action', {}).get('type')
-            # A fresh, concrete purchase beats a long-horizon XP reminder.
-            if kind == 'buy_synergy':
-                candidate['rank_score'] = max(.91, candidate.get('rank_score', 0))
-            elif kind == 'buy_pair':
-                candidate['rank_score'] = max(.88, candidate.get('rank_score', 0))
         choices.sort(key=lambda row: row.get('rank_score', 0), reverse=True)
         # These are visual interpretations, not final decisions. The resident
         # Rust worker selects among them before anything is spoken.
@@ -120,15 +113,55 @@ class ReplayDecisionEngine:
         return choices[0] if choices else economy or self._economy_wait(reason)
 
     @staticmethod
-    def rank_with_native(output, worker):
-        """Ask the Rust motor to select an observed option; abstain on failure."""
+    def _memory_observation(output, visual_candidates=None):
+        """Small evidence ledger, with candidate identity kept separate from fact."""
+        def hud(field):
+            rows = [row for row in output.get('hud') or []
+                    if row.get('field') == field
+                    and row.get('status') == 'single_frame_observation'
+                    and type(row.get('confidence')) in (int, float)
+                    and math.isfinite(row['confidence'])
+                    and row['confidence'] >= .85]
+            return rows[0].get('value') if len(rows) == 1 else None
+        visual = visual_candidates if isinstance(visual_candidates, dict) else {}
+        def candidates(field, limit):
+            return [{key: row.get(key) for key in
+                     ('position', 'slot', 'candidate_id', 'current_candidate_id',
+                      'status', 'support_frames', 'identity_verified') if key in row}
+                    for row in (visual.get(field) or [])[:limit] if isinstance(row, dict)]
+        shop = output.get('shop') or {}
+        hp_row = output.get('hp') or {}
+        hp = (hp_row.get('hp') if hp_row.get('status') == 'accepted'
+              and (output.get('hp_delivery') or {}).get('fresh') is True
+              and type(hp_row.get('hp')) is int else None)
+        offers = [{key: row.get(key) for key in
+                   ('slot', 'unit_id', 'catalog_status', 'status', 'observed_cost') if key in row}
+                  for row in (shop.get('slots') or [])[:5] if isinstance(row, dict)]
+        opponents = visual.get('opponents') or {}
+        return dict(stage=hud('stage'), gold=hud('gold'), level=hud('level'), xp=hud('xp'),
+            hp=hp,
+            shop=offers, board=candidates('units', 24), inventory=candidates('inventory', 24),
+            equipped=candidates('equipped', 24),
+            board_identity_verified=visual.get('identity_verified') is True,
+            opponents=dict(current_opponent=opponents.get('current_opponent'),
+                current_opponent_status=opponents.get('current_opponent_status'),
+                opponent_board_assigned=opponents.get('opponent_board_assigned') is True,
+                players=[{key: row.get(key) for key in
+                          ('name', 'hp', 'status', 'losses_observed') if key in row}
+                         for row in (opponents.get('players') or [])[:8] if isinstance(row, dict)]))
+
+    @staticmethod
+    def rank_with_native(output, worker, *, match_id=None, epoch=0, visual_candidates=None):
+        """Store the observed match state and rank its supported options in Rust."""
         choices = output.pop('decision_options', None)
-        if choices is None:
-            return output
-        if not choices:
-            return output
+        record_only = choices is None
+        if record_only:
+            choices = []
+        if match_id is not None:
+            output['match_memory_id'] = match_id
         if worker.ready.get('rank_advice') is not True:
-            output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
+            if not record_only:
+                output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
             output['decision_rank'] = {'status': 'abstained',
                                        'reason': 'RUST_MOTOR_VERSION_UNSUPPORTED'}
             return output
@@ -139,28 +172,42 @@ class ReplayDecisionEngine:
               and hp_delivery.get('fresh') is True else None)
         context = {'gold': gold, 'hp': hp}
         try:
-            result = worker.request(dict(op='rank_advice', id=output['id'],
+            request = dict(op='rank_advice', id=output['id'],
                 source_ms=output['source_ms'], candidates=choices[:24],
-                context=context), timeout=2)
+                context=context)
+            if match_id is not None:
+                request.update(match_id=match_id, epoch=epoch,
+                    observation=ReplayDecisionEngine._memory_observation(output, visual_candidates))
+            result = worker.request(request, timeout=2)
             index = result.get('selected_index')
             if result.get('origin') != 'rust_live_opportunity_v1':
                 raise ValueError('unexpected native motor response')
             if index is None and result.get('ranked') == []:
+                if record_only:
+                    output['decision_rank'] = {'status': 'memory_only',
+                        'native_ms': result.get('native_ms'),
+                        'memory': result.get('memory'),
+                        'memory_error': result.get('memory_error')}
+                    return output
                 output['decision'] = ReplayDecisionEngine._wait('NO_ACTIONABLE_NATIVE_CANDIDATE')
                 output['decision_rank'] = {'status': 'abstained',
                                            'reason': 'NO_ACTIONABLE_NATIVE_CANDIDATE',
-                                           'native_ms': result.get('native_ms')}
+                                           'native_ms': result.get('native_ms'),
+                                           'memory': result.get('memory'),
+                                           'memory_error': result.get('memory_error')}
                 return output
             if type(index) is not int or not 0 <= index < min(24, len(choices)):
                 raise ValueError('invalid native motor selection')
         except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
-            output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
+            if not record_only:
+                output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
             output['decision_rank'] = {'status': 'abstained', 'reason': str(exc)}
             return output
         output['decision'] = choices[index]
         output['decision']['calculation_source'] = 'rust_live_opportunity_v1'
         output['decision_rank'] = dict(status='selected', selected_index=index,
-            ranked=result.get('ranked') or [], native_ms=result.get('native_ms'))
+            ranked=result.get('ranked') or [], native_ms=result.get('native_ms'),
+            memory=result.get('memory'), memory_error=result.get('memory_error'))
         return output
 
     def evaluate(self, answer: dict, owned: dict | None = None, strategy_state: dict | None = None,

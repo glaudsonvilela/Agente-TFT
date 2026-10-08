@@ -189,7 +189,6 @@ class LiveAdvice:
                      "shop_slots": [row["slot"] for row in rows], "catalog_cost_each": cost},
                     f"Há duas cópias de {name} na loja. Considere comprar o par por {cost * 2} de ouro.",
                     ["shop.two_exact_names", "patch.catalog_cost", "hud.gold"]))
-                break
 
             counts = visual.get('trait_counts') or {}
             if (visual.get('status') == 'candidate_persistence'

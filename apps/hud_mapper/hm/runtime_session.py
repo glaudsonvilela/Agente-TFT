@@ -401,7 +401,17 @@ class RuntimeSession(Session):
                                 visual_candidates['age_ms'] = age_ms
                         answer = decision_engine.evaluate(answer, strategy_state=strategy_state,
                                                           visual_candidates=visual_candidates)
-                        answer = decision_engine.rank_with_native(answer, self.worker)
+                        stage_rows = [row for row in answer.get('hud') or []
+                                      if row.get('field') == 'stage'
+                                      and row.get('status') == 'single_frame_observation'
+                                      and isinstance(row.get('confidence'), (int, float))
+                                      and row['confidence'] >= .85]
+                        stage_for_memory = (str(stage_rows[0].get('value'))
+                                            if len(stage_rows) == 1 else None)
+                        match_id = self.match_identity.observe(stage_for_memory)
+                        answer = decision_engine.rank_with_native(answer, self.worker,
+                            match_id=match_id, epoch=frame.epoch,
+                            visual_candidates=visual_candidates)
                         if not self.options.replay_review:
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
@@ -540,6 +550,8 @@ class HM4RuntimeSession(RuntimeSession):
         self.combat_events = CombatEvents()
         from .opponent_tracking import OpponentTracker
         self.opponent_tracker = OpponentTracker()
+        from .match_identity import MatchIdentity
+        self.match_identity = MatchIdentity(self.id)
         self._latest_native_stage = None
         self.shadow_learning_recorder = None
         self.shadow_learning_sealed = None
