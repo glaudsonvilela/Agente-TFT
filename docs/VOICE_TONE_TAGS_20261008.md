@@ -19,3 +19,13 @@ ser acompanhada pelos tempos da sessão e por escuta antes de ser distribuída.
 
 Audio Tags são um recurso de interpretação vocal. Elas não substituem leitura
 de tabuleiro, identificação de campeões ou raciocínio estratégico.
+
+## Ativação no laboratório
+
+Em 8 de outubro, o serviço isolado de voz do BigBANANA foi atualizado para a
+revisão `402b95d9` e configurado com `eleven_v4_turbo`. Uma chamada através de
+`/v1/session` e `/v1/voice`, com tom `thoughtful`, retornou PCM válido em 1,5 s.
+O gateway local respondeu saudável e o cliente do MVP Ubuntu reconectou com a
+voz pronta. O aplicativo antigo ainda pode enviar somente `text`; `tone` é
+opcional. O treino e o site principal usam serviços separados e não foram
+reiniciados nessa atualização.
