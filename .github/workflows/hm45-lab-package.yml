@@ -151,7 +151,7 @@ jobs:
             throw 'Packaged studio contract failed'
           }
           $result = Get-Content $report -Raw | ConvertFrom-Json
-          if (!$result.studio_assets_served -or !$result.local_api_responded -or !$result.clr_free_shell -or !$result.native_capture_present -or !$result.targets_enumerated) { throw 'Connected studio or source listing is incomplete' }
+          if (!$result.studio_assets_served -or !$result.local_api_responded -or !$result.clr_free_shell -or !$result.native_capture_present -or !$result.targets_enumerated -or !$result.baseline_model_present) { throw 'Connected studio, local model or source listing is incomplete' }
           $setupReport = Join-Path (Get-Location).Path 'build\hm45-setup-package-smoke.json'
           $setupProcess = Start-Process -FilePath $app -ArgumentList @('--setup-package-smoke-output', $setupReport) -Wait -PassThru
           if ($setupProcess.ExitCode -ne 0 -or !(Test-Path $setupReport)) { throw 'Packaged designer installer contract failed' }

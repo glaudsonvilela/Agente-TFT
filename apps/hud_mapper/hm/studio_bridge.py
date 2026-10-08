@@ -22,7 +22,7 @@ from urllib.parse import unquote, urlsplit
 from urllib.request import urlopen
 from urllib.request import Request
 
-from .runtime_app import default_hm4_output_root, runtime_paths, target_label
+from .runtime_app import default_hm4_output_root, discover_model, runtime_paths, target_label
 from .runtime_session import HM4RuntimeSession
 from .session import Options
 
@@ -101,7 +101,12 @@ class StudioController:
                              if t["kind"] == kind and t["id"] == identity), None)
             if selected is None:
                 raise ValueError("Fonte indisponível; selecione novamente.")
-            model = str(self.model_updater.ensure_active())
+            # A remote model refresh must never block the first captured frame.
+            # The signed package includes a baseline model; an updated model
+            # is picked up on a later idle session by discover_model().
+            model = discover_model()
+            if not model:
+                raise RuntimeError("Modelo visual local ausente do pacote; repare a instalação.")
             vm_core = (Path(sys.executable).resolve().parent / "core" / "core-package.json").is_file()
             output = str(Path(default_hm4_output_root()) /
                          ("hm4-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
@@ -443,9 +448,14 @@ def package_contract(output):
     capture_present = None
     targets_enumerated = None
     target_count = None
+    baseline_model_present = None
     if os.name == "nt":
         from .capture_source import native_path, list_targets
         configs = runtime_paths()["configs"]
+        baseline = Path(configs).parent / "models" / "deployment-candidate.json"
+        baseline_model_present = baseline.is_file() and (baseline.parent / "candidate-model.onnx").is_file()
+        if not baseline_model_present:
+            raise RuntimeError("O modelo visual local não está no pacote Windows.")
         capture_present = native_path(configs).is_file()
         if not capture_present:
             raise RuntimeError("O capturador Rust não está no pacote Windows.")
@@ -454,7 +464,8 @@ def package_contract(output):
         target_count = len(targets)
     report = {"studio_assets_served": True, "local_api_responded": True,
               "clr_free_shell": True, "native_capture_present": capture_present,
-              "targets_enumerated": targets_enumerated, "target_count": target_count}
+              "targets_enumerated": targets_enumerated, "target_count": target_count,
+              "baseline_model_present": baseline_model_present}
     target = Path(output)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")

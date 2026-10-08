@@ -114,6 +114,31 @@ class StudioBridgeTests(unittest.TestCase):
             self.assertTrue(report['studio_assets_served'])
             self.assertTrue((Path(temp) / 'studio.json').is_file())
 
+    def test_capture_uses_bundled_model_without_waiting_for_server(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as temp:
+            controller = object.__new__(StudioController)
+            controller.lock = threading.RLock()
+            controller.session = None
+            controller.model_updater = SimpleNamespace(ensure_active=lambda:
+                self.fail('capture waited for the remote model'))
+            controller.history = deque(maxlen=100)
+            controller.preview_jpeg = None
+            controller.last_error = controller.last_result = controller.last_tip_key = None
+            target = {'kind': 'monitor', 'id': '1', 'label': 'Monitor',
+                      'bounds': [0, 0, 1920, 1080]}
+            fake_session = SimpleNamespace(id='local', finished=False)
+            with patch('hm.capture_source.list_targets', return_value=[target]), \
+                 patch('hm.studio_bridge.runtime_paths', return_value={
+                     'configs': temp, 'worker': 'worker', 'tesseract': 'tesseract'}), \
+                 patch('hm.studio_bridge.discover_model', return_value='bundled-model'), \
+                 patch('hm.studio_bridge.default_hm4_output_root', return_value=temp), \
+                 patch('hm.studio_bridge.HM4RuntimeSession') as runtime:
+                runtime.return_value.start.return_value = fake_session
+                result = controller.start_session('monitor', '1', False, True)
+            self.assertEqual(result['session_id'], 'local')
+            self.assertEqual(runtime.call_args.args[0].model, 'bundled-model')
+
     def test_closing_window_seals_finished_capture(self):
         class Session:
             finished = False
