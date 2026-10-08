@@ -449,7 +449,7 @@ def package_contract(output):
     targets_enumerated = None
     target_count = None
     baseline_model_present = None
-    if os.name == "nt":
+    if os.name == "nt" and getattr(sys, "frozen", False):
         from .capture_source import native_path, list_targets
         configs = runtime_paths()["configs"]
         baseline = Path(configs).parent / "models" / "deployment-candidate.json"
