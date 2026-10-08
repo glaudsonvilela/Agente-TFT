@@ -44,6 +44,7 @@ class StudioController:
         self.preview_sequence = 0
         self.preview_times = deque(maxlen=90)
         self.preview_encode_ms = deque(maxlen=90)
+        self.next_preview_telemetry = 0.0
         self.preview_condition = threading.Condition()
         self.closed = threading.Event()
         self.voice = None
@@ -113,8 +114,10 @@ class StudioController:
             self.last_error = self.last_result = self.last_tip_key = None
             self.history.clear()
             self.preview_jpeg = None
-            self.preview_times.clear()
-            self.preview_encode_ms.clear()
+            with self.preview_condition:
+                self.preview_times.clear()
+                self.preview_encode_ms.clear()
+            self.next_preview_telemetry = 0.0
             self.session = HM4RuntimeSession(Options(
                 **paths, video=f"capture://{kind}/{identity}", output=output,
                 model=model, dataset_only=False, seconds=7200,
@@ -174,6 +177,9 @@ class StudioController:
                 if safe_tip["source_due_ns"]:
                     safe_tip["age_ms"] = max(0, (time.perf_counter_ns() - safe_tip["source_due_ns"]) / 1e6)
                 safe_tip.pop("source_due_ns", None)
+            with self.preview_condition:
+                preview_fps = sum(t >= time.monotonic() - 1 for t in self.preview_times)
+                preview_encode_ms = self.preview_encode_ms[-1] if self.preview_encode_ms else None
             return {"phase": "finished" if session.finished else session.phase,
                     "session_id": session.id, "replay_review": session.options.replay_review,
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
@@ -190,8 +196,8 @@ class StudioController:
                                ("source_frames", "preview_frames", "reader_native_runs",
                                 "hub_results", "coach_updates", "replay_tips")},
                     "preview_sequence": self.preview_sequence,
-                    "preview_encoded_fps": sum(t >= time.monotonic() - 1 for t in self.preview_times),
-                    "preview_encode_last_ms": self.preview_encode_ms[-1] if self.preview_encode_ms else None,
+                    "preview_encoded_fps": preview_fps,
+                    "preview_encode_last_ms": preview_encode_ms,
                     "voice": self._voice_state(), "result": self.last_result,
                     "profile": self.profile,
                     "model_update": self.model_updater.last_result,
@@ -270,12 +276,30 @@ class StudioController:
                 with self.lock:
                     if self.session is not session or session.finished:
                         continue
-                with self.preview_condition:
-                    self.preview_jpeg = encoded
-                    self.preview_sequence += 1
-                    self.preview_times.append(time.monotonic())
-                    self.preview_encode_ms.append((time.perf_counter_ns()-encode_start)/1e6)
-                    self.preview_condition.notify_all()
+                    with self.preview_condition:
+                        self.preview_jpeg = encoded
+                        self.preview_sequence += 1
+                        now = time.monotonic()
+                        self.preview_times.append(now)
+                        self.preview_encode_ms.append((time.perf_counter_ns()-encode_start)/1e6)
+                        self.preview_condition.notify_all()
+                        if now >= self.next_preview_telemetry:
+                            self.next_preview_telemetry = now + 5
+                            recent = sorted(self.preview_encode_ms)
+                            source = getattr(session, "source", None)
+                            event = {"event": "studio_preview_pipeline",
+                                     "preview_encoded_fps": sum(t >= now - 1 for t in self.preview_times),
+                                     "preview_encode_p95_ms": recent[int((len(recent)-1)*.95)],
+                                     "native_preview_received": getattr(source, "preview_received", None),
+                                     "native_preview_queue_replaced": getattr(
+                                         getattr(source, "preview_frames", None), "replaced", None),
+                                     "preview_source_age_ms": (
+                                         (time.perf_counter_ns()-source.last_preview_received_ns)/1e6
+                                         if source and source.last_preview_received_ns else None)}
+                        else:
+                            event = None
+                if event and getattr(session, "store", None):
+                    session.store.emit("telemetry", event)
             except Exception as exc:
                 self.last_error = f"Prévia: {exc}"
 

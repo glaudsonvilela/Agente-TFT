@@ -46,6 +46,7 @@ class StudioBridgeTests(unittest.TestCase):
         controller.preview_sequence = 0
         controller.preview_times = deque(maxlen=90)
         controller.preview_encode_ms = deque(maxlen=90)
+        controller.next_preview_telemetry = 0.0
         controller.model_updater = SimpleNamespace()
         encoding = threading.Event()
         release = threading.Event()
@@ -70,6 +71,41 @@ class StudioBridgeTests(unittest.TestCase):
             release.set()
             with controller.preview_condition:
                 controller.preview_condition.notify_all()
+
+    def test_preview_records_capture_and_encode_diagnostics(self):
+        events = []
+        source = SimpleNamespace(preview_received=12,
+            preview_frames=SimpleNamespace(replaced=2),
+            last_preview_received_ns=time.perf_counter_ns())
+        preview = Latest()
+        preview.put(SimpleNamespace(width=2, height=1, rgb=b'\0' * 8))
+        session = SimpleNamespace(finished=False, preview=preview, source=source,
+            store=SimpleNamespace(emit=lambda stream, event: events.append((stream, event))))
+        controller = object.__new__(StudioController)
+        controller.lock = threading.RLock()
+        controller.session = session
+        controller.closed = threading.Event()
+        controller.preview_condition = threading.Condition()
+        controller.preview_jpeg = None
+        controller.preview_sequence = 0
+        controller.preview_times = deque(maxlen=90)
+        controller.preview_encode_ms = deque(maxlen=90)
+        controller.next_preview_telemetry = 0.0
+        controller.last_error = None
+        worker = threading.Thread(target=controller._preview_pump, daemon=True)
+        worker.start()
+        try:
+            deadline = time.monotonic() + 1
+            while not events and time.monotonic() < deadline:
+                time.sleep(.005)
+            self.assertEqual(events[0][0], 'telemetry')
+            self.assertEqual(events[0][1]['event'], 'studio_preview_pipeline')
+            self.assertEqual(events[0][1]['native_preview_received'], 12)
+            self.assertEqual(events[0][1]['native_preview_queue_replaced'], 2)
+            self.assertGreater(controller.preview_sequence, 0)
+        finally:
+            controller.closed.set()
+            worker.join(1)
 
     def test_closing_stalled_capture_stops_then_seals(self):
         class FirstWaitTimesOut(threading.Event):
@@ -141,6 +177,7 @@ class StudioBridgeTests(unittest.TestCase):
                 self.fail('capture waited for the remote model'))
             controller.history = deque(maxlen=100)
             controller.preview_jpeg = None
+            controller.preview_condition = threading.Condition()
             controller.preview_times = deque(maxlen=90)
             controller.preview_encode_ms = deque(maxlen=90)
             controller.last_error = controller.last_result = controller.last_tip_key = None

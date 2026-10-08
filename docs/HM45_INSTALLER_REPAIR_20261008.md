@@ -22,6 +22,7 @@
 - Quando a prévia já cabe em 720p, o capturador Rust copia linhas inteiras sem iterar sobre cada pixel. A codificação JPEG passou a esperar até o próximo quadro, sem a pausa fixa de 10 ms que podia perder o prazo de 30 FPS; as métricas de FPS são zeradas ao trocar de sessão.
 - Ao clicar em “Abrir Agente TFT”, o assistente espera a nova interface local responder e navega para ela na mesma janela. Se o processo encerrar ou não abrir no prazo, o erro permanece visível no assistente.
 - A conexão MJPEG deixa de reenviar uma imagem antiga quando não chega quadro novo; o ensaio de regressão cobre uma pausa superior a dois segundos.
+- A leitura de FPS e a troca de sessão agora usam a mesma sincronização da prévia. Um quadro da sessão anterior não pode substituir a imagem da sessão nova. A cada cinco segundos, o log registra FPS codificado, tempo de codificação, quadros nativos recebidos e substituições na fila para análise posterior.
 
 ## Verificação realizada no Ubuntu
 
