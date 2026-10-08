@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import threading
 import time
 import unittest
@@ -10,7 +11,7 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 
 from hm.dataset import Latest
-from hm.studio_bridge import StudioController, StudioServer, design_root, package_contract
+from hm.studio_bridge import StudioController, StudioServer, design_root, package_contract, run_studio
 
 
 class StudioBridgeTests(unittest.TestCase):
@@ -113,6 +114,21 @@ class StudioBridgeTests(unittest.TestCase):
             report = package_contract(Path(temp) / 'studio.json')
             self.assertTrue(report['studio_assets_served'])
             self.assertTrue((Path(temp) / 'studio.json').is_file())
+
+    def test_installer_handoff_reuses_the_open_browser_window(self):
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
+        with TemporaryDirectory() as temp:
+            handoff = Path(temp) / 'studio-url.txt'
+            closed = threading.Event()
+            closed.set()
+            controller = SimpleNamespace(closed=closed, session=None, close=lambda: None)
+            with patch('hm.studio_bridge.StudioController', return_value=controller), \
+                 patch('browser_shell.open_local_window') as open_window, \
+                 patch.dict(os.environ, {'AGENTE_TFT_STUDIO_URL_FILE': str(handoff)}):
+                self.assertEqual(run_studio(), 0)
+            self.assertIn('?connected=1#studio', handoff.read_text(encoding='utf-8'))
+            open_window.assert_not_called()
 
     def test_capture_uses_bundled_model_without_waiting_for_server(self):
         from tempfile import TemporaryDirectory
