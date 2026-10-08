@@ -429,6 +429,13 @@ class RuntimeSession(Session):
                     self.versions['screen_mode'] = 'stage_without_economy'
                 else:
                     self.versions['screen_mode'] = 'gameplay_hud'
+                if 'stage' in observed_fields:
+                    stage_rows = [row for row in answer.get('hud') or []
+                                  if row.get('field') == 'stage' and row.get('status') == 'single_frame_observation'
+                                  and row.get('value') is not None and row.get('confidence', 0) >= .85]
+                    if len(stage_rows) == 1:
+                        with self.lock:
+                            self._latest_native_stage = (str(stage_rows[0]['value']), frame.epoch, frame.pts_ms)
                 if getattr(self, 'ubuntu_mvp_diagnostics', False):
                     with self.lock:
                         self.latest_hud_diagnostic = {
@@ -516,6 +523,7 @@ class HM4RuntimeSession(RuntimeSession):
         self.combat_events = CombatEvents()
         from .opponent_tracking import OpponentTracker
         self.opponent_tracker = OpponentTracker()
+        self._latest_native_stage = None
         self.shadow_learning_recorder = None
         self.shadow_learning_sealed = None
         self.shadow_learning_error = None
@@ -718,11 +726,32 @@ class HM4RuntimeSession(RuntimeSession):
                         if candidates else None)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
                 neural_items=observed['snapshot'].get('neural_items') or {}
+                with self.lock:
+                    stage_read = self._latest_native_stage
+                stage_for_opponents = (stage_read[0] if stage_read and stage_read[1] == frame.epoch
+                                       and stage_read[2] <= frame.pts_ms else None)
                 opponent_state = self.opponent_tracker.update(
                     observed['snapshot'].get('opponent_panel_observation'),
-                    epoch=frame.epoch, source_ms=frame.pts_ms)
+                    epoch=frame.epoch, source_ms=frame.pts_ms, stage=stage_for_opponents)
                 observed['snapshot']['opponents'] = opponent_state
                 self.versions['opponent_tracking'] = opponent_state
+                opponent_panel = observed['snapshot'].get('opponent_panel_observation')
+                if isinstance(opponent_panel, dict) and opponent_panel.get('status') == 'raw_ocr':
+                    self.store.emit('opponent-crop-observations', dict(
+                        source_frame_id=opponent_panel.get('frame_id'),
+                        source_ms=opponent_panel.get('source_ms'),
+                        geometry_segment=frame.epoch,
+                        crop_regions={
+                            'scoreboard':[1690,170,175,635],
+                            'hp_strip':[1830,180,26,605],
+                            'enemy_name':[1215,77,95,22],
+                            'self_overlay':[80,9,160,20],
+                        },
+                        screen_read=opponent_panel,
+                        reconciled_candidates=opponent_state,
+                        ground_truth=False, training_label=None,
+                        model_prediction_used_as_label=False,
+                        purpose='post_session_ocr_review'))
                 self.versions['item_neural_active']=neural_items.get('active',False)
                 self.versions['item_neural_model_sha256']=neural_items.get('model_sha256')
                 visual_items = observed['snapshot'].get('item_visual_native') or {}

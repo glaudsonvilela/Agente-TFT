@@ -4,7 +4,9 @@
 
 * O comentário de derrota exige estágio legível, vida aceita pelo leitor e
   duas leituras estáveis do valor menor. A animação de dano não gera mensagens
-  repetidas. Saltos de estágio e reinícios do vídeo reiniciam a observação.
+  repetidas. Saltos de estágio e reinícios do vídeo reiniciam a observação. A
+  derrota é uma inferência da queda de vida, ainda sem leitura independente da
+  tela de resultado.
 * O painel direito é lido pelo worker Rust a cada cinco segundos, em uma
   tarefa independente da leitura do tabuleiro. Nomes e valores de vida são
   candidatos de tela; o painel de dano é descartado. Um valor de vida só entra
@@ -27,6 +29,17 @@
   foi movida para uma tarefa assíncrona com intervalo de cinco segundos para
   não ficar no caminho da resposta do tabuleiro. A fluidez da prévia ainda
   precisa ser observada em uma sessão longa no Windows.
+* No vídeo de seis horas escolhido pelo usuário, os quadros de 8:50 a 9:15
+  mostraram os sete adversários e o confronto com Xbmots. O nome do próprio
+  jogador foi lido separadamente. O quadro de 17:40 mostrou “Damage Dealt”:
+  a lista anterior permaneceu como histórico e os valores de vida passaram
+  a ser exibidos como sem leitura atual. Quando a lista voltou aos 21:05,
+  as leituras de vida dos adversários voltaram a atualizar.
+* Vinte e sete recortes do painel, nome de adversário e identificação do
+  jogador foram guardados em
+  `/mnt/sherlock-ssd/AgenteTFT/diagnostics/opponent-crops-20261008` com
+  horário, região e hash. São observações sem rótulo. As futuras sessões também
+  registram `opponent-crop-observations.jsonl` junto às capturas completas.
 
 ## Limite atual
 
@@ -35,3 +48,6 @@ adversário correto. O painel mostra nomes, vida e confrontos observados;
 ações de posicionamento contra um adversário específico dependem dessa
 associação. A narração de vitória também exige uma evidência de resultado que
 vá além da própria vida permanecer igual.
+Os recortes alimentam a coleta para avaliação posterior, mas ainda não alteram
+pesos da rede neural. Este vídeo é de outro conjunto do TFT; seus campeões e
+itens não devem ser usados como rótulos do patch atual.

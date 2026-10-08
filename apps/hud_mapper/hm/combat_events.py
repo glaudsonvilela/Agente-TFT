@@ -86,4 +86,5 @@ class CombatEvents:
                     hp_after=after, damage=before-after, source_ms=source_ms,
                     basis=['hud.stage', 'player.hp.temporal_drop'],
                     training_label=False, outcome_prediction=False,
+                    result_verified=False, inference='repeated_hp_drop_with_stable_stage',
                     text='Não foi dessa vez, hein. Vamos ajustar para a próxima luta.')

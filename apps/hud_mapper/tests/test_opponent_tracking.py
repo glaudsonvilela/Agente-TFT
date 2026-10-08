@@ -34,7 +34,8 @@ class OpponentTrackingTest(unittest.TestCase):
         event=dict(event='combat_loss_observed',stage='3-1')
         linked=tracker.register_loss(event,epoch=1,source_ms=10500)
         self.assertEqual(linked['opponent_name'],'Black Sheep')
-        self.assertEqual(tracker.snapshot(10500)['players'][1]['losses_observed'],1)
+        self.assertEqual(next(p for p in tracker.snapshot(10500)['players']
+                              if p['name']=='Black Sheep')['losses_observed'],1)
 
     def test_cached_ocr_is_not_new_evidence_and_epoch_resets(self):
         tracker=OpponentTracker()
@@ -60,6 +61,63 @@ class OpponentTrackingTest(unittest.TestCase):
             state=tracker.update(panel(frame,[(0,'FL Upsetmax',hp)]),
                                  epoch=1,source_ms=frame*5000)
         self.assertEqual(state['players'][0]['hp'],95)
+
+    def test_vod_roster_survives_damage_panel_without_stale_hp(self):
+        tracker=OpponentTracker()
+        roster=[(0,'Xbmots',100),(1,'Filup',92),(2,'david1',90)]
+        first=panel(1,roster)
+        first['words'][0]=word('Xbmots',1730,199)
+        first['words'][1]=word('100',1835,199)
+        tracker.update(first,epoch=1,source_ms=0,stage='3-2')
+        second=panel(2,roster)
+        second['words'][0]=word('Xbmots',1730,199)
+        second['words'][1]=word('100',1835,199)
+        second['enemy_name_words']=[word('Xbmots',1215,88)]
+        tracker.update(second,epoch=1,source_ms=5000,stage='3-2')
+        third=dict(second,frame_id=4)
+        state=tracker.update(third,epoch=1,source_ms=10000,stage='3-2')
+        self.assertEqual(state['current_opponent'],'Xbmots')
+        damage=panel(3,[(0,'Damage',55),(1,'Viego',70)])
+        damage['words'].append(word('Dealt',1790,289))
+        state=tracker.update(damage,epoch=1,source_ms=180000,stage='4-3')
+        self.assertEqual({row['name'] for row in state['players']},
+                         {'Xbmots','Filup','david1'})
+        self.assertTrue(all(row['hp'] is None and row['status']=='stale_roster'
+                            for row in state['players']))
+        self.assertIsNone(state['current_opponent'])
+
+    def test_streamer_self_name_does_not_become_opponent(self):
+        tracker=OpponentTracker()
+        for frame in (1,2,3):
+            sample=panel(frame,[(0,'VIT k3soju',86),(1,'Xbmots',100)])
+            sample['self_name_words']=[word('VIT K3SOJU#000',80,20)]
+            sample['enemy_name_words']=[word('VIT k3soju',1215,88)]
+            state=tracker.update(sample,epoch=1,source_ms=frame*5000)
+        self.assertEqual([row['name'] for row in state['players']],['Xbmots'])
+        self.assertIsNone(state['current_opponent'])
+
+    def test_new_match_stage_resets_roster_after_two_reads(self):
+        tracker=OpponentTracker()
+        tracker.update(panel(1,[(0,'Xbmots',80)]),epoch=1,source_ms=0,stage='4-3')
+        self.assertEqual(len(tracker.update(panel(2,[],''),epoch=1,
+                            source_ms=5000,stage='1-2')['players']),1)
+        self.assertEqual(tracker.update(panel(3,[],''),epoch=1,
+                         source_ms=10000,stage='1-2')['players'],[])
+
+    def test_ocr_final_i_and_one_keep_same_player_history(self):
+        tracker=OpponentTracker()
+        tracker.update(panel(1,[(0,'davidi',90)]),epoch=1,source_ms=0)
+        state=tracker.update(panel(2,[(0,'david1',90)]),epoch=1,source_ms=5000)
+        self.assertEqual(len(state['players']),1)
+        self.assertEqual(state['players'][0]['hp'],90)
+
+    def test_two_name_regions_agree_on_one_opponent(self):
+        tracker=OpponentTracker()
+        for frame in (1,2,3):
+            sample=panel(frame,[(0,'Xbmots',100)],'Xbmots')
+            sample['enemy_name_words']=[word('Xbmots',1215,88)]
+            state=tracker.update(sample,epoch=1,source_ms=frame*5000)
+        self.assertEqual(state['current_opponent'],'Xbmots')
 
 
 if __name__ == '__main__':

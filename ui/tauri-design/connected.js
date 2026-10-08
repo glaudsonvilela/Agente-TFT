@@ -232,7 +232,8 @@ if (new URLSearchParams(location.search).has('connected')) {
           `<span class="pill">${rows.length} nomes</span></div>`+
           (rows.length ? `<div class="opponent-rows">${rows.map(row =>
             `<div class="opponent-row"><b>${escapeHtml(row.name)}</b>`+
-            `<span>${row.hp == null ? 'Vida —' : 'Vida '+escapeHtml(row.hp)}`+
+            `<span>${row.status === 'stale_roster' ? 'Lista anterior · vida sem leitura atual' :
+              row.hp == null ? 'Vida —' : 'Vida '+escapeHtml(row.hp)}`+
             `${row.losses_observed ? ' · derrotas contra ele '+escapeHtml(row.losses_observed) : ''}</span></div>`
           ).join('')}</div>` : '<p class="note">Aguardando a lista de jogadores aparecer no vídeo.</p>')+
           `<p class="opponent-note">${opponentState.current_opponent ?

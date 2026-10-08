@@ -558,7 +558,9 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
         for frame in opponent_rx {
             let started=Instant::now();
             let pixels=exact_rect_signature(&frame,&[
-                opponent_panel::PANEL,opponent_panel::BATTLE_NAME,opponent_panel::HP_PANEL]);
+                opponent_panel::PANEL,opponent_panel::BATTLE_NAME,
+                opponent_panel::ENEMY_NAME,opponent_panel::SELF_OVERLAY,
+                opponent_panel::HP_PANEL]);
             let read=match pixels {
                 Ok(pixels)=>{
                     let cached=previous.as_ref().and_then(|(old,value)|

@@ -6,9 +6,11 @@ use agente_tft_ocr_tesseract::{NumberBlockOcrEngine,TextBlockOcrEngine};
 use serde_json::{json, Value};
 use crate::layout::crop;
 
-pub const PANEL: PixelRect = PixelRect { x: 1690, y: 259, width: 175, height: 542 };
+pub const PANEL: PixelRect = PixelRect { x: 1690, y: 170, width: 175, height: 635 };
 pub const BATTLE_NAME: PixelRect = PixelRect { x: 1080, y: 125, width: 105, height: 20 };
-pub const HP_PANEL: PixelRect = PixelRect { x: 1830, y: 270, width: 26, height: 515 };
+pub const ENEMY_NAME: PixelRect = PixelRect { x: 1215, y: 77, width: 95, height: 22 };
+pub const SELF_OVERLAY: PixelRect = PixelRect { x: 80, y: 9, width: 160, height: 20 };
+pub const HP_PANEL: PixelRect = PixelRect { x: 1830, y: 180, width: 26, height: 605 };
 
 fn cubic(distance:f32)->f32 {
     let x=distance.abs();
@@ -77,9 +79,13 @@ pub fn observe<E: TextBlockOcrEngine,N:NumberBlockOcrEngine>(frame: &FrameEnvelo
                    HP_PANEL.x+(word.x+word.width+1)/2,
                    HP_PANEL.y+(word.y+word.height+1)/2]})));
     let battle_name = words(frame, BATTLE_NAME, 4, engine)?;
+    let enemy_name = words(frame, ENEMY_NAME, 4, engine)?;
+    let self_name = words(frame, SELF_OVERLAY, 4, engine)?;
     Ok(json!({"status":"raw_ocr","basis":"fixed_right_scoreboard_and_battle_label_v1",
               "frame_id":frame.frame_id,"source_ms":frame.captured_at_ms,
               "panel":[PANEL.x,PANEL.y,PANEL.width,PANEL.height],
               "words":scoreboard,"battle_name_words":battle_name,
+              "enemy_name_words":enemy_name,
+              "self_name_words":self_name,
               "player_identity_verified":false,"opponent_board_assigned":false}))
 }
