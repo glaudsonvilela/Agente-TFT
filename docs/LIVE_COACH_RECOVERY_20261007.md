@@ -62,6 +62,21 @@ economia e fonte sem HUD de partida. Diagnósticos como “não há regra para e
 estágio” continuam nos registros técnicos, mas deixam de ocupar o cartão de
 dicas como se fossem orientação ao jogador.
 
+## Incremento de coaching parcial
+
+Um nome da loja ligado de forma única ao catálogo pode agora gerar uma compra
+de sinergia se duas unidades **distintas** forem candidatas persistentes em
+casas do tabuleiro, compartilharem uma característica com a oferta e o ouro
+observado cobrir o preço. O quadro do HUB deve ter no máximo 3,5 segundos e a
+loja deve estar atual. A ação diz que é provisória; não supõe estrela,
+ocupação confirmada, patamar ativado ou sucesso da compra. Se os candidatos
+sumirem, envelhecerem ou estiverem no banco, essa dica não é emitida.
+
+A interface mantém uma ação visível por até cinco segundos mesmo que a leitura
+seguinte produza só diagnóstico. Os botões “Sim” e “Não” permitem avaliar a
+dica atual. O feedback muda apenas a ordem de prioridade das famílias de
+conselhos; não vira rótulo visual ou peso neural sem revisão.
+
 ## Próxima evidência necessária
 
 As [notas oficiais 18.4](https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-18-4/)

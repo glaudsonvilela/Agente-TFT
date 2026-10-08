@@ -1,4 +1,5 @@
 import json, os, tempfile, threading, time, types, unittest
+from collections import Counter
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,6 +19,27 @@ from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_action_stays_visible_briefly_when_next_reader_has_only_a_diagnostic(self):
+        session=object.__new__(HM4RuntimeSession)
+        session.options=types.SimpleNamespace(replay_review=False)
+        session.decision_engine=types.SimpleNamespace(patch='18.3')
+        session.lock=threading.RLock()
+        session.latest_replay_tip=None
+        session.counts=Counter()
+        emitted=[]
+        session.store=types.SimpleNamespace(emit=lambda name,row:emitted.append((name,row)))
+        def frame(at,epoch=1):
+            return types.SimpleNamespace(id=at,pts_ms=at,due_ns=at*1000000,epoch=epoch)
+        action=dict(status='action',actionable=True,text='Compre Rakan.',
+                    policy='partial_state_live_v1',family='buy',decision_key='provisional:one')
+        diagnostic=dict(status='economy_blocked',actionable=False,text='Sem regra de XP.')
+        session._publish_coach(action,frame(1000),1000000000)
+        session._publish_coach(diagnostic,frame(2000),2000000000)
+        self.assertEqual(session.latest_replay_tip['text'],'Compre Rakan.')
+        session._publish_coach(diagnostic,frame(6500),6500000000)
+        self.assertEqual(session.latest_replay_tip['text'],'Sem regra de XP.')
+        self.assertEqual(len(emitted),2)
+
     def test_temporal_shop_name_is_bound_only_with_explicit_evidence(self):
         slot = dict(observed_name="Alune", name_confidence=.88,
                     name_evidence="strip_temporal_consensus")
@@ -152,6 +174,36 @@ class HM4RuntimeTests(unittest.TestCase):
         answer['hud'][0]['value']=1
         self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
 
+    def test_persistent_board_candidates_can_suggest_a_provisional_shop_synergy(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field='gold',value=10,status='single_frame_observation',confidence=.93)],
+            'shop':{'cadence_delivery':{'fresh':True},'slots':[
+                dict(slot=1,status='offer_text_readable',observed_name='Rakan',
+                     name_confidence=.95,name_evidence='strong_strip_only',observed_cost=1)]}}
+        def candidate(unit, position):
+            return dict(candidate_id=unit,status='persistent_candidate',support_frames=2,
+                        position=['board',0,position],identity_verified=False)
+        visual=dict(status='candidate_persistence',age_ms=1000,units=[
+            candidate('DA_18_Elise',1),candidate('DA_18_Diana',2)])
+        result=engine.evaluate(answer,visual_candidates=visual)
+        self.assertEqual(result['decision']['action']['type'],'buy_synergy')
+        self.assertEqual(result['decision']['action']['trait'],'Vanguarda')
+        self.assertTrue(coach_prompt(result)['actionable'])
+        self.assertEqual(result['decision']['training_label'],False)
+        self.assertFalse(result['decision']['learned_neural_weights'])
+        self.assertTrue(engine.live_advice.rate(result['decision']['decision_key'],'synergy',True))
+        self.assertFalse(engine.live_advice.rate(result['decision']['decision_key'],'synergy',False))
+        for changed in (dict(visual,age_ms=3501),
+                        dict(visual,units=visual['units'][:1]),
+                        dict(visual,units=[dict(visual['units'][0],position=['bench',None,0]),
+                                           visual['units'][1]])):
+            self.assertNotEqual(engine.evaluate(answer,visual_candidates=changed)
+                                ['decision']['action']['type'],'buy_synergy')
+        answer['shop']['cadence_delivery']['fresh']=False
+        self.assertNotEqual(engine.evaluate(answer,visual_candidates=visual)
+                            ['decision']['action']['type'],'buy_synergy')
+
     def test_interest_tip_uses_stage_and_gold_without_level(self):
         engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
         answer={'origin':'observed_pixels','source_ms':1000,'hud':[
@@ -285,7 +337,8 @@ class HM4RuntimeTests(unittest.TestCase):
                 session.latest_replay_tip={
                     'policy':'partial_state_live_v1','decision_key':'provisional:live-test',
                     'family':'economy','frame_id':1,'source_ms':1000}
-                self.assertTrue(session.feedback_tip(True))
+                self.assertFalse(session.feedback_tip(True,decision_key='provisional:other'))
+                self.assertTrue(session.feedback_tip(True,decision_key='provisional:live-test'))
                 self.assertFalse(session.feedback_tip(False))
                 self.assertEqual(session.counts['coach_feedback'],1)
             finally:

@@ -131,6 +131,16 @@ class StudioController:
             self.voice.set_enabled(bool(enabled))
         return {"enabled": bool(self.voice and self.voice.enabled)}
 
+    def rate_tip(self, decision_key, helpful):
+        """Accept explicit feedback for the currently visible provisional tip."""
+        if (not isinstance(decision_key, str) or len(decision_key) > 100
+                or type(helpful) is not bool):
+            return {"accepted": False}
+        with self.lock:
+            session = self.session
+        return {"accepted": bool(session and session.feedback_tip(
+            helpful, decision_key=decision_key))}
+
     def save_profile(self, nickname, region):
         from .player_profile import save
         self.profile = save(nickname, region)
@@ -151,7 +161,8 @@ class StudioController:
                 safe_tip = {k: tip.get(k) for k in
                             ("text", "status", "actionable", "frame_id", "source_ms",
                              "source_due_ns", "data_patch", "data_patch_basis", "basis",
-                             "strategy_basis", "recommendations", "decision_key")}
+                            "strategy_basis", "recommendations", "decision_key",
+                            "policy", "family")}
                 if safe_tip["source_due_ns"]:
                     safe_tip["age_ms"] = max(0, (time.perf_counter_ns() - safe_tip["source_due_ns"]) / 1e6)
                 safe_tip.pop("source_due_ns", None)

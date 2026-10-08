@@ -39,3 +39,6 @@ dialog{color:var(--text);background:linear-gradient(140deg,#2c283e,#1d1e2b);bord
 .studio-replay-choice{display:flex;align-items:center;gap:10px;margin:16px 0;color:#d7d1e9;font-size:12px;cursor:pointer}
 .studio-replay-choice input{accent-color:#9984ff;width:16px;height:16px}
 .studio-profile-form{display:grid;gap:14px;margin:18px 0}.studio-profile-form label{display:grid;gap:6px;color:#c9c3de;font-size:12px}.studio-profile-form input,.studio-profile-form select{width:100%;padding:10px 12px;border:1px solid #46425e;border-radius:8px;background:#1b1c27;color:#f4f2ff;font:inherit}.studio-profile-form .primary{justify-self:start}
+.tip-feedback{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0 16px;border-top:1px solid #ad98d220;color:#c9c3de;font-size:10px}
+.tip-feedback button{padding:5px 11px;border:1px solid #7c6aa1;border-radius:7px;color:#f4f2ff;background:#3b3352;font-size:10px;cursor:pointer}
+.tip-feedback button:hover{background:#574a76}

@@ -14,6 +14,16 @@ from hm.studio_bridge import StudioController, StudioServer, design_root, packag
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_feedback_bridge_passes_the_visible_decision_key(self):
+        calls = []
+        controller = object.__new__(StudioController)
+        controller.lock = threading.RLock()
+        controller.session = SimpleNamespace(feedback_tip=lambda helpful, decision_key=None:
+            calls.append((helpful, decision_key)) or decision_key == 'provisional:one')
+        self.assertFalse(controller.rate_tip('provisional:one', 'yes')['accepted'])
+        self.assertTrue(controller.rate_tip('provisional:one', True)['accepted'])
+        self.assertEqual(calls, [(True, 'provisional:one')])
+
     def test_slow_preview_encoding_does_not_delay_tip_delivery(self):
         preview = Latest()
         preview.put(SimpleNamespace(width=2, height=1, rgb=b'\0' * 6))

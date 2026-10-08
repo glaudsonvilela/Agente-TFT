@@ -15,7 +15,7 @@ import threading
 from pathlib import Path
 
 
-FAMILIES = ("level", "roll", "buy", "economy")
+FAMILIES = ("level", "roll", "buy", "synergy", "economy")
 
 
 def _hud(answer, field, minimum=.85):
@@ -87,7 +87,7 @@ class LiveAdvice:
         # the evidence checks or make an unsupported action appear.
         return base + 0.25 * ((positive / (positive + negative)) - .5)
 
-    def propose(self, answer):
+    def propose(self, answer, visual_candidates=None):
         if answer.get("origin") != "observed_pixels":
             return None
         gold_row = _hud(answer, "gold")
@@ -151,6 +151,48 @@ class LiveAdvice:
                     f"Há duas cópias de {name} na loja. Considere comprar o par por {cost * 2} de ouro.",
                     ["shop.two_exact_names", "patch.catalog_cost", "hud.gold"]))
                 break
+
+            visual = visual_candidates if isinstance(visual_candidates, dict) else {}
+            age = visual.get('age_ms')
+            if (visual.get('status') == 'candidate_persistence'
+                    and type(age) in (int, float) and math.isfinite(age)
+                    and 0 <= age <= 3500):
+                board_units = {
+                    row.get('candidate_id') for row in visual.get('units') or []
+                    if row.get('status') == 'persistent_candidate'
+                    and type(row.get('support_frames')) is int
+                    and row['support_frames'] >= 2
+                    and isinstance(row.get('position'), list)
+                    and len(row['position']) == 3
+                    and row['position'][0] == 'board'
+                    and row.get('candidate_id') in self.champions}
+                for offer in offers:
+                    unit_id = offer['unit_id']
+                    if unit_id in board_units or type(offer.get('slot')) is not int:
+                        continue
+                    unit = self.champions[unit_id]
+                    cost = unit.get('cost')
+                    if (type(cost) is not int or not 1 <= cost <= 5 or gold < cost
+                            or (type(offer.get('observed_cost')) is int
+                                and offer['observed_cost'] != cost)):
+                        continue
+                    traits = []
+                    for trait in unit.get('traits') or []:
+                        matching = sorted(id for id in board_units
+                                          if trait in (self.champions[id].get('traits') or []))
+                        if len(matching) >= 2:
+                            traits.append((len(matching), trait, matching))
+                    if not traits:
+                        continue
+                    count, trait, matching = max(traits, key=lambda row: (row[0], row[1]))
+                    names = [self.champions[id]['name'] for id in matching[:2]]
+                    options.append((self._priority('synergy', .61 + min(count-2, 2)*.02),
+                        'synergy',
+                        {'type':'buy_synergy', 'unit_id':unit_id, 'shop_slot':offer['slot'],
+                         'trait':trait, 'board_unit_ids':matching, 'catalog_cost':cost},
+                        f"Compre {unit['name']}: compartilha {trait} com {names[0]} e {names[1]} no tabuleiro.",
+                        ['shop.unique_name_bound', 'hub.persistent_board_candidates',
+                         'patch.traits', 'hud.gold']))
 
         if stage_match and 8 <= gold < 50:
             target = ((gold // 10) + 1) * 10

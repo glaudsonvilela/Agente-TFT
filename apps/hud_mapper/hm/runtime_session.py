@@ -190,7 +190,7 @@ class RuntimeSession(Session):
     def _publish_coach(self, tip, frame, ready_ns):
         if tip is None:return
         tip = dict(tip, frame_id=frame.id, source_ms=frame.pts_ms,
-                   source_due_ns=frame.due_ns, ready_ns=ready_ns,
+                   source_due_ns=frame.due_ns, ready_ns=ready_ns, epoch=frame.epoch,
                    input_kind=('previously_recorded_video_on_screen' if self.options.replay_review
                                else 'live_match_on_screen'),
                    data_patch=getattr(getattr(self, 'decision_engine', None), 'patch', None),
@@ -198,7 +198,12 @@ class RuntimeSession(Session):
                                      else 'bundled_catalog_patch_lab'),
                    ground_truth=False, game_state_updated=False)
         with self.lock:
-            self.latest_replay_tip=tip
+            previous = self.latest_replay_tip
+            recent_action = (previous and previous.get('actionable')
+                and previous.get('epoch') == frame.epoch
+                and 0 <= frame.pts_ms - previous.get('source_ms', -1) < 5000)
+            if tip.get('actionable') or not recent_action:
+                self.latest_replay_tip=tip
             if (tip['text']==getattr(self,'_last_replay_tip',None)
                     and frame.pts_ms<getattr(self,'_next_tip_ms',0)):
                 return
@@ -375,6 +380,7 @@ class RuntimeSession(Session):
                     if decision_engine and answer.get('origin') == 'observed_pixels':
                         with self.lock:
                             strategy_entry = copy.deepcopy(getattr(self, '_latest_strategy_state', None))
+                            visual_entry = copy.deepcopy(getattr(self, '_latest_visual_candidates', None))
                         strategy_state = None
                         if strategy_entry and strategy_entry['epoch'] == frame.epoch:
                             strategy_state = strategy_entry['state']
@@ -383,7 +389,15 @@ class RuntimeSession(Session):
                                 (time.perf_counter_ns() - strategy_entry['due_ns']) / 1e6)
                             if frame.pts_ms < strategy_entry['source_ms']:
                                 strategy_state = None
-                        answer = decision_engine.evaluate(answer, strategy_state=strategy_state)
+                        visual_candidates = None
+                        if visual_entry and visual_entry['epoch'] == frame.epoch:
+                            age_ms = max(frame.pts_ms - visual_entry['source_ms'],
+                                (time.perf_counter_ns() - visual_entry['due_ns']) / 1e6)
+                            if frame.pts_ms >= visual_entry['source_ms'] and age_ms <= 3500:
+                                visual_candidates = visual_entry['candidates']
+                                visual_candidates['age_ms'] = age_ms
+                        answer = decision_engine.evaluate(answer, strategy_state=strategy_state,
+                                                          visual_candidates=visual_candidates)
                         if not self.options.replay_review:
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
@@ -484,6 +498,7 @@ class HM4RuntimeSession(RuntimeSession):
         self.latest_replay_tip = None
         self.latest_decision_reason = None
         self._latest_strategy_state = None
+        self._latest_visual_candidates = None
         self.decision_engine = None
         if options.board_hub_enabled:
             from .replay_decision import ReplayDecisionEngine
@@ -504,13 +519,14 @@ class HM4RuntimeSession(RuntimeSession):
             self.versions['decision_patch_basis'] = ('reported_replay_patch' if options.replay_review
                                                      else 'bundled_catalog_patch_lab')
 
-    def feedback_tip(self, helpful: bool) -> bool:
+    def feedback_tip(self, helpful: bool, decision_key: str | None = None) -> bool:
         """Player feedback changes only advice priorities, never visual labels."""
         if type(helpful) is not bool or not self.decision_engine:
             return False
         with self.lock:
             tip = copy.deepcopy(self.latest_replay_tip)
-        if not tip or tip.get('policy') != 'partial_state_live_v1':
+        if (not tip or tip.get('policy') != 'partial_state_live_v1'
+                or (decision_key is not None and decision_key != tip.get('decision_key'))):
             return False
         accepted = self.decision_engine.live_advice.rate(
             tip.get('decision_key'), tip.get('family'), helpful)
@@ -618,6 +634,7 @@ class HM4RuntimeSession(RuntimeSession):
                 if (started - frame.due_ns) / 1e6 > 2000:
                     with self.lock:
                         self._latest_strategy_state = None
+                        self._latest_visual_candidates = None
                     self.counts['hub_stale_input_dropped'] += 1
                     continue
                 plan = reader_plan(frame, self.normalize_reader_input)
@@ -625,6 +642,7 @@ class HM4RuntimeSession(RuntimeSession):
                 if reader_frame is None:
                     with self.lock:
                         self._latest_strategy_state = None
+                        self._latest_visual_candidates = None
                     self.counts['hub_resolution_skipped'] += 1
                     continue
                 calibrate = self.board_reference_requested.is_set()
@@ -643,6 +661,7 @@ class HM4RuntimeSession(RuntimeSession):
                     self.versions['board_reference_error'] = str(exc)
                     with self.lock:
                         self._latest_strategy_state = None
+                        self._latest_visual_candidates = None
                     continue
                 if calibrate:
                     self.versions['board_reference_sha256'] = hashlib.sha256(reader_frame.rgb).hexdigest()
@@ -654,6 +673,10 @@ class HM4RuntimeSession(RuntimeSession):
                     state = observed['snapshot'].get('verified_state')
                     self._latest_strategy_state = (dict(state=copy.deepcopy(state), epoch=frame.epoch,
                         source_ms=frame.pts_ms, due_ns=frame.due_ns) if state else None)
+                    candidates = observed['snapshot'].get('temporal_candidates')
+                    self._latest_visual_candidates = (dict(candidates=copy.deepcopy(candidates),
+                        epoch=frame.epoch, source_ms=frame.pts_ms, due_ns=frame.due_ns)
+                        if candidates else None)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
                 neural_items=observed['snapshot'].get('neural_items') or {}
                 self.versions['item_neural_active']=neural_items.get('active',False)

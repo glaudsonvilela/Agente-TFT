@@ -4,6 +4,7 @@
 if (new URLSearchParams(location.search).has('connected')) {
   const originalRender = render;
   let sourceRows = [], selected = null, state = null, starting = false, profilePrompted = false;
+  const ratedTips = new Set();
   const api = () => window.pywebview && window.pywebview.api;
   const clean = value => String(value == null ? '' : value);
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
@@ -23,7 +24,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     const tip = state && state.tip;
     const card = document.querySelector('.advice-card');
     if (!card) return;
-    const actionable = !!(tip && tip.actionable && (tip.age_ms == null || tip.age_ms <= 3000));
+    const actionable = !!(tip && tip.actionable && (tip.age_ms == null || tip.age_ms <= 5000));
     const label = actionable ? 'DICA AGORA' : 'LEITURA EM ANDAMENTO';
     document.querySelector('.coach-label').innerHTML = `<span>AGORA</span><span class="pill mini">${label}</span>`;
     const title = actionable ? tip.text :
@@ -32,6 +33,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       state?.screen_mode === 'no_gameplay_hud' ? 'Aguardando o tabuleiro do TFT na tela selecionada.' :
       'Aguardando a primeira imagem da captura.';
     const recommendations = actionable ? (tip.recommendations || []) : [];
+    const canRate = actionable && tip.policy === 'partial_state_live_v1' &&
+      tip.decision_key && !ratedTips.has(tip.decision_key);
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
@@ -41,7 +44,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       `${tip && tip.data_patch_basis==='bundled_catalog_patch_lab' ? ' (catálogo local de laboratório)' : ''} · `+
       `Idade da leitura: ${tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—'}`+
       `${recommendations.length ? '<br>'+recommendations.map(x => escapeHtml(x.text)).join('<br>') : ''}`+
-      `</div>`;
+      `</div>`+
+      (canRate ? '<div class="tip-feedback"><span>Esta dica ajudou?</span><button type="button" data-tip-feedback="yes">Sim</button><button type="button" data-tip-feedback="no">Não</button></div>' : '');
     document.querySelector('.coach-footnote').textContent =
       state && state.error ? 'Erro: '+state.error :
       state && state.session_id ? 'Sessão '+state.session_id.slice(0,8)+' · '+state.phase :
@@ -158,6 +162,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (!api()) return;
     try {
       const next = await api().state();
+      if (state && state.session_id !== next.session_id) ratedTips.clear();
       // A new tip only repaints the coach. Reloading the page's <img> on every
       // observation would tear down the MJPEG stream and cause visible stalls.
       const changed = !state || state.session_id !== next.session_id ||
@@ -188,6 +193,19 @@ if (new URLSearchParams(location.search).has('connected')) {
   document.addEventListener('click', async event => {
     const button = event.target.closest('button');
     if (!button) return;
+    if (button.dataset.tipFeedback) {
+      event.stopImmediatePropagation();
+      if (!state?.tip?.decision_key) return;
+      const key = state.tip.decision_key;
+      const result = await api().rate_tip(key,
+        button.dataset.tipFeedback === 'yes');
+      if (result.accepted) {
+        ratedTips.add(key);
+        button.closest('.tip-feedback')?.remove();
+        toast('Obrigado. Seu feedback ajusta a prioridade das próximas dicas.');
+      } else toast('Esta dica já mudou ou o feedback foi registrado.');
+      return;
+    }
     if (button.id === 'choose-source') {
       event.stopImmediatePropagation();
       try { sourceRows = await api().list_sources(); }

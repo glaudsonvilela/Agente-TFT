@@ -82,8 +82,8 @@ class ReplayDecisionEngine:
             windows=self.economy_policy['level_windows'],
             champions=self.champion_attributes, preference_path=preference_path)
 
-    def _fallback_decision(self, output, reason):
-        provisional = self.live_advice.propose(output)
+    def _fallback_decision(self, output, reason, visual_candidates=None):
+        provisional = self.live_advice.propose(output, visual_candidates)
         economy = self._economy(output)
         # Low HP makes a limited stabilization roll more timely than a normal
         # leveling window. All other exact economic actions retain priority.
@@ -93,10 +93,11 @@ class ReplayDecisionEngine:
             return economy
         return provisional or economy or self._economy_wait(reason)
 
-    def evaluate(self, answer: dict, owned: dict | None = None, strategy_state: dict | None = None) -> dict:
+    def evaluate(self, answer: dict, owned: dict | None = None, strategy_state: dict | None = None,
+                 visual_candidates: dict | None = None) -> dict:
         """Return a new answer; never turn a candidate icon into a owned unit."""
         output = copy.deepcopy(answer)
-        output["decision_capabilities"] = dict(level="conditional_economy", buy="verified_roster_required",
+        output["decision_capabilities"] = dict(level="conditional_economy", buy="fresh_shop_with_partial_context",
                                                 roll="verified_state_required", composition="verified_state_required",
                                                 position="verified_state_required", equip="verified_state_required")
         output["decision_capabilities"].update(
@@ -152,7 +153,7 @@ class ReplayDecisionEngine:
                     (owned or {}).get("perspective") == "self")
         units = (owned or {}).get("units") or []
         if not verified or not units:
-            output["decision"] = self._fallback_decision(output, "OWNED_UNITS_UNVERIFIED")
+            output["decision"] = self._fallback_decision(output, "OWNED_UNITS_UNVERIFIED", visual_candidates)
             return output
         age_ms = owned.get("age_ms")
         if type(age_ms) not in (int, float) or not 0 <= age_ms <= 2000:
@@ -179,7 +180,7 @@ class ReplayDecisionEngine:
                       copies[slot["unit_id"]] >= 2 and
                       gold >= slot["observed_cost"]]
         if not candidates:
-            output["decision"] = self._fallback_decision(output, "NO_VERIFIED_UPGRADE")
+            output["decision"] = self._fallback_decision(output, "NO_VERIFIED_UPGRADE", visual_candidates)
             return output
         slot = min(candidates, key=lambda row: (row["observed_cost"], row["slot"]))
         output["decision"] = {
