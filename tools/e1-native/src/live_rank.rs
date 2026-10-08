@@ -206,6 +206,14 @@ pub fn rank(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> 
         history.gold_change_90s = Some(gold-oldest);
     }
     let macro_state = MacroState::from(&situation, &history);
+    let plan_state = match match_id {
+        Some(id) if memory_error.is_none() => match memory.review_plan(id, epoch,
+            source_ms as i64, &situation) {
+            Ok(value) => value,
+            Err(error) => { memory_error = Some(error); None }
+        },
+        _ => None,
+    };
     let mut candidates = supplied.clone();
     for derived in situation.derive_candidates() {
         let action = &derived["action"];
@@ -249,15 +257,18 @@ pub fn rank(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> 
             // A candidate that remained visible across earlier frames is
             // more stable evidence, even if it was never spoken aloud.
             let persistence_bonus = (sightings.min(3) as f32) * 0.03;
+            let plan_alignment_bonus = crate::match_plan::alignment_bonus(
+                plan_state.as_ref(), candidate);
             // Novelty reorders supported alternatives; it must not erase the
             // sole valid opportunity merely because playback was delayed.
             let score = if base > 0.08 {
-                (base + persistence_bonus - novelty_penalty).max(0.081)
+                (base + persistence_bonus + plan_alignment_bonus - novelty_penalty).max(0.081)
             } else { base };
             if base > 0.08 {
                 ranked.push(json!({"index":index,"utility":score,"base_utility":base,
                     "recent_repeats":repeats,"novelty_penalty":novelty_penalty,
                     "observed_times_90s":sightings,"persistence_bonus":persistence_bonus,
+                    "plan_alignment_bonus":plan_alignment_bonus,
                     "action_type":candidate["action"]["type"],"decision_key":key}));
             }
         }
@@ -301,6 +312,7 @@ pub fn rank(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> 
         "held_duplicate":selected_index.is_none() && !ranked.is_empty(),
         "ranked":ranked,"whole_state":situation.diagnostics(),
         "macro_state":macro_state.diagnostics(),
+        "plan_state":plan_state,
         "match_pool":updated_pool,
         "memory":summary_json(&history, memory.location()),"memory_error":memory_error,
         "native_ms":start.elapsed().as_secs_f64()*1000.0}))
@@ -319,7 +331,9 @@ pub fn acknowledge(request: &Value, memory: &mut MatchMemory) -> Result<Value, S
         return Err("advice was not selected for this observation".into());
     }
     memory.mark_emitted(match_id, epoch, source_ms, stage, key)?;
-    Ok(json!({"id":frame_id,"origin":"rust_match_brain_ack_v1","acknowledged":true}))
+    let plan = memory.start_plan(match_id, frame_id as i64, epoch, source_ms, key)?;
+    Ok(json!({"id":frame_id,"origin":"rust_match_brain_ack_v1",
+        "acknowledged":true,"plan_state":plan}))
 }
 
 pub fn observe_event(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> {
@@ -489,5 +503,51 @@ pub fn observe_event(request: &Value, memory: &mut MatchMemory) -> Result<Value,
         assert_eq!(result["macro_state"]["observed_hp_loss_90s"], 13);
         assert_eq!(result["macro_state"]["observed_gold_change_90s"], -6);
         assert_eq!(result["ranked"].as_array().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn acknowledged_goal_is_reviewed_on_later_frames_and_isolated_by_epoch() {
+        let id = "0123456789abcdef0123456789abcdef";
+        let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
+            .unwrap().as_nanos();
+        let root = std::env::temp_dir().join(format!("tft-plan-{}-{stamp}",std::process::id()));
+        let mut memory = MatchMemory::new(Some(root.clone()));
+        let offer = json!({"slot":0,"unit_id":"A","status":"offer_text_readable",
+            "catalog_status":"unique_name_bound","observed_cost":2,
+            "catalog_traits":["Defendente"],
+            "trait_breakpoints":{"Defendente":[2,4,6]}});
+        let first = rank(&json!({"id":1,"source_ms":1000,"epoch":0,"match_id":id,
+            "observation":{"stage":"3-2","gold":20,"shop_fresh":true,
+                "shop":[offer],"trait_counts":{"Defendente":3}},"candidates":[]}),
+            &mut memory).unwrap();
+        let key = first["selected_candidate"]["decision_key"].as_str().unwrap();
+        assert_eq!(first["plan_state"],Value::Null);
+        let acknowledged = acknowledge(&json!({"id":1,"source_ms":1000,"epoch":0,
+            "match_id":id,"stage":"3-2","decision_key":key}),&mut memory).unwrap();
+        assert_eq!(acknowledged["plan_state"]["status"],"observing");
+        assert_eq!(acknowledged["plan_state"]["expectation"]["causal_claim"],false);
+        drop(memory);
+        let mut memory = MatchMemory::new(Some(root.clone()));
+        let reminder = rank(&json!({"id":2,"source_ms":1500,"epoch":0,"match_id":id,
+            "observation":{"stage":"3-2","gold":20,
+                "trait_counts":{"Defendente":3}},
+            "candidates":[{"policy":"partial_state_live_v1","decision_key":"econ-reminder",
+                "action":{"type":"prepare_level"}}]}),&mut memory).unwrap();
+        assert_eq!(reminder["selected_candidate"]["action"]["type"],"prepare_level");
+        let reminder_ack = acknowledge(&json!({"id":2,"source_ms":1500,"epoch":0,
+            "match_id":id,"stage":"3-2","decision_key":"econ-reminder"}),
+            &mut memory).unwrap();
+        assert_eq!(reminder_ack["plan_state"]["goal_key"],key);
+        let later = rank(&json!({"id":3,"source_ms":2000,"epoch":0,"match_id":id,
+            "observation":{"stage":"3-2","trait_counts":{"Defendente":4}},
+            "candidates":[]}),&mut memory).unwrap();
+        assert_eq!(later["plan_state"]["status"],"target_observed");
+        assert_eq!(later["plan_state"]["review"]["training_label"],false);
+        let other = rank(&json!({"id":4,"source_ms":2000,"epoch":1,"match_id":id,
+            "observation":{"stage":"3-2","trait_counts":{"Defendente":4}},
+            "candidates":[]}),&mut memory).unwrap();
+        assert_eq!(other["plan_state"],Value::Null);
+        drop(memory);
+        std::fs::remove_dir_all(root).unwrap();
     }
 }

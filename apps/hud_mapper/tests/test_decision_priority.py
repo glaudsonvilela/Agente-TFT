@@ -12,6 +12,7 @@ class DecisionPriorityTests(unittest.TestCase):
                 self.last = request
                 return {'id': request['id'], 'origin': 'rust_live_opportunity_v1',
                         'selected_index': 1, 'ranked': [{'index': 1, 'utility': .7}],
+                        'plan_state': {'status': 'observing', 'goal_key': 'level:8'},
                         'native_ms': .1}
 
         motor = Motor()
@@ -21,6 +22,7 @@ class DecisionPriorityTests(unittest.TestCase):
         ReplayDecisionEngine.rank_with_native(answer, motor)
         self.assertEqual(answer['decision']['action']['type'], 'buy_pair')
         self.assertEqual(answer['decision']['calculation_source'], 'rust_live_opportunity_v1')
+        self.assertEqual(answer['decision_rank']['plan_state']['goal_key'], 'level:8')
         self.assertNotIn('decision_options', answer)
 
     def test_native_semantic_key_replaces_reader_specific_key_for_acknowledgment(self):

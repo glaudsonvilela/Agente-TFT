@@ -71,7 +71,16 @@ impl MatchMemory {
                 CREATE TABLE IF NOT EXISTS match_pool (
                     epoch INTEGER NOT NULL, field TEXT NOT NULL,
                     source_ms INTEGER NOT NULL, value_json TEXT NOT NULL,
-                    PRIMARY KEY(epoch, field));")
+                    PRIMARY KEY(epoch, field));
+                CREATE TABLE IF NOT EXISTS plans (
+                    id INTEGER PRIMARY KEY, epoch INTEGER NOT NULL,
+                    frame_id INTEGER NOT NULL, source_ms INTEGER NOT NULL,
+                    goal_key TEXT NOT NULL, action_json TEXT NOT NULL,
+                    expectation_json TEXT NOT NULL, status TEXT NOT NULL,
+                    review_json TEXT,
+                    UNIQUE(epoch, frame_id, goal_key));
+                CREATE INDEX IF NOT EXISTS plans_epoch_time
+                    ON plans(epoch, source_ms);")
                 .map_err(|e| format!("match memory schema: {e}"))?;
             let mut recent = VecDeque::new();
             {
@@ -213,6 +222,78 @@ impl MatchMemory {
             VALUES (?1,?2,?3,?4)", params![source_ms, epoch, stage, key])
             .map_err(|e| e.to_string())?;
         Ok(())
+    }
+
+    /// A plan is created only after the UI acknowledges that it presented the
+    /// recommendation. Stored expectations are hypotheses, not training labels.
+    pub fn start_plan(&mut self, match_id: &str, frame_id: i64, epoch: i64,
+                      source_ms: i64, key: &str) -> Result<Value, String> {
+        let conn = self.connection(match_id)?;
+        let existing: Option<i64> = conn.query_row(
+            "SELECT id FROM plans WHERE epoch=?1 AND frame_id=?2 AND goal_key=?3",
+            params![epoch, frame_id, key], |row| row.get(0))
+            .optional().map_err(|e| e.to_string())?;
+        if existing.is_some() {
+            return self.latest_plan(match_id, epoch, source_ms)?.ok_or("plan vanished".into());
+        }
+        let raw: String = conn.query_row(
+            "SELECT options_json FROM assessments WHERE frame_id=?1",
+            params![frame_id], |row| row.get(0)).map_err(|e| e.to_string())?;
+        let options: Vec<Value> = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
+        let candidate = options.into_iter().find(|row| row["decision_key"] == key)
+            .ok_or("selected plan candidate missing".to_string())?;
+        let action = &candidate["action"];
+        // A generic status/economy reminder is an utterance, not a new goal.
+        // It must not erase a concrete plan already being followed.
+        if crate::match_plan::goal(action).is_none() {
+            return Ok(self.latest_plan(match_id, epoch, source_ms)?.unwrap_or(Value::Null));
+        }
+        let action_json = serde_json::to_string(action).map_err(|e| e.to_string())?;
+        if action_json.len() > 4096 { return Err("plan action exceeds budget".into()); }
+        let expectation = crate::match_plan::expectation(&candidate);
+        let expectation_json = expectation.to_string();
+        conn.execute("UPDATE plans SET status='superseded' WHERE epoch=?1
+            AND status='observing' AND source_ms<=?2", params![epoch, source_ms])
+            .map_err(|e| e.to_string())?;
+        conn.execute("INSERT INTO plans(epoch,frame_id,source_ms,goal_key,action_json,
+            expectation_json,status) VALUES (?1,?2,?3,?4,?5,?6,'observing')",
+            params![epoch, frame_id, source_ms, key, action_json, expectation_json])
+            .map_err(|e| e.to_string())?;
+        self.latest_plan(match_id, epoch, source_ms)?.ok_or("plan not saved".into())
+    }
+
+    pub fn latest_plan(&mut self, match_id: &str, epoch: i64,
+                       source_ms: i64) -> Result<Option<Value>, String> {
+        let conn = self.connection(match_id)?;
+        let row: Option<(i64, i64, String, String, String, String, Option<String>)> = conn.query_row(
+            "SELECT id,source_ms,goal_key,action_json,expectation_json,status,review_json
+             FROM plans WHERE epoch=?1 AND source_ms<=?2 ORDER BY id DESC LIMIT 1",
+            params![epoch, source_ms], |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,
+                row.get(3)?,row.get(4)?,row.get(5)?,row.get(6)?)))
+            .optional().map_err(|e| e.to_string())?;
+        row.map(|(id, at, goal, action, expectation, status, review)| {
+            Ok(json!({"id":id,"source_ms":at,"goal_key":goal,
+                "action":serde_json::from_str::<Value>(&action).map_err(|e|e.to_string())?,
+                "expectation":serde_json::from_str::<Value>(&expectation).map_err(|e|e.to_string())?,
+                "status":status,"review":review.map(|raw|
+                    serde_json::from_str::<Value>(&raw).map_err(|e|e.to_string())).transpose()?}))
+        }).transpose()
+    }
+
+    pub fn review_plan(&mut self, match_id: &str, epoch: i64, source_ms: i64,
+                       situation: &crate::match_brain::Situation) -> Result<Option<Value>, String> {
+        let Some(mut plan) = self.latest_plan(match_id, epoch, source_ms)? else { return Ok(None) };
+        if plan["status"] != "observing" { return Ok(Some(plan)); }
+        let review = crate::match_plan::review(&plan, situation, source_ms);
+        if review["status"] != "observing" {
+            let conn = self.connection(match_id)?;
+            conn.execute("UPDATE plans SET status=?1,review_json=?2 WHERE id=?3 AND epoch=?4",
+                params![review["status"].as_str(),review.to_string(),plan["id"].as_i64(),epoch])
+                .map_err(|e| e.to_string())?;
+            plan["status"] = review["status"].clone();
+        }
+        plan["review"] = review;
+        Ok(Some(plan))
     }
 
     pub fn was_selected(&mut self, match_id: &str, frame_id: i64, epoch: i64,

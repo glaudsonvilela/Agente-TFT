@@ -243,6 +243,7 @@ class ReplayDecisionEngine:
                     'native_ms': result.get('native_ms'),
                     'whole_state': result.get('whole_state'),
                     'match_pool': result.get('match_pool'),
+                    'plan_state': result.get('plan_state'),
                     'memory': result.get('memory'),
                     'memory_error': result.get('memory_error')}
                 return output
@@ -251,6 +252,7 @@ class ReplayDecisionEngine:
                     output['decision_rank'] = {'status': 'memory_only',
                         'native_ms': result.get('native_ms'),
                         'match_pool': result.get('match_pool'),
+                        'plan_state': result.get('plan_state'),
                         'memory': result.get('memory'),
                         'memory_error': result.get('memory_error')}
                     return output
@@ -258,6 +260,7 @@ class ReplayDecisionEngine:
                 output['decision_rank'] = {'status': 'abstained',
                                            'reason': 'NO_ACTIONABLE_NATIVE_CANDIDATE',
                                            'native_ms': result.get('native_ms'),
+                                           'plan_state': result.get('plan_state'),
                                            'memory': result.get('memory'),
                                            'memory_error': result.get('memory_error')}
                 return output
@@ -285,6 +288,7 @@ class ReplayDecisionEngine:
             ranked=result.get('ranked') or [], native_ms=result.get('native_ms'),
             whole_state=result.get('whole_state'),
             match_pool=result.get('match_pool'),
+            plan_state=result.get('plan_state'),
             memory=result.get('memory'), memory_error=result.get('memory_error'))
         return output
 

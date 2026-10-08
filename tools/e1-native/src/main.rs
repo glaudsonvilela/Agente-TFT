@@ -19,6 +19,7 @@ mod live_rank;
 mod combat_facts;
 mod match_memory;
 mod match_brain;
+mod match_plan;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,
           sync::mpsc::{self,TrySendError}};
