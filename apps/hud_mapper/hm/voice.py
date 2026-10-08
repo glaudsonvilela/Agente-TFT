@@ -2,6 +2,7 @@
 from __future__ import annotations
 import os
 import queue
+import subprocess
 import threading
 import time
 from collections import deque
@@ -13,6 +14,15 @@ def _play_wav(wav: bytes):
     # PlaySound is synchronous unless SND_ASYNC is specified. Python's
     # winsound module does not expose SND_SYNC on supported Windows builds.
     winsound.PlaySound(wav, winsound.SND_MEMORY | winsound.SND_NODEFAULT)
+
+
+def linux_play_wav(wav: bytes):
+    """Play a server-generated WAV in the Ubuntu laboratory, without local TTS."""
+    process = subprocess.run(['ffplay', '-nodisp', '-autoexit', '-loglevel', 'error',
+                              '-i', 'pipe:0'], input=wav, stdout=subprocess.DEVNULL,
+                             stderr=subprocess.PIPE, timeout=12)
+    if process.returncode:
+        raise RuntimeError(process.stderr.decode('utf-8', 'replace')[-500:])
 
 
 class VoiceCoach:

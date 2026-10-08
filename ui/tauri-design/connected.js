@@ -116,6 +116,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     const label = actionable ? 'DICA AGORA' : 'LEITURA EM ANDAMENTO';
     document.querySelector('.coach-label').innerHTML = `<span>AGORA</span><span class="pill mini">${label}</span>`;
     const title = actionable ? tip.text :
+      state?.ubuntu_mvp && tip?.text ? 'Sem recomendação agora.' :
       state?.screen_mode === 'gameplay_hud' ? 'Tabuleiro visível. Buscando a próxima ação.' :
       state?.screen_mode === 'stage_without_economy' ? 'Partida detectada. Aguardando a loja e o ouro.' :
       state?.screen_mode === 'no_gameplay_hud' ? 'Aguardando o tabuleiro do TFT na tela selecionada.' :
@@ -126,11 +127,16 @@ if (new URLSearchParams(location.search).has('connected')) {
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
+                     state?.ubuntu_mvp && tip?.text ? escapeHtml(tip.text) :
+                     state?.ubuntu_mvp ? 'Diagnóstico do mesmo motor usado no Windows.' :
                      'As ações aparecem aqui durante a partida.'}</p>`+
       `<div class="advice-explanation" style="display:block">`+
       `Patch dos dados: ${escapeHtml(tip && tip.data_patch || 'a confirmar')}`+
       `${tip && tip.data_patch_basis==='bundled_catalog_patch_lab' ? ' (catálogo local de laboratório)' : ''} · `+
       `Idade da leitura: ${tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—'}`+
+      `${state?.ubuntu_mvp ? '<br>HUD: '+escapeHtml((state.hud_diagnostic?.fields||[]).map(x =>
+        `${x.field}=${x.value ?? '—'} (${x.status || 'sem leitura'})`).join(' · ') || 'sem leitura')+
+        ' · decisão: '+escapeHtml(state.hud_diagnostic?.decision_reason || 'nenhuma') : ''}`+
       `${recommendations.length ? '<br>'+recommendations.map(x => escapeHtml(x.text)).join('<br>') : ''}`+
       `</div>`+
       (canRate ? '<div class="tip-feedback"><span>Esta dica ajudou?</span><button type="button" data-tip-feedback="yes">Sim</button><button type="button" data-tip-feedback="no">Não</button></div>' : '');
@@ -180,7 +186,8 @@ if (new URLSearchParams(location.search).has('connected')) {
         play.setAttribute('aria-label', state && state.session_id ? 'Encerrar sessão':'Escolher fonte para iniciar');
       }
       const source = document.querySelector('#source-name');
-      if (source) source.textContent = selected ? selected.label : 'Nenhuma fonte selecionada';
+      if (source) source.textContent = selected ? selected.label :
+        state?.source_label || 'Nenhuma fonte selecionada';
     }
     if (current === 'board') {
       const arena = document.querySelector('.board-detail .arena, .board-detail .live-board-empty');

@@ -1,5 +1,6 @@
 """One source boundary for HM1 replay and HM2 explicit native capture."""
 from pathlib import Path
+import os
 from .core import sha
 
 
@@ -19,7 +20,8 @@ class InputPlan:
                 split_unit='capture_session_id_not_independent_match',
                 selected_kind=kind, selected_id=identity, scenario=options.scenario,
                 closed_local_file=False, consented=True, source_hashed_before_measurement=False,
-                latency_basis='native_QPC_acquisition_before_readback_not_compositor_or_scanout',
+                latency_basis=('native_QPC_acquisition_before_readback_not_compositor_or_scanout'
+                               if os.name == 'nt' else 'local_perf_counter_at_complete_RGB_read'),
                 identity_basis='explicit_target_selection_not_TFT_account_identity')
         else:
             from e1.source import local_video
@@ -37,14 +39,20 @@ class InputPlan:
         o = self.options
         if self.capture:
             from .capture_source import CaptureSource, native_path
+            if os.name != 'nt':
+                from .linux_capture import LinuxX11CaptureSource
+                CaptureSource = LinuxX11CaptureSource
             capture_hz=max(o.map_hz,o.reader_hz,o.sample_hz)
             self.source = CaptureSource(o.video, o.configs, o.seconds, capture_hz,
                 consent=o.capture_consent, expected=o.capture_expected,
                 log=Path(o.output)/'capture-stderr.log',
                 preview_hz=o.preview_hz if o.vm_core or o.native_preview else None,
                 preview_size=(o.preview_width,o.preview_height) if o.vm_core or o.native_preview else None)
-            self.info.update(native=self.source.ready, clock_bridge=self.source.bridge.metadata(),
-                             native_binary_sha256=sha(native_path(o.configs)))
+            self.info.update(native=self.source.ready,
+                             clock_bridge=(self.source.bridge.metadata()
+                                           if os.name == 'nt' else None),
+                             native_binary_sha256=(sha(native_path(o.configs))
+                                                   if os.name == 'nt' else None))
         else:
             from e1.source import VideoSource
             self.source = VideoSource(o.video, o.ffmpeg, o.ffprobe)
@@ -57,7 +65,9 @@ class InputPlan:
                 self.info['preview_frames_received'] = self.source.preview_received
                 self.info['preview_queue_replaced'] = self.source.preview_frames.replaced if self.source.preview_frames else 0
                 self.info['compositor_clock_anomalies'] = self.source.clock_anomalies
-                self.info['latency_basis'] = 'native_QPC_acquisition_before_readback_not_compositor_or_scanout'
+                self.info['latency_basis'] = (
+                    'native_QPC_acquisition_before_readback_not_compositor_or_scanout'
+                    if os.name == 'nt' else 'local_perf_counter_at_complete_RGB_read')
                 self.info['geometry_events'] = list(self.source.control_events)
                 self.info['native_end'] = self.source.end
                 if self.source.error and not cancelled:

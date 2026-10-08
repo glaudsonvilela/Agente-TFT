@@ -72,7 +72,11 @@ class StudioController:
         def connect():
             from .voice import VoiceCoach
             from .voice_service import connect as connect_service
-            voice = VoiceCoach(load_settings=False)
+            playback = None
+            if os.name != 'nt' and os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+                from .voice import linux_play_wav
+                playback = linux_play_wav
+            voice = VoiceCoach(playback=playback, load_settings=False)
             try:
                 voice.configure(connect_service())
                 voice.set_enabled(True)
@@ -181,6 +185,10 @@ class StudioController:
                 preview_fps = sum(t >= time.monotonic() - 1 for t in self.preview_times)
                 preview_encode_ms = self.preview_encode_ms[-1] if self.preview_encode_ms else None
             return {"phase": "finished" if session.finished else session.phase,
+                    "ubuntu_mvp": bool(getattr(session, 'ubuntu_mvp_diagnostics', False)),
+                    "hud_diagnostic": getattr(session, 'latest_hud_diagnostic', None),
+                    "source_label": (getattr(getattr(session, 'source', None), 'target', None)
+                                     or {}).get('label'),
                     "session_id": session.id, "replay_review": session.options.replay_review,
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
                     "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
@@ -270,6 +278,8 @@ class StudioController:
                 from PIL import Image
                 raw = "BGRX" if len(frame.rgb) == frame.width * frame.height * 4 else "RGB"
                 image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb, "raw", raw)
+                if image.width > 1280 or image.height > 720:
+                    image.thumbnail((1280, 720), Image.Resampling.BILINEAR)
                 out = BytesIO()
                 image.save(out, "JPEG", quality=72, optimize=False)
                 encoded = out.getvalue()
@@ -559,8 +569,12 @@ def run_studio(*, browser=False):
         handoff = os.environ.get("AGENTE_TFT_STUDIO_URL_FILE")
         if handoff:
             Path(handoff).write_text(server.url, encoding="utf-8")
+            if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+                open_local_window(server.url, "studio-browser")
         else:
             open_local_window(server.url, "studio-browser")
+        if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+            print('Interface do MVP: ' + server.url, flush=True)
         while not controller.closed.wait(1):
             # Browser timers can be suspended while the replay player is in
             # front. Never end an active capture merely because UI polling

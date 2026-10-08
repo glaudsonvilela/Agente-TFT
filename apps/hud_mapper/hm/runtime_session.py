@@ -426,6 +426,17 @@ class RuntimeSession(Session):
                     self.versions['screen_mode'] = 'stage_without_economy'
                 else:
                     self.versions['screen_mode'] = 'gameplay_hud'
+                if getattr(self, 'ubuntu_mvp_diagnostics', False):
+                    with self.lock:
+                        self.latest_hud_diagnostic = {
+                            'frame_id': frame.id,
+                            'age_source_ms': frame.pts_ms,
+                            'origin': answer.get('origin'),
+                            'fields': [{k: row.get(k) for k in ('field', 'status', 'value', 'confidence')}
+                                       for row in answer.get('hud') or []
+                                       if row.get('field') in ('stage', 'gold', 'level', 'xp')],
+                            'decision_reason': self.latest_decision_reason,
+                        }
                 record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions, answer=answer,
                               queue_ms=(start - frame.ready_ns) / 1e6,
                               source_to_reader_ms=(end - frame.due_ns) / 1e6,
@@ -477,6 +488,8 @@ class HM4RuntimeSession(RuntimeSession):
 
     def __init__(self, options):
         super().__init__(options)
+        self.ubuntu_mvp_diagnostics = __import__('os').environ.get('AGENTE_TFT_UBUNTU_MVP') == '1'
+        self.latest_hud_diagnostic = None
         self.shadow_learning_recorder = None
         self.shadow_learning_sealed = None
         self.shadow_learning_error = None
