@@ -163,7 +163,9 @@ if (new URLSearchParams(location.search).has('connected')) {
     document.querySelector('.statusbar>span').innerHTML =
       '<span class="status-dot"></span> CAPTURA LOCAL <i>·</i> '+
       (state?.visual_model_loaded ? 'VISÃO NEURAL DIAGNÓSTICA' : 'LEITURA NATIVA')+
-      ' <i>·</i> '+(state?.strategic_model_loaded ? 'ESTRATÉGIA NEURAL' : 'ESTRATÉGIA POR REGRAS');
+      ' <i>·</i> '+(state?.tip?.learned_ranker ? 'DICA NEURAL APLICADA' :
+        state?.strategic_model_loaded ? 'MODELO NEURAL CARREGADO · DICAS POR REGRAS' :
+        'ESTRATÉGIA POR REGRAS');
     document.querySelector('#footer-context').textContent =
       state && state.session_id ? `Quadros ${state.counts?.source_frames || 0} · HUB ${state.counts?.hub_results || 0} · dicas ${state.counts?.replay_tips || 0}` :
       'Captura Rust · análise local · aprendizado pós partida';
