@@ -81,6 +81,7 @@ def coach_prompt(answer: dict) -> dict:
             basis=decision['basis'],
             strategy_basis='partial_state_live_v1',
             evidence_level='provisional', policy=decision['policy'],
+            calculation_source=decision.get('calculation_source'),
             family=decision['family'], action_type=action['type'], training_label=False,
             learned_neural_weights=False)
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'hold_econ'
@@ -142,4 +143,7 @@ def inventory_prompt(snapshot: dict) -> dict | None:
             'text': f'Equipe {action["item_name"]} em {action["unit_name"]} agora.',
             'speech_text': f'Equipe {action["item_name"]} em {action["unit_name"]} agora.',
             'basis': ['hub.verified_action'], 'actionable': True,
+            'action_type': 'equip', 'family': 'equip',
+            'decision_key': f'equip:{action["item_id"]}:{action["unit_id"]}',
+            'speech_max_age_ms': 3000,
             'item_identity_established': True, 'confidence': action['confidence']}

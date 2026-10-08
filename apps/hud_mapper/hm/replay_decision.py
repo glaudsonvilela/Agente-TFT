@@ -91,15 +91,65 @@ class ReplayDecisionEngine:
             preference_path=preference_path)
 
     def _fallback_decision(self, output, reason, visual_candidates=None):
-        provisional = self.live_advice.propose(output, visual_candidates)
+        if hasattr(self.live_advice, 'propose_all'):
+            provisional = self.live_advice.propose_all(output, visual_candidates)
+        else:
+            proposal = self.live_advice.propose(output, visual_candidates)
+            provisional = [proposal] if proposal else []
         economy = self._economy(output)
-        # A fresh shop match or an urgent roll is more useful during its short
-        # window than a recurring economic reminder.
-        if provisional and provisional['family'] in ('roll', 'buy', 'synergy'):
-            return provisional
+        choices = list(provisional)
         if economy and economy.get('action', {}).get('type') != 'wait':
-            return economy
-        return provisional or economy or self._economy_wait(reason)
+            kind = economy['action']['type']
+            score = {'buy_xp': .84, 'hold_econ': .38}.get(kind, .55)
+            choices.append({**economy, 'rank_score': score,
+                            'rank_source': 'verified_economy_priority_v1'})
+        for candidate in choices:
+            kind = candidate.get('action', {}).get('type')
+            # A fresh, concrete purchase beats a long-horizon XP reminder.
+            if kind == 'buy_synergy':
+                candidate['rank_score'] = max(.91, candidate.get('rank_score', 0))
+            elif kind == 'buy_pair':
+                candidate['rank_score'] = max(.88, candidate.get('rank_score', 0))
+        choices.sort(key=lambda row: row.get('rank_score', 0), reverse=True)
+        # These are visual interpretations, not final decisions. The resident
+        # Rust worker selects among them before anything is spoken.
+        output['decision_options'] = copy.deepcopy(choices)
+        output['decision_candidates'] = [dict(action=row['action'],
+            rank_score=row.get('rank_score'), rank_source=row.get('rank_source'),
+            decision_key=row.get('decision_key'), basis=row.get('basis')) for row in choices]
+        return choices[0] if choices else economy or self._economy_wait(reason)
+
+    @staticmethod
+    def rank_with_native(output, worker):
+        """Ask the Rust motor to select an observed option; abstain on failure."""
+        choices = output.pop('decision_options', None)
+        if choices is None:
+            return output
+        if not choices:
+            return output
+        gold = _gold(output)
+        hp_row = output.get('hp') or {}
+        hp_delivery = output.get('hp_delivery') or {}
+        hp = (hp_row.get('hp') if hp_row.get('status') == 'accepted'
+              and hp_delivery.get('fresh') is True else None)
+        context = {'gold': gold, 'hp': hp}
+        try:
+            result = worker.request(dict(op='rank_advice', id=output['id'],
+                source_ms=output['source_ms'], candidates=choices[:24],
+                context=context), timeout=2)
+            index = result.get('selected_index')
+            if (result.get('origin') != 'rust_live_opportunity_v1'
+                    or type(index) is not int or not 0 <= index < min(24, len(choices))):
+                raise ValueError('native motor abstained')
+        except (RuntimeError, TimeoutError, ValueError, OSError) as exc:
+            output['decision'] = ReplayDecisionEngine._wait('RUST_MOTOR_UNAVAILABLE')
+            output['decision_rank'] = {'status': 'abstained', 'reason': str(exc)}
+            return output
+        output['decision'] = choices[index]
+        output['decision']['calculation_source'] = 'rust_live_opportunity_v1'
+        output['decision_rank'] = dict(status='selected', selected_index=index,
+            ranked=result.get('ranked') or [], native_ms=result.get('native_ms'))
+        return output
 
     def evaluate(self, answer: dict, owned: dict | None = None, strategy_state: dict | None = None,
                  visual_candidates: dict | None = None) -> dict:

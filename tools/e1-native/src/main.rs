@@ -15,6 +15,7 @@ mod engine;
 mod stage;
 mod trait_panel;
 mod opponent_panel;
+mod live_rank;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,
           sync::mpsc::{self,TrySendError}};
@@ -522,6 +523,7 @@ fn run()->Result<(),String>{
       let out=match h["op"].as_str(){
        Some("frame")=>readers.observe(&frame(&h,&mut input)?,h["include_shop"].as_bool().unwrap_or(true))?,
        Some("fixture")=>engine::fixture(id,number(&h,"source_ms")?,number(&h,"case")? as usize)?,
+       Some("rank_advice")=>live_rank::rank(&h)?,
        Some("reference")=>{
         let f=frame(&h,&mut input)?;readers.board=Some(scene::SceneReader::new(readers.board_profile.clone(),&f)?);
         json!({"id":id,"reference_ready":true})

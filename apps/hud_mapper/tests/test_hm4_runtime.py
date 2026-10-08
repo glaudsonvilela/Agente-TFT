@@ -226,14 +226,14 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertNotEqual(engine.evaluate(answer,visual_candidates=visual)
                             ['decision']['action']['type'],'trait_shop_review')
 
-    def test_interest_tip_uses_stage_and_gold_without_level(self):
+
+    def test_gold_alone_does_not_generate_repeated_interest_coaching(self):
         engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
         answer={'origin':'observed_pixels','source_ms':1000,'hud':[
             dict(field=k,value=v,status='single_frame_observation',confidence=.93)
             for k,v in [('stage','2-3'),('gold',18)]]}
         tip=coach_prompt(engine.evaluate(answer))
-        self.assertTrue(tip['actionable'])
-        self.assertEqual(tip['family'],'economy')
+        self.assertFalse(tip['actionable'])
         answer['hud'][0]['value']='1-4'
         self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
 

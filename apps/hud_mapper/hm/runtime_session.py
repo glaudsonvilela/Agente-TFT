@@ -401,6 +401,7 @@ class RuntimeSession(Session):
                                 visual_candidates['age_ms'] = age_ms
                         answer = decision_engine.evaluate(answer, strategy_state=strategy_state,
                                                           visual_candidates=visual_candidates)
+                        answer = decision_engine.rank_with_native(answer, self.worker)
                         if not self.options.replay_review:
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
@@ -738,6 +739,10 @@ class HM4RuntimeSession(RuntimeSession):
                     epoch=frame.epoch, source_ms=frame.pts_ms, stage=stage_for_opponents)
                 observed['snapshot']['opponents'] = opponent_state
                 self.versions['opponent_tracking'] = opponent_state
+                with self.lock:
+                    entry = self._latest_visual_candidates
+                    if entry and entry['epoch'] == frame.epoch and entry['source_ms'] == frame.pts_ms:
+                        entry['candidates']['opponents'] = copy.deepcopy(opponent_state)
                 opponent_panel = observed['snapshot'].get('opponent_panel_observation')
                 if isinstance(opponent_panel, dict) and opponent_panel.get('status') == 'raw_ocr':
                     self.store.emit('opponent-crop-observations', dict(
