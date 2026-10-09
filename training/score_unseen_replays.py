@@ -55,7 +55,9 @@ def score(observations: list[dict], review: dict) -> dict:
         seen.add(key)
         frame = by_key[key]
         reviewed = sample["reviewed_zones"]
-        if not reviewed or len(set(reviewed)) != len(reviewed) or set(reviewed) - set(ZONES):
+        identity_only = sample.get("identity_only_units", [])
+        if (not reviewed and not identity_only or
+                len(set(reviewed)) != len(reviewed) or set(reviewed) - set(ZONES)):
             raise ValueError(f"Invalid reviewed zones: {key}")
         points = sample.get("units", [])
         if any("candidate_name" in unit or "prediction" in unit or
@@ -64,6 +66,14 @@ def score(observations: list[dict], review: dict) -> dict:
                unit.get("name") and unit.get("identity_status") != "visually_verified"
                for unit in points):
             raise ValueError(f"Unreviewed or prediction-derived label: {key}")
+        if any("candidate_name" in unit or "prediction" in unit or
+               unit.get("zone") not in ZONES or
+               len(unit.get("point", [])) != 2 or
+               not unit.get("name") or
+               unit.get("identity_status") != "visually_verified" or
+               not unit.get("evidence")
+               for unit in identity_only):
+            raise ValueError(f"Identity probe lacks visual evidence: {key}")
         for zone in reviewed:
             truth = [unit for unit in points if unit["zone"] == zone]
             for layer in ("detector", "full_reader"):
@@ -98,6 +108,26 @@ def score(observations: list[dict], review: dict) -> dict:
                                 "unmatched_prediction_boxes":
                                     [candidates[i]["box"] for i in range(len(candidates))
                                      if i not in used_predictions]})
+        for unit in identity_only:
+            candidates = _predictions(frame, unit["zone"], "full_reader")
+            matches = [(_center_distance(candidate["box"], unit["point"]), candidate)
+                       for candidate in candidates
+                       if _point_in(candidate["box"], unit["point"])]
+            identity["reviewed_probes"] += 1
+            if matches:
+                _, matched = min(matches, key=lambda row: row[0])
+                identity["reviewed_matches"] += 1
+                identity["correct"] += matched["candidate_name"] == unit["name"]
+                details.append({"source_id": key[0], "second": key[1],
+                                "zone": unit["zone"], "layer": "identity_probe",
+                                "point": unit["point"], "verified_name": unit["name"],
+                                "predicted_name": matched["candidate_name"],
+                                "box": matched["box"], "evidence": unit["evidence"]})
+            else:
+                details.append({"source_id": key[0], "second": key[1],
+                                "zone": unit["zone"], "layer": "identity_probe",
+                                "point": unit["point"], "verified_name": unit["name"],
+                                "predicted_name": None, "evidence": unit["evidence"]})
     return {"schema_version": 1, "review_method": review["review_method"],
             "independent_human_ground_truth": False,
             "reviewed_frames": len(seen),

@@ -34,6 +34,25 @@ class UnseenReplayScoreTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             score([], review)
 
+    def test_identity_probe_does_not_score_unreviewed_zone_coverage(self):
+        observations = [{"source_id": "new", "second": 12, "detections": [],
+                         "records": [{"zone": "board_unit", "box": [0, 0, 20, 20],
+                                      "candidate_name": "Hecarim"}],
+                         "bench_records": [], "enemy_records": []}]
+        review = {"schema_version": 1,
+                  "review_method": "assistant_visual_review_from_raw_video",
+                  "model_predictions_used_as_labels": False,
+                  "frames": [{"source_id": "new", "second": 12,
+                              "reviewed_zones": [],
+                              "identity_only_units": [{"zone": "board", "point": [10, 10],
+                                                       "name": "Kha'Zix",
+                                                       "identity_status": "visually_verified",
+                                                       "evidence": "Selected unit panel in raw frame"}]}]}
+        result = score(observations, review)
+        self.assertEqual(result["coverage"]["full_reader"]["board"], {})
+        self.assertEqual(result["identity_on_visually_verified_matches"],
+                         {"reviewed_probes": 1, "reviewed_matches": 1, "correct": 0})
+
 
 if __name__ == "__main__":
     unittest.main()
