@@ -180,7 +180,12 @@ def calculate(project, requests, stop, shared, lock, log):
     binary = project / "tools/e1-native/target/release/agente-tft-e1-worker"
     worker = None
     try:
-        worker = NativeWorker(str(binary), str(project / "configs"))
+        # Match the app runtime: keep Tesseract resident when available.
+        worker_env = {**os.environ}
+        worker_env.setdefault("AGENTE_TFT_RESIDENT_OCR", "auto")
+        worker = NativeWorker(str(binary), str(project / "configs"), env=worker_env)
+        with lock:
+            shared["ocr_backend"] = worker.ready.get("numeric_hud_ocr_backend")
         decisions = ReplayDecisionEngine(str(project / "configs"))
         with log.open("w", encoding="utf-8") as stream:
             while not stop.is_set():
@@ -284,7 +289,7 @@ def paint(frame, second, fps, vision_hz, analysis_hz, visual, analysis, hardware
         row.get("code", "") for row in decision.get("evidence") or [])
     panel = canvas[60:149, 218:758]
     cv2.convertScaleAbs(panel, dst=panel, alpha=.42)
-    put(canvas, f"{fps:.0f} FPS   YOLO {timings.get('vision_hub', '...')} ms   OCR {timings.get('hud_rust_ocr', '...')} ms",
+    put(canvas, f"{fps:.0f} FPS   YOLO {timings.get('vision_hub', '...')} ms   HUD+loja {timings.get('hud_rust_ocr', '...')} ms",
         230, 87, (195, 245, 195), .52)
     put(canvas, f"{hud.get('stage') or '?'}   {hud.get('gold') if hud.get('gold') is not None else '?'} ouro"
         f"   nivel {hud.get('level') if hud.get('level') is not None else '?'}",
@@ -328,9 +333,10 @@ def run(args):
     if not 1 <= source_fps <= 120:
         raise ValueError("FPS de origem invalido")
     duration = min(args.seconds, total / source_fps)
-    writer = cv2.VideoWriter(str(args.output / "diagnostico.mp4"),
-                             cv2.VideoWriter_fourcc(*"mp4v"), 22, (WIDTH, HEIGHT))
-    if not writer.isOpened():
+    writer = None if args.no_record else cv2.VideoWriter(
+        str(args.output / "diagnostico.mp4"),
+        cv2.VideoWriter_fourcc(*"mp4v"), 22, (WIDTH, HEIGHT))
+    if writer is not None and not writer.isOpened():
         raise RuntimeError("Gravador MP4 indisponivel")
     requests = Queue(maxsize=1)
     numeric_requests = Queue(maxsize=1)
@@ -338,7 +344,8 @@ def run(args):
     lock = Lock()
     shared = {"analysis_history": deque(maxlen=32), "visual_history": deque(maxlen=32),
               "analysis_at": None, "analysis_count": 0, "visual_at": None, "visual_count": 0,
-              "hardware": None, "error": None, "phase": "iniciando leitores"}
+              "hardware": None, "ocr_backend": None, "error": None,
+              "phase": "iniciando leitores"}
     analyzer = Thread(target=analyze, args=(project, bundle, video, requests, numeric_requests,
         stop, shared, lock), daemon=True, name="tft-replay-vision")
     calculator = Thread(target=calculate, args=(project, numeric_requests, stop, shared, lock,
@@ -419,7 +426,8 @@ def run(args):
             analysis_hz = sum(t >= now - 10 for t in analysis_times) / 10
             image = paint(frame, second, fps, vision_hz, analysis_hz, visual,
                           analysis, hardware, error, phase)
-            writer.write(image)
+            if writer is not None:
+                writer.write(image)
             if args.show:
                 cv2.imshow(name, image)
                 if cv2.waitKey(1) & 0xff in (ord("q"), 27):
@@ -435,15 +443,20 @@ def run(args):
         calculator.join(timeout=30)
         hardware_monitor.join(timeout=2)
         cap.release()
-        writer.release()
+        if writer is not None:
+            writer.release()
         if args.show:
             cv2.destroyWindow(name)
         with lock:
             result = dict(video=str(video), preview=str(preview),
                           seconds_played=round(time.monotonic()-started, 2),
-                          frames_recorded=rendered, visual_reads=shared["visual_count"],
+                          frames_rendered=rendered,
+                          frames_recorded=rendered if writer is not None else 0,
+                          visual_reads=shared["visual_count"],
                           analyses=shared["analysis_count"],
-                          error=shared["error"], recording=str(args.output / "diagnostico.mp4"))
+                          ocr_backend=shared["ocr_backend"],
+                          error=shared["error"],
+                          recording=str(args.output / "diagnostico.mp4") if writer is not None else None)
         (args.output / "resumo.json").write_text(json.dumps(result, ensure_ascii=False, indent=2)+"\n")
         print(json.dumps(result, ensure_ascii=False), flush=True)
 
@@ -457,6 +470,7 @@ def main():
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--seconds", type=float, default=300)
     p.add_argument("--show", action="store_true")
+    p.add_argument("--no-record", action="store_true")
     run(p.parse_args())
 
 
