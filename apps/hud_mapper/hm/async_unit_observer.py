@@ -16,15 +16,16 @@ class AsyncUnitObserver:
         self.last_error = None
 
     @staticmethod
-    def _infer(observer, image, read, frame_id, source_ms, epoch):
+    def _infer(observer, image, read, frame_id, source_ms, epoch, positions):
         try:
             result = observer.observe(image, read)
-            return dict(frame_id=frame_id, source_ms=source_ms, epoch=epoch, result=result,
+            return dict(frame_id=frame_id, source_ms=source_ms, epoch=epoch,
+                        positions=positions, result=result,
                         completed_ns=time.perf_counter_ns())
         finally:
             image.close()
 
-    def update(self, image, read, *, frame_id, source_ms, epoch):
+    def update(self, image, read, *, frame_id, source_ms, epoch, positions=None):
         """Return one finished batch, then schedule the newest frame if idle.
 
         A pending inference is never submitted again and never reused as a
@@ -40,7 +41,8 @@ class AsyncUnitObserver:
             self.pending = None
         if self.pending is None and self.last_error is None:
             self.pending = self.executor.submit(
-                self._infer, self.observer, image.copy(), read, frame_id, source_ms, epoch)
+                self._infer, self.observer, image.copy(), read, frame_id, source_ms, epoch,
+                positions or [])
             self.submitted += 1
         elif self.pending is not None:
             self.dropped += 1

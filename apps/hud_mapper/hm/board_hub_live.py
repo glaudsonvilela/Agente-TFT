@@ -168,7 +168,10 @@ class BoardHubLive:
                     completed = self.async_unit.update(image, read,
                         frame_id=canonical_frame.id,
                         source_ms=round(canonical_frame.pts_ms),
-                        epoch=getattr(source_frame or canonical_frame, 'epoch', None))
+                        epoch=getattr(source_frame or canonical_frame, 'epoch', None),
+                        positions=[dict(marker_id=row['marker_id'],
+                                        position_candidate=(row.get('position_candidate') or {}).copy())
+                                   for row in snapshot['observed_markers']])
                     snapshot['neural_units'] = dict(active=self.async_unit.last_error is None, records=[],
                         mode='async_diagnostic_candidates', model_sha256=self.unit_neural.sha
                         if hasattr(self.unit_neural, 'sha') else None,
@@ -213,6 +216,11 @@ class BoardHubLive:
             snapshot, snapshot['item_visual_native'], getattr(source, 'epoch', None))
         from .item_evidence import reconcile
         snapshot['item_evidence'] = reconcile(snapshot)
+        completed_unit = snapshot.get('unit_async_result')
+        if completed_unit:
+            snapshot['unit_async_applied'] = self.temporal_candidates.ingest_async_units(
+                completed_unit, epoch=getattr(source, 'epoch', None),
+                now_ms=snapshot['timestamp_ms'])
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
         for item in snapshot['item_visual_native'].get('equipped', []):
             unit = unit_records.get(item['marker_id']) or {}

@@ -23,8 +23,10 @@ def test_slow_classifier_does_not_block_or_duplicate_observations():
     image = Image.new('RGB', (16, 16))
     try:
         before = time.perf_counter()
+        source_position = dict(status='candidate_only', zone='board', row=1, cell_or_slot=2)
         assert worker.update(image, {'markers': [{'id': 7}]}, frame_id=1, source_ms=100,
-                             epoch=1) is None
+                             epoch=1, positions=[dict(marker_id=7,
+                                                      position_candidate=source_position)]) is None
         assert started.wait(1)
         assert worker.update(image, {'markers': [{'id': 8}]}, frame_id=2, source_ms=200,
                              epoch=1) is None
@@ -40,6 +42,7 @@ def test_slow_classifier_does_not_block_or_duplicate_observations():
         assert finished['frame_id'] == 1
         assert finished['source_ms'] == 100
         assert finished['result']['records'][0]['marker_id'] == 7
+        assert finished['positions'][0]['position_candidate'] == source_position
         assert worker.completed == 1
     finally:
         release.set()

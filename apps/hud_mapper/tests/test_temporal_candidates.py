@@ -14,6 +14,50 @@ def frame(at, unit='DA_18_Rakan', item='TFT_Item_BFSword', *, position=2):
 
 
 class TemporalCandidateTests(unittest.TestCase):
+    def test_async_unit_votes_keep_source_frame_and_require_repeated_evidence(self):
+        memory = TemporalCandidates()
+        def async_frame(at, position=2):
+            snapshot = frame(at, position=position)
+            snapshot['neural_units'] = dict(mode='async_diagnostic_candidates', records=[])
+            return snapshot
+        def completed(source_ms, frame_id, position=2, candidate='DA_18_Rakan'):
+            return dict(source_ms=source_ms, frame_id=frame_id, epoch=1,
+                positions=frame(source_ms, position=position)['observed_markers'],
+                result=dict(records=[dict(marker_id=7, status='identity_candidate',
+                    identity_verified=False, candidate_id=candidate, candidate_name='Rakan')]))
+
+        memory.update(async_frame(1000), epoch=1)
+        self.assertTrue(memory.ingest_async_units(completed(1000, 1), epoch=1, now_ms=2000))
+        first = memory.update(async_frame(2000), epoch=1)['units'][0]
+        self.assertEqual(first['source_frame_id'], 1)
+        self.assertIsNone(first['candidate_id'])
+        self.assertFalse(memory.ingest_async_units(completed(1000, 1), epoch=1, now_ms=2500))
+        self.assertTrue(memory.ingest_async_units(completed(2000, 2), epoch=1, now_ms=3000))
+        second = memory.update(async_frame(3000), epoch=1)['units'][0]
+        self.assertEqual(second['candidate_id'], 'DA_18_Rakan')
+        self.assertEqual(second['source_ms'], 2000)
+        self.assertEqual(second['support_frames'], 2)
+        self.assertFalse(second['identity_verified'])
+        self.assertFalse(memory.ingest_async_units(completed(3000, 3), epoch=2, now_ms=3500))
+        moved = memory.update(async_frame(4000, position=3), epoch=1)
+        self.assertEqual(moved['units'], [])
+
+    def test_async_unit_votes_reset_after_seek_and_stale_result(self):
+        memory = TemporalCandidates()
+        snapshot = frame(1000)
+        snapshot['neural_units'] = dict(mode='async_diagnostic_candidates', records=[])
+        memory.update(snapshot, epoch=1)
+        result = dict(source_ms=1000, frame_id=1, epoch=1,
+            positions=snapshot['observed_markers'], result=dict(records=[dict(marker_id=7,
+                status='identity_candidate', identity_verified=False,
+                candidate_id='DA_18_Rakan', candidate_name='Rakan')]))
+        self.assertFalse(memory.ingest_async_units(result, epoch=1, now_ms=6000))
+        self.assertTrue(memory.ingest_async_units(result, epoch=1, now_ms=2000))
+        seek = frame(500)
+        seek['neural_units'] = snapshot['neural_units']
+        self.assertEqual(memory.update(seek, epoch=2)['units'], [])
+        self.assertFalse(memory.ingest_async_units(result, epoch=2, now_ms=1000))
+
     def test_two_frames_make_persistent_hypotheses_without_verifying_them(self):
         memory = TemporalCandidates()
         first = memory.update(frame(1000), epoch=1)

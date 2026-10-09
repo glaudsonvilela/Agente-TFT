@@ -61,24 +61,32 @@ def shop_read_due(source_ms, epoch, next_ms, signature, previous):
                for now, old in zip(signature, previous['signature']))
 
 
-def async_shop_delivery(frame, latest):
-    """Expose aged shop OCR with its actual source frame, never as fresh evidence."""
+def async_shop_delivery(frame, latest, current_signature=None):
+    """Reuse source-bound shop OCR only while the current shop text is unchanged."""
     if (not latest or latest['epoch'] != frame.epoch or
             not 0 <= frame.pts_ms - latest['source_ms'] <= 3500):
         return {}
     age_ms = round(frame.pts_ms - latest['source_ms'])
+    source_signature = latest.get('signature')
+    visually_unchanged = (isinstance(source_signature, tuple)
+                          and isinstance(current_signature, tuple)
+                          and len(source_signature) == len(current_signature) == 5
+                          and all(len(a) == len(b) and
+                                  sum(left != right for left, right in zip(a, b))
+                                  < SHOP_CHANGE_MIN_BITS
+                                  for a, b in zip(source_signature, current_signature)))
     delivered = {}
     for key in ('shop', 'controls'):
         value = latest['answer'].get(key)
         if isinstance(value, dict):
             delivered[key] = copy.deepcopy(value)
             delivered[key]['cadence_delivery'] = dict(
-                fresh=age_ms == 0,
+                fresh=age_ms == 0 or visually_unchanged,
                 source_frame_id=latest['frame_id'],
                 source_ms=latest['source_ms'],
                 delivered_frame_id=frame.id,
                 age_ms=age_ms,
-                policy='async_shop_source_bound_v1')
+                policy='async_shop_source_bound_v2')
     return delivered
 
 
@@ -451,7 +459,9 @@ class RuntimeSession(Session):
                     if getattr(self, 'shop_pending', None) is not None:
                         with self.lock:
                             latest_shop = copy.deepcopy(getattr(self, '_latest_shop', None))
-                        answer.update(async_shop_delivery(frame, latest_shop))
+                        current_signature = (shop_signature if shop_signature is not None else
+                                             shop_text_signature(reader_frame))
+                        answer.update(async_shop_delivery(frame, latest_shop, current_signature))
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
@@ -828,7 +838,8 @@ class HM4RuntimeSession(RuntimeSession):
                 answer = worker.request(request, reader_frame.rgb, timeout=12)
                 with self.lock:
                     self._latest_shop = dict(frame_id=frame.id, source_ms=frame.pts_ms,
-                        epoch=frame.epoch, answer={key: answer.get(key)
+                        epoch=frame.epoch, signature=shop_text_signature(reader_frame),
+                        answer={key: answer.get(key)
                             for key in ('shop', 'controls')},
                         native_ms=answer.get('native_ms'))
                 self.counts['shop_async_results'] += 1
