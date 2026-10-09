@@ -3,12 +3,14 @@ from __future__ import annotations
 from dataclasses import replace
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-import copy, hashlib, queue, threading, time
+import copy, hashlib, os, queue, threading, time
 import json
 from pathlib import Path
 from types import SimpleNamespace
 from PIL import Image
 from .core import native_regions, valid_box
+from .live_diagnostics import build_hub_diagnostic, build_live_diagnostic
+from .dataset import Latest
 from .session import Session
 
 READER_CACHE_MAX_MS = 750.0
@@ -18,6 +20,15 @@ ASPECT_TOLERANCE = 0.005
 ASYNC_HP_MAX_AGE_MS = 2000.0
 SHOP_CHANGE_MIN_BITS = 15
 SHOP_CHANGE_MIN_GAP_MS = 500.0
+
+
+def decision_reason(decision):
+    evidence = decision.get('evidence') or []
+    evidence_code = (evidence[0].get('code') if evidence and
+        isinstance(evidence[0], dict) else None)
+    return ((decision.get('economy') or {}).get('code') or evidence_code
+        or decision.get('decision_key') or decision.get('policy')
+        or decision.get('action', {}).get('type') or 'NO_DECISION_REASON')
 
 
 def shop_text_signature(frame):
@@ -49,6 +60,35 @@ def shop_read_due(source_ms, epoch, next_ms, signature, previous):
         return False
     return any(sum(a != b for a, b in zip(now, old)) >= SHOP_CHANGE_MIN_BITS
                for now, old in zip(signature, previous['signature']))
+
+
+def async_shop_delivery(frame, latest, current_signature=None):
+    """Reuse source-bound shop OCR only while the current shop text is unchanged."""
+    if (not latest or latest['epoch'] != frame.epoch or
+            not 0 <= frame.pts_ms - latest['source_ms'] <= 3500):
+        return {}
+    age_ms = round(frame.pts_ms - latest['source_ms'])
+    source_signature = latest.get('signature')
+    visually_unchanged = (isinstance(source_signature, tuple)
+                          and isinstance(current_signature, tuple)
+                          and len(source_signature) == len(current_signature) == 5
+                          and all(len(a) == len(b) and
+                                  sum(left != right for left, right in zip(a, b))
+                                  < SHOP_CHANGE_MIN_BITS
+                                  for a, b in zip(source_signature, current_signature)))
+    delivered = {}
+    for key in ('shop', 'controls'):
+        value = latest['answer'].get(key)
+        if isinstance(value, dict):
+            delivered[key] = copy.deepcopy(value)
+            delivered[key]['cadence_delivery'] = dict(
+                fresh=age_ms == 0 or visually_unchanged,
+                source_frame_id=latest['frame_id'],
+                source_ms=latest['source_ms'],
+                delivered_frame_id=frame.id,
+                age_ms=age_ms,
+                policy='async_shop_source_bound_v2')
+    return delivered
 
 
 def hub_due(previous, frame, interval_ms):
@@ -106,11 +146,12 @@ def regions_to_source(regions, source_frame, plan):
     sy = source_frame.height / CANONICAL_READER_SIZE[1]
     out = copy.deepcopy(regions)
     for reg in out:
-        box = reg.get('box')
-        if box and valid_box(box, *CANONICAL_READER_SIZE):
-            reg['reader_box_1920x1080'] = list(box)
-            reg['box'] = [box[0]*sx, box[1]*sy, box[2]*sx, box[3]*sy]
-            reg['reader_geometry_transform'] = plan['method']
+        for key in ('box', 'avatar_box'):
+            box = reg.get(key)
+            if box and valid_box(box, *CANONICAL_READER_SIZE):
+                reg[f'reader_{key}_1920x1080'] = list(box)
+                reg[key] = [box[0]*sx, box[1]*sy, box[2]*sx, box[3]*sy]
+                reg['reader_geometry_transform'] = plan['method']
         points = reg.get('guide_points')
         if isinstance(points, list):
             for point in points:
@@ -170,6 +211,42 @@ def async_hp_delivery(frame, latest, max_age_ms=ASYNC_HP_MAX_AGE_MS):
     return source_hp, meta
 
 
+def fast_player_hp(frame, latest, last_accepted=None):
+    """A source-bound HP badge for display beside an unverified avatar track."""
+    value, meta = async_hp_delivery(frame, latest)
+    result = dict(status=value.get('status'), value=None, box=None,
+                  source_frame_id=meta.get('source_frame_id'),
+                  source_ms=meta.get('source_ms'), age_ms=meta.get('age_ms'),
+                  fresh=False, avatar_link_verified=False)
+    if not meta.get('fresh') or value.get('status') != 'accepted' or \
+            type(value.get('hp')) is not int or not 0 <= value['hp'] <= 100:
+        if (last_accepted and last_accepted.get('epoch') == frame.epoch and
+                0 <= frame.pts_ms - last_accepted['source_ms'] <= 3000):
+            result.update(status='last_observed', value=last_accepted['value'],
+                          source_frame_id=last_accepted['source_frame_id'],
+                          source_ms=last_accepted['source_ms'],
+                          age_ms=frame.pts_ms-last_accepted['source_ms'],
+                          last_read_status=value.get('status'))
+        return result
+    result['value'] = value['hp']
+    result['fresh'] = True
+    result['confidence'] = value.get('confidence')
+    candidates = (value.get('location') or {}).get('candidates') or []
+    if len(candidates) == 1:
+        rect = candidates[0].get('hp_rect') or {}
+        coords = [rect.get(key) for key in ('x', 'y', 'width', 'height')]
+        if all(type(part) is int for part in coords):
+            x, y, width, height = coords
+            plan = latest.get('input_transform') or {}
+            reader_width, reader_height = plan.get('reader_size') or CANONICAL_READER_SIZE
+            box = [x * frame.width / reader_width, y * frame.height / reader_height,
+                   (x + width) * frame.width / reader_width,
+                   (y + height) * frame.height / reader_height]
+            if valid_box(box, frame.width, frame.height):
+                result['box'] = box
+    return result
+
+
 class RuntimeSession(Session):
     policy_name = 'hud_mapper_hm3_runtime'
     primary_objective = 'live_HUD_mapping_geometry_telemetry_and_training_material'
@@ -190,7 +267,7 @@ class RuntimeSession(Session):
         self._latest_hp = None
 
     def _publish_coach(self, tip, frame, ready_ns):
-        if tip is None:return
+        if tip is None:return False
         tip = dict(tip, frame_id=frame.id, source_ms=frame.pts_ms,
                    source_due_ns=frame.due_ns, ready_ns=ready_ns, epoch=frame.epoch,
                    input_kind=('previously_recorded_video_on_screen' if self.options.replay_review
@@ -201,19 +278,23 @@ class RuntimeSession(Session):
                    ground_truth=False, game_state_updated=False)
         with self.lock:
             previous = self.latest_replay_tip
-            recent_action = (previous and previous.get('actionable')
+            recent_action = (previous and (previous.get('actionable') or previous.get('speakable'))
                 and previous.get('epoch') == frame.epoch
                 and 0 <= frame.pts_ms - previous.get('source_ms', -1) < 5000)
-            if tip.get('actionable') or not recent_action:
+            recent_combat = (previous and previous.get('kind') == 'combat'
+                and previous.get('epoch') == frame.epoch
+                and 0 <= frame.pts_ms - previous.get('source_ms', -1) < 3000)
+            if tip.get('speakable') or (tip.get('actionable') and not recent_combat) or not recent_action:
                 self.latest_replay_tip=tip
             if (tip['text']==getattr(self,'_last_replay_tip',None)
                     and frame.pts_ms<getattr(self,'_next_tip_ms',0)):
-                return
+                return False
             self._last_replay_tip=tip['text']
             self._next_tip_ms=frame.pts_ms+5000
             self.counts['coach_updates']+=1
             if tip.get('actionable'):self.counts['replay_tips']+=1
         self.store.emit('replay-tips',tip)
+        return True
 
 
     def _hp_loop(self):
@@ -338,10 +419,13 @@ class RuntimeSession(Session):
                     executed = True
                     self.counts['reader_native_runs'] += 1
                     shop_signature = (shop_text_signature(reader_frame)
-                                      if self.shop_interval_ms > 0 else None)
+                                      if self.shop_interval_ms > 0 and
+                                      getattr(self, 'shop_pending', None) is None else None)
                     include_shop = (self.shop_interval_ms <= 0 or shop_read_due(
                         frame.pts_ms, frame.epoch, self._next_shop_ms,
                         shop_signature, self._last_shop_read))
+                    if getattr(self, 'shop_pending', None) is not None:
+                        include_shop = False
                     request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
                                    width=reader_frame.width, height=reader_frame.height,
                                    bytes=len(reader_frame.rgb), include_shop=include_shop)
@@ -374,10 +458,17 @@ class RuntimeSession(Session):
                         self._next_shop_ms = frame.pts_ms + self.shop_interval_ms
                         self._last_shop_read = dict(epoch=frame.epoch,
                             source_ms=frame.pts_ms, signature=shop_signature)
+                    if getattr(self, 'shop_pending', None) is not None:
+                        with self.lock:
+                            latest_shop = copy.deepcopy(getattr(self, '_latest_shop', None))
+                        current_signature = (shop_signature if shop_signature is not None else
+                                             shop_text_signature(reader_frame))
+                        answer.update(async_shop_delivery(frame, latest_shop, current_signature))
                     if plan.get('normalized'):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
                     answer['reader_input_transform'] = plan
+                    visual_candidates = None
                     decision_engine = getattr(self, 'decision_engine', None)
                     if decision_engine and answer.get('origin') == 'observed_pixels':
                         with self.lock:
@@ -391,7 +482,6 @@ class RuntimeSession(Session):
                                 (time.perf_counter_ns() - strategy_entry['due_ns']) / 1e6)
                             if frame.pts_ms < strategy_entry['source_ms']:
                                 strategy_state = None
-                        visual_candidates = None
                         if visual_entry and visual_entry['epoch'] == frame.epoch:
                             age_ms = max(frame.pts_ms - visual_entry['source_ms'],
                                 (time.perf_counter_ns() - visual_entry['due_ns']) / 1e6)
@@ -400,11 +490,24 @@ class RuntimeSession(Session):
                                 visual_candidates['age_ms'] = age_ms
                         answer = decision_engine.evaluate(answer, strategy_state=strategy_state,
                                                           visual_candidates=visual_candidates)
+                        stage_rows = [row for row in answer.get('hud') or []
+                                      if row.get('field') == 'stage'
+                                      and row.get('status') == 'single_frame_observation'
+                                      and isinstance(row.get('confidence'), (int, float))
+                                      and row['confidence'] >= .85]
+                        stage_for_memory = (str(stage_rows[0].get('value'))
+                                            if len(stage_rows) == 1 else None)
+                        match_id = self.match_identity.observe(stage_for_memory)
+                        answer = decision_engine.rank_with_native(answer, self.worker,
+                            match_id=match_id, epoch=frame.epoch,
+                            visual_candidates=visual_candidates)
                         if not self.options.replay_review:
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
                         self.counts['catalog_bound_offers'] += answer['catalog_binding']['bound_offers']
-                        self.latest_decision_reason = (answer['decision'].get('economy') or {}).get('code') or answer['decision']['evidence'][0]['code']
+                        rank = answer.get('decision_rank') or {}
+                        self.latest_decision_status = rank.get('status')
+                        self.latest_decision_reason = rank.get('reason') or decision_reason(answer['decision'])
                         if answer['decision']['action']['type'] == 'wait':
                             self.counts['decision_abstentions'] += 1
                     canonical_regions = native_regions(answer, self.registry,
@@ -428,6 +531,25 @@ class RuntimeSession(Session):
                     self.versions['screen_mode'] = 'stage_without_economy'
                 else:
                     self.versions['screen_mode'] = 'gameplay_hud'
+                if 'stage' in observed_fields:
+                    stage_rows = [row for row in answer.get('hud') or []
+                                  if row.get('field') == 'stage' and row.get('status') == 'single_frame_observation'
+                                  and row.get('value') is not None and row.get('confidence', 0) >= .85]
+                    if len(stage_rows) == 1:
+                        with self.lock:
+                            self._latest_native_stage = (str(stage_rows[0]['value']), frame.epoch, frame.pts_ms)
+                if getattr(self, 'ubuntu_mvp_diagnostics', False):
+                    with self.lock:
+                        self.latest_hud_diagnostic = {
+                            'frame_id': frame.id,
+                            'age_source_ms': frame.pts_ms,
+                            'origin': answer.get('origin'),
+                            'fields': [{k: row.get(k) for k in ('field', 'status', 'value', 'confidence',
+                                                                  'cache_delivery')}
+                                       for row in answer.get('hud') or []
+                                       if row.get('field') in ('stage', 'gold', 'level', 'xp')],
+                            'decision_reason': self.latest_decision_reason,
+                        }
                 record = dict(frame_id=frame.id, source_ms=frame.pts_ms, regions=regions, answer=answer,
                               queue_ms=(start - frame.ready_ns) / 1e6,
                               source_to_reader_ms=(end - frame.due_ns) / 1e6,
@@ -438,6 +560,11 @@ class RuntimeSession(Session):
                               cache_policy='full_immutable_source_RGB_equality_750ms',
                               native_executed=executed,
                               image_size=[frame.width, frame.height], ground_truth=False)
+                self.latest_live_diagnostic = build_live_diagnostic(
+                    answer, regions, frame_id=frame.id, source_ms=frame.pts_ms,
+                    epoch=frame.epoch, width=frame.width, height=frame.height,
+                    reader_ms=record['reader_elapsed_ms'],
+                    source_to_reader_ms=record['source_to_reader_ms'])
                 with self.lock:
                     for reg in regions:
                         self.coverage[(reg['id'], reg['status'])] += 1
@@ -458,9 +585,77 @@ class RuntimeSession(Session):
                     self.store.emit('roi-observations', record, frame, save)
                 self.native_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['read_frames'] += 1
-                if getattr(self, 'decision_engine', None):
+                if (getattr(self, 'decision_engine', None) and
+                        (answer.get('decision_rank') or {}).get('status') != 'held_duplicate'):
                     from .replay_coach import coach_prompt
-                    self._publish_coach(coach_prompt(answer),frame,end)
+                    tip = coach_prompt(answer)
+                    published = self._publish_coach(tip, frame, end)
+                    if (published and tip.get('actionable') and
+                            (answer.get('decision_rank') or {}).get('status') == 'selected' and
+                            answer.get('match_memory_id') and tip.get('decision_key') and
+                            self.worker.ready.get('ack_advice') is True):
+                        try:
+                            self.worker.request(dict(op='ack_advice', id=frame.id,
+                                match_id=answer['match_memory_id'], epoch=frame.epoch,
+                                source_ms=round(frame.pts_ms),
+                                stage=(answer['decision_rank'].get('whole_state') or {}).get('stage'),
+                                decision_key=tip['decision_key']), timeout=2)
+                        except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
+                            self.counts['coach_ack_failed'] += 1
+                            self.store.emit('telemetry',dict(event='coach_ack_failed',
+                                frame_id=frame.id, source_ms=frame.pts_ms,
+                                error_type=type(exc).__name__))
+                tracker = getattr(self, 'combat_events', None)
+                if tracker is not None:
+                    outcome = tracker.update(answer, epoch=frame.epoch, source_ms=frame.pts_ms)
+                    if outcome:
+                        # HP loss alone never establishes a combat cause. The
+                        # resident motor verifies arithmetic; causal coaching
+                        # remains silent until independently observed events
+                        # can support an explanation.
+                        tip = None
+                        try:
+                            from .combat_events import combat_observation_tip
+                            if self.worker.ready.get('combat_facts') is not True:
+                                raise ValueError('RUST_COMBAT_FACTS_UNAVAILABLE')
+                            facts = self.worker.request(dict(op='combat_facts', id=frame.id,
+                                hp_before=outcome['hp_before'], hp_after=outcome['hp_after']),
+                                timeout=2)
+                            if facts.get('id') != frame.id:
+                                raise ValueError('RUST_COMBAT_FACTS_INVALID')
+                            tip = combat_observation_tip(outcome, facts)
+                            outcome['calculation_source'] = tip['calculation_source']
+                            outcome['text'] = tip['text']
+                            outcome['missing_evidence'] = tip['missing_evidence']
+                        except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
+                            outcome['calculation_error'] = type(exc).__name__
+                        opponents = getattr(self, 'opponent_tracker', None)
+                        linked = (opponents.register_loss(outcome, epoch=frame.epoch,
+                                                          source_ms=frame.pts_ms)
+                                  if opponents else None)
+                        if linked:
+                            outcome['opponent_candidate'] = linked
+                        self.store.emit('combat-events', dict(outcome, frame_id=frame.id,
+                                                               epoch=frame.epoch))
+                        self.counts['combat_loss_observations'] += 1
+                        if (answer.get('match_memory_id') and
+                                self.worker.ready.get('match_event') is True and
+                                type(outcome.get('damage')) is int and
+                                1 <= outcome['damage'] <= 100):
+                            try:
+                                event = {key: outcome.get(key) for key in
+                                         ('event', 'stage', 'hp_before', 'hp_after',
+                                          'damage', 'cause_status')}
+                                self.worker.request(dict(op='match_event', id=frame.id,
+                                    match_id=answer['match_memory_id'], epoch=frame.epoch,
+                                    source_ms=round(frame.pts_ms), event=event), timeout=2)
+                            except (RuntimeError, TimeoutError, ValueError, OSError, EOFError) as exc:
+                                self.counts['match_event_failed'] += 1
+                                self.store.emit('telemetry', dict(event='match_event_failed',
+                                    frame_id=frame.id, source_ms=frame.pts_ms,
+                                    error_type=type(exc).__name__))
+                        # A bare HP delta belongs in the diagnostic record;
+                        # it must not replace a useful coach decision on screen.
         except Exception as exc:
             self.error = str(exc)
             self.stop()
@@ -479,6 +674,15 @@ class HM4RuntimeSession(RuntimeSession):
 
     def __init__(self, options):
         super().__init__(options)
+        self.ubuntu_mvp_diagnostics = __import__('os').environ.get('AGENTE_TFT_UBUNTU_MVP') == '1'
+        self.latest_hud_diagnostic = None
+        from .combat_events import CombatEvents
+        self.combat_events = CombatEvents()
+        from .opponent_tracking import OpponentTracker
+        self.opponent_tracker = OpponentTracker()
+        from .match_identity import MatchIdentity
+        self.match_identity = MatchIdentity(self.id)
+        self._latest_native_stage = None
         self.shadow_learning_recorder = None
         self.shadow_learning_sealed = None
         self.shadow_learning_error = None
@@ -499,6 +703,14 @@ class HM4RuntimeSession(RuntimeSession):
         self._terminal_hp_first_source_ms = None
         self.latest_replay_tip = None
         self.latest_decision_reason = None
+        self.latest_decision_status = None
+        self.latest_live_diagnostic = None
+        self.latest_hub_diagnostic = None
+        self.latest_fast_diagnostic = None
+        self.fast_pending = Latest() if self.ubuntu_mvp_diagnostics else None
+        self.shop_pending = Latest() if self.ubuntu_mvp_diagnostics else None
+        self._latest_shop = None
+        self._last_shop_submission = None
         self._latest_strategy_state = None
         self._latest_visual_candidates = None
         self.decision_engine = None
@@ -527,7 +739,7 @@ class HM4RuntimeSession(RuntimeSession):
             return False
         with self.lock:
             tip = copy.deepcopy(self.latest_replay_tip)
-        if (not tip or tip.get('policy') != 'partial_state_live_v1'
+        if (not tip or tip.get('policy') not in ('partial_state_live_v1', 'integrated_match_v1')
                 or (decision_key is not None and decision_key != tip.get('decision_key'))):
             return False
         accepted = self.decision_engine.live_advice.rate(
@@ -580,13 +792,148 @@ class HM4RuntimeSession(RuntimeSession):
         self.board_reference_requested.set()
 
     def submit_hub_frame(self, frame):
+        if self.shop_pending is not None and hub_due(
+                self._last_shop_submission, frame, 2000):
+            self._last_shop_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.shop_pending.put(frame)
+            self.counts['shop_async_submitted'] += 1
+        if self.fast_pending is not None and hub_due(
+                getattr(self, '_last_fast_submission', None), frame, 250):
+            self._last_fast_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.fast_pending.put(frame)
+            self.counts['fast_marker_submitted'] += 1
         if hub_due(getattr(self, '_last_hub_submission', None), frame, self.hub_interval_ms):
             self._last_hub_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
             self.hub_pending.put(frame)
             self.counts['hub_submitted'] += 1
 
+    def _shop_loop(self):
+        """Keep expensive shop text OCR out of the HUD/decision reader lane."""
+        from e1.protocol import NativeWorker
+        worker = None
+        try:
+            environment = dict(os.environ, AGENTE_TFT_RESIDENT_OCR='auto',
+                AGENTE_TFT_SHOP_ONLY='1')
+            worker = NativeWorker(self.options.worker, self.options.configs,
+                self.options.tesseract, self.options.controls,
+                Path(self.options.output) / 'shop-stderr.log', env=environment)
+            if not worker.ready.get('shop_only'):
+                raise RuntimeError('O leitor da loja não iniciou no modo exclusivo.')
+            while not self.cancel.is_set():
+                try:
+                    frame = self.shop_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                if (time.perf_counter_ns() - frame.due_ns) / 1e6 > 3000:
+                    self.counts['shop_async_stale_input_dropped'] += 1
+                    continue
+                plan = reader_plan(frame, self.normalize_reader_input)
+                reader_frame, _ = materialize_reader_frame(frame, plan)
+                if reader_frame is None:
+                    self.counts['shop_async_resolution_skipped'] += 1
+                    continue
+                request = dict(op='frame', id=frame.id, source_ms=round(frame.pts_ms),
+                    width=reader_frame.width, height=reader_frame.height,
+                    bytes=len(reader_frame.rgb), include_shop=True)
+                answer = worker.request(request, reader_frame.rgb, timeout=12)
+                with self.lock:
+                    self._latest_shop = dict(frame_id=frame.id, source_ms=frame.pts_ms,
+                        epoch=frame.epoch, signature=shop_text_signature(reader_frame),
+                        answer={key: answer.get(key)
+                            for key in ('shop', 'controls')},
+                        native_ms=answer.get('native_ms'))
+                self.counts['shop_async_results'] += 1
+        except Exception as exc:
+            self.versions['shop_async_error'] = f'{type(exc).__name__}: {exc}'
+            self.counts['shop_async_errors'] += 1
+        finally:
+            if worker:
+                worker.close()
+
+    def _fast_marker_loop(self):
+        from .board_worker import FastMarkerWorker
+        worker = None
+        try:
+            worker = FastMarkerWorker(self.options.worker, self.options.configs,
+                log=Path(self.options.output) / 'fast-marker-stderr.log')
+            while not self.cancel.is_set():
+                try:
+                    frame = self.fast_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                started = time.perf_counter_ns()
+                if (started - frame.due_ns) / 1e6 > 1000:
+                    self.counts['fast_marker_stale_input_dropped'] += 1
+                    continue
+                plan = reader_plan(frame, self.normalize_reader_input)
+                reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
+                if reader_frame is None:
+                    self.counts['fast_marker_resolution_skipped'] += 1
+                    continue
+                answer = worker.observe(reader_frame)
+                regions = []
+                for marker in answer['markers']:
+                    rect = marker.get('rect') or {}
+                    x, y = rect.get('x'), rect.get('y')
+                    w, h = rect.get('width'), rect.get('height')
+                    if not all(isinstance(value, int) for value in (x, y, w, h)):
+                        continue
+                    body = marker.get('avatar_body_proposal') or {}
+                    body_box = ([body['x'], body['y'],
+                                 body['x'] + body['width'], body['y'] + body['height']]
+                                if all(type(body.get(key)) is int for key in
+                                       ('x', 'y', 'width', 'height')) else None)
+                    if body_box and not valid_box(body_box, reader_frame.width, reader_frame.height):
+                        body_box = None
+                    regions.append(dict(id=f"track.{marker['track_id']}",
+                        box=[x, y, x+w, y+h], color=marker['color'],
+                        avatar_box=body_box,
+                        avatar_region_status='bar_anchored_proposal' if body_box else None,
+                        track_id=marker['track_id'],
+                        ownership_verified=False,
+                        identity_verified=False,
+                        status='bar_observed'))
+                regions = regions_to_source(regions, frame, plan)
+                with self.lock:
+                    latest_hp = self._latest_hp
+                    last_accepted_hp = getattr(self, '_last_fast_accepted_hp', None)
+                player_hp = fast_player_hp(frame, latest_hp, last_accepted_hp)
+                if player_hp['fresh']:
+                    with self.lock:
+                        self._last_fast_accepted_hp = dict(
+                            epoch=frame.epoch, value=player_hp['value'],
+                            source_frame_id=player_hp['source_frame_id'],
+                            source_ms=player_hp['source_ms'])
+                finished = time.perf_counter_ns()
+                self.latest_fast_diagnostic = dict(
+                    status='observed', frame_id=frame.id, source_ms=frame.pts_ms,
+                    epoch=frame.epoch, image_size=[frame.width, frame.height],
+                    markers=regions, player_hp=player_hp,
+                    worker_ms=answer.get('native_ms'),
+                    normalize_ms=normalize_ms,
+                    processing_ms=(finished-started)/1e6,
+                    source_to_result_ms=(finished-frame.due_ns)/1e6)
+                if regions:
+                    self.store.emit('visual-track-observations', dict(
+                        frame_id=frame.id, source_ms=frame.pts_ms, epoch=frame.epoch,
+                        image_size=[frame.width, frame.height],
+                        markers=regions, ground_truth=False, training_label=None,
+                        model_prediction_used_as_label=False))
+                self.counts['fast_marker_results'] += 1
+        except Exception as exc:
+            self.latest_fast_diagnostic = dict(status='unavailable', error=str(exc), markers=[])
+            self.counts['fast_marker_errors'] += 1
+        finally:
+            if worker:
+                worker.close()
+
     def _hub_loop(self):
         board_worker = None
+        observer = None
         try:
             from .replay_coach import inventory_prompt
             from .model_update import active_bundle_for_model
@@ -608,7 +955,8 @@ class HM4RuntimeSession(RuntimeSession):
             else:
                 from .board_hub_live import BoardHubLive
                 from .board_worker import BoardWorker
-                observer = BoardHubLive(self.options.configs, neural_root=neural_bundle)
+                observer = BoardHubLive(self.options.configs, neural_root=neural_bundle,
+                    async_unit_recognition=self.ubuntu_mvp_diagnostics)
                 board_worker = BoardWorker(self.options.worker, self.options.configs,
                                            log=Path(self.options.output) / 'board-stderr.log',
                                            tesseract=self.options.tesseract)
@@ -650,9 +998,6 @@ class HM4RuntimeSession(RuntimeSession):
                 plan = reader_plan(frame, self.normalize_reader_input)
                 reader_frame, normalize_ms = materialize_reader_frame(frame, plan)
                 if reader_frame is None:
-                    with self.lock:
-                        self._latest_strategy_state = None
-                        self._latest_visual_candidates = None
                     self.counts['hub_resolution_skipped'] += 1
                     continue
                 calibrate = self.board_reference_requested.is_set()
@@ -662,7 +1007,9 @@ class HM4RuntimeSession(RuntimeSession):
                     if use_remote_board:
                         board_read_end = time.perf_counter_ns()
                         observed = observer.observe(reader_frame, calibrate=calibrate)
+                        board_worker_ms = None
                     else:
+                        worker_start = time.perf_counter_ns()
                         board_read = board_worker.observe(reader_frame, calibrate)
                         board_read_end = time.perf_counter_ns()
                         observed = observer.observe(reader_frame, board_read, source_frame=frame)
@@ -672,9 +1019,6 @@ class HM4RuntimeSession(RuntimeSession):
                         raise
                     self.versions['board_reference_status'] = 'failed'
                     self.versions['board_reference_error'] = str(exc)
-                    with self.lock:
-                        self._latest_strategy_state = None
-                        self._latest_visual_candidates = None
                     continue
                 if calibrate:
                     self.versions['board_reference_sha256'] = hashlib.sha256(reader_frame.rgb).hexdigest()
@@ -687,11 +1031,43 @@ class HM4RuntimeSession(RuntimeSession):
                     self._latest_strategy_state = (dict(state=copy.deepcopy(state), epoch=frame.epoch,
                         source_ms=frame.pts_ms, due_ns=frame.due_ns) if state else None)
                     candidates = observed['snapshot'].get('temporal_candidates')
-                    self._latest_visual_candidates = (dict(candidates=copy.deepcopy(candidates),
-                        epoch=frame.epoch, source_ms=frame.pts_ms, due_ns=frame.due_ns)
-                        if candidates else None)
+                    trait_counts = observed['snapshot'].get('confirmed_trait_counts') or {}
+                    if candidates:
+                        self._latest_visual_candidates = dict(candidates={
+                            **copy.deepcopy(candidates), 'trait_counts': copy.deepcopy(trait_counts)},
+                            epoch=frame.epoch, source_ms=frame.pts_ms, due_ns=frame.due_ns)
                 self.versions['board_reference_status']=observed['snapshot'].get('board_reference_status')
                 neural_items=observed['snapshot'].get('neural_items') or {}
+                with self.lock:
+                    stage_read = self._latest_native_stage
+                stage_for_opponents = (stage_read[0] if stage_read and stage_read[1] == frame.epoch
+                                       and stage_read[2] <= frame.pts_ms else None)
+                opponent_state = self.opponent_tracker.update(
+                    observed['snapshot'].get('opponent_panel_observation'),
+                    epoch=frame.epoch, source_ms=frame.pts_ms, stage=stage_for_opponents)
+                observed['snapshot']['opponents'] = opponent_state
+                self.versions['opponent_tracking'] = opponent_state
+                with self.lock:
+                    entry = self._latest_visual_candidates
+                    if entry and entry['epoch'] == frame.epoch and entry['source_ms'] == frame.pts_ms:
+                        entry['candidates']['opponents'] = copy.deepcopy(opponent_state)
+                opponent_panel = observed['snapshot'].get('opponent_panel_observation')
+                if isinstance(opponent_panel, dict) and opponent_panel.get('status') == 'raw_ocr':
+                    self.store.emit('opponent-crop-observations', dict(
+                        source_frame_id=opponent_panel.get('frame_id'),
+                        source_ms=opponent_panel.get('source_ms'),
+                        geometry_segment=frame.epoch,
+                        crop_regions={
+                            'scoreboard':[1690,170,175,635],
+                            'hp_strip':[1830,180,26,605],
+                            'enemy_name':[1215,77,95,22],
+                            'self_overlay':[80,9,160,20],
+                        },
+                        screen_read=opponent_panel,
+                        reconciled_candidates=opponent_state,
+                        ground_truth=False, training_label=None,
+                        model_prediction_used_as_label=False,
+                        purpose='post_session_ocr_review'))
                 self.versions['item_neural_active']=neural_items.get('active',False)
                 self.versions['item_neural_model_sha256']=neural_items.get('model_sha256')
                 visual_items = observed['snapshot'].get('item_visual_native') or {}
@@ -734,6 +1110,12 @@ class HM4RuntimeSession(RuntimeSession):
                               scheduling='independent_of_hud_ocr_latest_frame',
                               board_reference_status=self.versions.get('board_reference_status'),
                               game_state_updated=False)
+                self.latest_hub_diagnostic = build_hub_diagnostic(
+                    observed['snapshot'], regions, frame_id=frame.id,
+                    source_ms=frame.pts_ms, epoch=frame.epoch,
+                    width=frame.width, height=frame.height,
+                    processing_ms=record['hub_processing_ms'],
+                    worker_ms=board_worker_ms, observer_ms=board_observer_ms)
                 with self.lock:
                     for reg in regions:
                         self.coverage[(reg['id'], reg['status'])] += 1
@@ -741,8 +1123,22 @@ class HM4RuntimeSession(RuntimeSession):
                         source_due_ns=frame.due_ns, ready_ns=end,
                         total_ms=record['source_to_hub_ms'],
                         processing_ms=record['hub_processing_ms'],
+                        worker_ms=board_worker_ms, observer_ms=board_observer_ms,
+                        observer_stages_ms=observed['snapshot'].get('diagnostic_timings_ms', {}),
                         vm_transport=observed.get('vm_transport')))
                 self.store.emit('board-hub-observations', record)
+                completed_unit = observed['snapshot'].get('unit_async_result')
+                if completed_unit:
+                    self.store.emit('unit-inference-observations', dict(
+                        frame_id=completed_unit['frame_id'],
+                        source_ms=completed_unit['source_ms'],
+                        epoch=completed_unit['epoch'],
+                        model_sha256=(completed_unit['result'] or {}).get('model_sha256'),
+                        recognizer=(completed_unit['result'] or {}).get('recognizer'),
+                        processing_ms=(completed_unit['result'] or {}).get('processing_ms'),
+                        candidates=(completed_unit['result'] or {}).get('records') or [],
+                        ground_truth=False, training_label=None,
+                        model_prediction_used_as_label=False))
                 self.hub_results.put(dict(frame=frame, record=record, ready_ns=end))
                 self.counts['hub_results'] += 1
                 self._publish_coach(inventory_prompt(observed['snapshot']),frame,end)
@@ -752,3 +1148,5 @@ class HM4RuntimeSession(RuntimeSession):
         finally:
             if board_worker:
                 board_worker.close()
+            if getattr(observer, 'async_unit', None):
+                observer.async_unit.close()

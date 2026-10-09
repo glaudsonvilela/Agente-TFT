@@ -10,6 +10,7 @@ services:
     environment:
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:?configure on the server only}
       ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:?select the approved voice on the server}
+      ELEVENLABS_MODEL_ID: ${ELEVENLABS_MODEL_ID:-eleven_flash_v2_5}
     volumes:
       - tft-voice-data:/data
     mem_limit: 192m

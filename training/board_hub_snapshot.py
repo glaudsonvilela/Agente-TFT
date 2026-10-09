@@ -9,6 +9,7 @@ import re
 from training.board_hub_equipped_candidates import run as equipped_run
 from training.board_hub_item_candidates import TemplateBank, load_reference, run as inventory_run
 from training.board_hub_position_candidates import project
+from training.board_hub_frame import PreparedFrame
 
 
 def build_snapshot(image, read: dict, board: dict, position_profile: dict,
@@ -17,7 +18,8 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    recording_context: dict | None = None,
                    inventory_templates: tuple[TemplateBank, int] | None = None,
                    equipped_templates: tuple[TemplateBank, int] | None = None,
-                   allow_unmatched_arena: bool = False) -> dict:
+                   allow_unmatched_arena: bool = False,
+                   selected_entries: list[dict] | None = None) -> dict:
     if recording_context is not None:
         if (recording_context.get("schema_version") != 1 or
                 recording_context.get("set_key") != manifest["set_key"] or
@@ -25,12 +27,15 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
             raise ValueError("recording set/patch context does not match visual reference")
     positions = project(read, position_profile, board,
                         allow_unmatched_arena=allow_unmatched_arena)
+    prepared = PreparedFrame.from_image(image)
     inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope,
-                              preloaded_templates=inventory_templates)
+                              preloaded_templates=inventory_templates,
+                              prepared_frame=prepared, selected_entries=selected_entries)
     equipped = equipped_run(image, read, board, position_profile, equipped_profile,
                             manifest, entries, icon_dir, match_scope,
                             preloaded_templates=equipped_templates,
-                            allow_unmatched_arena=allow_unmatched_arena)
+                            allow_unmatched_arena=allow_unmatched_arena,
+                            prepared_frame=prepared, selected_entries=selected_entries)
     grouped = {}
     for row in positions["candidates"]:
         grouped.setdefault((row["zone"], row["row"], row["cell_or_slot"]), []).append(row["marker_id"])

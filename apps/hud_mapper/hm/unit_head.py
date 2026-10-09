@@ -231,6 +231,8 @@ class UnitHeadObserver:
                     "box": box,
                     "candidate_id": candidate,
                     "candidate_name": self.names.get(candidate),
+                    "top_hypothesis_id": self.labels[best],
+                    "top_hypothesis_name": self.names.get(self.labels[best]),
                     "status": "identity_candidate" if accepted else "unknown",
                     "softmax_score_uncalibrated": float(scores[best]),
                     "softmax_margin_uncalibrated": margin,

@@ -19,6 +19,9 @@ if (new URLSearchParams(location.search).has('connected')) {
   const clean = value => String(value == null ? '' : value);
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, ch =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  let diagnosticMemory = {sessionId: null, hud: new Map(), shop: new Map(), hub: null};
+  let fastSnapshot = null, fastRequestBusy = false, fastFrameId = null, fastEpoch = null;
+  const markerTrails = new Map();
   let previewGeneration = 0, previewRequest = null;
   const previewDrawTimes = [];
   function drawYoloOverlay(context, canvas, frameSourceMs, overlay) {
@@ -143,6 +146,7 @@ if (new URLSearchParams(location.search).has('connected')) {
   const regions = ['BR','NA','LAN','LAS','EUW','EUNE','KR','JP','OCE','TR','RU','SEA','TW','VN'];
   async function loadSources(dialog) {
     const revision = ++sourceLoadRevision;
+    const preferredLabel = selected?.label || state?.source_label;
     sourceRows = [];
     selected = null;
     const options = dialog.querySelector('.source-options');
@@ -156,13 +160,14 @@ if (new URLSearchParams(location.search).has('connected')) {
       const rows = await api().list_sources();
       if (revision !== sourceLoadRevision) return;
       if (!Array.isArray(rows)) throw new Error('O capturador retornou uma lista inválida.');
+      const chosenIndex = Math.max(0, rows.findIndex(row => row.label === preferredLabel));
       sourceRows = rows;
       options.innerHTML = rows.length ? rows.map((row, index) =>
-        `<button class="source-option ${index===0?'selected':''}" data-source-index="${index}" aria-pressed="${index===0}">`+
+        `<button class="source-option ${index===chosenIndex?'selected':''}" data-source-index="${index}" aria-pressed="${index===chosenIndex}">`+
         `<span data-icon="${row.kind==='monitor'?'monitor':'window'}"></span><b>${escapeHtml(row.label)}</b>`+
         `<small>${row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('') :
         '<div class="source-wait">Nenhum monitor ou janela disponível nesta sessão do Windows.</div>';
-      selected = rows[0] || null;
+      selected = rows[chosenIndex] || null;
       confirm.disabled = !selected;
       hydrate();
     } catch (error) {
@@ -186,24 +191,46 @@ if (new URLSearchParams(location.search).has('connected')) {
     const card = document.querySelector('.advice-card');
     if (!card) return;
     const actionable = !!(tip && tip.actionable && (tip.age_ms == null || tip.age_ms <= 5000));
-    const label = actionable ? 'DICA AGORA' : 'LEITURA EM ANDAMENTO';
-    document.querySelector('.coach-label').innerHTML = `<span>AGORA</span><span class="pill mini">${label}</span>`;
-    const title = actionable ? tip.text :
+    const combat = !!(tip && tip.kind === 'combat' && tip.speakable &&
+      (tip.age_ms == null || tip.age_ms <= 8000));
+    const previous = !actionable && !combat ? state?.history?.[0] : null;
+    const label = actionable ? 'DICA AGORA' : combat ? 'COMBATE' :
+      previous ? 'ÚLTIMA DICA' : 'LEITURA EM ANDAMENTO';
+    document.querySelector('.coach-label').innerHTML =
+      `<span>${previous ? 'SESSÃO' : 'AGORA'}</span><span class="pill mini">${label}</span>`;
+    const title = actionable || combat ? tip.text : previous ? previous.text :
+      state?.ubuntu_mvp && tip?.text ? 'Sem recomendação agora.' :
       state?.screen_mode === 'gameplay_hud' ? 'Tabuleiro visível. Buscando a próxima ação.' :
       state?.screen_mode === 'stage_without_economy' ? 'Partida detectada. Aguardando a loja e o ouro.' :
       state?.screen_mode === 'no_gameplay_hud' ? 'Aguardando o tabuleiro do TFT na tela selecionada.' :
       'Aguardando a primeira imagem da captura.';
     const recommendations = actionable ? (tip.recommendations || []) : [];
+    const decisionInfo = state?.decision_status === 'held_duplicate' ?
+      'O motor já mostrou essa ação e aguarda uma mudança na partida.' :
+      state?.decision_status === 'abstained' ?
+      'O motor não encontrou uma ação sustentada pelas leituras atuais.' : '';
     const canRate = actionable && tip.policy === 'partial_state_live_v1' &&
       tip.decision_key && !ratedTips.has(tip.decision_key);
     card.innerHTML = `<div class="advice-type">${icon(actionable?'growth':'eye')} ${label}</div>`+
       `<h2>${escapeHtml(title)}</h2>`+
       `<p>${actionable ? 'Decisão baseada na observação recente da sua tela.' :
+                     combat ? 'Comentário após a mudança observada de vida na luta.' :
+                     previous ? 'Dica anterior da sessão. A próxima orientação aparecerá quando houver nova evidência.' :
+                     tip?.text ? escapeHtml(tip.text) :
+                     state?.ubuntu_mvp ? 'Diagnóstico do mesmo motor usado no Windows.' :
                      'As ações aparecem aqui durante a partida.'}</p>`+
       `<div class="advice-explanation" style="display:block">`+
-      `Patch dos dados: ${escapeHtml(tip && tip.data_patch || 'a confirmar')}`+
+      `Patch dos dados: ${escapeHtml((actionable || combat ? tip : previous)?.data_patch || tip?.data_patch || 'a confirmar')}`+
       `${tip && tip.data_patch_basis==='bundled_catalog_patch_lab' ? ' (catálogo local de laboratório)' : ''} · `+
-      `Idade da leitura: ${tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—'}`+
+      `${previous ? 'Momento da dica: '+Math.round((previous.source_ms || 0)/1000)+' s' :
+        'Idade da leitura: '+(tip && Number.isFinite(tip.age_ms) ? Math.round(tip.age_ms)+' ms' : '—')}`+
+      `${previous && tip && !tip.actionable && tip.text ? '<br>Leitura atual: '+escapeHtml(tip.text) : ''}`+
+      `${!actionable && decisionInfo ? '<br>'+escapeHtml(decisionInfo) : ''}`+
+      `${state?.ubuntu_mvp ? '<br>HUD: '+escapeHtml((state.hud_diagnostic?.fields||[]).map(x =>
+        `${x.field}=${x.value ?? '—'} (${x.cache_delivery ?
+          `RAM${Number.isFinite(x.cache_delivery.last_ocr_age_ms) ? ' '+Math.round(x.cache_delivery.last_ocr_age_ms)+' ms' : ''}` :
+          (x.status || 'sem leitura')})`).join(' · ') || 'sem leitura')+
+        ' · decisão: '+escapeHtml(state.hud_diagnostic?.decision_reason || 'nenhuma') : ''}`+
       `${recommendations.length ? '<br>'+recommendations.map(x => escapeHtml(x.text)).join('<br>') : ''}`+
       `</div>`+
       (canRate ? '<div class="tip-feedback"><span>Esta dica ajudou?</span><button type="button" data-tip-feedback="yes">Sim</button><button type="button" data-tip-feedback="no">Não</button></div>' : '');
@@ -213,12 +240,30 @@ if (new URLSearchParams(location.search).has('connected')) {
       'Escolha a tela para iniciar a captura local.';
     const voice = state && state.voice;
     document.querySelector('#voice-label').textContent =
-      voice && voice.error ? 'Voz indisponível' : voice && voice.enabled ?
+      voice && voice.paused ? 'Voz pausada' : voice && voice.error ? 'Voz indisponível' : voice && voice.enabled ?
       'ElevenLabs · voz conectada' : 'Voz aguardando conexão';
-    document.querySelector('.voice-strip small').textContent = 'ElevenLabs · português BR';
+    document.querySelector('.voice-strip small').textContent = voice?.paused ? 'Dicas somente em texto' : 'ElevenLabs · português BR';
     document.querySelector('#play-voice').setAttribute('aria-label', 'Estado da voz');
     const audio = document.querySelector('#voice-audio');
     if (audio) audio.removeAttribute('src');
+    const strip = document.querySelector('.voice-strip');
+    if (strip) {
+      strip.style.display = voice?.paused ? 'none' : '';
+      let highlights = document.querySelector('#coach-highlights');
+      if (!highlights) {
+        highlights = document.createElement('div');
+        highlights.id = 'coach-highlights';
+        highlights.className = 'coach-highlights';
+        strip.insertAdjacentElement('afterend', highlights);
+      }
+      const result = state?.highlights;
+      highlights.innerHTML = result?.status === 'complete' ?
+        `<a href="${new URL('highlights.mp4', location.href).href}" download="melhores-momentos-agente-tft.mp4">Baixar melhores momentos com a voz do coach ↗</a>` :
+        result?.status === 'rendering' ? 'Montando os melhores momentos com voz…' :
+        result?.status === 'recording' ? `Falas gravadas: ${Number(result.clips || 0)}` :
+        result?.status === 'no_spoken_tips' ? 'Nenhuma fala do coach foi reproduzida nesta sessão.' :
+        result?.status === 'error' ? 'Não foi possível montar o vídeo desta sessão.' : '';
+    }
   }
 
   function connectedPage() {
@@ -230,7 +275,9 @@ if (new URLSearchParams(location.search).has('connected')) {
     document.querySelector('.statusbar>span').innerHTML =
       '<span class="status-dot"></span> CAPTURA LOCAL <i>·</i> '+
       (state?.visual_model_loaded ? 'VISÃO NEURAL DIAGNÓSTICA' : 'LEITURA NATIVA')+
-      ' <i>·</i> '+(state?.strategic_model_loaded ? 'ESTRATÉGIA NEURAL' : 'ESTRATÉGIA POR REGRAS');
+      ' <i>·</i> '+(state?.tip?.learned_ranker ? 'DICA NEURAL APLICADA' :
+        state?.strategic_model_loaded ? 'MODELO NEURAL CARREGADO · DICAS POR REGRAS' :
+        'ESTRATÉGIA POR REGRAS');
     document.querySelector('#footer-context').textContent =
       state && state.session_id ? `Quadros ${state.counts?.source_frames || 0} · HUB ${state.counts?.hub_results || 0} · dicas ${state.counts?.replay_tips || 0}` :
       'Captura Rust · análise local · aprendizado pós partida';
@@ -240,11 +287,23 @@ if (new URLSearchParams(location.search).has('connected')) {
     const installerLink = document.querySelector('.sidebar-bottom button[data-route="installer"]');
     if (installerLink) installerLink.style.display = 'none';
     if (current === 'studio') {
+      // Design samples must not look like observed champions in the live view.
+      for (const node of document.querySelectorAll('#main > .page-enter > .section-title, #main > .page-enter > .roster, #main > .page-enter > .insight-strip'))
+        node.style.display = 'none';
       const arena = document.querySelector('.panel .arena');
       if (arena) arena.outerHTML = `<div class="live-preview">${state && state.session_id ?
         `<canvas id="live-preview-canvas" width="960" height="540" role="img" aria-label="Vídeo em movimento com as marcações do YOLO"></canvas>`+
         `<canvas id="live-preview-overlay" width="960" height="540" aria-hidden="true"></canvas>` : ''}`+
         `<div class="live-preview-empty">${state && state.session_id ? 'Aguardando o primeiro quadro da captura…' : 'Selecione um monitor ou janela para acompanhar.'}</div></div>`;
+      const previewPanel = document.querySelector('.live-preview')?.closest('.panel');
+      if (previewPanel) {
+        const layout = document.createElement('div');
+        layout.className = 'live-inspection-layout';
+        previewPanel.parentNode.insertBefore(layout, previewPanel);
+        layout.appendChild(previewPanel);
+        layout.insertAdjacentHTML('beforeend', '<div id="live-diagnostic-grid" class="live-diagnostic-grid"></div>');
+      }
+      renderLiveDiagnostics();
       const status = document.querySelector('.capture-controls small');
       if (status) status.textContent = state && state.session_id ?
         `Captura ${state.phase} · vídeo anotado pelo YOLO` : 'Captura ainda não iniciada';
@@ -263,17 +322,46 @@ if (new URLSearchParams(location.search).has('connected')) {
       const candidates = state?.temporal_candidates || {};
       const units = (candidates.units || []).filter(row => row.candidate_id).slice(0, 10);
       const items = (candidates.inventory || []).filter(row => row.candidate_id).slice(0, 10);
+      const equipped = (candidates.equipped || []).filter(row => row.candidate_id).slice(0, 10);
       const boardStatus = readiness ?
         `${readiness.observed_unit_regions || 0} regiões observadas · ${readiness.candidate_units || 0} candidatos · ${readiness.verified_units || 0} unidades confirmadas` :
         'Aguardando a primeira leitura do tabuleiro.';
       const modelStatus = state?.unit_model_active ? 'Reconhecedor de campeões ativo' : 'Reconhecedor de campeões aguardando modelo';
       const unitText = units.length ? '<br>Possíveis campeões: '+units.map(row =>
         escapeHtml(row.candidate_name || row.candidate_id)).join(', ') : '';
-      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Leitura do tabuleiro em andamento.${unitText}<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)} · nomes ainda não confirmados</small></div></div>`;
+      const equipmentText = equipped.length ? '<br>Itens equipados observados: '+equipped.map(row => {
+        const place = row.position || [];
+        const location = place[0] === 'board' && Number.isInteger(place[1]) && Number.isInteger(place[2]) ?
+          ` (linha ${place[1]+1}, casa ${place[2]+1} aproximada)` : '';
+        return escapeHtml(row.candidate_name || row.candidate_id)+escapeHtml(location);
+      }).join(', ') : '';
+      if (arena) arena.outerHTML = `<div class="live-board-empty"><div>Leitura do tabuleiro em andamento.${unitText}${equipmentText}<br><small>${escapeHtml(boardStatus)} · ${escapeHtml(modelStatus)} · nomes ainda não confirmados</small></div></div>`;
       const inventory = document.querySelector('.board-detail .inventory');
       if (inventory) inventory.innerHTML = '<span>Inventário · '+(items.length ?
         'possíveis itens: '+items.map(row => escapeHtml(row.candidate_name || row.candidate_id)).join(', ') :
         'aguardando leitura')+' · candidatos</span>';
+      const boardPanel = document.querySelector('.board-detail');
+      let opponentPanel = document.querySelector('.live-opponents');
+      if (boardPanel && !opponentPanel) {
+        opponentPanel = document.createElement('section');
+        opponentPanel.className = 'panel live-opponents';
+        boardPanel.insertAdjacentElement('afterend', opponentPanel);
+      }
+      if (opponentPanel) {
+        const opponentState = state?.opponents || {};
+        const rows = (opponentState.players || []).filter(row => row.name).slice(0, 7);
+        opponentPanel.innerHTML = `<div class="panel-top"><span class="panel-title">Adversários observados</span>`+
+          `<span class="pill">${rows.length} nomes</span></div>`+
+          (rows.length ? `<div class="opponent-rows">${rows.map(row =>
+            `<div class="opponent-row"><b>${escapeHtml(row.name)}</b>`+
+            `<span>${row.status === 'stale_roster' ? 'Lista anterior · vida sem leitura atual' :
+              row.hp == null ? 'Vida —' : 'Vida '+escapeHtml(row.hp)}`+
+            `${row.losses_observed ? ' · derrotas contra ele '+escapeHtml(row.losses_observed) : ''}</span></div>`
+          ).join('')}</div>` : '<p class="note">Aguardando a lista de jogadores aparecer no vídeo.</p>')+
+          `<p class="opponent-note">${opponentState.current_opponent ?
+            'Confronto observado: '+escapeHtml(opponentState.current_opponent)+'. ' : ''}`+
+          `Composições dos adversários entram quando o tabuleiro de cada um for associado com segurança.</p>`;
+      }
     }
     if (current === 'history') {
       const panelTitle = document.querySelector('.timeline')?.closest('.panel')?.querySelector('.panel-title');
@@ -313,6 +401,7 @@ if (new URLSearchParams(location.search).has('connected')) {
         `<section class="panel settings-block">${profileForm(state?.profile)}</section>`);
       const rows = document.querySelectorAll('.settings-row');
       const description = rows[2]?.querySelector('p');
+      if (rows[2]) rows[2].style.display = state?.voice?.paused ? 'none' : '';
       if (description) description.textContent = 'Dicas atuais por ElevenLabs, reproduzidas no Windows.';
     }
     connectedCoach();
@@ -450,7 +539,8 @@ if (new URLSearchParams(location.search).has('connected')) {
     }
     if (button.id === 'play-voice' || button.id === 'history-voice') {
       event.stopImmediatePropagation();
-      toast(state?.voice?.error || 'A voz narra apenas dicas atuais confirmadas.');
+      toast(state?.voice?.paused ? 'Voz pausada; acompanhe as dicas em texto.' :
+        state?.voice?.error || 'A voz narra apenas dicas atuais confirmadas.');
       return;
     }
     if (button.dataset.pref === 'voice') {
@@ -459,7 +549,8 @@ if (new URLSearchParams(location.search).has('connected')) {
       const response = await api().set_voice(enabled);
       preferences.voice = response.enabled;
       button.setAttribute('aria-checked', String(response.enabled));
-      toast(response.enabled ? 'Voz ativada.' : 'Voz desativada.');
+      toast(response.paused ? 'Voz pausada; acompanhe as dicas em texto.' :
+        response.enabled ? 'Voz ativada.' : 'Voz desativada.');
       return;
     }
     if (button.id === 'studio-profile-save') {

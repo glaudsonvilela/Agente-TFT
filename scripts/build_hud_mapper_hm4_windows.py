@@ -1,6 +1,7 @@
 """Build compact HM4 Auto: simple source selection, automatic output/model discovery."""
 from pathlib import Path
 import hashlib, importlib.metadata, json, os, shutil, subprocess, sys, zipfile
+from prepare_tessdata_best import MODEL_SHA256, prepare as prepare_ocr_model
 
 root = Path(__file__).resolve().parents[1]
 if os.name != 'nt':
@@ -22,11 +23,11 @@ if not (tess / 'tesseract.exe').is_file():
     raise SystemExit('Tesseract unavailable')
 td = stage / 'tesseract'
 (td / 'tessdata').mkdir(parents=True)
+ocr_model = prepare_ocr_model()
 shutil.copy2(tess / 'tesseract.exe', td / 'tesseract.exe')
 for p in tess.glob('*.dll'):
     shutil.copy2(p, td / p.name)
-for name in ('eng.traineddata', 'osd.traineddata'):
-    shutil.copy2(tess / 'tessdata' / name, td / 'tessdata' / name)
+shutil.copy2(ocr_model / 'eng.traineddata', td / 'tessdata/eng.traineddata')
 for name in ('configs', 'tessconfigs'):
     if (tess / 'tessdata' / name).is_dir():
         shutil.copytree(tess / 'tessdata' / name, td / 'tessdata' / name)
@@ -77,6 +78,7 @@ args = [
     '--hidden-import', 'hm.temporal_candidates',
     '--hidden-import', 'hm.replay_coach',
     '--hidden-import', 'hm.replay_decision',
+    '--hidden-import', 'hm.match_identity',
     '--hidden-import', 'hm.voice',
     '--hidden-import', 'hm45_setup',
     '--hidden-import', 'hm45_setup_web',
@@ -110,6 +112,7 @@ shutil.copy2(live_assets / 'ASSET_REPORT.json', folder / 'ASSET_REPORT.json')
 
 licenses = folder / 'THIRD_PARTY'
 licenses.mkdir()
+shutil.copy2(ocr_model / 'LICENSE', licenses / 'tessdata_best-LICENSE')
 for p in tess.rglob('*'):
     if p.is_file() and p.stat().st_size < 1024**2 and any(n in p.name.lower() for n in ('license', 'copying', 'copyright')):
         shutil.copy2(p, licenses / ('tesseract-' + '-'.join(p.relative_to(tess).parts)))
@@ -129,6 +132,10 @@ if bad or fonts:
 
 files = {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
          for p in folder.rglob('*') if p.is_file()}
+bundled_ocr = [name for name in files if name.endswith('/tessdata/eng.traineddata')]
+traineddata = [name for name in files if '/tessdata/' in name and name.endswith('.traineddata')]
+if len(bundled_ocr) != 1 or traineddata != bundled_ocr or files[bundled_ocr[0]] != MODEL_SHA256:
+    raise SystemExit(f'Expected exactly one verified tessdata_best English model: {bundled_ocr}')
 manifest = dict(
     schema_version=1,
     commit=os.environ.get('GITHUB_SHA'),
@@ -150,7 +157,8 @@ manifest = dict(
     model_update_activate_during_match=False,
     capture='resident_Rust_WGC_D3D11',
     neural='local_inference_server_training',
-    ocr='Tesseract_private',
+    ocr='Tesseract_tessdata_best_eng',
+    ocr_model_sha256=MODEL_SHA256,
     model_weights_included=True,
     model_sha256=asset_report['model_sha256'],
     board_hub_reference_sha256=asset_report['reference_sha256'],
@@ -158,6 +166,7 @@ manifest = dict(
     replay_screen_review_prompts=True,
     offline_voice_options=[],
     voice_backend='elevenlabs_api',
+    voice_narration_paused=True,
     voice_service_configured=bool(json.loads((root / 'configs/services/voice.json').read_text())['service_url']),
     voice_api_credentials_bundled=False,
     local_tts_models_bundled=False,

@@ -127,6 +127,7 @@ def _upload_worker(session: Path, job_path: Path) -> None:
                         image=image,
                         content_type="image/jpeg",
                         capture_role="post_match_learning_evidence",
+                        capture_event=row.get("capture_event"),
                     )
                     break
                 except NeuralServiceError as exc:

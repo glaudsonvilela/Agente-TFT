@@ -67,6 +67,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "agente-tft-hex-player"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
 name = "agente-tft-hud-replay-inspect"
 version = "0.1.0"
 dependencies = [

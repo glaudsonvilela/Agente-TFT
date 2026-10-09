@@ -4,27 +4,42 @@ from pathlib import Path
 from datetime import datetime
 from collections import deque
 from itertools import islice
-import argparse, json, os, queue, statistics, sys, threading, time
+import argparse, hashlib, json, os, queue, statistics, sys, threading, time
 from .core import crop_box, valid_box
 from .runtime_session import RuntimeSession, HM4RuntimeSession
 from .session import Options
 from .capture_source import list_targets
 from .process_memory import current_process_memory
 from .pipeline_health import snapshot as pipeline_snapshot
+from .voice import VOICE_NARRATION_ENABLED
 
 def runtime_paths():
     root=Path(getattr(sys,"_MEIPASS",Path(__file__).resolve().parents[3]))
     exe=".exe" if os.name=="nt" else ""
     tess=root/"tesseract"/("tesseract"+exe)
     if tess.is_file():
-        os.environ["TESSDATA_PREFIX"]=str(tess.parent/"tessdata")
+        best_dir=tess.parent/"tessdata"
         tess_cmd=str(tess)
     else:
+        best_dir=Path(os.environ.get("TESSDATA_PREFIX") or root/"build/ocr/tessdata_best")
         tess_cmd="tesseract"
+    best=best_dir/"eng.traineddata"
+    if not best.is_file():
+        raise RuntimeError("tessdata_best is missing; run scripts/prepare_tessdata_best.py")
+    expected=json.loads((root/"configs/ocr/active-model.json").read_text())["eng_sha256"]
+    with best.open("rb") as model_file:
+        actual=hashlib.file_digest(model_file,"sha256").hexdigest()
+    if actual!=expected:
+        raise RuntimeError("Installed OCR model differs from tessdata_best")
+    os.environ["TESSDATA_PREFIX"]=str(best_dir)
+    os.environ["AGENTE_TFT_RESIDENT_OCR"]="required"
     bundled=root/"bin"/("agente-tft-e1-worker"+exe)
     native=root/"tools/e1-native/target/release"/("agente-tft-e1-worker"+exe)
     worker=bundled if bundled.is_file() else native
     os.environ.setdefault("OMP_THREAD_LIMIT","1")
+    # Small item-gallery dot products run faster without a BLAS worker pool;
+    # this also keeps the video preview responsive on modest PCs.
+    os.environ.setdefault("OPENBLAS_NUM_THREADS","1")
     return dict(worker=str(worker),configs=str(root/"configs"),tesseract=tess_cmd,
                 ffmpeg="HM3_RUNTIME_DISABLED",ffprobe="HM3_RUNTIME_DISABLED")
 
@@ -111,7 +126,7 @@ class App:
             self.model_updater=ModelUpdater(is_idle=lambda: not self.active() and not self.finalizing)
         if self.hm4:
             from .voice import VoiceCoach
-            self.voice=VoiceCoach()
+            self.voice=VoiceCoach(load_settings=VOICE_NARRATION_ENABLED)
             self._voice_connecting=False;self._voice_connection_result=None
             from .player_profile import load as load_profile
             self.player_profile=load_profile();self._onboarding=None
@@ -145,7 +160,8 @@ class App:
         self.seconds=tk.StringVar(value="7200" if self.hm4 else "300");self.scenario=tk.StringVar(value="hm45-live-shadow-learning" if self.hm4 else "hud-live-01")
         self.map_hz=tk.StringVar(value="2" if self.hm4 else "8");self.reader_hz=tk.StringVar(value="2" if self.hm4 else "1");self.sample_hz=tk.StringVar(value="1")
         self.replay_review=tk.BooleanVar(value=False)
-        self.voice_enabled=tk.BooleanVar(value=bool(self.voice and os.name=="nt"))
+        self.voice_enabled=tk.BooleanVar(value=bool(self.voice and os.name=="nt" and
+                                               VOICE_NARRATION_ENABLED))
         self.voice_choice=tk.StringVar(value=self.voice.voices.get(self.voice.voice_id, "Configure ElevenLabs") if self.voice else "")
         self.which=tk.StringVar(value="capture" if self.hm4 else "map");self.overlays=tk.BooleanVar(value=True)
         self.compact=tk.BooleanVar(value=False);self.compact_panels=[]
@@ -171,11 +187,14 @@ class App:
             ttk.Label(line,text=("Visão neural: diagnóstico ativo" if auto else "Leitores nativos ativos")).pack(side="left")
             ttk.Checkbutton(line,text="Revisar replay na tela",variable=self.replay_review).pack(side="left",padx=8)
             voice_line=ttk.Frame(outer);voice_line.pack(fill="x",pady=2)
-            ttk.Checkbutton(voice_line,text="Narrar orientações",variable=self.voice_enabled,
-                            command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
-            ttk.Label(voice_line,text="Voz").pack(side="left")
-            ttk.Button(voice_line,text="Conectar voz",command=self.connect_voice).pack(side="left",padx=3)
-            ttk.Button(voice_line,text="Testar áudio",command=self.test_voice).pack(side="left",padx=3)
+            if VOICE_NARRATION_ENABLED:
+                ttk.Checkbutton(voice_line,text="Narrar orientações",variable=self.voice_enabled,
+                                command=lambda:self.voice.set_enabled(self.voice_enabled.get())).pack(side="left",padx=8)
+                ttk.Label(voice_line,text="Voz").pack(side="left")
+                ttk.Button(voice_line,text="Conectar voz",command=self.connect_voice).pack(side="left",padx=3)
+                ttk.Button(voice_line,text="Testar áudio",command=self.test_voice).pack(side="left",padx=3)
+            else:
+                ttk.Label(voice_line,text="Voz pausada · dicas exibidas em texto").pack(side="left",padx=8)
             ttk.Button(voice_line,text="Perfil do jogador",command=self.configure_player).pack(side="left",padx=3)
             actions=ttk.Frame(outer);actions.pack(fill='x',pady=(0,3))
             self.actions_bar=actions
@@ -365,7 +384,7 @@ class App:
                 latest_model=discover_model()
                 if latest_model:self.model.set(latest_model)
             if self.hm4:
-                self.voice.set_enabled(self.voice_enabled.get())
+                self.voice.set_enabled(VOICE_NARRATION_ENABLED and self.voice_enabled.get())
                 self._shown_tip_key=None
                 self.voice.last_tip_attempt=None
                 self.voice.set_context(None)
@@ -462,6 +481,7 @@ class App:
         threading.Thread(target=fetch,daemon=True,name="player-history").start()
 
     def connect_voice(self):
+        if not VOICE_NARRATION_ENABLED:return
         if self._voice_connecting:return
         self._voice_connecting=True
         def connect():
@@ -473,6 +493,7 @@ class App:
         threading.Thread(target=connect,daemon=True,name="voice-service-connect").start()
 
     def test_voice(self):
+        if not VOICE_NARRATION_ENABLED:return
         if not self.voice.client:
             from tkinter import messagebox
             messagebox.showinfo("Voz",self.voice.error or "O serviço de voz ainda não está conectado.")
@@ -638,7 +659,8 @@ class App:
                    processing_p95_ms=pct([x["processing_ms"] for x in hubs],.95),
                    board_reference_status=s.versions.get("board_reference_status")),
           tips=dict(actionable=s.counts["replay_tips"],coach_updates=s.counts["coach_updates"],
-                    mode="replay_review_only" if s.options.replay_review else "disabled"),
+                    mode=("replay_review" if s.options.replay_review else "live_coaching")
+                         if s.decision_engine else "disabled"),
           capture=cap,vm_transport=transports,preview=dict(fps=preview_fps,renderer=self.preview_backend,
                                    capture_device_kind=(getattr(s.source,'ready',None) or {}).get('device_kind'),
                                    native_received=getattr(s.source,'preview_received',0),
@@ -648,17 +670,14 @@ class App:
           samples_saved=s.store.counts["samples_saved"],write_queue_dropped=s.store.counts["write_queue_dropped"],
           process_memory=current_process_memory(),
           voice=dict(enabled=bool(self.voice and self.voice.enabled),
-                     process_memory=(self.voice.engine_process.memory
-                         if self.voice and self.voice.engine_process else None),
-                     isolated=bool(self.voice and self.voice.isolated),
                      ready=bool(self.voice and self.voice.ready),
                      selected=self.voice.voice_id if self.voice else None,
-                     fallback_from=self.voice.fallback_from if self.voice else None,
                      synthesis_ms=self.voice.last_generation_ms if self.voice else None,
                      error=self.voice.error if self.voice else None,
                      queued=self.voice.queued_count if self.voice else 0,
                      played=self.voice.played_count if self.voice else 0,
-                     stale_dropped=self.voice.stale_dropped_count if self.voice else 0))
+                     stale_dropped=self.voice.stale_dropped_count if self.voice else 0,
+                     last_rejection=self.voice.last_rejection if self.voice else None))
 
     def preview_tick(self):
         tick_started=time.perf_counter_ns()
@@ -723,7 +742,7 @@ class App:
                 if key!=getattr(self,"_shown_tip_key",None):
                     self._shown_tip_key=key
                     age=(time.perf_counter_ns()-tip["source_due_ns"])/1e6
-                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'DIAGNÓSTICO'
+                    label=('DICA · ECONOMIA' if tip.get('strategy_basis')=='explicit_heuristic' else 'DICA') if tip.get('actionable') else 'COMBATE' if tip.get('kind') == 'combat' else 'DIAGNÓSTICO'
                     if tip.get('evidence_level') == 'provisional':
                         label = 'SUGESTÃO EXPERIMENTAL'
                     if tip.get('strategy_basis') == 'attribute_planning_without_abilities':
@@ -736,7 +755,7 @@ class App:
                         self.good_button.state(["!disabled"]);self.bad_button.state(["!disabled"])
                     else:
                         self.good_button.state(["disabled"]);self.bad_button.state(["disabled"])
-                    if tip.get('actionable'):
+                    if tip.get('actionable') or tip.get('kind') == 'combat':
                         alternatives = tip.get('recommendations') or []
                         families = {'roll':'Rolagem', 'composition':'Composição', 'position':'Posicionamento', 'equip':'Equipamentos'}
                         detail = ('\nAlternativas para este tabuleiro — reavalie após cada ação:\n' +
@@ -777,28 +796,27 @@ class App:
                         self.voice_choice.set(current_label)
                     voice_state=(self.voice.enabled,self.voice.ready,self.voice.error,self.voice.queued_count,
                                  self.voice.played_count,self.voice.stale_dropped_count,
-                                 self.voice.voice_id,self.voice.fallback_from)
+                                 self.voice.voice_id)
                     if voice_state!=getattr(self,"_last_voice_state",None):
                         self._last_voice_state=voice_state
                         s.store.emit("telemetry",dict(event="voice_state",enabled=voice_state[0],
                             ready=voice_state[1],error=voice_state[2],queued=voice_state[3],
                             played=voice_state[4],stale_dropped=voice_state[5],
-                            selected=voice_state[6],fallback_from=voice_state[7]))
+                            selected=voice_state[6]))
                 if visible==str(self.data_tab):
                     self.data_text.delete("1.0","end");self.data_text.insert("end",json.dumps(dict(samples_saved=s.store.counts["samples_saved"],
                       sample_budget=s.store.max_samples,bytes_saved=s.store.bytes,write_queue_dropped=s.store.counts["write_queue_dropped"],
                       note="Avaliações ajustam sugestões durante a partida; treino neural das imagens começa após a sessão."),ensure_ascii=False,indent=2))
                 voice_label=("voz erro: "+self.voice.error if self.voice and self.voice.error else
-                             ("voz ElevenLabs · reproduzida "+str(self.voice.played_count) if self.voice and self.voice.fallback_from and self.voice.enabled and self.voice.ready else
-                              ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
-                               ("voz configurada" if self.voice and self.voice.enabled else "voz desligada"))))
+                             ("voz reproduzida "+str(self.voice.played_count) if self.voice and self.voice.enabled and self.voice.ready else
+                              ("voz configurada" if self.voice and self.voice.enabled else "voz desligada")))
                 decision_reason=getattr(s,"latest_decision_reason",None)
                 pending={"OWNED_UNITS_UNVERIFIED":"campeões do tabuleiro ainda não confirmados",
                          "OWNED_UNITS_STALE":"leitura do tabuleiro antiga",
                          "GOLD_UNVERIFIED":"ouro ainda não confirmado",
                          "SHOP_STALE":"loja desatualizada",
                          "NO_VERIFIED_UPGRADE":"nenhuma melhoria de unidade confirmada"}.get(decision_reason)
-                self.status.configure(text=f'Replay {"ativo" if s.options.replay_review else "desligado"} · visão neural {"diagnóstica" if s.options.model else "indisponível"} · {voice_label} · OCR {s.counts["reader_native_runs"]} · vínculos loja {s.counts["catalog_bound_offers"]} · HUB {s.counts["hub_results"]} · leituras {s.counts["coach_updates"]} · dicas {s.counts["replay_tips"]}'+
+                self.status.configure(text=f'{"Revisão de replay" if s.options.replay_review else "Dicas ao vivo"} · visão neural {"diagnóstica" if s.options.model else "indisponível"} · {voice_label} · OCR {s.counts["reader_native_runs"]} · vínculos loja {s.counts["catalog_bound_offers"]} · HUB {s.counts["hub_results"]} · leituras {s.counts["coach_updates"]} · dicas {s.counts["replay_tips"]}'+
                                       (f' · aguardando: {pending}' if pending else ''))
             if s.done.is_set() and s.map_results.empty() and s.native_results.empty() and s.hub_results.empty():
                 self.finalizing=True;self.status.configure(text="Selando telemetria e amostras…")

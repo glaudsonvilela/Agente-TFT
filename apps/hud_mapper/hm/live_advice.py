@@ -41,10 +41,11 @@ def _hp(answer):
 class LiveAdvice:
     """Small, bounded policy over observed HUD/shop signals and patch arithmetic."""
 
-    def __init__(self, *, economy, windows, champions, preference_path=None):
+    def __init__(self, *, economy, windows, champions, trait_breakpoints=None, preference_path=None):
         self.economy = economy
         self.windows = {row["stage"]: row for row in windows}
         self.champions = champions
+        self.trait_breakpoints = trait_breakpoints or {}
         self.preference_path = Path(preference_path) if preference_path else None
         self.lock = threading.Lock()
         self.feedback = {family: [1, 1] for family in FAMILIES}
@@ -87,15 +88,15 @@ class LiveAdvice:
         # the evidence checks or make an unsupported action appear.
         return base + 0.25 * ((positive / (positive + negative)) - .5)
 
-    def propose(self, answer, visual_candidates=None):
+    def propose_all(self, answer, visual_candidates=None):
         if answer.get("origin") != "observed_pixels":
-            return None
+            return []
         gold_row = _hud(answer, "gold")
         if gold_row is None:
-            return None
+            return []
         gold = gold_row.get("value")
         if type(gold) is not int or not 0 <= gold <= 300:
-            return None
+            return []
         stage_row, level_row = _hud(answer, "stage"), _hud(answer, "level")
         stage = stage_row.get("value") if stage_row else None
         level = level_row.get("value") if level_row else None
@@ -131,8 +132,46 @@ class LiveAdvice:
                         f"Suba ao nível {level + 1} nesta rodada; o cálculo indica {quote['gold_cost']} de ouro. Confira o botão de XP.",
                         ["hud.stage", "hud.gold", "hud.level", "hud.xp", "patch.xp_rules"]))
 
+        # A quiet round before a configured level window is still a useful
+        # coaching moment. This is a provisional plan, not a claim that the
+        # player's board is strong enough or that XP should be bought now.
+        if stage_match and level_valid and gold >= 10:
+            current_round = int(stage_match[1]) * 7 + int(stage_match[2])
+            upcoming = sorted(
+                ((int(match[1]) * 7 + int(match[2]), target, rule)
+                 for target, rule in self.windows.items()
+                 if (match := re.fullmatch(r"([2-6])-([1-7])", target))),
+                key=lambda row: row[0])
+            for target_round, target, rule in upcoming:
+                if (1 <= target_round - current_round <= 3
+                        and rule["target_level"] == level + 1):
+                    options.append((self._priority("economy", .48), "economy",
+                        {"type": "prepare_level", "target_level": level + 1,
+                         "target_stage": target, "reserve_gold": rule["reserve_gold"]},
+                        f"Vamos mirar o nível {level + 1} na {target}. Nesta rodada, "
+                        "guarde ouro; compre só se a loja fortalecer seu tabuleiro de verdade.",
+                        ["hud.stage", "hud.level", "hud.gold", "patch.level_window"]))
+                    break
+
+            # The player may reach the scheduled level before its window. Once
+            # that happens, the old preparation tip no longer applies; give a
+            # single, concrete economy plan for the observed state instead.
+            for target_round, target, rule in upcoming:
+                if (1 <= target_round - current_round <= 2
+                        and rule["target_level"] == level and gold < rule["reserve_gold"]):
+                    options.append((self._priority("economy", .45), "economy",
+                        {"type": "rebuild_after_level", "level": level,
+                         "target_stage": target, "target_gold": rule["reserve_gold"]},
+                        f"Você já está no nível {level} antes da {target}. "
+                        f"Reconstrua a economia até {rule['reserve_gold']} de ouro; "
+                        "gaste antes apenas se a loja melhorar seu tabuleiro agora.",
+                        ["hud.stage", "hud.level", "hud.gold", "patch.level_window"]))
+                    break
+
         shop = answer.get("shop") or {}
         cadence = shop.get("cadence_delivery") or {}
+        visual = visual_candidates if isinstance(visual_candidates, dict) else {}
+        age = visual.get('age_ms')
         if cadence.get("fresh") is True:
             offers = [row for row in shop.get("slots") or []
                       if row.get("catalog_status") == "unique_name_bound"
@@ -150,10 +189,44 @@ class LiveAdvice:
                      "shop_slots": [row["slot"] for row in rows], "catalog_cost_each": cost},
                     f"Há duas cópias de {name} na loja. Considere comprar o par por {cost * 2} de ouro.",
                     ["shop.two_exact_names", "patch.catalog_cost", "hud.gold"]))
-                break
 
-            visual = visual_candidates if isinstance(visual_candidates, dict) else {}
-            age = visual.get('age_ms')
+            counts = visual.get('trait_counts') or {}
+            if (visual.get('status') == 'candidate_persistence'
+                    and type(age) in (int, float) and math.isfinite(age)
+                    and 0 <= age <= 3500 and isinstance(counts, dict)):
+                for offer in offers:
+                    unit = self.champions[offer['unit_id']]
+                    cost = unit.get('cost')
+                    if (type(offer.get('slot')) is not int or type(cost) is not int
+                            or cost > gold or (type(offer.get('observed_cost')) is int
+                                and offer['observed_cost'] != cost)):
+                        continue
+                    for trait in unit.get('traits') or []:
+                        count = counts.get(trait)
+                        if type(count) is not int or not 1 <= count <= 9:
+                            continue
+                        next_tier = next((tier for tier in self.trait_breakpoints.get(trait, [])
+                                          if tier > count), None)
+                        if next_tier is None:
+                            continue
+                        completes = count + 1 == next_tier
+                        action = {'type': 'trait_shop_review', 'unit_id': offer['unit_id'],
+                                  'shop_slot': offer['slot'], 'trait': trait,
+                                  'visible_trait_count': count, 'next_breakpoint': next_tier,
+                                  'completes_breakpoint_if_fielded': completes}
+                        if completes:
+                            message = (f"Se {unit['name']} ainda não está em campo, colocá-lo "
+                                       f"pode levar {trait} de {count} para {next_tier}. "
+                                       "Confira se cabe no tabuleiro antes de comprar.")
+                        else:
+                            message = (f"A loja tem {unit['name']}, mas {trait} está em {count} "
+                                       f"e o próximo bônus pede {next_tier}. "
+                                       "Não compre só por esse traço.")
+                        options.append((self._priority('synergy', .72 if completes else .57),
+                            'synergy', action, message,
+                            ['shop.unique_name_bound', 'hub.confirmed_trait_count',
+                             'patch.trait_breakpoint', 'hud.gold']))
+
             if (visual.get('status') == 'candidate_persistence'
                     and type(age) in (int, float) and math.isfinite(age)
                     and 0 <= age <= 3500):
@@ -194,21 +267,24 @@ class LiveAdvice:
                         ['shop.unique_name_bound', 'hub.persistent_board_candidates',
                          'patch.traits', 'hud.gold']))
 
-        if stage_match and 8 <= gold < 50:
-            target = ((gold // 10) + 1) * 10
-            if target - gold <= 3:
-                options.append((self._priority("economy", .54), "economy",
-                    {"type": "hold_interest", "target_gold": target},
-                    f"Guarde {target - gold} de ouro para chegar a {target} e aumentar os juros, se puder adiar compras.",
-                    ["hud.gold", "patch.interest_threshold"]))
+        # Interest arithmetic is available in the HUD. Without a concrete
+        # competing purchase or level choice it is not a coaching decision.
         if not options:
-            return None
-        _, family, action, message, basis = max(options, key=lambda row: row[0])
-        key = hashlib.sha256(json.dumps(action, sort_keys=True).encode()).hexdigest()[:20]
-        return {"schema_version": "0.1.0", "policy": "partial_state_live_v1",
+            return []
+        results = []
+        for score, family, action, message, basis in sorted(options,
+                key=lambda row: row[0], reverse=True):
+            key = hashlib.sha256(json.dumps(action, sort_keys=True).encode()).hexdigest()[:20]
+            results.append({"schema_version": "0.1.0", "policy": "partial_state_live_v1",
                 "action": action, "text": message, "evidence_level": "provisional",
                 "confidence_basis": "observed_partial_state_not_calibrated_success_probability",
                 "family": family, "basis": basis,
+                "rank_score": round(score, 5), "rank_source": "evidence_priority_v1",
                 "decision_key": "provisional:" + key,
                 "training_label": False, "learned_neural_weights": False,
-                "evidence": [{"code": "PARTIAL_STATE_HYPOTHESIS"}]}
+                "evidence": [{"code": "PARTIAL_STATE_HYPOTHESIS"}]})
+        return results
+
+    def propose(self, answer, visual_candidates=None):
+        candidates = self.propose_all(answer, visual_candidates)
+        return candidates[0] if candidates else None

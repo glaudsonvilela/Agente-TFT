@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "match_frames": 15250,
+  "reviewed_cases": [
+    {
+      "before": {
+        "frame": "frame-006002.jpg",
+        "source_seconds": 2975.1,
+        "sha256": "3891c1ae3397fef8bc27f1faee94c9921a15741f1cc9df605938611543af82cf"
+      },
+      "after": {
+        "frame": "frame-006003.jpg",
+        "source_seconds": 2975.2,
+        "sha256": "7c9730c5795d4f03b8fdd9208a641242601940c5ca2ef4c4175e172efaa42579"
+      },
+      "visual_change": "camera_scene_change",
+      "review_note": "The viewed opponent board changes between adjacent combat frames. A scouting input is possible, but neither a shop purchase nor a reroll is visible.",
+      "player_action_label": null
+    },
+    {
+      "before": {
+        "frame": "frame-008073.jpg",
+        "source_seconds": 3182.2,
+        "sha256": "2b0217b7cfeb9421705224897d83c2f525e0d63f999d38800613f8cb1fce810a"
+      },
+      "after": {
+        "frame": "frame-008074.jpg",
+        "source_seconds": 3182.3,
+        "sha256": "ef3d27bca17868579f08809a5ab204d6691ec591531927bb9ffb91cdaebf6c77"
+      },
+      "visual_change": "round_reward_overlay_animation",
+      "review_note": "The Choose One panel and planning animation change while gold remains 57; no choice can be inferred from this pair.",
+      "player_action_label": null
+    },
+    {
+      "before": {
+        "frame": "frame-009578.jpg",
+        "source_seconds": 3332.7,
+        "sha256": "04bf57184b50c4e349159b66dbcce5d64355e29a267eb1f6d9d6e1b802bc2678"
+      },
+      "after": {
+        "frame": "frame-009579.jpg",
+        "source_seconds": 3332.8,
+        "sha256": "6b735c3e03df64e92d04c3f3f88ff275c41c971d26238ccdef0bbd464c620745"
+      },
+      "visual_change": "tooltip_disappears",
+      "review_note": "Elise tooltip closes and reveals the same shop offers, with gold still 52.",
+      "player_action_label": null
+    },
+    {
+      "before": {
+        "frame": "frame-012239.jpg",
+        "source_seconds": 3598.8,
+        "sha256": "53555cd33e6c45cb8478e97861c404738cfe42047e8281befa25adb79cbf10a8"
+      },
+      "after": {
+        "frame": "frame-012240.jpg",
+        "source_seconds": 3598.9,
+        "sha256": "ed1159a10865f292dd5a5bec3c5ac1c7f202a53d83ef59522d5d5c992a3d1378"
+      },
+      "visual_change": "loot_animation",
+      "review_note": "A reward icon appears in the item area during a round transition; no manual equip action is visible.",
+      "player_action_label": null
+    },
+    {
+      "before": {
+        "frame": "frame-009500.jpg",
+        "source_seconds": 3324.9,
+        "sha256": "77f9fb900a056a789b18d23b8766927f03982bcc387c9a4f28e210e53d5f4cef"
+      },
+      "after": {
+        "frame": "frame-009520.jpg",
+        "source_seconds": 3326.9,
+        "sha256": "de90cbdce998b9467a53080edbb7ceff6c26b5a4979b3e3525bd65d4fc4c7982"
+      },
+      "visual_change": "sell_prompt_cancelled",
+      "review_note": "Sell for 1g prompt is visible during a drag, but the unit returns and gold remains 51; do not label a sale.",
+      "player_action_label": null
+    },
+    {
+      "before": {
+        "frame": "frame-015105.jpg",
+        "source_seconds": 3885.4,
+        "sha256": "83d0e00ee313faa05f31095391db654574e06bd1ba64995aa7759fbcfa1658a0"
+      },
+      "after": {
+        "frame": "frame-015106.jpg",
+        "source_seconds": 3885.5,
+        "sha256": "0f0793205d872683d41a089763f33fda0af955ce30306cf6f2a0feeeece9fadd"
+      },
+      "visual_change": "combat_transition_animation",
+      "review_note": "Large transition effect changes many regions after player elimination; no shopping action is visible.",
+      "player_action_label": null
+    }
+  ]
+}

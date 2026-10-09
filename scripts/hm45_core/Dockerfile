@@ -12,13 +12,16 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/opt/agente-tft:/opt/agente-tft/apps/hud_mapper:/opt/agente-tft/apps/e1_replay \
     OMP_THREAD_LIMIT=1 \
     OPENBLAS_NUM_THREADS=1 \
+    TESSDATA_PREFIX=/opt/agente-tft/tessdata \
     AGENTE_TFT_RESIDENT_OCR=required
 RUN apt-get update \
- && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng libtesseract5 libgomp1 \
+ && apt-get install -y --no-install-recommends tesseract-ocr libtesseract5 libgomp1 \
  && rm -rf /var/lib/apt/lists/* \
  && python3 -m pip install --no-cache-dir --only-binary=:all: \
       Pillow==12.1.0 numpy==2.2.6 onnxruntime==1.23.2
 COPY app/ /opt/agente-tft/
+COPY tessdata_best/eng.traineddata /opt/agente-tft/tessdata/eng.traineddata
+COPY tessdata_best/LICENSE /opt/agente-tft/THIRD_PARTY/tessdata_best-LICENSE
 COPY --from=builder /tmp/agente-target/release/agente-tft-e1-worker /opt/agente-tft/bin/agente-tft-e1-worker
 COPY --from=builder /tmp/agente-target/release/agente-tft-hm-hp /opt/agente-tft/bin/agente-tft-hm-hp
 RUN mkdir -p /opt/agente-tft/runtime \

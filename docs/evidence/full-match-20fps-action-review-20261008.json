@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "source_sha256": "4fc0840e3687b4b92019ad342538207754ac5388078cdb2ed1031b9d7608093f",
+  "source_interval_seconds": [2375, 3900],
+  "sampling_fps": 20,
+  "frame_resolution": [1920, 1080],
+  "label_provenance": "manual_review_of_adjacent_frames; strong_visual_inference_without_input_event_log",
+  "reviewed_actions": [
+    {
+      "type": "reroll",
+      "stage": "4-2",
+      "gold_before": 64,
+      "gold_after": 62,
+      "before": {"frame": "frame-023922.jpg", "source_seconds": 3571.05, "sha256": "394137d3aabbe9b1e263a04a7a908112059eff368c055900b382bea589eba1b9"},
+      "after": {"frame": "frame-023923.jpg", "source_seconds": 3571.10, "sha256": "96693b37835f015a716cc32480c4444a010cfe7989fff76ea651071c69ecabbc"},
+      "visual_evidence": "Shop offers refresh and gold falls by the displayed 2-gold reroll cost."
+    },
+    {
+      "type": "buy_unit",
+      "unit": "Morgana",
+      "unit_cost": 4,
+      "stage": "4-2",
+      "gold_before": 54,
+      "gold_after": 50,
+      "before": {"frame": "frame-023989.jpg", "source_seconds": 3574.40, "sha256": "3c7f69e52be48c63e43eda3a6bd9be87f98d0635a37cb28df6ac1af1725f702b"},
+      "after": {"frame": "frame-023990.jpg", "source_seconds": 3574.45, "sha256": "036449dc21e22a5f947eade6f63ed3748c33d9815ee9b6c33c7d6c829686b43e"},
+      "visual_evidence": "The labeled Morgana offer leaves shop slot 2, gold falls by 4, and a unit appears on the bench."
+    },
+    {
+      "type": "sell_unit",
+      "unit": null,
+      "sale_gold": 4,
+      "stage": "4-2",
+      "gold_before": 48,
+      "gold_after": 52,
+      "before": {"frame": "frame-024009.jpg", "source_seconds": 3575.40, "sha256": "988ecd1f3f07cb7f5554be9fd71b6307441135f7977c3b68fc29ec3ac6d2d686"},
+      "after": {"frame": "frame-024010.jpg", "source_seconds": 3575.45, "sha256": "c4697876c54d7d9b4a1c520418062f97e9f1dddd52b78e4032467018fb0c2306"},
+      "visual_evidence": "After a unit is moved to the sell area, gold rises by 4; unit identity is not asserted."
+    },
+    {
+      "type": "buy_unit",
+      "unit": "Malphite",
+      "unit_cost": 4,
+      "stage": "4-2",
+      "gold_before": 52,
+      "gold_after": 48,
+      "before": {"frame": "frame-024012.jpg", "source_seconds": 3575.55, "sha256": "1d381c624d83415f5f6e19bd3d95e8c259efb201ceb85dc9f0930dc66a1350a2"},
+      "after": {"frame": "frame-024013.jpg", "source_seconds": 3575.60, "sha256": "5699d075ed6f14f266ee3f8c573813ac19545ca050a3827090024d4b17a425dd"},
+      "visual_evidence": "The labeled 4-gold Malphite offer leaves shop slot 2; gold falls by 4 and a unit appears on the bench. This action followed the sale within the same short sequence."
+    }
+  ],
+  "reviewed_non_action": {
+    "status": "cancelled_drag_not_sale",
+    "stage": "3-5",
+    "gold_before": 51,
+    "gold_after": 51,
+    "prompt_frame": {"frame": "frame-018999.jpg", "source_seconds": 3324.90, "sha256": "682018f019c9bfb077111b766944d1f59607bf18e04ceb7f69afc7041774bef2"},
+    "returned_frame": {"frame": "frame-019001.jpg", "source_seconds": 3325.00, "sha256": "5b126b80cd5d90e0ae40a8fd79648add0bc0874ab546a2fbdf333873db64a9bd"},
+    "visual_evidence": "Sell for 1g prompt appears during a drag, then the unit returns and gold remains 51."
+  },
+  "scope_note": "These cases are an evidence sample, not an exhaustive action annotation of the 1525-second match. Predictions and pixel-change peaks were not promoted to training labels."
+}

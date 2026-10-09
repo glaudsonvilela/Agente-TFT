@@ -10,7 +10,7 @@ mod numeric_gray;
 mod text_block;
 #[cfg(any(windows,target_os="linux"))]
 mod resident;
-pub use text_block::{TextBlockOcrEngine,TextWord};
+pub use text_block::{NumberBlockOcrEngine,TextBlockOcrEngine,TextWord};
 #[cfg(any(windows,target_os="linux"))]
 pub use resident::ResidentTesseractOcr;
 

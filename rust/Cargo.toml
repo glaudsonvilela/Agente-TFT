@@ -15,6 +15,7 @@ members = [
   "apps/replay-inspect", "apps/roi-replay-inspect", "apps/hud-replay-inspect", "apps/riot-api-inspect",
   "apps/opportunity-inspect", "apps/calibration-inspect", "apps/weight-replay-diff", "apps/hud-replay-probe",
   "apps/player-hp-probe", "apps/player-hp-fit-probe", "apps/shop-replay-probe", "apps/board-replay-probe",
+  "apps/hex-player",
 ]
 resolver = "2"
 

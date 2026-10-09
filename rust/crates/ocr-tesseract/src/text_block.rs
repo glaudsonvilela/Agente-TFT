@@ -28,6 +28,29 @@ pub trait TextBlockOcrEngine {
     fn recognize_text_block(&mut self, image:&GrayImage)->Result<Vec<TextWord>,String>;
 }
 
+pub trait NumberBlockOcrEngine {
+    fn recognize_number_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>;
+}
+
+impl NumberBlockOcrEngine for TesseractOcr {
+    fn recognize_number_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>{
+        if image.width as u64 * image.height as u64 > 4_000_000 {
+            return Err("number atlas pixel budget exceeded".into());
+        }
+        parse_words(&self.run_tsv(image,"6",Some("tessedit_char_whitelist=0123456789"))?,image.width,image.height)
+    }
+}
+
+#[cfg(any(windows,target_os="linux"))]
+impl NumberBlockOcrEngine for ResidentTesseractOcr {
+    fn recognize_number_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>{
+        if image.width as u64 * image.height as u64 > 4_000_000 {
+            return Err("number atlas pixel budget exceeded".into());
+        }
+        parse_words(&self.run_tsv_custom(image,6,Some("0123456789"))?,image.width,image.height)
+    }
+}
+
 impl TextBlockOcrEngine for TesseractOcr {
     fn recognize_text_block(&mut self,image:&GrayImage)->Result<Vec<TextWord>,String>{
         TesseractOcr::recognize_text_block(self,image)

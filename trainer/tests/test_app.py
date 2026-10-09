@@ -744,6 +744,7 @@ def test_neural_frame_retry_is_idempotent(tmp_path, monkeypatch):
         "height": 1080,
         "image_sha256": hashlib.sha256(body).hexdigest(),
         "capture_role": "post_match_learning_evidence",
+        "capture_event": "shop_change",
     }
     first = client.post(
         f"/v1/neural/sessions/{neural_id}/frames",
@@ -766,6 +767,15 @@ def test_neural_frame_retry_is_idempotent(tmp_path, monkeypatch):
     ).json()
     assert record["frames_received"] == 1
     assert record["bytes_received"] == len(body)
+    metadata = json.loads((store.evidence_root / neural_id / "frames" / "000000000007.json").read_text())
+    assert metadata["metadata"]["capture_event"] == "shop_change"
+    changed = client.post(
+        f"/v1/neural/sessions/{neural_id}/frames",
+        params={**params, "capture_event": "board_change"},
+        headers={**headers, "Content-Type": "image/jpeg"},
+        content=body,
+    )
+    assert changed.status_code == 409
 
 
 def test_central_neural_health_reports_file_queue_backend(tmp_path, monkeypatch):

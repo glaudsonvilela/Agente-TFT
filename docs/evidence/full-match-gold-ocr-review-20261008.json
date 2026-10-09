@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "source_sha256": "4fc0840e3687b4b92019ad342538207754ac5388078cdb2ed1031b9d7608093f",
+  "frames_fps": 10,
+  "dimensions": [1920, 1080],
+  "label_provenance": "manual_review_of_visible_gold_HUD; not generated_from_OCR_predictions",
+  "gold_by_frame": {
+    "frame-005000.jpg": 20,
+    "frame-006500.jpg": 50,
+    "frame-007381.jpg": 67,
+    "frame-007382.jpg": 63,
+    "frame-007384.jpg": 59,
+    "frame-007386.jpg": 55,
+    "frame-007389.jpg": 51,
+    "frame-007401.jpg": 51,
+    "frame-007411.jpg": 51,
+    "frame-008000.jpg": 57,
+    "frame-009500.jpg": 51,
+    "frame-009520.jpg": 51,
+    "frame-011000.jpg": 66,
+    "frame-011961.jpg": 64,
+    "frame-011962.jpg": 62,
+    "frame-011995.jpg": 54,
+    "frame-011996.jpg": 50,
+    "frame-012005.jpg": 48,
+    "frame-012006.jpg": 52,
+    "frame-012007.jpg": 48,
+    "frame-012500.jpg": 41,
+    "frame-014000.jpg": 0
+  }
+}

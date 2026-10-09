@@ -6,7 +6,9 @@ import json
 from pathlib import Path
 
 from training.board_hub_item_candidates import (TemplateBank, load_reference,
-                                                load_templates, rank_patches, select_entries)
+                                                load_templates, rank_patches,
+                                                rank_patch_groups, select_entries)
+from training.board_hub_frame import PreparedFrame
 from training.board_hub_position_candidates import project
 
 
@@ -33,6 +35,14 @@ def validate(profile: dict, board: dict) -> None:
 def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profile: dict) -> list[dict]:
     if not templates:
         return []
+    patches, rects = equipped_patches(frame, marker, slot, profile)
+    ranked = rank_patches(patches, templates)
+    for row in ranked:
+        row["sample_rect"] = rects[row.pop("sample_index")]
+    return ranked
+
+
+def equipped_patches(frame, marker: dict, slot: int, profile: dict):
     patches = []
     rects = []
     rect = marker["rect"]
@@ -46,20 +56,18 @@ def rank_equipped(frame, marker: dict, slot: int, templates: TemplateBank, profi
                 continue
             patches.append(patch)
             rects.append({"x": x, "y": y, "width": size, "height": size})
-    ranked = rank_patches(patches, templates)
-    for row in ranked:
-        row["sample_rect"] = rects[row.pop("sample_index")]
-    return ranked
+    return patches, rects
 
 
 def run(image, read: dict, board: dict, position_profile: dict, equipped_profile: dict,
         manifest: dict, entries: list[dict], icon_dir: Path, match_scope: str = "all",
         preloaded_templates: tuple[TemplateBank, int] | None = None,
-        allow_unmatched_arena: bool = False) -> dict:
-    import numpy as np
+        allow_unmatched_arena: bool = False, prepared_frame: PreparedFrame | None = None,
+        selected_entries: list[dict] | None = None) -> dict:
 
     validate(equipped_profile, board)
-    rgb = image.convert("RGB")
+    prepared = prepared_frame or PreparedFrame.from_image(image)
+    rgb = prepared.rgb
     if (rgb.width, rgb.height) != (board["reference_width"], board["reference_height"]):
         raise ValueError("equipped frame resolution mismatch")
     positions = project(read, position_profile, board,
@@ -68,17 +76,32 @@ def run(image, read: dict, board: dict, position_profile: dict, equipped_profile
         return {"status": "projection_unavailable", "markers": [], "item_identity_established": False,
                 "unit_identity_established": False, "game_state_updated": False}
     locations = {row["marker_id"]: row for row in positions["candidates"]}
-    selected = select_entries(entries, manifest.get("set_key", ""), match_scope)
+    selected = selected_entries if selected_entries is not None else select_entries(
+        entries, manifest.get("set_key", ""), match_scope)
     templates, available = (preloaded_templates if preloaded_templates is not None else
                             load_templates(selected, icon_dir, size=equipped_profile["icon_size"]))
-    frame = np.asarray(rgb, dtype=np.uint8)
+    frame = prepared.array
     rows = []
+    searches = []
     for marker in read["markers"]:
         if marker["color"] != "green":
             continue
         slots = []
         for slot in range(equipped_profile["slots_per_bar"]):
-            candidates = rank_equipped(frame, marker, slot, templates, equipped_profile)
+            patches, rects = equipped_patches(frame, marker, slot, equipped_profile)
+            searches.append((patches, rects))
+        rows.append({"marker_id": marker["id"], "position_candidate": locations.get(marker["id"]),
+                     "slots": slots, "unit_id": None})
+    rankings = rank_patch_groups([patches for patches, _ in searches], templates)
+    search_index = 0
+    for row in rows:
+        slots = row["slots"]
+        for slot in range(equipped_profile["slots_per_bar"]):
+            candidates = rankings[search_index]
+            rects = searches[search_index][1]
+            search_index += 1
+            for candidate in candidates:
+                candidate["sample_rect"] = rects[candidate.pop("sample_index")]
             best = candidates[0]["rms"] if candidates else None
             if best is None:
                 status = "unknown"
@@ -90,8 +113,6 @@ def run(image, read: dict, board: dict, position_profile: dict, equipped_profile
                 status = "unknown"
             slots.append({"slot": slot, "status": status, "candidates": candidates,
                           "item_id": None})
-        rows.append({"marker_id": marker["id"], "position_candidate": locations.get(marker["id"]),
-                     "slots": slots, "unit_id": None})
     return {"schema_version": 1, "policy": "board_hub_equipped_candidates_v1",
             "status": "candidate_only", "reference_sha256": manifest["reference_sha256"],
             "data_dragon_version": manifest["version"], "tft_patch": None,

@@ -5,6 +5,46 @@ from itertools import combinations_with_replacement
 import unicodedata
 
 
+class TraitCountConsensus:
+    """Confirm a visible trait count twice before using it for live advice."""
+
+    def __init__(self):
+        self.previous = {}
+        self.epoch = None
+        self.source_ms = None
+
+    def update(self, raw: dict | None, binding: dict, *, epoch, source_ms):
+        if (type(source_ms) not in (int, float) or epoch != self.epoch or self.source_ms is None or
+                source_ms <= self.source_ms or source_ms - self.source_ms > 3500):
+            self.previous = {}
+        if type(source_ms) not in (int, float):
+            self.source_ms = None
+            return {}
+        self.epoch, self.source_ms = epoch, source_ms
+        words = ((raw or {}).get('words') or []) if (raw or {}).get('status') == 'raw_ocr' else []
+        current, confirmed = {}, {}
+        for trait in binding.get('traits') or []:
+            box = trait.get('row_box')
+            if (trait.get('method') != 'exact_text' or trait.get('confidence', 0) < .85
+                    or not isinstance(box, list) or len(box) != 4):
+                continue
+            center = (box[1] + box[3]) / 2
+            matches = [word for word in words
+                       if isinstance(word.get('box'), list) and len(word['box']) == 4
+                       and word['box'][0] <= 130 and word.get('confidence', 0) >= .9
+                       and str(word.get('text', '')).isdigit()
+                       and 1 <= int(word['text']) <= 9
+                       and abs((word['box'][1] + word['box'][3]) / 2 - center) <= 12]
+            if len(matches) != 1:
+                continue
+            name, count = trait['name'], int(matches[0]['text'])
+            current[name] = count
+            if self.previous.get(name) == count:
+                confirmed[name] = count
+        self.previous = current
+        return confirmed
+
+
 def _fold(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value.casefold())
     return "".join(char for char in normalized if char.isalnum()
@@ -27,7 +67,8 @@ def _distance(a: str, b: str, limit: int = 2) -> int:
 
 
 def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> dict:
-    if not isinstance(raw, dict) or raw.get("status") not in ("raw_ocr", "cached_ocr"):
+    cached = ("cached_ocr", "cadence_cached", "exact_pixels_cached")
+    if not isinstance(raw, dict) or raw.get("status") not in ("raw_ocr", *cached):
         return {"status": "unavailable", "traits": [], "unmatched": []}
     # The panel reader refreshes asynchronously every three seconds. Allow
     # one extra frame of scheduling jitter without blinking the trait panel.
@@ -90,7 +131,11 @@ def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> 
         if choice not in {item["name"] for item in matched}:
             matched.append({"name": choice, "observed_text": observed,
                             "method": method,
-                            "confidence": min(w["confidence"] for w in row)})
+                            "confidence": min(w["confidence"] for w in row),
+                            "row_box": [min(w['box'][0] for w in row),
+                                        min(w['box'][1] for w in row),
+                                        max(w['box'][2] for w in row),
+                                        max(w['box'][3] for w in row)]})
     return {"status": "candidates" if matched and len(matched) == len(text_rows)
             else "partial_panel" if matched else "no_catalog_match",
             "traits": matched, "unmatched": unmatched,

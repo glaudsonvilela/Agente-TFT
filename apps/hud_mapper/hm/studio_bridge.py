@@ -23,6 +23,7 @@ from urllib.request import urlopen
 from urllib.request import Request
 
 from .runtime_app import default_hm4_output_root, discover_model, runtime_paths, target_label
+from .voice import VOICE_NARRATION_ENABLED
 from .runtime_session import HM4RuntimeSession
 from .session import Options
 
@@ -74,6 +75,8 @@ class StudioController:
         self.preview_jpeg = None
         self.preview_source_ms = None
         self.preview_sequence = 0
+        self.preview_source_ms = None
+        self.preview_epoch = None
         self.preview_times = deque(maxlen=90)
         self.preview_encode_ms = deque(maxlen=90)
         self.browser_preview = None
@@ -81,13 +84,16 @@ class StudioController:
         self.preview_condition = threading.Condition()
         self.closed = threading.Event()
         self.voice = None
+        self.highlight_recorder = None
+        self.highlight_result = None
         from .player_profile import load as load_profile
         self.profile = load_profile()
         from .model_update import ModelUpdater
         self.model_updater = ModelUpdater(is_idle=lambda: self.session is None or self.session.finished)
         threading.Thread(target=self._resume_learning, daemon=True,
                          name="studio-resume-learning").start()
-        self._connect_voice_async()
+        if VOICE_NARRATION_ENABLED:
+            self._connect_voice_async()
         self.pump = threading.Thread(target=self._pump, daemon=True, name="studio-state-pump")
         self.preview_pump = threading.Thread(target=self._preview_pump, daemon=True,
                                              name="studio-preview-encode")
@@ -107,7 +113,12 @@ class StudioController:
         def connect():
             from .voice import VoiceCoach
             from .voice_service import connect as connect_service
-            voice = VoiceCoach(load_settings=False)
+            playback = None
+            if os.name != 'nt' and os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+                from .voice import linux_play_wav
+                playback = linux_play_wav
+            voice = VoiceCoach(playback=playback, load_settings=False)
+            voice.on_played = self._record_spoken
             try:
                 voice.configure(connect_service())
                 voice.set_enabled(True)
@@ -163,6 +174,8 @@ class StudioController:
             output = str(Path(default_hm4_output_root()) /
                          ("hm4-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
             self.last_error = self.last_result = self.last_tip_key = None
+            self.highlight_recorder = None
+            self.highlight_result = None
             self.history.clear()
             self.preview_jpeg = None
             self.preview_source_ms = None
@@ -183,7 +196,35 @@ class StudioController:
                 max_samples=90 if vm_core else 600,
                 max_bytes=384 * 1024**2 if vm_core else 1024**3,
                 capture_consent=True, capture_expected=selected)).start()
+            if VOICE_NARRATION_ENABLED:
+                try:
+                    from .speech_highlights import SpeechHighlightsRecorder
+                    self.highlight_recorder = SpeechHighlightsRecorder(output)
+                    self.highlight_result = {"status": "recording", "clips": 0}
+                except Exception as exc:
+                    self.highlight_result = {"status": "error", "error": str(exc)}
+            else:
+                self.highlight_result = {"status": "paused", "clips": 0}
             return {"session_id": self.session.id, "output": output}
+
+    def _record_spoken(self, wav, text, metadata, started_ns, ended_ns):
+        recorder = getattr(self, 'highlight_recorder', None)
+        if recorder is not None:
+            recorder.spoken(wav, text, metadata, started_ns, ended_ns)
+
+    def _highlight_state(self):
+        result = getattr(self, 'highlight_result', None)
+        recorder = getattr(self, 'highlight_recorder', None)
+        if result is None:
+            return None
+        return dict(result, clips=(len(recorder.rows) if recorder else result.get('clips', 0)))
+
+    def highlight_video(self):
+        result = getattr(self, 'highlight_result', None) or {}
+        if result.get('status') != 'complete':
+            return None
+        path = Path(result['path'])
+        return path if path.is_file() else None
 
     def stop_session(self):
         with self.lock:
@@ -192,6 +233,8 @@ class StudioController:
         return {"stopping": True}
 
     def set_voice(self, enabled):
+        if not VOICE_NARRATION_ENABLED:
+            return {"enabled": False, "paused": True}
         if self.voice:
             self.voice.set_enabled(bool(enabled))
         return {"enabled": bool(self.voice and self.voice.enabled)}
@@ -229,6 +272,7 @@ class StudioController:
             if session is None:
                 return {"phase": "idle", "tip": None, "error": self.last_error,
                         "voice": self._voice_state(), "result": self.last_result,
+                        "highlights": self._highlight_state(),
                         "profile": self.profile,
                         "model_update": self.model_updater.last_result,
                         "history": list(self.history)}
@@ -236,7 +280,7 @@ class StudioController:
             safe_tip = None
             if tip:
                 safe_tip = {k: tip.get(k) for k in
-                            ("text", "status", "actionable", "frame_id", "source_ms",
+                            ("text", "status", "actionable", "speakable", "kind", "action_type", "frame_id", "source_ms",
                              "source_due_ns", "data_patch", "data_patch_basis", "basis",
                             "strategy_basis", "recommendations", "decision_key",
                             "policy", "family")}
@@ -255,6 +299,7 @@ class StudioController:
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
                     "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
                     "visual_readiness": session.versions.get("visual_readiness"),
+                    "opponents": session.versions.get("opponent_tracking"),
                     "temporal_candidates": session.versions.get("temporal_candidates"),
                     "board_execution": session.versions.get("board_hub_execution"),
                     "unit_model_active": bool(session.versions.get("unit_neural_active")),
@@ -262,6 +307,8 @@ class StudioController:
                     "yolo_overlay": session.versions.get("yolo_overlay"),
                     "data_patch": getattr(session.decision_engine, "patch", None),
                     "screen_mode": session.versions.get("screen_mode"),
+                    "decision_status": getattr(session, "latest_decision_status", None),
+                    "decision_reason": getattr(session, "latest_decision_reason", None),
                     "tip": safe_tip, "error": session.error or self.last_error,
                     "counts": {k: session.counts[k] for k in
                                ("source_frames", "preview_frames", "reader_native_runs",
@@ -271,14 +318,21 @@ class StudioController:
                     "preview_encode_last_ms": preview_encode_ms,
                     "browser_preview": browser_preview,
                     "voice": self._voice_state(), "result": self.last_result,
+                    "highlights": self._highlight_state(),
                     "profile": self.profile,
                     "model_update": self.model_updater.last_result,
                     "history": list(self.history)}
 
+    def fast_diagnostic(self):
+        with self.lock:
+            session = self.session
+            return getattr(session, 'latest_fast_diagnostic', None) if session else None
+
     def _voice_state(self):
         v = self.voice
         return {"ready": bool(v and v.ready), "enabled": bool(v and v.enabled),
-                "played": v.played_count if v else 0, "error": v.error if v else None}
+                "played": v.played_count if v else 0, "error": v.error if v else None,
+                "paused": not VOICE_NARRATION_ENABLED}
 
     def _pump(self):
         next_model_check = 0.0
@@ -296,7 +350,7 @@ class StudioController:
             if session is None or session.finished:
                 continue
             tip = session.latest_replay_tip
-            if tip and tip.get("actionable"):
+            if tip and (tip.get("actionable") or tip.get("kind") == "combat"):
                 tip_key = (tip.get("decision_key"), tip.get("text"))
                 with self.lock:
                     if tip_key != self.last_tip_key:
@@ -320,6 +374,15 @@ class StudioController:
         The capture queue has capacity one. Slow JPEG encoding therefore drops
         old preview frames instead of delaying a new decision or spoken tip.
         """
+        fast_backend = None
+        if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+            try:
+                import cv2
+                import numpy as np
+                cv2.setNumThreads(1)
+                fast_backend = (cv2, np)
+            except ImportError:
+                pass
         next_jpeg = 0.0
         while not self.closed.is_set():
             with self.lock:
@@ -369,6 +432,10 @@ class StudioController:
                             event = None
                 if event and getattr(session, "store", None):
                     session.store.emit("telemetry", event)
+                recorder = getattr(self, 'highlight_recorder', None)
+                if recorder is not None:
+                    recorder.preview(encoded, time.monotonic_ns(),
+                                     getattr(frame, 'pts_ms', 0) or 0)
             except Exception as exc:
                 self.last_error = f"Prévia: {exc}"
 
@@ -378,6 +445,12 @@ class StudioController:
                 return
             try:
                 self.last_result = session.finish()
+                recorder = getattr(self, 'highlight_recorder', None)
+                if recorder is not None:
+                    self.highlight_result = {"status": "rendering", "clips": len(recorder.rows)}
+                    threading.Thread(target=self._render_highlights,
+                        args=(session.options.output, recorder), daemon=False,
+                        name="tft-highlight-render").start()
                 if self.last_result.get("post_session_learning_eligible") and not session.options.replay_review:
                     from .post_session_learning import launch_post_session_learning
                     self.last_result["post_session_learning_job"] = launch_post_session_learning(session.options.output)
@@ -385,6 +458,18 @@ class StudioController:
                 self.model_updater.check_async()
             except Exception as exc:
                 self.last_error = str(exc)
+
+    def _render_highlights(self, output, recorder):
+        try:
+            from .speech_highlights import compile_highlights
+            recorder.seal()
+            video = compile_highlights(output)
+            self.highlight_result = ({"status": "complete", "path": str(video),
+                                      "clips": len(recorder.rows)} if video else
+                                     {"status": "no_spoken_tips", "clips": len(recorder.rows)})
+        except Exception as exc:
+            self.highlight_result = {"status": "error", "error": str(exc),
+                                     "clips": len(recorder.rows)}
 
     def close(self):
         self.stop_session()
@@ -486,6 +571,25 @@ class StudioHandler(BaseHTTPRequestHandler):
             return
         if relative == "preview.mjpg":
             self._preview()
+            return
+        if relative == "highlights.mp4":
+            video = getattr(server.controller, 'highlight_video', lambda: None)()
+            if video is None:
+                self.send_error(404)
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "video/mp4")
+            self.send_header("Content-Length", str(video.stat().st_size))
+            self.send_header("Content-Disposition", 'attachment; filename="melhores-momentos-agente-tft.mp4"')
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            try:
+                with video.open('rb') as stream:
+                    while chunk := stream.read(256 * 1024):
+                        self.wfile.write(chunk)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
             return
         file = (server.root / relative).resolve()
         if not file.is_relative_to(server.root) or not file.is_file():
@@ -631,8 +735,12 @@ def run_studio(*, browser=False):
         handoff = os.environ.get("AGENTE_TFT_STUDIO_URL_FILE")
         if handoff:
             Path(handoff).write_text(server.url, encoding="utf-8")
+            if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+                open_local_window(server.url, "studio-browser")
         else:
             open_local_window(server.url, "studio-browser")
+        if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+            print('Interface do MVP: ' + server.url, flush=True)
         while not controller.closed.wait(1):
             # Browser timers can be suspended while the replay player is in
             # front. Never end an active capture merely because UI polling

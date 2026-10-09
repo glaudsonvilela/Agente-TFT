@@ -87,6 +87,7 @@ def build_session(job: dict, data_root: Path, workspace: Path) -> Path:
             "index":index,"frame_id":frame_id,"source_ms":source_ms,
             "width":1920,"height":1080,"image":f"frames/{index:06d}.jpg",
             "image_sha256":sha256(target),"capture_role":"post_session_learning_evidence",
+            "capture_event":meta.get("metadata",{}).get("capture_event","unspecified"),
             "ground_truth":False,"training_label":None,"model_prediction_used_as_label":False,
         })
 
@@ -179,6 +180,14 @@ def main():
             die(f"post-session pipeline failed:{proc.returncode}")
 
         state=load_json(session/"shadow-learning"/"post-session-v1"/"state.json")
+        review_file=session/"shadow-learning"/"post-session-v1"/"visual-review-queue.json"
+        review_counts=None
+        if review_file.is_file():
+            review=load_json(review_file)
+            review_counts=review.get("counts")
+            review_root=args.data_root/"neural-review"
+            review_root.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(review_file,review_root/f"{sid}.json")
 
         # Every later session is independent shadow evidence for previously
         # registered candidates. A newly selected challenger is registered
@@ -230,6 +239,7 @@ def main():
                 if corpus_manifest.is_file()
                 else None
             ),
+            "visual_review": review_counts,
         }
         candidate=session/"shadow-learning"/"post-session-v1"/"shadow-candidate.json"
         if candidate.is_file():

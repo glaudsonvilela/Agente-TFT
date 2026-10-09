@@ -139,10 +139,13 @@ class Session:
                                trained_regions=['bench','shop'] if self.model else [],
                                other_HUD_regions='registered_readers_not_neural_classes'))
             if not o.vm_core:
-                worker_env=None
+                worker_env=os.environ.copy()
+                worker_env['AGENTE_TFT_MATCH_CACHE_ROOT']=str(Path(o.output) / 'match-cache')
                 extra_env=getattr(self,'native_worker_env',None)
                 if extra_env:
-                    worker_env=os.environ.copy();worker_env.update(extra_env)
+                    worker_env.update(extra_env)
+                if o.board_hub_enabled and not o.board_reference:
+                    worker_env['AGENTE_TFT_SKIP_BOARD']='1'
                 self.worker=NativeWorker(o.worker,o.configs,o.tesseract,o.controls,Path(o.output)/'native-stderr.log',env=worker_env)
             self.versions['numeric_hud_ocr_backend']=self.worker.ready.get('numeric_hud_ocr_backend')
             self.versions['spatial_text_ocr_backend']=self.worker.ready.get('spatial_text_ocr_backend')
@@ -174,6 +177,10 @@ class Session:
                 if not hasattr(self, '_hub_loop'):
                     raise ValueError('HUB de revisão indisponível neste runtime')
                 targets.append(self._hub_loop)
+                if getattr(self, 'fast_pending', None) is not None:
+                    targets.append(self._fast_marker_loop)
+                if getattr(self, 'shop_pending', None) is not None:
+                    targets.append(self._shop_loop)
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
@@ -321,6 +328,15 @@ class Session:
                          hp_native=stats([x['native_ms'] for x in hp_reading]),
                          hub_source_to_result=stats([x['total_ms'] for x in hub_reading]),
                          hub_processing=stats([x['processing_ms'] for x in hub_reading]),
+                         hub_worker=stats([x['worker_ms'] for x in hub_reading
+                                           if isinstance(x.get('worker_ms'), (int, float))]),
+                         hub_observer=stats([x['observer_ms'] for x in hub_reading
+                                             if isinstance(x.get('observer_ms'), (int, float))]),
+                         hub_observer_stages={key: stats([x['observer_stages_ms'][key]
+                             for x in hub_reading if isinstance(
+                                 x.get('observer_stages_ms', {}).get(key), (int, float))])
+                             for key in ('snapshot_ms', 'item_neural_ms', 'unit_neural_ms',
+                                         'item_visual_native_ms')},
                          tip_source_to_ui_estimate=stats([x['total_ms'] for x in tip_ui]),
                          coach_source_to_ui_estimate=stats([x['total_ms'] for x in coach_ui]),
                          stages={k:stats(v) for k,v in stages.items()}),

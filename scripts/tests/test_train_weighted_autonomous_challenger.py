@@ -55,3 +55,21 @@ def test_mixed_teacher_gold_requires_strict_direct_evidence():
     row["partition"] = "evaluation_unlabeled"
     with pytest.raises(SystemExit):
         module.assert_gold([row])
+    row.pop("partition")
+    with pytest.raises(SystemExit):
+        module.assert_gold([row])
+
+
+def test_new_supervision_without_class_validation_is_reported():
+    module = load_module()
+    report = {"variants": {"dino": {"evaluation": {"validation": {
+        "per_class": {"DA_18_Camille": [2, 1]}
+    }}}}}
+    coverage = module.target_class_coverage(
+        report, [{"unit_id": "DA_18_Leona"}, {"unit_id": "DA_18_Camille"}]
+    )
+    assert coverage == {
+        "validation_samples_by_target": {"DA_18_Camille": 2, "DA_18_Leona": 0},
+        "targets_without_validation": ["DA_18_Leona"],
+        "validation_contains_all_targets": False,
+    }

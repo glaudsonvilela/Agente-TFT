@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import tarfile
 import struct
+from prepare_tessdata_best import MODEL_SHA256
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,9 +24,19 @@ manifest_path = core / "core-package.json"
 if not app.is_file() or not manifest_path.is_file():
     raise SystemExit("HM4 app or HM4.5 core package missing")
 app_manifest = json.loads((app.parent / "BUILD_MANIFEST.json").read_text(encoding="utf-8"))
+bundled_ocr = [name for name in app_manifest.get("files", {})
+               if name.endswith("/tessdata/eng.traineddata")]
+traineddata = [name for name in app_manifest.get("files", {})
+               if "/tessdata/" in name and name.endswith(".traineddata")]
 if (app_manifest.get("offline_voice_options") != [] or
         app_manifest.get("voice_backend") != "elevenlabs_api" or
-        app_manifest.get("local_tts_models_bundled") is not False):
+        app_manifest.get("voice_narration_paused") is not True or
+        app_manifest.get("ffmpeg_bundled") is not False or
+        app_manifest.get("local_tts_models_bundled") is not False or
+        app_manifest.get("ocr_model_sha256") != MODEL_SHA256 or
+        len(bundled_ocr) != 1 or
+        traineddata != bundled_ocr or
+        app_manifest["files"][bundled_ocr[0]] != MODEL_SHA256):
     raise SystemExit("HM4.5 requires API voice without local TTS models")
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 assets = json.loads((ROOT / "build/hm4-live-assets/ASSET_REPORT.json").read_text(encoding="utf-8"))
@@ -37,6 +48,7 @@ if (manifest.get("schema_version") != 1 or
         manifest.get("neural_location") != "local_inference_server_training" or
         manifest.get("local_neural_weights_bundled") is not True or
         manifest.get("post_session_trainer_bundled") is not False or
+        manifest.get("ocr_model_sha256") != MODEL_SHA256 or
         manifest.get("model_sha256") != assets.get("model_sha256") or
         manifest.get("board_reference_sha256") != assets.get("reference_sha256")):
     raise SystemExit("Refusing unverified HM4.5 core manifest")
@@ -49,12 +61,18 @@ if actual_sha256 != manifest.get("sha256"):
     raise SystemExit("HM4.5 core SHA-256 mismatch")
 with tarfile.open(rootfs, "r") as archive:
     members = {member.name.lstrip("./") for member in archive.getmembers()}
+    ocr_entry = next((member for member in archive.getmembers()
+                      if member.name.lstrip("./") == "opt/agente-tft/tessdata/eng.traineddata"), None)
+    ocr_member = archive.extractfile(ocr_entry) if ocr_entry is not None else None
+    if ocr_member is None or hashlib.sha256(ocr_member.read()).hexdigest() != MODEL_SHA256:
+        raise SystemExit("HM4.5 core does not contain the verified tessdata_best model")
 required_members = {
     "opt/agente-tft/bin/health-check",
     "opt/agente-tft/bin/agente-tft-e1-worker",
     "opt/agente-tft/bin/agente-tft-hm-hp",
     "opt/agente-tft/models/deployment-candidate.json",
     "opt/agente-tft/models/candidate-model.onnx",
+    "opt/agente-tft/tessdata/eng.traineddata",
 }
 missing_members = sorted(required_members - members)
 if missing_members:
@@ -121,6 +139,7 @@ report = {
     "central_learning_server": "BigBANANA",
     "offline_voice_options": [],
     "voice_backend": "elevenlabs_api",
+    "voice_narration_paused": True,
     "designer_from_first_window": True,
     "bootstrap_smoke": smoke,
     "release_ready": False,

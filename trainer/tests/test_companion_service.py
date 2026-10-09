@@ -21,6 +21,11 @@ class CompanionServiceTests(unittest.TestCase):
         self.assertEqual(response.headers['content-type'],'audio/pcm')
         self.assertEqual(len(response.content),4410)
         self.assertFalse(self.client.get('/health').json()['riot_integration'])
+        self.assertEqual(self.client.post('/v1/voice',json={'text':'Olá','tone':'[shouts]'},
+            headers={'Authorization':'Bearer '+token}).status_code,422)
+        spoken=self.client.post('/v1/voice',json={'text':'Agora, role.','tone':'urgent'},
+            headers={'Authorization':'Bearer '+token})
+        self.assertEqual(spoken.status_code,200)
     def test_budget_survives_restart_and_new_device(self):
         token=self.session()
         request=lambda t,text:self.client.post('/v1/voice',json={'text':text},headers={'Authorization':'Bearer '+t})

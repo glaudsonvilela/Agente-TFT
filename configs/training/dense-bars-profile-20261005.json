@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "match001-board-bench-v1-dense-ticks-experiment",
+  "board_topology_id": "board-standard-4x7-v1",
+  "bench_topology_id": "bench-nine-v1",
+  "reference_width": 1920,
+  "reference_height": 1080,
+  "reference_image": "frames/0005_000200000ms.jpg",
+  "reference_sha256": "6baae0d1f78b4a23f1044b2662f98a6a3e292735e839483a566d5fedb4b61021",
+  "geometry_source": {
+    "image": "frames/0027_001300000ms.jpg",
+    "sha256": "d593a9ef0a6264f10b6d5bca16a225f43ab9dfcfbbebe050e3c1b18d907fd546",
+    "role": "visible_grid_development_seed_not_independent_validation"
+  },
+  "board_rows": [
+    [
+      560,
+      1258,
+      444
+    ],
+    [
+      618,
+      1330,
+      519
+    ],
+    [
+      557,
+      1275,
+      596
+    ],
+    [
+      620,
+      1350,
+      680
+    ]
+  ],
+  "bench_centers": [
+    409,
+    527,
+    645,
+    762,
+    879,
+    996,
+    1112,
+    1228,
+    1344
+  ],
+  "bench_y": 792,
+  "bench_crop_y": 682,
+  "bench_crop_width": 103,
+  "bench_crop_height": 146,
+  "arena_anchors": [
+    {
+      "x": 535,
+      "y": 146,
+      "width": 100,
+      "height": 30
+    },
+    {
+      "x": 1383,
+      "y": 560,
+      "width": 52,
+      "height": 65
+    }
+  ],
+  "scan_rect": {
+    "x": 340,
+    "y": 130,
+    "width": 1120,
+    "height": 710
+  },
+  "signature": {
+    "grid_width": 32,
+    "grid_height": 32,
+    "arena_max_mae": 8,
+    "arena_max_changed_fraction": 0.2,
+    "empty_max_mae": 5,
+    "empty_max_changed_fraction": 0.02,
+    "change_threshold": 24
+  },
+  "bars": {
+    "min_width": 12,
+    "max_width": 90,
+    "min_height": 3,
+    "max_height": 6,
+    "max_gap": 2,
+    "min_fill_fraction": 0.75,
+    "min_border_fraction": 0.75,
+    "dark_max": 85,
+    "min_channel": 85,
+    "green_margin": 22,
+    "red_margin": 28,
+    "max_runs": 8192,
+    "max_candidates": 128,
+    "allow_dense_ticks": true
+  },
+  "note": "Spatial development seeds only. Same arena is not own board. Bar centers are not ground anchors. No champion roster, phase inference, confirmed occupancy or automatic activation."
+}

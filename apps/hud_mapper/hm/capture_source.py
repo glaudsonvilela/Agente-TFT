@@ -6,7 +6,7 @@ control. Only the owned native child communicates with WGC/D3D11.
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
-import ctypes, json, os, queue, re, struct, subprocess, threading, time
+import ctypes, json, os, queue, re, struct, subprocess, sys, threading, time
 from .dataset import Latest
 
 MAX_PAYLOAD = 128 * 1024**2
@@ -28,7 +28,10 @@ def native_path(configs):
 
 def list_targets(configs):
     if os.name != 'nt':
-        raise RuntimeError('Captura nativa disponível somente no Windows.')
+        if not sys.platform.startswith('linux'):
+            raise RuntimeError('Captura nativa disponível somente no Windows e no laboratório Ubuntu X11.')
+        from .linux_capture import list_x11_targets
+        return list_x11_targets()
     binary = native_path(configs)
     result = subprocess.run([str(binary), 'list'], capture_output=True, timeout=15,
                             creationflags=subprocess.CREATE_NO_WINDOW)

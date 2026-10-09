@@ -69,16 +69,20 @@ def coach_prompt(answer: dict) -> dict:
                 strategy_basis=decision['scope'], learned_ranker=decision['learned_ranker'],
                 recommendations=recommendations)
     if (answer.get('origin') == 'observed_pixels'
-            and decision.get('policy') == 'partial_state_live_v1'
+            and decision.get('policy') in ('partial_state_live_v1', 'integrated_match_v1')
             and decision.get('evidence_level') == 'provisional'
-            and action.get('type') in ('roll', 'buy_xp', 'buy_pair', 'buy_synergy', 'hold_interest')
+            and action.get('type') in ('roll', 'buy_xp', 'buy_pair', 'buy_synergy',
+                                       'trait_shop_review',
+                                       'hold_interest', 'prepare_level', 'rebuild_after_level')
             and decision.get('decision_key') and decision.get('text')):
         return dict(status='action', actionable=True, text=decision['text'],
             speech_text=decision['text'], decision_key=decision['decision_key'],
-            speech_max_age_ms=5000, basis=decision['basis'],
-            strategy_basis='partial_state_live_v1',
+            speech_max_age_ms=8000 if action.get('type') == 'prepare_level' else 5000,
+            basis=decision['basis'],
+            strategy_basis=decision['policy'],
             evidence_level='provisional', policy=decision['policy'],
-            family=decision['family'], training_label=False,
+            calculation_source=decision.get('calculation_source'),
+            family=decision['family'], action_type=action['type'], training_label=False,
             learned_neural_weights=False)
     if (answer.get('origin') == 'observed_pixels' and action.get('type') == 'hold_econ'
             and decision.get('policy') == 'resource_budget_v1'
@@ -139,4 +143,7 @@ def inventory_prompt(snapshot: dict) -> dict | None:
             'text': f'Equipe {action["item_name"]} em {action["unit_name"]} agora.',
             'speech_text': f'Equipe {action["item_name"]} em {action["unit_name"]} agora.',
             'basis': ['hub.verified_action'], 'actionable': True,
+            'action_type': 'equip', 'family': 'equip',
+            'decision_key': f'equip:{action["item_id"]}:{action["unit_id"]}',
+            'speech_max_age_ms': 3000,
             'item_identity_established': True, 'confidence': action['confidence']}

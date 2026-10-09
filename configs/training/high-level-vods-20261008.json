@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed_high_level_vod_sources",
+  "sources": [
+    {
+      "source_sha256": "2ef72dae7ece973a967d563d8575597b9f81d6b31facbd156dff0544f4fa1e25",
+      "qualification": "Challenger rank visible in the video overlay",
+      "qualification_type": "video_overlay_review"
+    },
+    {
+      "source_sha256": "2bcaec95e51f71ec116d7800ae39aa5aaea5c70afa4777ab56a796cddf167a02",
+      "qualification": "Challenger rank visible in the video overlay",
+      "qualification_type": "video_overlay_review"
+    },
+    {
+      "source_sha256": "1eb6a572f9a2e0b605d8131b7f32aa712ef6f1d2be8489d152f6d9464a8717cb",
+      "qualification": "Dishsoap is a former Tactician's Crown champion and qualified competitive player; this is his own tournament VOD",
+      "qualification_type": "official_esports_profile_and_vod_metadata"
+    }
+  ],
+  "excluded_source_sha256": [
+    "ddb4846b00a99290380e95e23d04e3cc6920024e7bd4a824ea2f2802f5f20df5"
+  ],
+  "note": "The excluded broadcast has not had every player perspective checked for high-level eligibility. Guide videos without per-segment ASR are not included in this pass."
+}

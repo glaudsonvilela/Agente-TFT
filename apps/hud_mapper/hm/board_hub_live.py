@@ -3,16 +3,20 @@ from __future__ import annotations
 
 import json
 import hashlib
+import time
 from pathlib import Path
 from PIL import Image
 
 from training.board_hub_item_candidates import load_reference, load_templates, select_entries
 from training.board_hub_snapshot import build_snapshot
 from .core import region, xyxy
+from .trait_constraints import TraitCountConsensus
 
 
 class BoardHubLive:
-    def __init__(self, configs: str, neural_root: str | Path | None = None):
+    def __init__(self, configs: str, neural_root: str | Path | None = None,
+                 async_unit_recognition: bool = False):
+        self.trait_count_consensus = TraitCountConsensus()
         root = Path(configs).absolute().parent
         neural_root = Path(neural_root).absolute() if neural_root else root
         profile = json.loads((root / 'configs/ui/board-hub-live-v1.json').read_text(encoding='utf-8'))
@@ -60,6 +64,7 @@ class BoardHubLive:
         self.knowledge_release = release_manifest['release_sha256']
         self.knowledge_patch = knowledge['tft_patch']
         selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
+        self.selected_item_entries = selected
         missing = [entry['icon'] for entry in selected if not (self.icons / entry['icon']).is_file()]
         available_selected = [entry for entry in selected if (self.icons / entry['icon']).is_file()]
         self.missing_item_icons = len(missing)
@@ -110,12 +115,17 @@ class BoardHubLive:
         read = board_read if isinstance(board_read, dict) and board_read.get('profile') == self.board['id'] else {
             'timestamp_ms': round(canonical_frame.pts_ms), 'profile': self.board['id'],
             'projection_status': 'unresolved', 'markers': []}
+        timings = {}
+        started = time.perf_counter_ns()
         with Image.frombytes('RGB', (canonical_frame.width, canonical_frame.height), canonical_frame.rgb) as image:
             snapshot = build_snapshot(image, read, self.board, self.position, self.equipped,
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates,
-                                      allow_unmatched_arena=True)
+                                      allow_unmatched_arena=True,
+                                      selected_entries=self.selected_item_entries)
+            timings['snapshot_ms'] = (time.perf_counter_ns()-started)/1e6
+            stage_started = time.perf_counter_ns()
             try:
                 if self.yolo:
                     snapshot['neural_units'], snapshot['neural_items'] = self.yolo.observe(
@@ -129,6 +139,7 @@ class BoardHubLive:
                 snapshot['neural_units'] = dict(active=False, error=self.yolo_error, records=[])
                 snapshot['neural_items'] = dict(active=False, error=self.yolo_error, records=[])
         source = source_frame if source_frame is not None else canonical_frame
+        stage_started = time.perf_counter_ns()
         try:
             snapshot['item_visual_native'] = (self.item_visual.observe(source, snapshot)
                 if self.item_visual else dict(active=False, error=self.item_visual_error,
@@ -139,8 +150,24 @@ class BoardHubLive:
             self.item_visual = None
             snapshot['item_visual_native'] = dict(active=False, error=self.item_visual_error,
                                                    inventory=[], equipped=[])
+        timings['item_visual_native_ms'] = (time.perf_counter_ns()-stage_started)/1e6
+        snapshot['diagnostic_timings_ms'] = {key:round(value,1) for key,value in timings.items()}
+        for row in snapshot['inventory']['candidate_slots']:
+            for candidate in row['candidates']:
+                self._bind_exact_attribute_ids(candidate)
+        for marker in snapshot['observed_markers']:
+            for slot in marker['equipped_slots']:
+                for candidate in slot['candidates']:
+                    self._bind_exact_attribute_ids(candidate)
         snapshot['item_movement'] = self.item_movement.update(
             snapshot, snapshot['item_visual_native'], getattr(source, 'epoch', None))
+        from .item_evidence import reconcile
+        snapshot['item_evidence'] = reconcile(snapshot)
+        completed_unit = snapshot.get('unit_async_result')
+        if completed_unit:
+            snapshot['unit_async_applied'] = self.temporal_candidates.ingest_async_units(
+                completed_unit, epoch=getattr(source, 'epoch', None),
+                now_ms=snapshot['timestamp_ms'])
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
         for item in snapshot['item_visual_native'].get('equipped', []):
             unit = unit_records.get(item['marker_id']) or {}
@@ -149,8 +176,12 @@ class BoardHubLive:
         snapshot['temporal_candidates'] = self.temporal_candidates.update(
             snapshot, getattr(source, 'epoch', None))
         snapshot['trait_panel_observation'] = read.get('trait_panel')
+        snapshot['opponent_panel_observation'] = read.get('opponent_panel')
         from .trait_constraints import bind_observed_traits, roster_hypotheses
         snapshot['trait_binding'] = bind_observed_traits(read.get('trait_panel'), self.trait_names)
+        snapshot['confirmed_trait_counts'] = self.trait_count_consensus.update(
+            read.get('trait_panel'), snapshot['trait_binding'],
+            epoch=getattr(source, 'epoch', None), source_ms=getattr(source, 'pts_ms', None))
         snapshot['trait_roster_hypotheses'] = roster_hypotheses(
             snapshot['trait_binding'], read.get('markers') or [], self.champion_traits)
         for marker in snapshot['observed_markers']:
@@ -163,13 +194,6 @@ class BoardHubLive:
             blockers=['UNIT_IDENTITY_VALIDATION_PENDING', 'STARS_UNVERIFIED',
                       'GROUND_POSITIONS_UNVERIFIED', 'ITEMS_UNVERIFIED',
                       'PERSPECTIVE_AND_PHASE_UNVERIFIED'])
-        for row in snapshot['inventory']['candidate_slots']:
-            for candidate in row['candidates']:
-                self._bind_exact_attribute_ids(candidate)
-        for marker in snapshot['observed_markers']:
-            for slot in marker['equipped_slots']:
-                for candidate in slot['candidates']:
-                    self._bind_exact_attribute_ids(candidate)
         from .equipment_identity import associate_equipment, item_candidate
         snapshot['unit_equipment_candidates'] = associate_equipment(
             snapshot['observed_markers'], unit_records)
@@ -177,8 +201,8 @@ class BoardHubLive:
             item_candidate(row) for row in snapshot['inventory']['candidate_slots']]
         snapshot['visual_readiness']['candidate_items'] = sum(
             row.get('candidate_id') is not None
-            for row in snapshot['item_visual_native'].get('inventory', []) +
-                       snapshot['item_visual_native'].get('equipped', []))
+            for row in snapshot['item_evidence']['inventory'] +
+                       snapshot['item_evidence']['equipped'])
         snapshot['visual_readiness']['persistent_unit_candidates'] = sum(
             row['candidate_id'] is not None for row in snapshot['temporal_candidates']['units'])
         snapshot['visual_readiness']['persistent_item_candidates'] = sum(
@@ -206,12 +230,16 @@ class BoardHubLive:
             candidates = (item or {}).get('candidates') or []
             leading = candidates[0] if candidates else None
             options = leading['catalog_options'] if leading else []
-            names={option['name'] for option in options}
             native = next((row for row in snapshot['item_visual_native'].get('inventory', [])
                            if row['slot'] == slot['slot']), {})
+            reconciled = next((row for row in snapshot['item_evidence']['inventory']
+                               if row['slot'] == slot['slot']), {})
             regions.append(region(f"hub.inventory.{slot['slot']}", xyxy(slot['rect']), slot['status'],
-                                  value=next(iter(names)) if len(names)==1 else None,
+                                  value=reconciled.get('candidate_name'),
                                   value_is_unverified_candidate=bool(candidates), item_id=None,
+                                  candidate_item_id=reconciled.get('candidate_id'),
+                                  item_evidence_status=reconciled.get('status'),
+                                  item_evidence=reconciled.get('evidence', []),
                                   candidate_items=options,
                                   native_candidate_item_id=native.get('candidate_id'),
                                   native_item_candidates=native.get('candidates', []),
@@ -222,15 +250,20 @@ class BoardHubLive:
             identity = unit_records.get(marker['id'], {})
             regions.append(region(f"hub.marker.{marker['id']}", xyxy(marker['rect']),
                                   'position_candidate' if location else 'unassigned_bar',
-                                  value=location, champion_id=None,
+                                  value=location, marker_id=marker['id'], champion_id=None,
                                   candidate_champion_id=identity.get('candidate_id'),
                                   candidate_champion_name=identity.get('candidate_name'),
                                   identity_status=identity.get('status', 'unavailable'),
                                   game_state_write_allowed=False))
         for item in snapshot['item_visual_native'].get('equipped', []):
+            reconciled = next((row for row in snapshot['item_evidence']['equipped']
+                               if row['marker_id'] == item['marker_id'] and row['slot'] == item['slot']), {})
             regions.append(region(f"hub.equipped.{item['marker_id']}.{item['slot']}",
                                   xyxy(item['canonical_rect']), item['status'],
-                                  item_id=None, candidate_item_id=item.get('candidate_id'),
+                                  item_id=None, candidate_item_id=reconciled.get('candidate_id'),
+                                  candidate_item_name=reconciled.get('candidate_name'),
+                                  item_evidence_status=reconciled.get('status'),
+                                  item_evidence=reconciled.get('evidence', []),
                                   candidate_items=item.get('candidates', []),
                                   marker_id=item['marker_id'],
                                   candidate_champion_id=item.get('candidate_champion_id'),

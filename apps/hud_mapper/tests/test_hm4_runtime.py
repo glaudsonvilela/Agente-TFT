@@ -6,7 +6,8 @@ from unittest.mock import patch
 from hm.runtime_app import _valid_candidate_model
 from hm.runtime_session import (
     HM4RuntimeSession, reader_plan, materialize_reader_frame, regions_to_source,
-    async_hp_delivery, terminal_hp_observation, shop_read_due, shop_text_signature
+    async_hp_delivery, terminal_hp_observation, shop_read_due, shop_text_signature,
+    decision_reason
 )
 from hm.session import Options, neural_provenance, completion_state
 from hm.capture_source import CapturedFrame
@@ -19,6 +20,12 @@ from hm.voice import VoiceCoach, _play_wav
 
 
 class HM4RuntimeTests(unittest.TestCase):
+    def test_integrated_rust_decision_without_legacy_evidence_does_not_end_capture(self):
+        self.assertEqual(decision_reason({'policy':'integrated_match_v1',
+            'decision_key':'provisional:whole:trait:Sejuani:Defendente:3:4:2',
+            'action':{'type':'trait_shop_review'}}),
+            'provisional:whole:trait:Sejuani:Defendente:3:4:2')
+
     def test_action_stays_visible_briefly_when_next_reader_has_only_a_diagnostic(self):
         session=object.__new__(HM4RuntimeSession)
         session.options=types.SimpleNamespace(replay_review=False)
@@ -204,16 +211,63 @@ class HM4RuntimeTests(unittest.TestCase):
         self.assertNotEqual(engine.evaluate(answer,visual_candidates=visual)
                             ['decision']['action']['type'],'buy_synergy')
 
-    def test_interest_tip_uses_stage_and_gold_without_level(self):
+    def test_confirmed_trait_count_can_review_shop_without_claiming_owned_units(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field='gold',value=39,status='single_frame_observation',confidence=.95)],
+            'shop':{'cadence_delivery':{'fresh':True},'slots':[
+                dict(slot=0,status='offer_text_readable',observed_name='Akali',
+                     name_confidence=.96,name_evidence='strong_strip_only',observed_cost=1)]}}
+        visual=dict(status='candidate_persistence',age_ms=1000,units=[],
+                    trait_counts={'Inferno':3})
+        result=engine.evaluate(answer,visual_candidates=visual)
+        self.assertEqual(result['decision']['action']['type'],'trait_shop_review')
+        self.assertIn('próximo bônus pede 5',result['decision']['text'])
+        self.assertFalse(result['decision']['training_label'])
+        self.assertEqual(coach_prompt(result)['action_type'],'trait_shop_review')
+        visual['trait_counts']['Inferno']=4
+        completing=engine.evaluate(answer,visual_candidates=visual)
+        self.assertTrue(completing['decision']['action']['completes_breakpoint_if_fielded'])
+        self.assertIn('Se Akali ainda não está em campo',completing['decision']['text'])
+        visual['age_ms']=3501
+        self.assertNotEqual(engine.evaluate(answer,visual_candidates=visual)
+                            ['decision']['action']['type'],'trait_shop_review')
+
+
+    def test_gold_alone_does_not_generate_repeated_interest_coaching(self):
         engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
         answer={'origin':'observed_pixels','source_ms':1000,'hud':[
             dict(field=k,value=v,status='single_frame_observation',confidence=.93)
             for k,v in [('stage','2-3'),('gold',18)]]}
         tip=coach_prompt(engine.evaluate(answer))
-        self.assertTrue(tip['actionable'])
-        self.assertEqual(tip['family'],'economy')
+        self.assertFalse(tip['actionable'])
         answer['hud'][0]['value']='1-4'
         self.assertFalse(coach_prompt(engine.evaluate(answer))['actionable'])
+
+    def test_upcoming_level_window_produces_a_plan_before_the_exact_round(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.93)
+            for k,v in [('stage','2-6'),('gold',22),('level',5)]]}
+        result=engine.evaluate(answer)
+        self.assertEqual(result['decision']['action']['type'],'prepare_level')
+        self.assertEqual(result['decision']['action']['target_stage'],'3-2')
+        tip=coach_prompt(result)
+        self.assertTrue(tip['actionable'])
+        self.assertIn('nível 6',tip['speech_text'])
+        self.assertFalse(tip['learned_neural_weights'])
+
+    def test_early_level_replaces_preparation_with_economy_plan(self):
+        engine=ReplayDecisionEngine(str(Path(__file__).resolve().parents[3]/'configs'))
+        answer={'origin':'observed_pixels','source_ms':1000,'hud':[
+            dict(field=k,value=v,status='single_frame_observation',confidence=.95)
+            for k,v in [('stage','3-1'),('gold',21),('level',6)]]}
+        result=engine.evaluate(answer)
+        self.assertEqual(result['decision']['action']['type'],'rebuild_after_level')
+        tip=coach_prompt(result)
+        self.assertTrue(tip['actionable'])
+        self.assertIn('30 de ouro',tip['speech_text'])
+        self.assertFalse(tip['learned_neural_weights'])
 
     def test_live_feedback_updates_preference_without_becoming_visual_label(self):
         with tempfile.TemporaryDirectory() as td:
@@ -306,7 +360,7 @@ class HM4RuntimeTests(unittest.TestCase):
             app=App(root,'hm4')
             root.update_idletasks()
             self.assertFalse(app.replay_review.get())
-            self.assertTrue(app.voice_enabled.get())
+            self.assertFalse(app.voice_enabled.get())
             self.assertEqual(app.tip_label.winfo_manager(),'pack')
             self.assertEqual(app.tip_label.master.winfo_manager(),'pack')
             self.assertEqual(app.tip_log.winfo_manager(),'pack')

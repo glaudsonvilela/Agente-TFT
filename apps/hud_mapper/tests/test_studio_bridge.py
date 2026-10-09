@@ -198,6 +198,33 @@ class StudioBridgeTests(unittest.TestCase):
                 server.shutdown()
                 server.server_close()
 
+    def test_highlights_download_only_after_compilation_and_with_local_token(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as temp:
+            video = Path(temp) / 'highlights.mp4'
+            video.write_bytes(b'mp4-sample')
+            ready = False
+            controller = SimpleNamespace(highlight_video=lambda: video if ready else None)
+            server = StudioServer(controller, temp)
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            worker.start()
+            path = server.url.split('?')[0] + 'highlights.mp4'
+            try:
+                with self.assertRaises(HTTPError) as pending:
+                    urlopen(path, timeout=2)
+                self.assertEqual(pending.exception.code, 404)
+                ready = True
+                with urlopen(path, timeout=2) as response:
+                    self.assertEqual(response.read(), b'mp4-sample')
+                    self.assertEqual(response.headers['Content-Type'], 'video/mp4')
+                with self.assertRaises(HTTPError) as untrusted:
+                    urlopen(f'http://127.0.0.1:{server.server_port}/highlights.mp4', timeout=2)
+                self.assertEqual(untrusted.exception.code, 404)
+            finally:
+                server.shutdown()
+                server.server_close()
+
     def test_installer_handoff_reuses_the_open_browser_window(self):
         from tempfile import TemporaryDirectory
         from pathlib import Path

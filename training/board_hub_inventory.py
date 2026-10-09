@@ -57,12 +57,21 @@ def pixel_fraction(rgb: bytes, width: int, rect: dict, predicate) -> float:
     return matches / (rect["width"] * rect["height"])
 
 
-def observe(rgb: bytes, width: int, height: int, profile: dict) -> dict:
+def observe(rgb: bytes, width: int, height: int, profile: dict, *, frame_array=None) -> dict:
     validate_profile(profile)
     if (width, height) != (1920, 1080) or len(rgb) != width * height * 3:
         raise ValueError("inventory frame dimensions or buffer mismatch")
-    anchor = pixel_fraction(rgb, width, profile["anchor"],
-                            lambda r, g, b: r > 55 and r > g * 1.25 and g > b * 1.3)
+    if frame_array is not None and frame_array.shape != (height, width, 3):
+        raise ValueError("inventory array dimensions mismatch")
+    if frame_array is None:
+        anchor = pixel_fraction(rgb, width, profile["anchor"],
+                                lambda r, g, b: r > 55 and r > g * 1.25 and g > b * 1.3)
+    else:
+        import numpy as np
+        a = profile["anchor"]
+        crop = frame_array[a["y"]:a["y"] + a["height"], a["x"]:a["x"] + a["width"]]
+        r, g, b = (crop[:, :, channel].astype(np.float32) for channel in range(3))
+        anchor = float(np.count_nonzero((r > 55) & (r > g * 1.25) & (g > b * 1.3))) / (a["width"] * a["height"])
     panel = "located" if anchor >= profile["anchor_orange_min_fraction"] else "unavailable"
     slots = []
     for index in range(profile["slot_count"]):
@@ -70,8 +79,13 @@ def observe(rgb: bytes, width: int, height: int, profile: dict) -> dict:
         inner = {"x": rect["x"] + profile["icon_inner_offset"]["x"],
                  "y": rect["y"] + profile["icon_inner_offset"]["y"],
                  **profile["icon_inner_size"]}
-        bright = pixel_fraction(rgb, width, inner,
-                                lambda r, g, b: max(r, g, b) > profile["bright_min_channel"])
+        if frame_array is None:
+            bright = pixel_fraction(rgb, width, inner,
+                                    lambda r, g, b: max(r, g, b) > profile["bright_min_channel"])
+        else:
+            crop = frame_array[inner["y"]:inner["y"] + inner["height"],
+                               inner["x"]:inner["x"] + inner["width"]]
+            bright = float(np.count_nonzero(np.any(crop > profile["bright_min_channel"], axis=2))) / (inner["width"] * inner["height"])
         if panel == "unavailable":
             status = "unavailable"
         elif index == 0:

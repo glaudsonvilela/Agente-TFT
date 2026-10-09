@@ -36,59 +36,72 @@ fn colored(p:[u8;3],red:bool,c:&BarPolicy)->bool {
     if red {r>=i16::from(c.min_channel) && r-g>=i16::from(c.red_margin) && r-b>=i16::from(c.red_margin)}
     else {g>=i16::from(c.min_channel) && g-r>=i16::from(c.green_margin) && g-b>=i16::from(c.green_margin)}
 }
-fn border(pixels:&[[u8;3]],w:u32,y:u32,x:u32,len:u32,dark:u8)->f32 {
-    let n=(x..x+len).filter(|xx|pixels[(y*w+xx) as usize].iter().all(|v|*v<=dark)).count();
+fn border(frame:&FrameEnvelope,scan:Rect,y:u32,x:u32,len:u32,dark:u8)->f32 {
+    let n=(x..x+len).filter(|xx|rgb(frame,scan.x+*xx,scan.y+y).iter().all(|v|*v<=dark)).count();
     n as f32/len as f32
+}
+#[derive(Default)]
+struct RowGroups {groups:Vec<Rect>,active:Vec<usize>}
+
+fn extend_rows(frame:&FrameEnvelope,scan:Rect,c:&BarPolicy,red:bool,y:u32,xs:&[u32],
+               state:&mut RowGroups,total_runs:&mut usize)->Result<(),String>{
+    if xs.is_empty(){state.active.clear();return Ok(());}
+    let mut runs=Vec::new();let mut i=0;
+    while i<xs.len() {
+        let start=i;i+=1;
+        while i<xs.len() && xs[i]-xs[i-1]<=c.max_gap+1 {i+=1;}
+        let width=xs[i-1]-xs[start]+1;
+        let fill=(i-start) as f32/width as f32;
+        let dense=c.allow_dense_ticks && width>=48 && fill>=0.35
+            && xs[start..i].windows(2).filter(|pair|pair[1]>pair[0]+1).count()>=12
+            && (xs[start]..=xs[i-1]).all(|x|{
+                let p=rgb(frame,scan.x+x,scan.y+y);
+                colored(p,red,c) || p.iter().all(|v|*v<=c.dark_max)
+            });
+        if width>=c.min_width && width<=c.max_width && (fill>=c.min_fill_fraction || dense){
+            runs.push(Rect{x:xs[start],y,width,height:1});
+        }
+    }
+    *total_runs+=runs.len();
+    if *total_runs>c.max_runs{return Err("bar scan run budget exceeded; no partial success".into());}
+    let mut next=Vec::new();
+    for run in runs {
+        let compatible:Vec<usize>=state.active.iter().copied().filter(|&j|{
+            let g=state.groups[j];g.y+g.height==y && g.x.abs_diff(run.x)<=3
+                && (g.x+g.width).abs_diff(run.x+run.width)<=3 && !next.contains(&j)
+        }).collect();
+        if compatible.len()==1 {
+            let j=compatible[0];let g=&mut state.groups[j];let end=(g.x+g.width).max(run.x+run.width);
+            g.x=g.x.min(run.x);g.width=end-g.x;g.height+=1;next.push(j);
+        }else{next.push(state.groups.len());state.groups.push(run);}
+    }
+    state.active=next;
+    Ok(())
 }
 pub fn detect(f:&FrameEnvelope,r:Rect,c:&BarPolicy)->Result<Vec<Marker>,String> {
     c.validate()?;f.validate().map_err(|e|e.to_string())?;
     if !r.valid(f.width,f.height) || u64::from(r.width)*u64::from(r.height)>2_000_000 {
         return Err("invalid marker scan region".into());
     }
-    let mut pixels=Vec::with_capacity((r.width*r.height) as usize);
-    for y in r.y..r.y+r.height {for x in r.x..r.x+r.width {pixels.push(rgb(f,x,y));}}
-    let mut result=Vec::new();let mut total_runs=0usize;
-    for red in [false,true] {
-        let mut groups:Vec<Rect>=Vec::new();
-        let mut active:Vec<usize>=Vec::new();
-        for y in 0..r.height {
-            let xs:Vec<u32>=(0..r.width).filter(|x|colored(pixels[(y*r.width+x) as usize],red,c)).collect();
-            let mut runs=Vec::new();let mut i=0;
-            while i<xs.len() {
-                let start=i;i+=1;
-                while i<xs.len() && xs[i]-xs[i-1]<=c.max_gap+1 {i+=1;}
-                let width=xs[i-1]-xs[start]+1;
-                let fill = (i - start) as f32 / width as f32;
-                let dense = c.allow_dense_ticks && width >= 48 && fill >= 0.35
-                    && xs[start..i].windows(2).filter(|p| p[1] > p[0] + 1).count() >= 12
-                    && (xs[start]..=xs[i - 1]).all(|x| {
-                        let p = pixels[(y * r.width + x) as usize];
-                        colored(p, red, c) || p.iter().all(|v| *v <= c.dark_max)
-                    });
-                if width>=c.min_width && width<=c.max_width && (fill>=c.min_fill_fraction || dense) {
-                    runs.push(Rect{x:xs[start],y,width,height:1});
-                }
-            }
-            total_runs+=runs.len();
-            if total_runs>c.max_runs {return Err("bar scan run budget exceeded; no partial success".into());}
-            let mut next=Vec::new();
-            for run in runs {
-                let compatible:Vec<usize>=active.iter().copied().filter(|&j| {
-                    let g=groups[j];g.y+g.height==y && g.x.abs_diff(run.x)<=3
-                        && (g.x+g.width).abs_diff(run.x+run.width)<=3 && !next.contains(&j)
-                }).collect();
-                if compatible.len()==1 {
-                    let j=compatible[0];let g=&mut groups[j];let end=(g.x+g.width).max(run.x+run.width);
-                    g.x=g.x.min(run.x);g.width=end-g.x;g.height+=1;next.push(j);
-                } else {next.push(groups.len());groups.push(run);}
-            }
-            active=next;
+    let mut green=RowGroups::default();let mut red=RowGroups::default();
+    let mut green_xs=Vec::new();let mut red_xs=Vec::new();let mut total_runs=0usize;
+    for y in 0..r.height {
+        green_xs.clear();red_xs.clear();
+        for x in 0..r.width {
+            let pixel=rgb(f,r.x+x,r.y+y);
+            if colored(pixel,false,c){green_xs.push(x);}
+            if colored(pixel,true,c){red_xs.push(x);}
         }
+        extend_rows(f,r,c,false,y,&green_xs,&mut green,&mut total_runs)?;
+        extend_rows(f,r,c,true,y,&red_xs,&mut red,&mut total_runs)?;
+    }
+    let mut result=Vec::new();
+    for (red,groups) in [(false,green.groups),(true,red.groups)] {
         for b in groups {
             if b.height<c.min_height || b.height>c.max_height || b.width>c.max_width
                 || b.width<4*b.height || b.y<3 || b.y+b.height+3>r.height {continue;}
-            let top=(b.y-3..b.y).map(|y|border(&pixels,r.width,y,b.x,b.width,c.dark_max)).fold(0.0,f32::max);
-            let bottom=(b.y+b.height..b.y+b.height+3).map(|y|border(&pixels,r.width,y,b.x,b.width,c.dark_max)).fold(0.0,f32::max);
+            let top=(b.y-3..b.y).map(|y|border(f,r,y,b.x,b.width,c.dark_max)).fold(0.0,f32::max);
+            let bottom=(b.y+b.height..b.y+b.height+3).map(|y|border(f,r,y,b.x,b.width,c.dark_max)).fold(0.0,f32::max);
             let quality=top.min(bottom);
             if quality<c.min_border_fraction {continue;}
             if result.len()>=c.max_candidates {return Err("bar candidate budget exceeded; no partial success".into());}

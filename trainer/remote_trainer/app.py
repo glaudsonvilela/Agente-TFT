@@ -562,6 +562,7 @@ def create_app(
         height: int,
         image_sha256: str,
         capture_role: str,
+        capture_event: str | None = None,
         content_type: str = Header(alias="Content-Type"),
         installation_id: str = Depends(require_neural_token),
     ) -> NeuralInferenceResult:
@@ -571,6 +572,9 @@ def create_app(
         if record.client_id != installation_id:
             raise HTTPException(status_code=403, detail="neural session/token mismatch")
         body = await request.body()
+        allowed_events = {"periodic", "shop_change", "board_change", "bench_or_item_change"}
+        if capture_event is not None and capture_event not in allowed_events:
+            raise HTTPException(status_code=422, detail="invalid capture event")
         try:
             metadata = NeuralFrameMetadata(
                 neural_session_id=neural_session_id,
@@ -582,6 +586,7 @@ def create_app(
                 image_bytes=len(body),
                 content_type=content_type,
                 capture_role=capture_role,
+                metadata=({"capture_event": capture_event} if capture_event else {}),
             )
         except Exception as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc

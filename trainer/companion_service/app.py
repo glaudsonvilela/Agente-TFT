@@ -18,6 +18,7 @@ import wave
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
+from typing import Literal
 from hm.voice_api import ElevenLabsSpeech, SpeechError
 from .audio_cache import AudioCache
 
@@ -28,6 +29,7 @@ class SessionRequest(BaseModel):
 
 class VoiceRequest(BaseModel):
     text: str = Field(min_length=1,max_length=500)
+    tone: Literal['thoughtful','confident','urgent'] | None = None
 
 
 class ProfileRequest(BaseModel):
@@ -101,7 +103,7 @@ def create_app(*,client=None,db_path=None,daily_characters=20000, history_provid
 
     if client is None:
         key=os.environ.get('ELEVENLABS_API_KEY','');voice=os.environ.get('ELEVENLABS_VOICE_ID','')
-        client=ElevenLabsSpeech(key,voice) if key and voice else None
+        client=ElevenLabsSpeech(key,voice,model_id=os.environ.get('ELEVENLABS_MODEL_ID','eleven_flash_v2_5')) if key and voice else None
 
     @app.get('/health')
     def health():return dict(voice_configured=client is not None,provider='elevenlabs',
@@ -157,15 +159,18 @@ def create_app(*,client=None,db_path=None,daily_characters=20000, history_provid
         if not authorization or not authorization.startswith('Bearer '):raise HTTPException(401,'Session required')
         if not lock.acquire(blocking=False):raise HTTPException(429,'Voice service busy')
         try:
-            key=audio_cache.key(client.cache_identity(),body.text)
+            # Tone belongs in the cache identity even when the current model
+            # ignores tags, so changing models cannot reuse the wrong delivery.
+            key=audio_cache.key(client.cache_identity(),json.dumps([body.text,body.tone],ensure_ascii=False))
             pcm=audio_cache.get(key)
             cached=pcm is not None
             # Cache hits still require a valid session and count toward rate limits.
-            budget.reserve(authorization[7:],0 if cached else len(body.text))
+            budget.reserve(authorization[7:],0 if cached else len(client.request_text(body.text,body.tone)))
             if cached:
                 audio_cache.record_hit(len(body.text))
             else:
-                wav=client.synthesize(body.text)
+                wav=(client.synthesize(body.text,tone=body.tone) if body.tone
+                     else client.synthesize(body.text))
                 with wave.open(io.BytesIO(wav),'rb') as audio:
                     if (audio.getnchannels(),audio.getsampwidth(),audio.getframerate())!=(1,2,22050):
                         raise SpeechError('Unsupported audio')

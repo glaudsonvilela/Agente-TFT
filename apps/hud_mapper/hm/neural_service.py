@@ -192,6 +192,7 @@ class NeuralServiceClient:
         image: bytes,
         content_type: str,
         capture_role: str,
+        capture_event: str | None = None,
         _retry_auth: bool = True,
     ) -> dict:
         if not self.token:
@@ -205,6 +206,7 @@ class NeuralServiceClient:
                 "height": height,
                 "image_sha256": digest,
                 "capture_role": capture_role,
+                **({"capture_event": capture_event} if capture_event else {}),
             }
         )
         connection = self.connection_factory(self.host, self.port, timeout=12)
@@ -234,6 +236,7 @@ class NeuralServiceClient:
                     image=image,
                     content_type=content_type,
                     capture_role=capture_role,
+                    capture_event=capture_event,
                     _retry_auth=False,
                 )
             if response.status not in (200, 201, 202):

@@ -108,6 +108,19 @@ def validation_metrics(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def target_class_coverage(report: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """State which newly supervised identities the frozen validation can test."""
+    validation = report["variants"]["dino"]["evaluation"]["validation"]
+    per_class = validation["per_class"]
+    targets = sorted({row["unit_id"] for row in rows})
+    counts = {unit_id: int(per_class.get(unit_id, [0, 0])[0]) for unit_id in targets}
+    return {
+        "validation_samples_by_target": counts,
+        "targets_without_validation": [unit_id for unit_id in targets if counts[unit_id] == 0],
+        "validation_contains_all_targets": bool(targets) and all(counts.values()),
+    }
+
+
 def assert_gold(rows: Any) -> None:
     if not isinstance(rows, list) or not rows:
         die("supported gold anchor list is empty")
@@ -205,10 +218,12 @@ def main() -> int:
     if len(source_ids) != 1:
         die(f"autonomous gold/silver must belong to exactly one source, got {sorted(source_ids)}")
     source_id = next(iter(source_ids))
-    collection_report = load_json(collection / "report.json")
-    if (collection_report.get("partition") != "training_pool_unlabeled"
-            or collection_report.get("source_id") != source_id):
-        die("training collection source/partition mismatch")
+    collection_report_path = collection / "report.json"
+    if collection_report_path.is_file():
+        collection_report = load_json(collection_report_path)
+        if (collection_report.get("partition") != "training_pool_unlabeled"
+                or collection_report.get("source_id") != source_id):
+            die("training collection source/partition mismatch")
 
     corpus_sources = None
     corpus_path = None
@@ -232,10 +247,12 @@ def main() -> int:
                 die("autonomous corpus source_id invalid/duplicate")
             seen_corpus_ids.add(source)
             collection_path = required(Path(str(row.get("collection", ""))))
-            source_report = load_json(collection_path / "report.json")
-            if (source_report.get("partition") != "training_pool_unlabeled"
-                    or source_report.get("source_id") != source):
-                die("corpus collection source/partition mismatch")
+            source_report_path = collection_path / "report.json"
+            if source_report_path.is_file():
+                source_report = load_json(source_report_path)
+                if (source_report.get("partition") != "training_pool_unlabeled"
+                        or source_report.get("source_id") != source):
+                    die("corpus collection source/partition mismatch")
             gold_path = required(Path(str(row.get("gold_labels", ""))))
             silver_path = required(Path(str(row.get("silver_labels", ""))))
             gold_weight = float(row.get("gold_weight", -1))
@@ -415,6 +432,17 @@ def main() -> int:
     model_path = required(challenger_out / "dino-head.json")
     report = load_json(report_path)
     challenger_metrics = validation_metrics(report)
+    if corpus_sources is None:
+        target_rows = [*gold_rows, *silver_rows]
+    else:
+        target_rows = []
+        for source in corpus_sources:
+            for field in ("gold_labels", "silver_labels"):
+                rows = load_json(Path(source[field]))
+                if not isinstance(rows, list):
+                    die(f"corpus {field} must be a list")
+                target_rows.extend(rows)
+    target_coverage = target_class_coverage(report, target_rows)
 
     baseline_key = metric_key(
         {
@@ -451,6 +479,7 @@ def main() -> int:
             "silver_auto": len(silver_rows),
             "silver_weight": 0.35,
         },
+        "new_supervision_validation_coverage": target_coverage,
         "selected_arm": selected,
         "selected_model_path": (
             str(model_path) if selected == "weighted-autonomous" else str(baseline_model)
@@ -506,6 +535,10 @@ def main() -> int:
         f"{challenger_metrics['cross_entropy']:.12f}"
     )
     print(f"SELECTED_ARM={selected}")
+    print("VALIDATION_CONTAINS_ALL_TARGETS=" +
+          str(target_coverage["validation_contains_all_targets"]).lower())
+    print("TARGETS_WITHOUT_VALIDATION=" +
+          json.dumps(target_coverage["targets_without_validation"]))
     print("MINJO_KH_USED_FOR_SELECTION=false")
     print("HUMAN_REVIEW_REQUIRED=false")
     print("RUNTIME_APPROVED=false")
