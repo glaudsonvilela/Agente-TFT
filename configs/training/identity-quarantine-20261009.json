@@ -1,0 +1,29 @@
+{
+  "reason": "Conflicting or incorrect labels identified by user comparison and duplicate-image audit; review before relabeling",
+  "entries": [
+    {
+      "frame_index": 144,
+      "image": "unit-gallery-rare-training-20261005/twitch-2891052706-008880.png",
+      "key": "rare-8",
+      "previous_id": "DA_Nidalee18_AP",
+      "reason": "Rakan apontado pelo usuário; recorte coincide visualmente com exemplos de Rakan",
+      "source_sha256": "cdb135c1fd51e8ddd512ab6f31555bd2b6203c3de4ac53192222a43a751249f8"
+    },
+    {
+      "frame_index": 50,
+      "image": "unit-gallery-long-training-20261005/005580.png",
+      "key": "marker-2",
+      "previous_id": "DA_18_Azir",
+      "reason": "Conflito: recorte quase idêntico ao frame 136 rotulado Warwick",
+      "source_sha256": "169c7e5ce0db5d068b2d32eca22f882a2e1b7d3842eb34f41290ce5ccec7b6ce"
+    },
+    {
+      "frame_index": 136,
+      "image": "unit-gallery-rare-training-20261005/twitch-2891050468-005940.png",
+      "key": "rare-2",
+      "previous_id": "DA_18_Warwick",
+      "reason": "Conflito: recorte quase idêntico ao frame 50 rotulado Azir",
+      "source_sha256": "26cb6cda69a8e8858c37c039c3a4d9d312ac81289f71d91da5ff9a598eabbbd0"
+    }
+  ]
+}

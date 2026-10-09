@@ -10,6 +10,7 @@ members = [
   "crates/positioning-core", "crates/matchup-positioning", "crates/meta-context", "crates/meta-hints",
   "crates/opportunity-engine", "crates/opportunity-fact-builder", "crates/opportunity-runtime",
   "crates/image-preprocess", "crates/ocr-tesseract", "crates/riot-api", "crates/tft-math",
+  "crates/tft-yolo-decoder",
   "crates/tft-rules", "crates/telemetry-core", "crates/decision-core",
   "apps/replay-inspect", "apps/roi-replay-inspect", "apps/hud-replay-inspect", "apps/riot-api-inspect",
   "apps/opportunity-inspect", "apps/calibration-inspect", "apps/weight-replay-diff", "apps/hud-replay-probe",

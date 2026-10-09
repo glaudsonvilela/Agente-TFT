@@ -112,6 +112,11 @@ class YoloHudObserver:
                                     if len(by_name.get(name.casefold(), [])) == 1 else None)
                              for name in champion_names}
         self.sha = plan['files']['detector.onnx']
+        # A local Rust build activates the TFT-specific decoder. Packaged
+        # releases can set TFT_RUST_YOLO_DECODER_LIB to the bundled library.
+        from .rust_yolo_decoder import RustYoloDecoder, _library_path
+        decoder_path = _library_path()
+        self.rust_decoder = RustYoloDecoder(decoder_path) if decoder_path.is_file() else None
 
     def _classify(self, session, image, box, size):
         import numpy as np
@@ -144,6 +149,9 @@ class YoloHudObserver:
         class_thresholds = ([.12, .10, .20, .20, .20, .20, .20, .20]
                             if primary else [threshold] * len(names))
         limits = ([16, 12, 8, 8, 1, 1, 1, 5] if primary else [16])
+        if self.rust_decoder is not None:
+            return self.rust_decoder.decode(output, image.size, names,
+                                            class_thresholds, limits)
         detections = []
         for category, name in enumerate(names):
             class_scores = scores[category]
