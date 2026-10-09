@@ -108,12 +108,11 @@ def validation_metrics(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def target_class_coverage(report: dict[str, Any], gold: list[dict[str, Any]],
-                          silver: list[dict[str, Any]]) -> dict[str, Any]:
+def target_class_coverage(report: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str, Any]:
     """State which newly supervised identities the frozen validation can test."""
     validation = report["variants"]["dino"]["evaluation"]["validation"]
     per_class = validation["per_class"]
-    targets = sorted({row["unit_id"] for row in [*gold, *silver]})
+    targets = sorted({row["unit_id"] for row in rows})
     counts = {unit_id: int(per_class.get(unit_id, [0, 0])[0]) for unit_id in targets}
     return {
         "validation_samples_by_target": counts,
@@ -131,7 +130,7 @@ def assert_gold(rows: Any) -> None:
             or row.get("decision") not in {"supported", "bootstrap_supported", "direct_gold_teacher_mixed"}
             or row.get("label_source") not in {"autonomous_shop_purchase_bench_consensus_v1", "autonomous_tooltip_temporal_consensus_v1"}
             or row.get("training_eligible") is not True
-            or row.get("partition") not in (None, "training_pool_unlabeled")
+            or row.get("partition") != "training_pool_unlabeled"
             or row.get("human_review_required") is not False
             or row.get("model_prediction_used_as_label") is not False
         ):
@@ -172,7 +171,7 @@ def assert_silver(rows: Any) -> None:
                 "silver_auto_shop_multiteacher_temporal_v1",
             }
             or row.get("training_eligible") is not True
-            or row.get("partition") not in (None, "training_pool_unlabeled")
+            or row.get("partition") != "training_pool_unlabeled"
             or row.get("human_review_required") is not False
             or not (0.0 < float(row.get("recommended_training_weight", -1)) <= 0.35)
         ):
@@ -433,7 +432,17 @@ def main() -> int:
     model_path = required(challenger_out / "dino-head.json")
     report = load_json(report_path)
     challenger_metrics = validation_metrics(report)
-    target_coverage = target_class_coverage(report, gold_rows, silver_rows)
+    if corpus_sources is None:
+        target_rows = [*gold_rows, *silver_rows]
+    else:
+        target_rows = []
+        for source in corpus_sources:
+            for field in ("gold_labels", "silver_labels"):
+                rows = load_json(Path(source[field]))
+                if not isinstance(rows, list):
+                    die(f"corpus {field} must be a list")
+                target_rows.extend(rows)
+    target_coverage = target_class_coverage(report, target_rows)
 
     baseline_key = metric_key(
         {
