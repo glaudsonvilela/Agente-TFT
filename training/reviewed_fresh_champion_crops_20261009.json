@@ -390,6 +390,20 @@
       ],
       "reviewed": true,
       "zone": "bench"
+    },
+    {
+      "source": "1-rQxgInz1M.webm",
+      "second": 799.3,
+      "split": "train",
+      "class": "Draven",
+      "box": [
+        1165,
+        58,
+        1280,
+        228
+      ],
+      "reviewed": true,
+      "zone": "board"
     }
   ]
 }
