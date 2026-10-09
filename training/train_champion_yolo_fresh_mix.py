@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""Train the 65-class YOLO crop classifier with reviewed new video crops.
-
-The dataset is prepared separately on SSD. It combines the existing train
-split with manually reviewed new crops while keeping legacy val/test fixed.
-"""
+"""Train the 65-class YOLO crop classifier from an audited SSD corpus."""
 
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import torch
@@ -25,13 +22,19 @@ def main() -> None:
     args = parser.parse_args()
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA unavailable; training must not silently use CPU")
-    if not (args.dataset / "mix-provenance.json").is_file():
-        raise ValueError("Expected an audited mixed dataset")
+    manifest_path = args.dataset / "manifest.json"
+    if not manifest_path.is_file():
+        raise ValueError("Expected a canonical corpus manifest")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("model_predictions_used_as_labels") is not False or \
+            len(manifest.get("classes", [])) != 65 or \
+            manifest.get("counts", {}).get("train") != 731:
+        raise ValueError("Corpus labels or class coverage differ from audit")
     torch.set_num_threads(4)
     torch.backends.cudnn.benchmark = True
     YOLO(str(args.weights)).train(
         data=str(args.dataset), epochs=args.epochs, patience=12,
-        imgsz=224, batch=args.batch, workers=4, device=0,
+        imgsz=224, batch=args.batch, workers=2, device=0,
         amp=False, cache="ram", optimizer="AdamW", lr0=0.00012,
         seed=31, plots=False, project=str(args.runs), name=args.name,
         exist_ok=False, save_period=5,
