@@ -1,0 +1,50 @@
+name: UI Map path
+on:
+  pull_request:
+    paths:
+      - 'training/uimap_path_l3/**'
+      - 'tests/uimap_path_l3/**'
+      - 'configs/vision/uimap-path-l3.json'
+      - 'scripts/*ui_map_path.sh'
+      - 'scripts/uimap_path_viewer.py'
+      - 'experiments/ui-map-lite-l2/**'
+      - '.github/workflows/ui-map-path.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  path-and-onnx:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: CPU training and small export dependencies
+        run: |
+          python -m pip install --retries 2 --timeout 60 --only-binary=:all: 'torch==2.12.1+cpu' --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --retries 2 --timeout 60 --only-binary=:all: -r experiments/ui_map_lite_l1/configs/requirements-export.txt
+      - name: Complete path contracts and real ONNX execution
+        env:
+          UIMAP_PATH_REQUIRE_ONNX: '1'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+        run: python -B -m unittest discover -s tests/uimap_path_l3 -v
+      - name: Original frozen L1 suite including ONNX
+        working-directory: experiments/ui_map_lite_l1
+        env:
+          PYTHONPATH: training
+          OMP_NUM_THREADS: '1'
+        run: python -B -m unittest discover -s tests -v
+      - name: Original frozen L2 suite including ONNX
+        working-directory: experiments/ui-map-lite-l2
+        env:
+          PYTHONPATH: training
+          LITE2_REQUIRE_ONNX: '1'
+          OMP_NUM_THREADS: '1'
+        run: python -B -m unittest discover -s tests -v
+      - name: Script syntax and whole-tree structural audit
+        run: |
+          bash -n scripts/probe_match001_ui_map_path.sh
+          python -B -m training.code_health_audit --root . --output /tmp/uimap-path-code-review.json
