@@ -71,6 +71,46 @@ def _enemy_health_bars_visible(image: Image.Image) -> bool:
     return bool(np.any(sums[:, 24:] - sums[:, :-24] == 24))
 
 
+def _bar_supports_box(marker: dict, box: list[int]) -> bool:
+    """Associate a visible unit bar with the body immediately below it."""
+    rect = marker.get('rect') or {}
+    if rect.get('width', 0) < 24:
+        return False
+    center = rect['x'] + rect['width'] / 2
+    return (box[0] <= center <= box[2] and
+            box[1] - 35 <= rect['y'] <= box[1] + 25)
+
+
+def _resolve_unit_sides(detections: list[dict], markers: list[dict]) -> list[dict]:
+    """Keep unsupported bodies visible without calling them allies or enemies."""
+    green = [m for m in markers if m.get('color') == 'green' and
+             (m.get('rect') or {}).get('width', 0) >= 24]
+    red = [m for m in markers if m.get('color') == 'red' and
+           (m.get('rect') or {}).get('width', 0) >= 24]
+    board = [d for d in detections if d['class_name'] == 'board_unit']
+    resolved = []
+    for detection in detections:
+        row = detection.copy()
+        box = row['box']
+        if row['class_name'] == 'board_unit':
+            has_green = any(_bar_supports_box(m, box) for m in green)
+            has_red = any(_bar_supports_box(m, box) for m in red)
+            if not has_green and (has_red or (bool(red) and not green)):
+                row['class_name'] = 'unit_unassigned'
+                row['side_resolution'] = 'enemy_bar' if has_red else 'no_allied_bar_in_combat'
+        elif row['class_name'] == 'enemy_unit':
+            has_green = any(_bar_supports_box(m, box) for m in green)
+            has_red = any(_bar_supports_box(m, box) for m in red)
+            if has_green and not has_red and any(
+                    _iou(box, ally['box']) > .4 and
+                    any(_bar_supports_box(m, ally['box']) for m in green)
+                    for ally in board):
+                row['class_name'] = 'unit_unassigned'
+                row['side_resolution'] = 'overlaps_green_bar_unit'
+        resolved.append(row)
+    return resolved
+
+
 class YoloHudObserver:
     def __init__(self, runtime_root: Path, bundle_root: Path):
         self.root = Path(runtime_root)
@@ -184,6 +224,8 @@ class YoloHudObserver:
                             if _enemy_health_bars_visible(image) else [])
         enemy_end = time.perf_counter()
         detections.extend(enemy_detections)
+        detections = _resolve_unit_sides(detections, read.get('markers') or [])
+        enemy_detections = [row for row in detections if row['class_name'] == 'enemy_unit']
         from .mascot_bars import observe as observe_mascot_bars
         mascot_candidates = observe_mascot_bars(image)
         records = []
@@ -206,6 +248,8 @@ class YoloHudObserver:
                              box[2] <= image.width * .85)
             zone = (detected['class_name'] if detected else
                     'bench_unit' if lower_reserve else 'unlocalized')
+            if zone == 'unlocalized':
+                continue
             predictions = self._classify(self.champions, image, crop_box, 224)
             if not predictions:
                 continue
