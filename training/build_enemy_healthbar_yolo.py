@@ -10,6 +10,8 @@ import argparse
 from collections import Counter
 import json
 from pathlib import Path
+import subprocess
+import tempfile
 
 import cv2
 import yaml
@@ -33,32 +35,42 @@ def build(sources, output: Path, start: int, stop: int, step: int):
         duration = capture.get(cv2.CAP_PROP_FRAME_COUNT) / capture.get(cv2.CAP_PROP_FPS)
         if not 0 < duration < 100000:
             raise ValueError(f"Invalid video duration: {video}")
-        times = range(start, min(stop, int(duration) - 3), step)
-        for index, second in enumerate(times):
-            capture.set(cv2.CAP_PROP_POS_MSEC, second * 1000)
-            ok, frame = capture.read()
-            if not ok or frame.shape[:2] != (1080, 1920):
-                continue
-            proposals = enemy_health_bar_candidates(frame, [])
-            if len(proposals) < 2:
-                continue
-            image_dir = output / "images" / split
-            label_dir = output / "labels" / split
-            image_dir.mkdir(parents=True, exist_ok=True)
-            label_dir.mkdir(parents=True, exist_ok=True)
-            stem = f"source{source_number:02d}-{second:05d}"
-            cv2.imwrite(str(image_dir / f"{stem}.jpg"), frame,
-                        [cv2.IMWRITE_JPEG_QUALITY, 87])
-            (label_dir / f"{stem}.txt").write_text("\n".join(
-                yolo_box(row["box"]) for row in proposals) + "\n")
-            audit.append({"video": str(video), "second": second, "split": split,
-                          "image": stem + ".jpg", "proposals": proposals,
-                          "label_source": "red_health_bar_geometry_not_human_review"})
-            counts[split]["frames"] += 1
-            counts[split]["boxes"] += len(proposals)
-            if index % 20 == 0:
-                print(f"{split} {video.name}: {index+1}/{len(times)}", flush=True)
         capture.release()
+        end = min(stop, int(duration) - 3)
+        if end <= start:
+            continue
+        # OpenCV's random MP4 seeking redecodes many frames at each sample.
+        # Reading only keyframes in one ffmpeg pass keeps a long VOD practical.
+        with tempfile.TemporaryDirectory(dir=output) as temporary:
+            frames = Path(temporary)
+            subprocess.run([
+                "ffmpeg", "-hide_banner", "-loglevel", "error", "-skip_frame", "nokey",
+                "-ss", str(start), "-t", str(end-start), "-i", str(video),
+                "-vf", f"fps=1/{step}", "-q:v", "3", str(frames / "frame-%05d.jpg"),
+            ], check=True)
+            for index, image in enumerate(sorted(frames.glob("frame-*.jpg"))):
+                frame = cv2.imread(str(image))
+                if frame is None or frame.shape[:2] != (1080, 1920):
+                    continue
+                proposals = enemy_health_bar_candidates(frame, [])
+                if len(proposals) < 2:
+                    continue
+                image_dir = output / "images" / split
+                label_dir = output / "labels" / split
+                image_dir.mkdir(parents=True, exist_ok=True)
+                label_dir.mkdir(parents=True, exist_ok=True)
+                stem = f"source{source_number:02d}-{index:05d}"
+                image.replace(image_dir / f"{stem}.jpg")
+                (label_dir / f"{stem}.txt").write_text("\n".join(
+                    yolo_box(row["box"]) for row in proposals) + "\n")
+                audit.append({"video": str(video), "estimated_second": start + index*step,
+                              "timestamp_kind": "keyframe_sample_approximate", "split": split,
+                              "image": stem + ".jpg", "proposals": proposals,
+                              "label_source": "red_health_bar_geometry_not_human_review"})
+                counts[split]["frames"] += 1
+                counts[split]["boxes"] += len(proposals)
+                if index % 20 == 0:
+                    print(f"{split} {video.name}: {index+1} samples", flush=True)
     (output / "data.yaml").write_text(yaml.safe_dump({
         "path": str(output), "train": "images/train", "val": "images/val",
         "test": "images/test", "names": {0: "enemy_unit"}}, sort_keys=False))
