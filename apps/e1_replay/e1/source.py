@@ -43,15 +43,18 @@ def probe(path, ffprobe):
 
 
 class VideoSource:
-    def __init__(self, path, ffmpeg='ffmpeg', ffprobe='ffprobe'):
+    def __init__(self, path, ffmpeg='ffmpeg', ffprobe='ffprobe', fps=None):
         self._close_lock = threading.Lock()
         self.closed = False
         self.path = local_video(path)
         self.w, self.h = probe(self.path, ffprobe)
         self.identity = (self.path.stat().st_size, self.path.stat().st_mtime_ns)
+        if fps is not None and not 1 <= fps <= 60:
+            raise ValueError('Replay FPS outside decoding budget')
+        filters = f'fps={fps},format=rgb24,showinfo' if fps is not None else 'format=rgb24,showinfo'
         self.proc = spawn([ffmpeg, '-nostdin', '-v', 'info', '-threads', '2',
                            '-filter_threads', '1', '-protocol_whitelist', 'file', '-noautorotate', '-i', self.path,
-                           '-map', '0:v:0', '-an', '-sn', '-dn', '-vf', 'format=rgb24,showinfo',
+                           '-map', '0:v:0', '-an', '-sn', '-dn', '-vf', filters,
                            '-fps_mode', 'passthrough', '-f', 'rawvideo', '-pix_fmt', 'rgb24', 'pipe:1'],
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
         self.pts = queue.Queue(maxsize=64)

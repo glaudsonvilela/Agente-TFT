@@ -94,38 +94,15 @@ class BoardHubLive:
                                                 self.item_attribute_ids)
         except (OSError, ValueError, ImportError, RuntimeError, AttributeError) as exc:
             self.item_visual_error = str(exc)
-        self.item_neural=None
-        self.item_neural_error=None
-        if ((neural_root/'configs/catalog/active-item-neural-v1.json').is_file() or
-                (root/'configs/catalog/active-item-neural-v1.json').is_file()):
+        self.yolo = None
+        self.yolo_error = 'yolo_model_not_installed'
+        if (neural_root / 'configs/catalog/active-yolo-hud-v1.json').is_file():
             try:
-                from .item_neural import ItemIconObserver
-                self.item_neural=ItemIconObserver(root, neural_root)
-            except (OSError,ValueError,ImportError,RuntimeError) as exc:
-                self.item_neural_error=str(exc)
-        self.unit_neural = None
-        self.unit_neural_error = 'unit_model_not_installed'
-        if (neural_root / 'configs/catalog/active-unit-head-v1.json').is_file():
-            try:
-                from .unit_head import UnitHeadObserver
-                self.unit_neural = UnitHeadObserver(root, neural_root)
-                self.unit_neural_error = None
-            except (OSError, ValueError, ImportError, RuntimeError) as exc:
-                self.unit_neural_error = str(exc)
-        if self.unit_neural is None and (root / 'configs/catalog/active-unit-gallery-v1.json').is_file():
-            try:
-                from .unit_gallery import UnitGalleryObserver
-                self.unit_neural = UnitGalleryObserver(root, neural_root)
-                self.unit_neural_error = None
-            except (OSError, ValueError, ImportError, RuntimeError) as exc:
-                self.unit_neural_error = str(exc)
-        elif self.unit_neural is None and (root / 'configs/catalog/active-unit-identity-v1.json').is_file():
-            try:
-                from .unit_identity import UnitIdentityObserver
-                self.unit_neural = UnitIdentityObserver(root)
-                self.unit_neural_error = None
-            except (OSError, ValueError, ImportError, RuntimeError) as exc:
-                self.unit_neural_error = str(exc)
+                from .yolo_hud import YoloHudObserver
+                self.yolo = YoloHudObserver(root, neural_root)
+                self.yolo_error = None
+            except (OSError, ValueError, ImportError, RuntimeError, KeyError) as exc:
+                self.yolo_error = f'{type(exc).__name__}: {exc}'
 
     def observe(self, canonical_frame, board_read: dict | None, source_frame=None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
@@ -140,22 +117,17 @@ class BoardHubLive:
                                       equipped_templates=self.equipped_templates,
                                       allow_unmatched_arena=True)
             try:
-                snapshot['neural_items'] = (self.item_neural.observe(
-                    image, snapshot['inventory']['inventory'], self.inventory)
-                    if self.item_neural else dict(active=False, error=self.item_neural_error))
+                if self.yolo:
+                    snapshot['neural_units'], snapshot['neural_items'] = self.yolo.observe(
+                        image, read, snapshot['inventory']['inventory'], self.inventory)
+                else:
+                    snapshot['neural_units'] = dict(active=False, error=self.yolo_error, records=[])
+                    snapshot['neural_items'] = dict(active=False, error=self.yolo_error, records=[])
             except Exception as exc:
-                self.item_neural_error = f'{type(exc).__name__}: {exc}'
-                self.item_neural = None
-                snapshot['neural_items'] = dict(active=False, error=self.item_neural_error)
-            try:
-                snapshot['neural_units'] = (self.unit_neural.observe(image, read) if self.unit_neural
-                                            else dict(active=False, error=self.unit_neural_error, records=[]))
-            except Exception as exc:
-                # Quarantine this optional model for the rest of the session.
-                # A damaged model must not close screen capture or reuse IDs.
-                self.unit_neural_error = f'{type(exc).__name__}: {exc}'
-                self.unit_neural = None
-                snapshot['neural_units'] = dict(active=False, error=self.unit_neural_error, records=[])
+                self.yolo_error = f'{type(exc).__name__}: {exc}'
+                self.yolo = None
+                snapshot['neural_units'] = dict(active=False, error=self.yolo_error, records=[])
+                snapshot['neural_items'] = dict(active=False, error=self.yolo_error, records=[])
         source = source_frame if source_frame is not None else canonical_frame
         try:
             snapshot['item_visual_native'] = (self.item_visual.observe(source, snapshot)
@@ -223,6 +195,11 @@ class BoardHubLive:
                           basis='fixed_grid_and_B1_bar_candidates',
                           guide_points=[{'screen': cell['screen_center']} for cell in snapshot['board_cells']],
                           game_state_write_allowed=False)]
+        for index, detection in enumerate(snapshot['neural_units'].get('detections', [])):
+            regions.append(region(f'hub.yolo.{index}', detection['box'], 'detection_candidate',
+                                  value=detection['class_name'],
+                                  confidence_uncalibrated=detection['confidence'],
+                                  game_state_write_allowed=False))
         for slot in snapshot['inventory']['inventory']['slots']:
             item = next((row for row in snapshot['inventory']['candidate_slots']
                          if row['slot'] == slot['slot']), None)

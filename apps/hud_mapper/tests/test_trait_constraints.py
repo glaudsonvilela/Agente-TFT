@@ -40,6 +40,14 @@ def test_stale_or_unmatched_trait_text_does_not_constrain_roster():
     assert roster_hypotheses(stale, [dict(color='green', rect={'y': 300})], units)['rosters'] == []
 
 
+def test_async_trait_refresh_does_not_make_panel_blink_before_next_read():
+    names, _ = _catalog()
+    cached = bind_observed_traits({'status': 'cached_ocr', 'age_ms': 3000,
+                                   'words': [dict(text='Solar', confidence=.99,
+                                                  box=[140, 428, 180, 440])]}, names)
+    assert cached['traits'][0]['name'] == 'Solar'
+
+
 def test_low_confidence_full_trait_word_can_bind_without_accepting_noise():
     names, _ = _catalog()
     words = [dict(text='Enfeiticador', confidence=.36, box=[140, 325, 228, 337]),

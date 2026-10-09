@@ -29,7 +29,9 @@ def _distance(a: str, b: str, limit: int = 2) -> int:
 def bind_observed_traits(raw: dict | None, names: set[str] | dict[str, str]) -> dict:
     if not isinstance(raw, dict) or raw.get("status") not in ("raw_ocr", "cached_ocr"):
         return {"status": "unavailable", "traits": [], "unmatched": []}
-    if raw.get("status") == "cached_ocr" and raw.get("age_ms", 99999) > 2000:
+    # The panel reader refreshes asynchronously every three seconds. Allow
+    # one extra frame of scheduling jitter without blinking the trait panel.
+    if raw.get("status") == "cached_ocr" and raw.get("age_ms", 99999) > 4000:
         return {"status": "stale", "traits": [], "unmatched": []}
     # The text baseline repeats every 53 px. A short OCR fragment such as
     # "FI" still proves that a row exists, even when its name cannot be bound.

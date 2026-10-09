@@ -21,6 +21,61 @@ if (new URLSearchParams(location.search).has('connected')) {
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   let previewGeneration = 0, previewRequest = null;
   const previewDrawTimes = [];
+  function drawYoloOverlay(context, canvas, frameSourceMs, overlay) {
+    if (!overlay || !Number.isFinite(overlay.processing_ms)) return;
+    const source = overlay.source_size || [1920, 1080];
+    const sx = canvas.width / source[0], sy = canvas.height / source[1];
+    const age = Math.max(0, (Date.now() - overlay.received_at_ms) / 1000);
+    // The video keeps moving between inference results. Never pair a result
+    // with a frame from before it, or retain boxes after they have gone stale.
+    const lagMs = frameSourceMs - overlay.source_ms;
+    const current = Number.isFinite(lagMs) && lagMs >= 0 && lagMs <= 3000;
+    const rows = current ? [
+      ...(overlay.detections || []).map(row => ({box: row.box, label: row.class_name,
+        confidence: row.confidence, color: '#a879ff'})),
+      ...(overlay.units || []).map(row => ({box: row.box, label: row.candidate_name,
+        confidence: row.confidence_uncalibrated, color: '#64e2b2'})),
+      ...(overlay.bench_units || []).map(row => ({box: row.box,
+        label: 'Banco visível? '+row.candidate_name,
+        confidence: row.confidence_uncalibrated, color: '#8be7ff'})),
+      ...(overlay.enemy_units || []).map(row => ({box: row.box,
+        label: 'Inimigo? '+row.candidate_name,
+        confidence: row.confidence_uncalibrated, color: '#ff8068'})),
+      ...(overlay.mascots || []).map(row => ({box: row.box,
+        label: row.class_name === 'own_tactician' ? 'Mascote meu? · barra' : 'Mascote rival? · barra',
+        color: '#7fd4ff'})),
+      ...(overlay.items || []).map(row => ({box: row.box, label: row.name,
+        confidence: row.confidence_uncalibrated, color: '#ffd073'}))
+    ] : [];
+    context.save();
+    context.lineWidth = Math.max(1.5, canvas.width / 700);
+    context.font = `${Math.max(12, canvas.width / 85)}px sans-serif`;
+    for (const row of rows) {
+      const box = row.box;
+      if (!Array.isArray(box) || box.length !== 4 || !row.label) continue;
+      const x = box[0] * sx, y = box[1] * sy;
+      const width = (box[2] - box[0]) * sx, height = (box[3] - box[1]) * sy;
+      if (width < 2 || height < 2) continue;
+      context.strokeStyle = row.color;
+      context.strokeRect(x, y, width, height);
+      const label = `${row.label}${Number.isFinite(row.confidence) ?
+        ' '+Math.round(row.confidence * 100)+'%' : ''}`;
+      const textWidth = context.measureText(label).width;
+      const top = Math.max(16, y);
+      context.fillStyle = 'rgba(10, 12, 20, .8)';
+      context.fillRect(x, top - 16, textWidth + 8, 18);
+      context.fillStyle = row.color;
+      context.fillText(label, x + 4, top - 3);
+    }
+    const header = `YOLO ${Math.round(overlay.processing_ms)} ms · `+
+      `${rows.length} caixas · vídeo ${(frameSourceMs/1000).toFixed(1)} s · `+
+      `leitura ${current ? (lagMs/1000).toFixed(1)+' s' : 'aguardando'} · há ${age.toFixed(1)} s`;
+    context.fillStyle = 'rgba(10, 12, 20, .83)';
+    context.fillRect(0, 0, context.measureText(header).width + 18, 27);
+    context.fillStyle = '#fff';
+    context.fillText(header, 9, 19);
+    context.restore();
+  }
   function startPreview() {
     ++previewGeneration;
     if (previewRequest) previewRequest.abort();
@@ -41,6 +96,7 @@ if (new URLSearchParams(location.search).has('connected')) {
           if (response.status === 204) continue;
           if (!response.ok) throw new Error('Prévia indisponível.');
           const sequence = Number(response.headers.get('X-Frame-Sequence'));
+          const frameSourceMs = Number(response.headers.get('X-Frame-Source-Ms'));
           if (!Number.isSafeInteger(sequence) || sequence <= after) throw new Error('Quadro inválido.');
           const bitmap = await createImageBitmap(await response.blob());
           try {
@@ -50,6 +106,8 @@ if (new URLSearchParams(location.search).has('connected')) {
               canvas.height = bitmap.height;
             }
             context.drawImage(bitmap, 0, 0);
+            drawYoloOverlay(context, canvas, frameSourceMs, state?.yolo_overlay);
+            canvas.closest('.live-preview')?.classList.add('yolo-analysis-ready');
             const drawnAt = performance.now();
             previewDrawTimes.push(drawnAt);
             while (previewDrawTimes.length && previewDrawTimes[0] < drawnAt - 1000)
@@ -168,19 +226,20 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (installerLink) installerLink.style.display = 'none';
     if (current === 'studio') {
       const arena = document.querySelector('.panel .arena');
-      if (arena) arena.outerHTML = `<div class="live-preview">${state && state.preview_sequence > 0 ?
-        `<canvas id="live-preview-canvas" width="1280" height="720" role="img" aria-label="Prévia da fonte selecionada"></canvas>` : ''}`+
+      if (arena) arena.outerHTML = `<div class="live-preview">${state && state.session_id ?
+        `<canvas id="live-preview-canvas" width="960" height="540" role="img" aria-label="Vídeo em movimento com as marcações do YOLO"></canvas>` : ''}`+
         `<div class="live-preview-empty">${state && state.session_id ? 'Aguardando o primeiro quadro da captura…' : 'Selecione um monitor ou janela para acompanhar.'}</div></div>`;
       const status = document.querySelector('.capture-controls small');
       if (status) status.textContent = state && state.session_id ?
-        `Captura ${state.phase} · prévia local até 720p` : 'Captura ainda não iniciada';
+        `Captura ${state.phase} · vídeo anotado pelo YOLO` : 'Captura ainda não iniciada';
       const play = document.querySelector('#preview-play');
       if (play) {
         play.innerHTML = icon(state && state.session_id ? 'pause':'play');
         play.setAttribute('aria-label', state && state.session_id ? 'Encerrar sessão':'Escolher fonte para iniciar');
       }
       const source = document.querySelector('#source-name');
-      if (source) source.textContent = selected ? selected.label : 'Nenhuma fonte selecionada';
+      if (source) source.textContent = selected?.label ||
+        (state?.session_id && state?.source_label) || 'Nenhuma fonte selecionada';
     }
     if (current === 'board') {
       const arena = document.querySelector('.board-detail .arena, .board-detail .live-board-empty');
@@ -247,16 +306,17 @@ if (new URLSearchParams(location.search).has('connected')) {
   render = function(route) { originalRender(route); connectedPage(); };
   render(current);
 
+  let refreshInFlight = false;
   async function refresh() {
-    if (!api()) return;
+    if (!api() || refreshInFlight) return;
+    refreshInFlight = true;
     try {
       const next = await api().state();
       if (state && state.session_id !== next.session_id) ratedTips.clear();
       // A new tip only repaints the coach. Reloading the page's <img> on every
       // observation would tear down the MJPEG stream and cause visible stalls.
       const changed = !state || state.session_id !== next.session_id ||
-        state.phase !== next.phase || state.error !== next.error ||
-        ((state.preview_sequence || 0) === 0 && next.preview_sequence > 0) ||
+        (current !== 'studio' && (state.phase !== next.phase || state.error !== next.error)) ||
         (current === 'board' && (JSON.stringify(state.visual_readiness) !== JSON.stringify(next.visual_readiness) ||
           JSON.stringify(state.temporal_candidates) !== JSON.stringify(next.temporal_candidates))) ||
         (current === 'history' && (state.history?.length || 0) !== (next.history?.length || 0)) ||
@@ -265,6 +325,9 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (changed) render(current);
       else {
         connectedCoach();
+        document.querySelector('#footer-context').textContent = state.session_id ?
+          `Quadros ${state.counts?.source_frames || 0} · HUB ${state.counts?.hub_results || 0} · dicas ${state.counts?.replay_tips || 0}` :
+          'Captura Rust · análise local · aprendizado pós partida';
         const now = performance.now();
         while (previewDrawTimes.length && previewDrawTimes[0] < now - 1000)
           previewDrawTimes.shift();
@@ -278,8 +341,9 @@ if (new URLSearchParams(location.search).has('connected')) {
         document.querySelector('#detail-dialog').showModal();
       }
     } catch (error) { toast('Não foi possível consultar o motor local: '+clean(error)); }
+    finally { refreshInFlight = false; }
   }
-  setInterval(refresh, 900);
+  setInterval(refresh, 250);
   refresh();
 
   document.addEventListener('click', async event => {

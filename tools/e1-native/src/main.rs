@@ -15,7 +15,7 @@ mod engine;
 mod stage;
 mod trait_panel;
 
-use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant};
+use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,sync::mpsc};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
 use agente_tft_capture_core::{FrameEnvelope,PixelFormat,PixelRect,extract_roi};
 use agente_tft_hud_runtime::HudLayout;
@@ -529,8 +529,64 @@ fn run()->Result<(),String>{
     }Ok(())
 }
 
-// Dedicated geometry worker: no OCR engine, model, or game-state allocation.
-// A slow shop read must never hold up a fresh board frame.
+// Keep the slow trait-panel OCR off the board geometry response path. Only the
+// newest requested frame is in flight; cached text is never presented as fresh.
+struct TraitPanelWorker {
+    requests:mpsc::SyncSender<FrameEnvelope>,
+    results:mpsc::Receiver<(u64,Value)>,
+    last:Option<(u64,Value)>,
+    last_requested_ms:Option<u64>,
+    pending:bool,
+}
+impl TraitPanelWorker {
+    fn new(tess:&str)->Self {
+        let (requests,request_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
+        let (result_tx,results)=mpsc::channel::<(u64,Value)>();
+        let tess=tess.to_owned();
+        thread::spawn(move || {
+            #[cfg(any(windows,target_os="linux"))]
+            let mut resident=ResidentTesseractOcr::from_cli_path(&tess,"eng").ok();
+            let mut cli=TesseractOcr::new(TesseractConfig{binary:tess,language:"eng".into()});
+            while let Ok(frame)=request_rx.recv() {
+                #[cfg(any(windows,target_os="linux"))]
+                let read=if let Some(engine)=resident.as_mut(){
+                    trait_panel::observe(&frame,engine)
+                }else{trait_panel::observe(&frame,&mut cli)};
+                #[cfg(not(any(windows,target_os="linux")))]
+                let read=trait_panel::observe(&frame,&mut cli);
+                let value=read.unwrap_or_else(|error|json!({"status":"read_error","error":error}));
+                if result_tx.send((frame.captured_at_ms,value)).is_err(){break;}
+            }
+        });
+        Self{requests,results,last:None,last_requested_ms:None,pending:false}
+    }
+    fn observe(&mut self,frame:&FrameEnvelope,active:bool)->(Value,bool) {
+        while let Ok((at,value))=self.results.try_recv() {
+            self.pending=false;
+            self.last=Some((at,value));
+        }
+        if !active {return (Value::Null,false);}
+        let at=frame.captured_at_ms;
+        let due=self.last_requested_ms.is_none_or(|prev|at<prev || at-prev>=3000);
+        let queued=if due && !self.pending && self.requests.try_send(frame.clone()).is_ok() {
+            self.pending=true;
+            self.last_requested_ms=Some(at);
+            true
+        }else{false};
+        let last=self.last.as_ref().and_then(|(source_ms,value)| {
+            if at<*source_ms || at-*source_ms>5000 {return None;}
+            let mut cached=value.clone();
+            if cached["status"]=="raw_ocr" {
+                cached["status"]=json!("cached_ocr");
+            }
+            cached["age_ms"]=json!(at-*source_ms);
+            Some(cached)
+        }).unwrap_or(Value::Null);
+        (last,queued)
+    }
+}
+
+// Dedicated geometry worker: a slow text read must never hold up a fresh board frame.
 fn board_only(root:&Path,tess:&str)->Result<(),String>{
     let profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;
     profile.validate()?;
@@ -540,10 +596,7 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
     }
     let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
     let mut reader=scene::SceneReader::from_anchors(profile.clone(),reference)?;
-    #[cfg(any(windows,target_os="linux"))]
-    let mut trait_resident=ResidentTesseractOcr::from_cli_path(tess,"eng").ok();
-    let mut trait_cli=TesseractOcr::new(TesseractConfig{binary:tess.into(),language:"eng".into()});
-    let mut previous_traits:Option<(u64,Vec<u8>,Value)>=None;
+    let mut trait_worker=TraitPanelWorker::new(tess);
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
     writeln!(output,"{}",json!({"ready":true,"protocol":1,"board_only":true,"ocr_available":false,
         "pid":std::process::id()})).map_err(|e|e.to_string())?;
@@ -561,35 +614,12 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             }
         } else {
             let board=reader.read(&f)?;
-            let active=serde_json::to_value(&board).map_err(|e|e.to_string())?["markers"]
-                .as_array().is_some_and(|rows| !rows.is_empty());
-            let trait_pixels=if active {Some(exact_rect_signature(&f,&[
-                trait_panel::PANEL])?)}else{None};
-            let traits=if active {
-                if let Some((at,pixels,old))=&previous_traits {
-                    if f.captured_at_ms.saturating_sub(*at)<5000 &&
-                            trait_pixels.as_ref()==Some(pixels) {
-                        let mut cached=old.clone();
-                        cached["status"]=json!("cached_ocr");
-                        cached["age_ms"]=json!(f.captured_at_ms.saturating_sub(*at));
-                        cached
-                    }else{Value::Null}
-                }else{Value::Null}
-            }else{Value::Null};
-            let traits=if active && traits.is_null(){
-                #[cfg(any(windows,target_os="linux"))]
-                let read=if let Some(engine)=trait_resident.as_mut(){
-                    trait_panel::observe(&f,engine)
-                }else{trait_panel::observe(&f,&mut trait_cli)};
-                #[cfg(not(any(windows,target_os="linux")))]
-                let read=trait_panel::observe(&f,&mut trait_cli);
-                let value=read.unwrap_or_else(|error|json!({"status":"read_error","error":error}));
-                previous_traits=Some((f.captured_at_ms,trait_pixels.unwrap_or_default(),value.clone()));
-                value
-            }else{traits};
+            let active=!board.markers.is_empty();
+            let (traits,trait_ocr_queued)=trait_worker.observe(&f,active);
             json!({"id":id,"source_ms":f.captured_at_ms,"board":board,
                 "trait_panel":traits,"native_ms":ms(&started),
-                "ocr_process_calls":if active && traits["status"]=="raw_ocr" {1}else{0}})
+                "trait_ocr_queued":trait_ocr_queued,
+                "ocr_process_calls":if trait_ocr_queued {1}else{0}})
         };
         writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }
@@ -614,6 +644,24 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
  #[test] fn protocol_eof(){assert!(header(&mut io::Cursor::new(Vec::<u8>::new())).unwrap().is_none())}
  #[test] fn payload_size_not_guessed(){let h=json!({"id":1,"source_ms":0,"width":2,"height":2,"bytes":16});assert!(frame(&h,&mut io::empty()).is_err())}
  #[test] fn payload_timestamp_preserved(){let h=json!({"id":2,"source_ms":1234,"width":1,"height":1,"bytes":3});let f=frame(&h,&mut io::Cursor::new([1,2,3])).unwrap();assert_eq!(f.captured_at_ms,1234);assert_eq!(f.pixels,vec![1,2,3]);}
+ #[test] fn trait_ocr_is_queued_without_blocking_and_never_reused_after_expiry(){
+   let (requests,request_rx)=mpsc::sync_channel(1);
+   let (result_tx,results)=mpsc::channel();
+   let mut worker=TraitPanelWorker{requests,results,last:None,last_requested_ms:None,pending:false};
+   let make=|at|FrameEnvelope{frame_id:at,captured_at_ms:at,width:1,height:1,stride_bytes:3,
+       pixel_format:PixelFormat::Rgb8,source_id:"test".into(),pixels:vec![0;3]};
+   let (first,queued)=worker.observe(&make(1000),true);
+   assert!(first.is_null() && queued);
+   assert_eq!(request_rx.try_recv().unwrap().captured_at_ms,1000);
+   result_tx.send((1000,json!({"status":"raw_ocr","words":[{"text":"Fera"}]}))).unwrap();
+   let (cached,queued)=worker.observe(&make(2000),true);
+   assert!(!queued);
+   assert_eq!(cached["status"],"cached_ocr");
+   assert_eq!(cached["age_ms"],1000);
+   let (expired,queued)=worker.observe(&make(7000),true);
+   assert!(expired.is_null() && queued);
+   assert_eq!(request_rx.try_recv().unwrap().captured_at_ms,7000);
+ }
  #[test] fn cadence_delivery_preserves_original_timestamp(){
    let original=json!({"timestamp_ms":1000,"panel_status":"located"});
    let out=cadence_json(&original,10,1000,11,1750);

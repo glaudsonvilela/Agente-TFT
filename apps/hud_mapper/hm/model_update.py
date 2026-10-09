@@ -94,26 +94,15 @@ def _runtime_root() -> Path:
 def _probe_optional_components(bundle_root: Path) -> dict:
     checked = {}
     runtime_root = _runtime_root()
-    unit_plan = bundle_root / "configs/catalog/active-unit-head-v1.json"
-    if unit_plan.is_file():
+    yolo_plan = bundle_root / "configs/catalog/active-yolo-hud-v1.json"
+    if yolo_plan.is_file():
         try:
-            from .unit_head import UnitHeadObserver
-            observer = UnitHeadObserver(runtime_root, bundle_root)
-            checked["unit_head_sha256"] = observer.sha
+            from .yolo_hud import YoloHudObserver
+            observer = YoloHudObserver(runtime_root, bundle_root)
+            checked["yolo_hud_sha256"] = observer.sha
         except Exception as exc:
             raise ModelUpdateError(
-                f"Health-check do reconhecedor de unidades falhou: {type(exc).__name__}"
-            ) from exc
-
-    item_plan = bundle_root / "configs/catalog/active-item-neural-v1.json"
-    if item_plan.is_file():
-        try:
-            from .item_neural import ItemIconObserver
-            observer = ItemIconObserver(runtime_root, bundle_root)
-            checked["item_model_sha256"] = observer.sha
-        except Exception as exc:
-            raise ModelUpdateError(
-                f"Health-check do reconhecedor de itens falhou: {type(exc).__name__}"
+                f"Health-check do YOLO HUD falhou: {type(exc).__name__}"
             ) from exc
     return checked
 

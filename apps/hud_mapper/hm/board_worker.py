@@ -1,4 +1,4 @@
-"""Resident Rust geometry process with OCR explicitly disabled."""
+"""Resident Rust board geometry process with paced trait-panel OCR."""
 
 from __future__ import annotations
 

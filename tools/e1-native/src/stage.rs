@@ -105,7 +105,9 @@ impl Reader {
         let mut attempts = Vec::new();
         for (candidate, roi) in self.config.candidates.iter().zip(&rois) {
             let mut agreeing = Vec::new();
-            for scale in [3, 4] {
+            // The small TFT stage glyph loses its leading digit at 4x on some
+            // native replays. The 2x/3x pair preserves it more consistently.
+            for scale in [2, 3] {
                 let config = HudPreprocessConfig {
                     upscale_factor: scale,
                     invert: true,
@@ -123,7 +125,7 @@ impl Reader {
                     trace["confidence"] = json!(text.confidence.value());
                     let compact: String =
                         text.text.chars().filter(|c| !c.is_whitespace()).collect();
-                    if text.confidence.value() >= 0.90 && compact.matches('-').count() == 1 {
+                    if text.confidence.value() >= 0.80 && compact.matches('-').count() == 1 {
                         if let Ok(value) = parse_stage(&compact) {
                             if !values.contains(&value) {
                                 values.push(value.clone());
@@ -164,7 +166,7 @@ impl Reader {
                 recognized_text: value,
                 confidence,
                 preprocess: HudPreprocessConfig {
-                    upscale_factor: 3,
+                    upscale_factor: 2,
                     invert: true,
                 },
                 attempts_made: rois.len() * 2,
@@ -271,7 +273,7 @@ mod tests {
                 Some(("1-4", 0.98)),
                 Some(("1-4", 0.98)),
             ],
-            [None, None, Some(("1-4", 0.89)), Some(("1-4", 0.97))],
+            [None, None, Some(("1-4", 0.79)), Some(("1-4", 0.97))],
             [None, None, Some(("1 4", 0.97)), Some(("1 4", 0.97))],
             [None, None, None, None],
         ] {

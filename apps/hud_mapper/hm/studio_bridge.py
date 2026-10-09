@@ -32,15 +32,47 @@ def design_root():
     return root / "ui" / "tauri-design"
 
 
+def encode_preview_jpeg(frame):
+    """Downscale the display copy without touching full resolution inference input."""
+    raw = frame.rgb
+    channels = 4 if len(raw) == frame.width * frame.height * 4 else 3
+    if len(raw) != frame.width * frame.height * channels:
+        raise ValueError('Invalid preview frame size')
+    scale = min(1.0, 960 / frame.width, 540 / frame.height)
+    size = (round(frame.width * scale), round(frame.height * scale))
+    try:
+        import cv2
+        import numpy as np
+    except ImportError:
+        from PIL import Image
+        image = Image.frombytes('RGB', (frame.width, frame.height), raw,
+                                'raw', 'BGRX' if channels == 4 else 'RGB')
+        if image.size != size:
+            image = image.resize(size, Image.Resampling.BILINEAR)
+        out = BytesIO()
+        image.save(out, 'JPEG', quality=65, optimize=False)
+        return out.getvalue()
+    pixels = np.frombuffer(raw, dtype=np.uint8).reshape(frame.height, frame.width, channels)
+    if (frame.width, frame.height) != size:
+        pixels = cv2.resize(pixels, size, interpolation=cv2.INTER_LINEAR)
+    bgr = cv2.cvtColor(pixels, cv2.COLOR_BGRA2BGR if channels == 4 else cv2.COLOR_RGB2BGR)
+    ok, jpeg = cv2.imencode('.jpg', bgr, [cv2.IMWRITE_JPEG_QUALITY, 65])
+    if not ok:
+        raise ValueError('Preview JPEG encoding failed')
+    return jpeg.tobytes()
+
+
 class StudioController:
     def __init__(self):
         self.lock = threading.RLock()
         self.session = None
+        self.source_label = None
         self.last_result = None
         self.last_error = None
         self.last_tip_key = None
         self.history = deque(maxlen=100)
         self.preview_jpeg = None
+        self.preview_source_ms = None
         self.preview_sequence = 0
         self.preview_times = deque(maxlen=90)
         self.preview_encode_ms = deque(maxlen=90)
@@ -69,6 +101,8 @@ class StudioController:
             pass
 
     def _connect_voice_async(self):
+        if os.environ.get('AGENTE_TFT_DISABLE_VOICE') == '1':
+            return
         def connect():
             from .voice import VoiceCoach
             from .voice_service import connect as connect_service
@@ -85,23 +119,37 @@ class StudioController:
         threading.Thread(target=connect, daemon=True, name="studio-voice-connect").start()
 
     def list_sources(self):
+        replay = os.environ.get('AGENTE_TFT_REPLAY_VIDEO')
+        if replay and os.name != 'nt':
+            path = Path(replay)
+            return ([{'kind': 'video', 'id': 'local_replay',
+                      'label': f'Replay local · {path.name}', 'candidate_tft': True}]
+                    if path.is_file() else [])
         from .capture_source import list_targets
         return [{"kind": t["kind"], "id": t["id"], "label": target_label(t),
                  "candidate_tft": bool(t.get("candidate_tft"))}
                 for t in list_targets(runtime_paths()["configs"])]
 
     def start_session(self, kind, identity, replay_review=False, consent=False):
-        from .capture_source import list_targets
         if consent is not True:
             raise ValueError("Confirme a captura da fonte selecionada.")
         with self.lock:
             if self.session and not self.session.finished:
                 raise ValueError("Encerre a sessão atual antes de iniciar outra.")
             paths = runtime_paths()
-            selected = next((t for t in list_targets(paths["configs"])
-                             if t["kind"] == kind and t["id"] == identity), None)
+            replay = os.environ.get('AGENTE_TFT_REPLAY_VIDEO')
+            local_replay = bool(os.name != 'nt' and replay and
+                                kind == 'video' and identity == 'local_replay')
+            if local_replay:
+                selected = {'kind': 'video', 'id': 'local_replay',
+                            'label': f'Replay local · {Path(replay).name}'} if Path(replay).is_file() else None
+            else:
+                from .capture_source import list_targets
+                selected = next((t for t in list_targets(paths["configs"])
+                                 if t["kind"] == kind and t["id"] == identity), None)
             if selected is None:
                 raise ValueError("Fonte indisponível; selecione novamente.")
+            self.source_label = selected.get('label') or str(identity)
             # A remote model refresh must never block the first captured frame.
             # The signed package includes a baseline model; an updated model
             # is picked up on a later idle session by discover_model().
@@ -114,18 +162,20 @@ class StudioController:
             self.last_error = self.last_result = self.last_tip_key = None
             self.history.clear()
             self.preview_jpeg = None
+            self.preview_source_ms = None
             with self.preview_condition:
                 self.preview_times.clear()
                 self.preview_encode_ms.clear()
             self.next_preview_telemetry = 0.0
             self.session = HM4RuntimeSession(Options(
-                **paths, video=f"capture://{kind}/{identity}", output=output,
+                **({**paths, 'ffmpeg': 'ffmpeg', 'ffprobe': 'ffprobe'} if local_replay else paths),
+                video=str(Path(replay).resolve()) if local_replay else f"capture://{kind}/{identity}", output=output,
                 model=model, dataset_only=False, seconds=7200,
                 map_hz=4, reader_hz=1, sample_hz=.2 if vm_core else 1,
                 scenario="studio-live-lab" if not replay_review else "studio-replay-review",
                 replay_review=bool(replay_review), board_hub_enabled=True,
-                vm_core=vm_core, native_preview=True, preview_hz=30,
-                preview_width=1280, preview_height=720,
+                vm_core=vm_core and not local_replay, native_preview=True, preview_hz=22,
+                preview_width=960, preview_height=540,
                 max_samples=90 if vm_core else 600,
                 max_bytes=384 * 1024**2 if vm_core else 1024**3,
                 capture_consent=True, capture_expected=selected)).start()
@@ -181,7 +231,8 @@ class StudioController:
                 preview_fps = sum(t >= time.monotonic() - 1 for t in self.preview_times)
                 preview_encode_ms = self.preview_encode_ms[-1] if self.preview_encode_ms else None
             return {"phase": "finished" if session.finished else session.phase,
-                    "session_id": session.id, "replay_review": session.options.replay_review,
+                    "session_id": session.id, "source_label": self.source_label,
+                    "replay_review": session.options.replay_review,
                     "visual_model_loaded": bool(session.versions.get("neural_enabled")),
                     "strategic_model_loaded": bool(session.versions.get("strategic_ranker_loaded")),
                     "visual_readiness": session.versions.get("visual_readiness"),
@@ -189,6 +240,7 @@ class StudioController:
                     "board_execution": session.versions.get("board_hub_execution"),
                     "unit_model_active": bool(session.versions.get("unit_neural_active")),
                     "item_model_active": bool(session.versions.get("item_neural_active")),
+                    "yolo_overlay": session.versions.get("yolo_overlay"),
                     "data_patch": getattr(session.decision_engine, "patch", None),
                     "screen_mode": session.versions.get("screen_mode"),
                     "tip": safe_tip, "error": session.error or self.last_error,
@@ -264,20 +316,17 @@ class StudioController:
                 frame = session.preview.get(.03)
             except queue.Empty:
                 continue
-            next_jpeg = time.monotonic() + 1/30
+            preview_hz = getattr(getattr(session, 'options', None), 'preview_hz', 22)
+            next_jpeg = time.monotonic() + 1/preview_hz
             try:
                 encode_start = time.perf_counter_ns()
-                from PIL import Image
-                raw = "BGRX" if len(frame.rgb) == frame.width * frame.height * 4 else "RGB"
-                image = Image.frombytes("RGB", (frame.width, frame.height), frame.rgb, "raw", raw)
-                out = BytesIO()
-                image.save(out, "JPEG", quality=72, optimize=False)
-                encoded = out.getvalue()
+                encoded = encode_preview_jpeg(frame)
                 with self.lock:
                     if self.session is not session or session.finished:
                         continue
                     with self.preview_condition:
                         self.preview_jpeg = encoded
+                        self.preview_source_ms = getattr(frame, 'pts_ms', None)
                         self.preview_sequence += 1
                         now = time.monotonic()
                         self.preview_times.append(now)
@@ -295,7 +344,7 @@ class StudioController:
                                          getattr(source, "preview_frames", None), "replaced", None),
                                      "preview_source_age_ms": (
                                          (time.perf_counter_ns()-source.last_preview_received_ns)/1e6
-                                         if source and source.last_preview_received_ns else None)}
+                                         if source and getattr(source, 'last_preview_received_ns', None) else None)}
                         else:
                             event = None
                 if event and getattr(session, "store", None):
@@ -450,6 +499,7 @@ class StudioHandler(BaseHTTPRequestHandler):
                          or controller.closed.is_set()), timeout=2)
             sequence = controller.preview_sequence
             jpeg = controller.preview_jpeg
+            source_ms = getattr(controller, 'preview_source_ms', None)
         if not fresh or controller.closed.is_set() or jpeg is None:
             self.send_response(204)
             self.send_header("Cache-Control", "no-store")
@@ -460,6 +510,8 @@ class StudioHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "image/jpeg")
         self.send_header("Content-Length", str(len(jpeg)))
         self.send_header("X-Frame-Sequence", str(sequence))
+        if source_ms is not None:
+            self.send_header("X-Frame-Source-Ms", str(source_ms))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()

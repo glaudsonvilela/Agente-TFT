@@ -1,6 +1,7 @@
 """HM3/HM4 capture runtime. HM4 can normalize verified 16:9 pixels for frozen 1920x1080 readers."""
 from __future__ import annotations
 from dataclasses import replace
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 import copy, hashlib, queue, threading, time
 import json
@@ -179,7 +180,8 @@ class RuntimeSession(Session):
     hp_max_delivery_ms = ASYNC_HP_MAX_AGE_MS
 
     def __init__(self, options):
-        if not str(options.video).startswith('capture://'):
+        if not str(options.video).startswith('capture://') and not (
+                options.replay_review and options.board_hub_enabled):
             raise ValueError('HM3 Runtime aceita somente monitor/janela; não vídeo.')
         super().__init__(options)
         self._last_native = None
@@ -589,11 +591,13 @@ class HM4RuntimeSession(RuntimeSession):
             from .replay_coach import inventory_prompt
             from .model_update import active_bundle_for_model
             neural_bundle = active_bundle_for_model(self.options.model)
+            from os import environ
+            if environ.get('AGENTE_TFT_RUNTIME_NEURAL_ROOT'):
+                neural_bundle = Path(environ['AGENTE_TFT_RUNTIME_NEURAL_ROOT']).resolve()
             overlays = (neural_bundle / 'configs/catalog' if neural_bundle else None)
             has_active_overlay = bool(overlays and any(
                 (overlays / name).is_file() for name in
-                ('active-unit-head-v1.json', 'active-unit-gallery-v1.json',
-                 'active-unit-identity-v1.json', 'active-item-neural-v1.json')))
+                ('active-yolo-hud-v1.json',)))
             use_remote_board = bool(self.core and not has_active_overlay)
             self.versions['board_hub_execution'] = ('wsl_core' if use_remote_board
                                                     else 'windows_local_approved_overlay' if has_active_overlay
@@ -631,7 +635,13 @@ class HM4RuntimeSession(RuntimeSession):
                         break
                     continue
                 started = time.perf_counter_ns()
-                if (started - frame.due_ns) / 1e6 > 2000:
+                # A local replay can decode behind its original media clock on
+                # a busy Ubuntu desktop. Keep the newest delivered frame for
+                # diagnostic vision; live capture still uses acquisition time.
+                freshness_ns = (frame.ready_ns if self.options.replay_review and
+                                not str(self.options.video).startswith('capture://')
+                                else frame.due_ns)
+                if (started - freshness_ns) / 1e6 > 2000:
                     with self.lock:
                         self._latest_strategy_state = None
                         self._latest_visual_candidates = None
@@ -650,10 +660,13 @@ class HM4RuntimeSession(RuntimeSession):
                     self.board_reference_requested.clear()
                 try:
                     if use_remote_board:
+                        board_read_end = time.perf_counter_ns()
                         observed = observer.observe(reader_frame, calibrate=calibrate)
                     else:
                         board_read = board_worker.observe(reader_frame, calibrate)
+                        board_read_end = time.perf_counter_ns()
                         observed = observer.observe(reader_frame, board_read, source_frame=frame)
+                    board_observer_end = time.perf_counter_ns()
                 except (ValueError, RuntimeError) as exc:
                     if not calibrate:
                         raise
@@ -687,6 +700,24 @@ class HM4RuntimeSession(RuntimeSession):
                 neural_units = observed['snapshot'].get('neural_units') or {}
                 self.versions['unit_neural_active'] = neural_units.get('active', False)
                 self.versions['unit_neural_model_sha256'] = neural_units.get('model_sha256')
+                self.versions['yolo_overlay'] = dict(
+                    source_ms=frame.pts_ms, received_at_ms=int(time.time() * 1000),
+                    source_size=[1920, 1080],
+                    processing_ms=neural_units.get('processing_ms'),
+                    detections=neural_units.get('detections', []),
+                    units=[{key: row.get(key) for key in ('box', 'candidate_name',
+                                                         'confidence_uncalibrated')}
+                           for row in neural_units.get('records', [])
+                           if row.get('zone') != 'bench_unit'],
+                    bench_units=neural_units.get('bench_records', []),
+                    enemy_units=[{key: row.get(key) for key in ('box', 'candidate_name',
+                                                               'confidence_uncalibrated')}
+                                 for row in neural_units.get('enemy_records', [])],
+                    mascots=neural_units.get('mascot_candidates', []),
+                    items=[{'box': row.get('box'),
+                            'name': (row.get('candidates') or [{}])[0].get('names', [None])[0],
+                            'confidence_uncalibrated': (row.get('candidates') or [{}])[0].get('score')}
+                           for row in neural_items.get('records', [])])
                 self.versions['visual_readiness'] = observed['snapshot'].get('visual_readiness')
                 self.versions['temporal_candidates'] = observed['snapshot'].get('temporal_candidates')
                 end = time.perf_counter_ns()
@@ -696,6 +727,9 @@ class HM4RuntimeSession(RuntimeSession):
                               reader_input_transform=plan, ground_truth=False,
                               source_to_hub_ms=(end-frame.due_ns)/1e6,
                               hub_processing_ms=(end-started)/1e6,
+                              board_read_ms=(board_read_end-started)/1e6 if not use_remote_board else None,
+                              board_observer_ms=(board_observer_end-board_read_end)/1e6,
+                              hub_postprocess_ms=(end-board_observer_end)/1e6,
                               hub_normalize_ms=normalize_ms,
                               scheduling='independent_of_hud_ocr_latest_frame',
                               board_reference_status=self.versions.get('board_reference_status'),

@@ -12,10 +12,22 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 
 from hm.dataset import Latest
-from hm.studio_bridge import StudioController, StudioServer, design_root, package_contract, run_studio
+from hm.studio_bridge import StudioController, StudioServer, design_root, encode_preview_jpeg, package_contract, run_studio
 
 
 class StudioBridgeTests(unittest.TestCase):
+    def test_preview_downscale_preserves_source_and_colors(self):
+        from io import BytesIO
+        from PIL import Image
+        frame = SimpleNamespace(width=1920, height=1080,
+                                rgb=bytes((240, 12, 8)) * (1920 * 1080))
+        jpeg = encode_preview_jpeg(frame)
+        image = Image.open(BytesIO(jpeg)).convert('RGB')
+        self.assertEqual(image.size, (960, 540))
+        self.assertGreater(image.getpixel((100, 100))[0], 220)
+        self.assertLess(image.getpixel((100, 100))[2], 30)
+        self.assertEqual(frame.width, 1920)
+
     def test_feedback_bridge_passes_the_visible_decision_key(self):
         calls = []
         controller = object.__new__(StudioController)
@@ -56,7 +68,7 @@ class StudioBridgeTests(unittest.TestCase):
             release.wait(2)
 
         try:
-            with patch('PIL.Image.Image.save', slow_save):
+            with patch('hm.studio_bridge.encode_preview_jpeg', slow_save):
                 worker = threading.Thread(target=controller._preview_pump, daemon=True)
                 advice = threading.Thread(target=controller._pump, daemon=True)
                 worker.start()
