@@ -33,7 +33,11 @@ participa desta comparação.
 | Com Leona | 21/32 | 0,6893939394 | 3,1979695261 |
 
 Pelo critério prévio (macro-revocação, depois menor entropia), o baseline foi
-retido. Não houve promoção ao HUD nem evidência de melhora geral. Resultado
+retido. **A validação contém 22 classes, mas nenhuma imagem de Leona**. Logo,
+esse 21/32 só mede regressão geral; não mede o ganho específico procurado.
+No teste histórico havia três Leona, e ambos os modelos acertaram duas; esse
+teste não participou da seleção e é pequeno demais para provar generalização.
+Não houve promoção ao HUD nem evidência de melhora geral. Resultado
 privado: `leona-challenger-20261008/autonomous-challenger-selection.json`.
 
 ## Próximo dado necessário
@@ -41,5 +45,6 @@ privado: `leona-challenger-20261008/autonomous-challenger-selection.json`.
 O gargalo medido é identidade verificável e diversidade de fontes, não volume
 de quadros. Para melhorar outras classes, buscar eventos em partidas distintas
 que liguem nome explícito ao recorte sem ambiguidade de seleção, validar em
-fonte separada e manter hipóteses não confirmadas fora do treino. Não repetir
+fonte separada **com as classes alvo representadas**, e manter hipóteses não
+confirmadas fora do treino. Não repetir
 as mesmas cenas como se fossem novas amostras independentes.

@@ -108,6 +108,20 @@ def validation_metrics(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def target_class_coverage(report: dict[str, Any], gold: list[dict[str, Any]],
+                          silver: list[dict[str, Any]]) -> dict[str, Any]:
+    """State which newly supervised identities the frozen validation can test."""
+    validation = report["variants"]["dino"]["evaluation"]["validation"]
+    per_class = validation["per_class"]
+    targets = sorted({row["unit_id"] for row in [*gold, *silver]})
+    counts = {unit_id: int(per_class.get(unit_id, [0, 0])[0]) for unit_id in targets}
+    return {
+        "validation_samples_by_target": counts,
+        "targets_without_validation": [unit_id for unit_id in targets if counts[unit_id] == 0],
+        "validation_contains_all_targets": bool(targets) and all(counts.values()),
+    }
+
+
 def assert_gold(rows: Any) -> None:
     if not isinstance(rows, list) or not rows:
         die("supported gold anchor list is empty")
@@ -419,6 +433,7 @@ def main() -> int:
     model_path = required(challenger_out / "dino-head.json")
     report = load_json(report_path)
     challenger_metrics = validation_metrics(report)
+    target_coverage = target_class_coverage(report, gold_rows, silver_rows)
 
     baseline_key = metric_key(
         {
@@ -455,6 +470,7 @@ def main() -> int:
             "silver_auto": len(silver_rows),
             "silver_weight": 0.35,
         },
+        "new_supervision_validation_coverage": target_coverage,
         "selected_arm": selected,
         "selected_model_path": (
             str(model_path) if selected == "weighted-autonomous" else str(baseline_model)
@@ -510,6 +526,10 @@ def main() -> int:
         f"{challenger_metrics['cross_entropy']:.12f}"
     )
     print(f"SELECTED_ARM={selected}")
+    print("VALIDATION_CONTAINS_ALL_TARGETS=" +
+          str(target_coverage["validation_contains_all_targets"]).lower())
+    print("TARGETS_WITHOUT_VALIDATION=" +
+          json.dumps(target_coverage["targets_without_validation"]))
     print("MINJO_KH_USED_FOR_SELECTION=false")
     print("HUMAN_REVIEW_REQUIRED=false")
     print("RUNTIME_APPROVED=false")
