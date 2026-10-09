@@ -1,6 +1,8 @@
-# Primeira medição em vídeos fora do conjunto de treino
+# Primeiro diagnóstico em vídeos fora do treino de nomes
 
-Foram medidos **27 quadros de três vídeos de origem distinta**, nove por vídeo, em três trechos de cada um. Os IDs `-Xt_mZgsfp4`, `xl99CWEZG_w` e `v2893526719` não aparecem nas anotações antigas, na revisão recente de recortes nem no manifesto do pacote principal de identidade. Uma republicação da mesma partida em outro vídeo não pode ser descartada apenas pelo ID.
+**Correção da auditoria de origem (09/10): este lote não é inédito para o sistema visual completo.** Os IDs dos três vídeos não aparecem no treino do classificador de nomes instalado, mas o conjunto do detector registra os vídeos `-Xt_mZgsfp4` e `xl99CWEZG_w`, além do vídeo Twitch sob o alias `twitch:2893526719`. Portanto, os números abaixo servem para diagnosticar o leitor instalado, não para afirmar generalização do detector a partidas inéditas. O lote posterior com fontes ausentes dos manifestos conhecidos está no mapa de treino.
+
+Foram medidos **27 quadros de três vídeos de origem distinta**, nove por vídeo, em três trechos de cada um. Os IDs `-Xt_mZgsfp4`, `xl99CWEZG_w` e `v2893526719` não aparecem nas anotações antigas, na revisão recente de recortes nem no manifesto do pacote principal de **identidade**. Eles aparecem no treino ou na validação do **detector**, com o ID Twitch registrado sem o prefixo `v`. Uma republicação da mesma partida em outro vídeo não pode ser descartada apenas pelo ID.
 
 O ensaio usou o **classificador atualmente instalado**, o detector YOLO atual e o leitor nativo de barras do tabuleiro. Os nomes são previsões. O ensaio amostrou quadros de vídeo com `ffmpeg` e chamou o leitor em cada quadro; não mediu FPS contínuo nem incluiu OCR da loja ou inferência de itens. O inventário de itens ficou vazio neste teste, para isolar campeões.
 

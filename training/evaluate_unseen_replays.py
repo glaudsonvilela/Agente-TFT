@@ -55,15 +55,19 @@ def _frame(video: Path, second: float) -> Image.Image:
     return Image.frombytes("RGB", (1920, 1080), process.stdout)
 
 
-def _source_audit(name: str, references: list[Path]) -> dict:
+def _source_audit(name: str, aliases: list[str], references: list[Path]) -> dict:
     # A basename/ID match is a definite leak. An absent match only establishes
     # that none of these known manifests lists the source.
+    tokens = [name, *aliases]
+    if not all(isinstance(token, str) and len(token) >= 5 for token in tokens):
+        raise ValueError(f"Invalid source audit token: {name}")
     matches = []
     for reference in references:
         text = reference.read_text(encoding="utf-8")
-        if name in text:
-            matches.append(str(reference))
-    return {"source_id": name, "known_manifest_matches": matches,
+        found = [token for token in tokens if token in text]
+        if found:
+            matches.append({"manifest": str(reference), "tokens": found})
+    return {"source_id": name, "audit_tokens": tokens, "known_manifest_matches": matches,
             "source_id_absent_from_known_training_manifests": not matches,
             "same_match_reupload_excluded": False}
 
@@ -146,7 +150,7 @@ def run(args: argparse.Namespace) -> dict:
         if not video.is_file():
             raise FileNotFoundError(video)
         source_id = entry["source_id"]
-        audit = _source_audit(source_id, references)
+        audit = _source_audit(source_id, entry.get("audit_aliases", []), references)
         if audit["known_manifest_matches"]:
             raise ValueError(f"Source appears in training manifest: {source_id}")
         info = _probe(video)
