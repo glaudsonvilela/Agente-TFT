@@ -26,6 +26,8 @@ def build(manifest: Path, video_root: Path, output: Path) -> dict:
         split, name, source = row["split"], row["class"], row["source"]
         if split not in counts or name not in classes or row.get("reviewed") is not True:
             raise ValueError(f"Invalid or unreviewed crop at index {index}")
+        if row.get("zone", "unknown") not in {"board", "bench", "unknown"}:
+            raise ValueError(f"Invalid zone at index {index}")
         if source.startswith("/") or ".." in Path(source).parts:
             raise ValueError(f"Source escapes video root: {source}")
         if not (video_root / source).is_file():
@@ -67,7 +69,8 @@ def build(manifest: Path, video_root: Path, output: Path) -> dict:
         counts[split][name] += 1
         exported.append(
             {"class": name, "source": source, "second": second, "box": row["box"],
-             "split": split, "image": str(destination.relative_to(output)),
+             "split": split, "zone": row.get("zone", "unknown"),
+             "image": str(destination.relative_to(output)),
              "sha256": hashlib.sha256(destination.read_bytes()).hexdigest()}
         )
     report = {

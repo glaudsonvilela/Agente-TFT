@@ -80,7 +80,8 @@
         1090,
         484
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "board"
     },
     {
       "source": "wr5_dV3QajM.webm",
@@ -93,7 +94,8 @@
         632,
         702
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "board"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -106,7 +108,8 @@
         948,
         815
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -119,7 +122,8 @@
         1295,
         662
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -132,7 +136,8 @@
         454,
         796
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -145,7 +150,8 @@
         558,
         800
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -158,7 +164,8 @@
         461,
         831
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -171,7 +178,8 @@
         574,
         832
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -184,7 +192,8 @@
         473,
         813
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -197,7 +206,8 @@
         1290,
         662
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -210,7 +220,8 @@
         462,
         777
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -223,7 +234,8 @@
         1299,
         660
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "X-K0vTo04Uw.mp4",
@@ -236,7 +248,8 @@
         1454,
         702
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "unknown"
     },
     {
       "source": "aou9H4gyQ1g.mp4",
@@ -249,7 +262,8 @@
         1680,
         1665
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "bench"
     },
     {
       "source": "f41oEMwIF5Y.mp4",
@@ -262,7 +276,120 @@
         945,
         468
       ],
-      "reviewed": true
+      "reviewed": true,
+      "zone": "board"
+    },
+    {
+      "source": "OPQgWQCcX7E.mp4",
+      "second": 573.8,
+      "split": "train",
+      "class": "Amumu",
+      "box": [
+        854,
+        338,
+        945,
+        461
+      ],
+      "reviewed": true,
+      "zone": "board"
+    },
+    {
+      "source": "hEfv9godnos.webm",
+      "second": 1966.3,
+      "split": "train",
+      "class": "Dragão Ancião",
+      "box": [
+        615,
+        118,
+        775,
+        351
+      ],
+      "reviewed": true,
+      "zone": "board"
+    },
+    {
+      "source": "_bKLUiJr5uc.webm",
+      "second": 1195.7,
+      "split": "train",
+      "class": "Lobo Trevoguari",
+      "box": [
+        720,
+        340,
+        849,
+        505
+      ],
+      "reviewed": true,
+      "zone": "board"
+    },
+    {
+      "source": "_bKLUiJr5uc.webm",
+      "second": 1195.7,
+      "split": "train",
+      "class": "Lobo Trevoguari",
+      "box": [
+        1082,
+        691,
+        1182,
+        843
+      ],
+      "reviewed": true,
+      "zone": "bench"
+    },
+    {
+      "source": "_bKLUiJr5uc.webm",
+      "second": 1195.7,
+      "split": "train",
+      "class": "Lobo Trevoguari",
+      "box": [
+        1198,
+        687,
+        1294,
+        843
+      ],
+      "reviewed": true,
+      "zone": "bench"
+    },
+    {
+      "source": "_bKLUiJr5uc.webm",
+      "second": 1195.7,
+      "split": "train",
+      "class": "Lobo Trevoguari",
+      "box": [
+        1310,
+        688,
+        1418,
+        842
+      ],
+      "reviewed": true,
+      "zone": "bench"
+    },
+    {
+      "source": "vke32XkRwow.mp4",
+      "second": 827.8,
+      "split": "train",
+      "class": "Master Yi",
+      "box": [
+        736,
+        337,
+        846,
+        479
+      ],
+      "reviewed": true,
+      "zone": "board"
+    },
+    {
+      "source": "0qTd_dH8B-A.mp4",
+      "second": 267.3,
+      "split": "train",
+      "class": "Vi",
+      "box": [
+        1315,
+        686,
+        1460,
+        829
+      ],
+      "reviewed": true,
+      "zone": "bench"
     }
   ]
 }
