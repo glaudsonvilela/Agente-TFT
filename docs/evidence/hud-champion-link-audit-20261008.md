@@ -29,3 +29,10 @@ set; these replay counts do not measure accuracy. No predicted name was
 promoted to a training label or to verified game state. More independently
 confirmed champion crops and a separate match validation are needed before
 the HUD can treat board names as dependable inputs for coaching.
+
+For inspection, the classifier now exposes the leading name even when its
+acceptance gate rejects it. The HUD marks that entry `hipótese rejeitada` and
+keeps `candidate_name` empty, so it cannot enter temporal identity evidence or
+the coaching state. A direct run of the packaged ONNX model on one saved
+1920×1080 replay image completed nine bar proposals and three accepted
+candidates; this checks the output contract, not label correctness.

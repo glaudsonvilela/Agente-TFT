@@ -245,7 +245,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       : `<div class="live-data-row"><span>HP do jogador</span><b>—</b><small>${escapeHtml(playerHp?.status || 'aguardando leitura')}</small></div>`;
     const inference = hub?.unit_inference || {};
     const inferred = (inference.candidates || []).slice(0,8).map(row =>
-      `<div class="live-data-row"><span>Modelo · barra #${escapeHtml(row.marker_id)}</span><b>${escapeHtml(row.candidate_name || 'incerto')}</b><small>${Number.isFinite(row.softmax_score_uncalibrated) ? row.softmax_score_uncalibrated.toFixed(3) : '—'} · score não calibrado · sem confirmação</small></div>`).join('');
+      `<div class="live-data-row"><span>Modelo · barra #${escapeHtml(row.marker_id)}</span><b>${escapeHtml(row.candidate_name || row.top_hypothesis_name || 'incerto')}${row.candidate_name ? '' : ' ?'}</b><small>${row.candidate_name ? 'candidato aceito' : 'hipótese rejeitada'} · ${Number.isFinite(row.softmax_score_uncalibrated) ? row.softmax_score_uncalibrated.toFixed(3) : '—'} · score não calibrado · sem confirmação</small></div>`).join('');
     const itemRows = (hub?.item_candidates || []).slice(0,8).map(row =>
       `<div class="live-data-row"><span>${row.zone === 'equipped' ? 'Equipado' : 'Banco'}</span><b>${escapeHtml((row.names || []).join(' / ') || 'identidade incerta')}</b><small>${escapeHtml(row.status)} · similaridade ${Number.isFinite(row.similarity) ? row.similarity.toFixed(2) : '—'} · não confirmado</small></div>`).join('') ||
       items.slice(0,8).map(row => `<div class="live-data-row"><span>Item</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')} · não confirmado</small></div>`).join('');

@@ -147,7 +147,7 @@ def build_hub_diagnostic(snapshot, regions, *, frame_id, source_ms, epoch,
                     0 <= source_ms - async_units['source_ms'] <= 5000)
     result = async_units.get('result') or {} if source_bound else {}
     unit_candidates = [{key: row.get(key) for key in
-                        ('marker_id', 'box', 'candidate_name', 'status',
+                        ('marker_id', 'box', 'candidate_name', 'top_hypothesis_name', 'status',
                          'softmax_score_uncalibrated', 'softmax_margin_uncalibrated',
                          'candidates', 'identity_verified')}
                        for row in (result.get('records') or [])[:16]]
