@@ -33,7 +33,7 @@ def catalog_ids(repository: Path) -> set[str]:
     }
 
 
-def verified_poses(path: Path, catalog: set[str]) -> tuple[int, dict[str, set[str]]]:
+def verified_poses(path: Path, catalog: set[str], allowed_sources: set[str]) -> tuple[int, dict[str, set[str]]]:
     poses: dict[str, set[str]] = defaultdict(set)
     seen_crops: set[str] = set()
     accepted = 0
@@ -56,7 +56,7 @@ def verified_poses(path: Path, catalog: set[str]) -> tuple[int, dict[str, set[st
             not isinstance(champion, str)
             or champion not in catalog
             or not isinstance(source, str)
-            or not source
+            or source not in allowed_sources
             or not isinstance(pose, str)
             or not pose
             or not isinstance(crop_digest, str)
@@ -73,7 +73,12 @@ def verified_poses(path: Path, catalog: set[str]) -> tuple[int, dict[str, set[st
 
 def render(corpus: Path, catalog: set[str]) -> str:
     summary = read_json(corpus / "meta/collection-summary.json")
-    labels, poses = verified_poses(corpus / "meta/verified-labels.jsonl", catalog)
+    training_sources = {
+        row["source_id"] for row in summary.get("sources", [])
+        if isinstance(row, dict) and row.get("partition") == "train"
+        and isinstance(row.get("source_id"), str)
+    }
+    labels, poses = verified_poses(corpus / "meta/verified-labels.jsonl", catalog, training_sources)
     covered = sum(len(poses.get(champion, set())) >= 10 for champion in catalog)
     target = len(catalog)
     lines = [
