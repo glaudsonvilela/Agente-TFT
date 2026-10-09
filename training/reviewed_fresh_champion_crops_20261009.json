@@ -1,0 +1,268 @@
+{
+  "review_method": "assistant_visual_review",
+  "classes": [
+    "Ahri",
+    "Akali",
+    "Alistar",
+    "Alune",
+    "Amumu",
+    "Aphelios",
+    "Aronguejo",
+    "Ashe",
+    "Azir",
+    "Azuporã",
+    "Caitlyn",
+    "Camille",
+    "Cascalho",
+    "Cassiopeia",
+    "Diana",
+    "Dragão Ancião",
+    "Draven",
+    "Elise",
+    "Ezreal",
+    "Fiddlesticks",
+    "Gnar",
+    "Grompe",
+    "Hecarim",
+    "Ivern",
+    "Karma",
+    "Kayle",
+    "Kennen",
+    "Kha'Zix",
+    "Kobuko",
+    "Kog'Maw",
+    "Krugue",
+    "LeBlanc",
+    "Leona",
+    "Lillia",
+    "Lobo Trevoguari",
+    "Lux",
+    "Malphite",
+    "Mamãe Bicuda",
+    "Maokai",
+    "Master Yi",
+    "Morgana",
+    "Nidalee",
+    "Ornn",
+    "Rakan",
+    "Rammus",
+    "Rek'Sai",
+    "Rengar",
+    "Rubrivira",
+    "Rubrivirim",
+    "Sejuani",
+    "Sett",
+    "Shen",
+    "Sivir",
+    "Soraka",
+    "Taric",
+    "Teemo",
+    "Tristana",
+    "Varus",
+    "Veigar",
+    "Vi",
+    "Warwick",
+    "Xayah",
+    "Yorick",
+    "Yunara",
+    "Zyra"
+  ],
+  "note": "Assistant-reviewed champion crops from recent Set 18 gameplay. Model predictions are not used as labels. Current manifest is incomplete and not sufficient to train all classes.",
+  "crops": [
+    {
+      "source": "wr5_dV3QajM.webm",
+      "second": 184.875,
+      "split": "train",
+      "class": "Rakan",
+      "box": [
+        960,
+        313,
+        1090,
+        484
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "wr5_dV3QajM.webm",
+      "second": 184.875,
+      "split": "train",
+      "class": "Xayah",
+      "box": [
+        505,
+        540,
+        632,
+        702
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 850,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        823,
+        632,
+        948,
+        815
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 900,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        1182,
+        517,
+        1295,
+        662
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1000,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        333,
+        627,
+        454,
+        796
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1000,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        450,
+        630,
+        558,
+        800
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1050,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        348,
+        658,
+        461,
+        831
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1050,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        471,
+        659,
+        574,
+        832
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1150,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        328,
+        623,
+        473,
+        813
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1150,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        1164,
+        492,
+        1290,
+        662
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1194.2,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        291,
+        623,
+        462,
+        777
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1194.2,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        1177,
+        496,
+        1299,
+        660
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "X-K0vTo04Uw.mp4",
+      "second": 1600,
+      "split": "train",
+      "class": "Kayle",
+      "box": [
+        1290,
+        481,
+        1454,
+        702
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "aou9H4gyQ1g.mp4",
+      "second": 594.6,
+      "split": "train",
+      "class": "Kha'Zix",
+      "box": [
+        1380,
+        1299,
+        1680,
+        1665
+      ],
+      "reviewed": true
+    },
+    {
+      "source": "f41oEMwIF5Y.mp4",
+      "second": 376.7,
+      "split": "train",
+      "class": "Sett",
+      "box": [
+        850,
+        315,
+        945,
+        468
+      ],
+      "reviewed": true
+    }
+  ]
+}
