@@ -25,6 +25,7 @@ if (new URLSearchParams(location.search).has('connected')) {
   let previewGeneration = 0, previewRequest = null;
   const previewDrawTimes = [];
   function candidateForMarker(marker, fast) {
+    if (marker.color !== 'green') return null;
     const hub = state?.hub_diagnostic;
     if (!hub || hub.epoch !== fast.epoch || fast.source_ms < hub.source_ms ||
         fast.source_ms - hub.source_ms > 3500) return null;
@@ -36,7 +37,14 @@ if (new URLSearchParams(location.search).has('connected')) {
         const b = row.observed_box;
         return {row, distance: Math.hypot(cx-(b[0]+b[2])/2, cy-(b[1]+b[3])/2)};
       }).sort((a,b) => a.distance-b.distance)[0];
-    return nearest && nearest.distance < 80 && nearest.row.support_frames >= 2 &&
+    if (!nearest || nearest.distance >= 80) return null;
+    const b = nearest.row.observed_box;
+    const bx = (b[0]+b[2])/2, by = (b[1]+b[3])/2;
+    const closestTrack = (fast.markers || []).filter(row => row.color === 'green' &&
+      Array.isArray(row.box)).map(row => ({row, distance: Math.hypot(
+        bx-(row.box[0]+row.box[2])/2, by-(row.box[1]+row.box[3])/2)}))
+      .sort((a,b) => a.distance-b.distance)[0];
+    return closestTrack?.row === marker && nearest.row.support_frames >= 2 &&
       nearest.row.label !== 'unidade não identificada'
       ? nearest.row.label : null;
   }
@@ -147,9 +155,12 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (![x,y,w,h].every(Number.isFinite) || w <= 0 || h <= 0) continue;
       const unit = row.id.startsWith('hub.marker.');
       if (unit && fastSnapshot?.status === 'observed' &&
-          fastSnapshot.epoch === epoch && sourceMs-fastSnapshot.source_ms <= 1400) continue;
+          fastSnapshot.epoch === epoch && sourceMs >= fastSnapshot.source_ms &&
+          sourceMs-fastSnapshot.source_ms <= 1400) continue;
       context.strokeStyle = unit ? '#cf8bff' : '#62d5e8';
       context.strokeRect(x,y,w,h);
+      if (row.label === 'unidade não identificada' ||
+          row.label === 'item não identificado') continue;
       context.setLineDash([]);
       const label = unit ? `${row.label} · candidato` : `${row.label} · item?`;
       const labelWidth = Math.min(imageWidth-x,context.measureText(label).width+10);
@@ -189,7 +200,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     const shop = shopRows.map(row => {
       const shopAge = Number.isFinite(read?.shop_read_age_ms) ? read.shop_read_age_ms : null;
       const seen = !!row.observed_name && read?.shop_panel_status === 'located' &&
-        (read?.shop_read_fresh === true || (shopAge != null && shopAge <= 3500)) &&
+        read?.shop_read_fresh === true &&
         row.status !== 'unknown';
       if (seen) diagnosticMemory.shop.set(row.slot, {name: row.observed_name,
         catalogStatus: row.catalog_status, sourceMs: read.source_ms-(shopAge || 0), epoch: read.epoch});
@@ -208,6 +219,8 @@ if (new URLSearchParams(location.search).has('connected')) {
         epoch: diagnosticMemory.hub.epoch}) ? diagnosticMemory.hub : currentHub;
     const hubFromMemory = hub && hub !== currentHub;
     const units = (hub?.boxes || []).filter(row => row.id.startsWith('hub.marker.'));
+    const namedUnits = units.filter(row => row.label !== 'unidade não identificada' &&
+      row.support_frames >= 2);
     const hubAge = hub && state?.preview_epoch === hub.epoch && Number.isFinite(state?.preview_source_ms)
       ? Math.max(0, state.preview_source_ms - hub.source_ms) : null;
     const hubAgeLabel = hubAge != null && (hubFromMemory || hubAge > 3500)
@@ -215,7 +228,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     const items = (hub?.boxes || []).filter(row =>
       (row.id.startsWith('hub.inventory.') || row.id.startsWith('hub.equipped.')) &&
       row.label !== 'item não identificado');
-    const board = units.slice(0,12).map(row => `<div class="live-data-row"><span>Peça</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')} · ${Number(row.support_frames || 0)} quadros · ${row.identity_verified ? 'verificada' : 'não verificada'}</small></div>`).join('');
+    const board = namedUnits.slice(0,12).map(row => `<div class="live-data-row"><span>Peça</span><b>${escapeHtml(row.label)}</b><small>${escapeHtml(row.status || 'candidato')} · ${Number(row.support_frames || 0)} quadros · ${row.identity_verified ? 'verificada' : 'não verificada'}</small></div>`).join('');
     const fast = fastSnapshot || state?.fast_diagnostic;
     const fastAge = fast?.status === 'observed' && fast.epoch === state?.preview_epoch &&
       Number.isFinite(currentMs) ? Math.max(0,currentMs-fast.source_ms) : null;
@@ -241,7 +254,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     const ranked = (rust.ranked || []).map(row => `<div class="live-rank-row ${row.selected?'selected':''}"><span>${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')}</span><strong>${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}</strong><small>base ${Number.isFinite(row.base_utility) ? row.base_utility.toFixed(3) : '—'} · repetição −${Number.isFinite(row.novelty_penalty) ? row.novelty_penalty.toFixed(3) : '—'} · persistência +${Number.isFinite(row.persistence_bonus) ? row.persistence_bonus.toFixed(3) : '—'}</small></div>`).join('');
     const tip = state?.tip;
     const freshTip = tip?.actionable && Number.isFinite(tip.age_ms) && tip.age_ms <= 5000;
-    panel.innerHTML = `<section class="live-data-panel"><h3>Leituras da imagem <small>quadro ${escapeHtml(read?.frame_id ?? '—')} · ${read ? (read.source_ms/1000).toFixed(1)+' s' : 'aguardando'}</small></h3>${hud || '<p>Aguardando primeira leitura.</p>'}<h4>Loja</h4>${shop || '<p>Nomes ainda não lidos.</p>'}<h4>Rastros rápidos · ${fast?.markers?.length || 0} barras${fastAge == null ? '' : ' · '+(fastAge/1000).toFixed(1)+' s'}</h4>${hpRow}${tracks || '<p>Sem barra localizada. Avatar e lado do jogador ainda sem confirmação.</p>'}<h4>Tabuleiro e banco · ${units.length} regiões${hubAgeLabel}</h4>${board || '<p>Nenhuma unidade localizada neste quadro.</p>'}<h4>Reconhecimento de campeões</h4>${inferred || '<p>Modelo processando ou sem candidato neste quadro.</p>'}<h4>Itens</h4>${itemRows || '<p>Nenhum item nomeado neste quadro.</p>'}<h4>Adversários</h4>${opponents || '<p>Nomes ainda não lidos.</p>'}<p class="live-footnote">Rastros acompanham barras visíveis; cor não prova se a unidade é sua ou do adversário. Nomes são candidatos, não rótulos de treino.</p></section>`+
+    panel.innerHTML = `<section class="live-data-panel"><h3>Leituras da imagem <small>quadro ${escapeHtml(read?.frame_id ?? '—')} · ${read ? (read.source_ms/1000).toFixed(1)+' s' : 'aguardando'}</small></h3>${hud || '<p>Aguardando primeira leitura.</p>'}<h4>Loja</h4>${shop || '<p>Nomes ainda não lidos.</p>'}<h4>Rastros rápidos · ${fast?.markers?.length || 0} barras${fastAge == null ? '' : ' · '+(fastAge/1000).toFixed(1)+' s'}</h4>${hpRow}${tracks || '<p>Sem barra localizada. Avatar e lado do jogador ainda sem confirmação.</p>'}<h4>Tabuleiro e banco · ${namedUnits.length}/${units.length} nomes candidatos${hubAgeLabel}</h4>${board || '<p>Regiões detectadas, sem nome sustentado neste quadro.</p>'}<h4>Reconhecimento de campeões</h4>${inferred || '<p>Modelo processando ou sem candidato neste quadro.</p>'}<h4>Itens</h4>${itemRows || '<p>Nenhum item nomeado neste quadro.</p>'}<h4>Adversários</h4>${opponents || '<p>Nomes ainda não lidos.</p>'}<p class="live-footnote">Rastros acompanham barras visíveis; cor não prova se a unidade é sua ou do adversário. Nomes são candidatos, não rótulos de treino.</p></section>`+
       `<section class="live-math-panel"><h3>Cálculo Rust <small>${escapeHtml(rust.status || 'aguardando')}</small></h3><p>HUD ${Number.isFinite(read?.reader_ms) ? read.reader_ms.toFixed(0)+' ms' : '—'} · tabuleiro ${Number.isFinite(hub?.processing_ms) ? hub.processing_ms.toFixed(0)+' ms' : '—'} · motor ${Number.isFinite(rust.native_ms) ? rust.native_ms.toFixed(0)+' ms' : '—'}</p>${ranked || '<p>Sem alternativas calculadas neste quadro.</p>'}<p class="live-footnote">${Number.isFinite(hub?.worker_ms) ? 'Barras '+hub.worker_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.diagnostic_timings_ms?.snapshot_ms) ? 'base visual '+hub.diagnostic_timings_ms.snapshot_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.diagnostic_timings_ms?.unit_neural_ms) ? 'nomes '+hub.diagnostic_timings_ms.unit_neural_ms.toFixed(0)+' ms · ' : ''}${Number.isFinite(hub?.diagnostic_timings_ms?.item_visual_native_ms) ? 'itens '+hub.diagnostic_timings_ms.item_visual_native_ms.toFixed(0)+' ms. ' : ''}Pontuação relativa, não probabilidade de vitória.${rust.reason ? ' Motivo: '+escapeHtml(rust.reason) : ''}</p></section>`+
       `<section class="live-moves-panel"><h3>Jogada indicada <small>${freshTip?'agora':'sem nova dica'}</small></h3><strong>${escapeHtml(freshTip ? tip.text : 'Aguardando uma ação sustentada pela leitura.')}</strong><p>${freshTip ? 'Momento '+(tip.source_ms/1000).toFixed(1)+' s · '+escapeHtml(tip.action_type || 'ação') : 'A leitura continua mesmo quando o motor não recomenda agir.'}</p><h4>Alternativas avaliadas</h4>${ranked ? (rust.ranked || []).slice(0,3).map(row => `<div class="live-move-row">${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')} <b>${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}</b></div>`).join('') : '<p>Nenhuma ainda.</p>'}</section>`;
     Array.from(panel.children, (child, index) => { child.scrollTop = scrollPositions[index] || 0; });

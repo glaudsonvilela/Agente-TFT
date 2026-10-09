@@ -16,6 +16,14 @@ def _number(value):
     return value if type(value) in (int, float) and math.isfinite(value) else None
 
 
+def _board_position(value):
+    if (not isinstance(value, dict) or value.get('status') != 'candidate_only'
+            or value.get('zone') != 'board'):
+        return None
+    row, cell = value.get('row'), value.get('cell_or_slot')
+    return ('board', row, cell) if type(row) is int and type(cell) is int else None
+
+
 def build_live_diagnostic(answer, regions, *, frame_id, source_ms, epoch,
                           width, height, reader_ms, source_to_reader_ms):
     """Keep observations, unverified candidates, and Rust scores separate."""
@@ -77,8 +85,21 @@ def build_hub_diagnostic(snapshot, regions, *, frame_id, source_ms, epoch,
                          width, height, processing_ms, worker_ms=None, observer_ms=None):
     """Expose tracked board candidates without calling them verified units."""
     temporal = snapshot.get('temporal_candidates') or {}
-    by_marker = {row.get('marker_id'): row for row in (temporal.get('units') or [])
-                 if isinstance(row, dict) and type(row.get('marker_id')) is int}
+    observed = {row.get('marker_id'): _board_position(row.get('position_candidate'))
+                for row in snapshot.get('observed_markers') or [] if isinstance(row, dict)}
+    position_counts = {}
+    for position in observed.values():
+        if position:
+            position_counts[position] = position_counts.get(position, 0) + 1
+    by_position = {}
+    candidate_counts = {}
+    for row in temporal.get('units') or []:
+        if not isinstance(row, dict) or not isinstance(row.get('position'), list):
+            continue
+        position = tuple(row['position'])
+        candidate_counts[position] = candidate_counts.get(position, 0) + 1
+        if row.get('status') == 'persistent_candidate':
+            by_position[position] = row
     boxes = []
     for region in regions:
         rid = str(region.get('id') or '')
@@ -86,11 +107,14 @@ def build_hub_diagnostic(snapshot, regions, *, frame_id, source_ms, epoch,
         if not isinstance(box, list) or not valid_box(box, width, height):
             continue
         if rid.startswith('hub.marker.'):
-            marker_id = (region.get('value') or {}).get('marker_id') if isinstance(region.get('value'), dict) else None
-            candidate = by_marker.get(marker_id) or {}
-            name = candidate.get('candidate_name') or candidate.get('current_candidate_name')
-            if not candidate.get('identity_verified') and (candidate.get('support_frames') or 0) < 2:
-                name = None
+            marker_id = region.get('marker_id')
+            if type(marker_id) is not int and isinstance(region.get('value'), dict):
+                marker_id = region['value'].get('marker_id')
+            position = observed.get(marker_id)
+            candidate = (by_position.get(position) or {}) if (
+                position_counts.get(position) == 1 and candidate_counts.get(position) == 1
+            ) else {}
+            name = candidate.get('candidate_name') if (candidate.get('support_frames') or 0) >= 2 else None
             x1, y1, x2, y2 = box
             # Only the health bar is observed. This larger rectangle is a
             # visual guide around it, not a detector's silhouette box.

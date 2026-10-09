@@ -48,12 +48,16 @@ class LiveDiagnosticTests(unittest.TestCase):
         self.assertEqual(result['boxes'], [])
 
     def test_hub_marks_candidates_without_promoting_identity(self):
-        snapshot = {'temporal_candidates': {'units': [
-            {'marker_id': 7, 'candidate_name': 'Rakan', 'status': 'persistent_candidate',
+        position = {'status': 'candidate_only', 'zone': 'board',
+                    'row': 1, 'cell_or_slot': 2}
+        snapshot = {'observed_markers': [{'marker_id': 7, 'position_candidate': position}],
+                    'temporal_candidates': {'units': [
+            {'marker_id': 7, 'position': ['board', 1, 2], 'candidate_name': 'Rakan',
+             'status': 'persistent_candidate',
              'support_frames': 3, 'identity_verified': False}]}}
         regions = [
             {'id': 'hub.marker.7', 'box': [100, 200, 160, 205],
-             'value': {'marker_id': 7}, 'status': 'position_candidate'},
+             'value': position, 'marker_id': 7, 'status': 'position_candidate'},
             {'id': 'hub.inventory.0', 'box': [0, 20, 30, 50],
              'value': 'Lágrima da Deusa', 'status': 'icon_candidate'},
         ]
@@ -66,6 +70,57 @@ class LiveDiagnosticTests(unittest.TestCase):
         self.assertEqual(result['boxes'][0]['observed_box'], [100, 200, 160, 205])
         self.assertEqual(result['boxes'][0]['geometry'], 'bar_anchored_approximation')
         self.assertEqual(result['boxes'][1]['label'], 'Lágrima da Deusa')
+
+    def test_hub_name_follows_board_cell_when_marker_ids_change(self):
+        first = {'status': 'candidate_only', 'zone': 'board', 'row': 0, 'cell_or_slot': 2}
+        second = {'status': 'candidate_only', 'zone': 'board', 'row': 0, 'cell_or_slot': 3}
+        snapshot = {'observed_markers': [
+            {'marker_id': 7, 'position_candidate': second},
+            {'marker_id': 8, 'position_candidate': first}],
+            'temporal_candidates': {'units': [
+                {'marker_id': 7, 'position': ['board', 0, 2], 'candidate_name': 'Rakan',
+                 'status': 'persistent_candidate', 'support_frames': 2,
+                 'identity_verified': False}]}}
+        regions = [
+            {'id': 'hub.marker.7', 'box': [100, 200, 160, 205],
+             'value': second, 'marker_id': 7, 'status': 'position_candidate'},
+            {'id': 'hub.marker.8', 'box': [200, 200, 260, 205],
+             'value': first, 'marker_id': 8, 'status': 'position_candidate'}]
+        result = build_hub_diagnostic(snapshot, regions, frame_id=22,
+            source_ms=5400, epoch=1, width=1920, height=1080, processing_ms=18.4)
+        self.assertEqual(result['boxes'][0]['label'], 'unidade não identificada')
+        self.assertEqual(result['boxes'][1]['label'], 'Rakan')
+
+    def test_hub_suppresses_name_when_cell_has_two_markers(self):
+        position = {'status': 'candidate_only', 'zone': 'board',
+                    'row': 1, 'cell_or_slot': 2, 'marker_id': 7}
+        snapshot = {'observed_markers': [
+            {'marker_id': 7, 'position_candidate': position},
+            {'marker_id': 8, 'position_candidate': position}],
+            'temporal_candidates': {'units': [
+                {'marker_id': 7, 'position': ['board', 1, 2], 'candidate_name': 'Rakan',
+                 'status': 'persistent_candidate', 'support_frames': 3}]}}
+        regions = [{'id': f'hub.marker.{marker_id}', 'box': [100, 200, 160, 205],
+                    'value': position, 'marker_id': marker_id}
+                   for marker_id in (7, 8)]
+        result = build_hub_diagnostic(snapshot, regions, frame_id=22,
+            source_ms=5400, epoch=1, width=1920, height=1080, processing_ms=18.4)
+        self.assertTrue(all(row['label'] == 'unidade não identificada'
+                            for row in result['boxes']))
+
+    def test_hub_accepts_recorded_region_contract_with_marker_inside_position(self):
+        position = {'status': 'candidate_only', 'zone': 'board',
+                    'row': 1, 'cell_or_slot': 2, 'marker_id': 7}
+        snapshot = {'observed_markers': [{'marker_id': 7, 'position_candidate': position}],
+                    'temporal_candidates': {'units': [
+                        {'marker_id': 7, 'position': ['board', 1, 2],
+                         'candidate_name': 'Rakan', 'status': 'persistent_candidate',
+                         'support_frames': 2}]}}
+        result = build_hub_diagnostic(snapshot, [
+            {'id': 'hub.marker.7', 'box': [100, 200, 160, 205], 'value': position}],
+            frame_id=22, source_ms=5400, epoch=1, width=1920,
+            height=1080, processing_ms=18.4)
+        self.assertEqual(result['boxes'][0]['label'], 'Rakan')
 
     def test_async_unit_result_is_source_bound_and_never_verified(self):
         snapshot = {'neural_units': {'pending': True, 'completed': 1},

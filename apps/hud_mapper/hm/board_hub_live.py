@@ -298,7 +298,7 @@ class BoardHubLive:
             identity = unit_records.get(marker['id'], {})
             regions.append(region(f"hub.marker.{marker['id']}", xyxy(marker['rect']),
                                   'position_candidate' if location else 'unassigned_bar',
-                                  value=location, champion_id=None,
+                                  value=location, marker_id=marker['id'], champion_id=None,
                                   candidate_champion_id=identity.get('candidate_id'),
                                   candidate_champion_name=identity.get('candidate_name'),
                                   identity_status=identity.get('status', 'unavailable'),
