@@ -14,16 +14,66 @@ from threading import Event, Lock, Thread
 import time
 
 import cv2
+import numpy as np
 from ultralytics import YOLO
 
 
-UNIT_CLASSES = {"board_unit", "bench_unit"}
+UNIT_CLASSES = {"board_unit", "bench_unit", "enemy_candidate"}
 COLORS = {
     "board_unit": (95, 235, 70),
     "bench_unit": (70, 205, 240),
+    "enemy_candidate": (70, 70, 245),
     "shop_offer": (230, 155, 40),
     "player_avatar": (230, 80, 230),
 }
+
+
+def intersection_over_union(first, second):
+    x0, y0 = max(first[0], second[0]), max(first[1], second[1])
+    x1, y1 = min(first[2], second[2]), min(first[3], second[3])
+    intersection = max(0, x1-x0) * max(0, y1-y0)
+    first_area = max(0, first[2]-first[0]) * max(0, first[3]-first[1])
+    second_area = max(0, second[2]-second[0]) * max(0, second[3]-second[1])
+    return intersection / max(1, first_area + second_area - intersection)
+
+
+def enemy_health_bar_candidates(frame, existing):
+    """Propose enemy crops from red health bars; never treat them as verified IDs."""
+    height, width = frame.shape[:2]
+    if (width, height) != (1920, 1080):
+        return []
+    blue, green, red = cv2.split(frame)
+    red_pixels = ((red.astype(np.int16) > green.astype(np.int16) * 1.55)
+                  & (red.astype(np.int16) > blue.astype(np.int16) * 1.35)
+                  & (red > 65) & (green < 115)).astype(np.uint8) * 255
+    red_pixels[:90] = 0
+    red_pixels[680:] = 0
+    red_pixels[:, :350] = 0
+    red_pixels[:, 1550:] = 0
+    bars = cv2.morphologyEx(red_pixels, cv2.MORPH_OPEN,
+                            cv2.getStructuringElement(cv2.MORPH_RECT, (24, 2)))
+    contours, _ = cv2.findContours(bars, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    output = []
+    for contour in contours:
+        x, y, bar_width, bar_height = cv2.boundingRect(contour)
+        if not (28 <= bar_width <= 130 and 2 <= bar_height <= 12):
+            continue
+        dark_above = np.mean(gray[y-3:y, x:x+bar_width] < 70)
+        dark_below = np.mean(gray[y+bar_height:y+bar_height+3, x:x+bar_width] < 70)
+        dark_inner = np.mean(gray[y:y+bar_height, x:x+bar_width] < 70)
+        if dark_above < 0.6 or dark_below < 0.35 or dark_inner < 0.8:
+            continue
+        box = [max(0, x-25), max(0, y-5), min(width, x+bar_width+25),
+               min(height, y+145)]
+        if any(intersection_over_union(box, row["box"]) > 0.25 for row in existing
+               if row["class"] in UNIT_CLASSES):
+            continue
+        output.append({"class": "enemy_candidate", "box": box,
+                       "det_confidence": None,
+                       "source": "red_health_bar_pixel_proposal",
+                       "health_bar": [x, y, x+bar_width, y+bar_height]})
+    return output[:15]
 
 
 def classify_units(model, frame, detections):
@@ -69,6 +119,7 @@ def inference_loop(requests, shared, lock, stop, detector_path, classifier_path,
                         "box": [int(round(value)) for value in box.xyxy[0].tolist()],
                         "det_confidence": round(float(box.conf.item()), 3),
                     })
+                detections.extend(enemy_health_bar_candidates(frame, detections))
                 classify_units(classifier, frame, detections)
                 observation = {"video_seconds": round(stamp, 2),
                                "inference_seconds": round(time.monotonic() - started, 3),
@@ -111,12 +162,15 @@ def overlay(frame, observation, video_seconds, error):
         color = COLORS[row["class"]]
         cv2.rectangle(output, (x0, y0), (x1, y1), color, 2)
         label = row.get("name", row["class"])
+        if row["class"] == "enemy_candidate":
+            label = "INIMIGO? " + label
         if "name_confidence" in row:
             label += f" {row['name_confidence']:.2f}"
             if row["name_confidence"] < 0.5:
                 color = (0, 200, 255)
         else:
-            label += f" {row['det_confidence']:.2f}"
+            if row["det_confidence"] is not None:
+                label += f" {row['det_confidence']:.2f}"
         text_y = max(60, y0 - 7)
         cv2.putText(output, label, (max(0, x0), text_y), cv2.FONT_HERSHEY_SIMPLEX,
                     0.43, color, 1, cv2.LINE_AA)
