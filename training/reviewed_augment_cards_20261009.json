@@ -1,0 +1,62 @@
+{
+  "review_method": "assistant_visual_review",
+  "independent_human_ground_truth": false,
+  "classes": ["augment_card"],
+  "scenes": [
+    {
+      "source": "targeted/BXCLrXcQG3E.mp4", "split": "train", "reviewed": true,
+      "seconds": [0, 2, 4],
+      "boxes": [
+        ["augment_card", 375, 268, 733, 804],
+        ["augment_card", 781, 268, 1140, 804],
+        ["augment_card", 1192, 268, 1552, 804]
+      ]
+    },
+    {
+      "source": "targeted/X-K0vTo04Uw.mp4", "split": "train", "reviewed": true,
+      "seconds": [336, 339],
+      "boxes": [
+        ["augment_card", 375, 268, 733, 804],
+        ["augment_card", 781, 268, 1140, 804],
+        ["augment_card", 1192, 268, 1552, 804]
+      ]
+    },
+    {
+      "source": "targeted/D2Z1RGiokYs.mp4", "split": "train", "reviewed": true,
+      "seconds": [956, 958, 960, 962],
+      "boxes": [
+        ["augment_card", 375, 268, 733, 804],
+        ["augment_card", 781, 268, 1140, 804],
+        ["augment_card", 1192, 268, 1552, 804]
+      ]
+    },
+    {
+      "source": "youtube/-Xt_mZgsfp4.mp4", "split": "val", "reviewed": true,
+      "seconds": [806, 808, 810, 812],
+      "boxes": [
+        ["augment_card", 375, 268, 733, 804],
+        ["augment_card", 781, 268, 1140, 804],
+        ["augment_card", 1192, 268, 1552, 804]
+      ]
+    },
+    {
+      "source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "test", "reviewed": true,
+      "seconds": [960, 975],
+      "boxes": [
+        ["augment_card", 375, 268, 733, 804],
+        ["augment_card", 781, 268, 1140, 804],
+        ["augment_card", 1192, 268, 1552, 804]
+      ]
+    },
+    {"source": "targeted/BXCLrXcQG3E.mp4", "split": "train", "reviewed": true,
+     "seconds": [60, 300], "boxes": []},
+    {"source": "targeted/X-K0vTo04Uw.mp4", "split": "train", "reviewed": true,
+     "seconds": [480, 600], "boxes": []},
+    {"source": "targeted/D2Z1RGiokYs.mp4", "split": "train", "reviewed": true,
+     "seconds": [780, 900], "boxes": []},
+    {"source": "youtube/-Xt_mZgsfp4.mp4", "split": "val", "reviewed": true,
+     "seconds": [630, 720, 900], "boxes": []},
+    {"source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "test", "reviewed": true,
+     "seconds": [930, 990], "boxes": []}
+  ]
+}

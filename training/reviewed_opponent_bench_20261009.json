@@ -1,0 +1,49 @@
+{
+  "review_method": "assistant_visual_review",
+  "independent_human_ground_truth": false,
+  "classes": ["opponent_bench_candidate"],
+  "scenes": [
+    {
+      "source": "targeted/X-K0vTo04Uw.mp4", "split": "train", "reviewed": true,
+      "seconds": [558, 560, 562],
+      "boxes": [
+        ["opponent_bench_candidate", 583, 58, 664, 151],
+        ["opponent_bench_candidate", 659, 58, 744, 153],
+        ["opponent_bench_candidate", 767, 64, 827, 149],
+        ["opponent_bench_candidate", 836, 60, 932, 153],
+        ["opponent_bench_candidate", 1190, 55, 1285, 158]
+      ]
+    },
+    {
+      "source": "youtube/xl99CWEZG_w.mp4", "split": "train", "reviewed": true,
+      "seconds": [988, 990, 992],
+      "boxes": [
+        ["opponent_bench_candidate", 580, 49, 653, 150],
+        ["opponent_bench_candidate", 1004, 95, 1059, 190],
+        ["opponent_bench_candidate", 1064, 96, 1113, 189],
+        ["opponent_bench_candidate", 1091, 62, 1180, 172],
+        ["opponent_bench_candidate", 1179, 63, 1244, 156],
+        ["opponent_bench_candidate", 1250, 62, 1325, 155]
+      ]
+    },
+    {
+      "source": "youtube/-Xt_mZgsfp4.mp4", "split": "val", "reviewed": true,
+      "seconds": [1078, 1080, 1082],
+      "boxes": [
+        ["opponent_bench_candidate", 651, 56, 749, 169],
+        ["opponent_bench_candidate", 755, 65, 824, 160],
+        ["opponent_bench_candidate", 1241, 64, 1331, 174]
+      ]
+    },
+    {"source": "targeted/X-K0vTo04Uw.mp4", "split": "train", "reviewed": true,
+     "seconds": [480, 510], "boxes": []},
+    {"source": "youtube/xl99CWEZG_w.mp4", "split": "train", "reviewed": true,
+     "seconds": [450, 630], "boxes": []},
+    {"source": "youtube/-Xt_mZgsfp4.mp4", "split": "val", "reviewed": true,
+     "seconds": [50, 720], "boxes": []},
+    {"source": "targeted/BXCLrXcQG3E.mp4", "split": "test", "reviewed": true,
+     "seconds": [420, 540], "boxes": []},
+    {"source": "targeted/D2Z1RGiokYs.mp4", "split": "test", "reviewed": true,
+     "seconds": [600, 900], "boxes": []}
+  ]
+}

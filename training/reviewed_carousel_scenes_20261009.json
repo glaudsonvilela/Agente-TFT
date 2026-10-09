@@ -1,0 +1,25 @@
+{
+  "review_method": "assistant_visual_review",
+  "independent_human_ground_truth": false,
+  "classes": ["board", "carousel"],
+  "scenes": [
+    {"source": "targeted/BXCLrXcQG3E.mp4", "split": "train", "class": "carousel",
+     "reviewed": true, "seconds": [1560, 1565, 1570]},
+    {"source": "targeted/D2Z1RGiokYs.mp4", "split": "train", "class": "carousel",
+     "reviewed": true, "seconds": [1545, 1550, 1560, 1565]},
+    {"source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "val", "class": "carousel",
+     "reviewed": true, "seconds": [1165, 1170, 1175, 1180]},
+    {"source": "targeted/X-K0vTo04Uw.mp4", "split": "test", "class": "carousel",
+     "reviewed": true, "seconds": [500, 502, 504, 506]},
+    {"source": "targeted/BXCLrXcQG3E.mp4", "split": "train", "class": "board",
+     "reviewed": true, "seconds": [420, 1545, 1550, 1555]},
+    {"source": "targeted/D2Z1RGiokYs.mp4", "split": "train", "class": "board",
+     "reviewed": true, "seconds": [600, 900, 1555, 1570]},
+    {"source": "youtube/xl99CWEZG_w.mp4", "split": "train", "class": "board",
+     "reviewed": true, "seconds": [360, 720, 810, 1080]},
+    {"source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "val", "class": "board",
+     "reviewed": true, "seconds": [900, 1155, 1160]},
+    {"source": "targeted/X-K0vTo04Uw.mp4", "split": "test", "class": "board",
+     "reviewed": true, "seconds": [480, 498, 510, 540]}
+  ]
+}
