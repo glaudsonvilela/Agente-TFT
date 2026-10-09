@@ -4,7 +4,7 @@ Reprodução local do replay `replay-trecho-0845-1245.mp4`, com um único vídeo
 
 ## Medição
 
-- Prévia limitada a 22 FPS: três amostras consecutivas registraram 22 FPS.
+- Prévia limitada a 22 FPS: em 20 amostras após o aquecimento, a mediana foi 22 FPS, com mínimo de 21 e máximo de 22. O contador visual chegou a mostrar 20 FPS em uma janela curta; portanto 22 FPS é o limite configurado, não uma garantia de cadência exata em todos os instantes.
 - Leitura Rust do tabuleiro: mediana de 42 ms; percentil 95 de 82 ms.
 - Observação visual: mediana de 440 ms; percentil 95 de 732 ms.
 - Idade da leitura completa: mediana de 500 ms; percentil 95 de 775 ms.
@@ -17,5 +17,5 @@ O OCR de texto das sinergias passou a funcionar em paralelo ao mapeamento Rust. 
 - Atribuir com evidência o banco visível ao jogador ou ao adversário durante a observação de outro tabuleiro.
 - Treinar a identificação dos símbolos de sinergia no painel para enviar a observação visual ao motor Rust. O YOLO atual ainda não possui essas classes.
 - Validar as identidades dos campeões e os itens em partidas independentes; as probabilidades exibidas ainda são candidatos não calibrados.
-- Avaliar recomendações de jogo separadamente: esta sessão de diagnóstico visual não produziu dicas acionáveis.
+- Avaliar recomendações de jogo separadamente: o replay produziu dicas, mas esta medição não avaliou a pertinência estratégica delas.
 - Não há arquivos de trabalho alheios ao reconhecedor pendentes neste checkout.
