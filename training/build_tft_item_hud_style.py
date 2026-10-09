@@ -38,6 +38,14 @@ def sample(image, rng):
         # An on-board effect may hide a narrow part of the icon.
         px = int(rng.integers(x, x+side))
         cv2.line(canvas, (px, y), (px, y+side-1), (85, 110, 135), 1)
+    if rng.random() < 0.4:
+        # Stacking items show a gold counter across the lower-left artwork.
+        count = str(int(rng.integers(1, 40)))
+        origin = (max(0, x-2), min(35, y+side+1))
+        cv2.putText(canvas, count, origin, cv2.FONT_HERSHEY_SIMPLEX,
+                    0.42, (3, 3, 4), 3, cv2.LINE_AA)
+        cv2.putText(canvas, count, origin, cv2.FONT_HERSHEY_SIMPLEX,
+                    0.42, (94, 190, 240), 1, cv2.LINE_AA)
     return canvas
 
 
