@@ -48,7 +48,7 @@ class InputPlan:
         else:
             from e1.source import VideoSource
             self.source = VideoSource(o.video, o.ffmpeg, o.ffprobe,
-                                      fps=22 if o.replay_review else None)
+                                      fps=o.preview_hz if o.replay_review else None)
         return self.source
 
     def verify(self, cancelled=False):

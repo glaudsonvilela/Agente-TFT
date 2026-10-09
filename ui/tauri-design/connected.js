@@ -30,16 +30,19 @@ if (new URLSearchParams(location.search).has('connected')) {
     // with a frame from before it, or retain boxes after they have gone stale.
     const lagMs = frameSourceMs - overlay.source_ms;
     const current = Number.isFinite(lagMs) && lagMs >= 0 && lagMs <= 3000;
+    const unitLabel = row => row.candidate_name ?
+      (row.candidate_id ? row.candidate_name : 'possível '+row.candidate_name) :
+      'campeão incerto';
     const rows = current ? [
       ...(overlay.detections || []).map(row => ({box: row.box, label: row.class_name,
         confidence: row.confidence, color: '#a879ff'})),
-      ...(overlay.units || []).map(row => ({box: row.box, label: row.candidate_name,
+      ...(overlay.units || []).map(row => ({box: row.box, label: unitLabel(row),
         confidence: row.confidence_uncalibrated, color: '#64e2b2'})),
       ...(overlay.bench_units || []).map(row => ({box: row.box,
-        label: 'Banco visível? '+row.candidate_name,
+        label: 'Banco visível? '+unitLabel(row),
         confidence: row.confidence_uncalibrated, color: '#8be7ff'})),
       ...(overlay.enemy_units || []).map(row => ({box: row.box,
-        label: 'Inimigo? '+row.candidate_name,
+        label: 'Inimigo? '+unitLabel(row),
         confidence: row.confidence_uncalibrated, color: '#ff8068'})),
       ...(overlay.mascots || []).map(row => ({box: row.box,
         label: row.class_name === 'own_tactician' ? 'Mascote meu? · barra' : 'Mascote rival? · barra',
@@ -81,11 +84,13 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (previewRequest) previewRequest.abort();
     previewDrawTimes.length = 0;
     const canvas = document.querySelector('#live-preview-canvas');
-    if (!canvas) return;
+    const overlayCanvas = document.querySelector('#live-preview-overlay');
+    if (!canvas || !overlayCanvas) return;
     const generation = previewGeneration;
     const context = canvas.getContext('2d', {alpha: false, desynchronized: true});
-    if (!context) return;
-    let after = 0, errors = 0;
+    const overlayContext = overlayCanvas.getContext('2d', {alpha: true});
+    if (!context || !overlayContext) return;
+    let after = 0, errors = 0, lastOverlayKey = '';
     (async () => {
       while (generation === previewGeneration && canvas.isConnected) {
         const request = new AbortController();
@@ -104,9 +109,19 @@ if (new URLSearchParams(location.search).has('connected')) {
             if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
               canvas.width = bitmap.width;
               canvas.height = bitmap.height;
+              overlayCanvas.width = bitmap.width;
+              overlayCanvas.height = bitmap.height;
             }
             context.drawImage(bitmap, 0, 0);
-            drawYoloOverlay(context, canvas, frameSourceMs, state?.yolo_overlay);
+            const overlay = state?.yolo_overlay;
+            const lag = frameSourceMs - overlay?.source_ms;
+            const current = Number.isFinite(lag) && lag >= 0 && lag <= 3000;
+            const overlayKey = `${overlay?.source_ms}:${current}:${Math.floor(frameSourceMs / 1000)}`;
+            if (overlayKey !== lastOverlayKey) {
+              overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+              drawYoloOverlay(overlayContext, overlayCanvas, frameSourceMs, overlay);
+              lastOverlayKey = overlayKey;
+            }
             canvas.closest('.live-preview')?.classList.add('yolo-analysis-ready');
             const drawnAt = performance.now();
             previewDrawTimes.push(drawnAt);
@@ -227,7 +242,8 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (current === 'studio') {
       const arena = document.querySelector('.panel .arena');
       if (arena) arena.outerHTML = `<div class="live-preview">${state && state.session_id ?
-        `<canvas id="live-preview-canvas" width="960" height="540" role="img" aria-label="Vídeo em movimento com as marcações do YOLO"></canvas>` : ''}`+
+        `<canvas id="live-preview-canvas" width="960" height="540" role="img" aria-label="Vídeo em movimento com as marcações do YOLO"></canvas>`+
+        `<canvas id="live-preview-overlay" width="960" height="540" aria-hidden="true"></canvas>` : ''}`+
         `<div class="live-preview-empty">${state && state.session_id ? 'Aguardando o primeiro quadro da captura…' : 'Selecione um monitor ou janela para acompanhar.'}</div></div>`;
       const status = document.querySelector('.capture-controls small');
       if (status) status.textContent = state && state.session_id ?
@@ -345,6 +361,17 @@ if (new URLSearchParams(location.search).has('connected')) {
   }
   setInterval(refresh, 250);
   refresh();
+
+  setInterval(() => {
+    if (!state?.session_id || state.phase === 'finished') return;
+    const now = performance.now();
+    while (previewDrawTimes.length && previewDrawTimes[0] < now - 1000)
+      previewDrawTimes.shift();
+    const gaps = previewDrawTimes.slice(1).map((time, index) => time - previewDrawTimes[index]);
+    const sinceLast = previewDrawTimes.length ? now - previewDrawTimes.at(-1) : 1000;
+    const longestGap = Math.min(5000, Math.max(sinceLast, ...gaps, 0));
+    api().report_preview_metrics(previewDrawTimes.length, longestGap).catch(() => {});
+  }, 2000);
 
   document.addEventListener('click', async event => {
     const button = event.target.closest('button');

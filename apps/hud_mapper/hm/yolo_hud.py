@@ -45,11 +45,16 @@ def _tensor(image: Image.Image, size: int):
     # Ultralytics classification inference: shortest edge resize, center crop,
     # RGB ToTensor. Ultralytics uses mean=0 and std=1 for these models.
     width, height = image.size
-    scale = size / min(width, height)
-    resized = image.resize((max(size, round(width * scale)), max(size, round(height * scale))),
-                           Image.Resampling.BILINEAR)
-    left = (resized.width - size) // 2
-    top = (resized.height - size) // 2
+    # torchvision Resize(int) truncates the longer edge. Rounding here moves
+    # pixels by one column/row for many 128x144 unit crops and changes the
+    # classifier's logits relative to its training transform.
+    shorter, longer = min(width, height), max(width, height)
+    target_longer = int(size * longer / shorter)
+    target = ((size, target_longer) if width <= height else
+              (target_longer, size))
+    resized = image.resize(target, Image.Resampling.BILINEAR)
+    left = int(round((resized.width - size) / 2))
+    top = int(round((resized.height - size) / 2))
     crop = resized.crop((left, top, left + size, top + size))
     array = np.asarray(crop, dtype=np.float32).transpose(2, 0, 1) / 255.0
     return array[None]
@@ -180,9 +185,19 @@ class YoloHudObserver:
             box = unit_box(marker.get('rect'), image.size)
             if box is None:
                 continue
-            detected = next((row for row in detections if row['class_name'] in
-                             ('board_unit', 'bench_unit') and _iou(box, row['box']) > .2), None)
+            nearby = [row for row in detections if row['class_name'] in ('board_unit', 'bench_unit')]
+            detected = max(nearby, key=lambda row: _iou(box, row['box']), default=None)
+            if detected is not None and _iou(box, detected['box']) <= .2:
+                detected = None
             crop_box = detected['box'] if detected else box
+            # A green bar over the lower reserve is useful even when the
+            # full-frame detector misses its much smaller unit body.
+            lower_reserve = (box[1] >= image.height * .63 and
+                             box[3] <= image.height * .84 and
+                             box[0] >= image.width * .13 and
+                             box[2] <= image.width * .85)
+            zone = (detected['class_name'] if detected else
+                    'bench_unit' if lower_reserve else 'unlocalized')
             predictions = self._classify(self.champions, image, crop_box, 224)
             if not predictions:
                 continue
@@ -190,7 +205,7 @@ class YoloHudObserver:
             name = self.champion_names[top]
             candidate_id = self.champion_ids[name] if score >= .55 else None
             records.append(dict(marker_id=marker['id'], box=crop_box,
-                                zone=detected['class_name'] if detected else 'unlocalized',
+                                zone=zone,
                                 candidate_id=candidate_id, candidate_name=name,
                                 status='identity_candidate' if candidate_id else 'unknown',
                                 confidence_uncalibrated=score, identity_verified=False,
@@ -202,8 +217,10 @@ class YoloHudObserver:
         for detected in detections:
             if detected['class_name'] != 'bench_unit':
                 continue
-            matched = next((row for row in records if row['zone'] == 'bench_unit' and
-                            _iou(row['box'], detected['box']) > .5), None)
+            matched = max((row for row in records if row['zone'] == 'bench_unit'),
+                          key=lambda row: _iou(row['box'], detected['box']), default=None)
+            if matched is not None and _iou(matched['box'], detected['box']) <= .5:
+                matched = None
             if matched:
                 bench_records.append(dict(box=detected['box'], zone='bench',
                     candidate_id=matched['candidate_id'],
@@ -220,6 +237,17 @@ class YoloHudObserver:
                 candidate_id=self.champion_ids[name] if score >= .55 else None,
                 candidate_name=name, confidence_uncalibrated=score,
                 identity_verified=False, side='visible_board_unverified'))
+        for record in records:
+            if record['zone'] != 'bench_unit':
+                continue
+            if any(_iou(record['box'], row['box']) > .5 for row in bench_records):
+                continue
+            bench_records.append(dict(box=record['box'], zone='bench',
+                candidate_id=record['candidate_id'],
+                candidate_name=record['candidate_name'],
+                confidence_uncalibrated=record['confidence_uncalibrated'],
+                identity_verified=False, side='visible_board_unverified',
+                localization_source='lower_reserve_health_bar'))
         enemy_records = []
         for detected in enemy_detections:
             predictions = self._classify(self.champions, image, detected['box'], 224)

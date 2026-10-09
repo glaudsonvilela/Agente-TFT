@@ -705,12 +705,12 @@ class HM4RuntimeSession(RuntimeSession):
                     source_size=[1920, 1080],
                     processing_ms=neural_units.get('processing_ms'),
                     detections=neural_units.get('detections', []),
-                    units=[{key: row.get(key) for key in ('box', 'candidate_name',
+                    units=[{key: row.get(key) for key in ('box', 'candidate_id', 'candidate_name',
                                                          'confidence_uncalibrated')}
                            for row in neural_units.get('records', [])
                            if row.get('zone') != 'bench_unit'],
                     bench_units=neural_units.get('bench_records', []),
-                    enemy_units=[{key: row.get(key) for key in ('box', 'candidate_name',
+                    enemy_units=[{key: row.get(key) for key in ('box', 'candidate_id', 'candidate_name',
                                                                'confidence_uncalibrated')}
                                  for row in neural_units.get('enemy_records', [])],
                     mascots=neural_units.get('mascot_candidates', []),

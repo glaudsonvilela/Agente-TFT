@@ -31,8 +31,7 @@
       "seconds": [1078, 1080, 1082],
       "boxes": [
         ["opponent_bench_candidate", 651, 56, 749, 169],
-        ["opponent_bench_candidate", 755, 65, 824, 160],
-        ["opponent_bench_candidate", 1241, 64, 1331, 174]
+        ["opponent_bench_candidate", 755, 65, 824, 160]
       ]
     },
     {"source": "targeted/X-K0vTo04Uw.mp4", "split": "train", "reviewed": true,
@@ -44,6 +43,39 @@
     {"source": "targeted/BXCLrXcQG3E.mp4", "split": "test", "reviewed": true,
      "seconds": [420, 540], "boxes": []},
     {"source": "targeted/D2Z1RGiokYs.mp4", "split": "test", "reviewed": true,
-     "seconds": [600, 900], "boxes": []}
+     "seconds": [300], "boxes": [
+       ["opponent_bench_candidate", 1082, 71, 1175, 169],
+       ["opponent_bench_candidate", 1176, 64, 1270, 160],
+       ["opponent_bench_candidate", 1272, 83, 1329, 158]
+     ]},
+    {"source": "targeted/D2Z1RGiokYs.mp4", "split": "test", "reviewed": true,
+     "seconds": [570], "boxes": [
+       ["opponent_bench_candidate", 1035, 69, 1090, 161],
+       ["opponent_bench_candidate", 1108, 70, 1171, 161],
+       ["opponent_bench_candidate", 1172, 60, 1272, 176],
+       ["opponent_bench_candidate", 1276, 72, 1342, 161]
+     ]},
+    {"source": "targeted/D2Z1RGiokYs.mp4", "split": "test", "reviewed": true,
+     "seconds": [600, 900], "boxes": []},
+    {"source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "train", "reviewed": true,
+     "seconds": [1260], "boxes": [
+       ["opponent_bench_candidate", 602, 61, 661, 155],
+       ["opponent_bench_candidate", 682, 69, 753, 159],
+       ["opponent_bench_candidate", 1281, 68, 1344, 158]
+     ]},
+    {"source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "train", "reviewed": true,
+     "seconds": [1710], "boxes": [
+       ["opponent_bench_candidate", 591, 74, 678, 154],
+       ["opponent_bench_candidate", 684, 69, 756, 154],
+       ["opponent_bench_candidate", 777, 76, 837, 154],
+       ["opponent_bench_candidate", 1192, 64, 1263, 157],
+       ["opponent_bench_candidate", 1272, 62, 1339, 158]
+     ]},
+    {"source": "twitch/v2893526719-1h-to-1h30.mp4", "split": "train", "reviewed": true,
+     "seconds": [1740], "boxes": [
+       ["opponent_bench_candidate", 573, 59, 676, 142],
+       ["opponent_bench_candidate", 1188, 77, 1255, 150],
+       ["opponent_bench_candidate", 1275, 77, 1344, 151]
+     ]}
   ]
 }

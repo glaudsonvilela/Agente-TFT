@@ -1,0 +1,7 @@
+[
+  {"index": 13, "pixel_sha256": "5341f9ec562b88fd57cc9374aa09befe3e484a11ddec23cb5f9fa77fdd8e24b6", "reason": "Green effect/plant crop does not show a confirmable Zyra body"},
+  {"index": 28, "pixel_sha256": "6971c56cfd44cfbd22d3a34462c0ac9a0c6587e173b7d07cbee911f3aff9a04c", "reason": "Creature does not visually match reviewed Kog'Maw crops"},
+  {"index": 29, "pixel_sha256": "736a8afa42d5df155eb607337b9c1b1ec4873fcab9f51df2a393770cb2cedf55", "reason": "Butterfly crop does not visually match reviewed Soraka crops"},
+  {"index": 30, "pixel_sha256": "8302136011de759ee62d1d281e44d4f494f7aa0ce9c9369bf8d963eb0b73b17f", "reason": "Humanoid crop does not visually match reviewed Kog'Maw crops"},
+  {"index": 33, "pixel_sha256": "b99de3f46659326d2ab425d38d14f18d000b6b2d673f9ec018f77174a85417bf", "reason": "Armored creature does not visually match reviewed Diana crops"}
+]

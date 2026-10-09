@@ -76,6 +76,7 @@ class StudioController:
         self.preview_sequence = 0
         self.preview_times = deque(maxlen=90)
         self.preview_encode_ms = deque(maxlen=90)
+        self.browser_preview = None
         self.next_preview_telemetry = 0.0
         self.preview_condition = threading.Condition()
         self.closed = threading.Event()
@@ -157,6 +158,8 @@ class StudioController:
             if not model:
                 raise RuntimeError("Modelo visual local ausente do pacote; repare a instalação.")
             vm_core = (Path(sys.executable).resolve().parent / "core" / "core-package.json").is_file()
+            preview_hz = (int(os.environ.get('AGENTE_TFT_REPLAY_PREVIEW_HZ', '22'))
+                          if local_replay else 22)
             output = str(Path(default_hm4_output_root()) /
                          ("hm4-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
             self.last_error = self.last_result = self.last_tip_key = None
@@ -166,6 +169,7 @@ class StudioController:
             with self.preview_condition:
                 self.preview_times.clear()
                 self.preview_encode_ms.clear()
+            self.browser_preview = None
             self.next_preview_telemetry = 0.0
             self.session = HM4RuntimeSession(Options(
                 **({**paths, 'ffmpeg': 'ffmpeg', 'ffprobe': 'ffprobe'} if local_replay else paths),
@@ -174,7 +178,7 @@ class StudioController:
                 map_hz=4, reader_hz=1, sample_hz=.2 if vm_core else 1,
                 scenario="studio-live-lab" if not replay_review else "studio-replay-review",
                 replay_review=bool(replay_review), board_hub_enabled=True,
-                vm_core=vm_core and not local_replay, native_preview=True, preview_hz=22,
+                vm_core=vm_core and not local_replay, native_preview=True, preview_hz=preview_hz,
                 preview_width=960, preview_height=540,
                 max_samples=90 if vm_core else 600,
                 max_bytes=384 * 1024**2 if vm_core else 1024**3,
@@ -191,6 +195,18 @@ class StudioController:
         if self.voice:
             self.voice.set_enabled(bool(enabled))
         return {"enabled": bool(self.voice and self.voice.enabled)}
+
+    def report_preview_metrics(self, fps, longest_gap_ms):
+        """Receive display cadence from the local browser, separate from JPEG cadence."""
+        if (not isinstance(fps, (int, float)) or isinstance(fps, bool) or
+                not isinstance(longest_gap_ms, (int, float)) or isinstance(longest_gap_ms, bool) or
+                not 0 <= fps <= 60 or not 0 <= longest_gap_ms <= 5000):
+            raise ValueError("Métrica de prévia inválida.")
+        with self.lock:
+            self.browser_preview = {"fps": round(fps, 1),
+                                    "longest_gap_ms": round(longest_gap_ms, 1),
+                                    "at_monotonic": time.monotonic()}
+        return {"accepted": True}
 
     def rate_tip(self, decision_key, helpful):
         """Accept explicit feedback for the currently visible provisional tip."""
@@ -230,6 +246,9 @@ class StudioController:
             with self.preview_condition:
                 preview_fps = sum(t >= time.monotonic() - 1 for t in self.preview_times)
                 preview_encode_ms = self.preview_encode_ms[-1] if self.preview_encode_ms else None
+            browser = self.browser_preview
+            browser_preview = ({"fps": browser["fps"], "longest_gap_ms": browser["longest_gap_ms"]}
+                               if browser and time.monotonic() - browser["at_monotonic"] < 5 else None)
             return {"phase": "finished" if session.finished else session.phase,
                     "session_id": session.id, "source_label": self.source_label,
                     "replay_review": session.options.replay_review,
@@ -250,6 +269,7 @@ class StudioController:
                     "preview_sequence": self.preview_sequence,
                     "preview_encoded_fps": preview_fps,
                     "preview_encode_last_ms": preview_encode_ms,
+                    "browser_preview": browser_preview,
                     "voice": self._voice_state(), "result": self.last_result,
                     "profile": self.profile,
                     "model_update": self.model_updater.last_result,
@@ -403,7 +423,7 @@ class StudioServer(ThreadingHTTPServer):
 
 class StudioHandler(BaseHTTPRequestHandler):
     API_METHODS = frozenset(("state", "list_sources", "start_session", "stop_session",
-                             "set_voice", "rate_tip", "save_profile"))
+                             "set_voice", "rate_tip", "save_profile", "report_preview_metrics"))
 
     def log_message(self, *_args):
         pass

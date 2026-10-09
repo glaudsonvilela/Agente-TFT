@@ -49,6 +49,28 @@ class YoloHudTests(unittest.TestCase):
         self.assertEqual(units['bench_records'][0]['candidate_name'], 'Akali')
         self.assertEqual(units['bench_records'][0]['side'], 'visible_board_unverified')
 
+    def test_lower_reserve_health_bar_survives_missing_yolo_box(self):
+        observer = object.__new__(YoloHudObserver)
+        observer._detect = lambda *_args, **_kwargs: []
+        observer._classify = lambda *_args: [(0, .82)]
+        observer.champions = object()
+        observer.items = object()
+        observer.champion_names = ['Akali']
+        observer.champion_ids = {'Akali': 'TFT_Akali'}
+        observer.sha = 'test'
+        marker = {'id': 3, 'color': 'green',
+                  'rect': {'x': 600, 'y': 714, 'width': 64, 'height': 5}}
+        with patch('hm.yolo_hud._enemy_health_bars_visible', return_value=False), \
+             patch('hm.mascot_bars.observe', return_value=[]):
+            units, _items = observer.observe(Image.new('RGB', (1920, 1080)),
+                {'markers': [marker]}, {'slots': []},
+                {'icon_inner_offset': {'x': 0, 'y': 0},
+                 'icon_inner_size': {'width': 1, 'height': 1}})
+        self.assertEqual(units['records'][0]['zone'], 'bench_unit')
+        self.assertEqual(len(units['bench_records']), 1)
+        self.assertEqual(units['bench_records'][0]['localization_source'],
+                         'lower_reserve_health_bar')
+
 
 if __name__ == '__main__':
     unittest.main()
