@@ -16,4 +16,6 @@ O primeiro coletor foi interrompido após 280 quadros. Uma segunda execução co
 
 Próxima etapa do estudo: revisar identidades nas fontes novas, exigir dez posições reais por campeão, separar partidas inteiras entre treino e avaliação, treinar os dois encoders no mesmo conjunto verificado e medir erros por campeão e latência. Nenhum peso antigo foi promovido para o estudo novo.
 
+O monitor em `trainer/scripts/watch_champion_training.py` mostra esses contadores e o estado real do treino no terminal do Ubuntu. Enquanto não houver rótulos revisados nem execução de treinamento, ele informa isso explicitamente.
+
 Os arquivos modificados do HUD que já estavam pendentes nesta branch não fazem parte deste registro e foram preservados.
