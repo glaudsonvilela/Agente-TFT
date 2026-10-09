@@ -99,8 +99,7 @@ def monitor(stop, shared, lock):
         stop.wait(1)
 
 
-def analyze(project, bundle, video, requests, numeric_requests, stop, shared, lock):
-    binary = project / "tools/e1-native/target/release/agente-tft-e1-worker"
+def analyze(project, bundle, video, binary, requests, numeric_requests, stop, shared, lock):
     board = cap = None
     try:
         board = BoardWorker(str(binary), str(project / "configs"))
@@ -176,8 +175,7 @@ def analyze(project, bundle, video, requests, numeric_requests, stop, shared, lo
             board.close()
 
 
-def calculate(project, requests, stop, shared, lock, log):
-    binary = project / "tools/e1-native/target/release/agente-tft-e1-worker"
+def calculate(project, binary, requests, stop, shared, lock, log):
     worker = None
     try:
         # Match the app runtime: keep Tesseract resident when available.
@@ -319,11 +317,14 @@ def paint(frame, second, fps, vision_hz, analysis_hz, visual, analysis, hardware
 def run(args):
     project, bundle, video = (Path(value).resolve() for value in
                               (args.project, args.bundle, args.video))
+    binary = (args.binary or project / "tools/e1-native/target/release/agente-tft-e1-worker").resolve()
     preview = Path(args.preview).resolve() if args.preview else video
     if not video.is_file() or not (bundle / "configs/catalog/active-yolo-hud-v1.json").is_file():
         raise ValueError("Video ou pacote YOLO ausente")
     if not preview.is_file():
         raise ValueError(f"Previa ausente: {preview}")
+    if not binary.is_file():
+        raise ValueError(f"Motor Rust ausente: {binary}")
     args.output.mkdir(parents=True, exist_ok=True)
     cap = cv2.VideoCapture(str(preview))
     if not cap.isOpened():
@@ -346,9 +347,9 @@ def run(args):
               "analysis_at": None, "analysis_count": 0, "visual_at": None, "visual_count": 0,
               "hardware": None, "ocr_backend": None, "error": None,
               "phase": "iniciando leitores"}
-    analyzer = Thread(target=analyze, args=(project, bundle, video, requests, numeric_requests,
+    analyzer = Thread(target=analyze, args=(project, bundle, video, binary, requests, numeric_requests,
         stop, shared, lock), daemon=True, name="tft-replay-vision")
-    calculator = Thread(target=calculate, args=(project, numeric_requests, stop, shared, lock,
+    calculator = Thread(target=calculate, args=(project, binary, numeric_requests, stop, shared, lock,
         args.output / "calculos.jsonl"), daemon=True, name="tft-replay-calculation")
     hardware_monitor = Thread(target=monitor, args=(stop, shared, lock), daemon=True,
                               name="tft-hardware-monitor")
@@ -465,6 +466,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--project", type=Path, default=Path(__file__).resolve().parents[1])
     p.add_argument("--bundle", type=Path, required=True)
+    p.add_argument("--binary", type=Path, help="Executavel atual do motor Rust")
     p.add_argument("--video", type=Path, required=True)
     p.add_argument("--preview", type=Path)
     p.add_argument("--output", type=Path, required=True)
