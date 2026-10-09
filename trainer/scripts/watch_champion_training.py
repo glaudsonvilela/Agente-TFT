@@ -33,13 +33,14 @@ def catalog_ids(repository: Path) -> set[str]:
     }
 
 
-def verified_positions(path: Path, catalog: set[str]) -> tuple[int, dict[str, set[str]]]:
-    positions: dict[str, set[str]] = defaultdict(set)
+def verified_poses(path: Path, catalog: set[str]) -> tuple[int, dict[str, set[str]]]:
+    poses: dict[str, set[str]] = defaultdict(set)
+    seen_crops: set[str] = set()
     accepted = 0
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
     except OSError:
-        return 0, positions
+        return 0, poses
     for line in lines:
         try:
             row = json.loads(line)
@@ -49,24 +50,31 @@ def verified_positions(path: Path, catalog: set[str]) -> tuple[int, dict[str, se
             continue
         champion = row.get("champion_id")
         source = row.get("source_id")
-        position = row.get("board_position")
+        pose = row.get("pose_id")
+        crop_digest = row.get("crop_pixel_sha256")
         if (
             not isinstance(champion, str)
             or champion not in catalog
             or not isinstance(source, str)
-            or not isinstance(position, str)
-            or not position
+            or not source
+            or not isinstance(pose, str)
+            or not pose
+            or not isinstance(crop_digest, str)
+            or len(crop_digest) != 64
+            or any(c not in "0123456789abcdef" for c in crop_digest)
+            or crop_digest in seen_crops
         ):
             continue
+        seen_crops.add(crop_digest)
         accepted += 1
-        positions[champion].add(position)
-    return accepted, positions
+        poses[champion].add(pose)
+    return accepted, poses
 
 
 def render(corpus: Path, catalog: set[str]) -> str:
     summary = read_json(corpus / "meta/collection-summary.json")
-    labels, positions = verified_positions(corpus / "meta/verified-labels.jsonl", catalog)
-    covered = sum(len(positions.get(champion, set())) >= 10 for champion in catalog)
+    labels, poses = verified_poses(corpus / "meta/verified-labels.jsonl", catalog)
+    covered = sum(len(poses.get(champion, set())) >= 10 for champion in catalog)
     target = len(catalog)
     lines = [
         "TFT  •  TREINO VISUAL DE CAMPEÕES",
@@ -76,7 +84,7 @@ def render(corpus: Path, catalog: set[str]) -> str:
         f"Fontes antigas excluídas: {summary.get('excluded_prior_source_ids', 0)}",
         f"Recortes candidatos: {summary.get('crop_proposals_total', 0)}",
         f"Rótulos revisados: {labels}",
-        f"Campeões com 10 posições reais: {covered}/{target}",
+        f"Campeões com 10 poses distintas: {covered}/{target}",
         "",
         "COLETA POR FONTE",
     ]
@@ -93,7 +101,7 @@ def render(corpus: Path, catalog: set[str]) -> str:
     progress = read_json(corpus / "meta/training-status.json")
     if progress:
         lines.append(f"  Estado: {progress.get('status', 'desconhecido')}")
-        for key, title in (("epoch", "Época"), ("loss", "Perda"), ("validation_accuracy", "Acerto na validação")):
+        for key, title in (("extracted", "Recortes extraídos"), ("total", "Total nesta etapa"), ("epoch", "Época"), ("loss", "Perda"), ("validation_retrieval", "Recuperação visual isolada"), ("validation_cosine", "Similaridade de duas vistas")):
             if key in progress:
                 lines.append(f"  {title}: {progress[key]}")
     else:
