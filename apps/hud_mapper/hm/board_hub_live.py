@@ -63,6 +63,14 @@ class BoardHubLive:
                                 for unit in json.loads(units_bytes)['champions']}
         self.knowledge_release = release_manifest['release_sha256']
         self.knowledge_patch = knowledge['tft_patch']
+        from .champion_belief import ChampionBelief
+        coaching = root / 'configs/coaching/TFTSet18/18.3B-20260928/catalog.json'
+        self.champion_belief = None
+        if coaching.is_file():
+            probability_catalog = json.loads(coaching.read_text(encoding='utf-8'))
+            if (probability_catalog.get('set_key') == knowledge['set_key'] and
+                    probability_catalog.get('patch') == knowledge['tft_patch']):
+                self.champion_belief = ChampionBelief(probability_catalog)
         selected = select_entries(self.entries, self.manifest['set_key'], catalog['match_scope'])
         self.selected_item_entries = selected
         missing = [entry['icon'] for entry in selected if not (self.icons / entry['icon']).is_file()]
@@ -109,7 +117,9 @@ class BoardHubLive:
             except (OSError, ValueError, ImportError, RuntimeError, KeyError) as exc:
                 self.yolo_error = f'{type(exc).__name__}: {exc}'
 
-    def observe(self, canonical_frame, board_read: dict | None, source_frame=None) -> dict:
+    def observe(self, canonical_frame, board_read: dict | None, source_frame=None,
+                hud_context=None, confirmed_holdings=None,
+                shop_offers=None) -> dict:
         if (canonical_frame.width, canonical_frame.height) != (1920, 1080):
             raise ValueError('Live B4 requires canonical 1920x1080 reader input')
         read = board_read if isinstance(board_read, dict) and board_read.get('profile') == self.board['id'] else {
@@ -169,6 +179,28 @@ class BoardHubLive:
                 completed_unit, epoch=getattr(source, 'epoch', None),
                 now_ms=snapshot['timestamp_ms'])
         unit_records = {row['marker_id']: row for row in snapshot['neural_units']['records']}
+        if self.champion_belief:
+            context = hud_context or {}
+            units = snapshot['neural_units']
+            for group in ('records', 'bench_records', 'enemy_records'):
+                for row in units.get(group, []):
+                    candidates = row.get('candidates') or []
+                    if not candidates and row.get('candidate_id'):
+                        candidates = [dict(unit_id=row['candidate_id'],
+                            score_uncalibrated=row.get('confidence_uncalibrated'))]
+                    row['contextual_identity'] = self.champion_belief.rank(
+                        candidates, level=context.get('level'),
+                        stage=context.get('stage'),
+                        confirmed_holdings=confirmed_holdings)
+            snapshot['shop_probability'] = self.champion_belief.shop_slot(
+                level=context.get('level'), stage=context.get('stage'),
+                confirmed_holdings=confirmed_holdings)
+            snapshot['observed_shop_offer_math'] = self.champion_belief.observed_offers(
+                shop_offers, level=context.get('level'), stage=context.get('stage'),
+                confirmed_holdings=confirmed_holdings)
+        else:
+            snapshot['shop_probability'] = dict(status='catalog_unavailable')
+            snapshot['observed_shop_offer_math'] = []
         for item in snapshot['item_visual_native'].get('equipped', []):
             unit = unit_records.get(item['marker_id']) or {}
             item['candidate_champion_id'] = unit.get('candidate_id')

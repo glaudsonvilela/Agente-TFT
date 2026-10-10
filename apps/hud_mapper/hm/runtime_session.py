@@ -525,6 +525,34 @@ class RuntimeSession(Session):
                     and row.get('value') is not None
                     and isinstance(row.get('confidence'), (int, float))
                     and row['confidence'] >= .85}
+                hud_context = {}
+                for field in ('stage', 'level'):
+                    rows = [row for row in answer.get('hud') or []
+                            if row.get('field') == field and
+                            row.get('status') == 'single_frame_observation' and
+                            isinstance(row.get('confidence'), (int, float)) and
+                            row['confidence'] >= .85]
+                    if len(rows) == 1:
+                        value = rows[0].get('value')
+                        if field == 'stage' and isinstance(value, str):
+                            hud_context[field] = value
+                        elif field == 'level' and (type(value) is int or
+                                isinstance(value, str) and value.isdigit()):
+                            hud_context[field] = int(value)
+                with self.lock:
+                    previous_context = getattr(self, '_latest_native_hud_context', None)
+                    fields = (dict(previous_context['fields']) if previous_context and
+                              previous_context['epoch'] == frame.epoch else {})
+                    for key, value in hud_context.items():
+                        fields[key] = dict(value=value, source_ms=frame.pts_ms)
+                    self._latest_native_hud_context = dict(epoch=frame.epoch,
+                                                           fields=fields)
+                    self._latest_native_shop_offers = dict(
+                        epoch=frame.epoch, source_ms=frame.pts_ms,
+                        slots=[{key: row.get(key) for key in
+                                ('slot', 'status', 'catalog_status', 'unit_id',
+                                 'observed_name')}
+                               for row in (answer.get('shop') or {}).get('slots') or []])
                 if answer.get('origin') != 'observed_pixels' or 'stage' not in observed_fields:
                     self.versions['screen_mode'] = 'no_gameplay_hud'
                 elif 'gold' not in observed_fields:
@@ -1012,7 +1040,21 @@ class HM4RuntimeSession(RuntimeSession):
                         worker_start = time.perf_counter_ns()
                         board_read = board_worker.observe(reader_frame, calibrate)
                         board_read_end = time.perf_counter_ns()
-                        observed = observer.observe(reader_frame, board_read, source_frame=frame)
+                        with self.lock:
+                            context_entry = getattr(self, '_latest_native_hud_context', None)
+                            shop_entry = getattr(self, '_latest_native_shop_offers', None)
+                        context = ({key: field['value']
+                                    for key, field in context_entry['fields'].items()
+                                    if 0 <= frame.pts_ms - field['source_ms'] <= 2000}
+                                   if context_entry and context_entry['epoch'] == frame.epoch
+                                   else None)
+                        offers = (shop_entry['slots'] if shop_entry and
+                                  shop_entry['epoch'] == frame.epoch and
+                                  0 <= frame.pts_ms - shop_entry['source_ms'] <= 1000
+                                  else None)
+                        observed = observer.observe(reader_frame, board_read,
+                            source_frame=frame, hud_context=context,
+                            shop_offers=offers)
                     board_observer_end = time.perf_counter_ns()
                 except (ValueError, RuntimeError) as exc:
                     if not calibrate:
@@ -1073,6 +1115,11 @@ class HM4RuntimeSession(RuntimeSession):
                 visual_items = observed['snapshot'].get('item_visual_native') or {}
                 self.versions['item_visual_native_active'] = visual_items.get('active', False)
                 self.versions['item_visual_native_error'] = visual_items.get('error')
+                shop_math = observed['snapshot'].get('shop_probability') or {}
+                self.versions['shop_math'] = {
+                    key: shop_math.get(key) for key in
+                    ('status', 'level', 'stage', 'patch', 'assumption',
+                     'actual_probability_known')}
                 neural_units = observed['snapshot'].get('neural_units') or {}
                 self.versions['unit_neural_active'] = neural_units.get('active', False)
                 self.versions['unit_neural_model_sha256'] = neural_units.get('model_sha256')
