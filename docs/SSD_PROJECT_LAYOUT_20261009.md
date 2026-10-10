@@ -5,7 +5,7 @@ Há **um checkout principal** em `/mnt/sherlock-ssd/AgenteTFT/work/Agente-TFT`, 
 | Caminho no SSD | Conteúdo e uso |
 | --- | --- |
 | `work/Agente-TFT` | Código ativo, documentação e testes |
-| `champion-corpus` | **Pacote principal** de identidade: 731 treino, 32 validação, 127 teste; manifesto e quarentena |
+| `champion-corpus` | **Pacote principal** de identidade: 734 treino, 32 validação, 127 teste; manifesto e revisão de 25 imagens pelo usuário |
 | `champion-corpus/models/active` | Cópia dos pesos de campeões atualmente instalados |
 | `champion-corpus/models/canonical-65-v1` | Candidato de treino, ainda não instalado |
 | `diagnostics/yolo-hud-runtime-20261009-v2` | Pacote atual usado nos testes de reconhecimento |

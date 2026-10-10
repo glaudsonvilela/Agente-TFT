@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "review_method": "user identification of numbered raw game crops; model guesses only selected images for review",
+  "review_date": "2026-10-09",
+  "items": [
+    {
+      "review_id": "prior-Azir",
+      "source": "clean",
+      "source_path": "train/Kha'Zix/fresh-aou9H4gyQ1g-000594600-0013.jpg",
+      "sha256": "255d90a52de0dfe424868fa0b18ac1b7c11ffa3c7f0ec350480f4e6d6bd03636",
+      "previous_label": "Kha'Zix",
+      "identified_label": "Azir",
+      "destination_split": "train"
+    },
+    {
+      "review_id": "01",
+      "source": "clean",
+      "source_path": "val/Kha'Zix/frame-000029-marker-4.jpg",
+      "sha256": "341fa3b6df10babc92ad03fdc719652cb246d8368179881d41ca9ead4ceb79c6",
+      "previous_label": "Kha'Zix",
+      "identified_label": "Kha'Zix",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "02",
+      "source": "original",
+      "source_path": "train/Warwick/frame-000136-rare-2.jpg",
+      "sha256": "cb88884afb612d608fa98b302d99a887ff8d966ddd9ae240a922b9d2627baaae",
+      "previous_label": "Warwick",
+      "identified_label": "Azir",
+      "destination_split": "train"
+    },
+    {
+      "review_id": "03",
+      "source": "clean",
+      "source_path": "test/Amumu/frame-000087-marker-3.jpg",
+      "sha256": "b87d6e2b4ad759bb88640773fb9fe20ea77c7aabb0df6e700ad5107506262a9b",
+      "previous_label": "Amumu",
+      "identified_label": "Amumu",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "04",
+      "source": "clean",
+      "source_path": "test/Aphelios/frame-000103-marker-9.jpg",
+      "sha256": "ade67f5d5410879564fb7b7e16e5eeddaa2b7d01ca9ab6178ce2285c9c856935",
+      "previous_label": "Aphelios",
+      "identified_label": "Aphelios",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "05",
+      "source": "clean",
+      "source_path": "test/Azir/frame-000087-marker-6.jpg",
+      "sha256": "1e1ca46650113f2cdd489b1657b2d66be0b14465cae9468de30cda345388848d",
+      "previous_label": "Azir",
+      "identified_label": "Azir",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "06",
+      "source": "clean",
+      "source_path": "test/Elise/frame-000100-marker-1.jpg",
+      "sha256": "d488cd7b64d468c5ec683cb9d680c7c44ed96feb3711e46ae8bbaba23bff8cfd",
+      "previous_label": "Elise",
+      "identified_label": "Elise",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "07",
+      "source": "clean",
+      "source_path": "test/Karma/frame-000040-marker-3.jpg",
+      "sha256": "1aabd17b1c28cc554af17542d6e4f8a531b91772543eb7d423262b3ad6438cc2",
+      "previous_label": "Karma",
+      "identified_label": "Karma",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "08",
+      "source": "clean",
+      "source_path": "test/Karma/frame-000044-marker-4.jpg",
+      "sha256": "85878e2f4a549054205bee76189ec247791024cd584daf16a8334ef91c508bae",
+      "previous_label": "Karma",
+      "identified_label": "Karma",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "09",
+      "source": "clean",
+      "source_path": "test/Krugue/frame-000043-marker-5.jpg",
+      "sha256": "4b886d551bcf3937f065d01bb7e5f06ba340aa7ce1fcaaed2f9caeeb0f550c80",
+      "previous_label": "Krugue",
+      "identified_label": "Krugue",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "10",
+      "source": "clean",
+      "source_path": "test/Rek'Sai/frame-000039-marker-2.jpg",
+      "sha256": "d5738aef357366f0719c9ca75155d7b5bbb0b3d2d342cd76b655b507fe9302c4",
+      "previous_label": "Rek'Sai",
+      "identified_label": "Rek'Sai",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "11",
+      "source": "clean",
+      "source_path": "test/Sejuani/frame-000088-marker-2.jpg",
+      "sha256": "b34cd351648a0daebfde507ba6695662de8c2ae4964e13d669d98476f233400d",
+      "previous_label": "Sejuani",
+      "identified_label": "Sejuani",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "12",
+      "source": "clean",
+      "source_path": "test/Sivir/frame-000101-marker-2.jpg",
+      "sha256": "42790be2f296c8e447db7702cb8ce94d686e0fe2d00f8dbbb5d15deacaf08979",
+      "previous_label": "Sivir",
+      "identified_label": "Sivir",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "13",
+      "source": "clean",
+      "source_path": "test/Vi/frame-000103-marker-4.jpg",
+      "sha256": "39ced3360e49c9f1e4211b3e50e56d260153788bd1998ed5c8a5c9e4fb1c05cd",
+      "previous_label": "Vi",
+      "identified_label": "Diana",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "14",
+      "source": "clean",
+      "source_path": "test/Zyra/frame-000083-marker-1.jpg",
+      "sha256": "b45626acfc47c26862c3bfc4e7f4bda55921acb5ce933a4f1c822a6719928207",
+      "previous_label": "Zyra",
+      "identified_label": "Zyra",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "15",
+      "source": "clean",
+      "source_path": "test/Zyra/frame-000096-marker-4.jpg",
+      "sha256": "dad31426f92ecbc462a36a56363b79e9a79cce440e9e8d459b3248b5c5c2e3ed",
+      "previous_label": "Zyra",
+      "identified_label": "Zyra",
+      "destination_split": "test"
+    },
+    {
+      "review_id": "16",
+      "source": "extension",
+      "source_path": "train/Rubrivira/third-reviewed-0032.png",
+      "sha256": "bfc51cd45dd9a15cbc1d95726a4106d9d9e3f636bcbd2d227e4cc6cfa8263707",
+      "previous_label": "Rubrivira",
+      "identified_label": "Azuporã",
+      "destination_split": "train"
+    },
+    {
+      "review_id": "17",
+      "source": "extension",
+      "source_path": "train/Rubrivirim/third-reviewed-0027.png",
+      "sha256": "a438385bbd26a95f7aaa4b6122d0fdc82a4b812aae81eda2f69ef30ef400acdb",
+      "previous_label": "Rubrivirim",
+      "identified_label": "Diana",
+      "destination_split": "train"
+    },
+    {
+      "review_id": "18",
+      "source": "clean",
+      "source_path": "val/Elise/frame-000026-marker-0.jpg",
+      "sha256": "88139cdd82f0b5b6f2bd2a12a6bb003f6649db71c6a16b36b8a0f2a0a82be449",
+      "previous_label": "Elise",
+      "identified_label": "Elise",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "19",
+      "source": "clean",
+      "source_path": "val/Hecarim/frame-000025-marker-0.jpg",
+      "sha256": "96471aaa2f10d8f1862321a658155f3bdfa5a8d1d9cdf9fa9a8fec5a94a24be0",
+      "previous_label": "Hecarim",
+      "identified_label": "Hecarim",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "20",
+      "source": "clean",
+      "source_path": "val/Rakan/frame-000026-marker-4.jpg",
+      "sha256": "f8c67d1ca386f175460751ba95e30dacb0e22d279f65672d7f2a27d0a833616e",
+      "previous_label": "Rakan",
+      "identified_label": "Rakan",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "21",
+      "source": "clean",
+      "source_path": "val/Rengar/frame-000027-marker-0.jpg",
+      "sha256": "c27ae22451efa105238ca1861244066bf588f5aa4d031645221948a37bfb1824",
+      "previous_label": "Rengar",
+      "identified_label": "Vi",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "22",
+      "source": "clean",
+      "source_path": "val/Warwick/frame-000026-marker-3.jpg",
+      "sha256": "26a7e63bcaf5a7d6729b867812c39beaf210d6853ce85663cd60e2b5f9886f51",
+      "previous_label": "Warwick",
+      "identified_label": "Warwick",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "23",
+      "source": "clean",
+      "source_path": "val/Warwick/frame-000027-marker-1.jpg",
+      "sha256": "3b919d40b4d4fa4fede7301b2351a734b774a3c9a55d10dfe71bfa8ee151db82",
+      "previous_label": "Warwick",
+      "identified_label": "Warwick",
+      "destination_split": "val"
+    },
+    {
+      "review_id": "24",
+      "source": "original",
+      "source_path": "train/Azir/frame-000050-marker-2.jpg",
+      "sha256": "ab323772595e421783fdff19e655aca36c23e060a4e558481bd6b38bb0d6f814",
+      "previous_label": "Azir",
+      "identified_label": "Azir",
+      "destination_split": "train"
+    },
+    {
+      "review_id": "25",
+      "source": "original",
+      "source_path": "train/Nidalee/frame-000144-rare-8.jpg",
+      "sha256": "82996a7fe9e0d48a2e875318b07488e47c61cade50c3b48dba4433d9fbd06e2b",
+      "previous_label": "Nidalee",
+      "identified_label": "Rakan",
+      "destination_split": "train"
+    }
+  ]
+}

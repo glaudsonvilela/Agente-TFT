@@ -21,13 +21,7 @@ CONFLICTS = {
     "train/Warwick/frame-000136-rare-2.jpg",
     "train/Azir/frame-000050-marker-2.jpg",
 }
-USER_LABEL_CORRECTIONS = {
-    "train/Kha'Zix/fresh-aou9H4gyQ1g-000594600-0013.jpg": {
-        "class": "Azir",
-        "sha256": "255d90a52de0dfe424868fa0b18ac1b7c11ffa3c7f0ec350480f4e6d6bd03636",
-        "evidence": "user identified the pictured unit as Azir on 2026-10-09",
-    },
-}
+USER_REVIEW = Path(__file__).with_name("champion_label_corrections_20261009.json")
 
 
 def _images(folder: Path):
@@ -54,6 +48,21 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
     if extension_audit.get("review_method") != "assistant_visual_review":
         raise ValueError("Extension is not visually reviewed")
 
+    review = json.loads(USER_REVIEW.read_text())
+    if review.get("schema_version") != 1 or len(review.get("items", [])) != 26:
+        raise ValueError("Unexpected user identity review")
+    corrections = {}
+    for item in review["items"]:
+        key = (item["source"], item["source_path"])
+        if key in corrections or item["source"] not in {"clean", "extension", "original"}:
+            raise ValueError(f"Invalid or duplicate correction: {key}")
+        if item["destination_split"] not in {"train", "val", "test", "quarantine"}:
+            raise ValueError(f"Invalid review destination: {key}")
+        if item["identified_label"] is None and item["destination_split"] != "quarantine":
+            raise ValueError(f"Unresolved image would become a label: {key}")
+        corrections[key] = item
+    pending = set(corrections)
+
     names = sorted(path.name for path in (clean / "train").iterdir() if path.is_dir())
     if len(names) != 65:
         raise ValueError(f"Expected 65 identity classes; found {len(names)}")
@@ -73,7 +82,8 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
     counts = Counter()
 
     def add(path: Path, section: str, name: str, origin: str,
-            label_status: str = "assistant_visual_review") -> None:
+            label_status: str = "assistant_visual_review",
+            historical_label: str | None = None) -> None:
         if name not in names:
             raise ValueError(f"Unexpected identity: {name}")
         digest = _digest(path)
@@ -88,32 +98,57 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
         if _digest(destination) != digest:
             raise ValueError(f"Copy changed bytes: {destination}")
         counts[section] += 1
-        records.append({"path": str(destination.relative_to(stage)), "class": name,
-                        "sha256": digest, "origin": origin, "label_status": label_status})
+        record = {"path": str(destination.relative_to(stage)),
+                  "class": None if section == "quarantine" else name,
+                  "sha256": digest, "origin": origin, "label_status": label_status}
+        if section == "quarantine":
+            record["historical_label"] = historical_label or name
+        records.append(record)
+
+    def reviewed(path: Path, source: str, root: Path):
+        key = (source, str(path.relative_to(root)))
+        item = corrections.get(key)
+        if item is None:
+            return None
+        if _digest(path) != item["sha256"] or path.parent.name != item["previous_label"]:
+            raise ValueError(f"Reviewed crop changed since user inspection: {path}")
+        pending.remove(key)
+        return item
 
     try:
         for split in ("train", "val", "test"):
             for path in _images(clean / split):
-                relative = str(path.relative_to(clean))
-                correction = USER_LABEL_CORRECTIONS.get(relative)
-                if correction and _digest(path) != correction["sha256"]:
-                    raise ValueError(f"Corrected image bytes changed: {path}")
-                name = correction["class"] if correction else path.parent.name
-                section = "correlated_holdout" if split == "test" and name == "Xayah" \
-                    and path.name.startswith("holdout-xayah-") else split
+                item = reviewed(path, "clean", clean)
+                name = (item["identified_label"] or path.parent.name) if item else path.parent.name
+                section = (item["destination_split"] if item else
+                           "correlated_holdout" if split == "test" and name == "Xayah"
+                           and path.name.startswith("holdout-xayah-") else split)
                 add(path, section, name,
-                    "user_corrected_20261009" if correction else "mixed_clean_20261009",
-                    "user_identified_from_crop" if correction else "assistant_visual_review")
+                    "user_review_20261009" if item else "mixed_clean_20261009",
+                    ("identity_unresolved_not_training_label" if item and name != item["identified_label"]
+                     else "user_identified_from_crop" if item else "assistant_visual_review"),
+                    path.parent.name)
         for path in extra:
-            add(path, "train", path.parent.name, "extension_reviewed_v2")
+            item = reviewed(path, "extension", extension)
+            add(path, item["destination_split"] if item else "train",
+                item["identified_label"] if item else path.parent.name,
+                "user_review_20261009" if item else "extension_reviewed_v2",
+                "user_identified_from_crop" if item else "assistant_visual_review")
         for relative in sorted(CONFLICTS):
             path = original / relative
-            add(path, "quarantine", path.parent.name, "identity_conflict",
-                "identity_unresolved_not_training_label")
-        expected = {"train": 731, "val": 32, "test": 127,
-                    "correlated_holdout": 10, "quarantine": 3}
-        if dict(counts) != expected:
+            item = reviewed(path, "original", original)
+            add(path, item["destination_split"] if item else "quarantine",
+                item["identified_label"] if item else path.parent.name,
+                "user_review_20261009" if item else "identity_conflict",
+                "user_identified_from_crop" if item else "identity_unresolved_not_training_label",
+                path.parent.name)
+        if pending:
+            raise ValueError(f"User review not applied to source images: {sorted(pending)}")
+        expected = {"train": 734, "val": 32, "test": 127,
+                    "correlated_holdout": 10, "quarantine": 0}
+        if {section: counts.get(section, 0) for section in expected} != expected:
             raise ValueError(f"Unexpected package counts: {dict(counts)}")
+        (stage / "quarantine").mkdir(exist_ok=True)
         manifest = {
             "schema_version": 1,
             "purpose": "single canonical TFT champion identity corpus",
@@ -121,13 +156,13 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
             "counts": expected,
             "independent_human_ground_truth": False,
             "model_predictions_used_as_labels": False,
-            "label_corrections": USER_LABEL_CORRECTIONS,
+            "user_review_sha256": _digest(USER_REVIEW),
             "splits": {
-                "train": "assistant-reviewed identities from the cleaned mixed set and 47 reviewed extensions; one hash-checked user correction from Kha'Zix to Azir",
-                "val": "unchanged legacy validation images",
-                "test": "legacy test excluding same-source Xayah images",
+                "train": "assistant-reviewed sources with 2026-10-09 user-confirmed identity corrections",
+                "val": "legacy validation images with user-confirmed Vi correction",
+                "test": "legacy test excluding same-source Xayah; user-confirmed Sivir identity restored",
                 "correlated_holdout": "10 Xayah test images from the same source as 22 training images; never use for independent metrics",
-                "quarantine": "three identity conflicts; never use as labels",
+                "quarantine": "no remaining unresolved identities in this reviewed batch",
             },
             "sources": {
                 "clean": str(clean), "extension": str(extension), "original": str(original),
@@ -143,9 +178,9 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
             "and independent evaluation. Source videos and automatically predicted "
             "labels are not part of this corpus. Historical datasets remain read-only "
             "provenance. The installed model is unchanged until a candidate passes "
-            "separate evaluation. One Azir image was corrected from a historical "
-            "Kha'Zix label by the user; historical candidate weights are invalid "
-            "for promotion.\n", encoding="utf-8")
+            "separate evaluation. User identity corrections are hash-checked "
+            "against the numbered review; all 25 numbered images were identified. "
+            "Historical weights remain unchanged.\n", encoding="utf-8")
         stage.rename(output)
         return manifest
     except Exception:

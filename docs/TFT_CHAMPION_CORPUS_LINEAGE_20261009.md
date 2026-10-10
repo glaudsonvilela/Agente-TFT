@@ -1,5 +1,7 @@
 # Auditoria da origem dos dados de campeões — 09/10/2026
 
+Este documento preserva a fotografia histórica da base ativa e dos primeiros candidatos. A revisão posterior das 25 imagens numeradas elevou o pacote principal a 734 recortes de treino; o novo ensaio e a decisão atual estão no [mapa de evidências](TFT_TRAINING_EVIDENCE_MAP.md).
+
 ## Resultado
 
 O software instalado carrega pesos treinados com **664 recortes**. Os **32 recortes** citados antes são apenas a validação, não o tamanho do treino. Os treinos anteriores de 04–05/10 aparecem na base ativa: 642 recortes mapeáveis a anotações de 16 grupos de origem, mais 22 recortes manuais de Xayah da mesma origem. Os vídeos novos de 08–09/10 **não entraram nos pesos instalados**.
