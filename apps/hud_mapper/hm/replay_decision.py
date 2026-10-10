@@ -260,6 +260,10 @@ class ReplayDecisionEngine:
                 output['decision_rank'] = {'status': 'abstained',
                                            'reason': 'NO_ACTIONABLE_NATIVE_CANDIDATE',
                                            'native_ms': result.get('native_ms'),
+                                           'ranked': result.get('ranked') or [],
+                                           'whole_state': result.get('whole_state'),
+                                           'macro_state': result.get('macro_state'),
+                                           'match_pool': result.get('match_pool'),
                                            'plan_state': result.get('plan_state'),
                                            'memory': result.get('memory'),
                                            'memory_error': result.get('memory_error')}
@@ -287,6 +291,7 @@ class ReplayDecisionEngine:
         output['decision_rank'] = dict(status='selected', selected_index=index,
             ranked=result.get('ranked') or [], native_ms=result.get('native_ms'),
             whole_state=result.get('whole_state'),
+            macro_state=result.get('macro_state'),
             match_pool=result.get('match_pool'),
             plan_state=result.get('plan_state'),
             memory=result.get('memory'), memory_error=result.get('memory_error'))

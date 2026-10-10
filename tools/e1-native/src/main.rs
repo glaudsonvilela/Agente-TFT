@@ -14,6 +14,10 @@
 mod engine;
 mod stage;
 mod trait_panel;
+mod live_rank;
+mod match_memory;
+mod match_brain;
+mod match_plan;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,sync::mpsc};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
@@ -511,14 +515,18 @@ fn run()->Result<(),String>{
         return board_only(Path::new(&args[1]),args.get(2).map(String::as_str).unwrap_or("tesseract"));
     }
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
+    let mut match_memory=match_memory::from_environment();
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
-    writeln!(output,"{}",json!({"ready":true,"protocol":1,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"rank_advice":true,"match_memory":true,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
         "spatial_text_ocr_backend":readers.text_ocr_backend,"numeric_hud_ocr_fallback_error":readers.ocr_fallback_error,"pid":std::process::id()})).map_err(|e|e.to_string())?;
     output.flush().map_err(|e|e.to_string())?;
     while let Some(h)=header(&mut input)?{
       let id=number(&h,"id")?;
       let out=match h["op"].as_str(){
        Some("frame")=>readers.observe(&frame(&h,&mut input)?,h["include_shop"].as_bool().unwrap_or(true))?,
+       Some("rank_advice")=>live_rank::rank(&h,&mut match_memory)?,
+       Some("ack_advice")=>live_rank::acknowledge(&h,&mut match_memory)?,
+       Some("match_event")=>live_rank::observe_event(&h,&mut match_memory)?,
        Some("fixture")=>engine::fixture(id,number(&h,"source_ms")?,number(&h,"case")? as usize)?,
        Some("reference")=>{
         let f=frame(&h,&mut input)?;readers.board=Some(scene::SceneReader::new(readers.board_profile.clone(),&f)?);
