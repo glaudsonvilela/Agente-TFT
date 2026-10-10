@@ -15,3 +15,13 @@ Estado verificável em `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009`.
 - Treino novo e avaliação em partidas não vistas: **não iniciados**. Os manifestos e o resumo atual estão em `unlabeled-review/*/manifest.json` e `progress.json` dentro da pasta do reinício.
 
 Próxima etapa: buscar outras perspectivas e campeões em partidas diferentes. Só depois de verificar cinco poses realmente distintas por identidade será montado o conjunto de treino. As sugestões visuais anteriores não foram usadas como rótulos.
+
+## Experimento isolado com 46 identidades (10/10/2026)
+
+O estado acima descreve o início do reinício. Depois dele, a revisão humana chegou a 106 recortes confirmados em 46 identidades. A pedido do usuário, foi treinado **um classificador experimental**, separado do modelo principal, para medir se esse material já melhorava a leitura. O experimento usa 102 recortes para treino e reserva quatro recortes de dois VODs não vistos. O YOLO de localização do HUD não foi restaurado nem promovido por esse experimento.
+
+**Resultado: reprovado para identificação ao vivo.** Nos quatro recortes isolados de VODs não vistos, acertou duas identidades; a amostra é pequena e não estima a precisão geral. Na prévia completa, os nomes apareceram errados porque a proposta de caixa baseada na barra de vida frequentemente recorta outra região. Comparando essa proposta com 59 caixas de referência em 19 quadros 4K, apenas 25 atingiram IoU de 0,5; a mediana foi 0,464. Para o Hecarim 126, a melhor proposta teve IoU de 0,115. O classificador também confundiu esse Hecarim com Ornn no recorte correto. Assim, tanto a localização quanto a classificação precisam melhorar. A velocidade de reprodução não explica os erros de identidade.
+
+O conjunto ainda está longe das cinco poses distintas por identidade: 21 das 46 têm somente um recorte de treino e 42 têm menos de cinco, sem descontar poses repetidas. A validação interna do treino espelha os próprios recortes de treino e **não** deve ser anunciada como acerto em partidas novas. As previsões não foram incorporadas como rótulos.
+
+O relatório reproduzível está em `experiments/reviewed-46-20261010/preview-audit.json` na pasta do reinício. A prévia experimental exige a opção explícita `--show-rejected-model` e sinaliza os nomes como palpites de um modelo reprovado. Nenhum peso desse experimento foi integrado ao software principal. O próximo treino depende de recortes de qualidade, poses distintas e um teste de localização no mesmo conjunto reservado, antes de nova prévia com nomes.
