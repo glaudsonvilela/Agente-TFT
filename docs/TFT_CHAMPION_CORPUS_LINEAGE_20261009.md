@@ -6,6 +6,8 @@ O software instalado carrega pesos treinados com **664 recortes**. Os **32 recor
 
 O SHA-256 do `champions.onnx` instalado é `1045ffa3d75a76147b7314c90ecff247c7568cfb8a9187249837b37be0e391b4`, idêntico ao de `yolo-baseline/hud-readers-experiment/champion-names/weights/best.onnx`. O experimento aponta para `champion-classification-board-bench-dataset` (664 treino, 32 validação, 137 teste). Os candidatos posteriores não foram instalados.
 
+Correção de 09/10: o usuário identificou como **Azir** o recorte de hash `255d90a52de0dfe424868fa0b18ac1b7c11ffa3c7f0ec350480f4e6d6bd03636`, vindo de `aou9H4gyQ1g` aos 594,6 s. Ele havia entrado no conjunto misto como Kha'Zix. O pacote principal de 731 imagens agora o armazena sob Azir, e a rotina de montagem aplica a correção pelo hash. Os conjuntos e pesos históricos não foram reescritos: o peso ativo antecede esse recorte; o candidato de 731 imagens foi treinado com o rótulo incorreto e não deve ser promovido. A revisão numerada dos demais recortes duvidosos está no SSD em `diagnostics/champion-image-forensics-20261009/identity-review/`.
+
 ## Inventário e proveniência
 
 | Material | Situação |

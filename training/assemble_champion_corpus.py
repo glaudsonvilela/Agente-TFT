@@ -21,6 +21,13 @@ CONFLICTS = {
     "train/Warwick/frame-000136-rare-2.jpg",
     "train/Azir/frame-000050-marker-2.jpg",
 }
+USER_LABEL_CORRECTIONS = {
+    "train/Kha'Zix/fresh-aou9H4gyQ1g-000594600-0013.jpg": {
+        "class": "Azir",
+        "sha256": "255d90a52de0dfe424868fa0b18ac1b7c11ffa3c7f0ec350480f4e6d6bd03636",
+        "evidence": "user identified the pictured unit as Azir on 2026-10-09",
+    },
+}
 
 
 def _images(folder: Path):
@@ -87,10 +94,16 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
     try:
         for split in ("train", "val", "test"):
             for path in _images(clean / split):
-                name = path.parent.name
+                relative = str(path.relative_to(clean))
+                correction = USER_LABEL_CORRECTIONS.get(relative)
+                if correction and _digest(path) != correction["sha256"]:
+                    raise ValueError(f"Corrected image bytes changed: {path}")
+                name = correction["class"] if correction else path.parent.name
                 section = "correlated_holdout" if split == "test" and name == "Xayah" \
                     and path.name.startswith("holdout-xayah-") else split
-                add(path, section, name, "mixed_clean_20261009")
+                add(path, section, name,
+                    "user_corrected_20261009" if correction else "mixed_clean_20261009",
+                    "user_identified_from_crop" if correction else "assistant_visual_review")
         for path in extra:
             add(path, "train", path.parent.name, "extension_reviewed_v2")
         for relative in sorted(CONFLICTS):
@@ -108,8 +121,9 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
             "counts": expected,
             "independent_human_ground_truth": False,
             "model_predictions_used_as_labels": False,
+            "label_corrections": USER_LABEL_CORRECTIONS,
             "splits": {
-                "train": "assistant-reviewed identities from the cleaned mixed set and 47 reviewed extensions",
+                "train": "assistant-reviewed identities from the cleaned mixed set and 47 reviewed extensions; one hash-checked user correction from Kha'Zix to Azir",
                 "val": "unchanged legacy validation images",
                 "test": "legacy test excluding same-source Xayah images",
                 "correlated_holdout": "10 Xayah test images from the same source as 22 training images; never use for independent metrics",
@@ -129,7 +143,9 @@ def build(clean: Path, extension: Path, original: Path, output: Path) -> dict:
             "and independent evaluation. Source videos and automatically predicted "
             "labels are not part of this corpus. Historical datasets remain read-only "
             "provenance. The installed model is unchanged until a candidate passes "
-            "separate evaluation.\n", encoding="utf-8")
+            "separate evaluation. One Azir image was corrected from a historical "
+            "Kha'Zix label by the user; historical candidate weights are invalid "
+            "for promotion.\n", encoding="utf-8")
         stage.rename(output)
         return manifest
     except Exception:
