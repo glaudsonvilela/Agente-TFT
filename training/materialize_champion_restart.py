@@ -32,8 +32,8 @@ def materialize(corpus: Path, review: Path, output: Path) -> dict:
         raise ValueError("The source must be a reviewed queue without predicted labels")
     selected = queue["selected"]
     counts = Counter(row["class"] for row in selected)
-    if set(counts) != set(classes) or any(counts[name] != 5 for name in classes):
-        raise ValueError("Expected exactly five audited crops for each of 65 classes")
+    if set(counts) != set(classes) or any(counts[name] < 5 for name in classes):
+        raise ValueError("Expected at least five audited crops for each of 65 classes")
     if len({row["sha256"] for row in selected}) != len(selected):
         raise ValueError("Exact duplicate in the selected training crops")
     holdout = [row for row in source_manifest["records"]

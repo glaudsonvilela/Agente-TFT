@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 import re
+import time
 
 from training.board_hub_equipped_candidates import run as equipped_run
 from training.board_hub_item_candidates import TemplateBank, load_reference, run as inventory_run
@@ -25,17 +26,23 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                 recording_context.get("set_key") != manifest["set_key"] or
                 not recording_context.get("tft_patch")):
             raise ValueError("recording set/patch context does not match visual reference")
+    started = time.perf_counter_ns()
     positions = project(read, position_profile, board,
                         allow_unmatched_arena=allow_unmatched_arena)
     prepared = PreparedFrame.from_image(image)
+    prepared_ms = (time.perf_counter_ns() - started) / 1e6
+    stage_started = time.perf_counter_ns()
     inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope,
                               preloaded_templates=inventory_templates,
                               prepared_frame=prepared, selected_entries=selected_entries)
+    inventory_ms = (time.perf_counter_ns() - stage_started) / 1e6
+    stage_started = time.perf_counter_ns()
     equipped = equipped_run(image, read, board, position_profile, equipped_profile,
                             manifest, entries, icon_dir, match_scope,
                             preloaded_templates=equipped_templates,
                             allow_unmatched_arena=allow_unmatched_arena,
                             prepared_frame=prepared, selected_entries=selected_entries)
+    equipped_ms = (time.perf_counter_ns() - stage_started) / 1e6
     grouped = {}
     for row in positions["candidates"]:
         grouped.setdefault((row["zone"], row["row"], row["cell_or_slot"]), []).append(row["marker_id"])
@@ -67,6 +74,9 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
             "board_cells": board_cells, "bench_slots": bench_slots,
             "observed_markers": units, "unassigned_markers": positions["unassigned"],
             "inventory": inventory, "item_catalog_entries": len(entries),
+            "snapshot_stage_timings_ms": {"prepare": round(prepared_ms, 1),
+                                          "inventory": round(inventory_ms, 1),
+                                          "equipped": round(equipped_ms, 1)},
             "matching_item_entries": inventory["matching_entries"],
             "capabilities": {"perspective_known": False, "unit_identity_established": False,
                              "unit_ground_point_established": False,

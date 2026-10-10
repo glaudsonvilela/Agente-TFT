@@ -514,10 +514,14 @@ fn run()->Result<(),String>{
     if std::env::var("AGENTE_TFT_BOARD_ONLY").as_deref()==Ok("1") {
         return board_only(Path::new(&args[1]),args.get(2).map(String::as_str).unwrap_or("tesseract"));
     }
+    if std::env::var("AGENTE_TFT_MARKERS_ONLY").as_deref()==Ok("1") {
+        return markers_only(Path::new(&args[1]));
+    }
+    let shop_only = std::env::var("AGENTE_TFT_SHOP_ONLY").as_deref()==Ok("1");
     let mut readers=Readers::new(Path::new(&args[1]),args.get(2).cloned().unwrap_or("tesseract".into()),args.get(3).map(PathBuf::from))?;
     let mut match_memory=match_memory::from_environment();
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
-    writeln!(output,"{}",json!({"ready":true,"protocol":1,"rank_advice":true,"match_memory":true,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,"rank_advice":!shop_only,"shop_only":shop_only,"match_memory":!shop_only,"ocr_available":readers.available,"numeric_hud_ocr_backend":readers.ocr_backend,
         "spatial_text_ocr_backend":readers.text_ocr_backend,"numeric_hud_ocr_fallback_error":readers.ocr_fallback_error,"pid":std::process::id()})).map_err(|e|e.to_string())?;
     output.flush().map_err(|e|e.to_string())?;
     while let Some(h)=header(&mut input)?{
@@ -535,6 +539,60 @@ fn run()->Result<(),String>{
       };
       writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }Ok(())
+}
+
+// Fast geometry lane. Stable IDs follow colored bars; neither the color nor
+// their position proves champion identity, ownership, HP, or a board cell.
+fn markers_only(root:&Path)->Result<(),String>{
+    let profile:profile::Profile=load(&root.join("ui/match001-board-bench-v1.json"))?;
+    profile.validate()?;
+    let mut input=io::BufReader::new(io::stdin());
+    let mut output=io::BufWriter::new(io::stdout());
+    writeln!(output,"{}",json!({"ready":true,"protocol":1,
+        "fast_marker_tracking":true,"pid":std::process::id()})).map_err(|e|e.to_string())?;
+    output.flush().map_err(|e|e.to_string())?;
+    let mut next_track=1_u64;
+    let mut tracks:Vec<(u64,i64,i64,String,u64)>=Vec::new();
+    let mut last_epoch=None;
+    while let Some(h)=header(&mut input)? {
+        if h["op"]=="stop" {break;}
+        if h["op"]!="markers" {return Err("unknown marker operation".into());}
+        let id=number(&h,"id")?;
+        let epoch=number(&h,"epoch")?;
+        let f=frame(&h,&mut input)?;
+        if last_epoch!=Some(epoch) {tracks.clear();last_epoch=Some(epoch);}
+        let started=Instant::now();
+        let observed=bars::detect(&f,profile.scan_rect,&profile.bars)?;
+        tracks.retain(|row|f.captured_at_ms.saturating_sub(row.4)<=1500);
+        let mut used=Vec::new();
+        let mut result=Vec::new();
+        for marker in observed {
+            let rect=marker.rect;
+            let x=i64::from(rect.x+rect.width/2);
+            let y=i64::from(rect.y+rect.height/2);
+            let nearest=tracks.iter().enumerate().filter(|(i,row)|
+                !used.contains(i) && row.3==marker.color &&
+                (row.1-x).pow(2)+(row.2-y).pow(2)<=65*65)
+                .min_by_key(|(_,row)|(row.1-x).pow(2)+(row.2-y).pow(2))
+                .map(|(i,_)|i);
+            let track_id=if let Some(i)=nearest {
+                used.push(i);tracks[i]=(tracks[i].0,x,y,marker.color.clone(),f.captured_at_ms);
+                tracks[i].0
+            }else{
+                let current=next_track;next_track+=1;
+                tracks.push((current,x,y,marker.color.clone(),f.captured_at_ms));
+                used.push(tracks.len()-1);current
+            };
+            result.push(json!({"track_id":track_id,"rect":rect,
+                "color":marker.color,"identity_verified":false,
+                "ownership_verified":false}));
+        }
+        writeln!(output,"{}",json!({"id":id,"source_ms":f.captured_at_ms,
+            "origin":"rust_fast_marker_tracker_v1","markers":result,
+            "native_ms":ms(&started)})).map_err(|e|e.to_string())?;
+        output.flush().map_err(|e|e.to_string())?;
+    }
+    Ok(())
 }
 
 // Keep the slow trait-panel OCR off the board geometry response path. Only the

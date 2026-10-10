@@ -24,14 +24,73 @@ if (new URLSearchParams(location.search).has('connected')) {
   const markerTrails = new Map();
   let previewGeneration = 0, previewRequest = null;
   const previewDrawTimes = [];
-  function drawYoloOverlay(context, canvas, frameSourceMs, overlay) {
-    if (!overlay || !Number.isFinite(overlay.processing_ms)) return;
-    const source = overlay.source_size || [1920, 1080];
+  function drawSpatialLayer(context, canvas, frameSourceMs, sx, sy) {
+    const spatial = state?.spatial_map;
+    const spatialAge = frameSourceMs - spatial?.source_ms;
+    if (!Number.isFinite(spatialAge) || spatialAge < 0 || spatialAge > 3000) return;
+    const circle = (point, color, label, bench=false) => {
+      if (!Array.isArray(point.center)) return;
+      const x = point.center[0] * sx, y = point.center[1] * sy;
+      context.strokeStyle = color;
+      context.lineWidth = Math.max(1, canvas.width / 900);
+      context.beginPath();
+      context.arc(x, y, Math.max(5, canvas.width / 130), 0, Math.PI * 2);
+      context.stroke();
+      context.fillStyle = color;
+      context.fillText(label, x + 7, y + (bench ? 18 : -5));
+    };
+    if (['reference_candidate', 'arena_candidate'].includes(spatial.own_geometry_status)) {
+      for (const point of spatial.own_cells || []) circle(point, '#74d8ff', 'P'+point.id);
+    }
+    if (spatial.enemy_geometry_status === 'arena_candidate') {
+      for (const point of spatial.enemy_cells || []) circle(point, '#ff8068', 'E'+point.id);
+    }
+    if (spatial.own_bench_geometry_status !== 'not_calibrated') {
+      for (const point of spatial.own_bench || []) circle(point, '#ffda80', 'P'+point.id, true);
+    }
+    if (spatial.enemy_bench_geometry_status === 'arena_candidate') {
+      for (const point of spatial.enemy_bench || []) circle(point, '#ffb0a0', 'E'+point.id, true);
+    }
+  }
+
+  function drawObservedRegionsLayer(context, canvas, frameSourceMs, sx, sy) {
+    for (const diagnostic of [state?.hud_diagnostic, state?.hub_diagnostic]) {
+      const delta = frameSourceMs - diagnostic?.source_ms;
+      if (!Number.isFinite(delta) || delta < 0 || delta > 3000) continue;
+      for (const row of diagnostic.boxes || []) {
+        const box = row.observed_box || row.box;
+        if (!Array.isArray(box) || box.length !== 4) continue;
+        context.strokeStyle = row.id?.startsWith('hub.') ? '#69e4ae' : '#f6c778';
+        context.lineWidth = Math.max(1, canvas.width / 800);
+        context.strokeRect(box[0] * sx, box[1] * sy,
+          (box[2] - box[0]) * sx, (box[3] - box[1]) * sy);
+      }
+    }
+  }
+
+  function drawTrackedBarsLayer(context, canvas, frameSourceMs, sx, sy) {
+    const fast = state?.fast_diagnostic;
+    const lag = frameSourceMs - fast?.source_ms;
+    if (fast?.status !== 'observed' || !Number.isFinite(lag) || lag < 0 || lag > 900) return;
+    for (const marker of fast.markers || []) {
+      const box = marker.box;
+      if (!Array.isArray(box) || box.length !== 4) continue;
+      context.strokeStyle = marker.color === 'red' ? '#ff8068' : '#69e4ae';
+      context.lineWidth = Math.max(2, canvas.width / 500);
+      context.strokeRect(box[0] * sx, box[1] * sy,
+        (box[2] - box[0]) * sx, (box[3] - box[1]) * sy);
+      context.fillStyle = context.strokeStyle;
+      context.fillText(`#${marker.track_id}`, box[0] * sx, box[1] * sy - 5);
+    }
+  }
+
+  function drawLiveOverlay(context, canvas, frameSourceMs, overlay) {
+    const source = overlay?.source_size || [1920, 1080];
     const sx = canvas.width / source[0], sy = canvas.height / source[1];
-    const age = Math.max(0, (Date.now() - overlay.received_at_ms) / 1000);
+    const age = Math.max(0, (Date.now() - (overlay?.received_at_ms || Date.now())) / 1000);
     // The video keeps moving between inference results. Never pair a result
     // with a frame from before it, or retain boxes after they have gone stale.
-    const lagMs = frameSourceMs - overlay.source_ms;
+    const lagMs = frameSourceMs - overlay?.source_ms;
     const current = Number.isFinite(lagMs) && lagMs >= 0 && lagMs <= 3000;
     const unitLabel = row => row.candidate_name ?
       (row.candidate_id ? row.candidate_name : 'possível '+row.candidate_name) :
@@ -56,6 +115,9 @@ if (new URLSearchParams(location.search).has('connected')) {
     context.save();
     context.lineWidth = Math.max(1.5, canvas.width / 700);
     context.font = `${Math.max(12, canvas.width / 85)}px sans-serif`;
+    drawSpatialLayer(context, canvas, frameSourceMs, sx, sy);
+    drawObservedRegionsLayer(context, canvas, frameSourceMs, sx, sy);
+    drawTrackedBarsLayer(context, canvas, frameSourceMs, sx, sy);
     for (const row of rows) {
       const box = row.box;
       if (!Array.isArray(box) || box.length !== 4 || !row.label) continue;
@@ -73,7 +135,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       context.fillStyle = row.color;
       context.fillText(label, x + 4, top - 3);
     }
-    const header = `YOLO ${Math.round(overlay.processing_ms)} ms · `+
+    const header = `Visão ${Number.isFinite(overlay?.processing_ms) ? Math.round(overlay.processing_ms)+' ms' : 'aguardando'} · `+
       `${rows.length} caixas · vídeo ${(frameSourceMs/1000).toFixed(1)} s · `+
       `leitura ${current ? (lagMs/1000).toFixed(1)+' s' : 'aguardando'} · há ${age.toFixed(1)} s`;
     context.fillStyle = 'rgba(10, 12, 20, .83)';
@@ -119,10 +181,13 @@ if (new URLSearchParams(location.search).has('connected')) {
             const overlay = state?.yolo_overlay;
             const lag = frameSourceMs - overlay?.source_ms;
             const current = Number.isFinite(lag) && lag >= 0 && lag <= 3000;
-            const overlayKey = `${overlay?.source_ms}:${current}:${Math.floor(frameSourceMs / 1000)}`;
+            const overlayKey = `${overlay?.source_ms}:${state?.hud_diagnostic?.source_ms}:`+
+              `${state?.hub_diagnostic?.source_ms}:${state?.spatial_map?.source_ms}:`+
+              `${state?.fast_diagnostic?.source_ms}:`+
+              `${current}:${Math.floor(frameSourceMs / 1000)}`;
             if (overlayKey !== lastOverlayKey) {
               overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-              drawYoloOverlay(overlayContext, overlayCanvas, frameSourceMs, overlay);
+              drawLiveOverlay(overlayContext, overlayCanvas, frameSourceMs, overlay);
               lastOverlayKey = overlayKey;
             }
             canvas.closest('.live-preview')?.classList.add('yolo-analysis-ready');
@@ -266,6 +331,58 @@ if (new URLSearchParams(location.search).has('connected')) {
     }
   }
 
+  function renderLiveDiagnostics() {
+    const target = document.querySelector('#live-diagnostic-grid');
+    if (!target) return;
+    const hud = state?.hud_diagnostic || {};
+    const hub = state?.hub_diagnostic || {};
+    const spatial = state?.spatial_map || {};
+    const fast = state?.fast_diagnostic || {};
+    const ownPlaced = (spatial.own_cells || []).filter(row => Array.isArray(row.center)).length;
+    const enemyPlaced = (spatial.enemy_cells || []).filter(row => Array.isArray(row.center)).length;
+    const ownBenchPlaced = (spatial.own_bench || []).filter(row => Array.isArray(row.center)).length;
+    const enemyBenchPlaced = (spatial.enemy_bench || []).filter(row => Array.isArray(row.center)).length;
+    const mapState = spatial.own_geometry_status === 'arena_candidate' ?
+      `Arena ${escapeHtml(spatial.reserve_calibration?.profile || 'reconhecida')} · posições candidatas` :
+      'Aguardando calibração desta cena';
+    const fields = (hud.hud || []).map(row =>
+      `${escapeHtml(row.field)}: <b>${escapeHtml(row.value ?? '—')}</b> <small>${escapeHtml(row.status || 'incerto')}</small>`);
+    const shop = (hud.shop || []).map(row =>
+      `${Number(row.slot) + 1}: ${escapeHtml(row.observed_name || 'não lido')} ${row.observed_cost == null ? '' : '· '+escapeHtml(row.observed_cost)+' ouro'}`);
+    const units = (state?.temporal_candidates?.units || []).slice(0, 8).map(row => {
+      const pos = row.position || [];
+      const place = pos[0] === 'board' && Number.isInteger(pos[1]) && Number.isInteger(pos[2]) ?
+        `${String.fromCharCode(65 + pos[1])}${pos[2] + 1}` :
+        pos[0] === 'bench' && Number.isInteger(pos[2]) ? `R${pos[2] + 1}` : '?';
+      return `${escapeHtml(place)}: ${escapeHtml(row.candidate_name || 'identidade incerta')}`;
+    });
+    const items = (hub.item_candidates || []).slice(0, 6).map(row =>
+      `${escapeHtml(row.zone)} ${escapeHtml(row.slot ?? row.marker_id ?? '?')}: ${escapeHtml((row.names || [])[0] || 'incerto')}`);
+    const rust = hud.rust || {};
+    const scores = (rust.ranked || []).slice(0, 5).map(row =>
+      `${escapeHtml(row.action || 'ação')} ${escapeHtml(row.target || '')}: ${Number.isFinite(row.utility) ? row.utility.toFixed(3) : '—'}`);
+    const current = state?.opponents?.current_opponent;
+    target.innerHTML =
+      `<section><h3>Mapa e rastreio <small>${mapState}</small></h3>`+
+      `<p>Casas posicionadas: meu lado ${ownPlaced}/28 · outro lado ${enemyPlaced}/28<br>`+
+      `Bancos posicionados: inferior ${ownBenchPlaced}/9 · superior ${enemyBenchPlaced}/9</p>`+
+      `<p>Confronto: ${escapeHtml(current || 'jogador ainda não identificado')} · `+
+      `barras rastreadas ${fast.status === 'observed' ? (fast.markers || []).length : 0}</p>`+
+      `<p>${units.length ? units.join('<br>') : 'Aguardando unidades rastreadas.'}</p>`+
+      `<small>Casas e bancos são endereços; ocupação e nome só entram após confirmação.</small></section>`+
+      `<section class="live-math-panel"><h3>Leituras e Rust <small>${escapeHtml(rust.status || 'aguardando')}</small></h3>`+
+      `<p>${fields.join(' · ') || 'HUD sem leitura recente.'}</p>`+
+      `<p>Loja: ${shop.join(' · ') || 'aguardando'}</p>`+
+      `<p>${scores.join('<br>') || 'Nenhum cálculo disponível neste quadro.'}</p>`+
+      `<small>Rust ${Number.isFinite(rust.native_ms) ? rust.native_ms.toFixed(1)+' ms' : '—'} · `+
+      `rastreio ${Number.isFinite(fast.processing_ms) ? fast.processing_ms.toFixed(1)+' ms' : '—'} · `+
+      `leitura completa ${Number.isFinite(hub.processing_ms) ? hub.processing_ms.toFixed(1)+' ms' : '—'}</small></section>`+
+      `<section class="live-moves-panel"><h3>Itens e decisão</h3>`+
+      `<p>Itens: ${items.join(' · ') || 'aguardando observação'}</p>`+
+      `<p>Decisão: ${escapeHtml(state?.tip?.text || state?.decision_reason || 'aguardando evidência')}</p>`+
+      `<small>Catálogo de itens ativo; vínculo item → unidade ainda é candidato.</small></section>`;
+  }
+
   function connectedPage() {
     const presentation = document.querySelector('.presentation-bar');
     if (presentation) presentation.style.display = 'none';
@@ -274,7 +391,7 @@ if (new URLSearchParams(location.search).has('connected')) {
     document.querySelector('.sidebar-footer').innerHTML = '<span class="status-dot"></span> APLICATIVO LOCAL <span>01.0</span>';
     document.querySelector('.statusbar>span').innerHTML =
       '<span class="status-dot"></span> CAPTURA LOCAL <i>·</i> '+
-      (state?.visual_model_loaded ? 'VISÃO NEURAL DIAGNÓSTICA' : 'LEITURA NATIVA')+
+      (state?.unit_model_active ? 'RECONHECIMENTO DE CAMPEÕES ATIVO' : 'MAPA E LEITURA NATIVA')+
       ' <i>·</i> '+(state?.tip?.learned_ranker ? 'DICA NEURAL APLICADA' :
         state?.strategic_model_loaded ? 'MODELO NEURAL CARREGADO · DICAS POR REGRAS' :
         'ESTRATÉGIA POR REGRAS');
@@ -292,7 +409,7 @@ if (new URLSearchParams(location.search).has('connected')) {
         node.style.display = 'none';
       const arena = document.querySelector('.panel .arena');
       if (arena) arena.outerHTML = `<div class="live-preview">${state && state.session_id ?
-        `<canvas id="live-preview-canvas" width="960" height="540" role="img" aria-label="Vídeo em movimento com as marcações do YOLO"></canvas>`+
+        `<canvas id="live-preview-canvas" width="960" height="540" role="img" aria-label="Vídeo em movimento com as marcações do tabuleiro e das leituras"></canvas>`+
         `<canvas id="live-preview-overlay" width="960" height="540" aria-hidden="true"></canvas>` : ''}`+
         `<div class="live-preview-empty">${state && state.session_id ? 'Aguardando o primeiro quadro da captura…' : 'Selecione um monitor ou janela para acompanhar.'}</div></div>`;
       const previewPanel = document.querySelector('.live-preview')?.closest('.panel');
@@ -306,7 +423,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       renderLiveDiagnostics();
       const status = document.querySelector('.capture-controls small');
       if (status) status.textContent = state && state.session_id ?
-        `Captura ${state.phase} · vídeo anotado pelo YOLO` : 'Captura ainda não iniciada';
+        `Captura ${state.phase} · vídeo anotado pelas camadas de leitura` : 'Captura ainda não iniciada';
       const play = document.querySelector('#preview-play');
       if (play) {
         play.innerHTML = icon(state && state.session_id ? 'pause':'play');
@@ -430,6 +547,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       if (changed) render(current);
       else {
         connectedCoach();
+        renderLiveDiagnostics();
         document.querySelector('#footer-context').textContent = state.session_id ?
           `Quadros ${state.counts?.source_frames || 0} · HUB ${state.counts?.hub_results || 0} · dicas ${state.counts?.replay_tips || 0}` :
           'Captura Rust · análise local · aprendizado pós partida';

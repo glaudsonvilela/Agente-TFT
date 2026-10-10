@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "pond-arena-reserves-v1",
+  "resolution": [1920, 1080],
+  "status": "visual_candidate_only",
+  "enemy_board_visible": false,
+  "lower_reserve": [[409,792],[527,792],[645,792],[762,792],[879,792],[996,792],[1112,792],[1228,792],[1344,792]],
+  "own_board_rows": [[560,1258,444],[618,1330,519],[557,1275,596],[620,1350,680]],
+  "anchors": [
+    {"rect": [750,110,790,148], "mean_rgb": [55,90,144]},
+    {"rect": [431,310,461,345], "mean_rgb": [67,65,131]},
+    {"rect": [1450,340,1485,377], "mean_rgb": [43,49,100]}
+  ],
+  "max_rgb_distance": 30,
+  "training_label": false,
+  "owner_from_arena": false
+}

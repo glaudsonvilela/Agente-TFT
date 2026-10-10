@@ -22,7 +22,7 @@ def main() -> None:
     manifest = json.loads((args.dataset / "provenance.json").read_text())
     if manifest["status"] != "experimental_candidate_dataset" or \
             manifest["model_predictions_used_as_labels"] is not False or \
-            manifest["counts"]["train"] != 325 or len(manifest["classes"]) != 65:
+            manifest["counts"]["train"] < 325 or len(manifest["classes"]) != 65:
         raise ValueError("The audited 65-class restart dataset is required")
     if not args.base_weights.is_file():
         raise FileNotFoundError(args.base_weights)
@@ -32,7 +32,8 @@ def main() -> None:
         raise FileExistsError(args.runs / args.name)
     torch.set_num_threads(2)
     print(f"GPU: {torch.cuda.get_device_name(0)}", flush=True)
-    print("Training: 325 reviewed source crops, 65 classes; no model-predicted labels", flush=True)
+    print(f"Training: {manifest['counts']['train']} audited source crops, "
+          "65 classes; no model-predicted labels", flush=True)
     print("Result stays experimental until held-out evaluation", flush=True)
     YOLO(str(args.base_weights)).train(
         data=str(args.dataset), epochs=args.epochs, patience=12, imgsz=224,

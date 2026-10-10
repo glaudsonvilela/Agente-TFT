@@ -20,6 +20,11 @@ def load_dataset(root: Path):
             or provenance["model_predictions_used_as_labels"] is not False
             or len(provenance["classes"]) != 7):
         raise ValueError("Unexpected joint dataset")
+    if provenance.get("hud_labels") != "human_reviewed_visual_boxes":
+        raise ValueError(
+            "Joint HUD training blocked: layout/pixel proposals have not been "
+            "visually reviewed as box labels"
+        )
     names = yaml.safe_load((root / "data.yaml").read_text())["names"]
     if list(names.values()) != list(provenance["classes"]):
         raise ValueError("Class map mismatch")

@@ -187,7 +187,7 @@ def prepare(corpus: Path, annotations: Path, audit_file: Path,
         candidate_count = len(pool)
         chosen = []
         used_sources = set()
-        while pool and len(chosen) < per_class:
+        while pool and (per_class == 0 or len(chosen) < per_class):
             def rank(item: dict) -> tuple[float, float, str]:
                 novelty = (min(float(np.linalg.norm(item["feature"] - previous["feature"]))
                                for previous in chosen) if chosen else 0.0)
@@ -198,7 +198,7 @@ def prepare(corpus: Path, annotations: Path, audit_file: Path,
             chosen.append(best)
             used_sources.add(best["source"])
         coverage[name] = {"selected": len(chosen), "distinct_sources": len(used_sources),
-                          "remaining_to_five": max(0, per_class - len(chosen)),
+                          "remaining_to_five": max(0, 5 - len(chosen)),
                           "audited_candidates": candidate_count}
         for item in chosen:
             code = hashlib.sha256(item["path"].encode()).hexdigest()[:16]
@@ -238,13 +238,13 @@ def prepare(corpus: Path, annotations: Path, audit_file: Path,
         "schema_version": 1,
         "status": "review_queue_not_training_data",
         "model_predictions_used_as_labels": False,
-        "per_class_target": per_class,
+        "per_class_target": per_class if per_class else "all_audited_unique",
         "selection": "prefer distinct source, then diverse body appearance after near-exact deduplication",
         "focused_crop": "4%-96% width, 19%-98% height, letterboxed to 224 square for review only",
         "excluded": dict(excluded),
         "selected_count": len(selected),
-        "classes_ready_for_review": sum(row["selected"] >= per_class for row in coverage.values()),
-        "classes_with_five_sources": sum(row["distinct_sources"] >= per_class for row in coverage.values()),
+        "classes_ready_for_review": sum(row["selected"] >= 5 for row in coverage.values()),
+        "classes_with_five_sources": sum(row["distinct_sources"] >= 5 for row in coverage.values()),
         "classes_missing_five": [name for name, row in coverage.items() if row["remaining_to_five"]],
         "coverage": coverage,
         "selected": selected,
@@ -263,8 +263,8 @@ def main() -> None:
     parser.add_argument("--supplement", action="append", type=Path, default=[])
     parser.add_argument("--exclusions", type=Path)
     args = parser.parse_args()
-    if args.per_class < 1:
-        raise ValueError("--per-class must be positive")
+    if args.per_class < 0:
+        raise ValueError("--per-class must be non-negative (zero selects all)")
     result = prepare(args.corpus, args.annotations, args.audit,
                      args.output, args.per_class, args.supplement, args.exclusions)
     print(json.dumps({key: result[key] for key in

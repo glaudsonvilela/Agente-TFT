@@ -1056,6 +1056,9 @@ class HM4RuntimeSession(RuntimeSession):
                             source_frame=frame, hud_context=context,
                             shop_offers=offers)
                     board_observer_end = time.perf_counter_ns()
+                    board_worker_ms = ((board_read_end - worker_start) / 1e6
+                                       if not use_remote_board else None)
+                    board_observer_ms = (board_observer_end - board_read_end) / 1e6
                 except (ValueError, RuntimeError) as exc:
                     if not calibrate:
                         raise
@@ -1089,6 +1092,15 @@ class HM4RuntimeSession(RuntimeSession):
                     epoch=frame.epoch, source_ms=frame.pts_ms, stage=stage_for_opponents)
                 observed['snapshot']['opponents'] = opponent_state
                 self.versions['opponent_tracking'] = opponent_state
+                from .spatial_map import build_spatial_map
+                spatial = build_spatial_map(
+                    observed['snapshot'].get('board_cells'),
+                    observed['snapshot'].get('bench_slots'), opponent_state,
+                    source_ms=frame.pts_ms,
+                    projection_status=observed['snapshot'].get('arena_projection_status'),
+                    reserve_calibration=observed['snapshot'].get('reserve_calibration'))
+                observed['snapshot']['spatial_map'] = spatial
+                self.versions['spatial_map'] = spatial
                 with self.lock:
                     entry = self._latest_visual_candidates
                     if entry and entry['epoch'] == frame.epoch and entry['source_ms'] == frame.pts_ms:
@@ -1190,6 +1202,8 @@ class HM4RuntimeSession(RuntimeSession):
                 self.counts['hub_results'] += 1
                 self._publish_coach(inventory_prompt(observed['snapshot']),frame,end)
         except Exception as exc:
+            import traceback
+            self.versions['hub_failure_traceback'] = traceback.format_exc(limit=12)
             self.error = str(exc)
             self.stop()
         finally:
