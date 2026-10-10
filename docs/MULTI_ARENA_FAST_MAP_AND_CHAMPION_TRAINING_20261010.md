@@ -59,8 +59,17 @@ O registro está em
 Depois dessa medição, o alinhador passou a procurar pontos em 480×270 e
 projetar o resultado de volta para 1920×1080. Em 11 quadros com zoom/pan,
 o ensaio isolado encontrou os mesmos cenários; a mediana da busca caiu de
-101,6 para 39,4 ms nesse ensaio. A redução ainda precisa de uma nova medição
-de ponta a ponta no software para demonstrar ganho percebido pelo usuário.
+101,6 para 39,4 ms nesse ensaio. A repetição de ponta a ponta ainda ficou
+com mediana de 373 ms e p95 de 666 ms na leitura completa, variando com o
+conteúdo e carga da máquina. Portanto, o ganho isolado **não** demonstrou uma
+melhora perceptível do fluxo completo. A instrumentação encontrou a busca de
+ícones equipados chegando a 494 ms em um quadro. A cópia dos resultados dessa
+busca foi simplificada, mas ainda requer medição controlada.
+
+Durante zoom com um painel de item aberto, a primeira triagem por cor também
+confundiu `cyber` com `pond`. A seleção agora exige continuidade do cenário
+anterior ou confirmação por pontos do terreno; se nenhum dos dois passar, as
+coordenadas ficam temporariamente suspensas em vez de marcar o mapa errado.
 
 Os perfis são **calibrações candidatas** dos três cenários do teste. Não foram
 validados casa por casa em todos os mapas do TFT. O próximo teste deve comparar

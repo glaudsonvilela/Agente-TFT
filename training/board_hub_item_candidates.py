@@ -5,7 +5,6 @@ import argparse
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-import copy
 import hashlib
 import json
 from pathlib import Path
@@ -108,6 +107,14 @@ def rank_patch_groups(groups: list[list], templates: TemplateBank) -> list[list[
     """Rank independent icon searches with one matrix operation per frame."""
     import numpy as np
 
+    def clone_rankings(rows):
+        # Callers attach sample_rect and remove sample_index. Keep cached rows
+        # independent without recursively copying immutable strings/numbers.
+        return [{**row,
+                 'ids_with_same_template': row['ids_with_same_template'].copy(),
+                 'catalog_options': [option.copy() for option in row['catalog_options']]}
+                for row in rows]
+
     results = [[] for _ in groups]
     if not templates.groups:
         return results
@@ -122,7 +129,7 @@ def rank_patch_groups(groups: list[list], templates: TemplateBank) -> list[list[
         if key in templates.recent_rankings:
             templates.cache_hits += 1
             templates.recent_rankings.move_to_end(key)
-            results[index] = copy.deepcopy(templates.recent_rankings[key])
+            results[index] = clone_rankings(templates.recent_rankings[key])
         elif key in pending:
             templates.cache_hits += 1
             pending[key][2].append(index)
@@ -152,12 +159,12 @@ def rank_patch_groups(groups: list[list], templates: TemplateBank) -> list[list[
                  "template_sha256": templates.groups[item]["template_hash"],
                  "sample_index": int(best_patch[item]),
                  "rms": round(float(scores[item]), 3)} for item in ranked]
-        templates.recent_rankings[key] = copy.deepcopy(result)
+        templates.recent_rankings[key] = clone_rankings(result)
         templates.recent_rankings.move_to_end(key)
         if len(templates.recent_rankings) > 64:
             templates.recent_rankings.popitem(last=False)
         for index in positions:
-            results[index] = copy.deepcopy(result)
+            results[index] = clone_rankings(result)
     return results
 
 

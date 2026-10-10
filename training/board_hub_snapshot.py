@@ -20,7 +20,8 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    inventory_templates: tuple[TemplateBank, int] | None = None,
                    equipped_templates: tuple[TemplateBank, int] | None = None,
                    allow_unmatched_arena: bool = False,
-                   selected_entries: list[dict] | None = None) -> dict:
+                   selected_entries: list[dict] | None = None,
+                   include_timings: bool = False) -> dict:
     if recording_context is not None:
         if (recording_context.get("schema_version") != 1 or
                 recording_context.get("set_key") != manifest["set_key"] or
@@ -60,7 +61,7 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
     units = [{"marker_id": row["marker_id"], "position_candidate": row["position_candidate"],
               "equipped_slots": row["slots"], "champion_id": None, "stars": None}
              for row in equipped["markers"]]
-    return {"schema_version": 1, "policy": "board_hub_snapshot_v1",
+    result = {"schema_version": 1, "policy": "board_hub_snapshot_v1",
             "timestamp_ms": read["timestamp_ms"], "geometry_profile": board["id"],
             "reference_sha256": manifest["reference_sha256"],
             "data_dragon_version": manifest["version"], "set_key": manifest["set_key"],
@@ -74,15 +75,19 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
             "board_cells": board_cells, "bench_slots": bench_slots,
             "observed_markers": units, "unassigned_markers": positions["unassigned"],
             "inventory": inventory, "item_catalog_entries": len(entries),
-            "snapshot_stage_timings_ms": {"prepare": round(prepared_ms, 1),
-                                          "inventory": round(inventory_ms, 1),
-                                          "equipped": round(equipped_ms, 1)},
             "matching_item_entries": inventory["matching_entries"],
             "capabilities": {"perspective_known": False, "unit_identity_established": False,
                              "unit_ground_point_established": False,
                              "item_identity_established": False,
                              "independent_accuracy_measured": False,
                              "game_state_updated": False}}
+    if include_timings:
+        result["snapshot_stage_timings_ms"] = {
+            "prepare": round(prepared_ms, 1),
+            "inventory": round(inventory_ms, 1),
+            "equipped": round(equipped_ms, 1),
+        }
+    return result
 
 
 def main() -> None:

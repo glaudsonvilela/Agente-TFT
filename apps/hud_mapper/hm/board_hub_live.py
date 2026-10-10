@@ -89,6 +89,7 @@ class BoardHubLive:
             'pond-arena-reserves-v1.json')]
         from .arena_registration import ArenaRegistrar
         self.arena_registrar = ArenaRegistrar(root, self.reserve_profiles)
+        self.active_arena_profile = None
         self.position = config('match001-bar-to-cell-candidates-v1.json')
         self.equipped = config('match001-equipped-icons-v1.json')
         self.inventory = config('match001-inventory-v1.json')
@@ -134,18 +135,24 @@ class BoardHubLive:
         timings = {}
         started = time.perf_counter_ns()
         with Image.frombytes('RGB', (canonical_frame.width, canonical_frame.height), canonical_frame.rgb) as image:
-            from .spatial_calibration import observe_reserves
+            from .spatial_calibration import observe_reserves, choose_calibration
             proposals = [observe_reserves(image, profile) for profile in self.reserve_profiles]
-            reserve_calibration = next((row for row in proposals
-                                        if row['status'] == 'arena_candidate_match'), proposals[0])
-            if reserve_calibration['status'] != 'arena_candidate_match':
-                reserve_calibration = self.arena_registrar.observe(image) or reserve_calibration
+            previous = next((row for row in proposals
+                             if row['profile'] == self.active_arena_profile and
+                             row['status'] == 'arena_candidate_match'), None)
+            registered = None if previous else self.arena_registrar.observe(image)
+            reserve_calibration = choose_calibration(
+                proposals, registered, self.active_arena_profile,
+                registration_available=self.arena_registrar.cv2 is not None)
+            if reserve_calibration['status'] == 'arena_candidate_match':
+                self.active_arena_profile = reserve_calibration['profile']
             snapshot = build_snapshot(image, read, self.board, self.position, self.equipped,
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates,
                                       allow_unmatched_arena=True,
-                                      selected_entries=self.selected_item_entries)
+                                      selected_entries=self.selected_item_entries,
+                                      include_timings=True)
             snapshot['reserve_calibration'] = reserve_calibration
             timings['snapshot_ms'] = (time.perf_counter_ns()-started)/1e6
             stage_started = time.perf_counter_ns()

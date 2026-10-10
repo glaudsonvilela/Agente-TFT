@@ -6,10 +6,21 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 from hm.spatial_map import build_spatial_map
-from hm.spatial_calibration import observe_reserves
+from hm.spatial_calibration import observe_reserves, choose_calibration
 
 
 class SpatialMapTests(unittest.TestCase):
+    def test_static_color_false_match_cannot_change_known_arena(self):
+        proposals = [dict(profile='cyber', status='arena_candidate_match'),
+                     dict(profile='pond', status='arena_unmatched')]
+        unresolved = choose_calibration(proposals, None, 'pond', registration_available=True)
+        self.assertEqual(unresolved['status'], 'arena_unmatched')
+        self.assertEqual(unresolved['rejected_static_profiles'], ['cyber'])
+        confirmed = choose_calibration(proposals,
+                                       dict(profile='pond', status='arena_candidate_match'),
+                                       'pond', registration_available=True)
+        self.assertEqual(confirmed['profile'], 'pond')
+
     def test_own_enemy_addresses_and_opponent_namespaces_stay_separate(self):
         cells = [dict(row=r, col=c, screen_center=[500 + c * 100, 400 + r * 70],
                       marker_candidates=[]) for r in range(4) for c in range(7)]
