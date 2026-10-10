@@ -46,11 +46,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--roster", type=Path, required=True)
+    parser.add_argument("--mapped-review", type=Path)
     args = parser.parse_args()
     source_dir = args.source_dir
     roster = json.loads(args.roster.read_text(encoding="utf-8"))
     labeled = {row["review_id"] for row in roster["records"]}
     excluded: set[str] = set()
+    excluded_by_review: set[str] = set()
+    if args.mapped_review:
+        review = json.loads(args.mapped_review.read_text(encoding="utf-8"))
+        excluded_by_review = {row["id"] for row in review["entries"]
+                              if row["status"] in {"unusable_crop", "not_champion_body",
+                                                   "multi_unit_crop", "partial_body"}}
     remaining: list[dict] = []
     total = 0
     for prefix, (folder, decision_file) in SOURCES.items():
@@ -61,7 +68,7 @@ def main() -> None:
         total += len(manifest["records"])
         for row in manifest["records"]:
             ident = f"{prefix}-{row['id']}"
-            if ident in labeled or ident in excluded:
+            if ident in labeled or ident in excluded or ident in excluded_by_review:
                 continue
             remaining.append({
                 "id": ident,
@@ -72,10 +79,14 @@ def main() -> None:
                 "status": "unresolved_or_quality_pending",
             })
     by_id = {row["id"]: row for row in remaining}
-    missing = set(PRIORITY) - set(by_id)
-    if missing:
-        raise ValueError(f"Priority ID already resolved or missing: {sorted(missing)}")
-    render([by_id[ident] for ident in PRIORITY]).save(source_dir / "unresolved-priority-20261010.jpg", quality=93)
+    if args.mapped_review:
+        priority = [row["id"] for row in remaining]
+    else:
+        priority = PRIORITY
+        missing = set(priority) - set(by_id)
+        if missing:
+            raise ValueError(f"Priority ID already resolved or missing: {sorted(missing)}")
+    render([by_id[ident] for ident in priority]).save(source_dir / "unresolved-priority-20261010.jpg", quality=93)
     pages = [render(remaining[index:index + 20]) for index in range(0, len(remaining), 20)]
     pages[0].save(source_dir / "unresolved-full-20261010.pdf", save_all=True,
                   append_images=pages[1:], resolution=120)
@@ -85,8 +96,9 @@ def main() -> None:
         "registered_identity_candidates_in_these_sources": sum(
             row["review_id"].split("-")[0] in SOURCES for row in roster["records"]),
         "excluded_non_champion": len(excluded),
+        "excluded_by_user_review": len(excluded_by_review),
         "unresolved_count": len(remaining),
-        "priority_review_ids": PRIORITY,
+        "priority_review_ids": priority,
         "remaining": remaining,
         "training_eligible_from_this_batch": 0,
     }

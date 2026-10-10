@@ -1,0 +1,41 @@
+{
+  "user_confirmed": {
+    "004": "Xayah",
+    "022": "Alistar",
+    "041": "Lux",
+    "043": "Azuporã",
+    "044": "Sett",
+    "045": "Lillia",
+    "046": "Lillia",
+    "048": "Alistar",
+    "055": "Lux",
+    "056": "Gnar",
+    "058": "Morgana",
+    "059": "Zyra",
+    "060": "Soraka",
+    "068": "Gnar",
+    "070": "Lux",
+    "072": "LeBlanc",
+    "074": "Lux",
+    "075": "LeBlanc",
+    "077": "Lux",
+    "079": "LeBlanc"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [
+    "025",
+    "026",
+    "031",
+    "037",
+    "042",
+    "057",
+    "065",
+    "073",
+    "080"
+  ],
+  "source_batch": "elderwood-4k-crops",
+  "id_prefix": "E",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/elderwood-4k-crops/review_manifest.json",
+  "training_eligibility": false,
+  "note": "Rótulos do usuário numerados no PDF completo; recortes ainda sem aprovação de caixa e pose."
+}

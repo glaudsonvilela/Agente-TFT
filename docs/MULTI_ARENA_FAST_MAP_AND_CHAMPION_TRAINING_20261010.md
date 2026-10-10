@@ -79,10 +79,10 @@ os centros sobre a imagem do jogo antes de permitir uso estratégico.
 
 A GTX 1060 de 3 GB está disponível via CUDA. O reinício do conjunto de dados
 exclui pesos anteriores do TFT e rótulos gerados por predição. A coleção
-revisada contém 201 recortes candidatos, cobrindo 47 personagens. A auditoria
+revisada contém agora 272 recortes candidatos, cobrindo 55 personagens. A auditoria
 de poses novas registra 80 famílias provisórias para a meta de 325 (cinco para
 cada um dos 65), com 245 ainda faltantes. Dezoito personagens seguem sem
-nenhum recorte de identidade candidata.
+nenhum recorte de identidade candidata antes da revisão integral; agora são dez.
 Ainda não há conjunto elegível para o treino final dos 65. Repetir 40 ou 60
 épocas nas mesmas imagens não cria novas perspectivas.
 
@@ -137,16 +137,16 @@ qualidade da caixa nem uma pose nova.
 Em seguida, a revisão da outra gravação 4K confirmou mais dez identidades e
 descartou dois efeitos que não são campeões. A comparação visual com essas
 unidades e com os 11 rótulos anteriores adicionou 74 candidatos repetidos em
-outros quadros e fontes, sem chamá-los de poses novas. O índice unificado está
-agora em **201 candidatos, 47 das 65 classes, zero exemplos aprovados para o
+outros quadros e fontes, sem chamá-los de poses novas. O índice unificado estava
+naquele momento em **201 candidatos, 47 das 65 classes, zero exemplos aprovados para o
 treino final**. Nos cinco VODs amostrados, 95 recortes têm uma identidade
 candidata, 23 foram classificados como efeito/invocação, e 116 seguem sem
 identificação ou triagem de qualidade. A folha prioritária reúne 24 desses
 casos; o PDF completo mantém todos os 116 para auditoria:
 
-- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-priority-20261010.jpg`
-- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-full-20261010.pdf`
-- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-audit-20261010.json`
+- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-priority-before-user-review-20261010.jpg`
+- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-before-user-review-20261010.pdf`
+- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-audit-before-user-review-20261010.json`
 
 As decisões de identidade ficam em `training/review_decisions_*_20261010.json`.
 O importador `training/ingest_curated_champion_candidates.py` confere o hash e
@@ -167,3 +167,34 @@ por revisão, corpo completo e isolado, imagem decodificada diretamente do
 vídeo original sem outro salvamento JPEG, pose distinta das já aceitas e
 partida separada das usadas na avaliação. Retratos de loja e títulos dos
 vídeos são pistas para encontrar unidades, não rótulos do corpo no tabuleiro.
+
+## Revisão integral do usuário e painel dos 65
+
+O usuário revisou, em uma resposta numerada, os 116 recortes ainda sem rótulo
+da folha completa. A ordem original ficou congelada em
+`unresolved-audit-before-user-review-20261010.json`; a transcrição numerada
+está em `training/full_user_review_20261010.tsv`. O mapeamento produziu 71
+novos candidatos de identidade, 23 recortes sem qualidade, 11 efeitos ou
+elementos que não são o corpo de um campeão, dois recortes com duas unidades,
+um corpo cortado, seis objetos/unidades sem identidade exata e dois conflitos
+entre o nome desta revisão e rótulos anteriores da mesma aparência. Nenhum
+dos últimos grupos foi promovido ao treino.
+
+O registro unificado tem agora **272 recortes candidatos em 55 das 65 classes**.
+Dez continuam sem sequer um recorte candidato: Camille, Cascalho, Kobuko,
+Leona, Veigar, Kayle, Lobo Trevoguari, Cassiopeia, Malphite e Rubrivira.
+Vinte e cinco classes têm pelo menos cinco **recortes brutos**, mas isso não
+equivale a cinco poses distintas verificadas. O número de poses aprovadas para
+o treino completo continua zero.
+
+O painel `roster-gallery-all-65.pdf` mostra todas as 65 classes, um exemplo
+de corpo candidato por classe quando disponível e a contagem de recortes.
+Três folhas JPEG, um CSV e um JSON ficam em
+`/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/roster-gallery-20261010/`.
+As imagens são prévias para inspeção, não material de treino aprovado. O
+conflito Taric/Ezreal em `E-069` e `E-076` permanece separado até conferência
+com a cena original.
+
+Após a revisão integral, restaram somente oito identidades ou conflitos em
+aberto. A nova folha é
+`/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-priority-20261010.jpg`.

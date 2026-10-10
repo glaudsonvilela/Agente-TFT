@@ -1,0 +1,29 @@
+{
+  "user_confirmed": {
+    "001": "Warwick",
+    "004": "Ornn",
+    "010": "Xayah",
+    "015": "Rakan",
+    "016": "Rengar",
+    "021": "Sivir",
+    "024": "Sivir",
+    "026": "Xayah",
+    "030": "Zyra",
+    "031": "Sivir",
+    "032": "Vi",
+    "036": "Xayah",
+    "044": "Sivir",
+    "048": "Sivir",
+    "054": "Ivern",
+    "055": "Lillia",
+    "058": "Gnar",
+    "060": "Gnar"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [],
+  "source_batch": "sivir-1440-crops",
+  "id_prefix": "S",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/sivir-1440-crops/review_manifest.json",
+  "training_eligibility": false,
+  "note": "Rótulos do usuário numerados no PDF completo; recortes ainda sem aprovação de caixa e pose."
+}

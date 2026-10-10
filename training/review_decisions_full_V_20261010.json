@@ -1,0 +1,14 @@
+{
+  "user_confirmed": {
+    "001": "Yunara",
+    "002": "Grompe",
+    "003": "Master Yi"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [],
+  "source_batch": "vi-1080-crops",
+  "id_prefix": "V",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/vi-1080-crops/review_manifest.json",
+  "training_eligibility": false,
+  "note": "Rótulos do usuário numerados no PDF completo; recortes ainda sem aprovação de caixa e pose."
+}

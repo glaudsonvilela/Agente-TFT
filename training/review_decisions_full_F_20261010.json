@@ -1,0 +1,20 @@
+{
+  "user_confirmed": {
+    "001": "Fiddlesticks",
+    "007": "Elise",
+    "012": "Aronguejo",
+    "025": "Varus",
+    "026": "Rengar",
+    "048": "Amumu"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [
+    "002",
+    "045"
+  ],
+  "source_batch": "firsttime-4k-crops",
+  "id_prefix": "F",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/firsttime-4k-crops/review_manifest.json",
+  "training_eligibility": false,
+  "note": "Rótulos do usuário numerados no PDF completo; recortes ainda sem aprovação de caixa e pose."
+}
