@@ -85,5 +85,14 @@ no software. O experimento anterior de 46 classes teve 2 acertos em apenas
 4 recortes de dois vídeos não vistos: é uma amostra pequena e não demonstra
 precisão geral.
 
+Como ensaio de coleta, o rastreio das barras entre os segundos 600 e 608 de
+um VOD 4K produziu 51 recortes candidatos a partir de oito unidades que o
+usuário havia identificado. A folha
+`/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/temporal-600-608-review.jpg`
+mostra que a maioria repete a mesma perspectiva. Eles continuam com
+`may_train: false` e **não** aumentam a contagem de cinco poses. A ferramenta
+`training/render_track_review.py` expõe esse tipo de repetição antes de
+promover qualquer recorte para treino.
+
 Referências de auditoria: `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/coverage-report.json`
 e `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/roster/unified-reviewed-candidates-20261010.json`.
