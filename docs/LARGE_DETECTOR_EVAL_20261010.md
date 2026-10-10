@@ -40,3 +40,5 @@ O RF-DETR Large localizou todas as caixas de HUD deste teste pequeno. O YOLO26x 
 As pontuações de validação em recortes foram mAP50 de 0,739 para YOLO26x e de 0,920 na última época do RF-DETR Large. São apuradas por avaliadores diferentes e em apenas 19 recortes de validação; a comparação mais relevante é a tabela de quadros inéditos acima. Os relatórios por quadro e imagens com caixas ficam em `eval-yolo26x/` e `eval-rfdetr-large/` no diretório do experimento no SSD.
 
 **Decisão:** não substituir ainda o reconhecedor do aplicativo. Para escolher um detector de campeões, é preciso anotar todos os corpos, aliados e inimigos, inclusive banco, em quadros completos de várias partidas reservadas. O recorte usado aqui ainda exclui parte da faixa superior do tabuleiro, onde alguns inimigos aparecem. O nome do campeão exige outra avaliação, com rótulos de identidade.
+
+Arquivos locais pendentes, preservados fora deste commit: `training/materialize_champion_restart.py`, `training/prepare_champion_restart.py`, `training/train_champion_yolo_restart.py` e `weights/yolo26n.pt`. O último é um peso binário; nenhum desses arquivos participou desta comparação.
