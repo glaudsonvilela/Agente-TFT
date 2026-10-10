@@ -79,9 +79,10 @@ os centros sobre a imagem do jogo antes de permitir uso estratégico.
 
 A GTX 1060 de 3 GB está disponível via CUDA. O reinício do conjunto de dados
 exclui pesos anteriores do TFT e rótulos gerados por predição. A coleção
-revisada contém 106 recortes candidatos, cobrindo 46 personagens. A auditoria
+revisada contém 201 recortes candidatos, cobrindo 47 personagens. A auditoria
 de poses novas registra 80 famílias provisórias para a meta de 325 (cinco para
-cada um dos 65), com 245 ainda faltantes e 19 personagens sem pose validada.
+cada um dos 65), com 245 ainda faltantes. Dezoito personagens seguem sem
+nenhum recorte de identidade candidata.
 Ainda não há conjunto elegível para o treino final dos 65. Repetir 40 ou 60
 épocas nas mesmas imagens não cria novas perspectivas.
 
@@ -105,3 +106,64 @@ promover qualquer recorte para treino.
 
 Referências de auditoria: `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/coverage-report.json`
 e `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/roster/unified-reviewed-candidates-20261010.json`.
+
+## Nova coleta e controle de qualidade das imagens
+
+Uma nova triagem amostrou 78 quadros de cinco VODs do Set 18 e gerou 234
+recortes **sem rótulo**. Cada recorte mantém vídeo, instante, resolução,
+coordenadas da caixa e hash do arquivo. O coletor
+`training/prepare_champion_crop_review.py` só aceita uma barra de vida com
+moldura escura e largura mínima em pixels de origem; isso eliminou vários
+falsos recortes de linhas verdes do cenário. Os 234 arquivos permanecem com
+`may_train: false`; nenhum altera as contagens de poses validadas.
+
+A auditoria está em
+`/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/source-audit.json`.
+As fontes incluem duas gravações 1440p, duas 4K e uma 1080p. A última rendeu
+somente três recortes de tamanho mínimo e não confirmou a unidade anunciada
+no título. A folha de 12 unidades isoladas da gravação 4K está em
+`/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/review-12-isolated-4k.jpg`
+para identificação humana.
+
+O usuário identificou 11 dessas 12 unidades; `F-032` permanece sem nome.
+Os 11 recortes foram refeitos como PNG diretamente de quatro quadros do VOD
+original, sem acrescentar uma etapa de JPEG. A diferença média em relação à
+prévia usada na revisão foi no máximo 3,93 níveis de cor por canal, indicando
+que a posição do quadro e da caixa foi preservada. O registro unificado passou
+primeiro a 117 recortes candidatos em 46 classes, ainda com **zero** exemplos
+elegíveis para o treino final. A confirmação do nome não confirma por si só a
+qualidade da caixa nem uma pose nova.
+
+Em seguida, a revisão da outra gravação 4K confirmou mais dez identidades e
+descartou dois efeitos que não são campeões. A comparação visual com essas
+unidades e com os 11 rótulos anteriores adicionou 74 candidatos repetidos em
+outros quadros e fontes, sem chamá-los de poses novas. O índice unificado está
+agora em **201 candidatos, 47 das 65 classes, zero exemplos aprovados para o
+treino final**. Nos cinco VODs amostrados, 95 recortes têm uma identidade
+candidata, 23 foram classificados como efeito/invocação, e 116 seguem sem
+identificação ou triagem de qualidade. A folha prioritária reúne 24 desses
+casos; o PDF completo mantém todos os 116 para auditoria:
+
+- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-priority-20261010.jpg`
+- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-full-20261010.pdf`
+- `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-audit-20261010.json`
+
+As decisões de identidade ficam em `training/review_decisions_*_20261010.json`.
+O importador `training/ingest_curated_champion_candidates.py` confere o hash e
+o nome no catálogo do Set 18 antes de registrar um candidato, sempre com
+`training_eligible: false`. O construtor do ensaio congelado de 46 classes
+seleciona apenas os 106 IDs numéricos originais, para não incorporar por
+acidente os candidatos de revisão novos.
+
+Também foi medida a diferença entre cada quadro e uma reconstrução a partir
+de metade de sua largura/altura. Alguns vídeos anunciados como 4K retêm
+pouco detalhe fino adicional. Essa métrica depende do cenário e da compressão;
+serve apenas para priorizar inspeção, não para declarar a resolução real do
+jogo nem aprovar uma imagem automaticamente. Uma amostra decodificada em 4K de
+`xkf6SK2eoNo` mostrou mais detalhe útil que várias outras fontes 4K.
+
+Para entrar no treino, cada candidato ainda precisa de: identidade confirmada
+por revisão, corpo completo e isolado, imagem decodificada diretamente do
+vídeo original sem outro salvamento JPEG, pose distinta das já aceitas e
+partida separada das usadas na avaliação. Retratos de loja e títulos dos
+vídeos são pistas para encontrar unidades, não rótulos do corpo no tabuleiro.

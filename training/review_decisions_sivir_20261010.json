@@ -1,0 +1,25 @@
+{
+  "source_batch": "sivir-1440-crops",
+  "id_prefix": "S",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/sivir-1440-crops/review_manifest.json",
+  "user_confirmed": {},
+  "assistant_visual_match": {
+    "003": "Alistar",
+    "007": "Rengar",
+    "014": "Hecarim",
+    "017": "Xayah",
+    "020": "Xayah",
+    "022": "Tristana",
+    "027": "Tristana",
+    "029": "Ornn",
+    "033": "Tristana",
+    "040": "Tristana",
+    "045": "Tristana",
+    "047": "Alistar",
+    "052": "Tristana",
+    "057": "Tristana"
+  },
+  "confirmed_non_champion": ["006", "009", "011", "012", "013", "018", "019", "023", "025", "028", "037", "038", "042", "043", "046", "056", "059"],
+  "training_eligibility": false,
+  "note": "Candidatos reconhecidos por comparação visual; invocações/efeitos excluídos. É preciso rever cenas, caixa e pose antes de treinar."
+}

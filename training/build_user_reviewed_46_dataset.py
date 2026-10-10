@@ -21,7 +21,8 @@ def build(index_path: Path, output: Path) -> dict:
     if output.exists():
         raise FileExistsError(output)
     index = json.loads(index_path.read_text(encoding="utf-8"))
-    records = index["records"]
+    # Keep the frozen 46-class experiment independent of later review batches.
+    records = [row for row in index["records"] if str(row["review_id"]).isdigit()]
     if index.get("model_predictions_used_as_labels") is not False or len(records) != 106:
         raise ValueError("Expected exactly 106 reviewed, non-prediction crop records")
 

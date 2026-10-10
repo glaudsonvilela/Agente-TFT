@@ -1,0 +1,19 @@
+{
+  "source_batch": "nidalee-1440-crops",
+  "id_prefix": "N",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/nidalee-1440-crops/review_manifest.json",
+  "user_confirmed": {},
+  "assistant_visual_match": {
+    "004": "Grompe",
+    "006": "Grompe",
+    "010": "Grompe",
+    "018": "Grompe",
+    "021": "Grompe",
+    "029": "Grompe",
+    "032": "Grompe",
+    "037": "Grompe"
+  },
+  "confirmed_non_champion": [],
+  "training_eligibility": false,
+  "note": "Mesmo corpo do Grompe confirmado no F-035; só candidato de identidade, com resolução menor."
+}
