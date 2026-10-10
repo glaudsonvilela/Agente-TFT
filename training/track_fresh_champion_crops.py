@@ -22,6 +22,17 @@ from scipy.optimize import linear_sum_assignment
 PREVIEW_SIZE = (2048, 1152)
 
 
+def preview_box(row: dict) -> list[int]:
+    if "box_preview_2048" in row:
+        return row["box_preview_2048"]
+    if row.get("source_resolution") == [3840, 2160] and "box_source_3840" in row:
+        box = row["box_source_3840"]
+        return [round(value * (PREVIEW_SIZE[0] / 3840 if index % 2 == 0
+                               else PREVIEW_SIZE[1] / 2160))
+                for index, value in enumerate(box)]
+    raise ValueError(f"Review {row.get('id', '?')} has no supported 4K crop box")
+
+
 def health_bars(image: Image.Image) -> list[tuple[int, int, int, int]]:
     rgb = np.asarray(image.resize(PREVIEW_SIZE).convert("RGB"), dtype=np.int16)
     red, green, blue = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
@@ -109,12 +120,13 @@ def main() -> None:
             continue
         if not str(row.get("identity_confirmed_by", "")).startswith("user_"):
             continue
-        bar = seed_bar(row["box_preview_2048"], frames[0]["bars"])
+        box = preview_box(row)
+        bar = seed_bar(box, frames[0]["bars"])
         if bar is None:
             continue
         seeds.append({"seed_id": row["id"], "identity_suggestion": row["identity"],
                       "identity_origin": row["identity_confirmed_by"],
-                      "current_box_preview_2048": row["box_preview_2048"],
+                      "current_box_preview_2048": box,
                       "bar": bar, "last_frame": 0})
 
     tracks = []
