@@ -40,24 +40,27 @@ class ReviewedPatches(Dataset):
             raise ValueError(path)
         height, width = bgr.shape[:2]
         boxes = []
+        categories = []
         for line in (self.labels / f"{path.stem}.txt").read_text().splitlines():
             category, cx, cy, bw, bh = map(float, line.split())
-            if category != 0:
+            if not category.is_integer() or category < 0:
                 raise ValueError(f"Unexpected class: {category}")
             boxes.append([(cx - bw / 2) * width, (cy - bh / 2) * height,
                           (cx + bw / 2) * width, (cy + bh / 2) * height])
+            categories.append(int(category) + 1)  # Background is class zero in Torchvision.
         image = torch.from_numpy(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).copy()).permute(2, 0, 1).float() / 255
         target = {"boxes": torch.tensor(boxes, dtype=torch.float32).reshape(-1, 4),
-                  "labels": torch.ones(len(boxes), dtype=torch.int64)}
+                  "labels": torch.tensor(categories, dtype=torch.int64)}
         return image, target
 
 
-def make_model(pretrained: bool):
+def make_model(pretrained: bool, num_classes: int = 2):
     weights = FasterRCNN_MobileNet_V3_Large_320_FPN_Weights.DEFAULT if pretrained else None
     model = fasterrcnn_mobilenet_v3_large_320_fpn(weights=weights,
-                                                   trainable_backbone_layers=0)
+                                                   weights_backbone=None,
+                                                   trainable_backbone_layers=0 if pretrained else None)
     inputs = model.roi_heads.box_predictor.cls_score.in_features
-    model.roi_heads.box_predictor = FastRCNNPredictor(inputs, 2)
+    model.roi_heads.box_predictor = FastRCNNPredictor(inputs, num_classes)
     return model
 
 
