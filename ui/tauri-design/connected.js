@@ -230,9 +230,11 @@ if (new URLSearchParams(location.search).has('connected')) {
       options.innerHTML = rows.length ? rows.map((row, index) =>
         `<button class="source-option ${index===chosenIndex?'selected':''}" data-source-index="${index}" aria-pressed="${index===chosenIndex}">`+
         `<span data-icon="${row.kind==='monitor'?'monitor':'window'}"></span><b>${escapeHtml(row.label)}</b>`+
-        `<small>${row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('') :
+        `<small>${row.kind==='video'?'Arquivo de replay':row.candidate_tft?'Possível janela TFT':'Fonte disponível'}</small><i>✓</i></button>`).join('') :
         '<div class="source-wait">Nenhum monitor ou janela disponível nesta sessão do Windows.</div>';
       selected = rows[chosenIndex] || null;
+      const replayMode = dialog.querySelector('#studio-replay-mode');
+      if (replayMode) replayMode.checked = selected?.kind === 'video';
       confirm.disabled = !selected;
       hydrate();
     } catch (error) {
@@ -426,8 +428,9 @@ if (new URLSearchParams(location.search).has('connected')) {
         `Captura ${state.phase} · vídeo anotado pelas camadas de leitura` : 'Captura ainda não iniciada';
       const play = document.querySelector('#preview-play');
       if (play) {
-        play.innerHTML = icon(state && state.session_id ? 'pause':'play');
-        play.setAttribute('aria-label', state && state.session_id ? 'Encerrar sessão':'Escolher fonte para iniciar');
+        const active = !!(state?.session_id && state.phase !== 'finished');
+        play.innerHTML = icon(active ? 'pause':'play');
+        play.setAttribute('aria-label', active ? 'Encerrar sessão':'Escolher fonte para iniciar');
       }
       const source = document.querySelector('#source-name');
       if (source) source.textContent = selected?.label ||
@@ -623,6 +626,8 @@ if (new URLSearchParams(location.search).has('connected')) {
     if (button.dataset.sourceIndex != null) {
       event.stopImmediatePropagation();
       selected = sourceRows[Number(button.dataset.sourceIndex)];
+      const replayMode = document.querySelector('#studio-replay-mode');
+      if (replayMode) replayMode.checked = selected?.kind === 'video';
       document.querySelectorAll('#source-dialog .source-option').forEach(el => {
         el.classList.toggle('selected', el===button);
         el.setAttribute('aria-pressed', String(el===button));
