@@ -2,6 +2,8 @@
 
 Atualizado em 09/10/2026. Este mapa registra **origem → rótulos → pesos → avaliação → decisão**. Acerto em recortes, cobertura de caixas e estabilidade temporal são medidas diferentes. Uma previsão do próprio software nunca vira rótulo verificado por estar confiante.
 
+A [perícia do caminho de aprendizado](TFT_CHAMPION_LEARNING_PATH_FORENSICS_20261009.md) encontrou recortes repetidos, dois pares com nomes contraditórios e duas imagens de teste quase iguais às do treino. O próximo treino deve partir de dados separados por partida e aparências realmente distintas.
+
 ## Estado instalado
 
 O software usa o classificador de nomes `champions.onnx` com SHA-256 `1045ffa3d75a76147b7314c90ecff247c7568cfb8a9187249837b37be0e391b4`. O caminho único para próximos treinos de identidade é `/mnt/sherlock-ssd/AgenteTFT/champion-corpus`: **734 recortes de treino, 32 de validação, 127 de teste, 10 correlacionados separados e nenhuma identidade em quarentena**. São 65 classes, inclusive criaturas neutras. O peso instalado foi treinado antes das correções do usuário. Os 32 recortes citados em testes antigos eram **validação**, não todo o treino. Ver [pacote principal](TFT_CHAMPION_CANONICAL_PACKAGE.md) e [proveniência](TFT_CHAMPION_CORPUS_LINEAGE_20261009.md).
