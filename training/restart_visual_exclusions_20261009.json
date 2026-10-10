@@ -1,0 +1,25 @@
+{
+  "review_method": "assistant_visual_review_of_side_by_side_crops",
+  "excluded": [
+    {
+      "path": "train/Krugue/frame-000197-marker-9.jpg",
+      "sha256": "cf1309164e8ab328dca1f8b3104077f95cd8118b9def74674eaeb09d8ce5aaf4",
+      "reason": "Unit body mostly clipped by the bottom HUD in focused view; unsuitable for visual identity training"
+    },
+    {
+      "path": "train/Leona/frame-000062-marker-3.jpg",
+      "sha256": "56a776a4b49afee496ca2a76ea2730f39e25c220e21f9624dc0b34d30d41d098",
+      "reason": "Crop shows arena foliage and no recognizable champion body"
+    },
+    {
+      "path": "train/Warwick/frame-000070-marker-3.jpg",
+      "sha256": "9f55d3002b16e39577c7e2be364635c97afefdc8b61c89a8664bd25e93730459",
+      "reason": "The magenta insect body matches the Azir appearance confirmed by the user, not the Warwick appearance in the other selected crops"
+    },
+    {
+      "path": "train/Zyra/frame-000071-marker-6.jpg",
+      "sha256": "1f82febdb0c98bacb06ebc8cc04248cfe67628e21419a66db70c3be3f0da9c4d",
+      "reason": "Champion body is clipped at the top edge; the crop is dominated by the arena and other health bars"
+    }
+  ]
+}
