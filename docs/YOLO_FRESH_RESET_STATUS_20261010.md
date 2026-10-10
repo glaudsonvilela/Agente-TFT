@@ -25,3 +25,5 @@ O estado acima descreve o início do reinício. Depois dele, a revisão humana c
 O conjunto ainda está longe das cinco poses distintas por identidade: 21 das 46 têm somente um recorte de treino e 42 têm menos de cinco, sem descontar poses repetidas. A validação interna do treino espelha os próprios recortes de treino e **não** deve ser anunciada como acerto em partidas novas. As previsões não foram incorporadas como rótulos.
 
 O relatório reproduzível está em `experiments/reviewed-46-20261010/preview-audit.json` na pasta do reinício. A prévia experimental exige a opção explícita `--show-rejected-model` e sinaliza os nomes como palpites de um modelo reprovado. Nenhum peso desse experimento foi integrado ao software principal. O próximo treino depende de recortes de qualidade, poses distintas e um teste de localização no mesmo conjunto reservado, antes de nova prévia com nomes.
+
+Arquivos locais pendentes, preservados fora deste registro por conterem trabalho em andamento: `training/materialize_champion_restart.py`, `training/prepare_champion_restart.py` e `training/train_champion_yolo_restart.py`.
