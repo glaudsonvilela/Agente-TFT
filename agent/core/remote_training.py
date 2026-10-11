@@ -56,7 +56,7 @@ class RemoteTrainingConfig:
 
 class RemoteTrainingClient:
     """
-    Optional client for the BigBANANA remote training plane.
+    Optional client for the HOMELAB remote training plane.
 
     This client never sends mouse/keyboard/desktop commands. It sends only
     structured state/decision data for simulation and evaluation.
