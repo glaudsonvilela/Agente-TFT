@@ -102,11 +102,11 @@ medir falsos reconhecimentos em sessões reservadas; depois habilitar o contrato
 
 Relatórios numéricos e identidade dos pesos ficam em
 `docs/evidence/strategy-coach-20261004`. Dataset integral e fontes ficam no SSD e
-no diretório isolado do experimento no BigBANANA, fora do instalador.
+no diretório isolado do experimento no HOMELAB, fora do instalador.
 
 ## Resultado da execução de 04/10/2026
 
-- BigBANANA: 10.000 estados, 202.765 alternativas de treino, 40 épocas,
+- HOMELAB: 10.000 estados, 202.765 alternativas de treino, 40 épocas,
   15.880 passos e quatro tensores alterados; 455,56 segundos, pico de 640,42 MiB.
 - Pesos portáveis: 11.628 bytes; diferença máxima contra a inferência do treino
   de 3,89e-7. Arquivo incluído na configuração do pacote.
