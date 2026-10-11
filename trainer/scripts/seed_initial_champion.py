@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Seed BigBANANA stable generation 1 from the currently shipped runtime model."""
+"""Seed HOMELAB stable generation 1 from the currently shipped runtime model."""
 from __future__ import annotations
 
 import argparse
