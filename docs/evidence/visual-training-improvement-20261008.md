@@ -25,7 +25,7 @@ To measure improvement, compare per-match accuracy and macro recall against
 the retained model on independent matches after new confirmed examples arrive.
 The queue alone does not train or promote a model.
 
-Deployment check on BigBANANA: the eight previously processed sessions now have
+Deployment check on HOMELAB: the eight previously processed sessions now have
 review queues with 175 unit crops in total and zero new labels. Those older
 sessions contain no item-change events. On a two-minute full-HUD source video,
 the selector chose 58 frames: 35 shop changes, three bench/item-area changes,
@@ -35,7 +35,7 @@ recognition-accuracy measurement. New Windows sessions are still needed to
 measure the gain in confirmed labels and independent-match accuracy.
 
 On October 8, two compact packages of already adjudicated game-derived gold
-were imported into the BigBANANA corpus: two crops from one full-HUD match and
+were imported into the HOMELAB corpus: two crops from one full-HUD match and
 six strictly supported crops from another VOD. The corpus now holds nine gold
 crops from three source groups. Two mixed-teacher rows were excluded. A new
 weighted challenger trained on the enlarged corpus but scored 20/32 correct
