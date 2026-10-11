@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prune completed raw neural evidence without touching learned corpus or models.
 
-Default is dry-run. Use --apply only on BigBANANA.
+Default is dry-run. Use --apply only on HOMELAB.
 """
 from __future__ import annotations
 
