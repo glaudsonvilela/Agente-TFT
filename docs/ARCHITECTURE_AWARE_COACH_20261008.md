@@ -74,7 +74,7 @@ a qualidade de um simulador ainda incompleto.
 Antes da dica, registrar previsão e confiança: “esta compra deve ativar o
 traço”, “esta troca deve reduzir dano recebido”. Depois, comparar previsão e
 resultado. O crítico identifica erro de percepção, erro de modelo, execução do
-jogador ou variância da luta. Aprende no BigBANANA a partir de episódios
+jogador ou variância da luta. Aprende no HOMELAB a partir de episódios
 verificados e versões de patch; no Windows, aplica um modelo versionado leve.
 O usuário continua recebendo texto imediatamente, sem esperar a voz remota.
 
