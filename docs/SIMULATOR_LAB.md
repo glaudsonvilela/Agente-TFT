@@ -103,7 +103,7 @@ Previsões anteriores não viram rótulos. Patch e identidade de partida precisa
 ser revisados antes de dividir treino e avaliação; sessões do mesmo jogo não
 podem aparecer nos dois lados. Geometria da tela e rótulos sazonais ficam separados.
 
-## BigBANANA e painel
+## HOMELAB e painel
 
 O painel existente passa a ler `policy-runs/*/progress.json` ao lado do banco do
 trainer. Exibe partidas terminadas, combates, transições, atualizações, memória,
@@ -173,13 +173,13 @@ contra partidas reais. A disponibilidade dos handlers genéricos não altera
 .venv/bin/python -m training.hex_lab --output trainer/data/hex-lab-v1/report.json --matches 10 --paths 500 --seconds 120
 ```
 
-No BigBANANA, a execução de integração completou dez partidas, 527 combates
+No HOMELAB, a execução de integração completou dez partidas, 527 combates
 e uma busca de 500 caminhos em 8,58 s, com pico de 36,8 MiB (Python do servidor).
 A busca isolada levou 2,55 s. A execução local usou outro runtime e mediu
 11,20 s/140,1 MiB. São medições deste cenário sintético, sem captura, OCR ou voz.
 Os relatórios estão em `docs/evidence/hex-simulator-20261004/`.
 
-O PPO anterior concluiu seu alvo de **500 partidas** no BigBANANA: 3.738.210
+O PPO anterior concluiu seu alvo de **500 partidas** no HOMELAB: 3.738.210
 transições, 60.436 passos de otimização e 40.177 chamadas de combate. Checkpoint
 `8afc57a246da3260f94a75a22134fac12a1589900f7c56634953f780351b5c4e`.
 Em 16 sementes de avaliação por versão, contra adversários programados, a
@@ -252,7 +252,7 @@ subconjunto implementado. Faz 500 **combates**, não 500 partidas completas.
 400 sementes entram no treino e 100 ficam reservadas. A inversão dos lados só
 ocorre depois dessa divisão, evitando que versões espelhadas vazem entre grupos.
 
-- BigBANANA, CPU limitada a 2 núcleos/512 MiB: **500 combates em 13,34 s**, pico
+- HOMELAB, CPU limitada a 2 núcleos/512 MiB: **500 combates em 13,34 s**, pico
   **44,66 MiB**, média **25,74 ms** e p95 **43,23 ms** por combate.
 - Rede de valor de **3.203 parâmetros**, **780 atualizações** em 60 épocas.
 - Acerto reservado: **91/100**, contra **61/100** do resultado majoritário.
@@ -284,7 +284,7 @@ tft simulador
 
 Use um diretório de saída novo para preservar os dados anteriores. Um arquivo
 `STOP` nesse diretório interrompe entre combates. O orçamento também limita o
-treino. No BigBANANA, `tft simulador` lê os contadores atuais durante a execução
+treino. No HOMELAB, `tft simulador` lê os contadores atuais durante a execução
 e mostra métricas finais depois; cada consulta lê novamente o relatório. O lote
 acima terminou, portanto não aparece como treino continuamente ativo.
 
@@ -346,7 +346,7 @@ a eles; esses dois números não devem ser confundidos.
 12 pulados, nenhuma falha. Vinte cenários anteriores produziram exatamente os
 mesmos resultados após migrar as regras para arquivos separados.
 
-No BigBANANA, o conteúdo foi recompilado a partir do manifesto e da release
+No HOMELAB, o conteúdo foi recompilado a partir do manifesto e da release
 selada, com o mesmo hash do build local. O lote ampliado incluiu os quatro itens
 novos: **500 combates em 16,27 s**, pico do processo **44,70 MiB**, p95 **57,02 ms**.
 A rede de **4.227 parâmetros** fez **780 atualizações** e obteve **85/100** nos
@@ -417,7 +417,7 @@ python -m training.ability_audit \
   --output datasets/ability-lab-20261004/audit.json
 ```
 
-No BigBANANA, `tft habilidades` mostra a cobertura instalada e as pendências por
+No HOMELAB, `tft habilidades` mostra a cobertura instalada e as pendências por
 entrada. `tft simulador` continua mostrando a última execução efetiva; instalar
 novas regras não incrementa contadores de treino nem altera resultados antigos.
 A conclusão de todas as habilidades segue pendente.
