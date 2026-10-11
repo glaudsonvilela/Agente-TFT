@@ -80,23 +80,14 @@ if [[ "$ok" != "1" ]]; then
   exit 1
 fi
 
-edge_id="$(
-  docker ps -q \
-    --filter 'label=com.docker.compose.service=tft-voice-edge' \
-    | head -n1
-)"
 edge_reloaded=false
-if [[ -n "$edge_id" ]]; then
-  docker exec "$edge_id" nginx -t -c /etc/nginx/tft.conf >/dev/null
-  docker exec "$edge_id" nginx -s reload
-  edge_reloaded=true
-fi
 
 health="$(curl -fsS http://127.0.0.1:8801/v1/training/health)"
 public_ok=false
-if [[ "${TFT_NEURAL_PUBLIC_SMOKE:-1}" == "1" ]]; then
+if [[ "${TFT_NEURAL_PUBLIC_SMOKE:-0}" == "1" ]]; then
+  : "${HOMELAB_PUBLIC_URL:?Set HOMELAB_PUBLIC_URL (HTTPS) before smoke test}"
   installation="deploy-smoke-$(date +%s%N)"
-  session_json="$(curl -fsS --max-time 10 -H 'Content-Type: application/json' -d "{\"installation_id\":\"${installation}\"}" https://tft.bigbanana.io/v1/neural/client-session)"
+  session_json="$(curl -fsS --max-time 10 -H 'Content-Type: application/json' -d "{\"installation_id\":\"${installation}\"}" "${HOMELAB_PUBLIC_URL%/}/v1/neural/client-session")"
   token="$(python3 - "$session_json" <<'PYTOKEN'
 import json,sys
 doc=json.loads(sys.argv[1])
@@ -105,7 +96,7 @@ assert isinstance(token,str) and len(token)>=32
 print(token)
 PYTOKEN
   )"
-  champion_json="$(curl -fsS --max-time 10 -H "Authorization: Bearer ${token}" 'https://tft.bigbanana.io/v1/neural/champion?channel=stable')"
+  champion_json="$(curl -fsS --max-time 10 -H "Authorization: Bearer ${token}" "${HOMELAB_PUBLIC_URL%/}/v1/neural/champion?channel=stable")"
   local_generation="$(python3 - "$health" <<'PYLOCAL'
 import json,sys
 print(json.loads(sys.argv[1])["central_neural"]["stable_generation"])
@@ -136,6 +127,6 @@ print("STABLE_GENERATION="+str(central["stable_generation"]))
 print("STABLE_VERSION="+str(central["stable_version"]))
 print("EDGE_RELOADED="+sys.argv[2])
 print("PUBLIC_ROUTE_OK="+sys.argv[3])
-print("TRAINING_LOCATION=BigBANANA")
+print("TRAINING_LOCATION=HOMELAB")
 print("CLIENT_COMPUTE_REQUIRED=false")
 PY
