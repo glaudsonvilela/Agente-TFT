@@ -1,5 +1,12 @@
 # training/
 
+## GPU descentralizada — Akash Network (planejado)
+
+A direção preferencial para treinamento PyTorch de percepção/valor e avaliações offline é o marketplace de GPUs da **Akash Network** (Console Air, Keplr, ACT). O treinamento acontece nos containers GPU de provedores (**off-chain**); a blockchain não executa as redes neurais. **Ainda não há integração de job, lease ou CUDA remoto comprovada.** O cliente continua com inferência ONNX local e motor matemático Rust. Nenhuma locação ou movimentação de token é automática.
+
+Documentos: [Plano Akash](../docs/AKASH_TRAINING.md), [ADR-0004](../docs/adr/0004-akash-training-backend.md) e [manifesto desabilitado](../configs/training/akash-pytorch-plan-v1.json). Os checkpoints deverão ser armazenados de forma privada fora do lease antes de encerrar o container. O restante deste documento registra experimentos locais e suas limitações; não são resultados executados na Akash.
+
+
 Ambiente offline para treinar e avaliar a policy.
 
 Fases planejadas:
