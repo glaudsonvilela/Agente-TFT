@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Process one sealed neural-learning job entirely on BigBANANA."""
+"""Process one sealed neural-learning job entirely on HOMELAB."""
 from __future__ import annotations
 
 import argparse
@@ -230,7 +230,7 @@ def main():
             "champion_model_sha256":selection.get("selected_model_sha256"),
             "shadow_candidate_sha256":None,
             "challenger_selected":False,
-            "training_location":"BigBANANA",
+            "training_location":"HOMELAB",
             "client_compute_required":False,
             "promotion":promotion.get("promoted"),
             "central_stable_generation":selection.get("central_stable_generation"),
