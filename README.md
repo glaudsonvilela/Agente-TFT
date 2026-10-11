@@ -410,7 +410,7 @@ Inferência local ONNX + decisão Rust
 - Antes de contratar GPU, conferir preços efetivos, taxas e orçamento. Checkpoints devem persistir **fora do lease efêmero**.
 - Treinos não podem promover modelos automaticamente sem avaliação reprodutível, versão, hash e rollback.
 
-**Estado real:** documentação e plano de migração. Ainda não há deploy Akash, job PyTorch remoto ou integração de publicação comprovados. O contrato de treinamento existente é legado e requer um adaptador validado.
+**Estado real:** documentação e plano de migração. Ainda não há deploy Akash, job PyTorch remoto ou integração de publicação comprovados. O contrato de treinamento existente é legado e requer um adaptador validado. O [manifesto de planejamento](configs/training/akash-pytorch-plan-v1.json) é informativo e permanece **desabilitado**, sem ações de carteira.
 
 Leia: [plano técnico Akash](docs/AKASH_TRAINING.md), [arquitetura neural](docs/SERVER_SIDE_NEURAL_ARCHITECTURE.md) e [guia oficial Console Air](https://akash.network/docs/getting-started/console-air-onboarding/).
 
