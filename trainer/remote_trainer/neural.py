@@ -69,7 +69,7 @@ class NullNeuralBackend:
 
 
 class FileQueueNeuralBackend:
-    """Queue sealed matches for a separate BigBANANA neural worker.
+    """Queue sealed matches for a separate HOMELAB neural worker.
 
     Live inference remains local in the installed client, so server infer()
     intentionally abstains. Post-match learning is durable and independent of
@@ -112,7 +112,7 @@ class FileQueueNeuralBackend:
             "neural_session_id": neural_session_id,
             "evidence_root": str(evidence_root),
             "queued_at_ms": time.time_ns() // 1_000_000,
-            "training_location": "BigBANANA",
+            "training_location": "HOMELAB",
             "client_compute_required": False,
         }
         target = self.inbox / f"{neural_session_id}.json"
