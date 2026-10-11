@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "service_url": "https://homelab.invalid",
+  "service_url": "https://neural-service.invalid",
   "status": "server_route_pending_validation",
   "neural_location": "server",
   "local_model_weights_allowed": false,
