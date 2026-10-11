@@ -58,7 +58,7 @@ No ambiente de edição não há acesso DNS à internet, nem Transformers ou os 
 
 ## Geometria/3D
 
-A ideia do usuário foi preservada como etapa futura: projeção do plano do tabuleiro e ponto de apoio estimado podem complementar a percepção visual. B3 não reconstrói profundidade ou malhas 3D. Não altera a geometria para melhorar retroativamente o comparativo. Depois da medição, decidir entre adaptar/treinar um detector, integrar geometria ou rejeitar esta candidata. Identidades sazonais, estrelas, itens, atributos e estado integrado seguem no plano local; BigBANANA e vídeos externos continuam adiados.
+A ideia do usuário foi preservada como etapa futura: projeção do plano do tabuleiro e ponto de apoio estimado podem complementar a percepção visual. B3 não reconstrói profundidade ou malhas 3D. Não altera a geometria para melhorar retroativamente o comparativo. Depois da medição, decidir entre adaptar/treinar um detector, integrar geometria ou rejeitar esta candidata. Identidades sazonais, estrelas, itens, atributos e estado integrado seguem no plano local; HOMELAB e vídeos externos continuam adiados.
 
 ## Referências técnicas
 
