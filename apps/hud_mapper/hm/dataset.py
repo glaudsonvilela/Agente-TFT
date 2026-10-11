@@ -31,25 +31,32 @@ class Store:
         self.max_log_bytes=max_log_bytes;self.sample_stride=1;self.sample_candidates=0
         self.sample_indices={}
         self.jobs=queue.Queue(maxsize=8);self.done=threading.Event();self.error=None
+        self.sample_jobs=queue.Queue(maxsize=32);self.sample_done=threading.Event()
+        self.sample_thread=None
         self.counts=Counter();self.records=[];self.events=[];self.bytes=0
         self.log_bytes=0
-        self.closed=False;self.hashes={};self.previous={};self.seen={};self.io_ms=deque(maxlen=4096)
+        self.closed=False;self.hashes={};self.previous={};self.seen={}
+        self.io_ms=deque(maxlen=4096);self.persist_ms=deque(maxlen=4096)
         self.thread=threading.Thread(target=self._writer,daemon=True);self.thread.start()
     def emit(self, stream, data, frame=None, sample=False):
         # Snapshot JSON before handing it to the writer. Frame.rgb is immutable bytes.
         snapshot=json.loads(json.dumps(data,ensure_ascii=False,allow_nan=False))
-        try:self.jobs.put_nowait((stream,snapshot,frame,sample))
+        queued_ns=time.perf_counter_ns()
+        try:self.jobs.put_nowait((stream,snapshot,frame if sample else None,sample,queued_ns))
         except queue.Full:self.counts['write_queue_dropped']+=1;return False
         return True
     def _writer(self):
         files={}
         try:
             while not self.done.is_set() or not self.jobs.empty():
-                try:stream,data,frame,sample=self.jobs.get(timeout=.1)
+                try:stream,data,frame,sample,queued_ns=self.jobs.get(timeout=.1)
                 except queue.Empty:continue
                 started=time.perf_counter_ns()
                 if stream not in ('mapping-events','roi-observations','board-hub-observations',
                                   'opponent-crop-observations','visual-track-observations',
+                                  'trait-tooltip-observations',
+                                  'fast-item-observations',
+                                  'selected-unit-panel-observations',
                                   'unit-inference-observations','combat-events','replay-tips',
                                   'telemetry','periodic'):
                     raise ValueError('Fluxo não registrado')
@@ -63,13 +70,27 @@ class Store:
                     self.counts['disk_reserve_dropped']+=1
                     continue
                 files[stream].write(line);files[stream].flush()
+                self.persist_ms.append((time.perf_counter_ns()-queued_ns)/1e6)
                 self.log_bytes+=line_bytes
-                if sample and frame:self._save(frame,data,stream)
+                if sample and frame:
+                    if self.sample_thread is None:
+                        self.sample_thread=threading.Thread(target=self._sample_writer,daemon=True)
+                        self.sample_thread.start()
+                    try:self.sample_jobs.put_nowait((frame,data,stream))
+                    except queue.Full:self.counts['sample_queue_dropped']+=1
                 self.counts[stream+'_events']+=1;self.io_ms.append((time.perf_counter_ns()-started)/1e6)
         except Exception as e:
             self.error=str(e)
         finally:
             for f in files.values():f.close()
+    def _sample_writer(self):
+        try:
+            while not self.sample_done.is_set() or not self.sample_jobs.empty():
+                try:frame,data,stream=self.sample_jobs.get(timeout=.1)
+                except queue.Empty:continue
+                self._save(frame,data,stream)
+        except Exception as e:
+            self.error=str(e)
     def _save(self, frame, data, stream):
         key=str(frame.id)
         if key in self.seen:
@@ -154,6 +175,11 @@ class Store:
         if self.closed:raise RuntimeError('Sessão já finalizada')
         self.done.set();self.thread.join(30)
         if self.thread.is_alive():raise RuntimeError('Escrita pendente; sessão permanece parcial')
+        self.sample_done.set()
+        if self.sample_thread is not None:
+            self.sample_thread.join(30)
+            if self.sample_thread.is_alive():
+                raise RuntimeError('Amostras pendentes; sessão permanece parcial')
         self.closed=True
         if self.error:session['error']=self.error;session['execution_complete']=False
         session['collection']={**dict(self.counts),'png_bytes':self.bytes,'sample_budget':self.max_samples,
@@ -169,7 +195,8 @@ class Store:
         dump(self.root/'training-manifest.json',manifest)
         dump(self.root/'summary.json',session)
         dump(self.root/'collection-metrics.json',dict(counts=dict(self.counts),bytes=self.bytes,
-            write_ms=list(self.io_ms),write_timing_scope='most_recent_4096_writes'))
+            write_ms=list(self.io_ms),persist_ms=list(self.persist_ms),
+            write_timing_scope='most_recent_4096_writes'))
         # This text includes mapping coverage first; performance is secondary.
         with (self.root/'comparison.txt').open('x',encoding='utf-8') as f:
             f.write('HUD MAPPER — MAPEAMENTO / DADOS NATURAIS\n')

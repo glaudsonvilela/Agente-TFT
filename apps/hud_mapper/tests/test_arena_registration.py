@@ -2,14 +2,51 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import threading
+import time
 import unittest
 
 from PIL import Image
 
-from hm.arena_registration import ArenaRegistrar
+from hm.arena_registration import ArenaRegistrar, AsyncArenaRegistrar
 
 
 class ArenaRegistrationTests(unittest.TestCase):
+    def test_async_registration_does_not_block_or_repeat_each_frame(self):
+        class SlowRegistrar:
+            cv2 = object()
+
+            def __init__(self):
+                self.started = threading.Event()
+                self.release = threading.Event()
+                self.calls = 0
+
+            def observe(self, image):
+                self.calls += 1
+                self.started.set()
+                self.release.wait(2)
+                return {'status': 'arena_candidate_match', 'profile': 'known'}
+
+        slow = SlowRegistrar()
+        async_reader = AsyncArenaRegistrar(slow)
+        image = Image.new('RGB', (32, 32))
+        self.assertIsNone(async_reader.observe(image, epoch=1, source_ms=0, eligible=False))
+        start = time.perf_counter()
+        self.assertIsNone(async_reader.observe(image, epoch=1, source_ms=1000, eligible=True))
+        self.assertLess(time.perf_counter() - start, .1)
+        self.assertTrue(slow.started.wait(1))
+        self.assertIsNone(async_reader.observe(image, epoch=1, source_ms=1500, eligible=True))
+        self.assertEqual(slow.calls, 1)
+        slow.release.set()
+        result = None
+        for _ in range(100):
+            result = async_reader.observe(image, epoch=1, source_ms=2000, eligible=False)
+            if result is not None:
+                break
+            threading.Event().wait(.01)
+        self.assertEqual(result['profile'], 'known')
+        self.assertIsNone(async_reader.observe(image, epoch=1, source_ms=2500, eligible=False))
+
     def test_known_arena_survives_zoom_without_assigning_owner(self):
         root = Path(__file__).resolve().parents[3]
         profiles = [json.loads((root / 'configs/ui' / name).read_text()) for name in (

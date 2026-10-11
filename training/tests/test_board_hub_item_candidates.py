@@ -3,12 +3,14 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
+import builtins
 
 import numpy as np
 from PIL import Image
 
 from training.board_hub_item_candidates import (load_reference, load_templates,
-                                                rank_patches, rank_patch_groups, run)
+                                                rank_patches, rank_patch_groups, rank_slot, run)
 
 
 ROOT = Path(__file__).parents[2]
@@ -16,6 +18,56 @@ PROFILE = json.loads((ROOT / "configs/ui/match001-inventory-v1.json").read_text(
 
 
 class ItemCandidateTests(unittest.TestCase):
+    def test_multiple_inventory_slots_keep_independent_candidate_rects(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            rng = np.random.default_rng(42)
+            art = rng.integers(0, 256, (28, 28, 3), dtype=np.uint8)
+            Image.fromarray(art).save(folder / 'one.png')
+            entries = [{'id': 'one', 'name': 'One', 'icon': 'one.png'}]
+            bank, available = load_templates(entries, folder)
+            frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+            rects = [{'x': 100, 'y': 300}, {'x': 300, 'y': 300}]
+            frame[310:338, 107:135] = art
+            frame[312:340, 309:337] = art
+            inventory = {'slots': [dict(slot=index, status='icon_candidate', rect=rect)
+                                   for index, rect in enumerate(rects)]}
+            expected = [rank_slot(frame, rect, bank) for rect in rects]
+            bank.recent_rankings.clear()
+            with patch('training.board_hub_item_candidates.observe', return_value=inventory):
+                result = run(Image.fromarray(frame), PROFILE,
+                             {'reference_sha256': 'test', 'version': 'test'},
+                             entries, folder, preloaded_templates=(bank, available),
+                             selected_entries=entries)
+            self.assertEqual([row['candidates'] for row in result['candidate_slots']], expected)
+            self.assertEqual([row['candidates'][0]['sample_rect'] for row in result['candidate_slots']],
+                             [{'x': 107, 'y': 310, 'width': 28, 'height': 28},
+                              {'x': 309, 'y': 312, 'width': 28, 'height': 28}])
+
+    def test_native_matrix_path_matches_numpy_fallback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            rng = np.random.default_rng(31)
+            entries = []
+            for index in range(5):
+                name = f'item{index}'
+                Image.fromarray(rng.integers(0, 256, (23, 23, 3), dtype=np.uint8)).save(
+                    folder / f'{name}.png')
+                entries.append({'id': name, 'icon': f'{name}.png'})
+            native, _ = load_templates(entries, folder, size=23)
+            fallback, _ = load_templates(entries, folder, size=23)
+            patches = [[rng.integers(0, 256, (23, 23, 3), dtype=np.uint8)
+                        for _ in range(4)] for _ in range(3)]
+            observed = rank_patch_groups(patches, native)
+            original_import = builtins.__import__
+            def without_cv2(name, *args, **kwargs):
+                if name == 'cv2':
+                    raise ImportError('fallback test')
+                return original_import(name, *args, **kwargs)
+            with patch('builtins.__import__', side_effect=without_cv2):
+                expected = rank_patch_groups(patches, fallback)
+            self.assertEqual(observed, expected)
+
     def test_frame_batch_matches_separate_searches_and_keeps_cache_isolated(self):
         with tempfile.TemporaryDirectory() as temp:
             icon_dir = Path(temp)

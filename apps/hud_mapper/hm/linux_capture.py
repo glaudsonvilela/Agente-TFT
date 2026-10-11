@@ -75,8 +75,10 @@ class LinuxX11CaptureSource:
         self.capture_epoch_ns = time.perf_counter_ns()
         # On four-core desktops, leave CPU room for the player and the UI.
         desktop_cap = 15 if (os.cpu_count() or 1) <= 4 else 20
-        self.frame_rate = min(4 if self.preview_frames else desktop_cap,
-                              max(4 if self.preview_frames else 2, int(round(hz))))
+        # Preview has its own reduced-size capture process. Do not throttle
+        # the full-resolution analysis stream to 4 Hz merely because preview
+        # is enabled; the caller already sets the bounded analysis cadence.
+        self.frame_rate = min(desktop_cap, max(2, int(round(hz))))
         source = ['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error',
                    '-f', 'x11grab', '-draw_mouse', '0', '-video_size', f'{width}x{height}',
                    '-framerate']

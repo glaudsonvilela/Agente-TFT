@@ -562,7 +562,20 @@ fn markers_only(root:&Path)->Result<(),String>{
         let f=frame(&h,&mut input)?;
         if last_epoch!=Some(epoch) {tracks.clear();last_epoch=Some(epoch);}
         let started=Instant::now();
-        let observed=bars::detect(&f,profile.scan_rect,&profile.bars)?;
+        let mut arena_policy=profile.bars.clone();
+        arena_policy.edge_tolerance=12;
+        let mut observed=bars::detect(&f,profile.scan_rect,&arena_policy)?;
+        // The regular arena scan begins at y=130 and misses health bars over
+        // pieces parked on the upper reserve and back row. Scan the strip
+        // immediately above it without counting the overlap twice.
+        if f.width==1920 && f.height==1080 {
+            let upper=profile::Rect{x:550,y:40,width:850,height:90};
+            let mut upper_policy=profile.bars.clone();
+            upper_policy.min_height=2;
+            upper_policy.edge_tolerance=12;
+            observed.extend(bars::detect(&f,upper,&upper_policy)?
+                .into_iter().filter(|marker|marker.rect.width>=40));
+        }
         tracks.retain(|row|f.captured_at_ms.saturating_sub(row.4)<=1500);
         let mut used=Vec::new();
         let mut result=Vec::new();
@@ -584,6 +597,7 @@ fn markers_only(root:&Path)->Result<(),String>{
                 used.push(tracks.len()-1);current
             };
             result.push(json!({"track_id":track_id,"rect":rect,
+                "scan_zone":if rect.y<130 {"upper_reserve"} else {"arena"},
                 "color":marker.color,"identity_verified":false,
                 "ownership_verified":false}));
         }

@@ -46,7 +46,8 @@ class SnapshotTests(unittest.TestCase):
                                     manifest, entries, icon_dir, "set_path", context,
                                     inventory_templates=load_templates(entries, icon_dir),
                                     equipped_templates=load_templates(entries, icon_dir,
-                                                                      size=EQUIPPED["icon_size"]))
+                                                                      size=EQUIPPED["icon_size"]),
+                                    trusted_rgb_bytes=frame.tobytes())
             self.assertEqual(cached, result)
             self.assertEqual(result["arena_projection_status"], "reference_arena_match")
             self.assertEqual(result["position_status"], "candidate_only")

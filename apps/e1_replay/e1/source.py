@@ -17,6 +17,13 @@ class Frame:
     epoch: int = 0
 
 
+@dataclass(frozen=True)
+class JPEGFrame:
+    id: int
+    pts_ms: float
+    jpeg: bytes
+
+
 def local_video(path):
     p = Path(path).expanduser()
     if p.is_symlink() or not p.is_file():
@@ -43,7 +50,8 @@ def probe(path, ffprobe):
 
 
 class VideoSource:
-    def __init__(self, path, ffmpeg='ffmpeg', ffprobe='ffprobe', fps=None):
+    def __init__(self, path, ffmpeg='ffmpeg', ffprobe='ffprobe', fps=None,
+                 preview_hz=None, preview_size=(960, 540)):
         self._close_lock = threading.Lock()
         self.closed = False
         self.path = local_video(path)
@@ -62,6 +70,76 @@ class VideoSource:
         self.log_tail = []
         self.thread = threading.Thread(target=self._metadata, daemon=True)
         self.thread.start()
+        self.preview_frames = None
+        self.preview_received = 0
+        self.preview_replaced = 0
+        self.last_preview_received_ns = None
+        self.preview_proc = None
+        self.preview_thread = None
+        self._preview_command = None
+        if preview_hz is not None:
+            if not 1 <= preview_hz <= 60:
+                raise ValueError('Preview FPS outside decoding budget')
+            preview_width, preview_height = preview_size
+            if not 160 <= preview_width <= 1280 or not 90 <= preview_height <= 720:
+                raise ValueError('Preview size outside decoding budget')
+            self.preview_hz = preview_hz
+            self.preview_frames = queue.Queue(maxsize=1)
+            self._preview_command = [ffmpeg, '-nostdin', '-v', 'error', '-threads', '2',
+                '-filter_threads', '1', '-protocol_whitelist', 'file', '-noautorotate',
+                '-re', '-i', self.path, '-map', '0:v:0', '-an', '-sn', '-dn',
+                '-vf', f'fps={preview_hz},scale={preview_width}:{preview_height}:flags=fast_bilinear',
+                '-fps_mode', 'passthrough', '-q:v', '6', '-f', 'mjpeg', 'pipe:1']
+
+    def _start_preview(self):
+        # The analysis clock starts at its first decoded RGB frame. Starting
+        # the independent MJPEG decoder here keeps source PTS in step with
+        # analysis instead of letting the preview run ahead during setup.
+        with self._close_lock:
+            if self.closed or self.preview_proc is not None or self._preview_command is None:
+                return
+            self.preview_proc = spawn(self._preview_command,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
+            self.preview_thread = threading.Thread(target=self._preview_jpegs, daemon=True)
+            self.preview_thread.start()
+
+    def _preview_jpegs(self):
+        """Pass through native JPEGs; only the newest display frame is retained."""
+        buffer = bytearray()
+        index = 0
+        try:
+            while not self.stop.is_set():
+                chunk = self.preview_proc.stdout.read(65536)
+                if not chunk:
+                    break
+                buffer.extend(chunk)
+                while True:
+                    start = buffer.find(b'\xff\xd8')
+                    if start < 0:
+                        buffer.clear()
+                        break
+                    end = buffer.find(b'\xff\xd9', start + 2)
+                    if end < 0:
+                        if start:
+                            del buffer[:start]
+                        break
+                    jpeg = bytes(buffer[start:end + 2])
+                    del buffer[:end + 2]
+                    frame = JPEGFrame(index, index * 1000 / self.preview_hz, jpeg)
+                    if self.preview_frames.full():
+                        try:
+                            self.preview_frames.get_nowait()
+                            self.preview_replaced += 1
+                        except queue.Empty:
+                            pass
+                    self.preview_frames.put_nowait(frame)
+                    self.preview_received += 1
+                    self.last_preview_received_ns = time.perf_counter_ns()
+                    index += 1
+                if len(buffer) > 4 * 1024 * 1024:
+                    raise ValueError('Oversized MJPEG preview frame')
+        except Exception as exc:
+            self.log_tail.append('Preview: ' + str(exc))
 
     def _metadata(self):
         try:
@@ -112,6 +190,7 @@ class VideoSource:
             now = time.perf_counter_ns()
             if first is None:
                 first, origin = pts, now
+                self._start_preview()
             relative = pts - first
             if relative > max_seconds * 1000:
                 break
@@ -132,12 +211,21 @@ class VideoSource:
             self.closed = True
             self.stop.set()
             terminate(self.proc)
+            if self.preview_proc is not None:
+                terminate(self.preview_proc)
             for stream in (self.proc.stdout, self.proc.stderr):
                 if stream:
                     try:
                         stream.close()
                     except (OSError, ValueError):
                         pass
+            if self.preview_proc is not None:
+                for stream in (self.preview_proc.stdout, self.preview_proc.stderr):
+                    if stream:
+                        try:
+                            stream.close()
+                        except (OSError, ValueError):
+                            pass
 
 
 def fixture_frames(cancelled, max_seconds=12, fps=4):

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "standard-screen-grid-v1",
+  "resolution": [1920, 1080],
+  "enemy_board_visible": true,
+  "upper_reserve": [[630,130],[720,130],[810,130],[900,130],[990,130],[1080,130],[1170,130],[1260,130],[1350,130]],
+  "lower_reserve": [[409,792],[527,792],[645,792],[762,792],[879,792],[996,792],[1112,792],[1228,792],[1344,792]],
+  "enemy_board_rows": [[610,1280,210],[670,1340,277],[610,1280,344],[670,1340,411]],
+  "own_board_rows": [[560,1258,444],[618,1330,519],[557,1275,596],[620,1350,680]],
+  "geometry_source": "own grid and bench from Rust match001-board-bench-v1; enemy board and upper bench from the matching cyber/red 1080p profiles, reviewed against gameplay.mp4",
+  "status": "visual_guide_only",
+  "training_label": false,
+  "owner_from_geometry": false
+}

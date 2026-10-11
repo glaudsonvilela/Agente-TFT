@@ -75,6 +75,49 @@ def audit_item_reference(repo: Path) -> dict:
     }
 
 
+def audit_spatial_and_telemetry(repo: Path) -> dict:
+    topology = json.loads((repo / 'configs/topology/board-standard-4x7-v1.json').read_text())
+    bench = json.loads((repo / 'configs/topology/bench-nine-v1.json').read_text())
+    profiles = {}
+    for arena in ('cyber', 'red', 'pond'):
+        path = repo / f'configs/ui/{arena}-arena-reserves-v1.json'
+        profile = json.loads(path.read_text())
+        profiles[arena] = {
+            'status': profile['status'],
+            'own_board_rows': len(profile.get('own_board_rows', [])),
+            'enemy_board_rows': len(profile.get('enemy_board_rows', [])),
+            'own_bench_slots': len(profile.get('lower_reserve', [])),
+            'enemy_bench_slots': len(profile.get('upper_reserve', [])),
+            'training_label': profile.get('training_label') is True,
+        }
+    modules = (
+        'arena_registration', 'spatial_map', 'match_identity',
+        'opponent_tracking', 'combat_events', 'process_memory',
+    )
+    present = {name: (repo / f'apps/hud_mapper/hm/{name}.py').is_file()
+               for name in modules}
+    return {
+        'topology_cells_per_side': topology['rows_per_side'] * topology['columns'],
+        'topology_cells_total': 2 * topology['rows_per_side'] * topology['columns'],
+        'bench_slots_per_side': len(bench['slots']),
+        'profiles': profiles,
+        'pixel_projection_independently_validated': False,
+        'telemetry_modules_present': present,
+        'end_to_end_tracking_independently_validated': False,
+    }
+
+
+def audit_traits(repo: Path) -> dict:
+    aliases = repo / 'configs/catalog/trait-aliases-set18-en-us-16.20.json'
+    reader = repo / 'tools/e1-native/src/main.rs'
+    return {
+        'alias_catalog_present': aliases.is_file(),
+        'rust_ocr_reader_present': reader.is_file(),
+        'visual_icon_and_count_model_validated': False,
+        'independent_full_match_validation': False,
+    }
+
+
 def audit(base: Path) -> dict:
     roster = json.loads((base / 'roster/set18-shop-roster-20261010.json').read_text())['rows']
     records = json.loads((base / 'roster/unified-reviewed-candidates-20261010.json').read_text())['records']
@@ -86,6 +129,7 @@ def audit(base: Path) -> dict:
     by_name = defaultdict(list)
     for row in records:
         by_name[row['champion']].append(row)
+    identity_evidence = Counter(row['review_status'] for row in records)
     provisional = {r['champion']: r['provisional_pose_families'] for r in coverage['classes']}
     champions = []
     for row in roster:
@@ -152,6 +196,10 @@ def audit(base: Path) -> dict:
         'approved_champions_at_five_poses': sum(r['approved_distinct_poses'] >= 5 for r in champions),
         'approved_pose_total': sum(r['approved_distinct_poses'] for r in champions),
         'reviewed_candidate_crops': len(records),
+        'identity_evidence': dict(identity_evidence),
+        'candidate_source_videos': len({source_id(row['source_video_local']) for row in records}),
+        'candidate_zones_unverified': sum(row.get('zone') == 'unverified_board_or_bench'
+                                          for row in records),
         'provisional_pose_families': sum(r['provisional_pose_families'] for r in champions),
         'provisional_zero_champions': sum(r['provisional_pose_families'] == 0 for r in champions),
         'hud_categories_required': len(REQUIRED_HUD),
@@ -159,8 +207,11 @@ def audit(base: Path) -> dict:
         'hud_source_frames': len(joint['sources']),
         'hud_label_status': joint['hud_labels'],
         'item_reference': audit_item_reference(REPO),
+        'spatial_and_telemetry': audit_spatial_and_telemetry(REPO),
+        'traits': audit_traits(REPO),
         'cross_task_split_conflicts': conflicts,
         'global_split_by_video_for_new_corpus': global_splits,
+        'global_split_status': 'proposal_only_not_applied_to_existing_training_sets',
         'champions': champions,
         'hud': hud,
         'requirements': [
@@ -191,6 +242,13 @@ def main() -> None:
           f"{items['selected_set_and_core_items']} ícones; "
           f"rede com {items['neural_icon_classes']} classes")
     print(f"PARTIDAS  {len(report['cross_task_split_conflicts'])} conflitos de separação entre tarefas")
+    print(f"ROTULOS   {report['identity_evidence']} ; "
+          f"{report['candidate_zones_unverified']} zonas por revisar")
+    spatial = report['spatial_and_telemetry']
+    print(f"MAPA      {spatial['topology_cells_total']} casas e "
+          f"{spatial['bench_slots_per_side']} bancos por lado na topologia; "
+          'projeções ainda não validadas')
+    print('SINERGIAS catálogo e OCR presentes; leitura visual integral sem validação')
     for conflict in report['cross_task_split_conflicts']:
         print(f"          {conflict['video']}: campeões={conflict['identity_split']} "
               f"HUD={','.join(conflict['hud_splits'])}")

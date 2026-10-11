@@ -26,13 +26,22 @@ class MapObserver:
         if len(ins) != 1 or ins[0].name != 'image' or ins[0].shape != [1, 3, 192, 320] or outs[0].shape != [1, 2, 5]:
             raise ValueError('Contrato do modelo incompatível')
         self.hash = meta['sha256']
+        try:
+            from .map_native import NativeMapResize
+            self.native_resize = NativeMapResize()
+        except (OSError, AttributeError):
+            self.native_resize = None
 
     def observe(self, frame):
         import numpy as np
-        from PIL import Image
         t = time.perf_counter_ns()
-        small = Image.frombytes('RGB', (frame.width, frame.height), frame.rgb).resize((320, 192), Image.Resampling.BILINEAR)
-        a = np.asarray(small, dtype=np.float32).transpose(2, 0, 1).copy()[None] / 255
+        if self.native_resize is not None:
+            a = self.native_resize.resize(frame)
+        else:
+            from PIL import Image
+            small = Image.frombytes('RGB', (frame.width, frame.height), frame.rgb).resize(
+                (320, 192), Image.Resampling.BILINEAR)
+            a = np.asarray(small, dtype=np.float32).transpose(2, 0, 1).copy()[None] / 255
         prep = (time.perf_counter_ns() - t) / 1e6
         t = time.perf_counter_ns()
         out = self.session.run(['panels'], {'image': a})[0]
@@ -40,5 +49,6 @@ class MapObserver:
         if out.shape != (1, 2, 5) or not np.isfinite(out).all():
             raise ValueError('Saída neural inválida')
         return dict(status='real_diagnostic_only', sha256=self.hash, raw=out.tolist(),
-                    resize_ms=prep, inference_ms=elapsed, frame_id=frame.id,
+                    resize_ms=prep, resize_backend='rust_area' if self.native_resize else 'pillow_bilinear',
+                    inference_ms=elapsed, frame_id=frame.id,
                     map_usable_by_readers=False, model_trained=False, profile_promoted=False)

@@ -29,6 +29,10 @@ class BoardHubLive:
         if self.manifest['set_key'] != catalog['set_key']:
             raise ValueError('Live set and reference mismatch')
         self.icons = root / catalog['icon_dir']
+        if not self.icons.is_dir():
+            bundled_icons = root / 'build/hm4-live-assets' / catalog['icon_dir']
+            if bundled_icons.is_dir():
+                self.icons = bundled_icons
         knowledge = json.loads((root / 'configs/catalog/active-knowledge-release-v1.json').read_text(encoding='utf-8'))
         release = root / knowledge['reference']
         release_manifest = json.loads((release / 'release.json').read_text(encoding='utf-8'))
@@ -44,6 +48,13 @@ class BoardHubLive:
             raise ValueError('Visual items and structured release differ')
         item_attributes = json.loads(items_bytes)['items']
         self.item_attribute_ids = {item['api_name'] for item in item_attributes}
+        from .item_recipes import core_recipes
+        self.core_recipes = core_recipes(item_attributes)
+        self.core_recipe_catalog = dict(status='complete_core_components',
+                                        pair_count=len(self.core_recipes),
+                                        source_release_sha256=release_manifest['release_sha256'],
+                                        tft_patch=knowledge['tft_patch'],
+                                        effects_validated=False)
         trait_rows = json.loads(traits_bytes)['traits']
         self.trait_names = {trait['name']: trait['name'] for trait in trait_rows}
         trait_ids = {trait['api_name']: trait['name'] for trait in trait_rows}
@@ -77,7 +88,7 @@ class BoardHubLive:
         available_selected = [entry for entry in selected if (self.icons / entry['icon']).is_file()]
         self.missing_item_icons = len(missing)
         self.interval_ms = profile['sample_interval_ms']
-        if type(self.interval_ms) is not int or not 1000 <= self.interval_ms <= 30000:
+        if type(self.interval_ms) is not int or not 250 <= self.interval_ms <= 30000:
             raise ValueError('Invalid live board hub interval')
         self.scope = catalog['match_scope']
         def config(name):
@@ -87,8 +98,9 @@ class BoardHubLive:
             'cyber-arena-reserves-v1.json',
             'red-arena-reserves-v1.json',
             'pond-arena-reserves-v1.json')]
-        from .arena_registration import ArenaRegistrar
+        from .arena_registration import ArenaRegistrar, AsyncArenaRegistrar
         self.arena_registrar = ArenaRegistrar(root, self.reserve_profiles)
+        self.async_arena_registrar = AsyncArenaRegistrar(self.arena_registrar)
         self.active_arena_profile = None
         self.position = config('match001-bar-to-cell-candidates-v1.json')
         self.equipped = config('match001-equipped-icons-v1.json')
@@ -140,21 +152,33 @@ class BoardHubLive:
             previous = next((row for row in proposals
                              if row['profile'] == self.active_arena_profile and
                              row['status'] == 'arena_candidate_match'), None)
-            registered = None if previous else self.arena_registrar.observe(image)
+            context = hud_context or {}
+            gameplay_evidence = bool(read['markers'] or
+                                     any(context.get(key) is not None
+                                         for key in ('stage', 'level', 'gold')))
+            registered = self.async_arena_registrar.observe(
+                image, epoch=getattr(canonical_frame, 'epoch', 0),
+                source_ms=canonical_frame.pts_ms,
+                eligible=(previous is None and gameplay_evidence and
+                          context.get('stage') is None))
             reserve_calibration = choose_calibration(
                 proposals, registered, self.active_arena_profile,
                 registration_available=self.arena_registrar.cv2 is not None)
             if reserve_calibration['status'] == 'arena_candidate_match':
                 self.active_arena_profile = reserve_calibration['profile']
+            timings['calibration_ms'] = (time.perf_counter_ns()-started)/1e6
+            snapshot_started = time.perf_counter_ns()
             snapshot = build_snapshot(image, read, self.board, self.position, self.equipped,
                                       self.inventory, self.manifest, self.entries, self.icons,
                                       self.scope, inventory_templates=self.inventory_templates,
                                       equipped_templates=self.equipped_templates,
                                       allow_unmatched_arena=True,
                                       selected_entries=self.selected_item_entries,
-                                      include_timings=True)
+                                      include_timings=True,
+                                      trusted_rgb_bytes=canonical_frame.rgb)
             snapshot['reserve_calibration'] = reserve_calibration
-            timings['snapshot_ms'] = (time.perf_counter_ns()-started)/1e6
+            snapshot['core_recipe_catalog'] = self.core_recipe_catalog
+            timings['snapshot_ms'] = (time.perf_counter_ns()-snapshot_started)/1e6
             stage_started = time.perf_counter_ns()
             try:
                 if self.yolo:

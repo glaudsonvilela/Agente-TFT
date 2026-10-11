@@ -21,7 +21,8 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
                    equipped_templates: tuple[TemplateBank, int] | None = None,
                    allow_unmatched_arena: bool = False,
                    selected_entries: list[dict] | None = None,
-                   include_timings: bool = False) -> dict:
+                   include_timings: bool = False,
+                   trusted_rgb_bytes: bytes | None = None) -> dict:
     if recording_context is not None:
         if (recording_context.get("schema_version") != 1 or
                 recording_context.get("set_key") != manifest["set_key"] or
@@ -30,7 +31,7 @@ def build_snapshot(image, read: dict, board: dict, position_profile: dict,
     started = time.perf_counter_ns()
     positions = project(read, position_profile, board,
                         allow_unmatched_arena=allow_unmatched_arena)
-    prepared = PreparedFrame.from_image(image)
+    prepared = PreparedFrame.from_image(image, trusted_rgb_bytes)
     prepared_ms = (time.perf_counter_ns() - started) / 1e6
     stage_started = time.perf_counter_ns()
     inventory = inventory_run(image, inventory_profile, manifest, entries, icon_dir, match_scope,

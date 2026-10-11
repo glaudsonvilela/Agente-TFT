@@ -14,6 +14,8 @@ pub struct Situation {
     pub fielded_unit_candidates: Vec<String>,
     pub item_candidates: usize,
     pub opponent_candidates: usize,
+    pub enemy_visible_item_icons: usize,
+    pub enemy_equipped_unit_tracks: usize,
     pub opponent_linked: bool,
     pub board_identity_verified: bool,
     pub last_combat_loss: Option<Value>,
@@ -27,7 +29,10 @@ impl Situation {
             "board_candidates":self.board_candidates,
             "fielded_unit_candidates":self.fielded_unit_candidates,
             "item_candidates":self.item_candidates,"opponent_candidates":self.opponent_candidates,
-            "opponent_linked":self.opponent_linked,"ages_ms":self.ages_ms,
+            "opponent_linked":self.opponent_linked,
+            "enemy_visible_item_icons":self.enemy_visible_item_icons,
+            "enemy_equipped_unit_tracks":self.enemy_equipped_unit_tracks,
+            "ages_ms":self.ages_ms,
             "board_identity_verified":self.board_identity_verified,
             "last_combat_loss":self.last_combat_loss})
     }
@@ -177,16 +182,24 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
         Value::is_array).unwrap_or(Value::Null);
     let opponents = read_field("opponents", 5_000, now, epoch, current, recent, &mut ages_ms,
         Value::is_object).unwrap_or(Value::Null);
+    let enemy_equipment = read_field("enemy_equipment", 1_000, now, epoch, current, recent,
+        &mut ages_ms, |v| v["status"] == "observed_minimum")
+        .unwrap_or(Value::Null);
     let board_candidates = board.as_array().map_or(0, Vec::len);
     let item_candidates = inventory.as_array().map_or(0, Vec::len) +
         equipped.as_array().map_or(0, Vec::len);
     let opponent_candidates = opponents["players"].as_array().map_or(0, Vec::len);
+    let enemy_visible_item_icons = enemy_equipment["visible_item_icons"].as_u64()
+        .map_or(0, |value| value.min(30) as usize);
+    let enemy_equipped_unit_tracks = enemy_equipment["equipped_unit_tracks"].as_u64()
+        .map_or(0, |value| value.min(10) as usize);
     let opponent_linked = opponents["opponent_board_assigned"] == true &&
         opponents["current_opponent_status"] == "linked";
     let board_identity_verified = current["board_identity_verified"] == true;
     Situation { stage, gold, hp, level, shop, trait_counts, board_candidates,
         fielded_unit_candidates:fielded.into_iter().collect(), item_candidates,
-        opponent_candidates, opponent_linked, board_identity_verified,
+        opponent_candidates, enemy_visible_item_icons, enemy_equipped_unit_tracks,
+        opponent_linked, board_identity_verified,
         last_combat_loss:last_combat_loss.cloned(), ages_ms }
 }
 
@@ -225,6 +238,18 @@ pub fn pooled_snapshots(pool: &Value, epoch: i64) -> VecDeque<(i64, i64, Value)>
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test]
+    fn enemy_equipment_is_a_bounded_recent_observation() {
+        let recent = VecDeque::from([(1000, 0, json!({"enemy_equipment":{
+            "status":"observed_minimum","visible_item_icons":2,
+            "equipped_unit_tracks":1,"sampled_red_bars":4}}))]);
+        let current = json!({});
+        let fresh = integrate(&current, &recent, 0, 1750, None);
+        assert_eq!(fresh.enemy_visible_item_icons, 2);
+        assert_eq!(fresh.enemy_equipped_unit_tracks, 1);
+        assert_eq!(integrate(&current, &recent, 0, 2101, None).enemy_visible_item_icons, 0);
+        assert_eq!(integrate(&current, &recent, 1, 1750, None).enemy_visible_item_icons, 0);
+    }
     #[test]
     fn merges_only_fresh_same_epoch_evidence_and_keeps_candidates_unverified() {
         let recent = VecDeque::from([(1000, 0, json!({"stage":"3-2","gold":34,"hp":71,

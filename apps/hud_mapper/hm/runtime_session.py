@@ -488,6 +488,13 @@ class RuntimeSession(Session):
                             if frame.pts_ms >= visual_entry['source_ms'] and age_ms <= 3500:
                                 visual_candidates = visual_entry['candidates']
                                 visual_candidates['age_ms'] = age_ms
+                        with self.lock:
+                            fast_items = copy.deepcopy(self.latest_fast_items)
+                        if (isinstance(fast_items, dict) and fast_items.get('epoch') == frame.epoch
+                                and fast_items.get('status') == 'observed'
+                                and 0 <= frame.pts_ms - fast_items.get('source_ms', -1) <= 1000):
+                            visual_candidates = visual_candidates or {}
+                            visual_candidates['enemy_equipment'] = fast_items.get('enemy_equipment_macro')
                         answer = decision_engine.evaluate(answer, strategy_state=strategy_state,
                                                           visual_candidates=visual_candidates)
                         stage_rows = [row for row in answer.get('hud') or []
@@ -526,7 +533,7 @@ class RuntimeSession(Session):
                     and isinstance(row.get('confidence'), (int, float))
                     and row['confidence'] >= .85}
                 hud_context = {}
-                for field in ('stage', 'level'):
+                for field in ('stage', 'level', 'gold'):
                     rows = [row for row in answer.get('hud') or []
                             if row.get('field') == field and
                             row.get('status') == 'single_frame_observation' and
@@ -536,7 +543,7 @@ class RuntimeSession(Session):
                         value = rows[0].get('value')
                         if field == 'stage' and isinstance(value, str):
                             hud_context[field] = value
-                        elif field == 'level' and (type(value) is int or
+                        elif field in ('level', 'gold') and (type(value) is int or
                                 isinstance(value, str) and value.isdigit()):
                             hud_context[field] = int(value)
                 with self.lock:
@@ -724,7 +731,7 @@ class HM4RuntimeSession(RuntimeSession):
         )
         profile = json.loads((Path(options.configs) / 'ui/board-hub-live-v1.json').read_text())
         self.hub_interval_ms = profile['sample_interval_ms']
-        if type(self.hub_interval_ms) is not int or not 1000 <= self.hub_interval_ms < 2000:
+        if type(self.hub_interval_ms) is not int or not 250 <= self.hub_interval_ms < 2000:
             raise ValueError('Board cadence must fit the 2000 ms strategic freshness budget')
         self.board_reference_requested = threading.Event()
         self._terminal_hp_confirmations = 0
@@ -735,12 +742,29 @@ class HM4RuntimeSession(RuntimeSession):
         self.latest_live_diagnostic = None
         self.latest_hub_diagnostic = None
         self.latest_fast_diagnostic = None
+        self.latest_fast_items = None
+        # A short source-time history lets the display align independent
+        # preview and analysis decoders without reusing a future observation.
+        self.fast_items_history = deque(maxlen=12)
         self.fast_pending = Latest() if self.ubuntu_mvp_diagnostics else None
+        self.fast_item_pending = Latest() if self.ubuntu_mvp_diagnostics else None
         self.shop_pending = Latest() if self.ubuntu_mvp_diagnostics else None
         self._latest_shop = None
         self._last_shop_submission = None
         self._latest_strategy_state = None
         self._latest_visual_candidates = None
+        trait_model = Path(os.environ.get('AGENTE_TFT_TRAIT_MODEL_DIR',
+            '/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/experiments/'
+            'trait-icon-recognition-20261011/model'))
+        self.trait_pending = (Latest() if options.board_hub_enabled and
+                              (trait_model / 'index.json').is_file() and
+                              (trait_model / 'portraits.npz').is_file() else None)
+        self.trait_model_dir = trait_model if self.trait_pending is not None else None
+        self.latest_trait_tooltip = None
+        self.latest_trait_tooltip_named = None
+        self.panel_pending = Latest() if options.board_hub_enabled else None
+        self.latest_selected_unit_panel = None
+        self.latest_selected_unit_panel_named = None
         self.decision_engine = None
         if options.board_hub_enabled:
             from .replay_decision import ReplayDecisionEngine
@@ -820,6 +844,16 @@ class HM4RuntimeSession(RuntimeSession):
         self.board_reference_requested.set()
 
     def submit_hub_frame(self, frame):
+        if self.panel_pending is not None and hub_due(
+                getattr(self, '_last_panel_submission', None), frame, 125):
+            self._last_panel_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.panel_pending.put(frame)
+            self.counts['selected_panel_submitted'] += 1
+        if self.trait_pending is not None and hub_due(
+                getattr(self, '_last_trait_submission', None), frame, 100):
+            self._last_trait_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.trait_pending.put(frame)
+            self.counts['trait_tooltip_submitted'] += 1
         if self.shop_pending is not None and hub_due(
                 self._last_shop_submission, frame, 2000):
             self._last_shop_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
@@ -830,10 +864,80 @@ class HM4RuntimeSession(RuntimeSession):
             self._last_fast_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
             self.fast_pending.put(frame)
             self.counts['fast_marker_submitted'] += 1
+        if self.fast_item_pending is not None and hub_due(
+                getattr(self, '_last_fast_item_submission', None), frame, 200):
+            self._last_fast_item_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.fast_item_pending.put(frame)
+            self.counts['fast_item_submitted'] += 1
         if hub_due(getattr(self, '_last_hub_submission', None), frame, self.hub_interval_ms):
             self._last_hub_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
             self.hub_pending.put(frame)
             self.counts['hub_submitted'] += 1
+
+    def _trait_tooltip_loop(self):
+        """Observe only complete 1080p trait panels off the capture/reader lanes."""
+        from .trait_tooltip_session import TraitTooltipSession
+        try:
+            reader = TraitTooltipSession(self.trait_model_dir, min_interval_ms=90)
+            while not self.cancel.is_set():
+                try:
+                    frame = self.trait_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                if (frame.width, frame.height) != CANONICAL_READER_SIZE:
+                    self.counts['trait_tooltip_resolution_skipped'] += 1
+                    continue
+                image = Image.frombytes('RGB', CANONICAL_READER_SIZE, frame.rgb)
+                observation = reader.observe(image, round(frame.pts_ms))
+                if observation['status'] == 'cadence_skip':
+                    continue
+                observation.update(frame_id=frame.id, epoch=frame.epoch,
+                                   source_size=[frame.width, frame.height],
+                                   ground_truth=False, visual_candidates_not_training_labels=True,
+                                   source_to_result_ms=round(
+                                       (time.perf_counter_ns() - frame.due_ns) / 1e6, 2))
+                with self.lock:
+                    self.latest_trait_tooltip = copy.deepcopy(observation)
+                    if observation['status'] == 'active_portraits_named':
+                        self.latest_trait_tooltip_named = copy.deepcopy(observation)
+                if observation['status'] in ('active_portraits_named', 'insufficient_visual_evidence'):
+                    self.store.emit('trait-tooltip-observations', observation)
+                    self.counts['trait_tooltip_results'] += 1
+        except Exception as exc:
+            self.versions['trait_tooltip_error'] = str(exc)
+            self.counts['trait_tooltip_errors'] += 1
+
+    def _selected_panel_loop(self):
+        """Capture selected-unit name and portrait off the HUD/preview lanes."""
+        from .selected_unit_panel import SelectedUnitPanelReader
+        try:
+            reader = SelectedUnitPanelReader(self.options.configs, self.options.output,
+                                              tesseract=self.options.tesseract)
+            while not self.cancel.is_set():
+                try:
+                    frame = self.panel_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                observation = reader.observe(frame.rgb, frame.width, frame.height,
+                                             frame_id=frame.id, source_ms=frame.pts_ms,
+                                             epoch=frame.epoch)
+                if observation is None:
+                    continue
+                observation['source_to_result_ms'] = round(
+                    (time.perf_counter_ns() - frame.due_ns) / 1e6, 2)
+                with self.lock:
+                    self.latest_selected_unit_panel = copy.deepcopy(observation)
+                    if observation.get('status') == 'selected_unit_named':
+                        self.latest_selected_unit_panel_named = copy.deepcopy(observation)
+                self.store.emit('selected-unit-panel-observations', observation)
+                self.counts['selected_panel_results'] += 1
+        except Exception as exc:
+            self.versions['selected_panel_error'] = f'{type(exc).__name__}: {exc}'
+            self.counts['selected_panel_errors'] += 1
 
     def _shop_loop(self):
         """Keep expensive shop text OCR out of the HUD/decision reader lane."""
@@ -919,6 +1023,7 @@ class HM4RuntimeSession(RuntimeSession):
                         body_box = None
                     regions.append(dict(id=f"track.{marker['track_id']}",
                         box=[x, y, x+w, y+h], color=marker['color'],
+                        scan_zone=marker.get('scan_zone', 'arena'),
                         avatar_box=body_box,
                         avatar_region_status='bar_anchored_proposal' if body_box else None,
                         track_id=marker['track_id'],
@@ -936,11 +1041,14 @@ class HM4RuntimeSession(RuntimeSession):
                             epoch=frame.epoch, value=player_hp['value'],
                             source_frame_id=player_hp['source_frame_id'],
                             source_ms=player_hp['source_ms'])
+                from .streak_hud import observe_streak
+                streak = observe_streak(reader_frame.rgb, reader_frame.width,
+                                        reader_frame.height)
                 finished = time.perf_counter_ns()
                 self.latest_fast_diagnostic = dict(
                     status='observed', frame_id=frame.id, source_ms=frame.pts_ms,
                     epoch=frame.epoch, image_size=[frame.width, frame.height],
-                    markers=regions, player_hp=player_hp,
+                    markers=regions, player_hp=player_hp, streak=streak,
                     worker_ms=answer.get('native_ms'),
                     normalize_ms=normalize_ms,
                     processing_ms=(finished-started)/1e6,
@@ -958,6 +1066,38 @@ class HM4RuntimeSession(RuntimeSession):
         finally:
             if worker:
                 worker.close()
+
+    def _fast_item_loop(self):
+        from .fast_item_reader import FastItemReader
+        try:
+            reader = FastItemReader(self.options.configs)
+            while not self.cancel.is_set():
+                try:
+                    frame = self.fast_item_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                if (time.perf_counter_ns() - frame.due_ns) / 1e6 > 1000:
+                    self.counts['fast_item_stale_input_dropped'] += 1
+                    continue
+                with self.lock:
+                    marker_read = self.latest_fast_diagnostic
+                marker_age = (frame.pts_ms - marker_read.get('source_ms', -1)
+                              if isinstance(marker_read, dict) else float('inf'))
+                markers = (marker_read.get('markers', [])
+                           if isinstance(marker_read, dict) and
+                           marker_read.get('epoch') == frame.epoch and
+                           0 <= marker_age <= 400 else [])
+                result = reader.observe(frame, markers=markers)
+                with self.lock:
+                    self.latest_fast_items = result
+                    self.fast_items_history.append(result)
+                self.store.emit('fast-item-observations', result)
+                self.counts['fast_item_results'] += 1
+        except Exception as exc:
+            self.latest_fast_items = dict(status='unavailable', error=str(exc), slots=[])
+            self.counts['fast_item_errors'] += 1
 
     def _hub_loop(self):
         board_worker = None
@@ -990,6 +1130,7 @@ class HM4RuntimeSession(RuntimeSession):
                                            tesseract=self.options.tesseract)
             self.versions['board_hub_reference_sha256'] = observer.manifest['reference_sha256']
             self.versions['board_hub_set_key'] = observer.manifest['set_key']
+            self.versions['core_recipe_catalog'] = getattr(observer, 'core_recipe_catalog', None)
             self.versions['board_hub_mode'] = ('replay_screen_candidate_only' if self.options.replay_review
                                                else 'live_screen_candidate_only')
             self.versions['board_hub_interval_ms'] = self.hub_interval_ms
@@ -1086,7 +1227,19 @@ class HM4RuntimeSession(RuntimeSession):
                 with self.lock:
                     stage_read = self._latest_native_stage
                 stage_for_opponents = (stage_read[0] if stage_read and stage_read[1] == frame.epoch
-                                       and stage_read[2] <= frame.pts_ms else None)
+                                       and 0 <= frame.pts_ms - stage_read[2] <= 2000 else None)
+                if (stage_for_opponents and (reader_frame.width, reader_frame.height) ==
+                        CANONICAL_READER_SIZE):
+                    # The stage text confirms normal match framing. The fixed
+                    # screen grid is only a guide: it never verifies a unit,
+                    # occupancy, or ownership and does not depend on arena skin.
+                    from .spatial_calibration import standard_geometry
+                    profile_path = Path(self.options.configs) / 'ui' / 'standard-screen-grid-v1.json'
+                    if profile_path.is_file():
+                        profile = json.loads(profile_path.read_text(encoding='utf-8'))
+                        observed['snapshot']['reserve_calibration'] = standard_geometry(
+                            profile, resolution=CANONICAL_READER_SIZE,
+                            screen_layout_confirmed=True)
                 opponent_state = self.opponent_tracker.update(
                     observed['snapshot'].get('opponent_panel_observation'),
                     epoch=frame.epoch, source_ms=frame.pts_ms, stage=stage_for_opponents)
@@ -1098,7 +1251,8 @@ class HM4RuntimeSession(RuntimeSession):
                     observed['snapshot'].get('bench_slots'), opponent_state,
                     source_ms=frame.pts_ms,
                     projection_status=observed['snapshot'].get('arena_projection_status'),
-                    reserve_calibration=observed['snapshot'].get('reserve_calibration'))
+                    reserve_calibration=observed['snapshot'].get('reserve_calibration'),
+                    neural_units=observed['snapshot'].get('neural_units'))
                 observed['snapshot']['spatial_map'] = spatial
                 self.versions['spatial_map'] = spatial
                 with self.lock:
@@ -1130,8 +1284,10 @@ class HM4RuntimeSession(RuntimeSession):
                 shop_math = observed['snapshot'].get('shop_probability') or {}
                 self.versions['shop_math'] = {
                     key: shop_math.get(key) for key in
-                    ('status', 'level', 'stage', 'patch', 'assumption',
-                     'actual_probability_known')}
+                    ('status', 'level', 'stage', 'patch', 'set_key', 'assumption',
+                     'actual_probability_known', 'formula', 'probabilities',
+                     'confirmed_holding_copies')}
+                self.versions['shop_math']['source_ms'] = frame.pts_ms
                 neural_units = observed['snapshot'].get('neural_units') or {}
                 self.versions['unit_neural_active'] = neural_units.get('active', False)
                 self.versions['unit_neural_model_sha256'] = neural_units.get('model_sha256')

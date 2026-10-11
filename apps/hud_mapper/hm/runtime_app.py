@@ -35,7 +35,11 @@ def runtime_paths():
     os.environ["AGENTE_TFT_RESIDENT_OCR"]="required"
     bundled=root/"bin"/("agente-tft-e1-worker"+exe)
     native=root/"tools/e1-native/target/release"/("agente-tft-e1-worker"+exe)
-    worker=bundled if bundled.is_file() else native
+    cargo_target=os.environ.get("CARGO_TARGET_DIR")
+    cargo_worker=(Path(cargo_target)/"release"/("agente-tft-e1-worker"+exe)
+                  if cargo_target else None)
+    worker=(bundled if bundled.is_file() else cargo_worker
+            if cargo_worker and cargo_worker.is_file() else native)
     os.environ.setdefault("OMP_THREAD_LIMIT","1")
     # Small item-gallery dot products run faster without a BLAS worker pool;
     # this also keeps the video preview responsive on modest PCs.
@@ -645,7 +649,10 @@ class App:
           source_frames=s.counts["source_frames"],mapped=s.counts["mapped_frames"],reader_results=s.counts["read_frames"],
           reader_native_runs=s.counts["reader_native_runs"],reader_exact_cache_hits=s.counts["reader_exact_cache_hits"],
           resolution_skipped=s.counts["reader_resolution_skipped"],
-          queues=dict(map_replaced=s.map_pending.replaced,reader_replaced=s.native_pending.replaced,hp_replaced=s.hp_pending.replaced,preview_replaced=s.preview.replaced),
+          queues=dict(map_replaced=s.map_pending.replaced,reader_replaced=s.native_pending.replaced,
+                      hp_replaced=s.hp_pending.replaced,
+                      preview_replaced=getattr(s.preview, 'replaced',
+                                               getattr(s.source, 'preview_replaced', 0))),
           neural=dict(inference_p50_ms=pct([x["inference_ms"] for x in maps],.5),inference_p95_ms=pct([x["inference_ms"] for x in maps],.95),
                       source_to_map_p95_ms=pct([x["total_ms"] for x in maps],.95)),
           readers=dict(source_to_reader_p50_ms=pct([x["total_ms"] for x in reads],.5),source_to_reader_p95_ms=pct([x["total_ms"] for x in reads],.95),

@@ -63,6 +63,26 @@ class Contracts(unittest.TestCase):
             r=s.finish();self.assertEqual(r['counts']['source_frames'],4);self.assertGreater(r['counts'].get('reader_pending_superseded',0),0)
 
 class Media(unittest.TestCase):
+    def test_preview_starts_with_analysis_clock(self):
+        import shutil,subprocess
+        if not shutil.which('ffmpeg') or not shutil.which('ffprobe'):self.skipTest('FFmpeg unavailable')
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)/'closed.mkv'
+            subprocess.run(['ffmpeg','-v','error','-f','lavfi','-i',
+                            'color=red:s=160x90:r=10:d=1','-c:v','ffv1',str(p)],check=True)
+            src=VideoSource(p,fps=5,preview_hz=10,preview_size=(160,90))
+            try:
+                self.assertIsNone(src.preview_proc)
+                stream=src.frames(threading.Event(),1)
+                first=next(stream)
+                self.assertEqual(first.pts_ms,0)
+                self.assertIsNotNone(src.preview_proc)
+                deadline=time.monotonic()+2
+                while src.preview_received == 0 and time.monotonic()<deadline:time.sleep(.01)
+                self.assertGreater(src.preview_received,0)
+                self.assertTrue(src.preview_frames.get(timeout=.2).jpeg.startswith(b'\xff\xd8'))
+            finally:src.close()
+
     def test_real_ffmpeg_pts_and_rgb(self):
         import shutil,subprocess
         if not shutil.which('ffmpeg') or not shutil.which('ffprobe'):self.skipTest('FFmpeg unavailable')

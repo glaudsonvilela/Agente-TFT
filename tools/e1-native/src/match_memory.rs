@@ -388,7 +388,7 @@ impl MatchMemory {
                 observation["gold"].as_i64(), observation["hp"].as_i64(), serialized,
                 key, kind, score]).map_err(|e| e.to_string())?;
         for field in ["stage", "gold", "hp", "level", "xp", "shop", "board",
-            "inventory", "equipped", "opponents"] {
+            "inventory", "equipped", "opponents", "enemy_equipment"] {
             let value = &observation[field];
             let present = match field {
                 "shop" => observation["shop_fresh"] == true &&
@@ -397,6 +397,7 @@ impl MatchMemory {
                     value.as_array().is_some_and(|rows| !rows.is_empty()),
                 "opponents" => value["players"].as_array()
                     .is_some_and(|rows| !rows.is_empty()),
+                "enemy_equipment" => value["status"] == "observed_minimum",
                 _ => !value.is_null(),
             };
             if present {

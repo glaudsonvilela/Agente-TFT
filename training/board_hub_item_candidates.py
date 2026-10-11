@@ -143,7 +143,18 @@ def rank_patch_groups(groups: list[list], templates: TemplateBank) -> list[list[
         np.stack([patch.reshape(-1) for patch in patches])
         for patches, _, _ in missing]).astype(np.float64)
     norms = np.einsum('ij,ij->i', observed, observed)
-    squared = norms[:, None] + templates.squared_norms[None, :] - 2 * observed @ templates.matrix.T
+    # The Ubuntu NumPy package may use reference BLAS: this small, repeated
+    # matrix product then dominates the full board pass. OpenCV's native GEMM
+    # uses the same float64 inputs and avoids a Python loop over artworks.
+    # Keep the NumPy path for installations without OpenCV.
+    try:
+        import cv2
+    except ImportError:
+        dot = observed @ templates.matrix.T
+    else:
+        dot = cv2.gemm(observed, templates.matrix, 1, None, 0,
+                       flags=cv2.GEMM_2_T)
+    squared = norms[:, None] + templates.squared_norms[None, :] - 2 * dot
     start = 0
     for patches, key, positions in missing:
         group_scores = squared[start:start + len(patches)]
@@ -175,6 +186,14 @@ def rank_patches(patches: list, templates: TemplateBank) -> list[dict]:
 def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
     if not templates:
         return []
+    patches, rects = slot_patches(frame, rect)
+    ranked = rank_patches(patches, templates)
+    for row in ranked:
+        row["sample_rect"] = rects[row.pop("sample_index")]
+    return ranked
+
+
+def slot_patches(frame, rect: dict) -> tuple[list, list[dict]]:
     patches = []
     rects = []
     y = rect["y"]
@@ -185,10 +204,7 @@ def rank_slot(frame, rect: dict, templates: TemplateBank) -> list[dict]:
                 continue
             patches.append(patch)
             rects.append({"x": x0, "y": y0, "width": 28, "height": 28})
-    ranked = rank_patches(patches, templates)
-    for row in ranked:
-        row["sample_rect"] = rects[row.pop("sample_index")]
-    return ranked
+    return patches, rects
 
 
 def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Path,
@@ -204,10 +220,13 @@ def run(image, profile: dict, manifest: dict, entries: list[dict], icon_dir: Pat
     # Keep the full frame byte-sized; only tiny candidate patches need floats.
     frame = prepared.array
     rows = []
-    for slot in inventory["slots"]:
-        if slot["status"] != "icon_candidate":
-            continue
-        candidates = rank_slot(frame, slot["rect"], templates)
+    candidate_slots = [slot for slot in inventory["slots"]
+                       if slot["status"] == "icon_candidate"]
+    searches = [slot_patches(frame, slot["rect"]) for slot in candidate_slots]
+    rankings = rank_patch_groups([patches for patches, _ in searches], templates)
+    for slot, (_, rects), candidates in zip(candidate_slots, searches, rankings):
+        for candidate in candidates:
+            candidate["sample_rect"] = rects[candidate.pop("sample_index")]
         rows.append({"slot": slot["slot"], "status": "candidate_only" if available == len(selected)
                      else "incomplete_catalog", "candidates": candidates,
                      "margin_to_second": round(candidates[1]["rms"] - candidates[0]["rms"], 3)

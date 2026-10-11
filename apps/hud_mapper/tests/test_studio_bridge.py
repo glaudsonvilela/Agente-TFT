@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import queue
 import socket
 import threading
 import time
@@ -115,6 +116,37 @@ class StudioBridgeTests(unittest.TestCase):
             self.assertEqual(events[0][1]['native_preview_received'], 12)
             self.assertEqual(events[0][1]['native_preview_queue_replaced'], 2)
             self.assertGreater(controller.preview_sequence, 0)
+        finally:
+            controller.closed.set()
+            worker.join(1)
+
+    def test_preview_pump_moves_to_next_replay_after_empty_queue(self):
+        first = SimpleNamespace(finished=False, preview=queue.Queue())
+        second = SimpleNamespace(finished=False, preview=queue.Queue())
+        controller = object.__new__(StudioController)
+        controller.lock = threading.RLock()
+        controller.session = first
+        controller.closed = threading.Event()
+        controller.preview_condition = threading.Condition()
+        controller.preview_jpeg = None
+        controller.preview_sequence = 0
+        controller.preview_times = deque(maxlen=90)
+        controller.preview_encode_ms = deque(maxlen=90)
+        controller.next_preview_telemetry = 0.0
+        controller.last_error = None
+        worker = threading.Thread(target=controller._preview_pump, daemon=True)
+        worker.start()
+        try:
+            time.sleep(.06)
+            first.finished = True
+            with controller.lock:
+                controller.session = second
+            second.preview.put(SimpleNamespace(jpeg=b'jpeg', pts_ms=100))
+            deadline = time.monotonic() + 1
+            while controller.preview_sequence == 0 and time.monotonic() < deadline:
+                time.sleep(.005)
+            self.assertEqual(controller.preview_jpeg, b'jpeg')
+            self.assertIsNone(controller.last_error)
         finally:
             controller.closed.set()
             worker.join(1)

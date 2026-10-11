@@ -410,6 +410,7 @@ class HM4RuntimeTests(unittest.TestCase):
                 board_hub_enabled=True,replay_review=True))
             try:
                 self.assertEqual(session.shadow_learning_recorder.interval_ms,5000)
+                self.assertEqual(session.hub_interval_ms, 500)
                 session.latest_replay_tip={
                     'policy':'partial_state_live_v1','decision_key':'provisional:replay-test',
                     'family':'level','frame_id':2,'source_ms':5000}

@@ -37,6 +37,7 @@ dialog{color:var(--text);background:linear-gradient(140deg,#2c283e,#1d1e2b);bord
 /* Connected shell: same design tokens, real capture surface. */
 .live-preview{position:relative;display:grid;place-items:center;min-height:390px;background:#090b13;overflow:hidden}
 .live-preview canvas{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;position:relative;z-index:2}
+.live-preview:not(.yolo-analysis-ready) canvas{visibility:hidden}
 .live-preview #live-preview-overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;pointer-events:none}
 .live-preview-empty{position:absolute;inset:0;display:grid;place-items:center;color:#a7a7bf;font-size:13px;text-align:center;padding:24px}
 .live-preview-empty[hidden]{display:none}
@@ -55,6 +56,14 @@ dialog{color:var(--text);background:linear-gradient(140deg,#2c283e,#1d1e2b);bord
 .live-rank-row.selected{color:#8ae2bd}.live-rank-row small{grid-column:1/-1;color:#929aaa;font-size:9px}
 .live-moves-panel>strong{display:block;font-size:14px;line-height:1.4;color:#fff}.live-move-row{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #ffffff14;padding:7px 0}
 .live-diagnostic-grid .live-footnote{font-size:9px;color:#85899b}
+.terminal-mode .app-shell{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.terminal-mode .titlebar,.terminal-mode .sidebar,.terminal-mode .coach-panel,.terminal-mode .statusbar,.terminal-mode .page-head{display:none}
+.terminal-mode #main{grid-column:1;grid-row:1;max-width:none;width:100%;padding:10px;overflow:auto}
+.terminal-mode .live-inspection-layout{grid-template-columns:minmax(0,1.6fr) minmax(320px,.8fr);gap:8px}
+.terminal-mode .live-diagnostic-grid{display:block}
+.terminal-mode .live-terminal{margin:0;min-height:390px;max-height:calc(100vh - 28px);overflow:auto;padding:14px;border:1px solid #254438;border-radius:8px;background:#07100d;color:#a8f0c7;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.terminal-mode .live-preview{min-height:390px}
+@media(max-width:1050px){.terminal-mode .live-inspection-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:1200px){.live-inspection-layout{grid-template-columns:minmax(0,1fr)}.live-diagnostic-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.live-diagnostic-grid>section{max-height:245px}}
 @media(max-width:700px){.live-diagnostic-grid{grid-template-columns:minmax(0,1fr)}.live-diagnostic-grid>section{max-height:220px}}
 .live-board-empty{min-height:350px;display:grid;place-items:center;color:#c6c0d8;background:#151720;border-radius:18px;text-align:center;padding:24px}

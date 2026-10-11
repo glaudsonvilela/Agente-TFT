@@ -6,6 +6,74 @@ const GRID: usize = 16;
 const CHANNELS: usize = 4;
 const FEATURES: usize = GRID * GRID * CHANNELS;
 
+const MAP_W: usize = 320;
+const MAP_H: usize = 192;
+
+/// Area-filtered RGB downsample directly into the ONNX CHW float input.
+/// This moves the per-frame full-screen resize out of Python. The panel
+/// model remains diagnostic and does not assign champion identities.
+///
+/// # Safety
+/// `pixels` must reference `pixel_len` readable bytes and `out` must reference
+/// `out_len` writable floats for the duration of the call.
+#[no_mangle]
+pub unsafe extern "C" fn tft_map_rgb_to_chw_f32(
+    pixels: *const u8,
+    pixel_len: usize,
+    image_w: usize,
+    image_h: usize,
+    out: *mut f32,
+    out_len: usize,
+) -> i32 {
+    if pixels.is_null() || out.is_null() || image_w < MAP_W || image_h < MAP_H
+        || image_w > 3840 || image_h > 2160
+        || image_w.checked_mul(image_h).and_then(|n| n.checked_mul(3)) != Some(pixel_len)
+        || out_len != 3 * MAP_W * MAP_H
+    {
+        return -1;
+    }
+    let input = slice::from_raw_parts(pixels, pixel_len);
+    let output = slice::from_raw_parts_mut(out, out_len);
+    let span_x = image_w as f32 / MAP_W as f32;
+    let span_y = image_h as f32 / MAP_H as f32;
+    let normalizer = 1.0 / (span_x * span_y * 255.0);
+    let x_weights: Vec<Vec<(usize, f32)>> = (0..MAP_W)
+        .map(|ox| {
+            let left = ox as f32 * span_x;
+            let right = (ox + 1) as f32 * span_x;
+            (left.floor() as usize..(right.ceil() as usize).min(image_w))
+                .filter_map(|x| {
+                    let weight = right.min((x + 1) as f32) - left.max(x as f32);
+                    (weight > 0.0).then_some((x, weight))
+                })
+                .collect()
+        })
+        .collect();
+    for oy in 0..MAP_H {
+        let top = oy as f32 * span_y;
+        let bottom = (oy + 1) as f32 * span_y;
+        for ox in 0..MAP_W {
+            let mut sums = [0.0f32; 3];
+            for y in top.floor() as usize..(bottom.ceil() as usize).min(image_h) {
+                let wy = bottom.min((y + 1) as f32) - top.max(y as f32);
+                if wy <= 0.0 { continue; }
+                for &(x, wx) in &x_weights[ox] {
+                    let base = (y * image_w + x) * 3;
+                    let weight = wx * wy;
+                    for channel in 0..3 {
+                        sums[channel] += input[base + channel] as f32 * weight;
+                    }
+                }
+            }
+            let index = oy * MAP_W + ox;
+            for channel in 0..3 {
+                output[channel * MAP_W * MAP_H + index] = sums[channel] * normalizer;
+            }
+        }
+    }
+    0
+}
+
 #[no_mangle]
 pub extern "C" fn tft_item_feature_len() -> usize {
     FEATURES
@@ -170,6 +238,22 @@ pub unsafe extern "C" fn tft_item_rank(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn map_resize_preserves_a_constant_rgb_image() {
+        let width = 640;
+        let height = 384;
+        let pixels = [30_u8, 100, 220].repeat(width * height);
+        let mut output = vec![0.0f32; 3 * MAP_W * MAP_H];
+        let code = unsafe {
+            tft_map_rgb_to_chw_f32(pixels.as_ptr(), pixels.len(), width, height,
+                                   output.as_mut_ptr(), output.len())
+        };
+        assert_eq!(code, 0);
+        for (channel, value) in [30.0 / 255.0, 100.0 / 255.0, 220.0 / 255.0].iter().enumerate() {
+            assert!((output[channel * MAP_W * MAP_H + 2000] - value).abs() < 1e-5);
+        }
+    }
 
     #[test]
     fn brightness_offset_keeps_structure() {

@@ -7,6 +7,55 @@ from __future__ import annotations
 
 from pathlib import Path
 import math
+import threading
+
+
+class AsyncArenaRegistrar:
+    """Run one bounded arena search off the board observation path.
+
+    A registration belongs only to its source epoch and nearby video time.
+    Unmatched arenas are sampled sparsely instead of running ORB every frame.
+    """
+
+    def __init__(self, registrar, interval_ms: float = 5000):
+        self.registrar = registrar
+        self.interval_ms = interval_ms
+        self._lock = threading.Lock()
+        self._pending = False
+        self._completed = None
+        self._last_submission = None
+
+    def observe(self, image, *, epoch: int, source_ms: float, eligible: bool):
+        with self._lock:
+            completed, self._completed = self._completed, None
+            pending = self._pending
+            last = self._last_submission
+        result = None
+        if completed is not None:
+            prior_epoch, prior_ms, candidate = completed
+            if prior_epoch == epoch and 0 <= source_ms - prior_ms <= 3000:
+                result = candidate
+        due = (last is None or last[0] != epoch or source_ms < last[1] or
+               source_ms - last[1] >= self.interval_ms)
+        if eligible and not pending and due and self.registrar.cv2 is not None:
+            source = image.copy()
+            with self._lock:
+                self._pending = True
+                self._last_submission = (epoch, source_ms)
+
+            def work():
+                try:
+                    candidate = self.registrar.observe(source)
+                except Exception:
+                    candidate = None
+                finally:
+                    source.close()
+                with self._lock:
+                    self._completed = (epoch, source_ms, candidate)
+                    self._pending = False
+
+            threading.Thread(target=work, name='tft-arena-registration', daemon=True).start()
+        return result
 
 
 class ArenaRegistrar:

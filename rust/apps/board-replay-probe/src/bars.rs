@@ -12,7 +12,10 @@ pub struct BarPolicy {
     /// Experimental dense health-bar ticks; disabled in existing profiles.
     #[serde(default)]
     pub allow_dense_ticks: bool,
+    #[serde(default = "default_edge_tolerance")]
+    pub edge_tolerance: u32,
 }
+fn default_edge_tolerance() -> u32 { 3 }
 impl BarPolicy {
     pub fn validate(&self)->Result<(),String> {
         if self.min_width<8 || self.min_width>self.max_width || self.max_width>128
@@ -20,7 +23,8 @@ impl BarPolicy {
             || !self.min_fill_fraction.is_finite() || !(0.75..=1.0).contains(&self.min_fill_fraction)
             || !self.min_border_fraction.is_finite() || !(0.75..=1.0).contains(&self.min_border_fraction)
             || self.dark_max>100 || self.min_channel<60 || self.green_margin<15 || self.red_margin<15
-            || self.max_runs==0 || self.max_runs>8192 || self.max_candidates==0 || self.max_candidates>128 {
+            || self.max_runs==0 || self.max_runs>8192 || self.max_candidates==0 || self.max_candidates>128
+            || self.edge_tolerance>16 {
             return Err("invalid bar detector limits".into());
         }
         Ok(())
@@ -67,8 +71,8 @@ fn extend_rows(frame:&FrameEnvelope,scan:Rect,c:&BarPolicy,red:bool,y:u32,xs:&[u
     let mut next=Vec::new();
     for run in runs {
         let compatible:Vec<usize>=state.active.iter().copied().filter(|&j|{
-            let g=state.groups[j];g.y+g.height==y && g.x.abs_diff(run.x)<=3
-                && (g.x+g.width).abs_diff(run.x+run.width)<=3 && !next.contains(&j)
+            let g=state.groups[j];g.y+g.height==y && g.x.abs_diff(run.x)<=c.edge_tolerance
+                && (g.x+g.width).abs_diff(run.x+run.width)<=c.edge_tolerance && !next.contains(&j)
         }).collect();
         if compatible.len()==1 {
             let j=compatible[0];let g=&mut state.groups[j];let end=(g.x+g.width).max(run.x+run.width);

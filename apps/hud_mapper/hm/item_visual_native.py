@@ -22,6 +22,9 @@ class ItemVisualNative:
             root / 'tools/hm-item-native/target/release' / name,
             root / 'tools/hm-item-native/target/debug' / name,
         ]
+        cargo_target = os.environ.get('CARGO_TARGET_DIR')
+        if cargo_target:
+            paths.append(Path(cargo_target) / 'release' / name)
         path = next((p for p in paths if p and p.is_file()), None)
         if path is None:
             raise OSError('Native item matcher is not installed')

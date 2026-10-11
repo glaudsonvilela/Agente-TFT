@@ -70,7 +70,7 @@ class Options:
         # for post-match learning.
         if not 1<=self.seconds<=7200 or not .2<=self.map_hz<=15 or not .1<=self.reader_hz<=5 or not .1<=self.sample_hz<=2:
             raise ValueError('Duração/frequência fora dos limites.')
-        if not 5<=self.preview_hz<=30:
+        if not 5<=self.preview_hz<=40:
             raise ValueError('Frequência de prévia fora dos limites.')
         if not 160<=self.preview_width<=1280 or not 90<=self.preview_height<=720:
             raise ValueError('Dimensões da prévia fora dos limites.')
@@ -179,8 +179,14 @@ class Session:
                 targets.append(self._hub_loop)
                 if getattr(self, 'fast_pending', None) is not None:
                     targets.append(self._fast_marker_loop)
+                if getattr(self, 'fast_item_pending', None) is not None:
+                    targets.append(self._fast_item_loop)
                 if getattr(self, 'shop_pending', None) is not None:
                     targets.append(self._shop_loop)
+                if getattr(self, 'trait_pending', None) is not None:
+                    targets.append(self._trait_tooltip_loop)
+                if getattr(self, 'panel_pending', None) is not None:
+                    targets.append(self._selected_panel_loop)
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'
@@ -194,7 +200,7 @@ class Session:
                 self.counts['source_frames']+=1
                 self._source_frame_observed(f)
                 if getattr(self.source, 'preview_frames', None) is None:self.preview.put(f)
-                if not o.vm_core or f.due_ns>=next_source_telemetry:
+                if f.due_ns>=next_source_telemetry:
                     next_source_telemetry=f.due_ns+1_000_000_000
                     self.store.emit('telemetry',dict(event='source',frame_id=f.id,source_ms=f.pts_ms,
                        due_ns=f.due_ns,ready_ns=f.ready_ns,source_late_ms=(f.ready_ns-f.due_ns)/1e6,
@@ -314,7 +320,9 @@ class Session:
            timing_scope='most_recent_4096_events_full_events_in_bounded_jsonl_logs',
            queues=dict(mapper_replaced=self.map_pending.replaced,native_replaced=self.native_pending.replaced,hp_replaced=self.hp_pending.replaced,
                        hub_replaced=self.hub_pending.replaced,hub_ui_replaced=self.hub_results.replaced,
-                       preview_replaced=self.preview.replaced,map_ui_replaced=self.map_results.replaced,
+                       preview_replaced=getattr(self.preview, 'replaced',
+                                                getattr(self.source, 'preview_replaced', 0)),
+                       map_ui_replaced=self.map_results.replaced,
                        reader_ui_replaced=self.native_results.replaced),
            coverage=[dict(region=k[0],status=k[1],frames=v) for k,v in sorted(cov)],
            timings=dict(map_source_to_result=stats([x['total_ms'] for x in mapping]),

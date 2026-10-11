@@ -139,6 +139,10 @@ class ReplayDecisionEngine:
                     'catalog_traits', 'trait_breakpoints') if key in row}
                   for row in (shop.get('slots') or [])[:5] if isinstance(row, dict)]
         opponents = visual.get('opponents') or {}
+        equipment = visual.get('enemy_equipment') or {}
+        enemy_equipment = ({key: equipment[key] for key in
+            ('visible_item_icons', 'equipped_unit_tracks', 'sampled_red_bars', 'status')
+            if key in equipment} if equipment.get('status') == 'observed_minimum' else None)
         return dict(stage=hud('stage'), gold=hud('gold'), level=hud('level'), xp=hud('xp'),
             hp=hp,
             shop=offers, shop_fresh=(shop.get('cadence_delivery') or {}).get('fresh') is True,
@@ -146,6 +150,7 @@ class ReplayDecisionEngine:
                 if isinstance(key,str) and type(value) is int and 0 <= value <= 10},
             board=candidates('units', 24), inventory=candidates('inventory', 24),
             equipped=candidates('equipped', 24),
+            enemy_equipment=enemy_equipment,
             board_identity_verified=visual.get('identity_verified') is True,
             opponents=dict(current_opponent=opponents.get('current_opponent'),
                 current_opponent_status=opponents.get('current_opponent_status'),

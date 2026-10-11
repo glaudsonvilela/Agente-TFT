@@ -4,6 +4,25 @@ from __future__ import annotations
 import math
 
 
+def standard_geometry(profile, *, resolution, screen_layout_confirmed=False):
+    """Project the fixed TFT grid without using arena or bench colors.
+
+    The caller must independently confirm the normal full-screen HUD framing;
+    canonical image dimensions alone cannot distinguish a zoomed VOD.
+    """
+    if not screen_layout_confirmed or tuple(resolution) != tuple(profile['resolution']):
+        return dict(status='screen_layout_unconfirmed', profile=profile['id'],
+                    upper=[], lower=[], own_rows=[], enemy_rows=[],
+                    enemy_board_visible=False, owner_verified=False,
+                    training_label=False)
+    return dict(status='standard_screen_geometry', profile=profile['id'],
+                registration='fixed_grid_after_screen_layout_check',
+                upper=profile['upper_reserve'], lower=profile['lower_reserve'],
+                enemy_rows=profile['enemy_board_rows'], own_rows=profile['own_board_rows'],
+                enemy_board_visible=profile['enemy_board_visible'],
+                owner_verified=False, training_label=False)
+
+
 def observe_reserves(image, profile):
     if tuple(image.size) != tuple(profile.get('resolution') or ()):
         return dict(status='wrong_resolution', profile=profile.get('id'), upper=[], lower=[])

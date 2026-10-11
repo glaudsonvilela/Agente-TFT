@@ -42,7 +42,10 @@ class InputPlan:
             if os.name != 'nt':
                 from .linux_capture import LinuxX11CaptureSource
                 CaptureSource = LinuxX11CaptureSource
-            capture_hz=max(o.map_hz,o.reader_hz,o.sample_hz)
+            # Keep the cheap Rust marker lane responsive even when the slower
+            # diagnostic panel model runs at a lower cadence.
+            capture_hz=max(o.map_hz,o.reader_hz,o.sample_hz,
+                           8 if o.board_hub_enabled and os.name != 'nt' else 0)
             self.source = CaptureSource(o.video, o.configs, o.seconds, capture_hz,
                 consent=o.capture_consent, expected=o.capture_expected,
                 log=Path(o.output)/'capture-stderr.log',
@@ -55,8 +58,13 @@ class InputPlan:
                                                    if os.name == 'nt' else None))
         else:
             from e1.source import VideoSource
-            self.source = VideoSource(o.video, o.ffmpeg, o.ffprobe,
-                                      fps=o.preview_hz if o.replay_review else None)
+            self.source = VideoSource(
+                o.video, o.ffmpeg, o.ffprobe,
+                fps=max(o.map_hz, o.reader_hz, o.sample_hz,
+                        8 if o.replay_review and o.board_hub_enabled else 0)
+                    if o.replay_review else None,
+                preview_hz=o.preview_hz if o.replay_review else None,
+                preview_size=(o.preview_width, o.preview_height))
         return self.source
 
     def verify(self, cancelled=False):
@@ -76,6 +84,8 @@ class InputPlan:
             return
         if self.identity != (self.path.stat().st_size, self.path.stat().st_mtime_ns):
             raise ValueError('Vídeo alterado durante a sessão.')
+        if self.source and getattr(self.source, 'error', None) and not cancelled:
+            raise RuntimeError(self.source.error)
 
 
 def source_group(source):

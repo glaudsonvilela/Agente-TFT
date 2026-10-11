@@ -75,8 +75,6 @@ class StudioController:
         self.preview_jpeg = None
         self.preview_source_ms = None
         self.preview_sequence = 0
-        self.preview_source_ms = None
-        self.preview_epoch = None
         self.preview_times = deque(maxlen=90)
         self.preview_encode_ms = deque(maxlen=90)
         self.browser_preview = None
@@ -169,7 +167,7 @@ class StudioController:
             if not model:
                 raise RuntimeError("Modelo visual local ausente do pacote; repare a instalação.")
             vm_core = (Path(sys.executable).resolve().parent / "core" / "core-package.json").is_file()
-            preview_hz = (int(os.environ.get('AGENTE_TFT_REPLAY_PREVIEW_HZ', '22'))
+            preview_hz = (int(os.environ.get('AGENTE_TFT_REPLAY_PREVIEW_HZ', '30'))
                           if local_replay else 22)
             output = str(Path(default_hm4_output_root()) /
                          ("hm4-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
@@ -177,18 +175,21 @@ class StudioController:
             self.highlight_recorder = None
             self.highlight_result = None
             self.history.clear()
-            self.preview_jpeg = None
-            self.preview_source_ms = None
             with self.preview_condition:
+                self.preview_jpeg = None
+                self.preview_source_ms = None
                 self.preview_times.clear()
                 self.preview_encode_ms.clear()
+                self.preview_condition.notify_all()
             self.browser_preview = None
             self.next_preview_telemetry = 0.0
             self.session = HM4RuntimeSession(Options(
                 **({**paths, 'ffmpeg': 'ffmpeg', 'ffprobe': 'ffprobe'} if local_replay else paths),
                 video=str(Path(replay).resolve()) if local_replay else f"capture://{kind}/{identity}", output=output,
                 model=model, dataset_only=False, seconds=7200,
-                map_hz=4, reader_hz=1, sample_hz=.2 if vm_core else 1,
+                map_hz=2 if local_replay or os.name != 'nt' else 4,
+                reader_hz=.75 if local_replay else 1,
+                sample_hz=.2 if vm_core else 1,
                 scenario="studio-live-lab" if not replay_review else "studio-replay-review",
                 replay_review=bool(replay_review), board_hub_enabled=True,
                 vm_core=vm_core and not local_replay, native_preview=True, preview_hz=preview_hz,
@@ -293,6 +294,8 @@ class StudioController:
             browser = self.browser_preview
             browser_preview = ({"fps": browser["fps"], "longest_gap_ms": browser["longest_gap_ms"]}
                                if browser and time.monotonic() - browser["at_monotonic"] < 5 else None)
+            with session.lock:
+                fast_items_history = list(getattr(session, 'fast_items_history', ()))
             return {"phase": "finished" if session.finished else session.phase,
                     "session_id": session.id, "source_label": self.source_label,
                     "replay_review": session.options.replay_review,
@@ -302,12 +305,21 @@ class StudioController:
                     "opponents": session.versions.get("opponent_tracking"),
                     "temporal_candidates": session.versions.get("temporal_candidates"),
                     "spatial_map": session.versions.get("spatial_map"),
+                    "shop_math": session.versions.get("shop_math"),
                     "hud_diagnostic": getattr(session, "latest_live_diagnostic", None),
                     "hub_diagnostic": getattr(session, "latest_hub_diagnostic", None),
                     "fast_diagnostic": getattr(session, "latest_fast_diagnostic", None),
+                    "fast_items": getattr(session, "latest_fast_items", None),
+                    "fast_items_history": fast_items_history,
+                    "trait_tooltip": getattr(session, "latest_trait_tooltip", None),
+                    "trait_tooltip_last_named": getattr(session, "latest_trait_tooltip_named", None),
+                    "selected_unit_panel": getattr(session, "latest_selected_unit_panel", None),
+                    "selected_unit_panel_last_named": getattr(session, "latest_selected_unit_panel_named", None),
                     "board_execution": session.versions.get("board_hub_execution"),
                     "unit_model_active": bool(session.versions.get("unit_neural_active")),
+                    "trait_model_active": getattr(session, "trait_model_dir", None) is not None,
                     "item_model_active": bool(session.versions.get("item_neural_active")),
+                    "core_recipe_catalog": session.versions.get("core_recipe_catalog"),
                     "yolo_overlay": session.versions.get("yolo_overlay"),
                     "data_patch": getattr(session.decision_engine, "patch", None),
                     "screen_mode": session.versions.get("screen_mode"),
@@ -316,7 +328,23 @@ class StudioController:
                     "tip": safe_tip, "error": session.error or self.last_error,
                     "counts": {k: session.counts[k] for k in
                                ("source_frames", "preview_frames", "reader_native_runs",
-                                "hub_results", "coach_updates", "replay_tips")},
+                                "hub_results", "trait_tooltip_submitted",
+                                "trait_tooltip_results", "selected_panel_submitted",
+                                "selected_panel_results", "fast_item_results",
+                                "coach_updates", "replay_tips")},
+                    "save_diagnostic": {
+                        "trait_queue_replaced": (session.trait_pending.replaced
+                                                 if session.trait_pending else 0),
+                        "write_queue_dropped": session.store.counts["write_queue_dropped"],
+                        "trait_events_saved": session.store.counts["trait-tooltip-observations_events"],
+                        "selected_panel_events_saved": session.store.counts["selected-unit-panel-observations_events"],
+                        "selected_panel_queue_replaced": (session.panel_pending.replaced
+                                                         if session.panel_pending else 0),
+                        "persist_p95_ms": (sorted(session.store.persist_ms)[
+                            int((len(session.store.persist_ms)-1)*.95)]
+                            if session.store.persist_ms else None),
+                        "last_write_ms": (session.store.io_ms[-1]
+                                          if session.store.io_ms else None)},
                     "preview_sequence": self.preview_sequence,
                     "preview_encoded_fps": preview_fps,
                     "preview_encode_last_ms": preview_encode_ms,
@@ -400,14 +428,26 @@ class StudioController:
                 self.closed.wait(remaining)
                 continue
             try:
-                frame = session.preview.get(.03)
+                # Both Latest and queue.Queue expose get(timeout=...). Passing
+                # .03 positionally means "block=True" for queue.Queue, which
+                # strands this shared pump on a finished replay's empty queue.
+                frame = session.preview.get(timeout=.03)
             except queue.Empty:
                 continue
-            preview_hz = getattr(getattr(session, 'options', None), 'preview_hz', 22)
-            next_jpeg = time.monotonic() + 1/preview_hz
+            if hasattr(frame, 'jpeg'):
+                # The native replay preview is already clocked and encoded.
+                next_jpeg = 0.0
+            else:
+                preview_hz = getattr(getattr(session, 'options', None), 'preview_hz', 22)
+                now = time.monotonic()
+                # Reset only after a full missed interval; rescheduling from
+                # now on every frame accumulates wake-up overhead.
+                next_jpeg = (next_jpeg or now) + 1/preview_hz
+                if next_jpeg <= now:
+                    next_jpeg = now + 1/preview_hz
             try:
                 encode_start = time.perf_counter_ns()
-                encoded = encode_preview_jpeg(frame)
+                encoded = frame.jpeg if hasattr(frame, 'jpeg') else encode_preview_jpeg(frame)
                 with self.lock:
                     if self.session is not session or session.finished:
                         continue
@@ -428,7 +468,8 @@ class StudioController:
                                      "preview_encode_p95_ms": recent[int((len(recent)-1)*.95)],
                                      "native_preview_received": getattr(source, "preview_received", None),
                                      "native_preview_queue_replaced": getattr(
-                                         getattr(source, "preview_frames", None), "replaced", None),
+                                         source, "preview_replaced", getattr(
+                                             getattr(source, "preview_frames", None), "replaced", None)),
                                      "preview_source_age_ms": (
                                          (time.perf_counter_ns()-source.last_preview_received_ns)/1e6
                                          if source and getattr(source, 'last_preview_received_ns', None) else None)}
@@ -576,6 +617,9 @@ class StudioHandler(BaseHTTPRequestHandler):
         if relative == "preview.mjpg":
             self._preview()
             return
+        if relative == "selected-unit-portrait.png":
+            self._selected_unit_portrait()
+            return
         if relative == "highlights.mp4":
             video = getattr(server.controller, 'highlight_video', lambda: None)()
             if video is None:
@@ -605,6 +649,30 @@ class StudioHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _selected_unit_portrait(self):
+        controller = self.server.controller
+        with controller.lock:
+            session = controller.session
+            observed = (getattr(session, 'latest_selected_unit_panel_named', None)
+                        if session else None)
+            relative = observed.get('portrait') if isinstance(observed, dict) else None
+            if not isinstance(relative, str) or not relative.startswith('selected-unit-panels/'):
+                self.send_error(404)
+                return
+            base = Path(session.options.output).resolve()
+            file = (base / relative).resolve()
+            if not file.is_relative_to(base / 'selected-unit-panels') or not file.is_file():
+                self.send_error(404)
+                return
+            data = file.read_bytes()
+        self.send_response(200)
+        self.send_header('Content-Type', 'image/png')
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Cache-Control', 'private, max-age=300')
+        self.send_header('X-Content-Type-Options', 'nosniff')
         self.end_headers()
         self.wfile.write(data)
 
@@ -739,7 +807,8 @@ def run_studio(*, browser=False):
         handoff = os.environ.get("AGENTE_TFT_STUDIO_URL_FILE")
         if handoff:
             Path(handoff).write_text(server.url, encoding="utf-8")
-            if os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1':
+            if (os.environ.get('AGENTE_TFT_UBUNTU_MVP') == '1' and
+                    os.environ.get('AGENTE_TFT_STUDIO_OPEN_WINDOW', '1') != '0'):
                 open_local_window(server.url, "studio-browser")
         else:
             open_local_window(server.url, "studio-browser")
