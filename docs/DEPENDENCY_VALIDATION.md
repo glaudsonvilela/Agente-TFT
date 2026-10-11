@@ -1,6 +1,6 @@
 # Validação de combate, loja e progressão — 04/10/2026
 
-## Resultado atual — 10 mil cenários no BigBANANA e integração econômica
+## Resultado atual — 10 mil cenários no HOMELAB e integração econômica
 
 O usuário reiterou que **habilidades ficam fora desta versão** e autorizou prosseguir com testes dos sistemas restantes. Executamos **10.000 cenários de recursos**, com **zero falhas**, em **127,468 segundos**, pico de **26,83 MiB de RAM** do processo Python. São 8.000 cenários de Wisps, 1.000 de loja/equipamento/venda e 1.000 de recompensa através de carrossel. Cada cenário usa uma semente distinta. Os 27 Wisps passam por quatro políticas de Blossom, totalizando 108 combinações cobertas. Resultados de combate são entradas de teste declaradas.
 
@@ -24,7 +24,7 @@ O lote verifica consistência da implementação candidata, não fidelidade inte
 
 ## Revisão atual — elegibilidade, preços e lojas dos Wisps
 
-**Não está pronto para instalar um novo cérebro.** Esta revisão corrige dependências do simulador; não gerou uma política treinada nem executou partidas completas. [Validação](evidence/seasonal-offers-20261004/validation.json) e [checagem no BigBANANA](evidence/seasonal-offers-20261004/bigbanana-preflight.json).
+**Não está pronto para instalar um novo cérebro.** Esta revisão corrige dependências do simulador; não gerou uma política treinada nem executou partidas completas. [Validação](evidence/seasonal-offers-20261004/validation.json) e [checagem no HOMELAB](evidence/seasonal-offers-20261004/HOMELAB-preflight.json).
 
 ### Lacunas corrigidas nesta revisão
 
@@ -38,7 +38,7 @@ O lote verifica consistência da implementação candidata, não fidelidade inte
 
 ### Verificação e limites
 
-Suíte local: **624 testes, 612 passaram e 12 ignorados**, em 28,257 s. No contêiner isolado do BigBANANA, **38 testes direcionados passaram**, em 0,459 s. Os pequenos treinos sintéticos internos da suíte são testes de componentes e não equivalem ao treino do coach. O [exemplo de recursos](evidence/seasonal-offers-20261004/walkthrough.json) continua identificado como observação declarada, com zero partidas/combates simulados e zero rótulos de treino.
+Suíte local: **624 testes, 612 passaram e 12 ignorados**, em 28,257 s. No contêiner isolado do HOMELAB, **38 testes direcionados passaram**, em 0,459 s. Os pequenos treinos sintéticos internos da suíte são testes de componentes e não equivalem ao treino do coach. O [exemplo de recursos](evidence/seasonal-offers-20261004/walkthrough.json) continua identificado como observação declarada, com zero partidas/combates simulados e zero rótulos de treino.
 
 O contêiner mantém 1,5 CPU e 1 GiB de RAM; a checagem encontrou cerca de 4,5 GiB livres no disco do servidor. O pacote foi validado em uma pasta isolada. Não houve promoção de modelo ou substituição do serviço em produção.
 
@@ -50,7 +50,7 @@ A [reconciliação de fontes](evidence/seasonal-offers-20261004/source-reconcili
 
 ## Eventos sazonais e preparação do lote de 10 mil — 04/10/2026
 
-**Etapa parcial, com código executável e testes no BigBANANA. Não há 10 mil partidas completas em execução.** O [relatório do servidor](evidence/seasonal-events-20261004/bigbanana-preflight.json) identifica cada impedimento; a [verificação](evidence/seasonal-events-20261004/validation.json) registra os hashes e os testes. As habilidades continuam pausadas por solicitação do usuário.
+**Etapa parcial, com código executável e testes no HOMELAB. Não há 10 mil partidas completas em execução.** O [relatório do servidor](evidence/seasonal-events-20261004/HOMELAB-preflight.json) identifica cada impedimento; a [verificação](evidence/seasonal-events-20261004/validation.json) registra os hashes e os testes. As habilidades continuam pausadas por solicitação do usuário.
 
 ### O que foi acrescentado
 
@@ -66,7 +66,7 @@ A [reconciliação de fontes](evidence/seasonal-offers-20261004/source-reconcili
 
 A [sequência demonstrativa](evidence/seasonal-events-20261004/walkthrough.json) atravessa 2-2, 2-3, 2-4 e 2-5. Mostra uma recompensa de Golden Road amadurecendo após três PvPs, preservada durante o carrossel. Resultados foram declarados, os recursos do carrossel foram mantidos constantes para o exemplo, e **nenhum combate foi simulado**.
 
-A suíte ampla executou 609 testes: 597 passaram e 12 foram ignorados. Após os últimos ajustes e quatro novos testes, os 28 testes direcionados passaram localmente e no contêiner do BigBANANA. Também passaram os seis testes do modelo de valor, incluindo a recusa de estados sazonais que seu codificador ainda não representa. Não houve treinamento de uma rede de decisões nesta etapa.
+A suíte ampla executou 609 testes: 597 passaram e 12 foram ignorados. Após os últimos ajustes e quatro novos testes, os 28 testes direcionados passaram localmente e no contêiner do HOMELAB. Também passaram os seis testes do modelo de valor, incluindo a recusa de estados sazonais que seu codificador ainda não representa. Não houve treinamento de uma rede de decisões nesta etapa.
 
 ```bash
 PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
@@ -82,7 +82,7 @@ PYTHONPATH=apps/hud_mapper:apps/e1_replay:trainer:. .venv/bin/python \
 
 A segunda chamada retorna código 2 enquanto bloqueada. É uma checagem, não um agendador: não iniciará trabalho posteriormente por conta própria.
 
-### BigBANANA e o lote
+### HOMELAB e o lote
 
 O servidor possui quatro CPUs e aproximadamente 15 GiB de RAM total. Na verificação, o contêiner do treinador estava limitado a **1,5 CPU / 1 GiB**, com cerca de 4,5 GiB livres no volume. O código foi colocado em uma pasta isolada de validação, sem reiniciar os serviços. Os números exatos e o estado do contêiner constam no relatório.
 
