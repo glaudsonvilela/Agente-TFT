@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build one sealed runtime champion bundle for BigBANANA publication.
+"""Build one sealed runtime champion bundle for HOMELAB publication.
 
 A stable bundle is full enough for the installed runtime to activate atomically:
 L3 is always present; item/unit neural components are optional overlays.
