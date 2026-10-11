@@ -1,6 +1,6 @@
 """Zero-click neural model updater for HM4/HM4.5.
 
-Approved champions are learned/validated on BigBANANA, but inference remains
+Approved champions are learned/validated on HOMELAB, but inference remains
 local. The updater never activates a model while a match is running.
 """
 from __future__ import annotations
@@ -347,7 +347,7 @@ class ModelUpdater:
             reason = (self.last_result or {}).get("error")
             raise ModelUpdateError(
                 "O modelo neural inicial não está disponível. "
-                + (str(reason) if reason else "Verifique a conexão com o BigBANANA.")
+                + (str(reason) if reason else "Verifique a conexão com o HOMELAB.")
             )
         return active
 
