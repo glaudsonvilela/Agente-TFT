@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import time
@@ -11,7 +12,7 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
-METRICS_URL = "http://127.0.0.1:8801/v1/training/dashboard-metrics"
+METRICS_URL = os.environ.get("HOMELAB_METRICS_URL", "http://127.0.0.1:8801/v1/training/dashboard-metrics")
 
 
 def render(data: dict) -> str:
@@ -42,7 +43,7 @@ def render(data: dict) -> str:
     )
 
     lines = [
-        "✦ AGENTE TFT · BigBANANA",
+        "✦ AGENTE TFT · HOMELAB",
         f"Atualizado: {datetime.fromtimestamp(data['generated_at_ms'] / 1000).strftime('%d/%m/%Y %H:%M:%S')}",
         "────────────────────────────────────────",
         f"Simulador do replay: {simulator}  |  Modelo de banco/loja: {neural}",
@@ -58,7 +59,7 @@ def render(data: dict) -> str:
         f"Arquivos guardados: {data['evidence_files']}  |  Sessões: {data['sessions']}",
         f"Caminhos simulados: {data['paths_completed']}  |  Solicitados: {data['paths_requested']}",
         f"Lotes: {jobs['completed']} concluídos, {jobs['running']} em execução, {jobs['failed']} falharam",
-        f"CPU BigBANANA: {number(host.get('cpu_percent')) + '%' if host.get('cpu_percent') is not None else 'medindo'}  |  "
+        f"CPU HOMELAB: {number(host.get('cpu_percent')) + '%' if host.get('cpu_percent') is not None else 'medindo'}  |  "
         f"RAM: {number((host.get('memory_used_mib') or 0) / 1024) if host.get('memory_used_mib') is not None else 'indisponível'}"
         f"/{number((host.get('memory_total_mib') or 0) / 1024) if host.get('memory_total_mib') is not None else 'indisponível'} GiB",
         f"CPU contêiner TFT: {number(container.get('cpu_cores_used'), 2)}"
@@ -188,7 +189,7 @@ def main() -> int:
         print("Painel web no próprio servidor: http://127.0.0.1:8801/dashboard")
         return 0
     if command in ("neural-deploy", "ia-deploy"):
-        script=Path(__file__).resolve().with_name("deploy_bigbanana_neural.sh")
+        script=Path(__file__).resolve().with_name("deploy_HOMELAB_neural.sh")
         if not script.is_file():
             print("Deploy neural indisponível: script não encontrado.", file=sys.stderr)
             return 1
@@ -210,7 +211,7 @@ def main() -> int:
         print("Stable: "+(f"g{generation} · {version}" if generation is not None else "ainda não publicado"))
         print(f"Fila: {queue.get('inbox',0)} esperando · {queue.get('working',0)} processando · {queue.get('failed',0)} falhas")
         print(f"Sessões: {sessions}")
-        print("Treino pesado: BigBANANA · inferência: modelo aprovado local")
+        print("Treino pesado: HOMELAB · inferência: modelo aprovado local")
         return 0
     if command not in ("status", "acompanhar", "watch", "painel", "panel"):
         print("Uso: tft [status|painel|neural|neural-deploy|web|fontes|simulador|habilidades]", file=sys.stderr)
