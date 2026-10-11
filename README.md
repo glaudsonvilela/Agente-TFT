@@ -6,15 +6,15 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-**Agente de inteligência artificial para Teamfight Tactics com captura em tempo real, percepção visual, matemática estratégica, simulação e assistência por voz.**
+**Agente de inteligência artificial para Teamfight Tactics com captura visual, processamento isolado em Linux, matemática estratégica em Rust, simulação e aprendizado supervisionado.**
 
-> **Captura → percepção → estado → matemática → oportunidades → decisão → explicação/voz.**
+> **Captura → percepção → estado → matemática → oportunidades → decisão → avaliação.**
 
 O **Agente TFT** é um software de engenharia e IA criado para observar uma partida de TFT, reconstruir o estado relevante do jogo e transformar esse estado em recomendações estratégicas curtas, rastreáveis e sustentadas por cálculo.
 
-O projeto combina **captura de vídeo**, **OCR**, **visão computacional**, **modelos ONNX**, **memória temporal**, **matemática determinística em Rust**, **scouting**, **Opportunity Engine**, **Decision Core**, **simulação de combate/laboratório**, **conhecimento sazonal por patch**, serviços remotos de apoio e uma camada de IA responsável por organizar e explicar decisões.
+O projeto combina **captura de vídeo**, **OCR**, **visão computacional**, **modelos ONNX**, **memória temporal**, **matemática determinística em Rust**, **scouting**, **Opportunity Engine**, **Decision Core**, **simulação de combate/laboratório**, **conhecimento sazonal por patch**, serviços remotos opcionais de treinamento e uma camada de IA responsável por organizar e explicar decisões.
 
-Ele não foi concebido como um chatbot genérico de TFT. A proposta é construir um **motor de decisão que consegue conversar**: primeiro observa e calcula; depois explica.
+Ele não foi concebido como um chatbot genérico de TFT. A proposta é construir um **motor de decisão verificável**: primeiro observa, valida e calcula; depois apresenta recomendações justificadas.
 
 ---
 
@@ -24,7 +24,7 @@ A arquitetura atual separa três planos:
 
 1. **Windows Host** — captura, preview, interface e supervisão;
 2. **AgenteTFT-Core em Linux/WSL 2** — percepção e processamento pesado local;
-3. **BigBANANA** — serviços remotos opcionais para voz, laboratório, treino e avaliação.
+3. **Servidor HOMELAB** — treinamento e avaliação remotos opcionais, separados do processo de jogo.
 
 A fonte pode ser uma partida/replay exibida no Windows ou uma **placa de captura**. O vídeo permanece no host; apenas ROIs, entradas reduzidas e dados necessários à análise seguem para o núcleo Linux.
 
@@ -70,11 +70,7 @@ flowchart LR
     U --> V["PydanticAI-slim<br/>orquestração + explicação"]
     V --> E
 
-    U --> W["Voice Queue<br/>TTL + cancelamento"]
-    W --> X["Voz local Windows<br/>ou API remota"]
-
-    Y["BigBANANA<br/>Trainer / Simulator Lab"] -.-> T
-    Z["BigBANANA<br/>Voice Service + cache"] -.-> X
+    Y["Servidor HOMELAB: treino e avaliação"] -.-> T
 
     L --> AA["Telemetria / Replay / Auditoria"]
     S --> AA
@@ -89,7 +85,6 @@ WINDOWS HOST
 ├── placa/fonte de vídeo
 ├── preview fluida
 ├── interface
-├── voz local
 └── supervisor
           │
           │ TCP local autenticado
@@ -104,12 +99,11 @@ LINUX CORE / WSL 2
 ├── Opportunity Runtime
 └── Decision Core
 
-BIGBANANA (opcional)
+SERVIDOR HOMELAB (opcional)
 ├── Simulator Lab
-├── training/evaluation
+├── treinamento e avaliação
 ├── Shadow / counterfactual jobs
-├── painel TFT
-└── Voice Service HTTPS
+└── painel de monitoramento
 ```
 
 A falha de um serviço remoto não deve bloquear captura, estado local ou fallback determinístico.
@@ -136,8 +130,7 @@ A falha de um serviço remoto não deve bloquear captura, estado local ou fallba
 | **Simulator Lab** | simulação sazonal, hex grid, eventos, combate parcial e rollouts de laboratório |
 | **Knowledge System** | releases por patch/set, catálogo de unidades/itens/traits e provenance |
 | **Strategy Memory** | memória estruturada de mecânicas e linhas estratégicas por patch |
-| **Voz** | fila automática, cancelamento por TTL, voz local e serviço remoto opcional |
-| **BigBANANA** | trainer isolado, painel web/terminal, jobs e serviços auxiliares |
+| **Servidor HOMELAB** | treinador isolado, painel e trabalhos assíncronos de avaliação; execução remota opcional |
 | **Instalador HM4.5** | instalador Windows com pacote do app, core WSL, hashes e health checks |
 | **Licença** | MIT |
 
@@ -172,8 +165,7 @@ O runtime também registra:
 - latência de OCR;
 - latência do HUB;
 - memória;
-- decisões e voz.
-
+- decisões e diagnósticos;
 ---
 
 ## AgenteTFT-Core — Linux/WSL 2
@@ -387,9 +379,9 @@ Um candidato de laboratório **não é promovido automaticamente** ao runtime s�
 
 ---
 
-## BigBANANA — Agente 2 / plano remoto
+## Servidor HOMELAB — plano remoto de treinamento
 
-O BigBANANA funciona como infraestrutura de treinamento e avaliação, não como controlador do cliente TFT.
+O servidor HOMELAB funciona como infraestrutura de treinamento e avaliação, não como controlador do cliente TFT.
 
 ### Trainer
 
@@ -421,73 +413,6 @@ ação recomendada
 × melhor branch
 × outcome
 ```
-
----
-
-## Voz e Companion Service
-
-O agente possui dois caminhos de voz:
-
-### Local
-
-- síntese em processo separado;
-- fila de uma fala;
-- cancelamento se a decisão expirar;
-- associação com `frame_id`;
-- cache local limitado.
-
-### Remoto
-
-Um **Companion Service** independente no BigBANANA fornece voz por HTTPS.
-
-O serviço inclui:
-
-- sessão anônima;
-- autenticação por token;
-- limites de uso;
-- cache persistente de áudio;
-- gateway dedicado;
-- rate limiting;
-- isolamento dos demais serviços;
-- endpoint de resumo de jogador preparado para adaptador externo.
-
-O serviço remoto recebe texto a narrar; **não recebe frames da captura**.
-
----
-
-## Recomendação e voz
-
-Uma recomendação pode conter:
-
-```text
-action
-target
-reason
-basis
-confidence
-frame_id
-source_age_ms
-expires_at
-suppression_reason
-```
-
-Fluxo:
-
-```text
-Decision Core
-    ↓
-recomendação atual?
-    ├── não → suprimir/cancelar
-    └── sim
-         ↓
-       UI
-         ↓
-    Voice Queue
-         ↓
- local synth ou API remota
-```
-
-Isso impede que uma fala antiga continue depois que o estado da partida mudou.
 
 ---
 
@@ -528,7 +453,7 @@ vídeo / captura
 → percepção
 → estado
 → decisão
-→ voz
+→ avaliação
 → telemetria
 → auditoria
 ```
@@ -546,7 +471,6 @@ AgenteTFT-HM45-Setup.exe
 ├── preview
 ├── supervisor
 ├── modelos / catálogos
-├── vozes locais
 └── AgenteTFT-Core WSL
 ```
 
@@ -589,7 +513,6 @@ Também existe um caminho de **instalador online**: o bootstrap pequeno baixa um
 | Orquestração | PydanticAI-slim |
 | Conhecimento | Riot / Data Dragon / CommunityDragon |
 | Remote trainer | Docker + SQLite/WAL |
-| Voz remota | HTTPS + cache persistente |
 | Telemetria | JSONL + evidências versionadas |
 | UI | Windows; Tauri/Svelte como direção de produto |
 
@@ -655,7 +578,20 @@ O Agente TFT não depende de:
 - automação invisível de mouse/teclado;
 - confiança fabricada pelo LLM.
 
-O foco é **percepção, cálculo, simulação, recomendação, voz, replay e pesquisa reproduzível**.
+O foco é **percepção, cálculo, simulação, recomendação, replay e pesquisa reproduzível**.
+
+---
+
+## Privacidade, segurança e dados locais
+
+Este repositório público contém código, documentação, configurações de exemplo e evidências selecionadas. **Não publique** credenciais de APIs, tokens de sessão, chaves privadas, endereços internos do servidor, gravações reais de partidas, capturas pessoais ou dados brutos de usuários.
+
+- Configurações sensíveis devem ser passadas por variáveis de ambiente ou arquivos privados fora do Git.
+- Logs operacionais, sessões, caches, banco de dados e checkpoints locais não devem ser versionados.
+- A ligação com o servidor **HOMELAB** deve ser configurada pelo operador; nomes internos, IPs e URLs reais não fazem parte da documentação pública.
+- Dados de treino e avaliações devem ser anonimizados antes de qualquer compartilhamento.
+- As atualizações dos modelos precisam de hashes, validação e possibilidade de rollback. O treinamento remoto não comanda automaticamente o jogo.
+- Para treinamento externo com PyTorch, a adoção de GPUs remotas depende de orçamento, integração e validação; não significa que um provedor já esteja implantado.
 
 ---
 
@@ -668,7 +604,7 @@ O foco é **percepção, cálculo, simulação, recomendação, voz, replay e pe
 - [ADRs](docs/adr/)
 - [Contribuidores](CONTRIBUTORS.md)
 
-A árvore de desenvolvimento contém ainda documentação específica de HM4/HM4.5, Simulator Lab, percepção/catalogação, Strategy Memory, voz e evidências de treino/validação.
+A árvore de desenvolvimento contém ainda documentação específica de HM4/HM4.5, Simulator Lab, percepção/catalogação, Strategy Memory e evidências de treino/validação.
 
 ---
 
