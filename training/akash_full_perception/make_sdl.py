@@ -18,6 +18,7 @@ def main() -> None:
     parser.add_argument("--persistent", action="store_true",
                         help="Mount a provider persistent volume at /workspace")
     parser.add_argument("--storage-class", default="beta3")
+    parser.add_argument("--gpu-model", default="rtx3090", choices=("rtx3090", "rtx4090"))
     parser.add_argument("--max-bid-uact", type=int, default=500)
     args = parser.parse_args()
     if args.max_bid_uact <= 0:
@@ -49,7 +50,7 @@ def main() -> None:
                 "storage": ([{"size": "10Gi"}, {"name": "training-data", "size": "20Gi",
                              "attributes": {"persistent": True, "class": args.storage_class}}]
                             if args.persistent else {"size": "30Gi"}),
-                "gpu": {"units": 1, "attributes": {"vendor": {"nvidia": [{"model": "rtx3090"}]}}},
+                "gpu": {"units": 1, "attributes": {"vendor": {"nvidia": [{"model": args.gpu_model}]}}},
             }}},
             "placement": {"akash": {"pricing": {"yoli-train": {"denom": "uact", "amount": args.max_bid_uact}}}},
         },
@@ -77,6 +78,7 @@ curl --fail-with-body -H 'X-Upload-Token: {token}' "$endpoint/status"
     (folder / "deploy.yml").chmod(0o600)
     print(json.dumps({"sdl": str(folder / "deploy.yml"), "upload": str(upload),
                       "persistent": args.persistent,
+                      "gpu_model": args.gpu_model,
                       "max_bid_uact_per_block": args.max_bid_uact,
                       "max_bid_act_per_hour_at_6s_blocks": args.max_bid_uact * 0.0006,
                       "note": "Actual provider bid must be checked before lease acceptance."}, indent=2))
