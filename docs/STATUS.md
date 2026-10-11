@@ -55,7 +55,7 @@ Ainda precisa de calibração com imagens/replays reais do TFT.
 
 Implementado:
 
-- Agente 1 local ↔ BigBANANA Remote Trainer;
+- Agente 1 local ↔ HOMELAB Remote Trainer;
 - Shadow Player contínuo;
 - reconciliation contra GameState real;
 - Counterfactual Swarm protocol;
@@ -148,7 +148,7 @@ Regra: novas mudanças não invalidam este checkpoint; a branch acima permanece 
    - opponent/scouting confidence;
    - Opportunity latency.
 
-5. **BigBANANA simulator workers**
+5. **HOMELAB simulator workers**
    - ligar simulador real ao ShadowBackend;
    - bot pool;
    - self-play;
