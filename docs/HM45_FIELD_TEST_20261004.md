@@ -33,7 +33,7 @@ images, account names, and telemetry remain outside Git.
 The preview now has its own nonblocking UI timer; expensive performance text
 refreshes once per second, and inspection images are scaled before overlays.
 Waiting for evidence is shown as a status, without reading on-screen numbers
-aloud or adding them to the advice history. The BigBANANA terminal and web
+aloud or adding them to the advice history. The HOMELAB terminal and web
 panel separate the server's unpromoted training candidate from the diagnostic
 neural mapping measured in the last imported Windows session.
 
@@ -47,7 +47,7 @@ checks program behavior and packaged voice synthesis.
 
 ## New learning experiment
 
-The separate BigBANANA CPU training container fine-tuned the bench/shop
+The separate HOMELAB CPU training container fine-tuned the bench/shop
 localizer for 600 optimizer steps using 66 verified frames from three sessions.
 The ONNX export passed parity (max absolute difference 2.98e-7); real inference
 p95 was about 1.03 ms. On the same 46 latest-session frames, the installed
@@ -63,5 +63,5 @@ unresolved placeholders. The client snapshot may lag Riot's 18.3 B notes, so
 strategy activation remains false.
 The separate CPU JIT benchmark aggregated 500 synthetic paths of 12 steps in
 0.0234 ms/call after warmup versus 2.8063 ms/call in plain Python on
-BigBANANA (120x). First-call compilation took 578 ms. These paths are numeric
+HOMELAB (120x). First-call compilation took 578 ms. These paths are numeric
 fixtures; they are not simulated TFT games.
