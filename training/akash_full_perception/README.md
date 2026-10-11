@@ -22,7 +22,7 @@ Na locação DSEQ 29011084, o relatório inicial e um diagnóstico de 23/31 fora
 
 Para a próxima locação, gerar o SDL com `make_sdl.py --persistent`. Ele monta um volume persistente de 20 GiB em `/workspace` e solicita 10 GiB efêmeros para a imagem e pacotes. O provedor escolhido precisa aceitar a classe de armazenamento `beta3`; o provedor anterior não anuncia esse recurso. O treino grava `training-checkpoint.pt` de forma atômica a cada cinco minutos, retoma o tempo e o otimizador após reinícios do contêiner, e grava `complete.flag` ao terminar. O receptor também retoma automaticamente caso as duas cargas já estejam no volume. Um volume persistente permanece apenas enquanto a mesma locação e provedor forem mantidos; antes de fechar a locação, baixar relatório, log e pesos para o PC. O helper de upload continua usando token secreto local.
 
-A variante com RTX 4090 usa `--gpu-model rtx4090` e um teto de lance maior com `--max-bid-uact`. O teto não é o preço cobrado: conferir o lance real na tela antes de aceitá-lo.
+A variante com RTX 4090 usa `--gpu-model rtx4090` e um teto de lance maior com `--max-bid-uact`. Pode-se repetir `--gpu-model` para oferecer uma alternativa (por exemplo, RTX 3090) na mesma rodada de lances; a escolha do provedor ainda é manual. O teto não é o preço cobrado: conferir o lance real e a GPU oferecida na tela antes de aceitá-lo.
 
 Os primeiros 45 minutos continuam sendo diagnóstico com vídeo separado; o resultado final do segundo trecho segue experimental. A persistência não recupera os arquivos perdidos da primeira locação.
 
