@@ -1,11 +1,11 @@
-# ADR-0003 — Remote Training Plane no servidor BigBANANA
+# ADR-0003 — Remote Training Plane no servidor HOMELAB
 
 **Status:** Accepted  
 **Date:** 2026-09-30
 
 ## Contexto
 
-O Agente TFT local precisa aprender com muito mais episódios do que uma partida real permite produzir. O servidor do BigBANANA pode ser usado como plano remoto de treinamento para executar simulações, self-play e bot pools em paralelo.
+O Agente TFT local precisa aprender com muito mais episódios do que uma partida real permite produzir. O servidor do HOMELAB pode ser usado como plano remoto de treinamento para executar simulações, self-play e bot pools em paralelo.
 
 Foi considerada a ideia de o servidor assumir controle remoto do cliente real. Essa topologia foi rejeitada para o projeto live. O treinamento remoto deve operar sobre **estado estruturado e simulador**, não sobre mouse/teclado do TFT.
 
@@ -26,7 +26,7 @@ Responsabilidades:
 - recorder;
 - envio opcional de jobs para treinamento remoto.
 
-### Agente 2 — BigBANANA Server
+### Agente 2 — HOMELAB Server
 
 Responsabilidades:
 
@@ -85,7 +85,7 @@ Isso mantém o servidor como **plano de treinamento**, e não como executor live
 - bot pool com estratégias variadas;
 - avaliação contínua do policy model;
 - treinamento sem bloquear o PC local;
-- BigBANANA pode escalar workers independentemente do cliente.
+- HOMELAB pode escalar workers independentemente do cliente.
 
 ## Segurança e autenticação
 
