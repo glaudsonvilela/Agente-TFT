@@ -42,7 +42,7 @@ class FakeFactory:
         self.requests = []
 
     def __call__(self, host, port, timeout=None):
-        assert host == "tft.bigbanana.io"
+        assert host == "homelab.invalid"
         assert port == 443
         return FakeConnection(self)
 
@@ -56,7 +56,7 @@ def test_connect_reuses_cached_installation_token(monkeypatch):
         (200, {"token": "x" * 64, "expires_at_ms": 9_999_999_999_999, "protocol_version": 1}),
     ])
     first = neural.NeuralServiceClient(
-        "https://tft.bigbanana.io",
+        "https://homelab.invalid",
         connection_factory=factory,
     )
     value = first.connect()
@@ -64,7 +64,7 @@ def test_connect_reuses_cached_installation_token(monkeypatch):
     assert len(factory.requests) == 1
 
     second = neural.NeuralServiceClient(
-        "https://tft.bigbanana.io",
+        "https://homelab.invalid",
         connection_factory=factory,
     )
     cached = second.connect()
@@ -91,7 +91,7 @@ def test_upload_401_refreshes_token_and_retries_same_frame(monkeypatch):
         }),
     ])
     client = neural.NeuralServiceClient(
-        "https://tft.bigbanana.io",
+        "https://homelab.invalid",
         connection_factory=factory,
     )
     client.token = "o" * 64
