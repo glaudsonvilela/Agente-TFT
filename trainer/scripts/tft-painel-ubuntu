@@ -4,7 +4,7 @@ set -euo pipefail
 # SSH provides access control; the trainer dashboard stays bound to loopback.
 dashboard_url='http://127.0.0.1:8801/dashboard'
 health_url='http://127.0.0.1:8801/v1/training/health'
-ssh_target='glaudsonvilela@10.0.0.174'
+ssh_target="${HOMELAB_SSH_TARGET:?Configure HOMELAB_SSH_TARGET=user@host}"
 
 if ! curl --silent --show-error --fail --max-time 2 "$health_url" 2>/dev/null | grep -q '"service":"agente-tft-remote-trainer"'; then
   ssh -o BatchMode=yes -o ExitOnForwardFailure=yes -fN \
