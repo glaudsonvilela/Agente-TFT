@@ -385,16 +385,16 @@ if (new URLSearchParams(location.search).has('connected')) {
       const table = document.querySelector('.table-panel');
       if (table) table.innerHTML = '<div class="small-heading"><h2>Aprendizado pós partida</h2></div>'+
         `<p>${escapeHtml(state?.result?.post_session_learning_job?.status ||
-        'Aguardando encerramento e validação da captura para enviar ao BigBANANA.')}</p>`+
+        'Aguardando encerramento e validação da captura para enviar ao HOMELAB.')}</p>`+
         `<p>Modelo local: ${escapeHtml(state?.model_update?.status || 'verificação ainda não concluída')}`+
         `${state?.model_update?.generation ? ` · geração ${Number(state.model_update.generation)}` : ''}</p>`+
-        '<p><a href="https://tft.bigbanana.io/" target="_blank" rel="noreferrer">Abrir painel do servidor ↗</a></p>';
+        '<p>Painel HOMELAB: configure o endereço privado no cliente</p>';
     }
     if (current === 'simulator') {
       const table = document.querySelector('.table-panel');
-      if (table) table.innerHTML = '<div class="small-heading"><h2>Simulações no BigBANANA</h2></div>'+
+      if (table) table.innerHTML = '<div class="small-heading"><h2>Simulações no HOMELAB</h2></div>'+
         '<p>As execuções do servidor são acompanhadas no painel próprio. Este aplicativo registra a sessão e recebe os modelos aprovados após a partida.</p>'+
-        '<p><a href="https://tft.bigbanana.io/" target="_blank" rel="noreferrer">Abrir painel do servidor ↗</a></p>';
+        '<p>Painel HOMELAB: configure o endereço privado no cliente</p>';
     }
     if (current === 'settings') {
       document.querySelector('.page-head')?.insertAdjacentHTML('afterend',
