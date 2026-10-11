@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy": "automatic_neural_model_update_v1",
-  "service_url": "https://homelab.invalid",
+  "service_url": "https://neural-service.invalid",
   "channel": "stable",
   "check_on_app_start": true,
   "check_after_match": true,
