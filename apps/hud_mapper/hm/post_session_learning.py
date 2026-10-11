@@ -1,7 +1,7 @@
 """Upload a sealed HM4 match to the server-resident neural learner.
 
 The Windows client keeps approved neural weights for low-latency inference,
-but never trains them. Post-match learning is centralized on BigBANANA.
+but never trains them. Post-match learning is centralized on HOMELAB.
 Upload is resumable; network failure preserves local sealed evidence for retry.
 """
 from __future__ import annotations
@@ -224,7 +224,7 @@ def launch_post_session_learning(session_dir: str | Path) -> dict:
         "frame_count": len(manifest["frames"]),
         "next_frame_index": int(existing.get("next_frame_index") or 0),
         "training_location": "server",
-        "server_service": "tft.bigbanana.io",
+        "server_service": "HOMELAB",
         "local_neural_weights_bundled": True,
         "local_training_performed": False,
         "active_model_changed": False,
@@ -277,7 +277,7 @@ def resume_pending_post_session_uploads(
             if state.get("status") in {"not_eligible"}:
                 continue
             if state.get("status") == "server_learning_started":
-                # Evidence is already safely on BigBANANA; model updater polling
+                # Evidence is already safely on HOMELAB; model updater polling
                 # handles a champion that may be published later.
                 results.append(state)
                 continue
