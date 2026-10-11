@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Persist admitted autonomous supervision into the central BigBANANA corpus.
+"""Persist admitted autonomous supervision into the central HOMELAB corpus.
 
 Only already-adjudicated gold and conservative silver rows are accepted.
 Pixels are deduplicated globally. Conflicting identities for the same pixels
