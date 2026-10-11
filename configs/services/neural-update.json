@@ -17,6 +17,7 @@
   "rollback_on_load_failure": true,
   "rollback_on_startup_health_failure": true,
   "offline_behavior": "continue_with_last_approved_model",
-  "training_location": "HOMELAB",
-  "local_inference": true
+  "training_location": "AKASH_PLANNED",
+  "local_inference": true,
+  "training_backend_status": "not_deployed"
 }
