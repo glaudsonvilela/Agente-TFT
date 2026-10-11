@@ -1,9 +1,9 @@
-# Agente TFT — inferência local + aprendizado central no BigBANANA
+# Agente TFT — inferência local + aprendizado central no HOMELAB
 
 ## Decisão oficial
 
 A rede neural **continua no software instalado** para inferência rápida durante a
-partida. O servidor BigBANANA é o centro de aprendizado: recebe evidências das
+partida. O servidor HOMELAB é o centro de aprendizado: recebe evidências das
 partidas, melhora a rede, valida challengers e publica novas versões aprovadas
 para os clientes.
 
@@ -34,7 +34,7 @@ sessão local selada
       ↓
 upload resumível de evidências
       ↓
-BigBANANA
+HOMELAB
       ↓
 supervisão autônoma
 gold / silver / quarantine
@@ -53,7 +53,7 @@ O treinamento pesado acontece no servidor, não no PC do usuário.
 ## Distribuição de uma rede melhor
 
 ```
-BigBANANA publica manifest do champion
+HOMELAB publica manifest do champion
       ↓
 software consulta atualização fora da partida
       ↓
@@ -93,7 +93,7 @@ Não é responsável por:
 - dataset global;
 - promoção definitiva do modelo.
 
-## BigBANANA
+## HOMELAB
 
 É responsável por:
 
@@ -114,7 +114,7 @@ valendo os gates gold/silver/quarantine já definidos no projeto.
 ## Benefício
 
 Quanto mais instalações jogarem e enviarem partidas válidas, mais material o
-BigBANANA recebe para melhorar o modelo central. Depois de aprovada, a nova rede
+HOMELAB recebe para melhorar o modelo central. Depois de aprovada, a nova rede
 é distribuída para todas as instalações sem exigir que cada PC faça treinamento.
 
 
@@ -122,7 +122,7 @@ BigBANANA recebe para melhorar o modelo central. Depois de aprovada, a nova rede
 
 O jogador não precisa aprovar atualização de rede neural.
 
-O cliente consulta o BigBANANA automaticamente ao iniciar e novamente após cada
+O cliente consulta o HOMELAB automaticamente ao iniciar e novamente após cada
 partida concluída. Se houver um champion aprovado mais novo:
 
 1. baixa o pacote em segundo plano;
