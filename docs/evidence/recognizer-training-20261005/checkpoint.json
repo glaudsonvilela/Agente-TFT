@@ -1349,7 +1349,7 @@
     "status": "generate_real_bigbanana_neural_bundle",
     "command": "python3 scripts/prepare_bigbanana_neural_bundle.py --selection <frozen-selection>",
     "success_condition": "BIGBANANA_NEURAL_BUNDLE_OK=true and INITIAL_CHAMPION_GENERATION=1",
-    "next_if_success": "Deploy trainer + neural-worker on BigBANANA and verify public stable generation through tft.bigbanana.io.",
+    "next_if_success": "Deploy trainer + neural-worker on BigBANANA and verify public stable generation through homelab.invalid.",
     "human_review_required": false,
     "runtime_approved": false
   },
