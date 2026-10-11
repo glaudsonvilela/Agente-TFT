@@ -360,4 +360,6 @@ recomendação
 × outcome
 ```
 
-O HOMELAB é acelerador de avaliação/training; falha de rede não bloqueia a decisão local.
+**Direção do treinamento:** workloads de PyTorch e simulação offline passarão a usar GPUs locadas na **Akash Network**, mantendo o mercado e o pagamento no blockchain e a computação nos containers off-chain. Essa integração ainda está **planejada, não implantada**. Os jobs legados continuam como contrato lógico. Dados/candidatos seguem a validação privada e apenas modelos aprovados podem ser promovidos para ONNX local.
+
+A falha da Akash, falta de créditos, perda do lease ou ausência de rede **não bloqueia o jogo nem a decisão local**. Consulte [plano técnico Akash](AKASH_TRAINING.md) e [ADR-0004](adr/0004-akash-training-backend.md).
