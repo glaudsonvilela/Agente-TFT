@@ -360,4 +360,4 @@ recomendação
 × outcome
 ```
 
-O BigBANANA é acelerador de avaliação/training; falha de rede não bloqueia a decisão local.
+O HOMELAB é acelerador de avaliação/training; falha de rede não bloqueia a decisão local.
