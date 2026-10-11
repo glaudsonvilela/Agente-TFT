@@ -1,7 +1,9 @@
 # ADR-0003 — Remote Training Plane no servidor HOMELAB
 
-**Status:** Accepted  
+**Status:** Superseded for compute hosting by [ADR-0004](0004-akash-training-backend.md); protocol and safety principles retained  
 **Date:** 2026-09-30
+
+> **Nota histórica:** HOMELAB foi a proposta original. O backend GPU preferencial planejado agora é Akash Network. Esta ADR permanece para registrar decisões sobre isolamento e protocolo.
 
 ## Contexto
 
