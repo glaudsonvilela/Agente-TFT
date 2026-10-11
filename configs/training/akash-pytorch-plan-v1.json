@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "gpu_training_backend_migration_plan",
+  "provider": "akash_network",
+  "status": "planned_not_deployed",
+  "enabled": false,
+  "execution": {
+    "training_location": "third_party_gpu_off_chain",
+    "framework": "pytorch",
+    "container_required": true,
+    "nvidia_gpu_required": true,
+    "allow_local_inference": true,
+    "workloads": [
+      "supervised_visual_perception",
+      "offline_combat_value",
+      "offline_counterfactual_evaluation"
+    ]
+  },
+  "payments": {
+    "network": "akash",
+    "operator_wallet": "keplr_self_custody",
+    "escrow_currency": "ACT",
+    "operator_approval_required": true,
+    "automatic_transaction_signing": false,
+    "automatic_lease_creation": false
+  },
+  "security": {
+    "allow_private_key_in_container": false,
+    "dataset_must_be_reviewed": true,
+    "dataset_access": "private_external_storage",
+    "checkpoints": "external_persistent_private_storage",
+    "validate_model_sha256": true,
+    "activate_model_during_match": false
+  },
+  "dependencies_pending": [
+    "real_gpu_bid",
+    "deployable_versioned_cuda_image",
+    "dataset_ingress",
+    "checkpoint_egress",
+    "worker_adapter",
+    "holdout_evaluation",
+    "cost_measurement",
+    "end_to_end_gpu_test"
+  ],
+  "note": "Planning metadata only; not read by the live runtime or a billing automation. Never interpret as an active Akash deployment."
+}
