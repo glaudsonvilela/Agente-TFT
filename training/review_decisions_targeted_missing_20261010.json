@@ -1,0 +1,25 @@
+{
+  "source_batch": "targeted-missing-native-gameplay",
+  "id_prefix": "TM",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/targeted-missing-20261010/review/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {
+    "01": "Fiddlesticks",
+    "02": "Cassiopeia",
+    "03": "Leona",
+    "04": "Kobuko",
+    "10": "Veigar",
+    "11": "Rakan"
+  },
+  "assistant_visual_match": {
+    "07": "Rubrivira"
+  },
+  "confirmed_non_champion": [],
+  "excluded_from_batch": {
+    "05": "Identidade em revisão: o usuário disse Warwick, mas o corpo se parece com uma unidade que o painel do jogo identifica como Malphite em outro VOD. Não atribuir rótulo até a comparação ser resolvida.",
+    "06": "O usuário identificou Rubrivira, mas o corpo está sobreposto a outras unidades; procurar um recorte isolado antes de registrar como candidato.",
+    "08": "A e D pertencem ao mesmo tabuleiro com três Coven, mas as revisões de identidade alternaram entre Elise e Camille. O painel de Camille em outro VOD não resolveu com certeza qual dos dois corpos é A. Excluir A do corpus até haver prova direta.",
+    "09": "O usuário manteve Leona para B, mas outro quadro da mesma partida seleciona visualmente a Leona no painel e mostra um corpo diferente. Identidade B permanece fora do corpus até haver confirmação pela interface."
+  },
+  "identity_evidence": "Nomes 01–04, 10 e 11 confirmados pelo usuário em 2026-10-10 nas folhas de revisão. Os 05, 08 e 09 estão em quarentena por divergência entre revisões ou com painéis de unidades selecionadas em VODs. O usuário identificou a Rubrivira no recorte 06 sobreposto; 07 é a mesma unidade visualmente correspondente em um quadro posterior, isolada no banco. Todos os recortes vêm de quadros nativos de gameplay, sem melhorar ou inventar pixels; permanecem fora do treino até revisão de caixa, nitidez e diversidade de poses."
+}

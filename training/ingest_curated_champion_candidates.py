@@ -32,7 +32,7 @@ def main() -> None:
     roster = json.loads(args.roster.read_text(encoding="utf-8"))
     existing = {row["review_id"] for row in roster["records"]}
     decisions_by_id = {}
-    for status in ("user_confirmed", "assistant_visual_match"):
+    for status in ("user_confirmed", "panel_confirmed", "panel_tracked", "assistant_visual_match"):
         for ident, name in decisions.get(status, {}).items():
             if ident in decisions_by_id or ident in decisions.get("confirmed_non_champion", []):
                 raise ValueError(f"Conflicting decision: {ident}")
@@ -45,6 +45,13 @@ def main() -> None:
         if review_id in existing:
             continue
         source = source_records[ident]
+        if status == "panel_confirmed" and source.get("box_source") != "same_frame_selected_unit_panel":
+            raise ValueError(f"Missing same-frame panel evidence: {ident}")
+        if status == "panel_tracked" and (
+            source.get("box_source") != "selected_panel_same_video_item_tracking"
+            or not Path(source.get("proof_frame", "")).is_file()
+        ):
+            raise ValueError(f"Missing selected-panel tracking evidence: {ident}")
         crop = manifest_path.parent / source["crop"]
         digest = sha256(crop.read_bytes()).hexdigest()
         if digest != source["crop_sha256"] or source["identity"] is not None or source["may_train"]:
@@ -59,10 +66,13 @@ def main() -> None:
             "source_video_local": source["source_video"],
             "source_second": source["second"],
             "source_resolution": source["source_resolution"],
-            "review_status": ("user_confirmed_candidate" if status == "user_confirmed"
-                              else "assistant_visual_match_candidate"),
-            "identity_confirmed_by": ("user_review_20261010" if status == "user_confirmed"
-                                      else "visual_match_to_user_confirmed_20261010"),
+            "review_status": f"{status}_candidate",
+            "identity_confirmed_by": {
+                "user_confirmed": "user_review_20261010",
+                "panel_confirmed": "same_frame_selected_unit_panel",
+                "panel_tracked": "selected_unit_panel_and_same_unit_item_tracking",
+                "assistant_visual_match": "visual_match_to_user_confirmed_20261010",
+            }[status],
             "training_eligible": False,
             "eligibility_reason": "box_quality_and_distinct_pose_review_pending",
             "manifest": str(manifest_path),

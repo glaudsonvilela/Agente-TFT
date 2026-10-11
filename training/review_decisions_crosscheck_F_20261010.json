@@ -1,0 +1,13 @@
+{
+  "source_batch": "firsttime-4k-crops",
+  "id_prefix": "F",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/firsttime-4k-crops/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {},
+  "assistant_visual_match": {
+    "032": "Cascalho",
+    "047": "Cascalho"
+  },
+  "confirmed_non_champion": [],
+  "identity_evidence": "Usuário descreveu F-032/F-047 como pedra azul; mesmo corpo azul e rochoso aparece no vídeo _bKLUiJr5uc aos 1195,7 s. O planejador do mesmo vídeo aos 1563,6 s identifica o retrato como Pebbles, game_id DA_18_Sentry, traduzido como Cascalho. Recortes continuam fora do treino até revisão das caixas e poses."
+}

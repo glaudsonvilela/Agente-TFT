@@ -79,10 +79,11 @@ os centros sobre a imagem do jogo antes de permitir uso estratégico.
 
 A GTX 1060 de 3 GB está disponível via CUDA. O reinício do conjunto de dados
 exclui pesos anteriores do TFT e rótulos gerados por predição. A coleção
-revisada contém agora 272 recortes candidatos, cobrindo 55 personagens. A auditoria
-de poses novas registra 80 famílias provisórias para a meta de 325 (cinco para
-cada um dos 65), com 245 ainda faltantes. Dezoito personagens seguem sem
-nenhum recorte de identidade candidata antes da revisão integral; agora são dez.
+revisada contém agora 287 recortes candidatos, cobrindo os 65 personagens.
+A auditoria de poses ainda é provisória diante da meta de 325 poses distintas
+(cinco para cada um dos 65); nenhuma passou pela aprovação final de qualidade
+e distinção. Dezoito personagens estavam sem recorte de identidade antes da
+revisão integral; agora todos têm ao menos um candidato.
 Ainda não há conjunto elegível para o treino final dos 65. Repetir 40 ou 60
 épocas nas mesmas imagens não cria novas perspectivas.
 
@@ -180,10 +181,33 @@ um corpo cortado, seis objetos/unidades sem identidade exata e dois conflitos
 entre o nome desta revisão e rótulos anteriores da mesma aparência. Nenhum
 dos últimos grupos foi promovido ao treino.
 
-O registro unificado tem agora **272 recortes candidatos em 55 das 65 classes**.
-Dez continuam sem sequer um recorte candidato: Camille, Cascalho, Kobuko,
-Leona, Veigar, Kayle, Lobo Trevoguari, Cassiopeia, Malphite e Rubrivira.
-Vinte e cinco classes têm pelo menos cinco **recortes brutos**, mas isso não
+O registro unificado tem agora **287 recortes candidatos em 65 das 65 classes**.
+O cruzamento da aparência com o planejador e o painel de unidade do próprio
+jogo identificou Cascalho/Pebbles (`F-032`, `F-047`, `N-013`, `N-014`) e Lobo
+Trevoguari/Murkwolf (`S-002`). São cinco novos candidatos, todos fora do
+treino até a revisão da caixa e da pose. As decisões e a trilha visual estão
+em `training/review_decisions_crosscheck_{F,N,S}_20261010.json`.
+
+Partidas adicionais e revisão com o usuário trouxeram candidatos de
+Cassiopeia, Kobuko, Leona, Veigar e Rubrivira. O painel da unidade selecionada
+em outro vídeo e o usuário confirmaram Malphite. As decisões estão em
+`training/review_decisions_targeted_missing_20261010.json` e
+`training/review_decisions_panel_malphite_20261010.json`. Os recortes `TM-05`
+e `TM-09` foram retirados do corpus por conflito entre a identificação inicial
+e a aparência de unidades selecionadas no painel do jogo; continuam sem rótulo.
+O `TM-08` também foi retirado: as revisões de A e D alternaram entre Elise e
+Camille, e os dois corpos aparecem no mesmo tabuleiro. Nenhum deles será usado
+como rótulo até uma prova direta.
+
+Kayle ganhou um candidato com o nome explicitamente no painel da unidade
+selecionada no mesmo quadro. Camille ganhou um candidato isolado na fase de
+planejamento de outro VOD: o painel a identifica durante o combate, e os três
+itens visíveis acompanham a mesma unidade. As provas estão em
+`training/review_decisions_panel_kayle_20261010.json` e
+`training/review_decisions_panel_tracked_camille_20261010.json`.
+
+Agora todas as 65 classes têm ao menos um **recorte candidato**. Vinte e sete
+classes têm pelo menos cinco **recortes brutos**, mas isso não
 equivale a cinco poses distintas verificadas. O número de poses aprovadas para
 o treino completo continua zero.
 
@@ -195,6 +219,6 @@ As imagens são prévias para inspeção, não material de treino aprovado. O
 conflito Taric/Ezreal em `E-069` e `E-076` permanece separado até conferência
 com a cena original.
 
-Após a revisão integral, restaram somente oito identidades ou conflitos em
+Após a revisão integral e o cruzamento visual, restaram três identidades ou conflitos em
 aberto. A nova folha é
 `/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/unresolved-priority-20261010.jpg`.

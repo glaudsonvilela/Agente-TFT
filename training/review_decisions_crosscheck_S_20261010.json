@@ -1,0 +1,12 @@
+{
+  "source_batch": "sivir-1440-crops",
+  "id_prefix": "S",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/sivir-1440-crops/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {},
+  "assistant_visual_match": {
+    "002": "Lobo Trevoguari"
+  },
+  "confirmed_non_champion": [],
+  "identity_evidence": "Usuário descreveu S-002 como lobo. O mesmo corpo escuro de focinho claro aparece em _bKLUiJr5uc aos 1195,7 s; aos 459,9 s o painel do jogo nomeia a unidade selecionada Murkwolf. O ID DA_Murkwolf18 corresponde a Lobo Trevoguari. Recorte continua fora do treino até revisão da caixa e pose."
+}

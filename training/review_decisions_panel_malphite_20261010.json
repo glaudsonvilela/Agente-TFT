@@ -1,0 +1,12 @@
+{
+  "source_batch": "selected-unit-panel-malphite",
+  "id_prefix": "PM",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/targeted-missing-20261010/review/panel-confirmed-malphite/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {
+    "01": "Malphite"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [],
+  "identity_evidence": "O painel da unidade selecionada no mesmo quadro do VOD ET-pUDaadFc aos 1679,1 s mostra explicitamente Malphite; usuário confirmou a identificação M. A caixa inclui interferência parcial de unidade vizinha e exige revisão antes de treino."
+}

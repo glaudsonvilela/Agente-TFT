@@ -1,0 +1,14 @@
+{
+  "source_batch": "selected-unit-panel-tracked-camille",
+  "id_prefix": "PTC",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/targeted-missing-20261010/review/panel-tracked-camille/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {},
+  "panel_confirmed": {},
+  "panel_tracked": {
+    "01": "Camille"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [],
+  "identity_evidence": "O painel da unidade selecionada no VOD I4FhzftYe4Y aos 2125,8 s mostra Camille. No quadro de planejamento aos 2224,7 s, a unidade isolada conserva os três mesmos itens e é a única Coven indicada no HUD. Este recorte vem dessa segunda partida; A e D do outro VOD continuam sem rótulo pela divergência nas revisões. Candidato apenas; poses e caixa ainda precisam de validação."
+}

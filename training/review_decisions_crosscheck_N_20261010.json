@@ -1,0 +1,13 @@
+{
+  "source_batch": "nidalee-1440-crops",
+  "id_prefix": "N",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/new-sources/nidalee-1440-crops/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {},
+  "assistant_visual_match": {
+    "013": "Cascalho",
+    "014": "Cascalho"
+  },
+  "confirmed_non_champion": [],
+  "identity_evidence": "Usuário descreveu N-013/N-014 como pedra azul; formato rochoso e faixa azul coincidem com Pebbles no planejador de _bKLUiJr5uc aos 1563,6 s e no tabuleiro aos 1195,7 s. O ID DA_18_Sentry corresponde a Cascalho. Recortes continuam fora do treino até revisão das caixas e poses."
+}

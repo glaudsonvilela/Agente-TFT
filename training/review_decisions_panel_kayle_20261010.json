@@ -1,0 +1,13 @@
+{
+  "source_batch": "selected-unit-panel-kayle",
+  "id_prefix": "PK",
+  "source_manifest": "/mnt/sherlock-ssd/AgenteTFT/champion-reset-20261009/source-review-20261010/targeted-missing-20261010/review/panel-confirmed-kayle/review_manifest.json",
+  "training_eligibility": false,
+  "user_confirmed": {},
+  "panel_confirmed": {
+    "01": "Kayle"
+  },
+  "assistant_visual_match": {},
+  "confirmed_non_champion": [],
+  "identity_evidence": "O painel da unidade selecionada no próprio quadro 91,0 s do VOD RP8cDPOvKpw mostra explicitamente Kayle. O recorte natural contém o corpo e a barra da unidade. Candidato apenas; nitidez e diversidade de poses ainda precisam de revisão."
+}
