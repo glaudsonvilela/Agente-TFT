@@ -136,7 +136,7 @@ report = {
     "neural_location": "local_inference_server_training",
     "local_neural_weights_bundled": True,
     "post_session_trainer_bundled": False,
-    "central_learning_server": "BigBANANA",
+    "central_learning_server": "HOMELAB",
     "offline_voice_options": [],
     "voice_backend": "elevenlabs_api",
     "voice_narration_paused": True,
