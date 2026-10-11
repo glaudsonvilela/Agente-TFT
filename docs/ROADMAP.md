@@ -175,6 +175,23 @@ Falta:
 - métricas por decisão;
 - regressões.
 
+## P11 — Treinamento GPU descentralizado na Akash 🟡 (planejamento)
+
+Direção aprovada: usar **Akash Network** como marketplace para alugar GPUs e treinar PyTorch **off-chain**. A infraestrutura antiga de treinamento remoto permanece apenas como contrato/legado até existir adaptador validado. O cliente conserva o caminho crítico local, sem carteira nem transações.
+
+**Gates ainda pendentes:**
+
+- escolher manualmente provedor, quote e orçamento no Console Air, assinando na Keplr;
+- criar container CUDA/PyTorch versionado e comprovar acesso à GPU;
+- preparar dataset privado com autorização, hashes e divisão por partida;
+- executar um primeiro treino reprodutível de reconhecimento visual;
+- persistir checkpoint fora do lease e restaurá-lo após encerramento;
+- avaliar métricas em holdout e exportar ONNX aprovado;
+- medir custo real e aplicar limite operacional de gasto;
+- confirmar que o cliente continua funcional offline, sem qualquer automação de carteira.
+
+**Status:** nenhum lease ou treinamento comprovado no repositório. Ver [plano técnico Akash](AKASH_TRAINING.md) e [ADR-0004](adr/0004-akash-training-backend.md).
+
 ## Regra de progressão
 
 Nenhuma etapa é considerada concluída apenas porque o código existe.
