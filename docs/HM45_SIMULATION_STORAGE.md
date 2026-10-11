@@ -1,4 +1,4 @@
-# HM4.5 — pacote, simulação e memória no BigBANANA
+# HM4.5 — pacote, simulação e memória no HOMELAB
 
 ## O que o instalador contém hoje
 
@@ -84,7 +84,7 @@ avaliar o simulador, sem reescrever o passado.
 
 ## Execução isolada
 
-O BigBANANA tem quatro CPUs, 15 GiB de RAM e cerca de 9,4 GiB livres em
+O HOMELAB tem quatro CPUs, 15 GiB de RAM e cerca de 9,4 GiB livres em
 2026-10-03. O serviço do Agente TFT roda em um quarto contêiner separado dos
 três existentes, com limite inicial de 1,5 CPU, 1 GiB de RAM e sem GPU.
 O limite é uma política de laboratório; o tempo de 500 caminhos só poderá
@@ -121,7 +121,7 @@ ligação estar pronta, os dados locais ficam preservados para sincronização.
    oficiais de cada patch e conjunto em um pacote versionado.
 3. Implementar simulador determinístico e bot pool, com testes contra
    probabilidades analíticas e partidas retidas para avaliação.
-4. Medir 500 caminhos no BigBANANA, limitar tempo por decisão e guardar
+4. Medir 500 caminhos no HOMELAB, limitar tempo por decisão e guardar
    sementes/saídas; comparar recomendações contra o desfecho real.
 5. Treinar e promover uma política apenas depois de avaliação independente.
 
