@@ -1,4 +1,4 @@
-"""Operator-only credential setup. Run interactively on BigBANANA, never in CI."""
+"""Operator-only credential setup. Run interactively on HOMELAB, never in CI."""
 import getpass
 import os
 from pathlib import Path
