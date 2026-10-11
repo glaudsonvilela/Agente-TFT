@@ -6,7 +6,7 @@ HM4 mantém o motor de captura/leitura do HM3 e simplifica a experiência para o
 
 O HM4 abre por padrão os arquivos do design em `ui/tauri-design` numa janela local do Microsoft Edge (ou Chrome, com navegador padrão como reserva). O motor comunica com essa janela por uma API autenticada em `127.0.0.1`, sem Python.NET/CLR. Clique em **Escolher tela**, selecione monitor ou janela e confirme a captura. O Rust captura no Windows; a prévia chega por um canal local MJPEG de até 720p e 30 quadros codificados por segundo; a análise roda separadamente. O contador de FPS mostrado é o de codificação, não o FPS físico apresentado. A fluidez real precisa ser medida em Windows.
 
-O HUB e o motor de decisões podem orientar tanto uma partida ao vivo quanto um replay exibido na tela. Na partida ao vivo o catálogo empacotado recebe a marca **laboratório** e a versão de patch aparece junto da dica. Identidades de campeões e itens ainda precisam de evidência visual suficiente; candidatos não são apresentados como unidades confirmadas. A voz ElevenLabs é sintetizada no serviço e reproduzida no Windows. Ao encerrar uma partida ao vivo, a sessão é selada antes de iniciar o envio para aprendizado no BigBANANA. O aplicativo mantém os pesos congelados durante a partida.
+O HUB e o motor de decisões podem orientar tanto uma partida ao vivo quanto um replay exibido na tela. Na partida ao vivo o catálogo empacotado recebe a marca **laboratório** e a versão de patch aparece junto da dica. Identidades de campeões e itens ainda precisam de evidência visual suficiente; candidatos não são apresentados como unidades confirmadas. A voz ElevenLabs é sintetizada no serviço e reproduzida no Windows. Ao encerrar uma partida ao vivo, a sessão é selada antes de iniciar o envio para aprendizado no HOMELAB. O aplicativo mantém os pesos congelados durante a partida.
 
 Quando um modelo aprovado com componentes visuais de campeões ou itens for instalado, o leitor do tabuleiro usa esse pacote no Windows na **próxima** sessão. O núcleo WSL continua disponível para as demais leituras. Isso ainda produz candidatos, sem promover identidades ou posições a fatos confirmados.
 
@@ -91,7 +91,7 @@ automaticamente. **Conectar voz** permite tentar novamente; **Testar áudio**
 produz uma solicitação explícita. A chave nunca é embutida no instalador.
 
 **Estado atual:** `configs/services/voice.json` aponta para o serviço
-BigBANANA. Os contratos automatizados não comprovam qualidade da voz,
+HOMELAB. Os contratos automatizados não comprovam qualidade da voz,
 latência de internet ou áudio físico no Windows. O estúdio conectado narra
 somente dicas atuais confirmadas; a primeira sessão Windows ainda precisa
 validar essa reprodução.
