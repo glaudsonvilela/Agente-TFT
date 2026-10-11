@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "provider": "elevenlabs",
-  "service_url": "https://tft.bigbanana.io",
+  "service_url": "https://homelab.invalid",
   "status": "configured",
   "account_login_required": false
 }
