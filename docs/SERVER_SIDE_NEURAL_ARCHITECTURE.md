@@ -1,140 +1,91 @@
-# Agente TFT — inferência local + aprendizado central no HOMELAB
+# Agente TFT — treino em GPUs Akash + inferência local
 
-## Decisão oficial
+**Status da migração:** PLANEJADA; ainda sem deployment GPU validado na Akash.  
+**Fonte de requisitos:** [Plano de treinamento Akash](AKASH_TRAINING.md).
 
-A rede neural **continua no software instalado** para inferência rápida durante a
-partida. O servidor HOMELAB é o centro de aprendizado: recebe evidências das
-partidas, melhora a rede, valida challengers e publica novas versões aprovadas
-para os clientes.
+## Decisão de arquitetura
 
-O objetivo é não depender da CPU/GPU do computador de cada usuário para a IA se
-autoaperfeiçoar, sem sacrificar latência nem exigir internet para cada inferência.
+A infraestrutura preferencial de **treinamento e avaliação neural** será a **Akash Network**, substituindo a necessidade de manter um servidor de treino dedicado. A Akash é um mercado descentralizado: leases e pagamentos usam blockchain, enquanto os containers PyTorch/CUDA executam nos servidores GPU dos provedores (**off-chain**).
+
+O cliente TFT continua com inferência compacta local (ONNX) e matemática Rust em Windows/Linux. Treinar na Akash **não significa** executar inferência de cada frame pela internet; a latência e a disponibilidade do jogo não podem depender de um lease remoto.
 
 ## Durante a partida
 
-```
-TFT no Windows
-      ↓
-captura local
-      ↓
-rede neural aprovada instalada localmente
-      ↓
-GameState / coach / HUD
+```text
+TFT Windows → captura → Linux (OCR/ONNX/Rust)
+                                ↓
+                     GameState / Decision Core
+                                ↓
+                     recomendação na interface
 ```
 
-Os pesos ficam congelados enquanto a partida está acontecendo.
+Os pesos locais aprovados ficam congelados durante toda a partida. Sem rede, o programa usa o último modelo aprovado e fallback determinístico.
 
-Se o servidor estiver temporariamente indisponível, o software continua usando a
-última versão aprovada já instalada.
+## Treino pós-partida — desenho alvo
 
-## Depois da partida
-
-```
-sessão local selada
-      ↓
-upload resumível de evidências
-      ↓
-HOMELAB
-      ↓
-supervisão autônoma
-gold / silver / quarantine
-      ↓
-treino central de challenger
-      ↓
-validação contra champion
-      ↓
-shadow / holdout
-      ↓
-modelo aprovado e versionado
-```
-
-O treinamento pesado acontece no servidor, não no PC do usuário.
-
-## Distribuição de uma rede melhor
-
-```
-HOMELAB publica manifest do champion
-      ↓
-software consulta atualização fora da partida
-      ↓
-compara versão/hash
-      ↓
-baixa pacote do novo modelo
-      ↓
-verifica SHA-256 + metadados
-      ↓
-instala atomicamente
-      ↓
-nova partida usa o novo champion local
+```text
+Sessão local consentida e selada
+  ↓
+Triagem gold / silver / quarantine; proveniência, deduplicação e hash
+  ↓
+Dataset privado e desidentificado no storage externo
+  ↓
+Operador escolhe GPU, bid, duração e limite de gastos no Console Air
+  ↓
+Lease Akash (Keplr, ACT) → Worker Docker / PyTorch / CUDA
+  ↓
+Treinamento de challenger + simulação offline / Shadow
+  ↓
+Avaliação holdout, métricas e comparação com champion
+  ↓
+Persistir checkpoints fora do lease; publicar manifest se aprovado
+  ↓
+Cliente busca atualização depois da partida, valida SHA-256/versão
+  ↓
+Ativação atômica apenas quando ocioso + rollback
 ```
 
-A troca de modelo nunca acontece no meio da partida.
+### Separação entre responsabilidades
 
-O software guarda a versão anterior aprovada para rollback caso o novo pacote
-falhe na inicialização ou nos checks locais.
+**PC do jogador:**
+- captura visual, OCR, Rust Math, inferência local e estado da partida;
+- registro do replay e export consentido de evidências revisadas;
+- consulta de manifest, download e ativação segura do novo modelo.
 
-## Cliente Windows / Linux local
+**Operador/plano de treinamento:**
+- curadoria dos datasets, splits por sessão, rótulos e revisão de qualidade;
+- hospedagem privada de datasets/artefatos e dos manifests assinados;
+- escolha de lances GPU, criação/encerramento de leases e monitoração de custos;
+- execução de Docker/PyTorch com sementes/versões identificadas;
+- avaliação dos challengers, aprovação do champion e auditoria.
 
-Continua responsável por:
+**GPU contratada na Akash:**
+- somente computação offline autorizada; não recebe chaves privadas nem controle do computador;
+- dados são processados por provedor terceirizado; confidencialidade requer medidas específicas;
+- armazenamento efêmero não pode ser a única cópia dos checkpoints.
 
-- captura;
-- inferência neural local;
-- OCR e geometria;
-- HUD/coach;
-- memória curta da partida;
-- gravação/selagem das evidências;
-- upload pós-partida;
-- atualização segura do modelo aprovado.
+## Política de promoção neural
 
-Não é responsável por:
+1. Predição do modelo não vira rótulo automaticamente; gates `gold/silver/quarantine` permanecem obrigatórios.
+2. Validação independente por partidas, patches e versões; evitar leakage por imagens duplicadas da mesma partida.
+3. Candidate não é champion por apresentar uma única métrica favorável.
+4. Pacote aprovado deve ter versionamento, hash, verificação de compatibilidade e possibilidade de rollback.
+5. Atualizações em segundo plano são automáticas no software, mas **nunca trocam pesos durante partida ativa**.
+6. Falha de rede, da GPU, da blockchain ou do serviço remoto não bloqueia o cliente.
 
-- treinamento pesado;
-- seleção de challenger global;
-- dataset global;
-- promoção definitiva do modelo.
+## O que já existe e o que falta
 
-## HOMELAB
+**Existe no repositório:** componentes de percepção e inferência local, contrato abstrato de treinamento remoto, sistemas de replay/seleção de evidências, mecanismos de validação e atualização de modelos.
 
-É responsável por:
+**Ainda falta integrar:** adaptador Akash de submissão/monitoramento de jobs, imagem CUDA/PyTorch fixada e testada, storage persistente privado, transporte de resultados, medição de custos, e testes de ponta a ponta com uma GPU contratada. Não existe endpoint Akash operacional no projeto.
 
-- dataset central de partidas;
-- provenance e deduplicação;
-- auto-supervisão;
-- treinamento de challengers;
-- validação e shadow;
-- registro do champion;
-- publicação do pacote de modelo aprovado;
-- histórico de versões e rollback.
+Configurações legadas de serviço que usam domínio `.invalid` são **placeholders** e não devem ser interpretadas como serviço publicado. Não substituir essas URLs por um endereço de carteira ou gateway de blockchain.
 
-## Regra de segurança
+## Segurança
 
-Predição do modelo nunca se transforma sozinha em verdade de treino. Continuam
-valendo os gates gold/silver/quarantine já definidos no projeto.
+- Somente o operador usa Keplr, AKT/ACT e aprovação de transações; nunca distribuir a carteira/seed com o app.
+- Nenhuma chave API, seed, credencial de storage ou token de usuário pode constar de código Git, manifests SDL públicos ou logs.
+- Dados da partida devem ser consentidos e minimizados; usar criptografia em trânsito, controle de acesso e retenção definida.
+- O treinamento na Akash é **off-chain**: o protocolo de blockchain não garante privacidade dos dados enviados ao container.
 
-## Benefício
-
-Quanto mais instalações jogarem e enviarem partidas válidas, mais material o
-HOMELAB recebe para melhorar o modelo central. Depois de aprovada, a nova rede
-é distribuída para todas as instalações sem exigir que cada PC faça treinamento.
-
-
-## Atualização automática sem interação
-
-O jogador não precisa aprovar atualização de rede neural.
-
-O cliente consulta o HOMELAB automaticamente ao iniciar e novamente após cada
-partida concluída. Se houver um champion aprovado mais novo:
-
-1. baixa o pacote em segundo plano;
-2. valida versão, compatibilidade e SHA-256;
-3. mantém a partida atual usando o modelo já carregado;
-4. ativa o novo modelo somente quando o cliente estiver ocioso;
-5. realiza troca atômica;
-6. preserva as duas versões anteriores;
-7. se o novo modelo falhar ao carregar ou no health-check inicial, faz rollback
-   automático para o último champion válido.
-
-Sem internet, o software continua funcionando com o último modelo aprovado já
-instalado.
-
-Não existe botão "Atualizar IA" no caminho normal do jogador.
+Ver também [ADR-0004](adr/0004-akash-training-backend.md) e [guia técnico da Akash](https://akash.network/docs/getting-started/console-air-onboarding/).
