@@ -15,7 +15,13 @@ import yaml
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", type=Path, required=True)
+    parser.add_argument("--persistent", action="store_true",
+                        help="Mount a provider persistent volume at /workspace")
+    parser.add_argument("--storage-class", default="beta3")
+    parser.add_argument("--max-bid-uact", type=int, default=500)
     args = parser.parse_args()
+    if args.max_bid_uact <= 0:
+        parser.error("--max-bid-uact must be positive")
     folder = args.package.resolve()
     facts = json.loads((folder / "summary.json").read_text())
     token = secrets.token_urlsafe(32)
@@ -40,13 +46,19 @@ def main() -> None:
         "profiles": {
             "compute": {"yoli-train": {"resources": {
                 "cpu": {"units": 4}, "memory": {"size": "16Gi"},
-                "storage": {"size": "30Gi"},
+                "storage": ([{"size": "10Gi"}, {"name": "training-data", "size": "20Gi",
+                             "attributes": {"persistent": True, "class": args.storage_class}}]
+                            if args.persistent else {"size": "30Gi"}),
                 "gpu": {"units": 1, "attributes": {"vendor": {"nvidia": [{"model": "rtx3090"}]}}},
             }}},
-            "placement": {"akash": {"pricing": {"yoli-train": {"denom": "uact", "amount": 500}}}},
+            "placement": {"akash": {"pricing": {"yoli-train": {"denom": "uact", "amount": args.max_bid_uact}}}},
         },
         "deployment": {"yoli-train": {"akash": {"profile": "yoli-train", "count": 1}}},
     }
+    if args.persistent:
+        sdl["services"]["yoli-train"]["params"] = {
+            "storage": {"training-data": {"mount": "/workspace", "readOnly": False}}
+        }
     (folder / "deploy.yml").write_text(yaml.safe_dump(sdl, sort_keys=False, allow_unicode=True))
     helper = f'''#!/usr/bin/env bash
 set -euo pipefail
@@ -64,8 +76,9 @@ curl --fail-with-body -H 'X-Upload-Token: {token}' "$endpoint/status"
     upload.chmod(0o700)
     (folder / "deploy.yml").chmod(0o600)
     print(json.dumps({"sdl": str(folder / "deploy.yml"), "upload": str(upload),
-                      "max_bid_uact_per_block": 500,
-                      "max_bid_act_per_hour_at_6s_blocks": 0.3,
+                      "persistent": args.persistent,
+                      "max_bid_uact_per_block": args.max_bid_uact,
+                      "max_bid_act_per_hour_at_6s_blocks": args.max_bid_uact * 0.0006,
                       "note": "Actual provider bid must be checked before lease acceptance."}, indent=2))
 
 

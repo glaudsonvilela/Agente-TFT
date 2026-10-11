@@ -11,6 +11,7 @@ import argparse
 from collections import Counter, defaultdict
 import hashlib
 import json
+import os
 from pathlib import Path
 import time
 
@@ -79,7 +80,10 @@ def features(root: Path, rows: list[dict], output: Path) -> tuple[np.ndarray, np
             dino_parts.append(dino_part.reshape(len(images), -1))
             print(json.dumps({"event": "features", "done": min(offset + 4, len(rows)), "total": len(rows)}), flush=True)
     a, b = np.concatenate(cnn_parts), np.concatenate(dino_parts)
-    np.savez_compressed(output / "features.npz", convnext=a, dino=b)
+    temporary = output / "features.npz.tmp"
+    with temporary.open("wb") as stream:
+        np.savez_compressed(stream, convnext=a, dino=b)
+    os.replace(temporary, output / "features.npz")
     return a, b
 
 
@@ -159,6 +163,9 @@ def extended_training(root: Path, rows: list[dict], output: Path, minutes: float
     once the held-out video is admitted to the final full-corpus phase.
     """
     labels = sorted({row["champion"] for row in rows})
+    corpus_hash = hashlib.sha256(json.dumps(
+        [(row["champion"], row["sha256"]) for row in rows], sort_keys=True
+    ).encode()).hexdigest()
     label_index = {name: i for i, name in enumerate(labels)}
     held, train_ids, test_ids, _ = source_holdout(rows)
     train_aug = transforms.Compose([
@@ -180,15 +187,45 @@ def extended_training(root: Path, rows: list[dict], output: Path, minutes: float
         param.requires_grad_(True)
     model.cuda()
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=5e-5, weight_decay=0.02)
-    start = time.monotonic()
-    deadline = start + minutes * 60
-    phase_end = start + minutes * 60 * 0.375
-    next_log = start + 60
-    next_eval = start + 300
+    checkpoint = output / "training-checkpoint.pt"
+    elapsed_before = 0.0
     epoch = 0
     phase = "source_disjoint_diagnostic"
     phase_scores = []
     best = -1
+    if checkpoint.is_file():
+        saved = torch.load(checkpoint, map_location="cpu", weights_only=False)
+        if (saved["labels"] != labels or saved["holdout_video"] != held
+                or saved["corpus_hash"] != corpus_hash):
+            raise ValueError("Checkpoint does not match the reviewed corpus")
+        model.load_state_dict(saved["model"])
+        optimizer.load_state_dict(saved["optimizer"])
+        # Checkpoints are written after each evaluation and at most five
+        # minutes apart. Downtime is not counted as GPU training time.
+        elapsed_before = float(saved["elapsed_s"])
+        epoch = int(saved["epoch"])
+        phase = saved["phase"]
+        phase_scores = list(saved["phase_scores"])
+        best = int(saved["best"])
+        print(json.dumps({"event": "resume", "elapsed_s": elapsed_before,
+                          "epoch": epoch, "phase": phase}), flush=True)
+    start = time.monotonic() - elapsed_before
+    deadline = start + minutes * 60
+    phase_end = start + minutes * 60 * 0.375
+    next_log = time.monotonic() + 60
+    next_eval = start + (phase_scores[-1]["elapsed_s"] + 300 if phase_scores else 300)
+    next_checkpoint = time.monotonic() + 300
+
+    def save_checkpoint(now: float) -> None:
+        temporary = checkpoint.with_suffix(".pt.tmp")
+        torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(),
+                    "labels": labels, "holdout_video": held, "corpus_hash": corpus_hash,
+                    "elapsed_s": round(now - start, 1),
+                    "epoch": epoch, "phase": phase, "phase_scores": phase_scores, "best": best},
+                   temporary)
+        os.replace(temporary, checkpoint)
+    if not checkpoint.is_file():
+        save_checkpoint(time.monotonic())
     while time.monotonic() < deadline:
         now = time.monotonic()
         if phase == "source_disjoint_diagnostic" and now >= phase_end:
@@ -196,6 +233,7 @@ def extended_training(root: Path, rows: list[dict], output: Path, minutes: float
                        output / "diagnostic-source-disjoint.pt")
             phase = "all_confirmed_crops"
             print(json.dumps({"event": "phase_change", "phase": phase, "elapsed_s": round(now - start, 1)}), flush=True)
+            save_checkpoint(now)
         examples = train_ids if phase == "source_disjoint_diagnostic" else list(range(len(rows)))
         order = np.random.default_rng(epoch + 20261010).permutation(examples)
         running_loss = 0.0
@@ -234,12 +272,18 @@ def extended_training(root: Path, rows: list[dict], output: Path, minutes: float
                            output / "diagnostic-best.pt")
             print(json.dumps({"event": "diagnostic", **observation}), flush=True)
             next_eval = now + 300
+            save_checkpoint(now)
+            next_checkpoint = now + 300
+        elif now >= next_checkpoint:
+            save_checkpoint(now)
+            next_checkpoint = now + 300
         if now >= next_log:
             print(json.dumps({"event": "training", "phase": phase, "epoch": epoch,
                               "elapsed_s": round(now - start, 1), "remaining_s": round(max(0, deadline - now), 1),
                               "mean_loss": round(running_loss / max(1, batches), 4),
                               "gpu_peak_mib": round(torch.cuda.max_memory_allocated() / 1048576)}), flush=True)
             next_log = now + 60
+    save_checkpoint(time.monotonic())
     torch.save({"weights": model.state_dict(), "labels": labels, "all_reviewed_crops": len(rows)},
                output / "convnext-finetuned-experimental.pt")
     return {"duration_seconds": round(time.monotonic() - start, 1), "epochs": epoch,
@@ -254,16 +298,28 @@ def main() -> None:
     parser.add_argument("--extended-minutes", type=float, default=120)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
+    if (args.output / "complete.flag").exists():
+        print(json.dumps({"event": "already_complete"}), flush=True)
+        return
     start = time.monotonic()
     rows, manifest = load(args.root)
     print(json.dumps({"event": "preflight", "crops": len(rows), "classes": manifest["champion_classes_in_crops"],
                       "component_states": manifest["component_states"]}, ensure_ascii=False), flush=True)
-    cnn, dino = features(args.root, rows, args.output)
+    cached_features = args.output / "features.npz"
+    if cached_features.exists():
+        with np.load(cached_features) as cache:
+            cnn, dino = cache["convnext"], cache["dino"]
+        if len(cnn) != len(rows) or len(dino) != len(rows):
+            raise ValueError("Cached features do not match the reviewed corpus")
+        print(json.dumps({"event": "features_resumed", "total": len(rows)}), flush=True)
+    else:
+        cnn, dino = features(args.root, rows, args.output)
     result = evaluate(rows, cnn, dino, args.output)
     if args.extended_minutes > 0:
         result["extended_training"] = extended_training(args.root, rows, args.output, args.extended_minutes)
     result["elapsed_seconds"] = round(time.monotonic() - start, 2)
     (args.output / "report.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    (args.output / "complete.flag").write_text("complete\n")
     print(json.dumps({"event": "complete", "result": result}, ensure_ascii=False), flush=True)
 
 

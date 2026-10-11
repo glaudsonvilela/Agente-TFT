@@ -35,15 +35,20 @@ def safe_extract(archive: Path, target: Path) -> None:
 def start_if_ready() -> None:
     global PROCESS
     with LOCK:
-        if PROCESS is not None or not all((ROOT / f"{name}.ready").exists() for name in ARCHIVES):
+        if (PROCESS is not None and PROCESS.poll() is None) or (ROOT / "results/complete.flag").exists():
+            return
+        if not all((ROOT / f"{name}.ready").exists() for name in ARCHIVES):
             return
         output = ROOT / "results"
         output.mkdir(exist_ok=True)
-        log = (output / "training.log").open("wb")
+        log = (output / "training.log").open("ab")
+        log.write(b"\n{\"event\":\"receiver_start\"}\n")
+        log.flush()
         PROCESS = subprocess.Popen(
             [sys.executable, "-u", str(ROOT / "core/train.py"), "--root", str(ROOT / "core"), "--output", str(output)],
             stdout=log, stderr=subprocess.STDOUT, cwd=ROOT,
         )
+        log.close()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -99,10 +104,11 @@ class Handler(BaseHTTPRequestHandler):
             lines = log.read_text(errors="replace").splitlines()[-12:] if log.exists() else []
             state = {"core_uploaded": (ROOT / "core.ready").exists(),
                      "replays_uploaded": (ROOT / "replays.ready").exists(),
+                     "complete": (ROOT / "results/complete.flag").exists(),
                      "running": PROCESS is not None and PROCESS.poll() is None,
                      "exit_code": None if PROCESS is None else PROCESS.poll(), "last_lines": lines}
             return self.respond(200, json.dumps(state, ensure_ascii=False).encode())
-        allowed = {"report.json", "training.log", "champion-fusion-head.npz", "features.npz",
+        allowed = {"report.json", "training.log", "training-checkpoint.pt", "champion-fusion-head.npz", "features.npz",
                    "diagnostic-best.pt", "diagnostic-source-disjoint.pt", "convnext-finetuned-experimental.pt"}
         name = self.path.removeprefix("/download/")
         if self.path.startswith("/download/") and name in allowed:
@@ -114,5 +120,7 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(os.environ.get("AKASH_RECEIVER_PORT", "8080"))
+    ROOT.mkdir(parents=True, exist_ok=True)
+    start_if_ready()
     print(f"Akash upload receiver ready on port {port}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
