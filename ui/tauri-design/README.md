@@ -1,10 +1,10 @@
 # Agente TFT — proposta de interface Tauri
 
-Protótipo navegável de design. Não executa captura, inferência, conexão com BigBANANA nem instalação. Dados ilustrativos aparecem identificados. O instalador representa estados e não reinicia o computador.
+Protótipo navegável de design. Não executa captura, inferência, conexão com HOMELAB nem instalação. Dados ilustrativos aparecem identificados. O instalador representa estados e não reinicia o computador.
 
 ## Interface conectada do HM4
 
-O executável HM4 abre estes mesmos `index.html`, `style.css` e `app.js` em uma janela WebView2 no Windows. O arquivo `connected.js` troca os exemplos de captura e coach por estado da sessão local. A seleção de fonte, início, encerramento, contagem de leituras e texto da dica usam `hm.studio_bridge`; o vídeo é servido como MJPEG local até 720p, em canal separado da análise. A voz continua na API ElevenLabs e toca no Windows. O treino só é enviado ao BigBANANA depois que uma sessão ao vivo for selada.
+O executável HM4 abre estes mesmos `index.html`, `style.css` e `app.js` em uma janela WebView2 no Windows. O arquivo `connected.js` troca os exemplos de captura e coach por estado da sessão local. A seleção de fonte, início, encerramento, contagem de leituras e texto da dica usam `hm.studio_bridge`; o vídeo é servido como MJPEG local até 720p, em canal separado da análise. A voz continua na API ElevenLabs e toca no Windows. O treino só é enviado ao HOMELAB depois que uma sessão ao vivo for selada.
 
 O protótipo isolado desta pasta continua ilustrativo. A integração atual usa WebView2 diretamente; o pacote Tauri descrito abaixo ainda é uma direção para uma futura migração de shell. O FPS exibido é o de codificação da prévia, não uma medição da tela física. A fluidez e o consumo precisam ser medidos em Windows antes de publicar uma promessa de desempenho.
 
@@ -46,7 +46,7 @@ Paleta: Obsidian #14151d, Surface #242632, Violet #9984ff, Mint #7fe0bc e Gold #
 
 - Rust no Windows: captura, redução da prévia, apresentação e controles locais.
 - Tauri: navegação, coach, estado dos serviços e preferências.
-- Motor local/BigBANANA: decisões e experimentos com versão, tempo da observação e confiança rastreáveis.
+- Motor local/HOMELAB: decisões e experimentos com versão, tempo da observação e confiança rastreáveis.
 
 Manter a prévia independente da análise. Fila limitada ao quadro mais recente, descarte de quadros antigos, métricas de captura e apresentação separadas. Não transportar vídeo como eventos JSON. Avaliar transporte binário/canal ou superfície nativa, medindo cópias e latência no Windows antes de escolher. Atualizar métricas visuais em frequência baixa; animações decorativas devem pausar em segundo plano. Esta prévia não comprova FPS ou consumo do aplicativo final.
 
