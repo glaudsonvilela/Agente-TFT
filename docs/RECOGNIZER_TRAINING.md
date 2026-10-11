@@ -789,7 +789,7 @@ correção não promove previsões a rótulos nem prova acerto das dicas.
 
 ## Pacote neural no cliente (7 de outubro)
 
-O BigBANANA já publica a geração estável 1 com L3, classificador DINO de
+O HOMELAB já publica a geração estável 1 com L3, classificador DINO de
 unidades e classificador de ícones de itens. O download HTTPS e a verificação
 integral do pacote foram exercitados em Linux com a mesma rotina do cliente:
 os dois componentes opcionais passaram no health-check. O arquivo publicado
