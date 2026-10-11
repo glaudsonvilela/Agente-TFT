@@ -13,7 +13,7 @@ GameState + DecisionPacket
   ↓
 TrainingJobRequest
   ↓
-Servidor BigBANANA / Agente 2
+Servidor HOMELAB / Agente 2
   ↓
 simulator / bot pool / self-play
   ↓
