@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Durable filesystem neural worker for BigBANANA."""
+"""Durable filesystem neural worker for HOMELAB."""
 from __future__ import annotations
 import argparse,os,subprocess,sys,time
 from pathlib import Path
