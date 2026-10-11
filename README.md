@@ -20,11 +20,11 @@ Ele não foi concebido como um chatbot genérico de TFT. A proposta é construir
 
 ## Arquitetura atual
 
-A arquitetura atual separa três planos:
+A arquitetura separa três planos, com integração Akash ainda planejada:
 
 1. **Windows Host** — captura, preview, interface e supervisão;
 2. **AgenteTFT-Core em Linux/WSL 2** — percepção e processamento pesado local;
-3. **Servidor HOMELAB** — treinamento e avaliação remotos opcionais, separados do processo de jogo.
+3. **Akash Network (planejada)** — GPUs remotas para treinamento PyTorch e avaliação offline, contratadas via Console Air com Keplr.
 
 A fonte pode ser uma partida/replay exibida no Windows ou uma **placa de captura**. O vídeo permanece no host; apenas ROIs, entradas reduzidas e dados necessários à análise seguem para o núcleo Linux.
 
@@ -70,7 +70,10 @@ flowchart LR
     U --> V["PydanticAI-slim<br/>orquestração + explicação"]
     V --> E
 
-    Y["Servidor HOMELAB: treino e avaliação"] -.-> T
+    AA -.-> TRAIN_DATA["Dataset revisado e privado"]
+    TRAIN_DATA -.-> AK["Akash Network / GPU PyTorch (planejado)"]
+    AK -.-> VAL["Validação, champion e manifesto com hash"]
+    VAL -.->|"atualização fora da partida"| G
 
     L --> AA["Telemetria / Replay / Auditoria"]
     S --> AA
@@ -99,11 +102,12 @@ LINUX CORE / WSL 2
 ├── Opportunity Runtime
 └── Decision Core
 
-SERVIDOR HOMELAB (opcional)
-├── Simulator Lab
-├── treinamento e avaliação
-├── Shadow / counterfactual jobs
-└── painel de monitoramento
+GPU REMOTA NA AKASH (planejada)
+├── Console Air e Keplr (autorização pelo operador)
+├── Container GPU / PyTorch
+├── Treinamento + validação offline
+├── Checkpoints persistentes fora do lease
+└── Modelo aprovado + rollback
 ```
 
 A falha de um serviço remoto não deve bloquear captura, estado local ou fallback determinístico.
@@ -130,7 +134,7 @@ A falha de um serviço remoto não deve bloquear captura, estado local ou fallba
 | **Simulator Lab** | simulação sazonal, hex grid, eventos, combate parcial e rollouts de laboratório |
 | **Knowledge System** | releases por patch/set, catálogo de unidades/itens/traits e provenance |
 | **Strategy Memory** | memória estruturada de mecânicas e linhas estratégicas por patch |
-| **Servidor HOMELAB** | treinador isolado, painel e trabalhos assíncronos de avaliação; execução remota opcional |
+| **Treinamento Akash (planejado)** | GPUs alugadas por lease para PyTorch e simulação; não implantado |
 | **Instalador HM4.5** | instalador Windows com pacote do app, core WSL, hashes e health checks |
 | **Licença** | MIT |
 
@@ -166,11 +170,12 @@ O runtime também registra:
 - latência do HUB;
 - memória;
 - decisões e diagnósticos;
+
 ---
 
 ## AgenteTFT-Core — Linux/WSL 2
 
-O núcleo Linux é um serviço headless versionado e separado da interface.
+O núcleo Linux é um serviço headless versionado e separado da interface; a Akash não entra no caminho crítico.
 
 Ele reúne:
 
@@ -379,40 +384,35 @@ Um candidato de laboratório **não é promovido automaticamente** ao runtime s�
 
 ---
 
-## Servidor HOMELAB — plano remoto de treinamento
+## Treinamento por GPUs descentralizadas — Akash (planejado)
 
-O servidor HOMELAB funciona como infraestrutura de treinamento e avaliação, não como controlador do cliente TFT.
-
-### Trainer
-
-O serviço remoto suporta a arquitetura para:
-
-- sessões;
-- jobs;
-- Shadow Player;
-- Counterfactual Swarm;
-- métricas;
-- armazenamento SQLite/WAL;
-- painel web;
-- terminal `tft`;
-- CPU/RAM;
-- histórico de execuções.
+A **Akash Network** é o destino preferencial proposto para treinamento e avaliação remotos, sem depender de um servidor dedicado próprio. Seu marketplace usa blockchain para contratos e pagamentos; **nenhum peso de rede neural é treinado ou armazenado on-chain**. Os containers PyTorch executam nas GPUs dos provedores.
 
 ```text
-GameState
-   ├── Shadow Player → mantém uma linha sequencial
-   └── Counterfactual Swarm → compara futuros alternativos
+Windows / Linux → observações, OCR, GameState e replay
+        ↓
+Dataset consentido, revisado e desidentificado
+        ↓  (armazenamento externo privado)
+Akash Console Air + Keplr → lease GPU aprovado pelo operador
+        ↓
+Docker / PyTorch / treinamento offline / simulação
+        ↓
+Checkpoint + métricas + validação holdout
+        ↓
+Champion aprovado + manifesto SHA-256
+        ↓  (fora da partida, ativação atômica e rollback)
+Inferência local ONNX + decisão Rust
 ```
 
-O objetivo é comparar:
+- Captura e matemática continuam locais; a nuvem **não controla** mouse, teclado, memória ou processo do jogo.
+- Nenhum material pessoal ou segredo deve ir para o provedor sem tratamento de privacidade; GPU terceirizada **não é ambiente confidencial por padrão**.
+- AKT/ACT, lances, assinatura da Keplr e encerramento de lease são responsabilidade do operador, nunca do cliente TFT.
+- Antes de contratar GPU, conferir preços efetivos, taxas e orçamento. Checkpoints devem persistir **fora do lease efêmero**.
+- Treinos não podem promover modelos automaticamente sem avaliação reprodutível, versão, hash e rollback.
 
-```text
-ação recomendada
-× ação humana
-× Shadow
-× melhor branch
-× outcome
-```
+**Estado real:** documentação e plano de migração. Ainda não há deploy Akash, job PyTorch remoto ou integração de publicação comprovados. O contrato de treinamento existente é legado e requer um adaptador validado.
+
+Leia: [plano técnico Akash](docs/AKASH_TRAINING.md), [arquitetura neural](docs/SERVER_SIDE_NEURAL_ARCHITECTURE.md) e [guia oficial Console Air](https://akash.network/docs/getting-started/console-air-onboarding/).
 
 ---
 
@@ -512,7 +512,7 @@ Também existe um caminho de **instalador online**: o bootstrap pequeno baixa um
 | Matemática | Rust |
 | Orquestração | PydanticAI-slim |
 | Conhecimento | Riot / Data Dragon / CommunityDragon |
-| Remote trainer | Docker + SQLite/WAL |
+| Treinamento remoto planejado | Akash GPU marketplace + Docker/PyTorch; checkpoints privados |
 | Telemetria | JSONL + evidências versionadas |
 | UI | Windows; Tauri/Svelte como direção de produto |
 
@@ -588,10 +588,10 @@ Este repositório público contém código, documentação, configurações de e
 
 - Configurações sensíveis devem ser passadas por variáveis de ambiente ou arquivos privados fora do Git.
 - Logs operacionais, sessões, caches, banco de dados e checkpoints locais não devem ser versionados.
-- A ligação com o servidor **HOMELAB** deve ser configurada pelo operador; nomes internos, IPs e URLs reais não fazem parte da documentação pública.
+- A contratação da Akash é feita via Keplr/Console Air pelo operador; não inclua seed phrase, chaves privadas, credenciais ou endpoints internos no Git nem no SDL.
 - Dados de treino e avaliações devem ser anonimizados antes de qualquer compartilhamento.
 - As atualizações dos modelos precisam de hashes, validação e possibilidade de rollback. O treinamento remoto não comanda automaticamente o jogo.
-- Para treinamento externo com PyTorch, a adoção de GPUs remotas depende de orçamento, integração e validação; não significa que um provedor já esteja implantado.
+- A blockchain coordena oferta/lease/pagamento; o treinamento PyTorch ocorre **off-chain** nos provedores. A integração ainda exige orçamento, implementação e testes.
 
 ---
 
