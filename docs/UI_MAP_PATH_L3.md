@@ -74,7 +74,7 @@ fornecidos pelo usuário nem evidência de generalização a todas as telas. Nã
 as imagens no Git. Os outros labels vêm das transformações conhecidas de envelopes.
 
 Nenhum preço, texto, campeão, item ou valor de HP é usado para acertar coordenadas.
-Não há nova instalação, modelo grande, serviço no BigBANANA ou treinamento contínuo.
+Não há nova instalação, modelo grande, serviço no HOMELAB ou treinamento contínuo.
 Os 22 apontamentos históricos não foram declarados corrigidos. O CI dedicado deve
 executar as suítes congeladas L1/L2 com ONNX, além da suíte nova e da revisão estrutural.
 
