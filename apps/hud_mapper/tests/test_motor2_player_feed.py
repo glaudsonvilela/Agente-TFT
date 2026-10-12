@@ -1,5 +1,9 @@
+import base64
+import json
 import unittest
+import zlib
 
+from hm.motor1_feed import encode_snapshot
 from hm.motor2_player_feed import ACTION_TYPES, FEATURE_NAMES, make_frame
 from hm.replay_decision import ReplayDecisionEngine
 
@@ -54,6 +58,31 @@ class Motor2PlayerFeedTests(unittest.TestCase):
         self.assertEqual(answer["player_policy_frame"]["candidates"][0]
                          ["decision_key"], "pair:a")
         self.assertFalse(answer["player_policy_frame"]["runtime_policy_active"])
+
+    def test_full_motor1_packet_includes_both_board_sides_and_every_hud_field(self):
+        reader = {"hud": [{"field": "gold", "value": 42},
+                          {"field": "xp", "value": 12}],
+                  "shop": {"slots": [{"observed_name": "Camille"}]}}
+        hub = {"spatial_map": {
+            "own_cells": [{"id": "A1", "occupancy": "unknown"}],
+            "enemy_cells": [{"id": "A1", "center": None}],
+            "own_bench": [{"id": "R1"}],
+            "enemy_bench": [{"id": "R1", "identity_verified": False}]},
+            "item_evidence": [{"name": "Warmog", "verified": False}],
+            "trait_evidence": {"Coven": 3},
+            "augment_options": [{"name": "Patient Study"}]}
+        aux = {"opponent": {"player": "rival", "hp": 67}}
+        packet = {"reader": encode_snapshot(reader), "hub": encode_snapshot(hub),
+                  "aux": encode_snapshot(aux)}
+        frame = make_frame(self.result(), patch="18.4B", set_key="TFTSet18",
+                           match_id="match", epoch=0, motor1_full=packet)
+        self.assertEqual(frame["motor1_full"], packet)
+        for key, expected in (("reader", reader), ("hub", hub), ("aux", aux)):
+            packed = frame["motor1_full"][key]
+            restored = json.loads(zlib.decompress(base64.b64decode(packed["data"])))
+            self.assertEqual(restored, expected)
+        self.assertFalse(frame["full_motor1_interpreted_by_policy"])
+        self.assertFalse(frame["training_eligible"])
 
     def test_old_worker_missing_feed_keeps_rust_choice(self):
         result = self.result()

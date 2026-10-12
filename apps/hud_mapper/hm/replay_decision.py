@@ -295,7 +295,8 @@ class ReplayDecisionEngine:
                 from .motor2_player_feed import make_frame
                 try:
                     output['player_policy_frame'] = make_frame(result, patch=patch,
-                        set_key=set_key, match_id=match_id, epoch=epoch)
+                        set_key=set_key, match_id=match_id, epoch=epoch,
+                        motor1_full=request.get('motor1'))
                 except ValueError as feed_error:
                     # An older worker may rank correctly without the policy
                     # feed. Collection must never cancel the live Rust choice.

@@ -35,7 +35,7 @@ def label(at=1500, choice="buy"):
 def test_one_match_uses_video_action_and_causal_state():
     frames = [frame(1000, 1, 40, 90), frame(3000, 2, 36, 90),
               frame(61000, 3, 50, 82)]
-    rows = make_decisions(frames, [label()])
+    rows = make_decisions(frames, [label()], require_complete_motor1=False)
     assert [row.chosen for row in rows] == [0, None, None]
     assert rows[0].future_hp_delta == -8
     assert rows[0].future_gold_delta == 10
@@ -43,14 +43,15 @@ def test_one_match_uses_video_action_and_causal_state():
     assert rows[0].state == [40.0, 90.0, 6.0, 0.0]
     model = SequencePolicy(4, 5, hidden=8)
     metrics = train_episode(rows, model, torch.optim.Adam(model.parameters(), lr=0.001),
-                            chunk_size=2)
+                            chunk_size=2, require_complete_motor1=False)
     assert metrics["matched_video_actions"] == 1
     assert metrics["future_hud_targets"] == 2
 
 
 def test_missing_candidate_fails_instead_of_relabeling():
     with pytest.raises(ValueError, match="absent"):
-        make_decisions([frame(1000, 1, 40, 90, options=("wait", "roll"))], [label()])
+        make_decisions([frame(1000, 1, 40, 90, options=("wait", "roll"))], [label()],
+                       require_complete_motor1=False)
 
 
 def test_video_evidence_and_stable_planning_required():
@@ -71,7 +72,19 @@ def test_action_cannot_use_future_observation_or_wrong_source():
 
 
 def test_no_label_does_not_train_from_rust_choice():
-    rows = make_decisions([frame(1000, 1, 40, 90), frame(3000, 2, 40, 90)], [])
+    rows = make_decisions([frame(1000, 1, 40, 90), frame(3000, 2, 40, 90)], [],
+                          require_complete_motor1=False)
     model = SequencePolicy(4, 5, hidden=8)
     with pytest.raises(ValueError, match="not imitation"):
-        train_episode(rows, model, torch.optim.Adam(model.parameters()), chunk_size=1)
+        train_episode(rows, model, torch.optim.Adam(model.parameters()), chunk_size=1,
+                      require_complete_motor1=False)
+
+
+def test_incomplete_motor1_cannot_enter_real_training():
+    with pytest.raises(ValueError, match="complete Motor 1 input"):
+        make_decisions([frame(1000, 1, 40, 90)], [label()])
+    rows = make_decisions([frame(1000, 1, 40, 90)], [label()],
+                          require_complete_motor1=False)
+    model = SequencePolicy(4, 5, hidden=8)
+    with pytest.raises(ValueError, match="complete Motor 1 input"):
+        train_episode(rows, model, torch.optim.Adam(model.parameters()))

@@ -257,7 +257,7 @@ mod tests {
     #[test]
     fn initial_stage_uses_its_own_location_and_requires_both_scales() {
         let (mut reader, frame) = setup();
-        let mut ocr = fake(&[None, None, Some(("1-4", 0.97)), Some(("1-4", 0.93))]);
+        let mut ocr = fake(&[None, None, Some(("1-4", 0.97)), Some(("1-4", 0.93)), None, None]);
         let result = reader.observe(&frame, &mut ocr).unwrap();
         assert_eq!(result.read.unwrap().batch.stage.unwrap().value, "1-4");
         assert_eq!(result.details["selected_candidate"], "initial");
@@ -272,10 +272,12 @@ mod tests {
                 Some(("2-1", 0.97)),
                 Some(("1-4", 0.98)),
                 Some(("1-4", 0.98)),
+                None,
+                None,
             ],
-            [None, None, Some(("1-4", 0.79)), Some(("1-4", 0.97))],
-            [None, None, Some(("1 4", 0.97)), Some(("1 4", 0.97))],
-            [None, None, None, None],
+            [None, None, Some(("1-4", 0.79)), Some(("1-4", 0.97)), None, None],
+            [None, None, Some(("1 4", 0.97)), Some(("1 4", 0.97)), None, None],
+            [None, None, None, None, None, None],
         ] {
             let (mut reader, frame) = setup();
             assert!(reader
@@ -288,16 +290,26 @@ mod tests {
     #[test]
     fn cache_observes_changes_at_the_initial_location_too() {
         let (mut reader, mut frame) = setup();
-        reader.observe(&frame, &mut fake(&[None; 4])).unwrap();
+        reader.observe(&frame, &mut fake(&[None; 6])).unwrap();
         // Inside the initial-stage rectangle, outside the old fixed rectangle.
         frame.pixels[(10 * 1920 + 830) * 3] = 255;
         let result = reader
             .observe(
                 &frame,
-                &mut fake(&[None, None, Some(("1-1", 0.97)), Some(("1-1", 0.98))]),
+                &mut fake(&[None, None, Some(("1-1", 0.97)), Some(("1-1", 0.98)), None, None]),
             )
             .unwrap();
         assert!(!result.cache_hit);
         assert_eq!(result.read.unwrap().recognized_text, "1-1");
+    }
+    #[test]
+    fn narrow_legacy_location_still_reads_a_full_stage() {
+        let (mut reader, frame) = setup();
+        let o = reader.observe(
+            &frame,
+            &mut fake(&[None, None, None, None, Some(("2-1", 0.96)), Some(("2-1", 0.95))]),
+        ).unwrap();
+        assert_eq!(o.read.unwrap().recognized_text, "2-1");
+        assert_eq!(o.details["selected_candidate"], "narrow_legacy");
     }
 }

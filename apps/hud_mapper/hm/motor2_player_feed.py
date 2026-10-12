@@ -87,7 +87,7 @@ def _features(state, macro, action, ranking):
     return list(values)
 
 
-def make_frame(result, *, patch, set_key, match_id, epoch):
+def make_frame(result, *, patch, set_key, match_id, epoch, motor1_full=None):
     """Preserve Rust evidence and features; never infer a demonstrated choice."""
     if result.get("origin") != "rust_live_opportunity_v1" or not isinstance(patch, str) \
             or not patch or not isinstance(set_key, str) or not set_key:
@@ -126,9 +126,14 @@ def make_frame(result, *, patch, set_key, match_id, epoch):
                    plan_state=result.get("plan_state"),
                    match_pool=result.get("match_pool"),
                    motor1_ingest=result.get("motor1_ingest"),
+                   # This is the exact, lossless packet consumed by Rust:
+                   # reader + HUB + auxiliaries, with hashes and source time.
+                   # Numeric candidate features below are only a legacy view.
+                   motor1_full=motor1_full,
                    candidates=rows, selected_index=result.get("selected_index"),
                    label_status="unreviewed_observation",
-                   training_eligible=False, runtime_policy_active=False)
+                   training_eligible=False, runtime_policy_active=False,
+                   full_motor1_interpreted_by_policy=False)
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"),
                          ensure_ascii=False).encode("utf-8")
     payload["observation_sha256"] = hashlib.sha256(encoded).hexdigest()

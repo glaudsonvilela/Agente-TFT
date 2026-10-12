@@ -33,6 +33,7 @@ class Decision:
     chosen: int | None
     future_hp_delta: float | None
     future_gold_delta: float | None
+    full_motor1_interpreted: bool = False
 
 
 def _number(value: Any) -> float | None:
@@ -92,7 +93,8 @@ def _state_indices(feature_names: list[str]) -> list[int]:
 
 
 def make_decisions(frames: list[dict], labels: list[dict], *,
-                   future_horizon_ms: int = 60000) -> list[Decision]:
+                   future_horizon_ms: int = 60000,
+                   require_complete_motor1: bool = True) -> list[Decision]:
     if not frames or future_horizon_ms < 1:
         raise ValueError("nonempty episode and positive horizon required")
     ordered = sorted(frames, key=lambda row: row["source_ms"])
@@ -106,6 +108,18 @@ def make_decisions(frames: list[dict], labels: list[dict], *,
     if any(row.get("match_id") != match_id or row.get("feature_names") != feature_names
            for row in ordered):
         raise ValueError("one complete match and one feature schema required")
+    if require_complete_motor1:
+        for frame in ordered:
+            receipt = frame.get("motor1_ingest") or {}
+            packet = frame.get("motor1_full") or {}
+            if (receipt.get("schema") != "motor1_to_motor2_v1"
+                    or receipt.get("reader_received") is not True
+                    or receipt.get("hub_received") is not True
+                    or packet.get("schema") != "motor1_to_motor2_v1"
+                    or not all(isinstance(packet.get(key), dict)
+                               for key in ("reader", "hub", "aux"))
+                    or frame.get("full_motor1_interpreted_by_policy") is not True):
+                raise ValueError("complete Motor 1 input is required before imitation training")
     output = []
     for index, frame in enumerate(ordered):
         options = frame.get("candidates") or []
@@ -133,7 +147,8 @@ def make_decisions(frames: list[dict], labels: list[dict], *,
         output.append(Decision(match_id, frame["source_ms"], state,
                                [[float(value) for value in vector] for vector in vectors],
                                keys, chosen, hp1 - hp0 if hp0 is not None and hp1 is not None else None,
-                               gold1 - gold0 if gold0 is not None and gold1 is not None else None))
+                               gold1 - gold0 if gold0 is not None and gold1 is not None else None,
+                               require_complete_motor1))
     if len(aligned) != sum(row.chosen is not None for row in output):
         raise AssertionError("a video label was lost")
     return output
@@ -159,10 +174,13 @@ class SequencePolicy(nn.Module):
 
 
 def train_episode(decisions: list[Decision], model: SequencePolicy, optimizer,
-                  *, chunk_size: int = 128) -> dict:
+                  *, chunk_size: int = 128,
+                  require_complete_motor1: bool = True) -> dict:
     """Train in chronological chunks; unlabelled frames still update memory."""
     if not decisions or chunk_size < 1:
         raise ValueError("nonempty chronological episode required")
+    if require_complete_motor1 and not all(row.full_motor1_interpreted for row in decisions):
+        raise ValueError("complete Motor 1 input is required before optimizer step")
     if not any(row.chosen is not None for row in decisions):
         raise ValueError("video action labels required; future HUD prediction is not imitation")
     if any(a.source_ms >= b.source_ms for a, b in zip(decisions, decisions[1:])):

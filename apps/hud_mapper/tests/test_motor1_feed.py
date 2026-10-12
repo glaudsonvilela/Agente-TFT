@@ -50,6 +50,16 @@ class Motor1FeedTests(unittest.TestCase):
         self.assertIsNone(feed.read(now_ms=4501, epoch=3))
         self.assertIsNone(feed.read(now_ms=1001, epoch=4))
 
+    def test_reader_behind_hub_uses_matching_past_snapshot(self):
+        feed = Motor1Feed()
+        feed.publish({'marker': 'past'}, source_ms=1000, epoch=3)
+        feed.publish({'marker': 'future'}, source_ms=3000, epoch=3)
+        packet = feed.read(now_ms=1500, epoch=3)
+        self.assertEqual(packet['source_ms'], 1000)
+        self.assertEqual(packet['age_ms'], 500)
+        restored = json.loads(zlib.decompress(base64.b64decode(packet['data'])))
+        self.assertEqual(restored['marker'], 'past')
+
     def test_gold_xp_and_streak_keep_their_evidence_levels(self):
         hud = lambda field, value, text: dict(field=field, value=value, text=text,
             status='single_frame_observation', confidence=.98)

@@ -7,6 +7,7 @@ Every visual hypothesis keeps its original status and provenance.
 from __future__ import annotations
 
 import base64
+from collections import deque
 import hashlib
 import json
 import threading
@@ -30,10 +31,10 @@ def encode_snapshot(snapshot):
 
 
 class Motor1Feed:
-    """One replaceable complete HUB observation; readers never block capture."""
+    """Bounded complete HUB history; readers never block capture."""
     def __init__(self):
         self._lock = threading.Lock()
-        self._latest = None
+        self._history = deque(maxlen=24)
         self.last_error = None
 
     def publish(self, snapshot, *, source_ms, epoch):
@@ -41,19 +42,20 @@ class Motor1Feed:
             packed = encode_snapshot(snapshot)
         except (TypeError, ValueError) as exc:
             with self._lock:
-                self._latest = None
                 self.last_error = str(exc)
             return False
         with self._lock:
-            self._latest = dict(packed, source_ms=source_ms, epoch=epoch)
+            self._history.append(dict(packed, source_ms=source_ms, epoch=epoch))
             self.last_error = None
         return True
 
     def read(self, *, now_ms, epoch):
         with self._lock:
-            latest = self._latest
-        if (latest is None or latest['epoch'] != epoch or
-                type(now_ms) not in (int, float) or
-                not 0 <= now_ms - latest['source_ms'] <= 3500):
-            return None
-        return {**latest, 'age_ms': now_ms - latest['source_ms']}
+            if type(now_ms) not in (int, float):
+                return None
+            candidates = [row for row in self._history
+                          if row['epoch'] == epoch and
+                          0 <= now_ms - row['source_ms'] <= 3500]
+            latest = max(candidates, key=lambda row: row['source_ms'], default=None)
+        return ({**latest, 'age_ms': now_ms - latest['source_ms']}
+                if latest is not None else None)
