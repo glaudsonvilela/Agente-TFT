@@ -30,12 +30,17 @@ blocked. No weights are promoted automatically.
 Current state (2026-10-12): one complete-match 1080p candidate clip was
 separated from a Setsuko Twitch VOD. Its result is visibly first place. A
 5 fps review pass produced 10,100 native-resolution frames and 10,099 visual
-transition candidates. One actual buy-XP action at stage 3-1 is now reviewed:
-34→30 gold and level 5 at 18/20 XP → level 6 at 2/36 XP. The other visual
-transitions have not been labeled as actions; many are cinematics or choice
-overlays. `training.simulate_reviewed_economy_branches` is enabled for this
-reviewed decision and verifies immediate gold, level, and XP branches against
-the video. It generates no match result or policy preference label. The
-client patch, enough independent reviewed decisions, and two additional
-complete matches remain unverified. The full 18.4B simulator audit is blocked,
-so the nine-hour player-policy job is not yet launchable.
+transition candidates. Eight actions are reviewed: six XP purchases and two
+rerolls. One XP purchase at stage 3-1 changed 34→30 gold and level 5 at 18/20
+XP → level 6 at 2/36 XP. The other visual transitions have not been labeled
+as actions; many are cinematics or choice overlays.
+`training.simulate_reviewed_economy_branches` verifies immediate economy
+branches against these video decisions. For rerolls, the next shop is recorded
+as an observed outcome and never exposed as a pre-action prediction. It
+generates no match result or policy preference label. A portable source
+package includes the whole 1920×1080 clip, reviewed evidence frames, timeline
+and local branch results; its `episode.json` explicitly reports that policy
+training is not ready. The client patch, complete observable state per action,
+and two additional complete matches remain unverified. The full 18.4B
+simulator audit is blocked, so the nine-hour player-policy job is not yet
+launchable.

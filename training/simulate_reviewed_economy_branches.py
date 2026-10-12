@@ -57,11 +57,44 @@ def buy_xp_branches(row: dict) -> dict:
     }
 
 
+def reroll_branches(row: dict) -> dict:
+    if row.get("type") != "reroll":
+        raise ValueError("only reviewed reroll decisions are supported")
+    gold = row["gold_before"]
+    cost = row["reroll_cost"]
+    before = row["shop_before"]
+    after = row["shop_after"]
+    if (type(gold) is not int or type(cost) is not int or not gold >= cost > 0
+            or len(before) != 5 or len(after) != 5 or before == after):
+        raise ValueError("invalid reroll observation")
+    if row["gold_after"] != gold - cost:
+        raise ValueError("reroll cost disagrees with reviewed video")
+    return {
+        "stage": row["stage"],
+        "before_frame": row["before"],
+        "after_frame": row["after"],
+        "observed_action": "reroll",
+        "branches": {
+            "hold": {"gold": gold, "shop": before},
+            # The source frame proves the outcome after the click. It cannot
+            # make that random draw available as a pre-action prediction.
+            "reroll": {"gold": gold - cost, "shop": None},
+        },
+        "observed_outcome": {"gold": row["gold_after"], "shop": after},
+        "observed_branch_matches_video": True,
+        "scope": "immediate_gold_cost_only",
+        "unknown_outcomes": ["reroll_shop_before_action", "future_shop", "combat",
+                             "placement", "future_opponent_actions"],
+        "policy_preference_label": None,
+    }
+
+
 def simulate(manifest_path: Path, frames_dir: Path) -> dict:
     summary = validate(manifest_path, frames_dir)
     manifest = json.loads(manifest_path.read_text())
-    branches = [buy_xp_branches(row) for row in manifest["actions"]
-                if row["type"] == "buy_xp"]
+    supported = {"buy_xp": buy_xp_branches, "reroll": reroll_branches}
+    branches = [supported[row["type"]](row) for row in manifest["actions"]
+                if row["type"] in supported]
     return {
         "schema_version": 1,
         "kind": "reviewed_local_economy_branches",
