@@ -1,0 +1,24 @@
+{
+  "training_ready": false,
+  "blockers": [
+    "reviewed_1080p_challenger_matches_or_patch_rules_missing",
+    "18.4B_full_match_simulator_not_validated",
+    "reviewed_action_dataset_or_compiled_content_missing"
+  ],
+  "selected_matches": 0,
+  "reviewed_actions": 0,
+  "simulator_ready": false,
+  "input_sha256": {
+    "selection": "b14592bf25f546d5e13df4f76b8f66b7980437ffb92b89a0314cea868f638c38"
+  },
+  "simulator_catalog_sha256": "d8afc016eaa9479f8cd575209f62e24f9d49f3ef838e8e72712d11adadb846cc",
+  "schema_version": 1,
+  "kind": "akash_player_policy_preflight",
+  "requested_budget_seconds": 32400,
+  "launched": false,
+  "selected_source_clip_resolution": [
+    1920,
+    1080
+  ],
+  "simulator_rollouts_added": 0
+}
