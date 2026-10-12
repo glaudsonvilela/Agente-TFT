@@ -45,6 +45,8 @@ def build_episodes(rows, manifest, *, max_gap_ms=10_000):
         if meta.get("hud_language") not in SUPPORTED_HUD_LANGUAGES or \
                 meta.get("ocr_locale_validated") is not True:
             raise ValueError(f"unsupported or unvalidated HUD language: {match_id}")
+        if meta.get("source_resolution") != [1920, 1080]:
+            raise ValueError(f"training source must be native 1920x1080: {match_id}")
         if meta.get("player_pov_verified") is not True or \
                 meta.get("player_rank_at_game_verified") is not True:
             raise ValueError(f"player POV or Challenger rank unverified: {match_id}")
@@ -81,6 +83,7 @@ def build_episodes(rows, manifest, *, max_gap_ms=10_000):
             match_id=match_id, source_sha256=meta["source_sha256"],
             patch=patch, set_key=meta["set_key"],
             hud_language=meta["hud_language"],
+            source_resolution=[1920, 1080],
             start_ms=start, end_ms=end, placement=placement,
             outcome_evidence_id=meta.get("outcome_evidence_id"),
             frames=frames, split_unit="whole_match_id",

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
 TARGET_PATCH = "18.4B"
 SOURCE_KINDS = {"single_match_candidate", "edited_single_match", "multi_match_vod"}
+SOURCE_PLATFORMS = {"youtube", "twitch"}
 SUPPORTED_HUD_LANGUAGES = {"en_US", "pt_BR"}
 REVIEW_FLAGS = (
     "client_patch_verified", "complete_match_boundaries_reviewed",
@@ -30,9 +32,17 @@ def audit(document: dict) -> dict:
     rows = []
     for entry in videos:
         identity = entry.get("id")
-        if not isinstance(identity, str) or len(identity) != 11 or identity in seen:
-            raise ValueError("duplicate or invalid YouTube video ID")
-        seen.add(identity)
+        platform = entry.get("platform", "youtube")
+        if platform not in SOURCE_PLATFORMS:
+            raise ValueError("unsupported video platform")
+        if not isinstance(identity, str) or not (
+                len(identity) == 11 if platform == "youtube" else
+                re.fullmatch(r"[0-9]{8,15}", identity)):
+            raise ValueError("invalid video ID")
+        source_key = (platform, identity)
+        if source_key in seen:
+            raise ValueError("duplicate video ID")
+        seen.add(source_key)
         if entry.get("source_kind") not in SOURCE_KINDS:
             raise ValueError("unknown video source kind")
         if type(entry.get("duration_seconds")) is not int or entry["duration_seconds"] < 60:
@@ -50,7 +60,9 @@ def audit(document: dict) -> dict:
             missing.append("local_source_sha256")
         rows.append({
             "id": identity,
-            "url": "https://www.youtube.com/watch?v=" + identity,
+            "platform": platform,
+            "url": ("https://www.youtube.com/watch?v=" if platform == "youtube"
+                    else "https://www.twitch.tv/videos/") + identity,
             "channel": entry.get("channel"),
             "region_candidate": entry.get("region_candidate"),
             "source_kind": entry["source_kind"],
@@ -64,6 +76,10 @@ def audit(document: dict) -> dict:
         "kind": "expert_video_source_audit",
         "target_patch": TARGET_PATCH,
         "candidate_videos": len(rows),
+        "candidate_duration_seconds": sum(entry["duration_seconds"] for entry in videos),
+        "twitch_archive_duration_seconds": sum(
+            entry["duration_seconds"] for entry in videos
+            if entry.get("platform", "youtube") == "twitch"),
         "reviewed_training_sources": sum(row["training_ready"] for row in rows),
         "videos": rows,
         "training_started": False,

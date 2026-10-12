@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from training.prepare_challenger_strategy import audit
 
@@ -15,7 +16,8 @@ def digest(path):
 
 
 class ChallengerSelectionTests(unittest.TestCase):
-    def test_three_whole_matches_split_without_leakage(self):
+    @patch("training.prepare_challenger_strategy._video_resolution", return_value=[1920, 1080])
+    def test_three_whole_matches_split_without_leakage(self, probe):
         with tempfile.TemporaryDirectory() as folder:
             folder = Path(folder)
             games = []
@@ -46,6 +48,12 @@ class ChallengerSelectionTests(unittest.TestCase):
             selection["games"][2]["video_path"] = games[0]["video_path"]
             selection["games"][2]["video_sha256"] = games[0]["video_sha256"]
             with self.assertRaisesRegex(ValueError, "same video"):
+                audit(selection, ROOT)
+
+            probe.return_value = [1280, 720]
+            selection["games"][2]["video_path"] = str(folder / "game2.mp4")
+            selection["games"][2]["video_sha256"] = digest(folder / "game2.mp4")
+            with self.assertRaisesRegex(ValueError, "1920x1080"):
                 audit(selection, ROOT)
 
     def test_empty_selection_is_not_ready(self):

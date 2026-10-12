@@ -4,9 +4,102 @@
   "target_set": "TFTSet18",
   "target_patch": "18.4B",
   "discovered_at": "2026-10-11",
-  "source_of_metadata": "YouTube video metadata read on 2026-10-11",
-  "selection_rule": "Only English or Brazilian Portuguese HUD videos are eligible. Patch 18.4B, Challenger rank in the recorded game, player POV, complete match boundaries, OCR locale and actions require visual review before training.",
+  "source_of_metadata": "YouTube and Twitch source metadata read on 2026-10-11; sampled Twitch frames are local evidence, not full-VOD review.",
+  "selection_rule": "Use original Twitch archives or independent full matches with English/Portuguese HUD. A multi-match VOD is a source container, not one episode. Patch 18.4B, Challenger rank, POV, exact match boundaries, OCR locale, actions and result require segment-level review before training.",
   "videos": [
+    {
+      "id": "2897329575",
+      "channel": "setsuko",
+      "upload_date": "2026-10-10",
+      "duration_seconds": 26842,
+      "title": "24 hour stream",
+      "rank_sample": "At VOD 00:30:12, overlay reads VIT SETSUKO#NA2 NA CHALLENGER 1,371 LP.",
+      "hud_language": "en_US",
+      "hud_language_verified": true,
+      "hud_language_evidence": "At VOD 00:30:12, HUD text and shop are English.",
+      "priority": "high",
+      "platform": "twitch",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "creator_evidence": "Source POV and rank must be reviewed per extracted game; a sampled overlay does not certify every match.",
+      "reviewed_match_segments": [],
+      "player_rank_at_game_verified": false,
+      "known_limitation": "This archive contains multiple games; split exact starts/results and check ranked mode before building episodes.",
+      "segment_candidates": [
+        {
+          "source_start_seconds": 2220,
+          "source_end_seconds": 4440,
+          "review_status": "ranked_pov_resolution_and_result_sampled; exact_match_boundaries_actions_and_client_patch_pending",
+          "local_clip_basename": "setsuko-2897329575-game1-candidate-1080p.mp4",
+          "local_clip_sha256": "6d2a51b4d2a6488ded42f1ddc1c58da2ee39256f23c3a0fd251491a3c6bf227f",
+          "local_clip_resolution": [1920, 1080],
+          "local_clip_fps": 60,
+          "outcome_sample": "1st place visible at local clip 00:34:52, about VOD 01:11:52.",
+          "evidence": "Local clip 00:00 shows TFT Ranked queue, POV VIT setsuko and Challenger 1406 LP; 00:01:20 loading screen; 00:34:52 first-place result; 00:35:10 ranked queue at Challenger 1447 LP. Only this match-sized 37-minute clip was acquired from the archive."
+        }
+      ]
+    },
+    {
+      "id": "2896271382",
+      "channel": "setsuko",
+      "upload_date": "2026-10-09",
+      "duration_seconds": 17148,
+      "title": "actual 1.x",
+      "rank_sample": "At VOD 00:30:10, overlay reads VIT SETSUKO#NA2 NA CHALLENGER 1,341 LP.",
+      "hud_language": "en_US",
+      "hud_language_verified": true,
+      "hud_language_evidence": "At VOD 00:30:10, ability tooltip and shop are English.",
+      "priority": "high",
+      "platform": "twitch",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "creator_evidence": "Source POV and rank must be reviewed per extracted game; a sampled overlay does not certify every match.",
+      "reviewed_match_segments": [],
+      "player_rank_at_game_verified": false,
+      "known_limitation": "This archive contains multiple games; split exact starts/results and check ranked mode before building episodes."
+    },
+    {
+      "id": "2895746438",
+      "channel": "setsuko",
+      "upload_date": "2026-10-09",
+      "duration_seconds": 14762,
+      "title": "play until bot 4(50 games)",
+      "rank_sample": "At VOD 00:30:10, ranked queue screen reads VIT setsuko Challenger 1202 LP; stream overlay reads CHALLENGER 1,233 LP.",
+      "hud_language": "en_US",
+      "hud_language_verified": true,
+      "hud_language_evidence": "At VOD 00:30:10, ranked queue screen is in English.",
+      "priority": "high",
+      "platform": "twitch",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "creator_evidence": "Source POV and rank must be reviewed per extracted game; a sampled overlay does not certify every match.",
+      "reviewed_match_segments": [],
+      "player_rank_at_game_verified": false,
+      "known_limitation": "This archive contains multiple games; split exact starts/results and check ranked mode before building episodes."
+    },
+    {
+      "id": "2897253279",
+      "channel": "wasianiverson",
+      "upload_date": "2026-10-10",
+      "duration_seconds": 20640,
+      "title": "clocking in to work",
+      "rank_sample": "At VOD 01:20:04, overlay reads ACAD WASIAN#NA2 NA CHALLENGER 1,345 LP while stage 1-3 is visible.",
+      "hud_language": "en_US",
+      "hud_language_verified": true,
+      "hud_language_evidence": "At VOD 00:30:10, traits and shop are English.",
+      "priority": "high",
+      "platform": "twitch",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "creator_evidence": "Source POV and rank must be reviewed per extracted game; a sampled overlay does not certify every match.",
+      "reviewed_match_segments": [],
+      "player_rank_at_game_verified": false,
+      "known_limitation": "This archive contains multiple games; split exact starts/results and check ranked mode before building episodes. Stream webcam and chat overlays need masks when reading HUD."
+    },
     {
       "id": "1nNF0OjHcps",
       "channel": "GrindHard",
@@ -22,7 +115,8 @@
       "hud_language": "en_US",
       "hud_language_verified": true,
       "hud_language_evidence": "Visual review of 1080p frames at 00:15 and 35:30 reads Brawler, Sprykin, stage 1-2, shop names and stage 6-5 in English.",
-      "known_limitation": "Start and result boundaries, client patch, rank at game and actions still need a full video audit."
+      "known_limitation": "Start and result boundaries, client patch, rank at game and actions still need a full video audit.",
+      "platform": "youtube"
     },
     {
       "id": "TqgvJ3l_-y0",
@@ -36,20 +130,8 @@
       "creator_evidence": "AMER Pro Circuit competitor; game rank unverified",
       "priority": "review",
       "known_limitation": "Video chapters begin at 2-1 after intro; stage 1 may be omitted.",
-      "hud_language_candidate": "en_US"
-    },
-    {
-      "id": "ywTngK9F9g8",
-      "channel": "Wasianiverson VODs",
-      "region_candidate": "AMER",
-      "source_kind": "multi_match_vod",
-      "upload_date": "2026-10-11",
-      "duration_seconds": 20640,
-      "title": "This Patch Is FREE LP | Patch 18.4b VOD | October 10th",
-      "patch_evidence": "creator_title_explicit_18.4b",
-      "creator_evidence": "AMER Pro Circuit competitor; game rank unverified",
-      "priority": "review",
-      "hud_language_candidate": "en_US"
+      "hud_language_candidate": "en_US",
+      "platform": "youtube"
     }
   ],
   "unverified_rank_leads_excluded": [
@@ -92,6 +174,11 @@
       "id": "gvzAGVf2D_4",
       "channel": "Wasianiverson VODs",
       "reason": "BoxBox Bash event-mode rules not yet verified as standard ranked TFT."
+    },
+    {
+      "id": "ywTngK9F9g8",
+      "platform": "youtube",
+      "reason": "Repost of original Twitch archive 2897253279; excluded to prevent duplicate train/evaluation games."
     }
   ]
 }

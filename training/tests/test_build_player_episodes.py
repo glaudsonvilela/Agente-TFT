@@ -23,6 +23,7 @@ class PlayerEpisodeTests(unittest.TestCase):
                 placement=3, full_video_reviewed=True, patch_reviewed=True,
                 outcome_reviewed=True, outcome_evidence_id="result-frame",
                 hud_language="en_US", ocr_locale_validated=True,
+                source_resolution=[1920, 1080],
                 player_pov_verified=True, player_rank_at_game_verified=True)])
         return frames, manifest
 
@@ -55,6 +56,10 @@ class PlayerEpisodeTests(unittest.TestCase):
         bad = deepcopy(manifest)
         bad["matches"][0]["player_rank_at_game_verified"] = False
         with self.assertRaisesRegex(ValueError, "Challenger rank"):
+            build_episodes(frames, bad)
+        bad = deepcopy(manifest)
+        bad["matches"][0]["source_resolution"] = [1280, 720]
+        with self.assertRaisesRegex(ValueError, "1920x1080"):
             build_episodes(frames, bad)
 
 

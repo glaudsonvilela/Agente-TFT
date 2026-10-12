@@ -33,6 +33,15 @@ class ExpertVideoAuditTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate"):
             audit(doc)
 
+    def test_twitch_archive_has_its_own_url_and_requires_match_segments(self):
+        doc = copy.deepcopy(self.document)
+        row = doc["videos"][0]
+        row.update(platform="twitch", id="2897329575", source_kind="multi_match_vod")
+        result = audit(doc)["videos"][0]
+        self.assertEqual(result["url"], "https://www.twitch.tv/videos/2897329575")
+        self.assertIn("reviewed_match_segments", result["missing_review"])
+        self.assertEqual(audit(doc)["twitch_archive_duration_seconds"], 1796)
+
     def test_unverified_or_unsupported_hud_language_blocks_training(self):
         row = self.document["videos"][0]
         result = audit(self.document)

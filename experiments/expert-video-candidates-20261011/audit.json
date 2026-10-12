@@ -2,11 +2,102 @@
   "schema_version": 1,
   "kind": "expert_video_source_audit",
   "target_patch": "18.4B",
-  "candidate_videos": 3,
+  "candidate_videos": 6,
+  "candidate_duration_seconds": 83428,
+  "twitch_archive_duration_seconds": 79392,
   "reviewed_training_sources": 0,
   "videos": [
     {
+      "id": "2897329575",
+      "platform": "twitch",
+      "url": "https://www.twitch.tv/videos/2897329575",
+      "channel": "setsuko",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "hud_language": "en_US",
+      "training_ready": false,
+      "missing_review": [
+        "client_patch_verified",
+        "complete_match_boundaries_reviewed",
+        "player_pov_verified",
+        "player_rank_at_game_verified",
+        "action_sequence_reviewed",
+        "outcome_reviewed",
+        "ocr_locale_validated",
+        "reviewed_match_segments",
+        "local_source_sha256"
+      ]
+    },
+    {
+      "id": "2896271382",
+      "platform": "twitch",
+      "url": "https://www.twitch.tv/videos/2896271382",
+      "channel": "setsuko",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "hud_language": "en_US",
+      "training_ready": false,
+      "missing_review": [
+        "client_patch_verified",
+        "complete_match_boundaries_reviewed",
+        "player_pov_verified",
+        "player_rank_at_game_verified",
+        "action_sequence_reviewed",
+        "outcome_reviewed",
+        "ocr_locale_validated",
+        "reviewed_match_segments",
+        "local_source_sha256"
+      ]
+    },
+    {
+      "id": "2895746438",
+      "platform": "twitch",
+      "url": "https://www.twitch.tv/videos/2895746438",
+      "channel": "setsuko",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "hud_language": "en_US",
+      "training_ready": false,
+      "missing_review": [
+        "client_patch_verified",
+        "complete_match_boundaries_reviewed",
+        "player_pov_verified",
+        "player_rank_at_game_verified",
+        "action_sequence_reviewed",
+        "outcome_reviewed",
+        "ocr_locale_validated",
+        "reviewed_match_segments",
+        "local_source_sha256"
+      ]
+    },
+    {
+      "id": "2897253279",
+      "platform": "twitch",
+      "url": "https://www.twitch.tv/videos/2897253279",
+      "channel": "wasianiverson",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "patch_evidence": "Original Twitch archive created after Riot 18.4B rollout; in-client version still unverified.",
+      "hud_language": "en_US",
+      "training_ready": false,
+      "missing_review": [
+        "client_patch_verified",
+        "complete_match_boundaries_reviewed",
+        "player_pov_verified",
+        "player_rank_at_game_verified",
+        "action_sequence_reviewed",
+        "outcome_reviewed",
+        "ocr_locale_validated",
+        "reviewed_match_segments",
+        "local_source_sha256"
+      ]
+    },
+    {
       "id": "1nNF0OjHcps",
+      "platform": "youtube",
       "url": "https://www.youtube.com/watch?v=1nNF0OjHcps",
       "channel": "GrindHard",
       "region_candidate": "EMEA",
@@ -27,6 +118,7 @@
     },
     {
       "id": "TqgvJ3l_-y0",
+      "platform": "youtube",
       "url": "https://www.youtube.com/watch?v=TqgvJ3l_-y0",
       "channel": "Wasianiverson",
       "region_candidate": "AMER",
@@ -45,29 +137,6 @@
         "ocr_locale_validated",
         "supported_hud_language",
         "unedited_start_and_end",
-        "local_source_sha256"
-      ]
-    },
-    {
-      "id": "ywTngK9F9g8",
-      "url": "https://www.youtube.com/watch?v=ywTngK9F9g8",
-      "channel": "Wasianiverson VODs",
-      "region_candidate": "AMER",
-      "source_kind": "multi_match_vod",
-      "patch_evidence": "creator_title_explicit_18.4b",
-      "hud_language": null,
-      "training_ready": false,
-      "missing_review": [
-        "client_patch_verified",
-        "complete_match_boundaries_reviewed",
-        "player_pov_verified",
-        "player_rank_at_game_verified",
-        "action_sequence_reviewed",
-        "outcome_reviewed",
-        "hud_language_verified",
-        "ocr_locale_validated",
-        "supported_hud_language",
-        "reviewed_match_segments",
         "local_source_sha256"
       ]
     }

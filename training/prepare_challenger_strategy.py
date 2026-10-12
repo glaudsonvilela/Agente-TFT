@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 from urllib.parse import urlsplit
 
 from knowledge.strategy_knowledge import StrategyKnowledge
@@ -20,6 +21,19 @@ def _sha256(path):
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _video_resolution(path):
+    try:
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=width,height", "-of", "json", str(path)],
+            check=True, capture_output=True, text=True,
+        )
+        stream = json.loads(result.stdout)["streams"][0]
+        return [stream["width"], stream["height"]]
+    except (OSError, subprocess.CalledProcessError, ValueError, KeyError, IndexError) as exc:
+        raise ValueError(f"video resolution unavailable: {path}") from exc
 
 
 def _https(value):
@@ -78,6 +92,8 @@ def audit(selection, root):
         video = Path(game.get("video_path") or "")
         if not video.is_file() or _sha256(video) != game.get("video_sha256"):
             raise ValueError(f"video missing or hash mismatch: {match_id}")
+        if _video_resolution(video) != [1920, 1080]:
+            raise ValueError(f"training video must be native 1920x1080: {match_id}")
         if game["video_sha256"] in video_hashes:
             raise ValueError(f"same video selected under multiple match IDs: {match_id}")
         video_hashes.add(game["video_sha256"])
@@ -94,6 +110,7 @@ def audit(selection, root):
                         for row in reviewed["actions"])):
             raise ValueError(f"action review incomplete: {match_id}")
         checked.append(dict(match_id=match_id, video_sha256=game["video_sha256"],
+                            source_resolution=[1920, 1080],
                             reviewed_actions_sha256=game["reviewed_actions_sha256"],
                             reviewed_actions=len(reviewed["actions"])))
     ordered = sorted(checked, key=lambda row: hashlib.sha256(
