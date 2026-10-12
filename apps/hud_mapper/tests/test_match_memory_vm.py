@@ -31,11 +31,14 @@ class MatchMemoryVMTests(unittest.TestCase):
 
         vm = VM()
         client = RemoteNativeWorker(vm, 'reader')
+        motor1 = {'schema': 'motor1_to_motor2_v1', 'reader': {'data': 'full-reader'},
+                  'hub': {'data': 'full-hub'}}
         result = client.request({'op': 'rank_advice', 'id': 42, 'source_ms': 5000,
             'epoch': 0, 'match_id': match_id, 'context': {'gold': 30},
-            'observation': {'gold': 30}, 'candidates': []})
+            'observation': {'gold': 30}, 'candidates': [], 'motor1': motor1})
         self.assertEqual(result['memory']['persistence'], 'local_sqlite')
         self.assertEqual(server.reader.request_seen['match_id'], match_id)
+        self.assertEqual(server.reader.request_seen['motor1'], motor1)
         self.assertEqual(vm.wire[2:5], (0, 0, b''))
 
     def test_invalid_match_identity_is_rejected_before_rust(self):

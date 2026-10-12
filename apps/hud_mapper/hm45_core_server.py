@@ -123,7 +123,8 @@ class AnalysisCore:
                             not isinstance(header.get('observation'), dict)):
                         raise ProtocolError("Estado da partida inválido.")
                     request = {key: header[key] for key in
-                               ('match_id', 'epoch', 'source_ms', 'candidates', 'context', 'observation')}
+                               ('match_id', 'epoch', 'source_ms', 'candidates', 'context',
+                                'observation', 'motor1') if key in header}
                 elif op == "ack_advice":
                     if (not isinstance(header.get('decision_key'), str) or
                             not 0 < len(header['decision_key']) <= 256 or

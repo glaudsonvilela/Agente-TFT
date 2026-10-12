@@ -8,6 +8,10 @@ pub struct Situation {
     pub gold: Option<i64>,
     pub hp: Option<i64>,
     pub level: Option<i64>,
+    pub xp: Option<i64>,
+    pub xp_threshold: Option<i64>,
+    pub streak_kind_candidate: Option<String>,
+    pub streak_count_verified: Option<i64>,
     pub shop: Vec<Value>,
     pub trait_counts: BTreeMap<String, i64>,
     pub board_candidates: usize,
@@ -25,6 +29,9 @@ pub struct Situation {
 impl Situation {
     pub fn diagnostics(&self) -> Value {
         json!({"stage":self.stage,"gold":self.gold,"hp":self.hp,"level":self.level,
+            "xp":self.xp,"xp_threshold":self.xp_threshold,
+            "streak_kind_candidate":self.streak_kind_candidate,
+            "streak_count_verified":self.streak_count_verified,
             "fresh_shop_offers":self.shop.len(),"trait_counts":self.trait_counts,
             "board_candidates":self.board_candidates,
             "fielded_unit_candidates":self.fielded_unit_candidates,
@@ -132,6 +139,23 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
         |v| valid_number(v, 0, 100)).and_then(|v| v.as_i64());
     let level = read_field("level", 5_000, now, epoch, current, recent, &mut ages_ms,
         |v| valid_number(v, 1, 10)).and_then(|v| v.as_i64());
+    let xp = read_field("xp", 2_500, now, epoch, current, recent, &mut ages_ms,
+        |v| valid_number(v, 0, 100)).and_then(|v| v.as_i64());
+    let xp_threshold = read_field("xp_threshold", 2_500, now, epoch, current, recent,
+        &mut ages_ms, |v| valid_number(v, 1, 100))
+        .and_then(|v| v.as_i64()).filter(|threshold|
+            xp.is_some_and(|value| value < *threshold) &&
+            ages_ms.get("xp") == ages_ms.get("xp_threshold"));
+    let streak = read_field("streak", 3_500, now, epoch, current, recent, &mut ages_ms,
+        |v| v["status"] == "icon_color_candidate" && v["verified"] == false &&
+            matches!(v["kind"].as_str(), Some("win" | "loss")) &&
+            v["source_ms"].as_f64().is_some_and(|at| {
+                let age = now as f64 - at;
+                age.is_finite() && (0.0..=3_500.0).contains(&age)
+            }));
+    let streak_kind_candidate = streak.as_ref()
+        .and_then(|v| v["kind"].as_str()).map(str::to_owned);
+    let streak_count_verified = None;
     // An explicitly hidden shop clears the active offer set. Otherwise, the
     // last fresh read survives the reader's normal two-second cadence.
     let hidden = current["shop"].as_array().is_some_and(|rows| !rows.is_empty() &&
@@ -196,7 +220,8 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
     let opponent_linked = opponents["opponent_board_assigned"] == true &&
         opponents["current_opponent_status"] == "linked";
     let board_identity_verified = current["board_identity_verified"] == true;
-    Situation { stage, gold, hp, level, shop, trait_counts, board_candidates,
+    Situation { stage, gold, hp, level, xp, xp_threshold, streak_kind_candidate,
+        streak_count_verified, shop, trait_counts, board_candidates,
         fielded_unit_candidates:fielded.into_iter().collect(), item_candidates,
         opponent_candidates, enemy_visible_item_icons, enemy_equipped_unit_tracks,
         opponent_linked, board_identity_verified,
@@ -238,6 +263,19 @@ pub fn pooled_snapshots(pool: &Value, epoch: i64) -> VecDeque<(i64, i64, Value)>
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test]
+    fn gold_xp_and_streak_candidate_keep_distinct_confidence() {
+        let empty = VecDeque::new();
+        let current = json!({"gold":42,"xp":8,"xp_threshold":60,
+            "streak":{"status":"icon_color_candidate","kind":"loss",
+                "count":null,"verified":false,"source_ms":1000.5}});
+        let state = integrate(&current, &empty, 0, 1200, None);
+        assert_eq!((state.gold, state.xp, state.xp_threshold),
+            (Some(42), Some(8), Some(60)));
+        assert_eq!(state.streak_kind_candidate.as_deref(), Some("loss"));
+        assert_eq!(state.streak_count_verified, None);
+        assert_eq!(integrate(&current, &empty, 0, 5000, None).streak_kind_candidate, None);
+    }
     #[test]
     fn enemy_equipment_is_a_bounded_recent_observation() {
         let recent = VecDeque::from([(1000, 0, json!({"enemy_equipment":{

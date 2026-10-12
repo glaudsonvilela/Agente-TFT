@@ -5,6 +5,7 @@ use serde_json::{json, Value};
 use std::time::Instant;
 use crate::match_memory::{History, MatchMemory, summary_json};
 use crate::match_brain::{integrate, pooled_snapshots, Situation};
+use crate::motor1_bridge::Motor1Evidence;
 use std::collections::VecDeque;
 
 fn integer(value: &Value, key: &str) -> Option<i64> { value.get(key)?.as_i64() }
@@ -111,19 +112,24 @@ fn utility(candidate: &Value, situation: &Situation, macro_state: &MacroState) -
         }
         "buy_xp" => {
             let gold = situation.gold.ok_or("gold missing")?;
+            let xp = situation.xp.ok_or("XP missing")?;
+            let threshold = situation.xp_threshold.ok_or("XP threshold missing")?;
             let cost = integer(action, "gold_cost").ok_or("XP cost missing")?;
             if cost <= 0 || cost > gold { return Err("XP resources inconsistent".into()); }
             let quote = &candidate["resource_quote"];
             let verified_quote = quote["engine"] == "resource_budget_v1" &&
+                quote["observed_xp"].as_i64() == Some(xp) &&
+                quote["observed_threshold"].as_i64() == Some(threshold) &&
                 quote["gold_cost"].as_i64() == Some(cost) &&
                 quote["gold_after"].as_i64() == Some(gold-cost) &&
                 action["gold_after"].as_i64() == Some(gold-cost) &&
                 quote["target_level"] == action["target_level"] &&
                 quote["reserve_met"] == true;
+            if !verified_quote { return Err("XP quote is not tied to current observed XP".into()); }
             v.immediate_board_gain = 0.48;
             v.economy_value = -0.12;
             v.flexibility = 0.25;
-            v.uncertainty = if verified_quote { 0.05 } else { 0.16 };
+            v.uncertainty = 0.05;
         }
         "prepare_level" | "rebuild_after_level" => {
             v.economy_value = 0.37;
@@ -157,6 +163,8 @@ pub fn rank(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> 
     if supplied.len() > 24 { return Err("candidate budget exceeded".into()); }
     let match_id = request["match_id"].as_str();
     let epoch = request["epoch"].as_i64().unwrap_or(0);
+    let motor1 = Motor1Evidence::from_request(request)?;
+    let motor1_ingest = motor1.as_ref().map(Motor1Evidence::diagnostics);
     let mut memory_error = None;
     let mut history = if let Some(match_id) = match_id {
         match memory.history(match_id, epoch, source_ms as i64) {
@@ -314,6 +322,7 @@ pub fn rank(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> 
         "macro_state":macro_state.diagnostics(),
         "plan_state":plan_state,
         "match_pool":updated_pool,
+        "motor1_ingest":motor1_ingest,
         "memory":summary_json(&history, memory.location()),"memory_error":memory_error,
         "native_ms":start.elapsed().as_secs_f64()*1000.0}))
 }
@@ -489,12 +498,14 @@ pub fn observe_event(request: &Value, memory: &mut MatchMemory) -> Result<Value,
         memory.record(&json!({"id":1,"source_ms":1000,"epoch":0,"match_id":id,
             "observation":{"stage":"5-1","gold":30,"hp":43}}), None).unwrap();
         let result = rank(&json!({"id":2,"source_ms":2000,"epoch":0,"match_id":id,
-            "observation":{"stage":"5-2","gold":24,"hp":30},"candidates":[
+            "observation":{"stage":"5-2","gold":24,"hp":30,
+                "xp":52,"xp_threshold":56},"candidates":[
                 {"policy":"partial_state_live_v1","decision_key":"provisional-xp",
                     "action":{"type":"buy_xp","target_level":8,"gold_cost":4,"gold_after":20}},
                 {"policy":"replay_standard_tempo_v1","decision_key":"verified-xp",
                     "action":{"type":"buy_xp","target_level":8,"gold_cost":4,"gold_after":20},
                     "resource_quote":{"engine":"resource_budget_v1","target_level":8,
+                        "observed_xp":52,"observed_threshold":56,
                         "gold_cost":4,"gold_after":20,"reserve_met":true}}
             ]}), &mut memory).unwrap();
         assert_eq!(result["selected_candidate"]["decision_key"], "verified-xp");
@@ -502,7 +513,23 @@ pub fn observe_event(request: &Value, memory: &mut MatchMemory) -> Result<Value,
         assert_eq!(result["macro_state"]["pressure"], "recovering");
         assert_eq!(result["macro_state"]["observed_hp_loss_90s"], 13);
         assert_eq!(result["macro_state"]["observed_gold_change_90s"], -6);
-        assert_eq!(result["ranked"].as_array().unwrap().len(), 2);
+        assert_eq!(result["ranked"].as_array().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn stale_xp_quote_cannot_rank_as_an_action() {
+        let mut memory = MatchMemory::new(None);
+        let result = rank(&json!({"id":1,"source_ms":1000,"epoch":0,
+            "observation":{"gold":24,"xp":52,"xp_threshold":56},
+            "context":{"gold":24},"candidates":[{
+                "policy":"resource_budget_v1",
+                "action":{"type":"buy_xp","target_level":8,"gold_cost":4,
+                    "gold_after":20},
+                "resource_quote":{"engine":"resource_budget_v1","target_level":8,
+                    "observed_xp":48,"observed_threshold":56,"gold_cost":4,
+                    "gold_after":20,"reserve_met":true}}]}), &mut memory).unwrap();
+        assert_eq!(result["ranked"], json!([]));
+        assert_eq!(result["whole_state"]["xp"], 52);
     }
 
     #[test]

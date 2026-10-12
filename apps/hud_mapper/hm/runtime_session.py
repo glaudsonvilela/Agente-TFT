@@ -468,6 +468,10 @@ class RuntimeSession(Session):
                         answer['spans'].insert(0, dict(stage='reader_normalize_16_9',
                             start_ms=compare_ms, duration_ms=normalize_ms))
                     answer['reader_input_transform'] = plan
+                    from .streak_hud import observe_streak
+                    answer['streak'] = dict(observe_streak(reader_frame.rgb,
+                        reader_frame.width, reader_frame.height),
+                        source_ms=frame.pts_ms, epoch=frame.epoch)
                     visual_candidates = None
                     decision_engine = getattr(self, 'decision_engine', None)
                     if decision_engine and answer.get('origin') == 'observed_pixels':
@@ -505,9 +509,22 @@ class RuntimeSession(Session):
                         stage_for_memory = (str(stage_rows[0].get('value'))
                                             if len(stage_rows) == 1 else None)
                         match_id = self.match_identity.observe(stage_for_memory)
+                        motor1_hub = self.motor1_feed.read(now_ms=frame.pts_ms,
+                                                           epoch=frame.epoch)
+                        with self.lock:
+                            aux = {key: copy.deepcopy(value) for key, value in (
+                                ('selected_unit_panel', self.latest_selected_unit_panel),
+                                ('trait_tooltip', self.latest_trait_tooltip),
+                                ('fast_markers', self.latest_fast_diagnostic),
+                                ('fast_items', self.latest_fast_items))
+                                if isinstance(value, dict)
+                                and value.get('epoch') == frame.epoch
+                                and type(value.get('source_ms')) in (int, float)
+                                and 0 <= frame.pts_ms - value['source_ms'] <= 3500}
                         answer = decision_engine.rank_with_native(answer, self.worker,
                             match_id=match_id, epoch=frame.epoch,
-                            visual_candidates=visual_candidates)
+                            visual_candidates=visual_candidates, motor1_hub=motor1_hub,
+                            motor1_aux=aux)
                         if not self.options.replay_review:
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'
@@ -709,6 +726,8 @@ class HM4RuntimeSession(RuntimeSession):
 
     def __init__(self, options):
         super().__init__(options)
+        from .motor1_feed import Motor1Feed
+        self.motor1_feed = Motor1Feed()
         self.ubuntu_mvp_diagnostics = __import__('os').environ.get('AGENTE_TFT_UBUNTU_MVP') == '1'
         self.latest_hud_diagnostic = None
         from .combat_events import CombatEvents
@@ -1331,6 +1350,14 @@ class HM4RuntimeSession(RuntimeSession):
                     width=frame.width, height=frame.height,
                     processing_ms=record['hub_processing_ms'],
                     worker_ms=board_worker_ms, observer_ms=board_observer_ms)
+                if not self.motor1_feed.publish(observed['snapshot'],
+                        source_ms=frame.pts_ms, epoch=frame.epoch):
+                    self.counts['motor1_feed_encode_errors'] += 1
+                    self.versions['motor1_feed_status'] = 'encode_error'
+                    self.versions['motor1_feed_error'] = self.motor1_feed.last_error
+                else:
+                    self.versions['motor1_feed_status'] = 'hub_snapshot_ready'
+                    self.versions.pop('motor1_feed_error', None)
                 with self.lock:
                     for reg in regions:
                         self.coverage[(reg['id'], reg['status'])] += 1

@@ -387,7 +387,8 @@ impl MatchMemory {
             params![frame_id, source_ms, epoch, observation["stage"].as_str(),
                 observation["gold"].as_i64(), observation["hp"].as_i64(), serialized,
                 key, kind, score]).map_err(|e| e.to_string())?;
-        for field in ["stage", "gold", "hp", "level", "xp", "shop", "board",
+        for field in ["stage", "gold", "hp", "level", "xp", "xp_threshold",
+            "streak", "shop", "board",
             "inventory", "equipped", "opponents", "enemy_equipment"] {
             let value = &observation[field];
             let present = match field {

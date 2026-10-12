@@ -113,7 +113,7 @@ class ReplayDecisionEngine:
         return choices[0] if choices else economy or self._economy_wait(reason)
 
     @staticmethod
-    def _memory_observation(output, visual_candidates=None):
+    def _memory_observation(output, visual_candidates=None, motor1_aux=None):
         """Small evidence ledger, with candidate identity kept separate from fact."""
         def hud(field):
             rows = [row for row in output.get('hud') or []
@@ -134,6 +134,22 @@ class ReplayDecisionEngine:
         hp = (hp_row.get('hp') if hp_row.get('status') == 'accepted'
               and (output.get('hp_delivery') or {}).get('fresh') is True
               and type(hp_row.get('hp')) is int else None)
+        xp = hud('xp')
+        xp_rows = [row for row in output.get('hud') or []
+                   if row.get('field') == 'xp' and
+                   row.get('status') == 'single_frame_observation']
+        xp_text = xp_rows[0].get('text') if len(xp_rows) == 1 else None
+        xp_match = re.fullmatch(r'\s*(\d+)\s*/\s*(\d+)\s*', xp_text or '')
+        xp_threshold = (int(xp_match[2]) if type(xp) is int and xp_match and
+                        int(xp_match[1]) == xp and 0 <= xp < int(xp_match[2]) <= 100
+                        else None)
+        fast = ((motor1_aux or {}).get('fast_markers') or {})
+        streak = output.get('streak') or fast.get('streak') or {}
+        streak_observation = (dict(streak, source_ms=streak.get('source_ms',
+                                                             fast.get('source_ms')))
+            if streak.get('status') == 'icon_color_candidate' and
+               streak.get('kind') in ('win', 'loss') and
+               streak.get('verified') is False else None)
         offers = [{key: row.get(key) for key in
                    ('slot', 'unit_id', 'observed_name', 'catalog_status', 'status', 'observed_cost',
                     'catalog_traits', 'trait_breakpoints') if key in row}
@@ -143,7 +159,8 @@ class ReplayDecisionEngine:
         enemy_equipment = ({key: equipment[key] for key in
             ('visible_item_icons', 'equipped_unit_tracks', 'sampled_red_bars', 'status')
             if key in equipment} if equipment.get('status') == 'observed_minimum' else None)
-        return dict(stage=hud('stage'), gold=hud('gold'), level=hud('level'), xp=hud('xp'),
+        return dict(stage=hud('stage'), gold=hud('gold'), level=hud('level'), xp=xp,
+            xp_threshold=xp_threshold, streak=streak_observation,
             hp=hp,
             shop=offers, shop_fresh=(shop.get('cadence_delivery') or {}).get('fresh') is True,
             trait_counts={key:value for key,value in (visual.get('trait_counts') or {}).items()
@@ -211,7 +228,8 @@ class ReplayDecisionEngine:
         return result
 
     @staticmethod
-    def rank_with_native(output, worker, *, match_id=None, epoch=0, visual_candidates=None):
+    def rank_with_native(output, worker, *, match_id=None, epoch=0,
+                         visual_candidates=None, motor1_hub=None, motor1_aux=None):
         """Store the observed match state and rank its supported options in Rust."""
         choices = output.pop('decision_options', None)
         record_only = choices is None
@@ -236,12 +254,19 @@ class ReplayDecisionEngine:
                 source_ms=output['source_ms'], candidates=choices[:24],
                 context=context)
             if match_id is not None:
+                from .motor1_feed import encode_snapshot
                 request.update(match_id=match_id, epoch=epoch,
-                    observation=ReplayDecisionEngine._memory_observation(output, visual_candidates))
+                    observation=ReplayDecisionEngine._memory_observation(
+                        output, visual_candidates, motor1_aux),
+                    motor1=dict(schema='motor1_to_motor2_v1', epoch=epoch,
+                                source_ms=output['source_ms'],
+                                reader=encode_snapshot(output), hub=motor1_hub,
+                                aux=encode_snapshot(motor1_aux or {})))
             result = worker.request(request, timeout=2)
             index = result.get('selected_index')
             if result.get('origin') != 'rust_live_opportunity_v1':
                 raise ValueError('unexpected native motor response')
+            output['motor1_ingest'] = result.get('motor1_ingest')
             if index is None and result.get('held_duplicate') is True:
                 output['decision'] = ReplayDecisionEngine._wait('DUPLICATE_ALREADY_PRESENTED')
                 output['decision_rank'] = {'status': 'held_duplicate',

@@ -63,6 +63,8 @@ class EconomyBudget:
         return dict(
             engine="resource_budget_v1",
             engine_identity=self.identity,
+            observed_xp=xp,
+            observed_threshold=observed_threshold,
             scope="economy_only",
             learned_policy=False,
             abilities_used=False,

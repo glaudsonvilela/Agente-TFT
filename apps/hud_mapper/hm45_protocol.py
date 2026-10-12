@@ -8,7 +8,7 @@ import struct
 import zlib
 
 VERSION = 1
-MAX_HEADER = 64 * 1024
+MAX_HEADER = 256 * 1024
 MAX_PAYLOAD = 8 * 1024 * 1024
 MAX_RAW_RGB = 1920 * 1080 * 3
 

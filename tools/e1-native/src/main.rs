@@ -18,6 +18,7 @@ mod live_rank;
 mod match_memory;
 mod match_brain;
 mod match_plan;
+mod motor1_bridge;
 
 use std::{collections::HashMap,io::{self,BufRead,Read,Write},path::{Path,PathBuf},thread,time::Instant,sync::mpsc};
 #[cfg(any(windows,target_os="linux"))] use std::sync::Mutex;
@@ -35,9 +36,9 @@ fn load<T:serde::de::DeserializeOwned>(path:&Path)->Result<T,String>{
     serde_json::from_slice(&std::fs::read(path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())
 }
 fn header(r:&mut impl BufRead)->Result<Option<Value>,String>{
-    let mut b=Vec::new();let n=r.take(65537).read_until(b'\n',&mut b).map_err(|e|e.to_string())?;
+    let mut b=Vec::new();let n=r.take(262145).read_until(b'\n',&mut b).map_err(|e|e.to_string())?;
     if n==0{return Ok(None)}
-    if n>65536 || b.last()!=Some(&b'\n'){return Err("invalid/oversized protocol header".into())}
+    if n>262144 || b.last()!=Some(&b'\n'){return Err("invalid/oversized protocol header".into())}
     serde_json::from_slice(&b).map(Some).map_err(|e|e.to_string())
 }
 fn number(v:&Value,k:&str)->Result<u64,String>{v[k].as_u64().ok_or_else(||format!("missing integer {k}"))}
@@ -720,7 +721,7 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
    let stale=advance_shop_name_track(Some(repeated),"Alune",0.90,5001,4);
    assert_eq!(stale.confirmations,1);
  }
- #[test] fn protocol_rejects_oversize_header(){assert!(header(&mut io::Cursor::new(vec![b'x';65537])).is_err())}
+ #[test] fn protocol_rejects_oversize_header(){assert!(header(&mut io::Cursor::new(vec![b'x';262145])).is_err())}
  #[test] fn protocol_eof(){assert!(header(&mut io::Cursor::new(Vec::<u8>::new())).unwrap().is_none())}
  #[test] fn payload_size_not_guessed(){let h=json!({"id":1,"source_ms":0,"width":2,"height":2,"bytes":16});assert!(frame(&h,&mut io::empty()).is_err())}
  #[test] fn payload_timestamp_preserved(){let h=json!({"id":2,"source_ms":1234,"width":1,"height":1,"bytes":3});let f=frame(&h,&mut io::Cursor::new([1,2,3])).unwrap();assert_eq!(f.captured_at_ms,1234);assert_eq!(f.pixels,vec![1,2,3]);}

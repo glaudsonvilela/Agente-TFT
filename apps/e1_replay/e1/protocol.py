@@ -81,7 +81,7 @@ class NativeWorker:
         if self.proc.poll() is not None:
             raise RuntimeError('native process unavailable')
         raw = json.dumps(header, allow_nan=False, separators=(',', ':')).encode() + b'\n'
-        if len(raw) > 65536:
+        if len(raw) > 256 * 1024:
             raise ValueError('request header budget')
         # Writing is supervised too: a hung child must not deadlock the pipeline.
         failure = []

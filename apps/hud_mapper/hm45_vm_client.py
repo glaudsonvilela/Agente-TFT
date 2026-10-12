@@ -200,7 +200,8 @@ class RemoteNativeWorker:
                 raise ValueError('Cálculo remoto não aceita pixels nem worker HP.')
             op = header['op']
             fields = ({key: header[key] for key in
-                      ('match_id', 'epoch', 'source_ms', 'candidates', 'context', 'observation')}
+                      ('match_id', 'epoch', 'source_ms', 'candidates', 'context', 'observation',
+                       'motor1') if key in header}
                       if op == 'rank_advice' else
                       {key: header[key] for key in
                        ('match_id', 'epoch', 'source_ms', 'decision_key', 'stage')}
