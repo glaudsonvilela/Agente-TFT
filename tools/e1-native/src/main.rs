@@ -14,6 +14,7 @@
 mod engine;
 mod stage;
 mod trait_panel;
+mod opponent_panel;
 mod live_rank;
 mod match_memory;
 mod match_brain;
@@ -619,6 +620,73 @@ struct TraitPanelWorker {
     last_requested_ms:Option<u64>,
     pending:bool,
 }
+
+// Scoreboard OCR is independent of board geometry. Keep it off the frame
+// response path so a slow text pass cannot make the HUD or preview stall.
+struct OpponentPanelWorker {
+    requests:mpsc::SyncSender<FrameEnvelope>,
+    results:mpsc::Receiver<(u64,Value)>,
+    last:Option<(u64,Value)>,
+    last_requested_ms:Option<u64>,
+    pending:bool,
+}
+impl OpponentPanelWorker {
+    fn new(tess:&str)->Self {
+        let (requests,request_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
+        let (result_tx,results)=mpsc::channel::<(u64,Value)>();
+        let tess=tess.to_owned();
+        thread::spawn(move || {
+            #[cfg(any(windows,target_os="linux"))]
+            let mut resident_text=ResidentTesseractOcr::from_cli_path(&tess,"eng").ok();
+            #[cfg(any(windows,target_os="linux"))]
+            let mut resident_numbers=ResidentTesseractOcr::from_cli_path(&tess,"eng")
+                .map(|engine|engine.with_numeric_gray()).ok();
+            let mut text=TesseractOcr::new(TesseractConfig{
+                binary:tess.clone(),language:"eng".into()});
+            let mut numbers=TesseractOcr::new(TesseractConfig{
+                binary:tess,language:"eng".into()}).with_numeric_gray();
+            while let Ok(frame)=request_rx.recv() {
+                #[cfg(any(windows,target_os="linux"))]
+                let read=if let (Some(text),Some(numbers))=
+                        (resident_text.as_mut(),resident_numbers.as_mut()) {
+                    opponent_panel::observe(&frame,text,numbers)
+                }else{opponent_panel::observe(&frame,&mut text,&mut numbers)};
+                #[cfg(not(any(windows,target_os="linux")))]
+                let read=opponent_panel::observe(&frame,&mut text,&mut numbers);
+                let value=read
+                    .unwrap_or_else(|error|json!({"status":"read_error","error":error}));
+                if result_tx.send((frame.captured_at_ms,value)).is_err(){break;}
+            }
+        });
+        Self{requests,results,last:None,last_requested_ms:None,pending:false}
+    }
+    fn observe(&mut self,frame:&FrameEnvelope,active:bool)->(Value,bool) {
+        let mut fresh=false;
+        while let Ok((at,value))=self.results.try_recv() {
+            self.pending=false;
+            self.last=Some((at,value));
+            fresh=true;
+        }
+        if !active {return (Value::Null,false);}
+        let at=frame.captured_at_ms;
+        let due=self.last_requested_ms.is_none_or(|prev|at<prev || at-prev>=3000);
+        let queued=if due && !self.pending && self.requests.try_send(frame.clone()).is_ok() {
+            self.pending=true;
+            self.last_requested_ms=Some(at);
+            true
+        }else{false};
+        let last=self.last.as_ref().and_then(|(source_ms,value)| {
+            if at<*source_ms || at-*source_ms>5000 {return None;}
+            let mut observed=value.clone();
+            if !fresh && observed["status"]=="raw_ocr" {
+                observed["status"]=json!("cached_ocr");
+            }
+            observed["age_ms"]=json!(at-*source_ms);
+            Some(observed)
+        }).unwrap_or(Value::Null);
+        (last,queued)
+    }
+}
 impl TraitPanelWorker {
     fn new(tess:&str)->Self {
         let (requests,request_rx)=mpsc::sync_channel::<FrameEnvelope>(1);
@@ -678,6 +746,7 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
     let reference=serde_json::from_value(anchors["arena_reference"].clone()).map_err(|e|e.to_string())?;
     let mut reader=scene::SceneReader::from_anchors(profile.clone(),reference)?;
     let mut trait_worker=TraitPanelWorker::new(tess);
+    let mut opponent_worker=OpponentPanelWorker::new(tess);
     let mut input=io::BufReader::new(io::stdin());let mut output=io::BufWriter::new(io::stdout());
     writeln!(output,"{}",json!({"ready":true,"protocol":1,"board_only":true,"ocr_available":false,
         "pid":std::process::id()})).map_err(|e|e.to_string())?;
@@ -697,10 +766,12 @@ fn board_only(root:&Path,tess:&str)->Result<(),String>{
             let board=reader.read(&f)?;
             let active=!board.markers.is_empty();
             let (traits,trait_ocr_queued)=trait_worker.observe(&f,active);
+            let (opponent,opponent_ocr_queued)=opponent_worker.observe(&f,active);
             json!({"id":id,"source_ms":f.captured_at_ms,"board":board,
                 "trait_panel":traits,"native_ms":ms(&started),
                 "trait_ocr_queued":trait_ocr_queued,
-                "ocr_process_calls":if trait_ocr_queued {1}else{0}})
+                "opponent_panel":opponent,"opponent_ocr_queued":opponent_ocr_queued,
+                "ocr_process_calls":u8::from(trait_ocr_queued)+u8::from(opponent_ocr_queued)})
         };
         writeln!(output,"{out}").map_err(|e|e.to_string())?;output.flush().map_err(|e|e.to_string())?;
     }

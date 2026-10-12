@@ -1,7 +1,8 @@
 from pathlib import Path
 import unittest
+from PIL import Image, ImageDraw
 
-from hm.augment_reader import AugmentReader, bind_offer
+from hm.augment_reader import AugmentReader, TITLE_BOXES, bind_offer
 from hm.replay_decision import ReplayDecisionEngine
 
 
@@ -56,6 +57,28 @@ class AugmentReaderTests(unittest.TestCase):
         result = bind_offer('campeao inventado', '', self.reader.entries)
         self.assertIsNone(result['candidate_id'])
         self.assertEqual(result['status'], 'unresolved')
+
+    def test_english_replay_title_binds_to_same_catalog(self):
+        result = bind_offer('Small Furry Friend', '', self.reader.entries)
+        self.assertEqual(result['status'], 'catalog_name_bound')
+        self.assertEqual(result['candidate_name'], 'Amiguinho Peludinho')
+
+    def test_waits_for_readable_cards_after_heading_appears(self):
+        reader = AugmentReader(ROOT / 'configs')
+        reader._ocr = lambda image, **kwargs: 'Choose One'
+        frame = Image.new('RGB', (1920, 1080), '#202020')
+        pending = reader.observe(frame.tobytes(), 1920, 1080,
+                                 frame_id=1, source_ms=1000, epoch=0)
+        self.assertEqual(pending['status'], 'appearance_pending')
+        self.assertEqual(pending['options'], [])
+        draw = ImageDraw.Draw(frame)
+        for box in TITLE_BOXES:
+            draw.rectangle((box[0]+20, box[1]+5, box[0]+100, box[1]+30),
+                           fill='white')
+        readable = reader.observe(frame.tobytes(), 1920, 1080,
+                                  frame_id=2, source_ms=1500, epoch=0)
+        self.assertEqual(readable['status'], 'visible_read')
+        self.assertEqual(len(readable['options']), 3)
 
     def test_motor_one_passes_options_and_explicit_close(self):
         options = [{'slot': index, 'candidate_id': name,

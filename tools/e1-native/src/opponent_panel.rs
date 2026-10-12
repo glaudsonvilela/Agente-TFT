@@ -7,10 +7,14 @@ use serde_json::{json, Value};
 use crate::layout::crop;
 
 pub const PANEL: PixelRect = PixelRect { x: 1690, y: 170, width: 175, height: 635 };
+// Scoreboard entries sit on fixed rows. Reading each name strip avoids
+// Tesseract joining names with portraits, health badges and the arena.
+const NAME_ROWS: [u32; 8] = [190, 270, 350, 430, 510, 590, 675, 760];
 pub const BATTLE_NAME: PixelRect = PixelRect { x: 1080, y: 125, width: 105, height: 20 };
 pub const ENEMY_NAME: PixelRect = PixelRect { x: 1215, y: 77, width: 95, height: 22 };
 pub const SELF_OVERLAY: PixelRect = PixelRect { x: 80, y: 9, width: 160, height: 20 };
-pub const HP_PANEL: PixelRect = PixelRect { x: 1830, y: 180, width: 26, height: 605 };
+// Three-digit health values start to the left of the former 26 px crop.
+pub const HP_PANEL: PixelRect = PixelRect { x: 1818, y: 180, width: 38, height: 605 };
 
 fn cubic(distance:f32)->f32 {
     let x=distance.abs();
@@ -19,8 +23,8 @@ fn cubic(distance:f32)->f32 {
     else {0.0}
 }
 
-// Small 26x515 numeric strip. Smooth scaling preserves the thin scoreboard
-// digits that nearest-neighbor scaling confused with border decorations.
+// Smooth scaling preserves the thin scoreboard digits that nearest-neighbor
+// scaling confused with border decorations.
 fn upscale_bicubic(image:&GrayImage, factor:u32)->Result<GrayImage,String>{
     image.validate().map_err(|e|e.to_string())?;
     let width=image.width.checked_mul(factor).ok_or("numeric upscale width overflow")?;
@@ -67,17 +71,23 @@ fn words<E: TextBlockOcrEngine>(frame: &FrameEnvelope, rect: PixelRect, scale: u
 
 pub fn observe<E: TextBlockOcrEngine,N:NumberBlockOcrEngine>(frame: &FrameEnvelope, engine: &mut E,
                                                               number_engine:&mut N) -> Result<Value, String> {
-    let mut scoreboard = words(frame, PANEL, 2, engine)?;
-    scoreboard.retain(|word|word["box"][0].as_u64().unwrap_or(0)<1830);
-    let roi=crop(frame,HP_PANEL)?;
-    let gray=to_luma(&roi).map_err(|e|e.to_string())?;
-    let enlarged=upscale_bicubic(&gray,2)?;
-    scoreboard.extend(number_engine.recognize_number_block(&enlarged)?.into_iter()
-        .filter(|word|word.confidence>=0.20)
-        .map(|word|json!({"text":word.text,"confidence":word.confidence,
-            "box":[HP_PANEL.x+word.x/2,HP_PANEL.y+word.y/2,
-                   HP_PANEL.x+(word.x+word.width+1)/2,
-                   HP_PANEL.y+(word.y+word.height+1)/2]})));
+    let mut scoreboard=Vec::new();
+    for y in NAME_ROWS {
+        let name_strip=PixelRect{x:1694,y,width:124,height:34};
+        scoreboard.extend(words(frame,name_strip,3,engine)?);
+    }
+    for y in NAME_ROWS {
+        let health=PixelRect{x:HP_PANEL.x,y,width:HP_PANEL.width,height:30};
+        let roi=crop(frame,health)?;
+        let gray=to_luma(&roi).map_err(|e|e.to_string())?;
+        let enlarged=upscale_bicubic(&gray,3)?;
+        scoreboard.extend(number_engine.recognize_number_block(&enlarged)?.into_iter()
+            .filter(|word|word.confidence>=0.20)
+            .map(|word|json!({"text":word.text,"confidence":word.confidence,
+                "box":[health.x+word.x/3,health.y+word.y/3,
+                       health.x+(word.x+word.width+2)/3,
+                       health.y+(word.y+word.height+2)/3]})));
+    }
     let battle_name = words(frame, BATTLE_NAME, 4, engine)?;
     let enemy_name = words(frame, ENEMY_NAME, 4, engine)?;
     let self_name = words(frame, SELF_OVERLAY, 4, engine)?;

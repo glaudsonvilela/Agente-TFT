@@ -39,7 +39,9 @@ def bind_offer(title: str, body: str, entries: list[dict]) -> dict:
                     name_score=0.0)
     names = {}
     for row in entries:
-        names.setdefault(_fold(row['name']), []).append(row)
+        for alias in {_fold(row.get('name', '')), _fold(row.get('name_en', ''))}:
+            if alias:
+                names.setdefault(alias, []).append(row)
     if observed in names:
         candidates = names[observed]
         name_score = 1.0
@@ -146,7 +148,9 @@ class AugmentReader:
         heading = self._ocr(image.crop(HEADING), psm=7)
         if heading is None:
             return None
-        visible = SequenceMatcher(None, _fold(heading), 'escolha um').ratio() >= .8
+        observed_heading = _fold(heading)
+        visible = any(SequenceMatcher(None, observed_heading, text).ratio() >= .8
+                      for text in ('escolha um', 'choose one'))
         if not visible:
             was_visible = self.last_visible
             self.last_visible = False
@@ -156,6 +160,22 @@ class AugmentReader:
                          frame_id=frame_id, source_ms=source_ms, epoch=epoch)
                     if was_visible else None)
         self.last_visible = True
+        # During the card entrance animation the heading is already visible,
+        # but the titles are still dark. OCR at that instant yields plausible
+        # garbage and occupies the latest-only lane until the offers vanish.
+        # Keep the screen event while waiting for readable title contrast.
+        bright_title_fractions = []
+        for box in TITLE_BOXES:
+            histogram = image.crop(box).convert('L').histogram()
+            bright_title_fractions.append(sum(histogram[150:]) / sum(histogram))
+        if min(bright_title_fractions) < .04:
+            self.last_signature = None
+            self.last_options = None
+            return dict(status='appearance_pending', selection_visible=True,
+                        options=[], selection_confirmed=False,
+                        frame_id=frame_id, source_ms=source_ms, epoch=epoch,
+                        source='same_frame_augment_choice_heading_and_title_contrast',
+                        ground_truth=False)
         signature = b''.join(image.crop(box).convert('L').resize((64, 12)).tobytes()
                              for box in TITLE_BOXES)
         unchanged = (self.last_signature is not None and len(signature) == len(self.last_signature)

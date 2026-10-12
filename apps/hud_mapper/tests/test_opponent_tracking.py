@@ -62,6 +62,15 @@ class OpponentTrackingTest(unittest.TestCase):
                                  epoch=1,source_ms=frame*5000)
         self.assertEqual(state['players'][0]['hp'],95)
 
+    def test_clipped_three_digit_hp_is_unknown(self):
+        sample=panel(1,[(0,'Black Sheep','00')])
+        self.assertIsNone(parse_panel(sample)[0]['hp'])
+        sample=panel(2,[(0,'Black Sheep',0)])
+        self.assertEqual(parse_panel(sample)[0]['hp'],0)
+        sample=panel(3,[(0,'Black Sheep','')])
+        sample['words'][-1]=word('4',1851,289)
+        self.assertIsNone(parse_panel(sample)[0]['hp'])
+
     def test_vod_roster_survives_damage_panel_without_stale_hp(self):
         tracker=OpponentTracker()
         roster=[(0,'Xbmots',100),(1,'Filup',92),(2,'david1',90)]

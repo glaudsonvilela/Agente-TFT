@@ -866,6 +866,14 @@ class HM4RuntimeSession(RuntimeSession):
             raise ValueError('Inicie a revisão de replay antes de calibrar o tabuleiro')
         self.board_reference_requested.set()
 
+    def _freshness_ns(self, frame):
+        # A saved replay may be decoded behind its nominal media clock when
+        # the desktop is busy. Its acquisition clock is the relevant freshness
+        # bound for latest-only workers; live capture retains the due clock.
+        return (frame.ready_ns if self.options.replay_review and
+                not str(self.options.video).startswith('capture://')
+                else frame.due_ns)
+
     def submit_hub_frame(self, frame):
         if self.augment_pending is not None and hub_due(
                 getattr(self, '_last_augment_submission', None), frame, 500):
@@ -1026,7 +1034,7 @@ class HM4RuntimeSession(RuntimeSession):
                     if self.producer_done.is_set():
                         break
                     continue
-                if (time.perf_counter_ns() - frame.due_ns) / 1e6 > 3000:
+                if (time.perf_counter_ns() - self._freshness_ns(frame)) / 1e6 > 3000:
                     self.counts['shop_async_stale_input_dropped'] += 1
                     continue
                 plan = reader_plan(frame, self.normalize_reader_input)
@@ -1066,7 +1074,7 @@ class HM4RuntimeSession(RuntimeSession):
                         break
                     continue
                 started = time.perf_counter_ns()
-                if (started - frame.due_ns) / 1e6 > 1000:
+                if (started - self._freshness_ns(frame)) / 1e6 > 1000:
                     self.counts['fast_marker_stale_input_dropped'] += 1
                     continue
                 plan = reader_plan(frame, self.normalize_reader_input)
@@ -1146,7 +1154,7 @@ class HM4RuntimeSession(RuntimeSession):
                     if self.producer_done.is_set():
                         break
                     continue
-                if (time.perf_counter_ns() - frame.due_ns) / 1e6 > 1000:
+                if (time.perf_counter_ns() - self._freshness_ns(frame)) / 1e6 > 1000:
                     self.counts['fast_item_stale_input_dropped'] += 1
                     continue
                 with self.lock:
@@ -1223,9 +1231,7 @@ class HM4RuntimeSession(RuntimeSession):
                 # A local replay can decode behind its original media clock on
                 # a busy Ubuntu desktop. Keep the newest delivered frame for
                 # diagnostic vision; live capture still uses acquisition time.
-                freshness_ns = (frame.ready_ns if self.options.replay_review and
-                                not str(self.options.video).startswith('capture://')
-                                else frame.due_ns)
+                freshness_ns = self._freshness_ns(frame)
                 if (started - freshness_ns) / 1e6 > 2000:
                     with self.lock:
                         self._latest_strategy_state = None
@@ -1335,7 +1341,7 @@ class HM4RuntimeSession(RuntimeSession):
                         geometry_segment=frame.epoch,
                         crop_regions={
                             'scoreboard':[1690,170,175,635],
-                            'hp_strip':[1830,180,26,605],
+                            'hp_strip':[1818,180,38,605],
                             'enemy_name':[1215,77,95,22],
                             'self_overlay':[80,9,160,20],
                         },

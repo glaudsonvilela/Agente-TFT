@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -27,6 +28,9 @@ def main() -> None:
     args = parser.parse_args()
     if not args.video.is_file():
         parser.error("Complete replay does not exist")
+    # The runtime's high-cadence item and bar lanes are opt-in. A full-match
+    # review must opt in explicitly or its viewer silently reports zero events.
+    os.environ["AGENTE_TFT_UBUNTU_MVP"] = "1"
     paths = runtime_paths()
     paths.update(ffmpeg="ffmpeg", ffprobe="ffprobe")
     options = Options(**paths, video=str(args.video),

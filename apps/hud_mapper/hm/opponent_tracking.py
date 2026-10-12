@@ -56,12 +56,16 @@ def parse_panel(panel):
         names.sort(key=lambda word: word['box'][0])
         name = _clean(' '.join(word['text'] for word in names))
         values = [(_clean(word.get('text')), float(word.get('confidence') or 0))
-                  for word in words if 1820 <= word['box'][0] <= 1855
+                  for word in words if 1820 <= word['box'][0] <= 1844
                   and word['box'][2] <= 1865]
         numbers = [int(re.sub(r'\D', '', text)) for text, confidence in values
                    if (confidence >= .60 or
                        (confidence >= .40 and re.sub(r'\D', '', text) == '100'))
                    and re.fullmatch(r'\D*\d{1,3}\D*', text)
+                   # OCR that clips the leading 1 from 100 yields "00".
+                   # A genuine zero is rendered as one digit in this HUD.
+                   and (len(re.sub(r'\D', '', text)) == 1 or
+                        not re.sub(r'\D', '', text).startswith('0'))
                    and 0 <= int(re.sub(r'\D', '', text)) <= 100]
         unique_numbers = set(numbers)
         if len(_key(name)) >= 3 and any(char.isalpha() for char in name):

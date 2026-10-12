@@ -63,7 +63,9 @@ class InputPlan:
                 fps=max(o.map_hz, o.reader_hz, o.sample_hz,
                         8 if o.replay_review and o.board_hub_enabled else 0)
                     if o.replay_review else None,
-                preview_hz=o.preview_hz if o.replay_review else None,
+                # Dataset-only runs review the original file in a separate
+                # viewer; a second 20 fps MJPEG decoder wastes scarce CPU.
+                preview_hz=o.preview_hz if o.replay_review and not o.dataset_only else None,
                 preview_size=(o.preview_width, o.preview_height))
         return self.source
 
