@@ -1,0 +1,1859 @@
+{
+  "schema_version": 1,
+  "scope": "experimental_hex_lab",
+  "content_sha256": "df778749bbe26120024dc7b76e9e9281b8338523ba68b7934fe119d1deda4e20",
+  "matches_requested": 1,
+  "matches_completed": 1,
+  "matches_truncated": 0,
+  "combat_calls": 55,
+  "matches": [
+    {
+      "scope": "experimental_hex_lab",
+      "seed": 0,
+      "rounds": 22,
+      "completed": true,
+      "truncated": false,
+      "placements": {
+        "7": 8.0,
+        "3": 7.0,
+        "1": 5.5,
+        "4": 5.5,
+        "5": 4.0,
+        "0": 3.0,
+        "2": 2.0,
+        "6": 1.0
+      },
+      "history": [
+        {
+          "round_number": 1,
+          "fights": [
+            {
+              "seats": [
+                4,
+                1
+              ],
+              "winner": 1,
+              "duration_seconds": 32.33333333333332,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                5,
+                2
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                0,
+                3
+              ],
+              "winner": 0,
+              "duration_seconds": 20.083333333333332,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                7,
+                6
+              ],
+              "winner": 6,
+              "duration_seconds": 29.999999999999993,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 2,
+          "fights": [
+            {
+              "seats": [
+                3,
+                6
+              ],
+              "winner": 6,
+              "duration_seconds": 24.41666666666666,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                1,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                7,
+                0
+              ],
+              "winner": 0,
+              "duration_seconds": 23.666666666666664,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                4,
+                2
+              ],
+              "winner": 2,
+              "duration_seconds": 31.666666666666657,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 3,
+          "fights": [
+            {
+              "seats": [
+                5,
+                3
+              ],
+              "winner": 5,
+              "duration_seconds": 19.666666666666668,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                4,
+                1
+              ],
+              "winner": 1,
+              "duration_seconds": 32.33333333333332,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                7,
+                0
+              ],
+              "winner": 0,
+              "duration_seconds": 22.583333333333332,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 4,
+          "fights": [
+            {
+              "seats": [
+                0,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                7,
+                2
+              ],
+              "winner": 2,
+              "duration_seconds": 33.24999999999999,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                1,
+                6
+              ],
+              "winner": 6,
+              "duration_seconds": 32.66666666666666,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                4,
+                3
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 5,
+          "fights": [
+            {
+              "seats": [
+                1,
+                6
+              ],
+              "winner": 6,
+              "duration_seconds": 31.083333333333325,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                5,
+                4
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                7,
+                0
+              ],
+              "winner": 0,
+              "duration_seconds": 30.833333333333325,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                3
+              ],
+              "winner": 2,
+              "duration_seconds": 39.583333333333336,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 6,
+          "fights": [
+            {
+              "seats": [
+                6,
+                3
+              ],
+              "winner": 6,
+              "duration_seconds": 29.249999999999993,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                1,
+                0
+              ],
+              "winner": 0,
+              "duration_seconds": 32.66666666666666,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                7,
+                2
+              ],
+              "winner": 2,
+              "duration_seconds": 31.666666666666657,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                5,
+                4
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [
+            7
+          ],
+          "bye": null
+        },
+        {
+          "round_number": 7,
+          "fights": [
+            {
+              "seats": [
+                2,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                1,
+                3
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                0,
+                4
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": 6
+        },
+        {
+          "round_number": 8,
+          "fights": [
+            {
+              "seats": [
+                5,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                4,
+                0
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                3,
+                1
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [
+            3
+          ],
+          "bye": 2
+        },
+        {
+          "round_number": 9,
+          "fights": [
+            {
+              "seats": [
+                6,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                0,
+                4
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                1
+              ],
+              "winner": 2,
+              "duration_seconds": 33.66666666666666,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 10,
+          "fights": [
+            {
+              "seats": [
+                6,
+                0
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                1,
+                2
+              ],
+              "winner": 2,
+              "duration_seconds": 35.666666666666664,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                5,
+                4
+              ],
+              "winner": 5,
+              "duration_seconds": 39.833333333333336,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [
+            1,
+            4
+          ],
+          "bye": null
+        },
+        {
+          "round_number": 11,
+          "fights": [
+            {
+              "seats": [
+                6,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                0
+              ],
+              "winner": 0,
+              "duration_seconds": 38.06666666666666,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 12,
+          "fights": [
+            {
+              "seats": [
+                0,
+                2
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                5,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 13,
+          "fights": [
+            {
+              "seats": [
+                0,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 14,
+          "fights": [
+            {
+              "seats": [
+                6,
+                0
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 15,
+          "fights": [
+            {
+              "seats": [
+                2,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                5,
+                0
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 16,
+          "fights": [
+            {
+              "seats": [
+                6,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                0,
+                2
+              ],
+              "winner": 2,
+              "duration_seconds": 39.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": null
+        },
+        {
+          "round_number": 17,
+          "fights": [
+            {
+              "seats": [
+                0,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            },
+            {
+              "seats": [
+                2,
+                5
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [
+            5
+          ],
+          "bye": null
+        },
+        {
+          "round_number": 18,
+          "fights": [
+            {
+              "seats": [
+                0,
+                2
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": 6
+        },
+        {
+          "round_number": 19,
+          "fights": [
+            {
+              "seats": [
+                2,
+                6
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": 0
+        },
+        {
+          "round_number": 20,
+          "fights": [
+            {
+              "seats": [
+                2,
+                0
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [],
+          "bye": 6
+        },
+        {
+          "round_number": 21,
+          "fights": [
+            {
+              "seats": [
+                2,
+                0
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [
+            0
+          ],
+          "bye": 6
+        },
+        {
+          "round_number": 22,
+          "fights": [
+            {
+              "seats": [
+                6,
+                2
+              ],
+              "winner": null,
+              "duration_seconds": 40.0,
+              "economy_receipts": []
+            }
+          ],
+          "eliminated": [
+            2
+          ],
+          "bye": null
+        }
+      ],
+      "combat_calls": 55,
+      "runtime_promoted": false
+    }
+  ],
+  "search": {
+    "scope": "experimental_hex_lab",
+    "runtime_promoted": false,
+    "planning_scope": "complete_rules",
+    "unresolved_planning_dependencies": [],
+    "simulation_paths": 1000,
+    "complete_matches": 0,
+    "elapsed_seconds": 4.1183665600001405,
+    "action": {
+      "kind": "move",
+      "args": [
+        "b",
+        "board",
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    "candidates": [
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              5
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "equip",
+          "args": [
+            0,
+            "a"
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              3,
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              4
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              5
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              3
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              1
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              1
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              6
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              5
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              3
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              3,
+              2
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              6
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              1
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              3,
+              6
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              2
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              1
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              6
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              0,
+              4
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              2
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "sell",
+          "args": [
+            "a"
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "equip",
+          "args": [
+            0,
+            "b"
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              2
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              4
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              2
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              3
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              3
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              3,
+              5
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              6
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              7
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              4
+            ]
+          ]
+        },
+        "visits": 13,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              8
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              2
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              5
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              4
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "lock",
+          "args": [
+            true
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "hold",
+          "args": []
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              6
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              6
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              0
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              4
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              3
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              0
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              2
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              0,
+              5
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              0,
+              1
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              4
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              3
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              7
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "reroll",
+          "args": []
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              3
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              6
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              5
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "xp",
+          "args": []
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              3
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              4
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              0,
+              2
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "bench",
+            [
+              4
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "bench",
+            [
+              8
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              3,
+              1
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              0,
+              6
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              3,
+              4
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              3,
+              5
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "a",
+            "board",
+            [
+              2,
+              5
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              6
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "sell",
+          "args": [
+            "b"
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      },
+      {
+        "action": {
+          "kind": "move",
+          "args": [
+            "b",
+            "board",
+            [
+              1,
+              5
+            ]
+          ]
+        },
+        "visits": 12,
+        "value": -1.0
+      }
+    ],
+    "unexpanded_root_actions": 0
+  },
+  "elapsed_seconds": 4.695153434997337,
+  "peak_rss_mib": 172.921875,
+  "current_patch_training_ready": false,
+  "runtime_promoted": false
+}

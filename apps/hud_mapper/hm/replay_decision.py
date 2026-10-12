@@ -252,7 +252,8 @@ class ReplayDecisionEngine:
 
     @staticmethod
     def rank_with_native(output, worker, *, match_id=None, epoch=0,
-                         visual_candidates=None, motor1_hub=None, motor1_aux=None):
+                         visual_candidates=None, motor1_hub=None, motor1_aux=None,
+                         patch=None, set_key=None):
         """Store the observed match state and rank its supported options in Rust."""
         choices = output.pop('decision_options', None)
         record_only = choices is None
@@ -290,6 +291,15 @@ class ReplayDecisionEngine:
             if result.get('origin') != 'rust_live_opportunity_v1':
                 raise ValueError('unexpected native motor response')
             output['motor1_ingest'] = result.get('motor1_ingest')
+            if patch is not None and set_key is not None:
+                from .motor2_player_feed import make_frame
+                try:
+                    output['player_policy_frame'] = make_frame(result, patch=patch,
+                        set_key=set_key, match_id=match_id, epoch=epoch)
+                except ValueError as feed_error:
+                    # An older worker may rank correctly without the policy
+                    # feed. Collection must never cancel the live Rust choice.
+                    output['player_policy_feed_error'] = str(feed_error)
             if index is None and result.get('held_duplicate') is True:
                 output['decision'] = ReplayDecisionEngine._wait('DUPLICATE_ALREADY_PRESENTED')
                 output['decision_rank'] = {'status': 'held_duplicate',

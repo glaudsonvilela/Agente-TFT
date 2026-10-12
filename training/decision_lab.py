@@ -61,18 +61,19 @@ def prepare(document, *, patch, content_sha256, engine_sha256, evidence_root):
         if not path.is_file() or sha(path) != entry["sha256"]:
             raise ValueError("review evidence missing or checksum changed")
         checked[evidence_id] = entry["sha256"]
-    # Each phase has its own independent validation examples.
+    # Demonstrations are sufficient for SFT. Preference optimization is only
+    # enabled when independently reviewed pairs exist in both partitions.
     groups = {}
     for split in ("train", "validation", "test"):
         for mode in ("sft", "dpo"):
             selected = [
                 r for r in records if r["split"] == split and r.get("mode") == mode
             ]
-            if split != "test" and not selected:
-                raise ValueError(
-                    "SFT and DPO each require train and validation examples"
-                )
+            if split != "test" and mode == "sft" and not selected:
+                raise ValueError("SFT requires train and validation examples")
             groups[split, mode] = selected
+    if bool(groups["train", "dpo"]) != bool(groups["validation", "dpo"]):
+        raise ValueError("DPO requires both train and validation examples")
     if sum(len(rows) for rows in groups.values()) != len(records):
         raise ValueError("unknown training objective")
     tensors = {}
@@ -190,7 +191,10 @@ def fit(
         policy = ActionPolicy(features)
         history = dict(initial=evaluate(policy, tensors), objectives={})
         reference = None
-        for mode, epochs in (("sft", sft_epochs), ("dpo", dpo_epochs)):
+        phases = [("sft", sft_epochs)]
+        if ("train", "dpo") in tensors:
+            phases.append(("dpo", dpo_epochs))
+        for mode, epochs in phases:
             optimizer = torch.optim.AdamW(policy.parameters(), lr=learning_rate)
             if mode == "dpo":
                 reference = frozen_reference(policy)
@@ -231,10 +235,10 @@ def fit(
                 last_batch_loss=losses[-1],
             )
             history["after_" + mode] = evaluate(policy, tensors)
-        history["reference_unchanged"] = all(
+        history["reference_unchanged"] = (reference is None or all(
             torch.equal(reference_parameters[k], v)
             for k, v in reference.state_dict().items()
-        )
+        ))
     return policy, history
 
 

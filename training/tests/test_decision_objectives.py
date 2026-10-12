@@ -131,6 +131,19 @@ class DecisionObjectives(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "paired seeds"):
             self.audit(rows)
 
+    def test_real_patch_blocks_simulated_preference_labels(self):
+        rows = self.rows()
+        for row in rows:
+            row["patch"] = "18.4B"
+            row["label_provenance"] = {
+                "kind": "paired_validated_rollouts",
+                "evidence_id": "claimed-validation",
+                "validation_report_sha256": "claimed-sha",
+                "paired_seeds": [1, 2],
+            }
+        with self.assertRaisesRegex(ValueError, "full simulator audit"):
+            validate_partition(rows, patch="18.4B", content_sha256="content", engine_sha256="engine")
+
 
 if __name__ == "__main__":
     unittest.main()

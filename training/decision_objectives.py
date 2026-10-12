@@ -113,6 +113,17 @@ def validate_partition(records, *, patch, content_sha256, engine_sha256):
     suggestions and partial screen readings cannot become action preferences.
     Split membership is checked by source, match and observation fingerprint.
     """
+    # A checksum on a claimed rollout report proves file identity, not that
+    # the simulated match follows this patch. Keep human-reviewed examples
+    # usable while blocking model-based labels until the full simulator passes.
+    if patch == "18.4B" and any(
+        row.get("label_provenance", {}).get("kind") == "paired_validated_rollouts"
+        for row in records
+    ):
+        from training.audit_full_simulator_18_4b import audit
+
+        if not audit()["synthetic_rollouts_allowed_for_player_policy"]:
+            raise ValueError("18.4B simulated preferences blocked by full simulator audit")
     groups = {}
     if not records:
         raise ValueError("no reviewed decision examples")

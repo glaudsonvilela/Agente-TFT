@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "purpose": "candidate_full_matches_for_review_only",
+  "channel": "https://www.youtube.com/@TFT-HuanMie/videos",
+  "selection": "user_chose_this_channel_only",
+  "set_key_candidate": "TFTSet18",
+  "patch_candidate": "18.4B",
+  "patch_basis": "upload_date_after_2026-10-07_B_patch; recording_date_and_client_patch_unverified",
+  "rank_evidence": "unverified",
+  "usage_permission": "user_authorized_this_channel_for_training_in_current_task",
+  "videos_downloaded": false,
+  "actions_reviewed": false,
+  "training_ready": false,
+  "videos": [
+    {
+      "id": "MVGyB7JFvSA",
+      "url": "https://www.youtube.com/watch?v=MVGyB7JFvSA",
+      "upload_date": "2026-10-11",
+      "duration_seconds": 1796,
+      "title": "HuanMie: Veigar with Dawn and Blue Buff"
+    },
+    {
+      "id": "UVyH-EnFC-M",
+      "url": "https://www.youtube.com/watch?v=UVyH-EnFC-M",
+      "upload_date": "2026-10-11",
+      "duration_seconds": 1716,
+      "title": "HuanMie: Zyra and Azir composition"
+    },
+    {
+      "id": "NwEkJELAGMI",
+      "url": "https://www.youtube.com/watch?v=NwEkJELAGMI",
+      "upload_date": "2026-10-10",
+      "duration_seconds": 1686,
+      "title": "HuanMie practice match"
+    }
+  ]
+}

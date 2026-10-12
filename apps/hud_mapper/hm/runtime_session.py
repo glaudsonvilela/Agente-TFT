@@ -525,7 +525,8 @@ class RuntimeSession(Session):
                         answer = decision_engine.rank_with_native(answer, self.worker,
                             match_id=match_id, epoch=frame.epoch,
                             visual_candidates=visual_candidates, motor1_hub=motor1_hub,
-                            motor1_aux=aux)
+                            motor1_aux=aux, patch=decision_engine.patch,
+                            set_key=decision_engine.set_key)
                         if not self.options.replay_review:
                             answer['catalog_binding']['basis'] = 'bundled_catalog_patch_lab'
                             answer['decision']['patch_basis'] = 'bundled_catalog_patch_lab'

@@ -131,6 +131,18 @@ class DecisionLab(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "validation"):
                 self.prepare(bad, root)
 
+    def test_reviewed_demonstrations_can_train_without_invented_preferences(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            doc = self.document(root)
+            doc["records"] = [row for row in doc["records"] if row["mode"] == "sft"]
+            tensors, _ = self.prepare(doc, root)
+            model, report = fit(tensors, 2, seed=3, sft_epochs=2)
+            self.assertIsNotNone(model)
+            self.assertEqual(set(report["objectives"]), {"sft"})
+            self.assertNotIn("after_dpo", report)
+            self.assertTrue(report["reference_unchanged"])
+
 
 if __name__ == "__main__":
     unittest.main()

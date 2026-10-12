@@ -317,8 +317,10 @@ pub fn rank(request: &Value, memory: &mut MatchMemory) -> Result<Value, String> 
     };
     Ok(json!({"id":id,"source_ms":source_ms,"origin":"rust_live_opportunity_v1",
         "selected_index":selected_index,"selected_candidate":selected_index.and_then(|i|candidates.get(i)),
+        "candidates":candidates,
         "held_duplicate":selected_index.is_none() && !ranked.is_empty(),
         "ranked":ranked,"whole_state":situation.diagnostics(),
+        "current_observation":current,
         "macro_state":macro_state.diagnostics(),
         "plan_state":plan_state,
         "match_pool":updated_pool,
@@ -391,6 +393,8 @@ pub fn observe_event(request: &Value, memory: &mut MatchMemory) -> Result<Value,
                 "next_breakpoint":4,"completes_breakpoint_if_fielded":true}}
         ]}), &mut MatchMemory::new(None)).unwrap();
         assert_eq!(result["selected_index"],1);
+        assert_eq!(result["candidates"][1]["action"]["type"], "trait_shop_review");
+        assert_eq!(result["current_observation"]["shop"][0]["unit_id"], "A");
     }
     #[test] fn incomplete_trait_is_stored_but_not_spoken() {
         let candidate=json!({"policy":"partial_state_live_v1","action":{
