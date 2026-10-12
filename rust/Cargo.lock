@@ -520,9 +520,12 @@ name = "agente-tft-strategy-analysis"
 version = "0.1.0"
 dependencies = [
  "agente-tft-contracts",
+ "agente-tft-knowledge-core",
  "agente-tft-lobby-analysis",
+ "agente-tft-synergy-core",
  "agente-tft-tft-math",
  "agente-tft-tft-rules",
+ "agente-tft-trait-core",
  "serde",
  "thiserror",
 ]

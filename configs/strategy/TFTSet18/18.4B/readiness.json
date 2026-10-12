@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "patch": "18.4B",
+  "components": {
+    "economy": false,
+    "shop_odds": false,
+    "pool_sizes": false,
+    "combat": false,
+    "champion_abilities": false,
+    "trait_effects": false,
+    "item_effects": false,
+    "augments": false,
+    "wisps": false,
+    "opponent_observation": false,
+    "replay_validation": false,
+    "player_policy_validation": false,
+    "commentary_grounding": false
+  },
+  "note": "Do not set a component true without patch-matched evidence and a passing replay or client validation."
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "set_key": "TFTSet18",
+  "patch": "18.4B",
+  "purpose": "future_reviewed_challenger_strategy_training",
+  "games": [],
+  "selection_notes": "Add complete matches selected by the user. Each game needs a stable match_id, source URL, local video SHA-256, player/rank evidence, patch evidence and reviewed action annotations before training."
+}

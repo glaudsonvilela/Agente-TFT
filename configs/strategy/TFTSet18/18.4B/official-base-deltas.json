@@ -1,0 +1,1062 @@
+{
+  "changes": [
+    {
+      "after": "12/30/50/55%",
+      "before": "12/30/45/50%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AD/AP",
+      "path": [
+        "Blossom"
+      ],
+      "section": "TRAITS",
+      "subject": "Blossom"
+    },
+    {
+      "after": "1x Component + 6 gold",
+      "before": "2x Components",
+      "binding_status": "unmapped_official_fact",
+      "metric": "130 Cashout",
+      "path": [
+        "Coven",
+        "130 Cashout"
+      ],
+      "section": "TRAITS",
+      "subject": "Coven"
+    },
+    {
+      "after": "1x Component + 2* Elise",
+      "before": "1x Component + 2* Elise + 1* Cassio",
+      "binding_status": "unmapped_official_fact",
+      "metric": "130 Cashout",
+      "path": [
+        "Coven",
+        "130 Cashout"
+      ],
+      "section": "TRAITS",
+      "subject": "Coven"
+    },
+    {
+      "after": "1x Component + 2* Camille + 3g",
+      "before": "1x Random Item",
+      "binding_status": "unmapped_official_fact",
+      "metric": "130 Cashout",
+      "path": [
+        "Coven",
+        "130 Cashout"
+      ],
+      "section": "TRAITS",
+      "subject": "Coven"
+    },
+    {
+      "after": "2* Caitlyn + 1x Component",
+      "before": "2* Caitlyn + 1x Component + 3g",
+      "binding_status": "unmapped_official_fact",
+      "metric": "130 Cashout",
+      "path": [
+        "Coven",
+        "130 Cashout"
+      ],
+      "section": "TRAITS",
+      "subject": "Coven"
+    },
+    {
+      "after": "8s",
+      "before": "10s",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Initial Delay before execution",
+      "path": [
+        "Eclipse"
+      ],
+      "section": "TRAITS",
+      "subject": "Eclipse"
+    },
+    {
+      "after": "20/60",
+      "before": "20/70",
+      "binding_status": "unmapped_official_fact",
+      "metric": "(7) Deepwood Protector Mana",
+      "path": [
+        "Elderwood"
+      ],
+      "section": "TRAITS",
+      "subject": "Elderwood"
+    },
+    {
+      "after": "70",
+      "before": "65",
+      "binding_status": "unmapped_official_fact",
+      "metric": "(7) Deepwood Protector Resists",
+      "path": [
+        "Elderwood"
+      ],
+      "section": "TRAITS",
+      "subject": "Elderwood"
+    },
+    {
+      "after": "140%",
+      "before": "155%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "(9) Health Multiplier for Elderwood Plants satrring up",
+      "path": [
+        "Elderwood"
+      ],
+      "section": "TRAITS",
+      "subject": "Elderwood"
+    },
+    {
+      "after": "25/35%",
+      "before": "30/40%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Bleed Damage",
+      "path": [
+        "Executioner (3/4)"
+      ],
+      "section": "TRAITS",
+      "subject": "Executioner (3/4)"
+    },
+    {
+      "after": "4.5/7%",
+      "before": "5/8%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AD/AP Per Pixie",
+      "path": [
+        "Fae"
+      ],
+      "section": "TRAITS",
+      "subject": "Fae"
+    },
+    {
+      "after": "20/30/42%",
+      "before": "20/33/45%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Juggernaut Durability",
+      "path": [
+        "Juggernaut"
+      ],
+      "section": "TRAITS",
+      "subject": "Juggernaut"
+    },
+    {
+      "after": "7/12/16/20%",
+      "before": "7/10/14/18%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Power",
+      "path": [
+        "Lunar"
+      ],
+      "section": "TRAITS",
+      "subject": "Lunar"
+    },
+    {
+      "after": "6%",
+      "before": "5%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "(7) AD/AP/AS every 5 seconds",
+      "path": [
+        "Riftbeast"
+      ],
+      "section": "TRAITS",
+      "subject": "Riftbeast"
+    },
+    {
+      "after": "55% HP + 55% AS",
+      "before": "45% HP + 45% AS",
+      "binding_status": "unmapped_official_fact",
+      "metric": "(7) Stats",
+      "path": [
+        "Sprykin"
+      ],
+      "section": "TRAITS",
+      "subject": "Sprykin"
+    },
+    {
+      "after": "150/225/400/665",
+      "before": "150/225/375/640",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Damage AD",
+      "path": [
+        "Camille"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Camille"
+    },
+    {
+      "after": "285/335/480/595",
+      "before": "265/315/460/575",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Heal AP",
+      "path": [
+        "Kobuko"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Kobuko"
+    },
+    {
+      "after": "290/340/435/510",
+      "before": "270/320/415/490",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Shield",
+      "path": [
+        "Rakan"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Rakan"
+    },
+    {
+      "after": "73/108/165/175",
+      "before": "68/102/155/165",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Xayah"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Xayah"
+    },
+    {
+      "after": ".75%",
+      "before": ".7%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Attack Speed",
+      "path": [
+        "Varus"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Varus"
+    },
+    {
+      "after": "190/285/430/725",
+      "before": "200/300/450/765",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Veigar"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Veigar"
+    },
+    {
+      "after": "285/430/640/1000",
+      "before": "300/450/675/1015",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Low HP Ability Damage",
+      "path": [
+        "Veigar"
+      ],
+      "section": "UNITS: TIER 1",
+      "subject": "Veigar"
+    },
+    {
+      "after": "0/70",
+      "before": "20/80",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Mana AD Form",
+      "path": [
+        "Gromp"
+      ],
+      "section": "UNITS: TIER 2",
+      "subject": "Gromp"
+    },
+    {
+      "after": "160/240/375/625",
+      "before": "160/240/360/610",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Splash damage AP Form",
+      "path": [
+        "Gromp"
+      ],
+      "section": "UNITS: TIER 2",
+      "subject": "Gromp"
+    },
+    {
+      "after": "65/97/110/115",
+      "before": "62/92/105/115",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Kayle"
+      ],
+      "section": "UNITS: TIER 2",
+      "subject": "Kayle"
+    },
+    {
+      "after": "375/450/575/725",
+      "before": "350/430/550/700",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Shield",
+      "path": [
+        "Shen"
+      ],
+      "section": "UNITS: TIER 2",
+      "subject": "Shen"
+    },
+    {
+      "after": "225/300/400/500",
+      "before": "200/275/375/475",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ally Shield",
+      "path": [
+        "Shen"
+      ],
+      "section": "UNITS: TIER 2",
+      "subject": "Shen"
+    },
+    {
+      "after": "55/82/155/240",
+      "before": "55/82/130/215",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AOE Damage",
+      "path": [
+        "Teemo"
+      ],
+      "section": "UNITS: TIER 2",
+      "subject": "Teemo"
+    },
+    {
+      "after": "50/110",
+      "before": "30/110",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Mana",
+      "path": [
+        "Hecarim"
+      ],
+      "section": "UNITS: TIER 3",
+      "subject": "Hecarim"
+    },
+    {
+      "after": "22/30/52 AD",
+      "before": "22/30/48 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Mama Beak"
+      ],
+      "section": "UNITS: TIER 3",
+      "subject": "Mama Beak"
+    },
+    {
+      "after": "400/550/700 AP",
+      "before": "400/550/725 AP",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Shield",
+      "path": [
+        "Rammus"
+      ],
+      "section": "UNITS: TIER 3",
+      "subject": "Rammus"
+    },
+    {
+      "after": "255/385/650 AD",
+      "before": "255/385/615 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Rengar"
+      ],
+      "section": "UNITS: TIER 3",
+      "subject": "Rengar"
+    },
+    {
+      "after": "175/265/420 AD",
+      "before": "160/240/385 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Tristana"
+      ],
+      "section": "UNITS: TIER 3",
+      "subject": "Tristana"
+    },
+    {
+      "after": "100% AD",
+      "before": "80% AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Bonus AD",
+      "path": [
+        "Brambleback"
+      ],
+      "section": "UNITS: TIER 4",
+      "subject": "Brambleback"
+    },
+    {
+      "after": "135/205 AD",
+      "before": "155/235 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Leap Damage",
+      "path": [
+        "Brambleback"
+      ],
+      "section": "UNITS: TIER 4",
+      "subject": "Brambleback"
+    },
+    {
+      "after": "270/405 AD",
+      "before": "250/375 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Small Cast Damage",
+      "path": [
+        "Ezreal"
+      ],
+      "section": "UNITS: TIER 4",
+      "subject": "Ezreal"
+    },
+    {
+      "after": "185/275 AP",
+      "before": "170/255 AP",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Small Spear Ability Damage",
+      "path": [
+        "Nidalee",
+        "AP Form"
+      ],
+      "section": "UNITS: TIER 4",
+      "subject": "Nidalee"
+    },
+    {
+      "after": "200/300 AD",
+      "before": "210/315 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "AD Form"
+      ],
+      "section": "UNITS: TIER 4",
+      "subject": "AD Form"
+    },
+    {
+      "after": "200/300 AD",
+      "before": "190/285 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Ability Damage",
+      "path": [
+        "Sivir"
+      ],
+      "section": "UNITS: TIER 4",
+      "subject": "Sivir"
+    },
+    {
+      "after": "0/80",
+      "before": "20/80",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Mana",
+      "path": [
+        "Ashe"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Ashe"
+    },
+    {
+      "after": "1.5%",
+      "before": "2/3%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Percent Health Damage",
+      "path": [
+        "Ashe"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Ashe"
+    },
+    {
+      "after": "150/225 AD",
+      "before": "140/210 AD",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Bleed Damage",
+      "path": [
+        "Draven"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Draven"
+    },
+    {
+      "after": "6/10%",
+      "before": "8/12%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Damage Amp",
+      "path": [
+        "Ivern",
+        "Greenfather Hexes"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Ivern"
+    },
+    {
+      "after": "6/10%",
+      "before": "8/12%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Bonus % HP",
+      "path": [
+        "Ivern",
+        "Greenfather Hexes"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Ivern"
+    },
+    {
+      "after": "10/14",
+      "before": "8/12",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Resists",
+      "path": [
+        "Ivern",
+        "Greenfather Hexes"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Ivern"
+    },
+    {
+      "after": "230/300 AP",
+      "before": "250/350 AP",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Shield",
+      "path": [
+        "Kennen"
+      ],
+      "section": "UNITS: TIER 5",
+      "subject": "Kennen"
+    },
+    {
+      "after": "20",
+      "before": "25",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Bonus Ability Power On Shield Expire",
+      "path": [
+        "Crownguard"
+      ],
+      "section": "ITEMS",
+      "subject": "Crownguard"
+    },
+    {
+      "after": "10%",
+      "before": "8%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Durability",
+      "path": [
+        "Spirit Visage"
+      ],
+      "section": "ITEMS",
+      "subject": "Spirit Visage"
+    },
+    {
+      "after": "18%",
+      "before": "15%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Radiant Item Durability",
+      "path": [
+        "Spirit Visage"
+      ],
+      "section": "ITEMS",
+      "subject": "Spirit Visage"
+    },
+    {
+      "after": "25",
+      "before": "35",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Resists",
+      "path": [
+        "Elderwood Emblem"
+      ],
+      "section": "EMBLEMS",
+      "subject": "Elderwood Emblem"
+    },
+    {
+      "after": "12",
+      "before": "15",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cashout 2",
+      "path": [
+        "Re-enabled Augments",
+        "Dark Ritual",
+        "AP Per Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Dark Ritual"
+    },
+    {
+      "after": "33",
+      "before": "50",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cashout 3",
+      "path": [
+        "Re-enabled Augments",
+        "Dark Ritual",
+        "AP Per Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Dark Ritual"
+    },
+    {
+      "after": "50",
+      "before": "75",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cashout 4",
+      "path": [
+        "Re-enabled Augments",
+        "Dark Ritual",
+        "AP Per Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Dark Ritual"
+    },
+    {
+      "after": "100",
+      "before": "125",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cashout 5",
+      "path": [
+        "Re-enabled Augments",
+        "Dark Ritual",
+        "AP Per Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Dark Ritual"
+    },
+    {
+      "after": "175",
+      "before": "200",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cashout 6",
+      "path": [
+        "Re-enabled Augments",
+        "Dark Ritual",
+        "AP Per Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Dark Ritual"
+    },
+    {
+      "after": "3",
+      "before": "4",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Armor and Magic Resist",
+      "path": [
+        "Bronze for Life II"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Bronze for Life II"
+    },
+    {
+      "after": "Silver",
+      "before": "Gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Tier",
+      "path": [
+        "Chosen of the Sun"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Chosen of the Sun"
+    },
+    {
+      "after": "1",
+      "before": "5",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Final Gold Gain",
+      "path": [
+        "Component Quest"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Component Quest"
+    },
+    {
+      "after": "1500",
+      "before": "1000",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Starting Health",
+      "path": [
+        "Dummify"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Dummify"
+    },
+    {
+      "after": "9",
+      "before": "10",
+      "binding_status": "unmapped_official_fact",
+      "metric": "XP Gained per Round",
+      "path": [
+        "Explosive Growth+"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Explosive Growth+"
+    },
+    {
+      "after": "18",
+      "before": "16",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Max Health Gain",
+      "path": [
+        "Heart of Steel"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Heart of Steel"
+    },
+    {
+      "after": "9",
+      "before": "8",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Max Health per Interest",
+      "path": [
+        "Investment Strategy I"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Investment Strategy I"
+    },
+    {
+      "after": "6",
+      "before": "4",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Initial Gold",
+      "path": [
+        "Investment Strategy I"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Investment Strategy I"
+    },
+    {
+      "after": "12",
+      "before": "10",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Max Health per Interest",
+      "path": [
+        "Investment Strategy II"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Investment Strategy II"
+    },
+    {
+      "after": "10",
+      "before": "8",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Gold Granted",
+      "path": [
+        "Investment Strategy II"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Investment Strategy II"
+    },
+    {
+      "after": "10",
+      "before": "6",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Instant XP",
+      "path": [
+        "Level Up!"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Level Up!"
+    },
+    {
+      "after": "5",
+      "before": "3",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Gold Granted",
+      "path": [
+        "Luxury Sub"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Luxury Sub"
+    },
+    {
+      "after": "45%",
+      "before": "35%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Effectiveness",
+      "path": [
+        "Small Furry Friend"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Small Furry Friend"
+    },
+    {
+      "after": "5",
+      "before": "6",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Gold Granted",
+      "path": [
+        "Trait Ladder",
+        "4 Trait Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Trait Ladder"
+    },
+    {
+      "after": "7 gold",
+      "before": "10 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Gold Granted",
+      "path": [
+        "Trait Ladder",
+        "6 Trait Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Trait Ladder"
+    },
+    {
+      "after": "2x3 costs",
+      "before": "3x3 costs",
+      "binding_status": "unmapped_official_fact",
+      "metric": "6 Trait Cashout",
+      "path": [
+        "Trait Ladder",
+        "6 Trait Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Trait Ladder"
+    },
+    {
+      "after": "Component Anvil + 2 gold",
+      "before": "Component Anvil + 8 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "7 Trait Cashout",
+      "path": [
+        "Trait Ladder",
+        "7 Trait Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Trait Ladder"
+    },
+    {
+      "after": "2 Different Components",
+      "before": "2 Different Components + Reforger",
+      "binding_status": "unmapped_official_fact",
+      "metric": "8 Trait Cashout",
+      "path": [
+        "Trait Ladder",
+        "8 Trait Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Trait Ladder"
+    },
+    {
+      "after": "2x5 costs + 2 gold",
+      "before": "3x5 costs + 2 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "9 Trait Cashout",
+      "path": [
+        "Trait Ladder",
+        "9 Trait Cashout"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Trait Ladder"
+    },
+    {
+      "after": "2.5%",
+      "before": "2%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AD/AP per Ally",
+      "path": [
+        "Verticality II"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Verticality II"
+    },
+    {
+      "after": "4%",
+      "before": "3.5%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AD/AP per Ally",
+      "path": [
+        "Verticality III"
+      ],
+      "section": "AUGMENTS",
+      "subject": "Verticality III"
+    },
+    {
+      "after": "100%",
+      "before": "85%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AS Bonus",
+      "path": [
+        "Wisps",
+        "Backrow Star"
+      ],
+      "section": "WISPS",
+      "subject": "Backrow Star"
+    },
+    {
+      "after": "130%",
+      "before": "115%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Blossom Upgrade AS Bonus",
+      "path": [
+        "Wisps",
+        "Backrow Star"
+      ],
+      "section": "WISPS",
+      "subject": "Backrow Star"
+    },
+    {
+      "after": "6 gold",
+      "before": "5 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cost",
+      "path": [
+        "Wisps",
+        "Forest Guide"
+      ],
+      "section": "WISPS",
+      "subject": "Forest Guide"
+    },
+    {
+      "after": "5 gold",
+      "before": "4 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Blossom Upgrade Cost",
+      "path": [
+        "Wisps",
+        "Forest Guide"
+      ],
+      "section": "WISPS",
+      "subject": "Forest Guide"
+    },
+    {
+      "after": "800",
+      "before": "750",
+      "binding_status": "unmapped_official_fact",
+      "metric": "HP Increase",
+      "path": [
+        "Wisps",
+        "Giant’s Growth"
+      ],
+      "section": "WISPS",
+      "subject": "Giant’s Growth"
+    },
+    {
+      "after": "800",
+      "before": "750",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Blossom Upgrade HP Increase",
+      "path": [
+        "Wisps",
+        "Giant’s Growth"
+      ],
+      "section": "WISPS",
+      "subject": "Giant’s Growth"
+    },
+    {
+      "after": "1 gold",
+      "before": "2 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Cost",
+      "path": [
+        "Wisps",
+        "Improved Reach"
+      ],
+      "section": "WISPS",
+      "subject": "Improved Reach"
+    },
+    {
+      "after": "1 gold",
+      "before": "2 gold",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Blossom Upgrade Cost",
+      "path": [
+        "Wisps",
+        "Improved Reach"
+      ],
+      "section": "WISPS",
+      "subject": "Improved Reach"
+    },
+    {
+      "after": "130%",
+      "before": "115%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "AS on Kill",
+      "path": [
+        "Wisps",
+        "Killing Frenzy"
+      ],
+      "section": "WISPS",
+      "subject": "Killing Frenzy"
+    },
+    {
+      "after": "160%",
+      "before": "140%",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Blossom Upgrade AS on Kill",
+      "path": [
+        "Wisps",
+        "Killing Frenzy"
+      ],
+      "section": "WISPS",
+      "subject": "Killing Frenzy"
+    },
+    {
+      "after": "70",
+      "before": "80",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Mana Restored",
+      "path": [
+        "Wisps",
+        "Mana Potion"
+      ],
+      "section": "WISPS",
+      "subject": "Mana Potion"
+    },
+    {
+      "after": "10",
+      "before": "20",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Starting Mana",
+      "path": [
+        "Wisps",
+        "Mana Potion"
+      ],
+      "section": "WISPS",
+      "subject": "Mana Potion"
+    },
+    {
+      "after": "80",
+      "before": "90",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Radiant Mana Restored",
+      "path": [
+        "Wisps",
+        "Mana Potion"
+      ],
+      "section": "WISPS",
+      "subject": "Mana Potion"
+    },
+    {
+      "after": "10",
+      "before": "20",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Radiant Starting Mana",
+      "path": [
+        "Wisps",
+        "Mana Potion"
+      ],
+      "section": "WISPS",
+      "subject": "Mana Potion"
+    },
+    {
+      "after": "8 seconds",
+      "before": "6 seconds",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Duration",
+      "path": [
+        "Wisps",
+        "Stealthy"
+      ],
+      "section": "WISPS",
+      "subject": "Stealthy"
+    },
+    {
+      "after": "12 seconds",
+      "before": "10 seconds",
+      "binding_status": "unmapped_official_fact",
+      "metric": "Blossom Upgrade Duration",
+      "path": [
+        "Wisps",
+        "Stealthy"
+      ],
+      "section": "WISPS",
+      "subject": "Stealthy"
+    }
+  ],
+  "extraction": "numeric_before_after_only; nonnumeric rules reviewed separately",
+  "patch": "18.4",
+  "schema_version": 1,
+  "set_key": "TFTSet18",
+  "source_html_sha256": "e760101799b135ef2af7cf01ac2c0ba6a79dab4b99ec816628f3d15ecb8480ba",
+  "source_url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-4/"
+}
