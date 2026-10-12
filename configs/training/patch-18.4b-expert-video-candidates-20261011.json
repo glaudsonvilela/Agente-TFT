@@ -37,6 +37,26 @@
           "local_clip_fps": 60,
           "outcome_sample": "1st place visible at local clip 00:34:52, about VOD 01:11:52.",
           "evidence": "Local clip 00:00 shows TFT Ranked queue, POV VIT setsuko and Challenger 1406 LP; 00:01:20 loading screen; 00:34:52 first-place result; 00:35:10 ranked queue at Challenger 1447 LP. Only this match-sized 37-minute clip was acquired from the archive."
+        },
+        {
+          "source_start_seconds": 4680,
+          "source_end_seconds": 6928,
+          "review_status": "ranked_pov_resolution_and_complete_gameplay_sampled; placement_actions_and_client_patch_pending",
+          "local_clip_basename": "setsuko-2897329575-game2-fullmatch-1080p.mp4",
+          "local_clip_sha256": "b63c166615e5e785aa0fca3ba56161e49acca5dd22f2dc04504c14233e1d6556",
+          "local_clip_resolution": [1920, 1080],
+          "local_clip_fps": 60,
+          "evidence": "This 37-minute, 28-second cut starts at the loading screen, shows carousel and stage 1-1 through stage 7-1, then the end animation and return to ranked queue. Challenger ranked POV is visible before the match. Exact placement is not labeled. Only the match-sized cut was acquired from the archive."
+        },
+        {
+          "source_start_seconds": 7150,
+          "source_end_seconds": 10730,
+          "review_status": "ranked_pov_resolution_and_complete_gameplay_sampled; placement_actions_and_client_patch_pending",
+          "local_clip_basename": "setsuko-2897329575-game3-fullmatch-1080p.mp4",
+          "local_clip_sha256": "7c3342f9d87215a2eee9b92f48ecd8ec0ba4e1788d86b526c9d2dea80309fc9c",
+          "local_clip_resolution": [1920, 1080],
+          "local_clip_fps": 60,
+          "evidence": "This 59-minute, 40-second cut shows loading, stage 1-1, elimination and return to ranked queue. A short tail of the source archive was inspected to verify the end boundary; exact placement and actions are not labeled."
         }
       ]
     },

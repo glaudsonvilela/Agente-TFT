@@ -1,8 +1,13 @@
 """Keep uncertain OCR out of the full-match training index."""
 
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
-from training.index_full_match_states import reconcile_gold_reads
+from PIL import Image
+
+from training.index_full_match_states import index, reconcile_gold_reads
 
 
 class GoldOcrConsensusTests(unittest.TestCase):
@@ -37,6 +42,18 @@ class GoldOcrConsensusTests(unittest.TestCase):
             }),
             (None, "unreadable"),
         )
+
+
+class ResumeTests(unittest.TestCase):
+    def test_resume_requires_matching_frame_and_time(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            Image.new("RGB", (1920, 1080)).save(root / "frame-000001.jpg")
+            output = root / "index.jsonl"
+            output.write_text('{"frame":"frame-000001.jpg","source_seconds":99}\n')
+            with patch("training.index_full_match_states.prepare_ocr_model"):
+                with self.assertRaisesRegex(ValueError, "does not match"):
+                    index(root, output, 78, 5, 1, resume=True)
 
 
 if __name__ == "__main__":

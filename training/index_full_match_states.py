@@ -78,7 +78,8 @@ def reconcile_gold_reads(reads: dict[str, str]) -> tuple[int | None, str]:
     return None, "disagreement"
 
 
-def index(frames_dir: Path, output: Path, start_seconds: float, fps: int, stride: int) -> int:
+def index(frames_dir: Path, output: Path, start_seconds: float, fps: float, stride: int,
+          *, resume: bool = False) -> int:
     prepare_ocr_model()
     if fps <= 0 or stride <= 0:
         raise ValueError("fps and stride must be positive")
@@ -88,13 +89,25 @@ def index(frames_dir: Path, output: Path, start_seconds: float, fps: int, stride
     numbers = [int(path.stem.split("-")[-1]) for path in frames]
     if numbers != list(range(1, len(numbers) + 1)):
         raise ValueError("frame sequence must start at 1 with no gaps")
-    if output.exists():
+    if output.exists() and not resume:
         raise ValueError("use a new output path")
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    written = 0
-    with output.open("w") as stream:
-        for frame_number in numbers[::stride]:
+    selected = numbers[::stride]
+    completed = 0
+    if output.exists():
+        with output.open() as previous:
+            for completed, line in enumerate(previous, start=1):
+                if completed > len(selected):
+                    raise ValueError("existing index has too many rows")
+                row = json.loads(line)
+                expected = f"frame-{selected[completed - 1]:06d}.jpg"
+                expected_seconds = round(start_seconds + (selected[completed - 1] - 1) / fps, 3)
+                if row.get("frame") != expected or row.get("source_seconds") != expected_seconds:
+                    raise ValueError("existing index does not match frame sequence or timing")
+    written = completed
+    with output.open("a" if resume else "w") as stream:
+        for frame_number in selected[completed:]:
             path = frames[frame_number - 1]
             with Image.open(path) as image:
                 if image.size != (1920, 1080):
@@ -134,11 +147,15 @@ def main() -> None:
     parser.add_argument("--frames-dir", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--start-seconds", required=True, type=float)
-    parser.add_argument("--fps", type=int, default=10)
+    parser.add_argument("--fps", type=float, default=10,
+                        help="sampling rate of the numbered frames, including fractions")
     parser.add_argument("--stride", type=int, default=50,
                         help="50 frames at 10 fps gives one observation every five seconds")
+    parser.add_argument("--resume", action="store_true",
+                        help="continue an existing index after validating its frame sequence")
     args = parser.parse_args()
-    count = index(args.frames_dir, args.output, args.start_seconds, args.fps, args.stride)
+    count = index(args.frames_dir, args.output, args.start_seconds, args.fps, args.stride,
+                  resume=args.resume)
     print(f"{count} sparse HUD observations; no inferred action labels", flush=True)
 
 

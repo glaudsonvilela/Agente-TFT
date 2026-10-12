@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "target_patch": "18.4B",
+  "player": "Setsuko",
+  "source_channel": "https://www.youtube.com/@setsybetsy-db9th/videos",
+  "capture_rule": "Use native 1920x1080 Twitch source, download only match-sized intervals, verify loading/1-1/result/queue boundaries, exclude partial matches and other patches. These storyboard intervals are approximate and are not training labels.",
+  "source_vods": [
+    {
+      "twitch_id": "2894958056",
+      "date": "2026-10-08",
+      "duration_seconds": 8421,
+      "partial_start_excluded": true,
+      "interval_candidates_hhmmss": [
+        ["00:42:00", "01:11:00"],
+        ["01:15:00", "01:46:00"],
+        ["01:49:00", "02:19:30"]
+      ]
+    },
+    {
+      "twitch_id": "2895746438",
+      "date": "2026-10-09",
+      "duration_seconds": 14762,
+      "partial_start_excluded": true,
+      "interval_candidates_hhmmss": [
+        ["00:34:00", "01:12:00"],
+        ["01:21:00", "01:55:00"],
+        ["02:00:00", "03:00:00"],
+        ["03:00:00", "03:37:30"],
+        ["03:37:00", "04:06:02"]
+      ]
+    },
+    {
+      "twitch_id": "2896271382",
+      "date": "2026-10-09",
+      "duration_seconds": 17148,
+      "first_interval_starts_at_vod_zero_and_needs_boundary_check": true,
+      "interval_candidates_hhmmss": [
+        ["00:00:00", "00:35:00"],
+        ["00:37:00", "01:12:00"],
+        ["01:16:00", "01:58:00"],
+        ["01:59:00", "02:53:00"],
+        ["03:00:00", "03:35:00"],
+        ["03:37:00", "04:17:00"],
+        ["04:21:00", "04:43:00"]
+      ]
+    },
+    {
+      "twitch_id": "2897329575",
+      "date": "2026-10-10",
+      "duration_seconds": 26842,
+      "partial_start_excluded": true,
+      "partial_end_excluded": true,
+      "interval_candidates_hhmmss": [
+        ["00:37:00", "01:14:00"],
+        ["01:18:00", "01:55:28"],
+        ["01:56:00", "03:05:00"],
+        ["03:49:00", "04:24:00"],
+        ["04:25:00", "05:35:00"],
+        ["05:34:00", "06:25:00"],
+        ["06:30:00", "07:08:00"]
+      ]
+    }
+  ],
+  "candidate_count": 22,
+  "verified_complete_match_count": 7,
+  "notes": "Chronological storyboard contact sheets identify likely match intervals. Four cuts from VOD 2897329575, one from 2895746438, and two from 2894958056 have loading/1-1/end evidence. All other intervals, including the first interval starting at VOD 2896271382 zero, remain unverified or are excluded. Do not use the sum of archive durations as training hours. Further downloads were stopped at the user's request."
+}

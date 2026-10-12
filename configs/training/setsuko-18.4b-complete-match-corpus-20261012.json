@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "kind": "complete_challenger_game_video_sources",
+  "set_key": "TFTSet18",
+  "target_patch": "18.4B",
+  "client_patch_verified": false,
+  "native_resolution": [
+    1920,
+    1080
+  ],
+  "source_archive_downloaded": false,
+  "matches": [
+    {
+      "match_id": "setsuko-2897329575-game1",
+      "video": "setsuko-game1.mp4",
+      "source_vod_interval_seconds": [
+        2220,
+        4440
+      ],
+      "video_duration_seconds": 2220.035,
+      "video_sha256": "6d2a51b4d2a6488ded42f1ddc1c58da2ee39256f23c3a0fd251491a3c6bf227f",
+      "rank_evidence": "Challenger ranked POV visible in source clip",
+      "placement_observed": 1,
+      "result_evidence_clip_second": 2092,
+      "hud_timeline": "setsuko-game1-hud-timeline-5s.jsonl",
+      "hud_samples": 404,
+      "reviewed_actions": "setsuko-game1-reviewed-actions.json",
+      "reviewed_action_count": 8,
+      "source_url": "https://www.twitch.tv/videos/2897329575"
+    },
+    {
+      "match_id": "setsuko-2897329575-game2",
+      "video": "setsuko-game2.mp4",
+      "source_vod_interval_seconds": [
+        4680,
+        6928
+      ],
+      "video_duration_seconds": 2248.067,
+      "video_sha256": "b63c166615e5e785aa0fca3ba56161e49acca5dd22f2dc04504c14233e1d6556",
+      "rank_evidence": "Challenger ranked POV visible before loading screen, then same account throughout match",
+      "placement_observed": null,
+      "hud_timeline": "setsuko-game2-hud-timeline-5s.jsonl",
+      "hud_samples": 450,
+      "reviewed_actions": null,
+      "reviewed_action_count": 0,
+      "source_url": "https://www.twitch.tv/videos/2897329575"
+    },
+    {
+      "match_id": "setsuko-2897329575-game3",
+      "video": "setsuko-game3.mp4",
+      "source_vod_interval_seconds": [
+        7150,
+        10730
+      ],
+      "video_duration_seconds": 3580.05,
+      "video_sha256": "7c3342f9d87215a2eee9b92f48ecd8ec0ba4e1788d86b526c9d2dea80309fc9c",
+      "rank_evidence": "Challenger ranked queue visible before loading screen; same account throughout game",
+      "placement_observed": null,
+      "result_evidence_clip_second": 3550,
+      "hud_timeline": null,
+      "hud_samples": 0,
+      "reviewed_actions": null,
+      "reviewed_action_count": 0,
+      "source_url": "https://www.twitch.tv/videos/2897329575"
+    },
+    {
+      "match_id": "setsuko-2895746438-game1",
+      "source_url": "https://www.twitch.tv/videos/2895746438",
+      "video": "setsuko-2895746438-game1.mp4",
+      "source_vod_interval_seconds": [
+        2100,
+        4180
+      ],
+      "video_duration_seconds": 2080.067,
+      "video_sha256": "1abb1e2037edf77a8e41052649d2d1ef44c539c77e8a15501bd12a14688a815d",
+      "rank_evidence": "Challenger ranked queue visible before loading screen; same account through match",
+      "placement_observed": null,
+      "hud_timeline": null,
+      "hud_samples": 0,
+      "reviewed_actions": null,
+      "reviewed_action_count": 0
+    },
+    {
+      "match_id": "setsuko-2894958056-game1",
+      "video": "setsuko-2894958056-game1-fullmatch-1080p.mp4",
+      "source_vod_interval_seconds": [
+        2580,
+        4200
+      ],
+      "video_duration_seconds": 1620.067,
+      "video_sha256": "6489d8523c8fa1de6729678d24a326d363fd2023d531a88278e8e3705a2d09c0",
+      "rank_evidence": "Challenger ranked queue visible before loading screen; same account throughout match",
+      "placement_observed": null,
+      "hud_timeline": null,
+      "hud_samples": 0,
+      "reviewed_actions": null,
+      "reviewed_action_count": 0,
+      "source_url": "https://www.twitch.tv/videos/2894958056"
+    },
+    {
+      "match_id": "setsuko-2894958056-game2",
+      "video": "setsuko-2894958056-game2-fullmatch-1080p.mp4",
+      "source_vod_interval_seconds": [
+        4590,
+        6300
+      ],
+      "video_duration_seconds": 1710.034,
+      "video_sha256": "c2338cd24898339f8fb21137c69518a948903f6ca7ccf5a57dd8e55ba17bd9a8",
+      "rank_evidence": "Challenger ranked queue visible before loading screen; same account throughout match",
+      "placement_observed": 8,
+      "hud_timeline": null,
+      "hud_samples": 0,
+      "reviewed_actions": null,
+      "reviewed_action_count": 0,
+      "source_url": "https://www.twitch.tv/videos/2894958056",
+      "result_evidence_clip_second": 1680
+    },
+    {
+      "match_id": "setsuko-2897329575-game4",
+      "video": "setsuko-2897329575-game4-fullmatch-1080p.mp4",
+      "source_vod_interval_seconds": [
+        13830,
+        15490
+      ],
+      "video_duration_seconds": 1660.05,
+      "video_sha256": "80f871bc25741ec6f3ccc41b9b5a333e7cfd25d54f3ac020b1e21ec644964d9f",
+      "rank_evidence": "Challenger ranked queue visible before loading screen; same account throughout match",
+      "placement_observed": 6,
+      "hud_timeline": null,
+      "hud_samples": 0,
+      "reviewed_actions": null,
+      "reviewed_action_count": 0,
+      "source_url": "https://www.twitch.tv/videos/2897329575",
+      "result_evidence_clip_second": 1610
+    }
+  ],
+  "total_video_seconds": 15118.37,
+  "total_video_hours": 4.199547,
+  "chronological_video_preserved": true,
+  "complete_match_gameplay_observed": true,
+  "complete_observed_state_per_action": false,
+  "full_match_policy_training_ready": false,
+  "synthetic_full_match_simulator_validated": false,
+  "notes": "Seven native 1080p complete match clips from three source VODs. Additional downloaded intervals remain unverified and are excluded. The first 2896271382 interval is excluded because the VOD begins during the first carousel. OCR and action review are sparse; full-match strategic policy training is not ready. The planned 10-hour run is a separate experimental video-state objective with economy branches reported separately.",
+  "source_urls": [
+    "https://www.twitch.tv/videos/2894958056",
+    "https://www.twitch.tv/videos/2895746438",
+    "https://www.twitch.tv/videos/2897329575"
+  ]
+}
