@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "set_key": "TFTSet18",
+  "tft_patch": "18.4B",
+  "patch_confirmed_from_replay_client": false,
+  "official_sources": [
+    "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-4/",
+    "https://teamfighttactics.leagueoflegends.com/pt-br/news/game-updates/teamfight-tactics-patch-18-3/"
+  ],
+  "note": "Rules describe the cited patch, not proof that the recorded client runs it. Unlisted IDs have unverified availability.",
+  "id_rules": {
+    "DA_HeartOfSteel": {"availability": "temporarily_disabled_18_4b"},
+    "TFT_Augment_WarmogsBuckle": {"availability": "temporarily_disabled_18_4b"},
+    "DA_NestingDollsPlus": {"availability": "absent_from_16_20_client_set18_list", "last_official_status": "temporarily_disabled_18_3b"},
+    "DA_NestingDollsPlusPlus": {"availability": "absent_from_16_20_client_set18_list", "last_official_status": "temporarily_disabled_18_3b"},
+    "DA_ChallengersGrace": {"availability": "unverified", "last_official_status": "temporarily_disabled_18_3b", "effect_duration_seconds_18_4b": 4},
+    "DA_InfinityProtection": {"availability": "unverified", "last_official_status": "temporarily_disabled_18_3b"},
+    "TFT_Augment_InfinityProtection": {"availability": "unverified", "last_official_status": "temporarily_disabled_18_3b"},
+    "DA_MakeshiftArmorI": {"availability": "stage_restricted", "not_offered_on": ["2-1"]},
+    "DA_MakeshiftArmorII": {"availability": "stage_restricted", "not_offered_on": ["2-1"]},
+    "TFT6_Augment_MakeshiftArmor1": {"availability": "stage_restricted", "not_offered_on": ["2-1"]},
+    "TFT6_Augment_MakeshiftArmor2": {"availability": "stage_restricted", "not_offered_on": ["2-1"]},
+    "DA_18_CovenTraitAugment": {"availability": "conditional", "shared_lobby_limit_with": "DA_18_CovenTraitAugment_LootToAP", "shared_lobby_limit": 1},
+    "DA_18_CovenTraitAugment_LootToAP": {"availability": "conditional", "shared_lobby_limit_with": "DA_18_CovenTraitAugment", "shared_lobby_limit": 1},
+    "DA_18_SolarTraitAugment": {"availability": "conditional", "lobby_limit": 1, "tier_18_4b": "silver"}
+  }
+}

@@ -150,9 +150,15 @@ class ReplayDecisionEngine:
                             ('slot', 'candidate_id', 'candidate_ids', 'candidate_name', 'status',
                              'name_score', 'observed_title', 'observed_description',
                              'catalog_description', 'description_similarity',
-                             'training_label', 'selection_confirmed') if key in row}
+                             'candidate_references', 'training_label',
+                             'selection_confirmed') if key in row}
                            for row in (augments.get('options') or [])[:3]
                            if isinstance(row, dict)] if augment_visible else []
+        augment_catalog = (dict((key, augments['catalog'][key]) for key in
+            ('data_dragon_version', 'lookup_entry_count', 'rules_patch',
+             'rules_patch_confirmed_from_replay_client', 'live_offer_pool_complete')
+            if key in augments.get('catalog', {}))
+            if augment_visible and isinstance(augments.get('catalog'), dict) else None)
         streak = output.get('streak') or fast.get('streak') or {}
         streak_observation = (dict(streak, source_ms=streak.get('source_ms',
                                                              fast.get('source_ms')))
@@ -172,6 +178,12 @@ class ReplayDecisionEngine:
             xp_threshold=xp_threshold, streak=streak_observation,
             augment_selection_visible=(augment_visible if augments else None),
             augment_options=augment_options,
+            augment_catalog=augment_catalog,
+            augment_source_ms=augments.get('source_ms') if augment_visible else None,
+            augment_selection_confirmed=augments.get('selection_confirmed') is True
+                if augment_visible else False,
+            augment_ground_truth=augments.get('ground_truth') is True
+                if augment_visible else False,
             hp=hp,
             shop=offers, shop_fresh=(shop.get('cadence_delivery') or {}).get('fresh') is True,
             trait_counts={key:value for key,value in (visual.get('trait_counts') or {}).items()
@@ -292,6 +304,7 @@ class ReplayDecisionEngine:
                 if record_only:
                     output['decision_rank'] = {'status': 'memory_only',
                         'native_ms': result.get('native_ms'),
+                        'whole_state': result.get('whole_state'),
                         'match_pool': result.get('match_pool'),
                         'plan_state': result.get('plan_state'),
                         'memory': result.get('memory'),

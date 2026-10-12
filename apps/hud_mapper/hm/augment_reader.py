@@ -88,12 +88,19 @@ class AugmentReader:
         self.entries = [*catalog['entries'], *supplement['entries']]
         if len({row['id'] for row in self.entries}) != len(self.entries):
             raise ValueError('Duplicate augment ID across catalog and supplement')
+        self.entries_by_id = {row['id']: row for row in self.entries}
+        rules_path = Path(configs).parent / 'configs/catalog/augment-rules-18.4b.json'
+        self.patch_rules = json.loads(rules_path.read_text(encoding='utf-8'))
+        if self.patch_rules['set_key'] != supplement['set_key']:
+            raise ValueError('Augment rules and supplement refer to different sets')
         self.catalog = {key: catalog[key] for key in
                          ('data_dragon_version', 'locale', 'entry_count', 'source_urls',
                           'scope', 'live_offer_pool_complete', 'hero_augments_included')}
         self.catalog['supplement_entry_count'] = supplement['entry_count']
         self.catalog['lookup_entry_count'] = len(self.entries)
         self.catalog['supplement_source_urls'] = supplement['source_urls']
+        self.catalog['rules_patch'] = self.patch_rules['tft_patch']
+        self.catalog['rules_patch_confirmed_from_replay_client'] = False
         self.tesseract = tesseract
         self.last_visible = False
         self.last_signature: bytes | None = None
@@ -115,6 +122,16 @@ class AugmentReader:
         except (OSError, subprocess.TimeoutExpired):
             return None
         return run.stdout.decode('utf-8', 'replace').strip() if run.returncode == 0 else ''
+
+    def _candidate_references(self, candidate_ids: list[str]) -> list[dict]:
+        result = []
+        for key in candidate_ids:
+            row = self.entries_by_id[key]
+            result.append(dict(id=key, name_en=row['name_en'],
+                               source_kind=row.get('source_kind', 'riot_data_dragon'),
+                               patch_rule=self.patch_rules['id_rules'].get(
+                                   key, {'availability': 'unverified'})))
+        return result
 
     def observe(self, rgb: bytes, width: int, height: int, *, frame_id: int,
                 source_ms: float, epoch: int) -> dict | None:
@@ -153,13 +170,15 @@ class AugmentReader:
                     zip(TITLE_BOXES, BODY_BOXES, CARD_BOXES)):
                 title = self._ocr(image.crop(title_box), psm=6, upscale=3)
                 body = self._ocr(image.crop(body_box), psm=6, upscale=2)
+                binding = bind_offer(title or '', body or '', self.entries)
                 options.append(dict(slot=slot, observed_title=title or '',
                                     observed_description=body or '',
                                     title_box=list(title_box), body_box=list(body_box),
                                     card_box=list(card_box),
                                     training_label=False,
                                     selection_confirmed=False,
-                                    **bind_offer(title or '', body or '', self.entries)))
+                                    candidate_references=self._candidate_references(
+                                        binding['candidate_ids']), **binding))
             self.last_signature = signature
             self.last_options = options
             status = 'visible_read'
@@ -167,5 +186,6 @@ class AugmentReader:
                     selection_confirmed=False, reroll_count=None,
                     frame_id=frame_id, source_ms=source_ms, epoch=epoch,
                     source='same_frame_augment_choice_ocr', catalog=self.catalog,
+                    patch_rules_basis='riot_18_4b_notes_client_patch_unconfirmed',
                     catalog_patch_verified_from_client=False,
                     ground_truth=False)

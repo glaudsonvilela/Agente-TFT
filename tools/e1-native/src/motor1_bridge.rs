@@ -71,6 +71,13 @@ impl Motor1Evidence {
             "hub_received":hub.is_some(), "hub_age_ms":self.hub_age_ms,
             "reader_fields":self.reader.as_object().map_or(0, |v| v.len()),
             "aux_sources":self.aux.as_object().map_or(0, |v| v.len()),
+            "augment_options_visible":self.aux["augment_options"]["selection_visible"] == true,
+            "augment_offer_count":self.aux["augment_options"]["options"]
+                .as_array().map_or(0, Vec::len),
+            "augment_catalog_lookup_count":self.aux["augment_options"]["catalog"]
+                ["lookup_entry_count"].as_u64(),
+            "augment_patch_confirmed_from_client":self.aux["augment_options"]
+                ["catalog_patch_verified_from_client"] == true,
             "hub_fields":hub.and_then(Value::as_object).map_or(0, |v| v.len()),
             "own_cells":hub.and_then(|v|v["spatial_map"]["own_cells"].as_array()).map_or(0, Vec::len),
             "enemy_cells":hub.and_then(|v|v["spatial_map"]["enemy_cells"].as_array()).map_or(0, Vec::len),
@@ -114,13 +121,20 @@ mod tests {
         hub_packed["epoch"] = json!(1);
         hub_packed["age_ms"] = json!(200);
         let aux = json!({"selected_unit_panel":{"champion_name":"Zyra",
-            "slot_assignment":"unresolved"},"fast_items":{"slots":[]}});
+            "slot_assignment":"unresolved"},"fast_items":{"slots":[]},
+            "augment_options":{"selection_visible":true,
+                "catalog":{"lookup_entry_count":762},
+                "catalog_patch_verified_from_client":false,
+                "options":[{"slot":0},{"slot":1},{"slot":2}]}});
         let request = json!({"id":7,"source_ms":2000,"epoch":1,"motor1":{
             "schema":"motor1_to_motor2_v1","source_ms":2000,"epoch":1,
             "reader":pack(&reader),"hub":hub_packed,"aux":pack(&aux)}});
         let evidence = Motor1Evidence::from_request(&request).unwrap().unwrap();
         assert_eq!(evidence.reader, reader);
         assert_eq!(evidence.aux, aux);
+        assert_eq!(evidence.diagnostics()["augment_offer_count"], 3);
+        assert_eq!(evidence.diagnostics()["augment_catalog_lookup_count"], 762);
+        assert_eq!(evidence.diagnostics()["augment_patch_confirmed_from_client"], false);
         assert_eq!(evidence.hub.unwrap(), hub);
     }
 

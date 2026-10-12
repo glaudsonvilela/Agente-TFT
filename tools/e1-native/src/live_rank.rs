@@ -357,6 +357,30 @@ pub fn observe_event(request: &Value, memory: &mut MatchMemory) -> Result<Value,
 
 #[cfg(test)] mod tests {
     use super::*;
+    #[test] fn augment_reading_reaches_rust_without_becoming_a_choice() {
+        let result = rank(&json!({"id":9,"source_ms":2000,"epoch":0,
+            "context":{"gold":10},"observation":{
+                "augment_selection_visible":true,"augment_source_ms":1950,
+                "augment_selection_confirmed":false,"augment_ground_truth":false,
+                "augment_catalog":{"lookup_entry_count":762,"rules_patch":"18.4B",
+                    "rules_patch_confirmed_from_replay_client":false},
+                "augment_options":[
+                    {"slot":0,"candidate_id":"DA_PatientStudy","training_label":false},
+                    {"slot":1,"candidate_id":null,"candidate_ids":["DA_HeartOfSteel",
+                        "TFT_Augment_WarmogsBuckle"],"candidate_references":[
+                        {"id":"DA_HeartOfSteel","patch_rule":{
+                            "availability":"temporarily_disabled_18_4b"}}]},
+                    {"slot":2,"candidate_id":"DA_18_CovenTraitAugment"}]},
+            "candidates":[]}), &mut MatchMemory::new(None)).unwrap();
+        assert_eq!(result["whole_state"]["augment_options"][1]
+                   ["candidate_references"][0]["patch_rule"]["availability"],
+                   "temporarily_disabled_18_4b");
+        assert_eq!(result["whole_state"]["augment_catalog"]["lookup_entry_count"], 762);
+        assert_eq!(result["whole_state"]["augment_evidence"]
+                   ["disabled_reference_conflict_slots"], json!([1]));
+        assert_eq!(result["whole_state"]["augment_selection_confirmed"], false);
+        assert!(result["selected_index"].is_null());
+    }
     #[test] fn immediate_trait_completion_beats_economy_reminder() {
         let result=rank(&json!({"id":7,"source_ms":100,"context":{"gold":30},
             "observation":{"shop_fresh":true,"shop":[{"slot":2,"unit_id":"A",

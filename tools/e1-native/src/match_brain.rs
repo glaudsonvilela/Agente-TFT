@@ -15,6 +15,10 @@ pub struct Situation {
     pub shop: Vec<Value>,
     pub augment_options: Vec<Value>,
     pub augment_selection_visible: bool,
+    pub augment_catalog: Option<Value>,
+    pub augment_source_ms: Option<i64>,
+    pub augment_selection_confirmed: bool,
+    pub augment_ground_truth: bool,
     pub trait_counts: BTreeMap<String, i64>,
     pub board_candidates: usize,
     pub fielded_unit_candidates: Vec<String>,
@@ -29,6 +33,38 @@ pub struct Situation {
 }
 
 impl Situation {
+    fn augment_evidence(&self) -> Value {
+        let mut uniquely_bound = 0;
+        let mut ambiguous_id = 0;
+        let mut disabled_reference_conflict_slots = Vec::new();
+        let mut stage_restriction_conflict_slots = Vec::new();
+        for option in &self.augment_options {
+            if option["status"] == "catalog_name_bound" { uniquely_bound += 1; }
+            if option["status"] == "catalog_name_ambiguous_id" { ambiguous_id += 1; }
+            let Some(refs) = option["candidate_references"].as_array()
+                .filter(|refs| !refs.is_empty()) else { continue };
+            if refs.iter().all(|row| row["patch_rule"]["availability"] ==
+                    "temporarily_disabled_18_4b") {
+                disabled_reference_conflict_slots.push(option["slot"].clone());
+            }
+            if let Some(stage) = self.stage.as_deref() {
+                if refs.iter().all(|row| row["patch_rule"]["not_offered_on"]
+                    .as_array().is_some_and(|stages| stages.iter().any(|s| s == stage))) {
+                    stage_restriction_conflict_slots.push(option["slot"].clone());
+                }
+            }
+        }
+        json!({"offer_count":self.augment_options.len(),
+            "uniquely_bound":uniquely_bound,"ambiguous_id":ambiguous_id,
+            "disabled_reference_conflict_slots":disabled_reference_conflict_slots,
+            "stage_restriction_conflict_slots":stage_restriction_conflict_slots,
+            "rules_patch":self.augment_catalog.as_ref().map(|v| &v["rules_patch"]),
+            "rules_patch_confirmed_from_replay_client":self.augment_catalog.as_ref()
+                .is_some_and(|v| v["rules_patch_confirmed_from_replay_client"] == true),
+            "selection_confirmed":self.augment_selection_confirmed,
+            "ground_truth":self.augment_ground_truth})
+    }
+
     pub fn diagnostics(&self) -> Value {
         json!({"stage":self.stage,"gold":self.gold,"hp":self.hp,"level":self.level,
             "xp":self.xp,"xp_threshold":self.xp_threshold,
@@ -37,6 +73,11 @@ impl Situation {
             "fresh_shop_offers":self.shop.len(),"trait_counts":self.trait_counts,
             "augment_selection_visible":self.augment_selection_visible,
             "augment_options":self.augment_options,
+            "augment_catalog":self.augment_catalog,
+            "augment_source_ms":self.augment_source_ms,
+            "augment_selection_confirmed":self.augment_selection_confirmed,
+            "augment_ground_truth":self.augment_ground_truth,
+            "augment_evidence":self.augment_evidence(),
             "board_candidates":self.board_candidates,
             "fielded_unit_candidates":self.fielded_unit_candidates,
             "item_candidates":self.item_candidates,"opponent_candidates":self.opponent_candidates,
@@ -176,15 +217,29 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
     // A closed choice overlay clears options immediately. A visible offer is
     // retained only briefly across asynchronous OCR and never means chosen.
     let augment_hidden = current["augment_selection_visible"] == false;
-    let augment_options = if augment_hidden { Vec::new() } else {
-        let rows = read_field("augment_options", 3_500, now, epoch, current, recent,
-            &mut ages_ms, |v| v.as_array().is_some_and(|rows| {
-                rows.len() == 3 && rows.iter().enumerate().all(|(slot, row)|
-                    row["slot"].as_u64() == Some(slot as u64))
-            })).unwrap_or(Value::Null);
-        rows.as_array().cloned().unwrap_or_default()
+    let augment_read = if augment_hidden { None } else {
+        std::iter::once((now, epoch, current)).chain(recent.iter().rev()
+            .map(|(ms, segment, row)| (*ms, *segment, row)))
+            .find(|(at, segment, row)| *segment == epoch && *at <= now &&
+                now - *at <= 3_500 && row["augment_selection_visible"] == true &&
+                row["augment_options"].as_array().is_some_and(|options| {
+                    options.len() == 3 && options.iter().enumerate().all(|(slot, option)|
+                        option["slot"].as_u64() == Some(slot as u64))
+                }))
     };
-    let augment_selection_visible = !augment_hidden && !augment_options.is_empty();
+    let (augment_options, augment_catalog, augment_source_ms,
+         augment_selection_confirmed, augment_ground_truth) = match augment_read {
+        Some((at, _, row)) => {
+            ages_ms.insert("augment_options", now - at);
+            (row["augment_options"].as_array().cloned().unwrap_or_default(),
+             row["augment_catalog"].as_object().map(|_| row["augment_catalog"].clone()),
+             row["augment_source_ms"].as_f64().map(|ms| ms.round() as i64),
+             row["augment_selection_confirmed"] == true,
+             row["augment_ground_truth"] == true)
+        },
+        None => (Vec::new(), None, None, false, false),
+    };
+    let augment_selection_visible = !augment_options.is_empty();
     let mut trait_counts = BTreeMap::new();
     for (at, segment, row) in std::iter::once((now, epoch, current)).chain(recent.iter().rev()
         .map(|(ms, segment, row)| (*ms, *segment, row))) {
@@ -238,6 +293,8 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
     let board_identity_verified = current["board_identity_verified"] == true;
     Situation { stage, gold, hp, level, xp, xp_threshold, streak_kind_candidate,
         streak_count_verified, shop, augment_options, augment_selection_visible,
+        augment_catalog, augment_source_ms, augment_selection_confirmed,
+        augment_ground_truth,
         trait_counts, board_candidates,
         fielded_unit_candidates:fielded.into_iter().collect(), item_candidates,
         opponent_candidates, enemy_visible_item_icons, enemy_equipped_unit_tracks,
@@ -296,21 +353,54 @@ pub fn pooled_snapshots(pool: &Value, epoch: i64) -> VecDeque<(i64, i64, Value)>
     #[test]
     fn augment_options_are_recent_and_clear_when_overlay_closes() {
         let options = json!([
-            {"slot":0,"candidate_id":"DA_PatientStudy","status":"catalog_name_bound"},
+            {"slot":0,"candidate_id":"DA_PatientStudy","status":"catalog_name_bound",
+                "candidate_references":[{"id":"DA_PatientStudy",
+                    "patch_rule":{"availability":"unverified"}}],
+                "training_label":false,"selection_confirmed":false},
             {"slot":1,"candidate_id":"DA_Hustler","status":"catalog_name_bound"},
             {"slot":2,"candidate_id":"DA_18_CovenTraitAugment","status":"catalog_name_bound"}]);
         let recent = VecDeque::from([(1000, 0, json!({
-            "augment_selection_visible":true,"augment_options":options}))]);
+            "augment_selection_visible":true,"augment_options":options,
+            "augment_catalog":{"lookup_entry_count":762,"rules_patch":"18.4B",
+                "rules_patch_confirmed_from_replay_client":false},
+            "augment_source_ms":1000,"augment_selection_confirmed":false,
+            "augment_ground_truth":false}))]);
         let visible = integrate(&json!({}), &recent, 0, 1200, None);
         assert!(visible.augment_selection_visible);
         assert_eq!(visible.augment_options.len(), 3);
+        assert_eq!(visible.augment_options[0]["candidate_references"][0]
+                   ["patch_rule"]["availability"], "unverified");
+        assert_eq!(visible.augment_catalog.as_ref().unwrap()["lookup_entry_count"], 762);
+        assert_eq!(visible.augment_source_ms, Some(1000));
+        assert!(!visible.augment_selection_confirmed);
+        assert!(!visible.augment_ground_truth);
         let closed = integrate(&json!({"augment_selection_visible":false,
             "augment_options":[]}), &recent, 0, 1200, None);
         assert!(!closed.augment_selection_visible);
         assert!(closed.augment_options.is_empty());
+        assert!(closed.augment_catalog.is_none());
         let stale = integrate(&json!({}), &recent, 0, 5000, None);
         assert!(!stale.augment_selection_visible);
         assert!(stale.augment_options.is_empty());
+    }
+    #[test]
+    fn patch_stage_rule_is_a_reference_conflict_not_a_training_label() {
+        let current = json!({"stage":"2-1","augment_selection_visible":true,
+            "augment_selection_confirmed":false,"augment_ground_truth":false,
+            "augment_catalog":{"rules_patch":"18.4B",
+                "rules_patch_confirmed_from_replay_client":false},
+            "augment_options":[
+                {"slot":0,"status":"catalog_name_ambiguous_id",
+                    "candidate_references":[{"patch_rule":{
+                        "availability":"stage_restricted","not_offered_on":["2-1"]}}]},
+                {"slot":1,"status":"unresolved"},
+                {"slot":2,"status":"catalog_name_bound"}]});
+        let state = integrate(&current, &VecDeque::new(), 0, 1000, None);
+        let evidence = &state.diagnostics()["augment_evidence"];
+        assert_eq!(evidence["stage_restriction_conflict_slots"], json!([0]));
+        assert_eq!(evidence["ambiguous_id"], 1);
+        assert_eq!(evidence["rules_patch_confirmed_from_replay_client"], false);
+        assert_eq!(evidence["ground_truth"], false);
     }
     #[test]
     fn enemy_equipment_is_a_bounded_recent_observation() {
