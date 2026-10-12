@@ -57,6 +57,7 @@ class Store:
                                   'trait-tooltip-observations',
                                   'fast-item-observations',
                                   'selected-unit-panel-observations',
+                                  'augment-options-observations',
                                   'unit-inference-observations','combat-events','replay-tips',
                                   'telemetry','periodic'):
                     raise ValueError('Fluxo não registrado')

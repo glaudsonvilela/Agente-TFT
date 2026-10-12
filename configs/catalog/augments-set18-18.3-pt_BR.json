@@ -1,0 +1,2004 @@
+{
+  "data_dragon_version": "16.19.1",
+  "entries": [
+    {
+      "description": "Recebe 3 componentes aleatórios, 2 de ouro e 1 Reforjador.",
+      "disabled_18_3b": false,
+      "id": "DA_18_BigGrabBag",
+      "image": "Grab-Bag-II.png",
+      "name": "Saco de Brindes Recheado",
+      "name_en": "Big Grab Bag"
+    },
+    {
+      "description": "Ao comprar um Fogo-Fátuo, recebe um Campeão Florescer aleatório de acordo com o custo do Fogo-Fátuo. Recebe uma Yunara, um Yorick e uma Karma.",
+      "disabled_18_3b": false,
+      "id": "DA_18_BlossomTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Chamado do Florescer",
+      "name_en": "Blossom's Call"
+    },
+    {
+      "description": "Recebe um Emblema aleatório.",
+      "disabled_18_3b": false,
+      "id": "DA_18_BranchingOut",
+      "image": "Branching-Out-I.png",
+      "name": "Quebrando Galhos",
+      "name_en": "Branching Out"
+    },
+    {
+      "description": "Recebe um Emblema aleatório e um Reforjador.",
+      "disabled_18_3b": false,
+      "id": "DA_18_BranchingOutPlus",
+      "image": "Branching-Out-I.png",
+      "name": "Quebrando Galhos+",
+      "name_en": "Branching Out+"
+    },
+    {
+      "description": "Recebe um Campeão aleatório de custo 2 agora. Recebe o mesmo Campeão novamente sempre que sobe de nível. Campeão: 0",
+      "disabled_18_3b": false,
+      "id": "DA_18_CaretakersAlly",
+      "image": "Caretaker_s-Chosen-I.png",
+      "name": "Aliado do Protetor",
+      "name_en": "Caretaker's Ally"
+    },
+    {
+      "description": "Ao optar por continuar juntando essência da Congregação das Bruxas, cura 2 de Vida de Estrategista. Recebe uma Camille, uma Elise e uma Caitlyn.",
+      "disabled_18_3b": false,
+      "id": "DA_18_CovenTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Acólito da Congregação das Bruxas",
+      "name_en": "Coven Acolyte"
+    },
+    {
+      "description": "Converter Essências em recompensas concede Poder de Habilidade a Campeões Congregação das Bruxas em vez de espólios. Recebe uma Camille, uma Elise e uma Caitlyn.",
+      "disabled_18_3b": true,
+      "id": "DA_18_CovenTraitAugment_LootToAP",
+      "image": "Missing-T2.png",
+      "name": "Ritual Sombrio",
+      "name_en": "Dark Ritual"
+    },
+    {
+      "description": "Recebe 2 Campeões de custo 5 aleatórios e 2 cópias de um componente aleatório.",
+      "disabled_18_3b": false,
+      "id": "DA_18_DuoQueue",
+      "image": "DuoQueue_II.png",
+      "name": "Fila em Dupla",
+      "name_en": "Duo Queue"
+    },
+    {
+      "description": "Campeões que começam o combate adjacentes a uma planta Sabugueiro recebem 15% de Velocidade de Ataque e recuperam 2% da Vida máxima a cada 2s. Recebe um Alistar, um Ornn e uma Xayah.",
+      "disabled_18_3b": false,
+      "id": "DA_18_ElderwoodTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Abrigo da Natureza",
+      "name_en": "Nature's Shelter"
+    },
+    {
+      "description": "Recebe um Campeão aleatório de custo 4. Para cada item equipado nesse Campeão, sua equipe recebe 100 de Vida.",
+      "disabled_18_3b": false,
+      "id": "DA_18_FOURcing",
+      "image": "Missing-T2.png",
+      "name": "Dose Quádrupla",
+      "name_en": "FOURcing"
+    },
+    {
+      "description": "As Pixies Feéricas ficaram maiores e concedem 50% a mais de Dano de Ataque e Poder de Habilidade. Os Campeões Feéricos recebem 10% de Dano de Ataque e de Poder de Habilidade imediatamente. Recebe uma Xayah e um Rakan.",
+      "disabled_18_3b": false,
+      "id": "DA_18_FaeTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Agigantamento",
+      "name_en": "Embiggen"
+    },
+    {
+      "description": "Recebe um Emblema de Flora Fatalis. O Campeão com o Emblema recebe 50% a mais de benefícios de Flora Fatalis. Recebe 3 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_18_FloraFatalisAugment",
+      "image": "Missing-T2.png",
+      "name": "Flora Voraz",
+      "name_en": "Consuming Flora"
+    },
+    {
+      "description": "Campeões que não tiverem itens têm 40% de chance de conceder 1 de ouro quando morrem.",
+      "disabled_18_3b": false,
+      "id": "DA_18_GoodForSomethingI",
+      "image": "Good-For-Something-I.png",
+      "name": "Serve para Algo I",
+      "name_en": "Good For Something I"
+    },
+    {
+      "description": "Seus Campeões Inferno de custo 1 e 2 recebem 0.2 de Dano de Ataque e Poder de Habilidade. O Campeão que tiver causado mais dano no último combate recebe o dobro. Recebe um Varus e uma Akali.",
+      "disabled_18_3b": false,
+      "id": "DA_18_InfernoTraitAugment",
+      "image": "Missing-T1.png",
+      "name": "Chama Acesa",
+      "name_en": "Flame On"
+    },
+    {
+      "description": "Seus Campeões Lunares recebem 100 de Vida e 8% de Amplificação de Dano para cada Campeão Solar único colocado em campo. Recebe uma Leona, uma Kayle e uma Diana.",
+      "disabled_18_3b": false,
+      "id": "DA_18_LunarTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Sol e Lua",
+      "name_en": "Sun and Moon"
+    },
+    {
+      "description": "Seus Campeões Lunares recebem 100 de Vida e 8% de Amplificação de Dano para cada Campeão Solar único colocado em campo. Recebe uma Leona, uma Kayle e um Aphelios.",
+      "disabled_18_3b": false,
+      "id": "DA_18_LunarTraitAugmentPlus",
+      "image": "Missing-T2.png",
+      "name": "Sol e Lua+",
+      "name_en": "Sun and Moon+"
+    },
+    {
+      "description": "Abre um arsenal e escolhe uma de 3 características. Recebe uma Lux com essa característica e uma Lança de Shojin. Características no seu tabuleiro têm mais chance de aparecer no arsenal. Lux concede +2 à característica escolhida.",
+      "disabled_18_3b": false,
+      "id": "DA_18_LuxAugmentII",
+      "image": "Missing-T3.png",
+      "name": "Mestra de Todas as Origens",
+      "name_en": "Master of All Origins"
+    },
+    {
+      "description": "Recebe 1 componente aleatório, 2 de ouro e 1 Campeão aleatório de custo 5.",
+      "disabled_18_3b": false,
+      "id": "DA_18_OneTwoFive",
+      "image": "One-Two-Five-I.png",
+      "name": "Um, Dois, Cinco!",
+      "name_en": "One, Two, Five!"
+    },
+    {
+      "description": "Recebe 2 Campeões de custo 1, 1 Campeão de custo 2 e 1 Campeão de custo 3.",
+      "disabled_18_3b": false,
+      "id": "DA_18_OnesTwosThree",
+      "image": "Missing-T1.png",
+      "name": "Um Dois Três",
+      "name_en": "Ones Two Three"
+    },
+    {
+      "description": "Primitiva concede uma Bênção adicional. Recebe uma Vi e uma Nidalee.",
+      "disabled_18_3b": false,
+      "id": "DA_18_PrimalAugmentPlus_Nidalee",
+      "image": "Missing-T2.png",
+      "name": "Fera Interior+",
+      "name_en": "Beast Within+"
+    },
+    {
+      "description": "Primitiva concede uma Bênção adicional. Recebe uma Vi e uma Sivir.",
+      "disabled_18_3b": false,
+      "id": "DA_18_PrimalAugmentPlus_Sivir",
+      "image": "Missing-T2.png",
+      "name": "Fera Interior+",
+      "name_en": "Beast Within+"
+    },
+    {
+      "description": "Primitiva concede uma Bênção adicional. Recebe uma Vi agora e uma Nidalee após 3 rodadas.",
+      "disabled_18_3b": false,
+      "id": "DA_18_PrimalAugment_Nidalee",
+      "image": "Missing-T2.png",
+      "name": "Fera Interior",
+      "name_en": "Beast Within"
+    },
+    {
+      "description": "Primitiva concede uma Bênção adicional. Recebe uma Vi agora e uma Sivir após 3 rodadas.",
+      "disabled_18_3b": false,
+      "id": "DA_18_PrimalAugment_Sivir",
+      "image": "Missing-T2.png",
+      "name": "Fera Interior",
+      "name_en": "Beast Within"
+    },
+    {
+      "description": "Sua equipe recebe 60 de Vida. Sempre que você compra um Fogo-Fátuo, esse valor aumenta em 10.",
+      "disabled_18_3b": false,
+      "id": "DA_18_ResidualMagic",
+      "image": "Missing-T1.png",
+      "name": "Magia Residual",
+      "name_en": "Residual Magic"
+    },
+    {
+      "description": "Sua equipe recebe 75 de Vida. Sempre que você compra um Fogo-Fátuo, esse valor aumenta em 10.",
+      "disabled_18_3b": false,
+      "id": "DA_18_ResidualMagicPlus",
+      "image": "Missing-T1.png",
+      "name": "Magia Residual+",
+      "name_en": "Residual Magic +"
+    },
+    {
+      "description": "Sua equipe recebe 90 de Vida. Sempre que você compra um Fogo-Fátuo, esse valor aumenta em 10.",
+      "disabled_18_3b": false,
+      "id": "DA_18_ResidualMagicPlusPlus",
+      "image": "Missing-T1.png",
+      "name": "Magia Residual++",
+      "name_en": "Residual Magic ++"
+    },
+    {
+      "description": "Agora você pode escolher uma segunda Fera do Rift Alfa. Recebe um Aronguejo, um Rubrivirim e um Cascalho.",
+      "disabled_18_3b": false,
+      "id": "DA_18_RiftbeastTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Fera do Rift Ômega",
+      "name_en": "Omega Riftbeast"
+    },
+    {
+      "description": "Você pode colocar em campo Rengar e Kha'Zix juntos sem penalidades – e um recebe bônus quando o outro conjura. Recebe um Rengar e um Kha'Zix.",
+      "disabled_18_3b": false,
+      "id": "DA_18_RivalsAugment",
+      "image": "Missing-T2.png",
+      "name": "Aminimigos",
+      "name_en": "Unrivaled"
+    },
+    {
+      "description": "Recebe uma Leona, uma Kayle e uma Sejuani. Leona recebe 70 de Vida máxima permanente a cada rodada, valor que aumenta em 10 para cada Campeão de 3 Estrelas único colocado em campo.",
+      "disabled_18_3b": false,
+      "id": "DA_18_SolarTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Escolhida do Sol",
+      "name_en": "Chosen of the Sun"
+    },
+    {
+      "description": "Enquanto a característica Vivaz estiver ativa, receberá uma segunda invocação do Amigão com 35% do poder. Recebe um Teemo, um Veigar e um Kobuko.",
+      "disabled_18_3b": false,
+      "id": "DA_18_SprykinAugment",
+      "image": "Missing-T2.png",
+      "name": "Amiguinho Peludinho",
+      "name_en": "Small Furry Friend"
+    },
+    {
+      "description": "Na primeira vez que você aprimora um Campeão para 3 Estrelas, recebe uma cópia dele a cada rodada pelo resto da partida. Alcançar 3 Estrelas com o mesmo Campeão novamente concede cópias adicionais. Recebe um Duplicador de Campeão Inferior.",
+      "disabled_18_3b": false,
+      "id": "DA_18_WeightTheWorth",
+      "image": "Missing-T2.png",
+      "name": "Espera Recompensada",
+      "name_en": "Weight The Worth"
+    },
+    {
+      "description": "Toda vez que você comprar um Fogo-Fátuo, receberá 2 de ouro. Recebe 4 de ouro imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_18_WispRebatePlus",
+      "image": "Missing-T1.png",
+      "name": "Restituição de Fogos-Fátuos",
+      "name_en": "Wisp Rebate"
+    },
+    {
+      "description": "Toda vez que você comprar um Fogo-Fátuo, receberá 2 de ouro. Recebe 8 de ouro imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_18_WispRebatePlusPlus",
+      "image": "Missing-T1.png",
+      "name": "Restituição de Fogos-Fátuos+",
+      "name_en": "Wisp Rebate+"
+    },
+    {
+      "description": "Recebe 20 de ouro. Seu próximo Aprimoramento será um tier menor.",
+      "disabled_18_3b": false,
+      "id": "DA_AdvancedLoan",
+      "image": "AdvancedLoan_II.png",
+      "name": "Empréstimo Avançado",
+      "name_en": "Advanced Loan"
+    },
+    {
+      "description": "Recebe 33 de ouro. Seu próximo Aprimoramento será um tier menor.",
+      "disabled_18_3b": false,
+      "id": "DA_AdvancedLoanPlus",
+      "image": "AdvancedLoan_II.png",
+      "name": "Empréstimo Avançado+",
+      "name_en": "Advanced Loan+"
+    },
+    {
+      "description": "Após 8s de combate, atordoa a equipe inimiga por 1.5s. Isso se repete após 18s de combate. TFT Macao Open, 2024",
+      "disabled_18_3b": false,
+      "id": "DA_ArcaneViktory",
+      "image": "ArcaneViktory_II.png",
+      "name": "Viktória Arcana",
+      "name_en": "Arcane Viktor-y"
+    },
+    {
+      "description": "Depois de 12s de combate, suas unidades recebem 35% de amplificação de dano.",
+      "disabled_18_3b": false,
+      "id": "DA_Ascension",
+      "image": "Ascension2.png",
+      "name": "Ascensão",
+      "name_en": "Ascension"
+    },
+    {
+      "description": "Seu próximo Aprimoramento será um tier maior.",
+      "disabled_18_3b": false,
+      "id": "DA_AugmentedPower",
+      "image": "PowerUp_I.png",
+      "name": "Poder Aprimorado",
+      "name_en": "Augmented Power"
+    },
+    {
+      "description": "Recebe um Campeão de custo 3 (exceto Tanques) e um Emblema que corresponda à classe dele.",
+      "disabled_18_3b": false,
+      "id": "DA_BacklineBlueprint",
+      "image": "BacklineBlueprint_II.png",
+      "name": "Projeto da Retaguarda",
+      "name_en": "Backline Blueprint"
+    },
+    {
+      "description": "Recebe um Arco Recurvo. Depois que seus Campeões atacarem 1000x, receberá mais 2.",
+      "disabled_18_3b": false,
+      "id": "DA_BackupBows",
+      "image": "RecurveWrecker_I.png",
+      "name": "Arcos Reserva",
+      "name_en": "Backup Bows"
+    },
+    {
+      "description": "Recebe 1 Luvas do Ladrão.",
+      "disabled_18_3b": false,
+      "id": "DA_BandOfThieves",
+      "image": "BandThieves1.png",
+      "name": "Bando de Ladrões",
+      "name_en": "Band of Thieves"
+    },
+    {
+      "description": "Recebe 2 Luvas do Ladrão. Depois de 5 combates entre jogadores, recebe mais uma.",
+      "disabled_18_3b": false,
+      "id": "DA_BandOfThievesII",
+      "image": "BandThieves3.png",
+      "name": "Bando de Ladrões II",
+      "name_en": "Band of Thieves II"
+    },
+    {
+      "description": "Recebe 2 Luvas do Ladrão. Depois de 5 combates entre jogadores, recebe mais uma.",
+      "disabled_18_3b": false,
+      "id": "DA_BandOfThievesIIPlus",
+      "image": "BandThieves3.png",
+      "name": "Bando de Ladrões II+",
+      "name_en": "Band of Thieves II+"
+    },
+    {
+      "description": "Recebe 2 Luvas do Ladrão. Depois de 3 combates entre jogadores, recebe mais uma.",
+      "disabled_18_3b": false,
+      "id": "DA_BandOfThievesIIPlusPlus",
+      "image": "BandThieves3.png",
+      "name": "Bando de Ladrões II++",
+      "name_en": "Band of Thieves II++"
+    },
+    {
+      "description": "Recebe um item de Tanque aleatório. Depois de 8s de combate, sua equipe recebe 4% de Dano de Ataque e Poder de Habilidade adicionais por segundo pelo resto do combate. TFT Paris Open 2025",
+      "disabled_18_3b": false,
+      "id": "DA_BaronsLair",
+      "image": "TheBaronsLair_III.png",
+      "name": "Covil do Barão",
+      "name_en": "Baron's Lair"
+    },
+    {
+      "description": "Recebe 4 Cintos do Gigante. Seus Cintos do Gigante concedem +85 de Vida adicional.",
+      "disabled_18_3b": false,
+      "id": "DA_BeltOverflow",
+      "image": "BeltOverflow_III.png",
+      "name": "Promoção de Cintos",
+      "name_en": "Belt Overflow"
+    },
+    {
+      "description": "Recebe 1 de ouro e um Campeão de 2 Estrelas sempre que sobe de nível. O custo do Campeão é seu nível menos 4 (máximo: custo 5).",
+      "disabled_18_3b": false,
+      "id": "DA_BirthdayPresent",
+      "image": "Golden-Gifts-III.png",
+      "name": "Presente de Aniversário",
+      "name_en": "Birthday Present"
+    },
+    {
+      "description": "Recebe um Campeão aleatório de custo 2 e 2 Estrela(s). No nível 6, recebe um componente de item aleatório. No nível 9, recebe um Campeão aleatório de custo 5 e 2 Estrela(s). Tactician's Crown de Fábulas em Tinta, 2024",
+      "disabled_18_3b": false,
+      "id": "DA_BirthdayReunion",
+      "image": "BirthdayReunion_II.png",
+      "name": "Festa de Aniversário",
+      "name_en": "Birthday Reunion"
+    },
+    {
+      "description": "Nas primeiras 3x que você sacrificar um Campeão na casa de Espinhos Negros, receberá uma cópia de um componente aleatório que ele estiver portando. Recebe um Azir, um Veigar e uma Rek'Sai.",
+      "disabled_18_3b": false,
+      "id": "DA_BlackthornTraitAugment",
+      "image": "Missing-T2.png",
+      "name": "Extração de Itens",
+      "name_en": "Item Extraction"
+    },
+    {
+      "description": "Aliados recebem 15 de Armadura e Resistência Mágica que aumentam em 2 por nível de jogador. Campeonato Bugigangas e Engenhocas, 2022",
+      "disabled_18_3b": false,
+      "id": "DA_BodyguardTraining",
+      "image": "BodyguardsTraining_II.png",
+      "name": "Treinamento de Guarda-costas",
+      "name_en": "Bodyguard Training"
+    },
+    {
+      "description": "Sempre que você abre um orbe de espólios, tem 25% de chance de receber um orbe de espólio cinza. Recebe 1 orbes de espólio cinza.",
+      "disabled_18_3b": false,
+      "id": "DA_BonusGift",
+      "image": "Missing-T2.png",
+      "name": "Presentes Adicionais",
+      "name_en": "Bonus Gifts"
+    },
+    {
+      "description": "Sempre que você abre um orbe de espólios, tem 25% de chance de receber um orbe de espólio cinza. Recebe 2 orbes de espólio cinza.",
+      "disabled_18_3b": false,
+      "id": "DA_BonusGiftPlus",
+      "image": "Missing-T2.png",
+      "name": "Presentes Adicionais+",
+      "name_en": "Bonus Gifts+"
+    },
+    {
+      "description": "Recebe o equivalente a 12 de ouro em Campeões aleatórios. (Pelo menos um de custo 3 garantido!)",
+      "disabled_18_3b": false,
+      "id": "DA_BoosterPack",
+      "image": "BoosterPack1_II.png",
+      "name": "Pacote de Reforço",
+      "name_en": "Booster Pack"
+    },
+    {
+      "description": "Recebe o equivalente a 18 de ouro em Campeões aleatórios. (Pelo menos um de custo 4 garantido!)",
+      "disabled_18_3b": false,
+      "id": "DA_BoosterPackPlus",
+      "image": "BoosterPack1_II.png",
+      "name": "Pacote de Reforço+",
+      "name_en": "Booster Pack+"
+    },
+    {
+      "description": "Recebe o equivalente a 26 de ouro em Campeões aleatórios. (Pelo menos um de custo 5 garantido!)",
+      "disabled_18_3b": false,
+      "id": "DA_BoosterPackPlusPlus",
+      "image": "BoosterPack1_II.png",
+      "name": "Pacote de Reforço++",
+      "name_en": "Booster Pack++"
+    },
+    {
+      "description": "Sua equipe recebe 30 de Vida a cada Campeão que começar o combate na primeira fileira.",
+      "disabled_18_3b": false,
+      "id": "DA_BoxingLessons",
+      "image": "BoxingLessons_I.png",
+      "name": "Aulas de Boxe",
+      "name_en": "Boxing Lessons"
+    },
+    {
+      "description": "Sua equipe recebe 2.5% de Amplificação de Dano para cada característica de tier Bronze.",
+      "disabled_18_3b": false,
+      "id": "DA_BronzeForLifeI",
+      "image": "BronzeForLife_II.png",
+      "name": "Bronze é Vida I",
+      "name_en": "Bronze For Life I"
+    },
+    {
+      "description": "Sua equipe recebe 2.5% de Amplificação de Dano e 4 de Armadura e Resistência Mágica para cada característica de tier Bronze.",
+      "disabled_18_3b": false,
+      "id": "DA_BronzeForLifeII",
+      "image": "BronzeForLife_III.png",
+      "name": "Bronze é Vida II",
+      "name_en": "Bronze For Life II"
+    },
+    {
+      "description": "Recebe um Campeão aleatório de custo 1 e 3 Estrela(s). Recebe 6 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_BuildABud",
+      "image": "ConstructaCompanion_III.png",
+      "name": "Monte um Amigo",
+      "name_en": "Build A Bud"
+    },
+    {
+      "description": "Agora e no início das próximas 6 rodadas, recebe um componente aleatório de item.",
+      "disabled_18_3b": false,
+      "id": "DA_BuriedTreasuresIII",
+      "image": "Buried-Treasures-III.png",
+      "name": "Tesouros Enterrados III",
+      "name_en": "Buried Treasures III"
+    },
+    {
+      "description": "Recebe uma recompensa poderosa e aleatória.",
+      "disabled_18_3b": false,
+      "id": "DA_CallToChaos",
+      "image": "CallToChaos_III.png",
+      "name": "Chamado ao Caos",
+      "name_en": "Call To Chaos"
+    },
+    {
+      "description": "Ajusta seu Combo de Vitórias para +4. Recebe 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_CalledShot",
+      "image": "CalledShot_I.png",
+      "name": "Jogada Anunciada",
+      "name_en": "Called Shot"
+    },
+    {
+      "description": "Armazena ouro equivalente aos juros recebidos. Em 3–3, recebe ouro equivalente a 100% do ouro armazenado. Recebe 1 de ouro imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_CapitalGainsI",
+      "image": "Missing-T1.png",
+      "name": "Ganhos de Capital I",
+      "name_en": "Capital Gains I"
+    },
+    {
+      "description": "Armazena ouro equivalente aos juros recebidos. Em 3–3, recebe ouro equivalente a 125% do ouro armazenado. Recebe 3 de ouro imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_CapitalGainsII",
+      "image": "Missing-T2.png",
+      "name": "Ganhos de Capital II",
+      "name_en": "Capital Gains II"
+    },
+    {
+      "description": "Recebe uma Bigorna de Componente ao alcançar os níveis 5, 6, 7 e 8. Bigornas de Componente oferecem 4 escolhas.",
+      "disabled_18_3b": false,
+      "id": "DA_CaretakersFavor",
+      "image": "Caretaker_s-Chosen-II.png",
+      "name": "Sorte do Protetor",
+      "name_en": "Caretaker's Favor"
+    },
+    {
+      "description": "Recebe uma Espada G.p.C. Depois que seus Campeões causarem 65000 de Dano Físico, receberá mais 2.",
+      "disabled_18_3b": false,
+      "id": "DA_CarveAPath",
+      "image": "CarveAPath_I.png",
+      "name": "Abra o Caminho",
+      "name_en": "Carve a Path"
+    },
+    {
+      "description": "Sua equipe recebe 12% de Vampirismo Universal. A cura excedente é convertida em um Escudo (máximo de 200 de Vida).",
+      "disabled_18_3b": false,
+      "id": "DA_CelestialBlessingI",
+      "image": "CelestialBlessing1.png",
+      "name": "Bênção Celestial I",
+      "name_en": "Celestial Blessing I"
+    },
+    {
+      "description": "Sua equipe recebe 18% de Vampirismo Universal. A cura excedente é convertida em um Escudo (máximo de 400 de Vida).",
+      "disabled_18_3b": false,
+      "id": "DA_CelestialBlessingII",
+      "image": "CelestialBlessing2.png",
+      "name": "Bênção Celestial II",
+      "name_en": "Celestial Blessing II"
+    },
+    {
+      "description": "Sua equipe recebe 25% de Vampirismo Universal. A cura excedente é convertida em um Escudo (máximo de 1000 de Vida).",
+      "disabled_18_3b": false,
+      "id": "DA_CelestialBlessingIII",
+      "image": "CelestialBlessing3.png",
+      "name": "Bênção Celestial III",
+      "name_en": "Celestial Blessing III"
+    },
+    {
+      "description": "Recebe 3 Campeões de custo 2. Após 6 rodadas, recebe mais 3.",
+      "disabled_18_3b": false,
+      "id": "DA_ChampDelivery",
+      "image": "Missing-T1.png",
+      "name": "Entrega de Campeão",
+      "name_en": "Champ Delivery"
+    },
+    {
+      "description": "Recebe 3 Campeões de custo 3. Após 6 rodadas, recebe mais 3.",
+      "disabled_18_3b": false,
+      "id": "DA_ChampDeliveryPlus",
+      "image": "Missing-T1.png",
+      "name": "Entrega de Campeão+",
+      "name_en": "Champ Delivery+"
+    },
+    {
+      "description": "Recebe 3 Campeões de custo 4. Após 6 rodadas, recebe mais 3.",
+      "disabled_18_3b": false,
+      "id": "DA_ChampDeliveryPlusPlus",
+      "image": "Missing-T1.png",
+      "name": "Entrega de Campeão++",
+      "name_en": "Champ Delivery++"
+    },
+    {
+      "description": "Caso não existam Campeões na sua reserva no fim do combate entre jogadores, você receberá 3 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_ClearMind",
+      "image": "ClearMind2.png",
+      "name": "Mente Vazia",
+      "name_en": "Clear Mind"
+    },
+    {
+      "description": "Sua equipe recebe 10% de Velocidade de Ataque a cada 3s em combate.",
+      "disabled_18_3b": false,
+      "id": "DA_ClockworkAccelerator",
+      "image": "ClockworkAccelerator_II.png",
+      "name": "Acelerador Mecanizado",
+      "name_en": "Clockwork Accelerator"
+    },
+    {
+      "description": "Recebe 4 Campeões de custo 1 imediatamente. Se sua reserva estiver cheia ao fim de um combate entre jogadores, você receberá 3 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_ClutteredMind",
+      "image": "Dizzy-II.png",
+      "name": "Confusão Mental",
+      "name_en": "Cluttered Mind"
+    },
+    {
+      "description": "Recebe 7 de ouro, 1 Campeão de custo 1 e 2 Estrela(s), 1 Campeão de custo 2, 2 Campeões de custo 3, 1 de EXP e 1 atualização(ões) da Loja.",
+      "disabled_18_3b": false,
+      "id": "DA_CognitiveOverload",
+      "image": "CognitiveOverload_II.png",
+      "name": "Sobrecarga Cognitiva",
+      "name_en": "Cognitive Overload"
+    },
+    {
+      "description": "Recebe 8 de ouro e 1 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_CognitiveTax",
+      "image": "CognitiveTax_I.png",
+      "name": "Taxa Cognitiva",
+      "name_en": "Cognitive Tax"
+    },
+    {
+      "description": "Recebe 12 de ouro e 3 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_CognitiveTaxPlus",
+      "image": "CognitiveTax_I.png",
+      "name": "Taxa Cognitiva+",
+      "name_en": "Cognitive Tax+"
+    },
+    {
+      "description": "Sua equipe recebe 4 de Vida e 0.3% de Velocidade de Ataque por Vida de jogador perdida.",
+      "disabled_18_3b": false,
+      "id": "DA_ComebackStory",
+      "image": "ComebackStory_III.png",
+      "name": "Reviravolta",
+      "name_en": "Comeback Story"
+    },
+    {
+      "description": "Recebe 16 atualizações gratuitas da Loja imediatamente e 3 a cada rodada pelo resto da partida.",
+      "disabled_18_3b": false,
+      "id": "DA_CommerceCore",
+      "image": "Trade3.png",
+      "name": "Núcleo de Negócios",
+      "name_en": "Commerce Core"
+    },
+    {
+      "description": "Sempre que você receberia um componente, recebe em vez disso uma Bigorna de Componentes. Recebe um componente aleatório. A Bigorna oferece 4 escolhas.",
+      "disabled_18_3b": false,
+      "id": "DA_ComponentBuffet",
+      "image": "The-customer-is-always-right-I.png",
+      "name": "Deleite de Componentes",
+      "name_en": "Component Buffet"
+    },
+    {
+      "description": "Recebe um componente aleatório e 1 de ouro. Nas próximas 7x que você vencer um combate entre jogadores, receberá um componente aleatório diferente. Depois disso, receberá 5 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_ComponentQuest",
+      "image": "Missing-T3.png",
+      "name": "Missão de Componente",
+      "name_en": "Component Quest"
+    },
+    {
+      "description": "No começo de cada turno, todos os aliados equipados com um item de Frigideira ou Espátula concedem 60 de Vida permanente ao Campeão mais próximo. Recebe uma Frigideira.",
+      "disabled_18_3b": false,
+      "id": "DA_CookingPot",
+      "image": "CookingPot_II.png",
+      "name": "Panelinha",
+      "name_en": "Cooking Pot"
+    },
+    {
+      "description": "Recebe uma Coroa de Estrategista. A Coroa, a Capa e o Escudo de Estrategista concedem ao usuário 20% de Velocidade de Ataque, 25% de Dano de Ataque e 30% de Poder de Habilidade.",
+      "disabled_18_3b": false,
+      "id": "DA_Coronation",
+      "image": "Coronation_III.png",
+      "name": "Coroação",
+      "name_en": "Coronation"
+    },
+    {
+      "description": "Inimigos nas duas primeiras fileiras perdem 4 de Armadura e Resistência Mágica a cada 2s.",
+      "disabled_18_3b": false,
+      "id": "DA_Corrosion",
+      "image": "Corrosion_I.png",
+      "name": "Corrosão",
+      "name_en": "Corrosion"
+    },
+    {
+      "description": "Sempre que constrói um item completo, recebe 2 atualizações.",
+      "disabled_18_3b": false,
+      "id": "DA_CraftedCrafting",
+      "image": "CraftedCrafting_I.png",
+      "name": "Criação Engenhosa",
+      "name_en": "Crafted Crafting"
+    },
+    {
+      "description": "Recebe uma Lágrima da Deusa. Sua equipe recebe 1 de Regeneração de Mana. Após 12s em combate, aumenta esse valor para 4.",
+      "disabled_18_3b": false,
+      "id": "DA_CryMeARiver",
+      "image": "CryMeARiver_II.png",
+      "name": "Chora, Me Liga",
+      "name_en": "Cry Me A River"
+    },
+    {
+      "description": "Seus Campeões com um item equipado recebem 100 de Vida e 15% de Dano de Ataque. Recebe uma Espada G.p.C.",
+      "disabled_18_3b": false,
+      "id": "DA_CyberneticImplants_Gold",
+      "image": "Cybernetic2.png",
+      "name": "Implantes Cibernéticos",
+      "name_en": "Cybernetic Implants"
+    },
+    {
+      "description": "Seus Campeões com um item equipado recebem 100 de Vida e 2 de Regeneração de Mana. Recebe uma Lágrima da Deusa.",
+      "disabled_18_3b": false,
+      "id": "DA_CyberneticUplink_Gold",
+      "image": "Cybernetic-Uplink-II.png",
+      "name": "Conexão Cibernética",
+      "name_en": "Cybernetic Uplink"
+    },
+    {
+      "description": "Recebe uma Lâmina Mortal. Lâminas Mortais recebem permanentemente 1% de Dano de Ataque sempre que o usuário consegue uma eliminação.",
+      "disabled_18_3b": false,
+      "id": "DA_DeadlierBlades",
+      "image": "DeadlierBlades_II.png",
+      "name": "Lâminas Fatais",
+      "name_en": "Deadlier Blades"
+    },
+    {
+      "description": "Recebe um Capuz da Morte de Rabadon. Capuzes da Morte de Rabadon concedem 1 de Regeneração de Mana e recebem permanentemente 1% de Poder de Habilidade sempre que o usuário consegue uma eliminação.",
+      "disabled_18_3b": false,
+      "id": "DA_DeadlierCaps",
+      "image": "DeadlierCaps_II.png",
+      "name": "Capuzes Mais Mortais",
+      "name_en": "Deadlier Caps"
+    },
+    {
+      "description": "Perde todos os Campeões no seu tabuleiro e na sua reserva. Recebe um Boneco de Treinamento com 60% da Vida combinada deles. O Boneco recebe 1150 de Vida por Estágio. Recebe um Campeão aleatório de custo 2 e 2 Estrelas (exceto Tanques).",
+      "disabled_18_3b": false,
+      "id": "DA_Dummify",
+      "image": "Dummify_I.png",
+      "name": "Transformação em Boneco",
+      "name_en": "Dummify"
+    },
+    {
+      "description": "Sua equipe recebe 5% de Dano de Ataque e Poder de Habilidade. Aumenta em 1% após cada combate entre jogadores. Campeões de custo 1 recebem o dobro.",
+      "disabled_18_3b": false,
+      "id": "DA_EarlyLearnings",
+      "image": "EarlyLearning_II.png",
+      "name": "Aprendizados Iniciais",
+      "name_en": "Early Learnings"
+    },
+    {
+      "description": "A cada 4 ataques sofridos por um aliado, ele causa 30 - 90 de Dano Mágico (com base no Estágio atual) aos inimigos próximos (1s de Tempo de Recarga).",
+      "disabled_18_3b": false,
+      "id": "DA_ElectrochargeI",
+      "image": "Electrocharge-I.png",
+      "name": "Carga Elétrica I",
+      "name_en": "Electrocharge I"
+    },
+    {
+      "description": "A cada 4 ataques sofridos por um aliado, ele causa 50 - 140 de Dano Mágico (com base no Estágio atual) aos inimigos próximos (1s de Tempo de Recarga).",
+      "disabled_18_3b": false,
+      "id": "DA_ElectrochargeII",
+      "image": "Electrocharge-II.png",
+      "name": "Carga Elétrica II",
+      "name_en": "Electrocharge II"
+    },
+    {
+      "description": "Ao alcançar o nível 8, você recebe 20 atualizações da Loja. Campeonato Runeterra Reforjada, 2023",
+      "disabled_18_3b": false,
+      "id": "DA_EpicRolldown",
+      "image": "EpicRolldown_II.png",
+      "name": "Atualização Épica",
+      "name_en": "Epic Rolldown"
+    },
+    {
+      "description": "Agora e no início de todo Estágio, recebe 4 de EXP e 2 atualizações gratuitas.",
+      "disabled_18_3b": false,
+      "id": "DA_Epoch",
+      "image": "Epoch_II.png",
+      "name": "Época",
+      "name_en": "Epoch"
+    },
+    {
+      "description": "Agora e no início de todo Estágio, recebe 8 de EXP e 2 atualizações gratuitas.",
+      "disabled_18_3b": false,
+      "id": "DA_EpochPlus",
+      "image": "Epoch_II.png",
+      "name": "Época+",
+      "name_en": "Epoch+"
+    },
+    {
+      "description": "Recebe um Baú de Item da Sorte, um Removedor Magnético e 7 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_ExclusiveCustomization",
+      "image": "ExclusiveCustomization_II.png",
+      "name": "Personalização Exclusiva",
+      "name_en": "Exclusive Customization"
+    },
+    {
+      "description": "Joga 3 dados agora e no início dos próximos 2 Estágios. Recebe recompensas variadas com base no total.",
+      "disabled_18_3b": false,
+      "id": "DA_ExpectedUnexpectedness",
+      "image": "Addicted-to-Rolling-III.png",
+      "name": "Esperando o Inesperado",
+      "name_en": "Expected Unexpectedness"
+    },
+    {
+      "description": "No início de cada rodada, perde o Campeão no espaço mais à direita da sua reserva. Depois de perder o equivalente a 33 de ouro em Campeões dessa forma, recebe uma recompensa poderosa. Recebe um Campeão de custo 3 imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_Expedition",
+      "image": "Expedition_I.png",
+      "name": "Expedição",
+      "name_en": "Expedition"
+    },
+    {
+      "description": "Agora e no início das próximas 3 rodadas, recebe 7 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_ExplosiveGrowth",
+      "image": "ExplosiveGrowth_II.png",
+      "name": "Crescimento Explosivo",
+      "name_en": "Explosive Growth"
+    },
+    {
+      "description": "Agora e no início das próximas 3 rodadas, recebe 10 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_ExplosiveGrowthPlus",
+      "image": "ExplosiveGrowth_II.png",
+      "name": "Crescimento Explosivo+",
+      "name_en": "Explosive Growth+"
+    },
+    {
+      "description": "Recebe um Cinto do Gigante. Depois que seus Campeões sofrerem 75000 de dano, receberá mais 2.",
+      "disabled_18_3b": false,
+      "id": "DA_ExtraBuckles",
+      "image": "ExtraBuckles_I.png",
+      "name": "Cintos Adicionais",
+      "name_en": "Extra Buckles"
+    },
+    {
+      "description": "Recebe 12 de ouro e joga uma moeda. Se der cara, ganha 4 de ouro a mais.",
+      "disabled_18_3b": false,
+      "id": "DA_FeelingLucky",
+      "image": "FeelingLucky_I.png",
+      "name": "Sorte em Alta",
+      "name_en": "Feeling Lucky"
+    },
+    {
+      "description": "Seu Campeão que começar o combate no centro da fileira da frente receberá 15% de Amplificação de Dano e 25% de Vida máxima.",
+      "disabled_18_3b": false,
+      "id": "DA_FindYourCenter",
+      "image": "FindYourCenter_I.png",
+      "name": "Em Busca do Centro",
+      "name_en": "Find Your Center"
+    },
+    {
+      "description": "Recebe 1 Emblema aleatório. No início de todo Estágio, recebe um Emblema aleatório. Sua equipe recebe 30 de Vida para cada Emblema equipado.",
+      "disabled_18_3b": false,
+      "id": "DA_Flexible",
+      "image": "Flexible_II.png",
+      "name": "Flexível",
+      "name_en": "Flexible"
+    },
+    {
+      "description": "Recebe uma Lágrima da Deusa. Depois que seus Campeões gastarem 6500 de Mana, receberá mais 2.",
+      "disabled_18_3b": false,
+      "id": "DA_FlowingTears",
+      "image": "GriefoftheGreatGoddess_I.png",
+      "name": "Lágrimas Abundantes",
+      "name_en": "Flowing Tears"
+    },
+    {
+      "description": "Sua equipe recebe 10% de Dano de Ataque. A cada 5s, recebe mais 5%.",
+      "disabled_18_3b": false,
+      "id": "DA_FocusedFire",
+      "image": "MarksMan_I.png",
+      "name": "Fogo Concentrado",
+      "name_en": "Focused Fire"
+    },
+    {
+      "description": "Recebe 1 Artefato aleatório. Ao ficar com menos de 35 de Vida, recebe mais 1 Artefato(s) aleatório(s), 1 item(ns) completo(s) aleatório(s) e 2 componente(s) aleatório(s). Campeonato Batalha Musical, 2023",
+      "disabled_18_3b": false,
+      "id": "DA_ForgedInStrength",
+      "image": "ForgedInStrength_III.png",
+      "name": "Forja na Força",
+      "name_en": "Forged In Strength"
+    },
+    {
+      "description": "Recebe um Campeão Tanque de custo 1 e 2 Estrelas e um Emblema correspondente à classe dele.",
+      "disabled_18_3b": false,
+      "id": "DA_FrontlineFoundation",
+      "image": "FrontlineFoundation_II.png",
+      "name": "Fundação da Linha de Frente",
+      "name_en": "Frontline Foundation"
+    },
+    {
+      "description": "Seu Estrategista perde 20 de Vida, mas, depois de 5 combates entre jogadores, recebe 3 Campeões de custo 4 e 8 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_FutureFocused",
+      "image": "Missing-T1.png",
+      "name": "Foco no Futuro",
+      "name_en": "Future Focused"
+    },
+    {
+      "description": "Recebe 21 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_GainGold",
+      "image": "Windfall2.png",
+      "name": "Recebe 21 de ouro.",
+      "name_en": "Gain 21 Gold"
+    },
+    {
+      "description": "Sua equipe fica grande, recebendo 200 de Vida e 10% de Vida máxima.",
+      "disabled_18_3b": false,
+      "id": "DA_GiantAndMighty",
+      "image": "GiantandMighty_III.png",
+      "name": "Gigante e Poderoso",
+      "name_en": "Giant and Mighty"
+    },
+    {
+      "description": "Recebe 2 Campeões de custo 5. Se você colocar pelo menos um Campeão de custo 5 em campo, seus Campeões de custo 1 a 4 receberão 8% de Durabilidade. Tactician's Crown do K.O. Coliseu, 2025",
+      "disabled_18_3b": false,
+      "id": "DA_GildedSteel",
+      "image": "GildedSteel_II.png",
+      "name": "Aço Áureo",
+      "name_en": "Gilded Steel"
+    },
+    {
+      "description": "Aliados que começam o combate na fileira de trás começam com 80% de Vida, mas recebem 25% de Amplificação de Dano.",
+      "disabled_18_3b": false,
+      "id": "DA_GlassCannon_Gold",
+      "image": "GlassCannon_II.png",
+      "name": "Canhão de Vidro II",
+      "name_en": "Glass Cannon II"
+    },
+    {
+      "description": "Aliados que começam o combate na fileira de trás começam com 80% de Vida, mas recebem 16% de Amplificação de Dano.",
+      "disabled_18_3b": false,
+      "id": "DA_GlassCannon_Silver",
+      "image": "GlassCannon_I.png",
+      "name": "Canhão de Vidro I",
+      "name_en": "Glass Cannon I"
+    },
+    {
+      "description": "Você não acumula mais juros. Recebe 10 de ouro imediatamente. Recebe 4 de EXP após cada combate entre jogadores. Juros são o ouro extra que você ganha para cada 10 de ouro economizados.",
+      "disabled_18_3b": false,
+      "id": "DA_GoingLong",
+      "image": "Going-Long-III.png",
+      "name": "Longo Prazo",
+      "name_en": "Going Long"
+    },
+    {
+      "description": "Recebe um Aprimoramento Ouro aleatório e 3 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_GoldDestiny",
+      "image": "GoldenDestiny_II.png",
+      "name": "Destino Dourado",
+      "name_en": "Gold Destiny"
+    },
+    {
+      "description": "Recebe um Aprimoramento Ouro aleatório e 5 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_GoldDestinyPlus",
+      "image": "GoldenDestiny_II.png",
+      "name": "Destino Dourado+",
+      "name_en": "Gold Destiny+"
+    },
+    {
+      "description": "Recebe um ovo dourado que eclode em 11 turnos e concede muitos espólios. Vencer um combate entre jogadores acelera o tempo de eclosão em um turno adicional.",
+      "disabled_18_3b": false,
+      "id": "DA_GoldenEgg",
+      "image": "The-Golden-Egg-III.png",
+      "name": "O Ovo Dourado",
+      "name_en": "The Golden Egg"
+    },
+    {
+      "description": "Recebe 2 de ouro e joga uma moeda. Se der cara, ganha um Baú de Item da Sorte Radiante. Se der coroa, ganha 2 Bigornas de Item Completo.",
+      "disabled_18_3b": false,
+      "id": "DA_GoldenGamble",
+      "image": "GoldenGamble_III.png",
+      "name": "Aposta em Ouro",
+      "name_en": "Golden Gamble"
+    },
+    {
+      "description": "Recebe 3 de ouro e joga uma moeda. Se der cara, ganha um Baú de Item da Sorte Radiante. Se der coroa, ganha 2 Bigornas de Item Completo.",
+      "disabled_18_3b": false,
+      "id": "DA_GoldenGamblePlus",
+      "image": "GoldenGamble_III.png",
+      "name": "Aposta em Ouro+",
+      "name_en": "Golden Gamble+"
+    },
+    {
+      "description": "Recebe 6 de ouro e joga uma moeda. Se der cara, ganha um Baú de Item da Sorte Radiante. Se der coroa, ganha 2 Bigornas de Item Completo.",
+      "disabled_18_3b": false,
+      "id": "DA_GoldenGamblePlusPlus",
+      "image": "GoldenGamble_III.png",
+      "name": "Aposta em Ouro++",
+      "name_en": "Golden Gamble++"
+    },
+    {
+      "description": "Início do combate: Campeões concedem 6 de Armadura e Resistência Mágica a outros Campeões adjacentes. Esse efeito acumula.",
+      "disabled_18_3b": false,
+      "id": "DA_GroupHugI",
+      "image": "GroupHug1_I.png",
+      "name": "Abraço Coletivo I",
+      "name_en": "Group Hug I"
+    },
+    {
+      "description": "Início do combate: Campeões concedem 9 de Armadura e Resistência Mágica a outros Campeões adjacentes. Esse efeito acumula.",
+      "disabled_18_3b": false,
+      "id": "DA_GroupHugII",
+      "image": "GroupHug2_II.png",
+      "name": "Abraço Coletivo II",
+      "name_en": "Group Hug II"
+    },
+    {
+      "description": "Não é possível escolher suas Recompensas de Carrossel. Recebe 6 de Vida de jogador adicional e 8 de ouro a cada rodada de carrossel. Ao não escolher uma Recompensa de Carrossel, você recebe um Campeão não escolhido e o item que ele porta.",
+      "disabled_18_3b": false,
+      "id": "DA_HardBargain",
+      "image": "HardBargain_II.png",
+      "name": "Barganha Acirrada",
+      "name_en": "Hard Bargain"
+    },
+    {
+      "description": "Recebe um Emblema aleatório. Agora e no começo de cada Estágio, recebe 3 de ouro e um Campeão de 1 Estrela com essa característica e custo equivalente ao Estágio (máx.: 5).",
+      "disabled_18_3b": false,
+      "id": "DA_HardCommit",
+      "image": "HardCommit_III.png",
+      "name": "Compromisso Sério",
+      "name_en": "Hard Commit"
+    },
+    {
+      "description": "Quando um inimigo morre, um aliado próximo se cura em 250 de Vida.",
+      "disabled_18_3b": false,
+      "id": "DA_HealingOrbsI",
+      "image": "Healing-Orbs-I.png",
+      "name": "Orbes Curativos I",
+      "name_en": "Healing Orbs I"
+    },
+    {
+      "description": "Quando um inimigo morre, um aliado próximo se cura em 575 de Vida.",
+      "disabled_18_3b": false,
+      "id": "DA_HealingOrbsII",
+      "image": "Healing-Orbs-II.png",
+      "name": "Orbes Curativos II",
+      "name_en": "Healing Orbs II"
+    },
+    {
+      "description": "Recebe um Coração Inabalável. A cada 10s de combate que o usuário sobrevive, Coração Inabalável recebe mais 16 de Vida máxima permanente.",
+      "disabled_18_3b": false,
+      "id": "DA_HeartOfSteel",
+      "image": "HealthyGains_II.png",
+      "name": "Coração de Aço",
+      "name_en": "Heart of Steel"
+    },
+    {
+      "description": "Recebe 22 de ouro. Seu valor de juros máximo aumenta para 10.",
+      "disabled_18_3b": false,
+      "id": "DA_HedgeFund",
+      "image": "RichGetRicher3.png",
+      "name": "Fundo de Garantia",
+      "name_en": "Hedge Fund"
+    },
+    {
+      "description": "Recebe 2 Duplicadores de Campeão Inferiores. Recebe 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_HeroicGrabBag",
+      "image": "Heroic-Grab-Bag-II.png",
+      "name": "Saco de Brindes Heroico",
+      "name_en": "Heroic Grab Bag"
+    },
+    {
+      "description": "Recebe 2 Duplicadores de Campeão Inferiores. Recebe 8 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_HeroicGrabBagPlus",
+      "image": "Heroic-Grab-Bag-II.png",
+      "name": "Saco de Brindes Heroico+",
+      "name_en": "Heroic Grab Bag+"
+    },
+    {
+      "description": "Recebe 2 Duplicadores de Campeão Inferiores. Recebe 14 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_HeroicGrabBagPlusPlus",
+      "image": "Heroic-Grab-Bag-II.png",
+      "name": "Saco de Brindes Heroico++",
+      "name_en": "Heroic Grab Bag++"
+    },
+    {
+      "description": "Campeões nas suas 2 fileiras de trás recebem 10% de Poder de Habilidade e 9% de Dano de Ataque para cada Campeão que começar o combate na sua primeira fileira.",
+      "disabled_18_3b": false,
+      "id": "DA_HoldTheLine",
+      "image": "HoldTheLine_III.png",
+      "name": "Posição Mantida",
+      "name_en": "Hold the Line"
+    },
+    {
+      "description": "Você não ganha mais juros, mas recebe 3 de ouro no começo de cada rodada de combate entre jogadores. Recebe 3 de ouro imediatamente. Juros são o ouro extra que você ganha para cada 10 de ouro economizados.",
+      "disabled_18_3b": false,
+      "id": "DA_Hustler",
+      "image": "Hyperroll2.png",
+      "name": "Vigarista",
+      "name_en": "Hustler"
+    },
+    {
+      "description": "Recebe 3 de ouro imediatamente. No Estágio 3-7, recebe uma Força do Infinito. Força do Infinito concede a aliados na mesma fileira um Escudo de 12% da Vida. Campeonato Ataque dos Monstros, 2023",
+      "disabled_18_3b": true,
+      "id": "DA_InfinityProtection",
+      "image": "InfinityProtection_II.png",
+      "name": "Proteção do Infinito",
+      "name_en": "Infinity Protection"
+    },
+    {
+      "description": "Recebe 26 de ouro. No início de cada rodada, recebe 1 atualização da Loja para cada 10 de ouro acima de 50 (máx.: 80 de ouro).",
+      "disabled_18_3b": false,
+      "id": "DA_InvestedPlus",
+      "image": "Invested-III.png",
+      "name": "Investimento+",
+      "name_en": "Invested+"
+    },
+    {
+      "description": "Recebe 45 de ouro. No início de cada rodada, recebe 1 atualização da Loja para cada 10 de ouro acima de 50 (máx.: 80 de ouro).",
+      "disabled_18_3b": false,
+      "id": "DA_InvestedPlusPlus",
+      "image": "Invested-III.png",
+      "name": "Investimento++",
+      "name_en": "Invested++"
+    },
+    {
+      "description": "Seus Campeões recebem 10 de Vida máxima permanente por juros obtidos. Seu máximo de juros aumenta em 2. Recebe 8 de ouro imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_InvestmentStrategy",
+      "image": "InvestmentStrategy_III.png",
+      "name": "Estratégia de Investimento II",
+      "name_en": "Investment Strategy II"
+    },
+    {
+      "description": "Seus Campeões recebem 8 de Vida máxima permanente por juros obtidos. Recebe 4 de ouro imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_InvestmentStrategyI",
+      "image": "InvestmentStrategy_II.png",
+      "name": "Estratégia de Investimento I",
+      "name_en": "Investment Strategy I"
+    },
+    {
+      "description": "Recebe uma Bigorna de Componentes e 3 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_IronAssets",
+      "image": "Iron-Assets-I.png",
+      "name": "Recursos de Ferro",
+      "name_en": "Iron Assets"
+    },
+    {
+      "description": "Recebe 1 item completo aleatório.",
+      "disabled_18_3b": false,
+      "id": "DA_ItemGrabBag",
+      "image": "ItemGrabBag1.png",
+      "name": "Saco de Brindes I",
+      "name_en": "Item Grab Bag I"
+    },
+    {
+      "description": "Recebe uma casa de campeonato no canto inferior direito. O Campeão nela recebe 15% de Amplificação de Dano e 15% de Velocidade de Ataque, além de conceder 1 de ouro a cada 5 eliminações. Tactician's Crown de Lore & Legends, 2026",
+      "disabled_18_3b": false,
+      "id": "DA_ItsMeBaby",
+      "image": "Missing-T2.png",
+      "name": "Sou Eu, Benzinho!",
+      "name_en": "It's Me, Baby"
+    },
+    {
+      "description": "Sua equipe recebe 10% de Chance de Acerto Crítico e Precisão. Precisão: o dano de habilidades pode causar Acerto Crítico. Precisão adicional concede 10% de Dano de Acerto Crítico.",
+      "disabled_18_3b": false,
+      "id": "DA_JeweledLotus_I",
+      "image": "Jeweled-Lotus-II.png",
+      "name": "Lótus Adornada I",
+      "name_en": "Jeweled Lotus I"
+    },
+    {
+      "description": "Sua equipe recebe 25% de Chance de Acerto Crítico, 10% de Dano de Acerto Crítico e Precisão . Precisão: o dano de habilidades pode causar Acerto Crítico. Precisão Adicional concede 10% de Dano de Acerto Crítico.",
+      "disabled_18_3b": false,
+      "id": "DA_JeweledLotus_II",
+      "image": "Jeweled-Lotus-III.png",
+      "name": "Lótus Adornada II",
+      "name_en": "Jeweled Lotus II"
+    },
+    {
+      "description": "Recebe um Campeão aleatório de custo 2 e 2 Estrela(s) e 1 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_KickStart",
+      "image": "KickStart_I.png",
+      "name": "Início Rápido",
+      "name_en": "Kick Start"
+    },
+    {
+      "description": "Recebe 1 de ouro após vencer um combate entre jogadores. Se o inimigo tinha mais Vida que você, recebe 6 de ouro. Recebe 1 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_Kingslayer",
+      "image": "Kingslayer_I.png",
+      "name": "Regicida",
+      "name_en": "Kingslayer"
+    },
+    {
+      "description": "Vê com quem você lutará em seguida. Sua equipe recebe 8% de Amplificação de Dano, que aumenta para 15% se você e seu oponente tiverem quaisquer características iguais ativadas.",
+      "disabled_18_3b": false,
+      "id": "DA_KnowYourEnemy",
+      "image": "Know-Your-Enemy-II.png",
+      "name": "Conheça o Inimigo",
+      "name_en": "Know Your Enemy"
+    },
+    {
+      "description": "Recebe 2 de EXP no início de cada rodada de combate entre jogadores. Seus Campeões de custo 5 recebem 12% de Vida e 12% de Velocidade de Ataque. Tactician's Crown de Cidade Cibernética, 2025",
+      "disabled_18_3b": false,
+      "id": "DA_LateGameScaling",
+      "image": "LateGameScaling_II.png",
+      "name": "Escalamento de Fim de Jogo",
+      "name_en": "Late Game Scaling"
+    },
+    {
+      "description": "Ao alcançar o nível 9, recebe 27 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_LateGameSpecialist",
+      "image": "Late-Game-Specialist-I.png",
+      "name": "Especialista em Fim de Jogo",
+      "name_en": "Late Game Specialist"
+    },
+    {
+      "description": "Recebe uma Bigorna de Artefato depois de 8 combates entre jogadores.",
+      "disabled_18_3b": false,
+      "id": "DA_LatentForge",
+      "image": "Long-time-Crafting-I.png",
+      "name": "Forja Latente",
+      "name_en": "Latent Forge"
+    },
+    {
+      "description": "Recebe um Emblema aleatório. Seus Campeões de custo 3 e todos os aliados equipados com um Emblema recebem 150 de Vida e 12% de Velocidade de Ataque. Campeonato Contestação, 2021",
+      "disabled_18_3b": false,
+      "id": "DA_LegionOfThrees",
+      "image": "LegionofThrees_II.png",
+      "name": "Legião de Três",
+      "name_en": "Legion Of Threes"
+    },
+    {
+      "description": "Ao comprar pontos de EXP, você recebe mais 2. Recebe 6 imediatamente.",
+      "disabled_18_3b": false,
+      "id": "DA_LevelUp",
+      "image": "LevelUp3.png",
+      "name": "Novo Nível!",
+      "name_en": "Level Up!"
+    },
+    {
+      "description": "Recebe uma Bigorna de Artefato imediatamente e a cada 10 combates entre jogadores.",
+      "disabled_18_3b": false,
+      "id": "DA_LivingForge",
+      "image": "Living-Forge-III.png",
+      "name": "Forja Viva",
+      "name_en": "Living Forge"
+    },
+    {
+      "description": "Seus dados e moedas dão mais sorte. Joga um dado e ganha uma quantidade de ouro igual ao número obtido. Em seguida, joga uma moeda. Se der cara, recebe 1 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_LoadedDice",
+      "image": "Missing-T1.png",
+      "name": "Dados Viciados",
+      "name_en": "Loaded Dice"
+    },
+    {
+      "description": "As Luvas do Ladrão sempre darão itens ideais aos seus Campeões. Recebe 2 Luvas do Pugilista e 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_LuckyGloves",
+      "image": "Lucky-Gloves-III.png",
+      "name": "Luvas da Sorte",
+      "name_en": "Lucky Gloves"
+    },
+    {
+      "description": "As Luvas do Ladrão sempre darão itens ideais aos seus Campeões. Recebe 2 Luvas do Pugilista agora e mais uma depois de 4 combates entre jogadores.",
+      "disabled_18_3b": false,
+      "id": "DA_LuckyGlovesPlus",
+      "image": "Lucky-Gloves-III.png",
+      "name": "Luvas da Sorte+",
+      "name_en": "Lucky Gloves+"
+    },
+    {
+      "description": "Recebe um pacote com um Campeão de custo 5, um Campeão de custo 1 e 2 Estrelas e 3 de ouro. No início dos próximos 2 Estágios, recebe o pacote novamente.",
+      "disabled_18_3b": false,
+      "id": "DA_LuxurySubscription",
+      "image": "LuxurySubscription_III.png",
+      "name": "Assinatura de Luxo",
+      "name_en": "Luxury Subscription"
+    },
+    {
+      "description": "Joga 3 dados. Recebe recompensas com base no total obtido.",
+      "disabled_18_3b": false,
+      "id": "DA_MagicRoll",
+      "image": "A-Magical-Roll-II.png",
+      "name": "Jogada Mágica",
+      "name_en": "Magic Roll"
+    },
+    {
+      "description": "Campeões sem itens equipados recebem 30 de Armadura e Resistência Mágica.",
+      "disabled_18_3b": false,
+      "id": "DA_MakeshiftArmorI",
+      "image": "Makeshift1.png",
+      "name": "Armadura Improvisada I",
+      "name_en": "Makeshift Armor I"
+    },
+    {
+      "description": "Campeões sem itens equipados recebem 50 de Armadura e Resistência Mágica.",
+      "disabled_18_3b": false,
+      "id": "DA_MakeshiftArmorII",
+      "image": "Makeshift2.png",
+      "name": "Armadura Improvisada II",
+      "name_en": "Makeshift Armor II"
+    },
+    {
+      "description": "Recebe 4 de ouro. Pelas próximas 2 rodadas, Campeões inimigos concedem 2 de ouro ao serem abatidos.",
+      "disabled_18_3b": false,
+      "id": "DA_MaliciousMonetization",
+      "image": "MirroredMonetization_II.png",
+      "name": "Monetização Maliciosa",
+      "name_en": "Malicious Monetization"
+    },
+    {
+      "description": "Recebe 10 atualizações gratuitas da Loja. Ao alcançar o nível 9, recebe 3 atualizações gratuitas da Loja e um Duplicador de Campeão. Campeonato Galáxias, 2020",
+      "disabled_18_3b": false,
+      "id": "DA_MaxBuild",
+      "image": "MaxBuild_II.png",
+      "name": "Composição Máxima",
+      "name_en": "Max Build"
+    },
+    {
+      "description": "Recebe um Removedor de Item Dourado e 4 componentes aleatórios.",
+      "disabled_18_3b": false,
+      "id": "DA_Min_Max",
+      "image": "MinMax_III.png",
+      "name": "Otimização",
+      "name_en": "Min-Max"
+    },
+    {
+      "description": "Recebe uma cópia de cada Campeão de custo 1.",
+      "disabled_18_3b": false,
+      "id": "DA_MissedConnections",
+      "image": "Missed-Connections-I.png",
+      "name": "Conexões Perdidas",
+      "name_en": "Missed Connections"
+    },
+    {
+      "description": "Recebe 13 de ouro agora e, depois, 7 de ouro no início de cada Estágio. Coletar ouro aumenta o tamanho do seu Estrategista.",
+      "disabled_18_3b": false,
+      "id": "DA_MoneyHungryPlus",
+      "image": "MoneyHungry2_II.png",
+      "name": "Sede de Riqueza+",
+      "name_en": "Money Hungry+"
+    },
+    {
+      "description": "Recebe 7 de ouro agora e, depois, 7 de ouro no início de cada Estágio. Coletar ouro aumenta o tamanho do seu Estrategista.",
+      "disabled_18_3b": false,
+      "id": "DA_MoneyHungry_NotBroken",
+      "image": "MoneyHungry1_II.png",
+      "name": "Sede de Riqueza",
+      "name_en": "Money Hungry"
+    },
+    {
+      "description": "Recebe 7 de ouro imediatamente e a cada rodada pelo resto da partida.",
+      "disabled_18_3b": false,
+      "id": "DA_MoneyMonsoon",
+      "image": "MoneyMonsoon_III.png",
+      "name": "Monção Monetária",
+      "name_en": "Money Monsoon"
+    },
+    {
+      "description": "Recebe uma Bigorna de Artefato. Ao abri-la, recebe uma Bigorna de Componente. Ao abri-la, recebe 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_NestingAnvils",
+      "image": "Missing-T3.png",
+      "name": "Bigornas Agrupadas",
+      "name_en": "Nesting Anvils"
+    },
+    {
+      "description": "Recebe uma Bigorna de Artefato. Ao abri-la, recebe uma Bigorna de Componente. Ao abri-la, recebe 8 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_NestingAnvilsPlus",
+      "image": "Missing-T3.png",
+      "name": "Bigornas Agrupadas+",
+      "name_en": "Nesting Anvils+"
+    },
+    {
+      "description": "Depois que um Campeão morre em combate, faz surgir uma cópia dele com um nível de Estrela a menos e 60% de Vida. Recebe 3 atualizações grátis.",
+      "disabled_18_3b": true,
+      "id": "DA_NestingDollsPlus",
+      "image": "Missing-T3.png",
+      "name": "Matrioscas",
+      "name_en": "Nesting Dolls"
+    },
+    {
+      "description": "Depois que um Campeão morre em combate, faz surgir uma cópia dele com um nível de Estrela a menos e 60% de Vida. Recebe 3 atualizações grátis.",
+      "disabled_18_3b": true,
+      "id": "DA_NestingDollsPlusPlus",
+      "image": "Missing-T3.png",
+      "name": "Matrioscas",
+      "name_en": "Nesting Dolls"
+    },
+    {
+      "description": "Campeões que entram em combate contra jogadores não podem ir para a reserva nem ser vendidos. Sua equipe recebe 1% de Vida e 1% de Dano de Ataque e Poder de Habilidade após combates entre jogadores.",
+      "disabled_18_3b": false,
+      "id": "DA_NoScoutNoPivot",
+      "image": "NoScoutNoPivot_II.png",
+      "name": "NÃO PIVOTO",
+      "name_en": "NO SCOUT NO PIVOT"
+    },
+    {
+      "description": "Recebe um Efeito Vermelho, um Efeito Azul e um Duplicador de Campeão.",
+      "disabled_18_3b": false,
+      "id": "DA_OneBuffTwoBuff",
+      "image": "OneBuffTwoBuff_III.png",
+      "name": "Distribuição de Efeitos",
+      "name_en": "One Buff Two Buff"
+    },
+    {
+      "description": "No início de cada rodada, Campeões nos seus 3 espaços da reserva mais à direita se transformam em Campeões aleatórios com o mesmo custo. Recebe 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_PandorasBench",
+      "image": "Pandoras-Bench-II.png",
+      "name": "Reserva de Pandora",
+      "name_en": "Pandora's Bench"
+    },
+    {
+      "description": "Início da rodada: os itens na sua reserva são trocados aleatoriamente por outros. Recebe 1 componente(s) aleatório(s).",
+      "disabled_18_3b": false,
+      "id": "DA_PandorasItemsI",
+      "image": "Pandora1.png",
+      "name": "Itens de Pandora I",
+      "name_en": "Pandora's Items I"
+    },
+    {
+      "description": "Início da rodada: os itens na sua reserva são trocados aleatoriamente por outros. Recebe 2 componentes aleatórios.",
+      "disabled_18_3b": false,
+      "id": "DA_PandorasItemsII",
+      "image": "Pandora2.png",
+      "name": "Itens de Pandora II",
+      "name_en": "Pandora's Items II"
+    },
+    {
+      "description": "Início da rodada: os itens na sua reserva são trocados aleatoriamente por outros. Recebe 1 item(ns) Radiante(s).",
+      "disabled_18_3b": false,
+      "id": "DA_PandorasItemsIII",
+      "image": "Pandora3.png",
+      "name": "Itens de Pandora III",
+      "name_en": "Pandora's Items III"
+    },
+    {
+      "description": "Depois de 12s de combate, suas unidades recebem 20% de amplificação de dano.",
+      "disabled_18_3b": false,
+      "id": "DA_PartialAscension",
+      "image": "Ascension1.png",
+      "name": "Ascensão Parcial",
+      "name_en": "Partial Ascension"
+    },
+    {
+      "description": "Recebe 4 atualizações imediatamente. A cada rodada, se você não tiver comprado nenhum Campeão na rodada passada, receberá 1 atualização gratuita.",
+      "disabled_18_3b": false,
+      "id": "DA_PatienceIsAVirtue",
+      "image": "PatienceIsAVirtue_I.png",
+      "name": "Quem Espera Sempre Alcança",
+      "name_en": "Patience Is A Virtue"
+    },
+    {
+      "description": "Depois do combate entre jogadores, recebe 2 de EXP se vencer ou 3 de EXP se perder.",
+      "disabled_18_3b": false,
+      "id": "DA_PatientStudy",
+      "image": "Learning-From-Experience-II.png",
+      "name": "Estudo Paciente",
+      "name_en": "Patient Study"
+    },
+    {
+      "description": "A cada rodada, recebe uma cópia de 1 Estrela do primeiro Campeão abatido por você no último combate. Na primeira vez que ganha o equivalente a 21 de ouro em Campeões dessa forma, recebe Luvas do Ladrão.",
+      "disabled_18_3b": false,
+      "id": "DA_Pilfer",
+      "image": "Pilfer_II.png",
+      "name": "Furto",
+      "name_en": "Pilfer"
+    },
+    {
+      "description": "Sua equipe recebe 8 de Armadura e Resistência Mágica. Quando a Vida fica abaixo de 50%, esse valor aumenta para 40 pelo resto do combate.",
+      "disabled_18_3b": false,
+      "id": "DA_PlotArmor",
+      "image": "PlotArmor_II.png",
+      "name": "Plot Armor",
+      "name_en": "Plot Armor"
+    },
+    {
+      "description": "Escolha 1 de 4 Artefatos. Artefatos são itens mais poderosos com um efeito único.",
+      "disabled_18_3b": false,
+      "id": "DA_PortableForge",
+      "image": "PortableForge2.png",
+      "name": "Forja Portátil",
+      "name_en": "Portable Forge"
+    },
+    {
+      "description": "Recebe um Aprimoramento Prismático aleatório e 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_PrismaticDestiny",
+      "image": "PrismaticDestiny_III.png",
+      "name": "Destino Prismático",
+      "name_en": "Prismatic Destiny"
+    },
+    {
+      "description": "Recebe um Aprimoramento Prismático aleatório e 7 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_PrismaticDestinyPlus",
+      "image": "PrismaticDestiny_III.png",
+      "name": "Destino Prismático+",
+      "name_en": "Prismatic Destiny+"
+    },
+    {
+      "description": "Sempre que sua Loja for atualizada, você terá 45% de chance de receber uma atualização grátis.",
+      "disabled_18_3b": false,
+      "id": "DA_PrismaticTicket",
+      "image": "GoldenTicket3.png",
+      "name": "Bilhete Prismático",
+      "name_en": "Prismatic Ticket"
+    },
+    {
+      "description": "Recebe um Juramento do Protetor. O Juramento do Protetor concede ao usuário 20% de Mana adicional de todas as origens e 200 de Vida máxima.",
+      "disabled_18_3b": false,
+      "id": "DA_PromisedProtection",
+      "image": "PromisedProtection_II.png",
+      "name": "Proteção Prometida",
+      "name_en": "Promised Protection"
+    },
+    {
+      "description": "Você recebe o dobro de progresso em sequências de vitórias e derrotas. Recebe 2 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_QuickStreaks",
+      "image": "Missing-T1.png",
+      "name": "Sequências Velozes",
+      "name_en": "Quick Streaks"
+    },
+    {
+      "description": "Recebe Luvas do Ladrão Radiantes. Esse item equipa 2 itens Radiantes aleatórios a cada rodada.",
+      "disabled_18_3b": false,
+      "id": "DA_RadiantRascal",
+      "image": "Roll-the-Dice-III.png",
+      "name": "Malandro Radiante",
+      "name_en": "Radiant Rascal"
+    },
+    {
+      "description": "Escolha 1 entre 5 itens Radiantes. Recebe um Removedor Magnético.",
+      "disabled_18_3b": false,
+      "id": "DA_RadiantRelic",
+      "image": "RadiantRelic-III.png",
+      "name": "Relíquias Radiantes",
+      "name_en": "Radiant Relics"
+    },
+    {
+      "description": "Campeões no seu tabuleiro se transformam permanentemente em Campeões aleatórios de 1 tier mais alto (máx.: 5). Recebe 2 Removedores Magnéticos e 3 atualizações grátis.",
+      "disabled_18_3b": false,
+      "id": "DA_Recombobulator",
+      "image": "Recombobulator-I.png",
+      "name": "Recombobulador",
+      "name_en": "Recombobulator"
+    },
+    {
+      "description": "Escolhe 1 entre 3 componentes. Pelas próximas 2 rodadas, recebe outra cópia do componente escolhido.",
+      "disabled_18_3b": false,
+      "id": "DA_Replication",
+      "image": "Replication-II.png",
+      "name": "Replicação",
+      "name_en": "Replication"
+    },
+    {
+      "description": "Recebe 2 Mãos da Justiça. Aliados com uma Mão da Justiça equipada recebem Precisão e 25% de Chance de Acerto Crítico. Precisão: o dano de habilidades pode causar Acerto Crítico. Precisão adicional concede 10% de Dano de Acerto Crítico.",
+      "disabled_18_3b": false,
+      "id": "DA_Retribution",
+      "image": "Retribution_III.png",
+      "name": "Castigo",
+      "name_en": "Retribution"
+    },
+    {
+      "description": "Recebe 10 atualizações gratuitas da Loja.",
+      "disabled_18_3b": false,
+      "id": "DA_RollingForDays",
+      "image": "Rolling-For-Days-I.png",
+      "name": "Troca Sem Fim",
+      "name_en": "Rolling For Days"
+    },
+    {
+      "description": "Recebe 1 item completo aleatório agora e 1 componente depois de 8 combates entre jogadores. Vender Campeões separa itens completos em componentes (exceto itens de Estrategista e Emblemas).",
+      "disabled_18_3b": false,
+      "id": "DA_SalvageBin",
+      "image": "Salvage2.png",
+      "name": "Desmanche",
+      "name_en": "Salvage Bin"
+    },
+    {
+      "description": "Recebe 1 item completo aleatório agora e 1 componente depois de 4 combates entre jogadores. Vender Campeões separa itens completos em componentes (exceto itens de Estrategista e Emblemas).",
+      "disabled_18_3b": false,
+      "id": "DA_SalvageBinPlus",
+      "image": "Salvage2.png",
+      "name": "Desmanche+",
+      "name_en": "Salvage Bin+"
+    },
+    {
+      "description": "Recebe um Cajado do Arcanjo. Cajado do Arcanjo concede 2 de Regeneração de Mana adicional se o usuário tiver 90% ou mais do Poder de Habilidade.",
+      "disabled_18_3b": false,
+      "id": "DA_SeraphimsStaff",
+      "image": "SeraphimsStaff_II.png",
+      "name": "Cajado de Serafim",
+      "name_en": "Seraphim's Staff"
+    },
+    {
+      "description": "Recebe uma Lâmina do Apostador. Após 6 combates entre jogadores, recebe uma Carapaça do Manda-Chuva.",
+      "disabled_18_3b": false,
+      "id": "DA_ShimmerscaleEssence",
+      "image": "ShimmerscaleEssence_III.png",
+      "name": "Essência de Escamaluz",
+      "name_en": "Shimmerscale Essence"
+    },
+    {
+      "description": "Ao subir de nível, recebe uma quantidade de atualizações da Loja equivalente ao seu nível +1. Recebe 6 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_ShoppingSpree",
+      "image": "Silver-ticket-III.png",
+      "name": "Maratona de Compras",
+      "name_en": "Shopping Spree"
+    },
+    {
+      "description": "Recebe um Aprimoramento Prata aleatório e 2 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_SilverDestiny",
+      "image": "SilverDestiny_I.png",
+      "name": "Destino Prateado",
+      "name_en": "Silver Destiny"
+    },
+    {
+      "description": "Recebe um Aprimoramento Prata aleatório e 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_SilverDestinyPlus",
+      "image": "SilverDestiny_I.png",
+      "name": "Destino Prateado+",
+      "name_en": "Silver Destiny+"
+    },
+    {
+      "description": "Recebe um Aprimoramento Prata aleatório e 7 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_SilverDestinyPlusPlus",
+      "image": "SilverDestiny_I.png",
+      "name": "Destino Prateado++",
+      "name_en": "Silver Destiny++"
+    },
+    {
+      "description": "Recebe 10 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_SilverSpoon",
+      "image": "Silver-Spoon-I.png",
+      "name": "Colher de Prata",
+      "name_en": "Silver Spoon"
+    },
+    {
+      "description": "Recebe 3 de ouro. Após cada combate entre jogadores, caso não existam itens na sua reserva (fora os consumíveis), recebe 2 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_Slammin",
+      "image": "Slammin_II.png",
+      "name": "Empurrão",
+      "name_en": "Slammin'"
+    },
+    {
+      "description": "Recebe 4 de ouro e 10 de EXP imediatamente. Após cada combate entre jogadores, caso não existam itens na sua reserva (fora os consumíveis), recebe 2 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_SlamminPlus",
+      "image": "Slammin_II.png",
+      "name": "Empurrão+",
+      "name_en": "Slammin'+"
+    },
+    {
+      "description": "Duas vezes por Estágio, recebe um Campeão aleatório. O custo dele aumenta a cada Estágio. Esse efeito termina após receber 1 Campeão de custo 5.",
+      "disabled_18_3b": false,
+      "id": "DA_SliceOfLife",
+      "image": "Slice_of_Life_I.png",
+      "name": "Vida Cotidiana",
+      "name_en": "Slice of Life"
+    },
+    {
+      "description": "Joga um dado. Recebe recompensas com base no número obtido.",
+      "disabled_18_3b": false,
+      "id": "DA_SlightlyMagicRoll",
+      "image": "SlightlyMagicRoll_I.png",
+      "name": "Jogada Levemente Mágica",
+      "name_en": "Slightly Magic Roll"
+    },
+    {
+      "description": "Recebe 2 componente(s) de item aleatório(s).",
+      "disabled_18_3b": false,
+      "id": "DA_SmallGrabBag",
+      "image": "SmallGrabBag_I.png",
+      "name": "Saco de Brindes Pequeno",
+      "name_en": "Small Grab Bag"
+    },
+    {
+      "description": "Pelos próximos 5 combates, o tamanho da sua equipe será 1, mas o Campeão que você colocar em campo receberá um aumento gigantesco nos atributos. Recebe 1 de EXP a cada abate dele. Depois, recebe 2 componentes de item.",
+      "disabled_18_3b": false,
+      "id": "DA_SoloLeveling",
+      "image": "SoloLeveling_II.png",
+      "name": "Upando Solo",
+      "name_en": "Solo Leveling"
+    },
+    {
+      "description": "Recebe uma Placa Gargolítica. Aliados com uma Placa Gargolítica receberão 17% de Vida máxima se estiverem sozinhos na fileira no começo do combate.",
+      "disabled_18_3b": false,
+      "id": "DA_SoloPlate",
+      "image": "SoloPlate_II.png",
+      "name": "Placa Solo",
+      "name_en": "Solo Plate"
+    },
+    {
+      "description": "Início do combate: sua equipe recebe 1.5% de Dano de Ataque e Poder de Habilidade por segundo por 10s. Com o máximo de acúmulos, causa 12% de Dano Verdadeiro adicional.",
+      "disabled_18_3b": false,
+      "id": "DA_SoulAwakening",
+      "image": "AwakenedSoul_III.png",
+      "name": "Despertar da Alma",
+      "name_en": "Soul Awakening"
+    },
+    {
+      "description": "Recebe uma Lâmina da Fúria de Guinsoo. Quando 2 jogadores forem eliminados, receberá 40 de ouro. Campeonato Destinos, 2021",
+      "disabled_18_3b": false,
+      "id": "DA_SpeedyDoubleKill",
+      "image": "SpeedyDoubleKill_II.png",
+      "name": "Double Kill Veloz",
+      "name_en": "Speedy Double Kill"
+    },
+    {
+      "description": "Recebe um Semblante Espiritual. A cada 5s, o Semblante Espiritual cura os aliados em até 1 casas adjacentes em 7.5% da Vida perdida.",
+      "disabled_18_3b": false,
+      "id": "DA_SpiritOfRedemption",
+      "image": "SpiritofRedemption_II.png",
+      "name": "Espírito de Redenção",
+      "name_en": "Spirit Of Redemption"
+    },
+    {
+      "description": "Recebe um Emblema aleatório. Após 3 combates, recebe outro.",
+      "disabled_18_3b": false,
+      "id": "DA_SpreadingRoots",
+      "image": "SpreadingRoots_II.png",
+      "name": "Raízes Alastradas",
+      "name_en": "Spreading Roots"
+    },
+    {
+      "description": "Recebe 2 Emblemas aleatórios e 2 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_SpreadingRootsPlus",
+      "image": "SpreadingRoots_II.png",
+      "name": "Raízes Alastradas+",
+      "name_en": "Spreading Roots+"
+    },
+    {
+      "description": "Recebe 2 itens completos aleatórios criados a partir do Bastão Desnecessariamente Grande.",
+      "disabled_18_3b": false,
+      "id": "DA_Staffsmith",
+      "image": "Rodsmith_II.png",
+      "name": "Fabricante de Bastões",
+      "name_en": "Staffsmith"
+    },
+    {
+      "description": "Suas unidades recebem 1.5% de Dano de Ataque e 1.5% de Poder de Habilidade a cada característica não única que estiver ativa na sua equipe.",
+      "disabled_18_3b": false,
+      "id": "DA_StandUnited",
+      "image": "StandUnited1.png",
+      "name": "Manter a União",
+      "name_en": "Stand United"
+    },
+    {
+      "description": "Recebe uma Bigorna de Artefato. Sua equipe recebe 16 de Vida por item equipado em Campeões.",
+      "disabled_18_3b": false,
+      "id": "DA_SweetTreats",
+      "image": "SweetTreats_III.png",
+      "name": "Doces Deleites",
+      "name_en": "Sweet Treats"
+    },
+    {
+      "description": "Recebe 4 Espadas G.p.C. Suas Espadas G.p.C. concedem +4% de Velocidade de Ataque.",
+      "disabled_18_3b": false,
+      "id": "DA_SwordOverflow",
+      "image": "BladeOverflow_III.png",
+      "name": "Promoção de Espadas",
+      "name_en": "Sword Overflow"
+    },
+    {
+      "description": "Recebe 2 itens completos aleatórios criados a partir da Espada G.p.C.",
+      "disabled_18_3b": false,
+      "id": "DA_Swordsmith",
+      "image": "Swordsmith_II.png",
+      "name": "Fabricante de Espadas",
+      "name_en": "Swordsmith"
+    },
+    {
+      "description": "Recebe um Emblema aleatório. Após 3 rodadas, recebe uma Capa de Estrategista.",
+      "disabled_18_3b": false,
+      "id": "DA_TacticiansKitchen",
+      "image": "TacticiansKitchen_III.png",
+      "name": "Cozinha do Estrategista",
+      "name_en": "Tactician's Kitchen"
+    },
+    {
+      "description": "Recebe um Duplicador de Campeão Inferior. Recebe mais um depois de 5 combates entre jogadores. Esse item permite que você copie um Campeão de custo 3 ou inferior.",
+      "disabled_18_3b": false,
+      "id": "DA_TeamBuilding",
+      "image": "Building-an-army-I.png",
+      "name": "Trabalho em Equipe",
+      "name_en": "Team Building"
+    },
+    {
+      "description": "Recebe uma Carapaça do Manda-Chuva. Campeões com a Carapaça do Manda-Chuva ocupam +1 espaço na equipe, mas recebem 600 de Vida e 15% de Durabilidade. A Carapaça do Manda-Chuva concede ouro, além de poder de combate. Campeonato Terras Dracônicas, 2022",
+      "disabled_18_3b": false,
+      "id": "DA_TheGoldenDragon",
+      "image": "TheGoldenDragon_II.png",
+      "name": "Dragão Dourado",
+      "name_en": "The Golden Dragon"
+    },
+    {
+      "description": "Recebe um Boneco de Treinamento gigante. A cada 4s, eletrocuta os 3 inimigos mais próximos, causando 5% da Vida máxima como Dano Verdadeiro.",
+      "disabled_18_3b": false,
+      "id": "DA_TheTower",
+      "image": "TheTower_I.png",
+      "name": "A Torre",
+      "name_en": "The Tower"
+    },
+    {
+      "description": "Recebe 3 Emblemas aleatórios e 2 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_TheTraitTree",
+      "image": "TheTraitTree_III.png",
+      "name": "Árvore de Características",
+      "name_en": "The Trait Tree"
+    },
+    {
+      "description": "Recebe 3 Emblemas aleatórios, um Reforjador e 4 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_TheTraitTreePlus",
+      "image": "TheTraitTree_III.png",
+      "name": "Árvore de Características+",
+      "name_en": "The Trait Tree+"
+    },
+    {
+      "description": "Desabilita sua Loja pelas próximas 3 rodadas. Depois, recebe 32 de EXP.",
+      "disabled_18_3b": false,
+      "id": "DA_TimeSkip",
+      "image": "TimeSkip_II.png",
+      "name": "Salto Temporal",
+      "name_en": "Time Skip"
+    },
+    {
+      "description": "Sua equipe recebe 44 de Vida, 4% de Dano de Ataque, 4% de Poder de Habilidade, 4 de Armadura, 4 de Resistência Mágica, 4% de Velocidade de Ataque e 4 de Mana.",
+      "disabled_18_3b": false,
+      "id": "DA_TonsOfStatsI",
+      "image": "Tons-of-Stats-II.png",
+      "name": "Toneladas de Atributos!",
+      "name_en": "Tons of Stats!"
+    },
+    {
+      "description": "Sua equipe recebe 88 de Vida, 8% de Dano de Ataque, 8% de Poder de Habilidade, 8 de Armadura, 8 de Resistência Mágica, 8% de Velocidade de Ataque e 8 de Mana.",
+      "disabled_18_3b": false,
+      "id": "DA_TonsOfStatsII",
+      "image": "Tons-of-Stats-II.png",
+      "name": "Toneladas de Atributos!",
+      "name_en": "TONS of Stats!"
+    },
+    {
+      "description": "Recebe uma atualização da Loja a cada rodada. Recebe 2 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_TradeSector",
+      "image": "Trade2.png",
+      "name": "Setor de Troca",
+      "name_en": "Trade Sector"
+    },
+    {
+      "description": "Recebe uma atualização da Loja a cada rodada. Recebe 8 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_TradeSectorPlus",
+      "image": "Trade2.png",
+      "name": "Setor de Troca+",
+      "name_en": "Trade Sector+"
+    },
+    {
+      "description": "Recebe um Emblema aleatório. Depois de colocar em campo 2 características não únicas em um combate entre jogadores, recebe uma recompensa. Em seguida, aumenta a quantidade de características necessárias e o tamanho da recompensa.",
+      "disabled_18_3b": false,
+      "id": "DA_TraitLadder",
+      "image": "Missing-T3.png",
+      "name": "Escada de Características",
+      "name_en": "Trait Ladder"
+    },
+    {
+      "description": "Se você tiver exatamente 2 aliados na primeira fileira, concede 100 de Vida, 35 de Armadura e 35 de Resistência Mágica a eles.",
+      "disabled_18_3b": false,
+      "id": "DA_TwinGuardians",
+      "image": "TwinGuardians_I.png",
+      "name": "Guardiões Gêmeos",
+      "name_en": "Twin Guardians"
+    },
+    {
+      "description": "Recebe uma Espátula. Campeões com uma Espátula, Frigideira ou itens compostos por elas recebem 20% de Velocidade de Ataque e 3 de Regeneração de Mana.",
+      "disabled_18_3b": false,
+      "id": "DA_URF",
+      "image": "UltraRapidFire_II.png",
+      "name": "URF",
+      "name_en": "U.R.F"
+    },
+    {
+      "description": "Comprar EXP custa 1 a menos. Recebe 2 de Vida e 2 atualizações da Loja sempre que sobe de nível.",
+      "disabled_18_3b": false,
+      "id": "DA_UpwardMobility",
+      "image": "UpwardMobility_III.png",
+      "name": "Mobilidade Crescente",
+      "name_en": "Upward Mobility"
+    },
+    {
+      "description": "Recebe 1 Espátula, 3 componentes aleatórios e 5 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_UrfsGrabBag",
+      "image": "Urfs-Grab-Bag-III.png",
+      "name": "Saco de Brindes do Urf",
+      "name_en": "Urf's Grab Bag"
+    },
+    {
+      "description": "Campeões recebem 1.5% de Dano de Ataque, 1.5% de Poder de Habilidade, 1.5 de Armadura e 1.5 de Resistência Mágica para cada aliado com quem compartilhem uma característica.",
+      "disabled_18_3b": false,
+      "id": "DA_VerticalityI",
+      "image": "Missing-T1.png",
+      "name": "Verticalidade I",
+      "name_en": "Verticality I"
+    },
+    {
+      "description": "Campeões recebem 2% de Dano de Ataque, 2% de Poder de Habilidade, 2 de Armadura e 2 de Resistência Mágica para cada aliado com quem compartilhem uma característica.",
+      "disabled_18_3b": false,
+      "id": "DA_VerticalityII",
+      "image": "Missing-T2.png",
+      "name": "Verticalidade II",
+      "name_en": "Verticality II"
+    },
+    {
+      "description": "Campeões recebem 3.5% de Dano de Ataque, 3.5% de Poder de Habilidade, 3.5 de Armadura e 3.5 de Resistência Mágica para cada aliado com quem compartilhem uma característica.",
+      "disabled_18_3b": false,
+      "id": "DA_VerticalityIII",
+      "image": "Missing-T3.png",
+      "name": "Verticalidade III",
+      "name_en": "Verticality III"
+    },
+    {
+      "description": "Recebe 4 Bastões Desnecessariamente Grandes. Seus Bastões Desnecessariamente Grandes concedem +5% de Velocidade de Ataque.",
+      "disabled_18_3b": false,
+      "id": "DA_WandOverflow",
+      "image": "WandOverflow_III.png",
+      "name": "Promoção de Varinhas",
+      "name_en": "Wand Overflow"
+    },
+    {
+      "description": "Recebe um Campeão de custo 2 e 2 Estrelas. Depois de causar 80 de dano contra jogadores, recebe um baú de Campeões e itens de custo alto.",
+      "disabled_18_3b": false,
+      "id": "DA_Warpath",
+      "image": "Warpath_II.png",
+      "name": "Caminho da Guerra",
+      "name_en": "Warpath"
+    },
+    {
+      "description": "Recebe um Emblema aleatório e uma Bigorna de Item Completo. Aliados que compartilhem uma característica com esse Emblema recebem 30% de Velocidade de Ataque. 0 0 Tactician's Crown de Mergulhe em Arcane, 2025",
+      "disabled_18_3b": false,
+      "id": "DA_WeStickTogether",
+      "image": "WeStickTogether_III.png",
+      "name": "A União Faz a Força",
+      "name_en": "We Stick Together"
+    },
+    {
+      "description": "Recebe um Campeão aleatório de custo 1. Recebe outra cópia dele no início de cada rodada pelo resto da partida.",
+      "disabled_18_3b": false,
+      "id": "DA_WorththeWait",
+      "image": "WorthTheWait_II.png",
+      "name": "Vale a Espera",
+      "name_en": "Worth the Wait"
+    },
+    {
+      "description": "Recebe 2 cópias de um Campeão de custo 2 aleatório. Recebe outra cópia dele no início de cada rodada pelo resto da partida.",
+      "disabled_18_3b": false,
+      "id": "DA_WorththeWaitII",
+      "image": "WorthTheWait_III.png",
+      "name": "Vale a Espera II",
+      "name_en": "Worth the Wait II"
+    },
+    {
+      "description": "Recebe um componente aleatório de item. A cada 2200 de Mana gasto por seus Campeões, concede um componente adicional (máximo: 0/3).",
+      "disabled_18_3b": false,
+      "id": "DA_WovenMagic",
+      "image": "WovenMagic_III.png",
+      "name": "Tecendo Magia",
+      "name_en": "Woven Magic"
+    },
+    {
+      "description": "Você sempre pode se mover livremente durante carrosséis. Recebe 5 de ouro.",
+      "disabled_18_3b": false,
+      "id": "DA_YoungAndWildAndFree",
+      "image": "Young-and-wild-and-free-I.png",
+      "name": "Jovens, Selvagens e Livres",
+      "name_en": "Young and Wild and Free"
+    }
+  ],
+  "locale": "pt_BR",
+  "patch_revision": "18.3B-20260928",
+  "schema_version": 1,
+  "set_key": "TFTSet18",
+  "source_scope": "DA_ entries in Riot TFT augment Data Dragon; candidate catalog, not proof of active offer pool",
+  "source_url": "https://ddragon.leagueoflegends.com/cdn/16.19.1/data/pt_BR/tft-augments.json",
+  "tft_patch": "18.3"
+}

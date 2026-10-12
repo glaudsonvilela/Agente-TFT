@@ -593,6 +593,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       const items = state?.fast_items || {};
       const trait = state?.trait_tooltip || {};
       const selected = state?.selected_unit_panel || {};
+      const augments = state?.augment_options || {};
       const spatial = state?.spatial_map || {};
       const macro = items.enemy_equipment_macro || {};
       const recipes = state?.core_recipe_catalog || {};
@@ -623,6 +624,10 @@ if (new URLSearchParams(location.search).has('connected')) {
         `SINERGIA ${sourceSec(trait)}  ${trait.status === 'active_portraits_named' ? trait.trait+': '+portraits.join(', ') : 'janela não lida neste quadro'}`,
         `ÚLTIMA SINERGIA ${named.trait ? named.trait+': '+(named.candidate_names || []).join(', ') : '—'}`,
         `SELEÇÃO ${sourceSec(selected)}  ${selected.champion_name || selected.status || 'nenhuma'}`,
+        `APRIMORAMENTOS ${sourceSec(augments)}  ${augments.selection_visible ?
+          (augments.options || []).map(row => `${row.slot + 1}:${row.candidate_name || row.observed_title || '?'} [${row.status}]`).join(' | ') : 'janela não visível'}`,
+        ...(augments.selection_visible ? (augments.options || []).map(row =>
+          `  ${row.slot + 1} EFEITO OCR: ${(row.observed_description || 'não lido').replace(/\s+/g, ' ')}`) : []),
         `DECISÃO ${state?.tip?.text || state?.decision_reason || 'aguardando evidência'}`,
         'Nomes com ? são candidatos visuais. Ícones contam apenas enquanto aparecem.'
       ];
@@ -639,10 +644,15 @@ if (new URLSearchParams(location.search).has('connected')) {
     const tooltip = state?.trait_tooltip || {};
     const lastNamedTooltip = state?.trait_tooltip_last_named || {};
     const selectedPanelCurrent = state?.selected_unit_panel || {};
+    const augments = state?.augment_options || {};
+    const augmentLabel = augments.selection_visible ?
+      (augments.options || []).map(row => `${row.slot + 1}: ${escapeHtml(row.candidate_name || row.observed_title || 'não lido')} `+
+        `<small>${escapeHtml(row.status || 'incerto')} · OCR: ${escapeHtml((row.observed_description || 'efeito não lido').replace(/\s+/g, ' '))}</small>`).join('<br>') :
+      'Janela de Aprimoramentos não visível';
     const selectedPanel = state?.selected_unit_panel_last_named ||
       (selectedPanelCurrent.status === 'selected_unit_named' ? selectedPanelCurrent : {});
     const shopMath = state?.shop_math || {};
-    const newestSourceMs = Math.max(0, ...[hud, hub, spatial, fast, fastItems, tooltip, selectedPanel, shopMath]
+    const newestSourceMs = Math.max(0, ...[hud, hub, spatial, fast, fastItems, tooltip, selectedPanel, shopMath, augments]
       .map(row => row.source_ms).filter(Number.isFinite));
     const sourceLabel = (row, maxAgeMs=3000) => {
       const sourceMs = row?.source_ms;
@@ -778,6 +788,7 @@ if (new URLSearchParams(location.search).has('connected')) {
       `<small>HUD: ${sourceLabel(hud)} · cálculo: ${sourceLabel(shopMath)}</small>`+
       `<p>${fields.join(' · ') || 'HUD sem leitura recente.'}</p>`+
       `<p>Loja: ${shop.join(' · ') || 'aguardando'}</p>`+
+      `<p>Aprimoramentos (${sourceLabel(augments)}):<br>${augmentLabel}</p>`+
       `<p>Probabilidades: ${mathLabel}</p>`+
       `<details><summary>Distribuição por campeão (${chanceRows.length})</summary>`+
       `<p>Chance condicional de uma casa da loja; pressuposto: ${escapeHtml(shopMath.assumption || 'não informado')}. `+

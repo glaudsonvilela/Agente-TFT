@@ -187,6 +187,8 @@ class Session:
                     targets.append(self._trait_tooltip_loop)
                 if getattr(self, 'panel_pending', None) is not None:
                     targets.append(self._selected_panel_loop)
+                if getattr(self, 'augment_pending', None) is not None:
+                    targets.append(self._augment_loop)
             for target in targets:
                 t=threading.Thread(target=target,daemon=True);t.start();threads.append(t)
             self.phase='Mapeando HUD / coletando pixels naturais'

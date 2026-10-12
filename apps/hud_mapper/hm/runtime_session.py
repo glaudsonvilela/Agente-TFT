@@ -515,6 +515,7 @@ class RuntimeSession(Session):
                             aux = {key: copy.deepcopy(value) for key, value in (
                                 ('selected_unit_panel', self.latest_selected_unit_panel),
                                 ('trait_tooltip', self.latest_trait_tooltip),
+                                ('augment_options', getattr(self, 'latest_augment_options', None)),
                                 ('fast_markers', self.latest_fast_diagnostic),
                                 ('fast_items', self.latest_fast_items))
                                 if isinstance(value, dict)
@@ -784,6 +785,8 @@ class HM4RuntimeSession(RuntimeSession):
         self.panel_pending = Latest() if options.board_hub_enabled else None
         self.latest_selected_unit_panel = None
         self.latest_selected_unit_panel_named = None
+        self.augment_pending = Latest() if options.board_hub_enabled else None
+        self.latest_augment_options = None
         self.decision_engine = None
         if options.board_hub_enabled:
             from .replay_decision import ReplayDecisionEngine
@@ -863,6 +866,11 @@ class HM4RuntimeSession(RuntimeSession):
         self.board_reference_requested.set()
 
     def submit_hub_frame(self, frame):
+        if self.augment_pending is not None and hub_due(
+                getattr(self, '_last_augment_submission', None), frame, 500):
+            self._last_augment_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
+            self.augment_pending.put(frame)
+            self.counts['augment_submitted'] += 1
         if self.panel_pending is not None and hub_due(
                 getattr(self, '_last_panel_submission', None), frame, 125):
             self._last_panel_submission = dict(epoch=frame.epoch, source_ms=frame.pts_ms)
@@ -957,6 +965,33 @@ class HM4RuntimeSession(RuntimeSession):
         except Exception as exc:
             self.versions['selected_panel_error'] = f'{type(exc).__name__}: {exc}'
             self.counts['selected_panel_errors'] += 1
+
+    def _augment_loop(self):
+        """Read choice cards asynchronously; no capture or preview waits for OCR."""
+        from .augment_reader import AugmentReader
+        try:
+            reader = AugmentReader(self.options.configs, tesseract=self.options.tesseract)
+            self.versions['augment_catalog'] = reader.catalog
+            while not self.cancel.is_set():
+                try:
+                    frame = self.augment_pending.get()
+                except queue.Empty:
+                    if self.producer_done.is_set():
+                        break
+                    continue
+                observation = reader.observe(frame.rgb, frame.width, frame.height,
+                    frame_id=frame.id, source_ms=frame.pts_ms, epoch=frame.epoch)
+                if observation is None:
+                    continue
+                observation['source_to_result_ms'] = round(
+                    (time.perf_counter_ns() - frame.due_ns) / 1e6, 2)
+                with self.lock:
+                    self.latest_augment_options = copy.deepcopy(observation)
+                self.store.emit('augment-options-observations', observation)
+                self.counts['augment_results'] += 1
+        except Exception as exc:
+            self.versions['augment_error'] = f'{type(exc).__name__}: {exc}'
+            self.counts['augment_errors'] += 1
 
     def _shop_loop(self):
         """Keep expensive shop text OCR out of the HUD/decision reader lane."""

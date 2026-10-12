@@ -13,6 +13,8 @@ pub struct Situation {
     pub streak_kind_candidate: Option<String>,
     pub streak_count_verified: Option<i64>,
     pub shop: Vec<Value>,
+    pub augment_options: Vec<Value>,
+    pub augment_selection_visible: bool,
     pub trait_counts: BTreeMap<String, i64>,
     pub board_candidates: usize,
     pub fielded_unit_candidates: Vec<String>,
@@ -33,6 +35,8 @@ impl Situation {
             "streak_kind_candidate":self.streak_kind_candidate,
             "streak_count_verified":self.streak_count_verified,
             "fresh_shop_offers":self.shop.len(),"trait_counts":self.trait_counts,
+            "augment_selection_visible":self.augment_selection_visible,
+            "augment_options":self.augment_options,
             "board_candidates":self.board_candidates,
             "fielded_unit_candidates":self.fielded_unit_candidates,
             "item_candidates":self.item_candidates,"opponent_candidates":self.opponent_candidates,
@@ -169,6 +173,18 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
                 ages_ms.insert("shop", now - at); offers.clone()
             })).unwrap_or_default()
     };
+    // A closed choice overlay clears options immediately. A visible offer is
+    // retained only briefly across asynchronous OCR and never means chosen.
+    let augment_hidden = current["augment_selection_visible"] == false;
+    let augment_options = if augment_hidden { Vec::new() } else {
+        let rows = read_field("augment_options", 3_500, now, epoch, current, recent,
+            &mut ages_ms, |v| v.as_array().is_some_and(|rows| {
+                rows.len() == 3 && rows.iter().enumerate().all(|(slot, row)|
+                    row["slot"].as_u64() == Some(slot as u64))
+            })).unwrap_or(Value::Null);
+        rows.as_array().cloned().unwrap_or_default()
+    };
+    let augment_selection_visible = !augment_hidden && !augment_options.is_empty();
     let mut trait_counts = BTreeMap::new();
     for (at, segment, row) in std::iter::once((now, epoch, current)).chain(recent.iter().rev()
         .map(|(ms, segment, row)| (*ms, *segment, row))) {
@@ -221,7 +237,8 @@ pub fn integrate(current: &Value, recent: &VecDeque<(i64, i64, Value)>,
         opponents["current_opponent_status"] == "linked";
     let board_identity_verified = current["board_identity_verified"] == true;
     Situation { stage, gold, hp, level, xp, xp_threshold, streak_kind_candidate,
-        streak_count_verified, shop, trait_counts, board_candidates,
+        streak_count_verified, shop, augment_options, augment_selection_visible,
+        trait_counts, board_candidates,
         fielded_unit_candidates:fielded.into_iter().collect(), item_candidates,
         opponent_candidates, enemy_visible_item_icons, enemy_equipped_unit_tracks,
         opponent_linked, board_identity_verified,
@@ -275,6 +292,25 @@ pub fn pooled_snapshots(pool: &Value, epoch: i64) -> VecDeque<(i64, i64, Value)>
         assert_eq!(state.streak_kind_candidate.as_deref(), Some("loss"));
         assert_eq!(state.streak_count_verified, None);
         assert_eq!(integrate(&current, &empty, 0, 5000, None).streak_kind_candidate, None);
+    }
+    #[test]
+    fn augment_options_are_recent_and_clear_when_overlay_closes() {
+        let options = json!([
+            {"slot":0,"candidate_id":"DA_PatientStudy","status":"catalog_name_bound"},
+            {"slot":1,"candidate_id":"DA_Hustler","status":"catalog_name_bound"},
+            {"slot":2,"candidate_id":"DA_18_CovenTraitAugment","status":"catalog_name_bound"}]);
+        let recent = VecDeque::from([(1000, 0, json!({
+            "augment_selection_visible":true,"augment_options":options}))]);
+        let visible = integrate(&json!({}), &recent, 0, 1200, None);
+        assert!(visible.augment_selection_visible);
+        assert_eq!(visible.augment_options.len(), 3);
+        let closed = integrate(&json!({"augment_selection_visible":false,
+            "augment_options":[]}), &recent, 0, 1200, None);
+        assert!(!closed.augment_selection_visible);
+        assert!(closed.augment_options.is_empty());
+        let stale = integrate(&json!({}), &recent, 0, 5000, None);
+        assert!(!stale.augment_selection_visible);
+        assert!(stale.augment_options.is_empty());
     }
     #[test]
     fn enemy_equipment_is_a_bounded_recent_observation() {

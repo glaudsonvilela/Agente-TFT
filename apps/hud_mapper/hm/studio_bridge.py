@@ -315,6 +315,7 @@ class StudioController:
                     "trait_tooltip_last_named": getattr(session, "latest_trait_tooltip_named", None),
                     "selected_unit_panel": getattr(session, "latest_selected_unit_panel", None),
                     "selected_unit_panel_last_named": getattr(session, "latest_selected_unit_panel_named", None),
+                    "augment_options": getattr(session, "latest_augment_options", None),
                     "board_execution": session.versions.get("board_hub_execution"),
                     "unit_model_active": bool(session.versions.get("unit_neural_active")),
                     "trait_model_active": getattr(session, "trait_model_dir", None) is not None,
@@ -330,7 +331,8 @@ class StudioController:
                                ("source_frames", "preview_frames", "reader_native_runs",
                                 "hub_results", "trait_tooltip_submitted",
                                 "trait_tooltip_results", "selected_panel_submitted",
-                                "selected_panel_results", "fast_item_results",
+                                "selected_panel_results", "augment_submitted",
+                                "augment_results", "fast_item_results",
                                 "coach_updates", "replay_tips")},
                     "save_diagnostic": {
                         "trait_queue_replaced": (session.trait_pending.replaced
@@ -338,6 +340,7 @@ class StudioController:
                         "write_queue_dropped": session.store.counts["write_queue_dropped"],
                         "trait_events_saved": session.store.counts["trait-tooltip-observations_events"],
                         "selected_panel_events_saved": session.store.counts["selected-unit-panel-observations_events"],
+                        "augment_events_saved": session.store.counts["augment-options-observations_events"],
                         "selected_panel_queue_replaced": (session.panel_pending.replaced
                                                          if session.panel_pending else 0),
                         "persist_p95_ms": (sorted(session.store.persist_ms)[

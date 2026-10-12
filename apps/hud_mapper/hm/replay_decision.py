@@ -144,6 +144,14 @@ class ReplayDecisionEngine:
                         int(xp_match[1]) == xp and 0 <= xp < int(xp_match[2]) <= 100
                         else None)
         fast = ((motor1_aux or {}).get('fast_markers') or {})
+        augments = ((motor1_aux or {}).get('augment_options') or {})
+        augment_visible = augments.get('selection_visible') is True
+        augment_options = [{key: row.get(key) for key in
+                            ('slot', 'candidate_id', 'candidate_name', 'status',
+                             'name_score', 'observed_title', 'observed_description',
+                             'catalog_description', 'description_similarity') if key in row}
+                           for row in (augments.get('options') or [])[:3]
+                           if isinstance(row, dict)] if augment_visible else []
         streak = output.get('streak') or fast.get('streak') or {}
         streak_observation = (dict(streak, source_ms=streak.get('source_ms',
                                                              fast.get('source_ms')))
@@ -161,6 +169,8 @@ class ReplayDecisionEngine:
             if key in equipment} if equipment.get('status') == 'observed_minimum' else None)
         return dict(stage=hud('stage'), gold=hud('gold'), level=hud('level'), xp=xp,
             xp_threshold=xp_threshold, streak=streak_observation,
+            augment_selection_visible=(augment_visible if augments else None),
+            augment_options=augment_options,
             hp=hp,
             shop=offers, shop_fresh=(shop.get('cadence_delivery') or {}).get('fresh') is True,
             trait_counts={key:value for key,value in (visual.get('trait_counts') or {}).items()
