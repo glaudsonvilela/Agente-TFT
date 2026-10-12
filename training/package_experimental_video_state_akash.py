@@ -34,7 +34,14 @@ def sha256(path: Path) -> str:
 
 
 def package(repo: Path, corpus: Path, index: Path, output: Path,
-            branches: Path) -> dict:
+            branches: Path, *, allow_sparse_state_experiment: bool = False) -> dict:
+    if not allow_sparse_state_experiment:
+        raise ValueError(
+            "This package uploads sampled frames, not complete videos or "
+            "player actions. It cannot train imitation/player policy. "
+            "Use --allow-sparse-state-experiment only for an explicitly "
+            "requested visible-state forecast experiment."
+        )
     frames = corpus / "experimental-frames-15s"
     gate = preflight(index, frames, "2894958056", branches)
     if any(count < 10 for split in gate["comparable_heldout_readings"].values()
@@ -192,9 +199,15 @@ def main() -> None:
     parser.add_argument("--index", type=Path, required=True)
     parser.add_argument("--branches", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--allow-sparse-state-experiment", action="store_true",
+        help="Acknowledge that this excludes full video and player actions.",
+    )
     args = parser.parse_args()
     print(json.dumps(package(args.repo, args.corpus, args.index, args.output,
-                             args.branches), indent=2))
+                             args.branches,
+                             allow_sparse_state_experiment=args.allow_sparse_state_experiment),
+                     indent=2))
 
 
 if __name__ == "__main__":

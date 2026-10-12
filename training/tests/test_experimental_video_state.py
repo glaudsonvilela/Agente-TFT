@@ -5,6 +5,7 @@ import pytest
 import torch
 
 from training.experimental_video_state import StateNet, load_examples, numeric_state
+from training.package_experimental_video_state_akash import package
 
 
 def test_unknown_ocr_stays_unknown():
@@ -45,3 +46,10 @@ def test_initial_network_equals_persistence_baseline():
     with torch.no_grad():
         output = model(torch.zeros((1, 3, 180, 320)), state)
     assert torch.equal(output[0], state[0, :3])
+
+
+def test_sparse_package_cannot_be_launched_as_imitation_by_default(tmp_path):
+    with pytest.raises(ValueError, match="cannot train imitation/player policy"):
+        package(tmp_path, tmp_path, tmp_path / "index.json",
+                tmp_path / "output", tmp_path / "branches.json")
+    assert not (tmp_path / "output").exists()

@@ -1,5 +1,23 @@
 # Experimental Setsuko video-state test (patch 18.4B)
 
+## Result and scope correction
+
+The run on DSEQ 29027458 ended after 49 epochs (608 seconds). On its untouched
+test match it lost to last-value persistence for stage, gold, and level. The
+downloaded report and sealed checkpoint are under the local experiment's
+`akash-experimental-state-10h-20261012-ready/results/` directory. Do not
+promote or repeat this model as an imitation learner.
+
+The seven complete 1920×1080, 60 fps match videos remain on local disk (about
+11.7 GB). **The Akash package did not contain those videos.** It contained
+1,009 still frames, one every 15 seconds (227 MB archive). It also contained
+no executed-action labels for the trainer. Therefore this run never watched
+continuous gameplay and never learned the player's decisions. The packaging
+command now rejects another sparse upload unless
+`--allow-sparse-state-experiment` is explicitly supplied. A future imitation
+experiment requires continuous match coverage, verified state/action timing,
+and held-out action evaluation before a paid deployment.
+
 This is a **separate, capped 10-hour experiment**, requested after the
 full-match player-policy preflight found that action labels and a validated
 18.4B combat simulator are missing. It does **not** train a TFT player or
