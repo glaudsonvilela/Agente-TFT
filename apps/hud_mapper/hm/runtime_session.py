@@ -987,7 +987,20 @@ class HM4RuntimeSession(RuntimeSession):
                     (time.perf_counter_ns() - frame.due_ns) / 1e6, 2)
                 with self.lock:
                     self.latest_augment_options = copy.deepcopy(observation)
-                self.store.emit('augment-options-observations', observation)
+                offer_key = (frame.epoch, tuple(
+                    row.get('candidate_name') or row.get('observed_title')
+                    for row in observation.get('options') or []))
+                save_frame = (observation.get('selection_visible') is True and
+                    observation.get('status') == 'visible_read' and
+                    offer_key != getattr(self, '_last_saved_augment_offer', None))
+                if save_frame:
+                    self._last_saved_augment_offer = offer_key
+                    observation['regions'] = [dict(
+                        id=f'augment.offer.{row["slot"]}', box=row['card_box'],
+                        status='observed_card_pixels_not_label')
+                        for row in observation['options']]
+                self.store.emit('augment-options-observations', observation,
+                                frame if save_frame else None, save_frame)
                 self.counts['augment_results'] += 1
         except Exception as exc:
             self.versions['augment_error'] = f'{type(exc).__name__}: {exc}'

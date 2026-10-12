@@ -147,9 +147,10 @@ class ReplayDecisionEngine:
         augments = ((motor1_aux or {}).get('augment_options') or {})
         augment_visible = augments.get('selection_visible') is True
         augment_options = [{key: row.get(key) for key in
-                            ('slot', 'candidate_id', 'candidate_name', 'status',
+                            ('slot', 'candidate_id', 'candidate_ids', 'candidate_name', 'status',
                              'name_score', 'observed_title', 'observed_description',
-                             'catalog_description', 'description_similarity') if key in row}
+                             'catalog_description', 'description_similarity',
+                             'training_label', 'selection_confirmed') if key in row}
                            for row in (augments.get('options') or [])[:3]
                            if isinstance(row, dict)] if augment_visible else []
         streak = output.get('streak') or fast.get('streak') or {}

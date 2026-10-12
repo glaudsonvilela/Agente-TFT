@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-11",
+  "set_key": "TFTSet18",
+  "patch_under_review": "18.4B",
+  "patch_confirmation_from_recorded_client": false,
+  "sources": {
+    "before_data_dragon": "https://ddragon.leagueoflegends.com/cdn/16.19.1/data/pt_BR/tft-augments.json",
+    "current_data_dragon": "https://ddragon.leagueoflegends.com/cdn/16.20.1/data/pt_BR/tft-augments.json",
+    "riot_patch_notes": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-4/",
+    "riot_previous_patch_notes": "https://teamfighttactics.leagueoflegends.com/pt-br/news/game-updates/teamfight-tactics-patch-18-3/",
+    "client_asset_mirror": "https://raw.communitydragon.org/16.20/cdragon/tft/en_us.json"
+  },
+  "secondary_crosscheck": {
+    "site": "SeeMeta",
+    "url": "https://seemeta.com/en/tft/set-18/augments",
+    "site_claimed_patch": "18.4",
+    "site_claimed_augment_count": 249,
+    "contains_challengers_grace": true,
+    "also_lists_temporarily_disabled_heart_of_steel": true,
+    "can_establish_live_eligibility": false
+  },
+  "riot_18_4b_offer_constraints": {
+    "heart_of_steel_temporarily_disabled": true,
+    "coven_acolyte_and_dark_ritual_shared_per_lobby_limit": 1,
+    "chosen_of_the_sun_per_lobby_limit": 1,
+    "makeshift_armor_i_ii_disabled_on_stage_2_1": true,
+    "chosen_of_the_sun_tier": "Silver"
+  },
+  "archive_entry_count": 758,
+  "set18_current_client_id_count": 592,
+  "set18_current_client_ids_in_data_dragon": 590,
+  "supplement_entry_count": 4,
+  "lookup_entry_count": 762,
+  "current_client_ids_missing_from_data_dragon": [
+    "DA_ChallengersGrace",
+    "TFT_Augment_BoosterPackPlusPlus"
+  ],
+  "historical_removed_ids_preserved": [
+    "DA_NestingDollsPlus",
+    "DA_NestingDollsPlusPlus"
+  ],
+  "previous_da_entry_count": 249,
+  "current_da_entry_count": 249,
+  "da_added_ids": [
+    "DA_CalculatedLoss",
+    "DA_DoubleTrouble"
+  ],
+  "da_removed_ids": [
+    "DA_NestingDollsPlus",
+    "DA_NestingDollsPlusPlus"
+  ],
+  "da_changed_entries": [
+    {
+      "id": "DA_18_InfernoTraitAugment",
+      "changed_fields": [
+        "description"
+      ]
+    },
+    {
+      "id": "DA_18_SolarTraitAugment",
+      "changed_fields": [
+        "image"
+      ]
+    },
+    {
+      "id": "DA_18_SprykinAugment",
+      "changed_fields": [
+        "description"
+      ]
+    },
+    {
+      "id": "DA_HoldTheLine",
+      "changed_fields": [
+        "description"
+      ]
+    },
+    {
+      "id": "DA_URF",
+      "changed_fields": [
+        "description"
+      ]
+    }
+  ],
+  "previous_prefix_filter_missed_official_18_4_patch_named_ids": [
+    "TFT_Augment_ConstructACompanion",
+    "TFT_Augment_ForgeAFriend"
+  ],
+  "patch_named_augment_not_in_current_data_dragon": [
+    "Challenger’s Grace"
+  ],
+  "known_disabled_augment_ids_retained_in_lookup": [
+    "DA_HeartOfSteel",
+    "DA_InfinityProtection",
+    "DA_NestingDollsPlus",
+    "DA_NestingDollsPlusPlus"
+  ],
+  "offer_pool_complete": false,
+  "hero_augments_covered_by_data_dragon": false,
+  "training_labels_available": {
+    "observed_offers_after_new_reader_session": false,
+    "player_choice": false,
+    "placement_or_result": false
+  },
+  "da_raw_record_changes": 21,
+  "da_normalized_text_or_icon_changes": 5
+}

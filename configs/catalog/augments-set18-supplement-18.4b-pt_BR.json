@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "locale": "pt_BR",
+  "set_key": "TFTSet18",
+  "current_client_version": "16.20",
+  "previous_data_dragon_version": "16.19.1",
+  "source_urls": [
+    "https://raw.communitydragon.org/16.20/cdragon/tft/pt_br.json",
+    "https://raw.communitydragon.org/16.20/cdragon/tft/en_us.json",
+    "https://ddragon.leagueoflegends.com/cdn/16.19.1/data/pt_BR/tft-augments.json",
+    "https://ddragon.leagueoflegends.com/cdn/16.19.1/data/en_US/tft-augments.json",
+    "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-4/"
+  ],
+  "purpose": "Identity lookup and historical preservation, not a live offer pool",
+  "live_offer_pool_complete": false,
+  "entry_count": 4,
+  "entries": [
+    {
+      "id": "DA_ChallengersGrace",
+      "name": "Graça de Desafiante",
+      "name_en": "Challenger's Grace",
+      "description": "No início do combate, os aliados recebem 25% de Velocidade de Ataque por 4s. Após uma eliminação, os aliados avançam para o próximo alvo e recebem esse bônus novamente.",
+      "image": "assets/maps/tft/icons/augments/choiceui/precisiongrace_ii.tex",
+      "source": "https://raw.communitydragon.org/16.20/cdragon/tft/pt_br.json",
+      "source_kind": "client_asset_mirror",
+      "present_in_current_set18_client_list": true,
+      "live_offer_eligibility_verified": false,
+      "description_patch_adjusted": true
+    },
+    {
+      "id": "TFT_Augment_BoosterPackPlusPlus",
+      "name": "Pacote de Reforço++",
+      "name_en": "Booster Pack++",
+      "description": "Recebe 26 de ouro de Campeões aleatórios. (Pelo menos um de custo 5 garantido!) (Cada Campeão tem uma pequena chance de ser holográfico!)",
+      "image": "assets/maps/tft/icons/augments/choiceui/boosterpack1_ii.tex",
+      "source": "https://raw.communitydragon.org/16.20/cdragon/tft/pt_br.json",
+      "source_kind": "client_asset_mirror",
+      "present_in_current_set18_client_list": true,
+      "live_offer_eligibility_verified": false,
+      "description_patch_adjusted": false
+    },
+    {
+      "id": "DA_NestingDollsPlus",
+      "name": "Matrioscas",
+      "name_en": "Nesting Dolls",
+      "description": "Depois que um Campeão morre em combate, faz surgir uma cópia dele com um nível de Estrela a menos e 60% de Vida. Recebe 3 atualizações grátis.",
+      "image": "Missing-T3.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.19.1/data/pt_BR/tft-augments.json",
+      "source_kind": "previous_riot_data_dragon",
+      "present_in_current_set18_client_list": false,
+      "live_offer_eligibility_verified": false,
+      "description_patch_adjusted": false
+    },
+    {
+      "id": "DA_NestingDollsPlusPlus",
+      "name": "Matrioscas",
+      "name_en": "Nesting Dolls",
+      "description": "Depois que um Campeão morre em combate, faz surgir uma cópia dele com um nível de Estrela a menos e 60% de Vida. Recebe 3 atualizações grátis.",
+      "image": "Missing-T3.png",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.19.1/data/pt_BR/tft-augments.json",
+      "source_kind": "previous_riot_data_dragon",
+      "present_in_current_set18_client_list": false,
+      "live_offer_eligibility_verified": false,
+      "description_patch_adjusted": false
+    }
+  ]
+}

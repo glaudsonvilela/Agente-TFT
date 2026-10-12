@@ -22,6 +22,8 @@ TITLE_BOXES = ((430, 525, 700, 568), (830, 525, 1090, 568),
                (1230, 525, 1525, 568))
 BODY_BOXES = ((420, 570, 695, 690), (830, 570, 1090, 810),
               (1235, 570, 1520, 705))
+CARD_BOXES = ((375, 245, 740, 810), (780, 245, 1145, 810),
+              (1190, 245, 1555, 810))
 
 
 def _fold(value: str) -> str:
@@ -30,41 +32,68 @@ def _fold(value: str) -> str:
 
 
 def bind_offer(title: str, body: str, entries: list[dict]) -> dict:
-    """Bind only a well separated catalog name; preserve unbound OCR evidence."""
+    """Preserve duplicate game IDs unless the observed effect separates them."""
     observed = _fold(title)
     if not observed:
-        return dict(status='unresolved', candidate_id=None, name_score=0.0)
-    scores = sorted(((SequenceMatcher(None, observed, _fold(row['name'])).ratio(), row)
-                     for row in entries), key=lambda pair: pair[0], reverse=True)
-    if not scores:
-        return dict(status='unresolved', candidate_id=None, name_score=0.0)
-    best_score, best = scores[0]
-    runner_score = scores[1][0] if len(scores) > 1 else 0.0
-    exact = observed == _fold(best['name'])
-    # Titles that are too short or close to two catalog entries stay unresolved.
-    bound = (len(observed) >= 7 and best_score >= (1.0 if exact else .84)
-             and best_score - runner_score >= .10)
-    result = dict(status='catalog_name_bound' if bound else 'unresolved',
-                  candidate_id=best['id'] if bound else None,
-                  candidate_name=best['name'] if bound else None,
-                  name_score=round(best_score, 3),
-                  runner_up_score=round(runner_score, 3))
-    if bound:
+        return dict(status='unresolved', candidate_id=None, candidate_ids=[],
+                    name_score=0.0)
+    names = {}
+    for row in entries:
+        names.setdefault(_fold(row['name']), []).append(row)
+    if observed in names:
+        candidates = names[observed]
+        name_score = 1.0
+    else:
+        scored = sorted(((SequenceMatcher(None, observed, name).ratio(), name)
+                         for name in names), reverse=True)
+        best_score, best_name = scored[0] if scored else (0.0, '')
+        runner_score = scored[1][0] if len(scored) > 1 else 0.0
+        if (len(observed) < 7 or best_score < .84 or
+                best_score - runner_score < .10):
+            return dict(status='unresolved', candidate_id=None, candidate_ids=[],
+                        name_score=round(best_score, 3),
+                        runner_up_score=round(runner_score, 3))
+        candidates = names[best_name]
+        name_score = best_score
+    body_folded = _fold(body)
+    ranked = sorted(((SequenceMatcher(None, body_folded,
+                      _fold(row['description'])).ratio() if body_folded else 0.0, row)
+                     for row in candidates), key=lambda pair: pair[0], reverse=True)
+    top_score, best = ranked[0]
+    variants_distinct = (len(ranked) < 2 or SequenceMatcher(None,
+        _fold(ranked[0][1]['description']),
+        _fold(ranked[1][1]['description'])).ratio() < .85)
+    unique = len(ranked) == 1 or (body_folded and variants_distinct and
+             top_score >= .75 and top_score - ranked[1][0] >= .08)
+    result = dict(status='catalog_name_bound' if unique else 'catalog_name_ambiguous_id',
+                  candidate_id=best['id'] if unique else None,
+                  candidate_ids=[row['id'] for _, row in ranked],
+                  candidate_name=best['name'],
+                  name_score=round(name_score, 3),
+                  description_similarity=round(top_score, 3))
+    # A shared effect is useful even when the source game IDs are identical on
+    # screen. It is reference text, never observed player choice.
+    if unique or len({_fold(row['description']) for _, row in ranked}) == 1:
         result['catalog_description'] = best['description']
-        result['description_similarity'] = round(SequenceMatcher(
-            None, _fold(body), _fold(best['description'])).ratio(), 3) if body else 0.0
-        result['disabled_in_catalog_revision'] = bool(best['disabled_18_3b'])
     return result
 
 
 class AugmentReader:
     def __init__(self, configs: str | Path, *, tesseract: str = 'tesseract'):
-        path = Path(configs).parent / 'configs/catalog/augments-set18-18.3-pt_BR.json'
+        path = Path(configs).parent / 'configs/catalog/augments-ddragon-16.20.1-pt_BR.json'
         catalog = json.loads(path.read_text(encoding='utf-8'))
-        self.entries = catalog['entries']
+        supplement_path = (Path(configs).parent /
+                           'configs/catalog/augments-set18-supplement-18.4b-pt_BR.json')
+        supplement = json.loads(supplement_path.read_text(encoding='utf-8'))
+        self.entries = [*catalog['entries'], *supplement['entries']]
+        if len({row['id'] for row in self.entries}) != len(self.entries):
+            raise ValueError('Duplicate augment ID across catalog and supplement')
         self.catalog = {key: catalog[key] for key in
-                        ('set_key', 'tft_patch', 'patch_revision', 'locale',
-                         'data_dragon_version', 'source_url', 'source_scope')}
+                         ('data_dragon_version', 'locale', 'entry_count', 'source_urls',
+                          'scope', 'live_offer_pool_complete', 'hero_augments_included')}
+        self.catalog['supplement_entry_count'] = supplement['entry_count']
+        self.catalog['lookup_entry_count'] = len(self.entries)
+        self.catalog['supplement_source_urls'] = supplement['source_urls']
         self.tesseract = tesseract
         self.last_visible = False
         self.last_signature: bytes | None = None
@@ -120,12 +149,16 @@ class AugmentReader:
             status = 'visible_cached'
         else:
             options = []
-            for slot, (title_box, body_box) in enumerate(zip(TITLE_BOXES, BODY_BOXES)):
+            for slot, (title_box, body_box, card_box) in enumerate(
+                    zip(TITLE_BOXES, BODY_BOXES, CARD_BOXES)):
                 title = self._ocr(image.crop(title_box), psm=6, upscale=3)
                 body = self._ocr(image.crop(body_box), psm=6, upscale=2)
                 options.append(dict(slot=slot, observed_title=title or '',
                                     observed_description=body or '',
                                     title_box=list(title_box), body_box=list(body_box),
+                                    card_box=list(card_box),
+                                    training_label=False,
+                                    selection_confirmed=False,
                                     **bind_offer(title or '', body or '', self.entries)))
             self.last_signature = signature
             self.last_options = options
@@ -134,4 +167,5 @@ class AugmentReader:
                     selection_confirmed=False, reroll_count=None,
                     frame_id=frame_id, source_ms=source_ms, epoch=epoch,
                     source='same_frame_augment_choice_ocr', catalog=self.catalog,
+                    catalog_patch_verified_from_client=False,
                     ground_truth=False)

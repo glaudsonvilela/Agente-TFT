@@ -96,12 +96,17 @@ class Store:
         key=str(frame.id)
         if key in self.seen:
             row=self.seen[key];row['event_streams'].append(stream)
+            if (stream=='augment-options-observations' and
+                    'augment_offer_unlabelled' not in row['sampling_reasons']):
+                row['sampling_reasons'].append('augment_offer_unlabelled')
             if stream=='roi-observations':
                 row['roi_event_available']=True
+            if stream in ('roi-observations', 'augment-options-observations'):
                 self._crops(Image.frombytes('RGB',(frame.width,frame.height),frame.rgb),row,data,frame)
             return
         index=self.sample_candidates;self.sample_candidates+=1
-        if index%self.sample_stride:
+        priority_offer = stream=='augment-options-observations'
+        if index%self.sample_stride and not priority_offer:
             self.counts['sample_stride_skipped']+=1;return
         if shutil.disk_usage(self.root).free<self.reserve:
             self.counts['disk_reserve_skipped']+=1;return
@@ -111,13 +116,14 @@ class Store:
         prev=self.previous.get('global'); self.previous['global']=small
         change=None if prev is None else sum(abs(a-b) for a,b in zip(small,prev))/len(small)
         flags=['periodic_neutral'] if stream=='periodic' else ['reader_evidence']
+        if priority_offer:flags.append('augment_offer_unlabelled')
         if change is not None and change>8:flags.append('visual_change_candidate')
         if any(r.get('status')=='unknown' for r in data.get('regions',[])):flags.append('uncertain_proposal')
         # No "occluded" label inferred merely from missing text or neural abstention.
         buffer=io.BytesIO();im.save(buffer,format='PNG',compress_level=1);png=buffer.getvalue()
         while len(self.records)>=self.max_samples or self.bytes+len(png)>self.max_bytes:
             if not self._thin_samples():break
-            if index%self.sample_stride:
+            if index%self.sample_stride and not priority_offer:
                 self.counts['sample_stride_skipped']+=1;return
         if len(self.records)>=self.max_samples:
             self.counts['sample_limit_skipped']+=1;return
@@ -142,7 +148,8 @@ class Store:
         keep=[];removed=0
         for row in self.records:
             key=str(row['frame_id'])
-            if self.sample_indices[key]%new_stride==0:
+            if (self.sample_indices[key]%new_stride==0 or
+                    'augment-options-observations' in row['event_streams']):
                 keep.append(row)
                 continue
             for entry in [row['image'], *(crop['image'] for crop in row['crops'])]:
