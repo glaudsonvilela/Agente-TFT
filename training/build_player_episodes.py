@@ -10,6 +10,8 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+SUPPORTED_HUD_LANGUAGES = {"en_US", "pt_BR"}
+
 
 def _player_frame(row):
     if row.get("kind") == "motor2_player_observation":
@@ -40,6 +42,12 @@ def build_episodes(rows, manifest, *, max_gap_ms=10_000):
                 meta.get("patch_reviewed") is not True or \
                 meta.get("outcome_reviewed") is not True:
             raise ValueError(f"incomplete episode review: {match_id}")
+        if meta.get("hud_language") not in SUPPORTED_HUD_LANGUAGES or \
+                meta.get("ocr_locale_validated") is not True:
+            raise ValueError(f"unsupported or unvalidated HUD language: {match_id}")
+        if meta.get("player_pov_verified") is not True or \
+                meta.get("player_rank_at_game_verified") is not True:
+            raise ValueError(f"player POV or Challenger rank unverified: {match_id}")
         if not isinstance(meta.get("source_sha256"), str) or \
                 len(meta["source_sha256"]) != 64:
             raise ValueError(f"source identity missing: {match_id}")
@@ -72,6 +80,7 @@ def build_episodes(rows, manifest, *, max_gap_ms=10_000):
         episodes.append(dict(schema_version=1, kind="motor2_player_episode",
             match_id=match_id, source_sha256=meta["source_sha256"],
             patch=patch, set_key=meta["set_key"],
+            hud_language=meta["hud_language"],
             start_ms=start, end_ms=end, placement=placement,
             outcome_evidence_id=meta.get("outcome_evidence_id"),
             frames=frames, split_unit="whole_match_id",

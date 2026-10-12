@@ -21,7 +21,9 @@ class PlayerEpisodeTests(unittest.TestCase):
             matches=[dict(match_id="m1", source_sha256="a" * 64,
                 patch="18.4B", set_key="TFTSet18", start_ms=0, end_ms=7000,
                 placement=3, full_video_reviewed=True, patch_reviewed=True,
-                outcome_reviewed=True, outcome_evidence_id="result-frame")])
+                outcome_reviewed=True, outcome_evidence_id="result-frame",
+                hud_language="en_US", ocr_locale_validated=True,
+                player_pov_verified=True, player_rank_at_game_verified=True)])
         return frames, manifest
 
     def test_ordered_full_match_retains_state_and_final_result(self):
@@ -43,6 +45,17 @@ class PlayerEpisodeTests(unittest.TestCase):
         bad[1]["patch"] = "18.3"
         with self.assertRaisesRegex(ValueError, "patch"):
             build_episodes(bad, manifest)
+
+    def test_language_and_rank_must_be_reviewed(self):
+        frames, manifest = self.fixture()
+        bad = deepcopy(manifest)
+        bad["matches"][0]["hud_language"] = "zh_CN"
+        with self.assertRaisesRegex(ValueError, "HUD language"):
+            build_episodes(frames, bad)
+        bad = deepcopy(manifest)
+        bad["matches"][0]["player_rank_at_game_verified"] = False
+        with self.assertRaisesRegex(ValueError, "Challenger rank"):
+            build_episodes(frames, bad)
 
 
 if __name__ == "__main__":

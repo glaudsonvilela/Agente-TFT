@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "expert_video_source_candidates",
+  "target_set": "TFTSet18",
+  "target_patch": "18.4B",
+  "discovered_at": "2026-10-11",
+  "source_of_metadata": "YouTube video metadata read on 2026-10-11",
+  "selection_rule": "Only English or Brazilian Portuguese HUD videos are eligible. Patch 18.4B, Challenger rank in the recorded game, player POV, complete match boundaries, OCR locale and actions require visual review before training.",
+  "videos": [
+    {
+      "id": "1nNF0OjHcps",
+      "channel": "GrindHard",
+      "region_candidate": "EMEA",
+      "source_kind": "single_match_candidate",
+      "upload_date": "2026-10-11",
+      "duration_seconds": 2151,
+      "title": "Ahri Zyra shenanigans | TFT Patch 18.4b",
+      "patch_evidence": "creator_title_explicit_18.4b; client patch not yet checked",
+      "creator_evidence": "Game HUD displays player name GrindHard; Compete TFT EMEA ladder lists GrindHard#3125 as Challenger 641 LP in a recent snapshot. Rank during this recorded match is not yet verified.",
+      "rank_evidence_url": "https://competetft.com/de-DE/tournament/116912881529684867/qualification/tac/ladder",
+      "priority": "high",
+      "hud_language": "en_US",
+      "hud_language_verified": true,
+      "hud_language_evidence": "Visual review of 1080p frames at 00:15 and 35:30 reads Brawler, Sprykin, stage 1-2, shop names and stage 6-5 in English.",
+      "known_limitation": "Start and result boundaries, client patch, rank at game and actions still need a full video audit."
+    },
+    {
+      "id": "TqgvJ3l_-y0",
+      "channel": "Wasianiverson",
+      "region_candidate": "AMER",
+      "source_kind": "edited_single_match",
+      "upload_date": "2026-10-09",
+      "duration_seconds": 1885,
+      "title": "Solar Varus Reroll WINS GAMES after the Varus buffs",
+      "patch_evidence": "creator_description_explicit_18.4b",
+      "creator_evidence": "AMER Pro Circuit competitor; game rank unverified",
+      "priority": "review",
+      "known_limitation": "Video chapters begin at 2-1 after intro; stage 1 may be omitted.",
+      "hud_language_candidate": "en_US"
+    },
+    {
+      "id": "ywTngK9F9g8",
+      "channel": "Wasianiverson VODs",
+      "region_candidate": "AMER",
+      "source_kind": "multi_match_vod",
+      "upload_date": "2026-10-11",
+      "duration_seconds": 20640,
+      "title": "This Patch Is FREE LP | Patch 18.4b VOD | October 10th",
+      "patch_evidence": "creator_title_explicit_18.4b",
+      "creator_evidence": "AMER Pro Circuit competitor; game rank unverified",
+      "priority": "review",
+      "hud_language_candidate": "en_US"
+    }
+  ],
+  "unverified_rank_leads_excluded": [
+    "KVVmaaa-ECM",
+    "_spHrkosw4M",
+    "xChM1_RXJV4",
+    "An75Fm7uamY"
+  ],
+  "reviewed_client_patch_matches": 0,
+  "reviewed_complete_matches": 0,
+  "reviewed_action_sequences": 0,
+  "training_ready": false,
+  "excluded_source_leads": [
+    {
+      "id": "MVGyB7JFvSA",
+      "channel": "TFT-HuanMie",
+      "reason": "Chinese HUD; current text readers use English OCR. Retain as source lead only, never as an English/Portuguese training episode."
+    },
+    {
+      "id": "UVyH-EnFC-M",
+      "channel": "TFT-HuanMie",
+      "reason": "Chinese HUD; current text readers use English OCR. Retain as source lead only, never as an English/Portuguese training episode."
+    },
+    {
+      "id": "NwEkJELAGMI",
+      "channel": "TFT-HuanMie",
+      "reason": "Chinese HUD; current text readers use English OCR. Retain as source lead only, never as an English/Portuguese training episode."
+    },
+    {
+      "id": "HtCtFtQwXcQ",
+      "channel": "TFT-HuanMie",
+      "reason": "Chinese HUD; current text readers use English OCR. Retain as source lead only, never as an English/Portuguese training episode."
+    },
+    {
+      "id": "yRug_mN8tfU",
+      "channel": "Wasianiverson VODs",
+      "reason": "BoxBox Bash event-mode rules not yet verified as standard ranked TFT."
+    },
+    {
+      "id": "gvzAGVf2D_4",
+      "channel": "Wasianiverson VODs",
+      "reason": "BoxBox Bash event-mode rules not yet verified as standard ranked TFT."
+    }
+  ]
+}
