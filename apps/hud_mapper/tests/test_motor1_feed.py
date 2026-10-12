@@ -78,6 +78,18 @@ class Motor1FeedTests(unittest.TestCase):
         self.assertIsNone(observed['streak']['count'])
         self.assertFalse(observed['streak']['verified'])
 
+    def test_motor_two_excludes_stale_opponent_ocr_history(self):
+        observed = ReplayDecisionEngine._memory_observation(
+            {}, visual_candidates={'opponents': {'players': [
+                {'name': 'Real rival', 'status': 'persistent_candidate',
+                 'last_seen_age_ms': 1000, 'hp': 83},
+                {'name': 'OCR ghost', 'status': 'stale_roster',
+                 'last_seen_age_ms': 25000, 'hp': None},
+                {'name': None, 'status': 'observing',
+                 'last_seen_age_ms': 0, 'hp': None}]}})
+        self.assertEqual([row['name'] for row in observed['opponents']['players']],
+                         ['Real rival'])
+
 
 if __name__ == '__main__':
     unittest.main()

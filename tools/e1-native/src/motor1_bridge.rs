@@ -85,7 +85,12 @@ impl Motor1Evidence {
             "enemy_bench":hub.and_then(|v|v["spatial_map"]["enemy_bench"].as_array()).map_or(0, Vec::len),
             "item_evidence":hub.and_then(|v|v["item_evidence"]["inventory"].as_array()).map_or(0, Vec::len)
                 + hub.and_then(|v|v["item_evidence"]["equipped"].as_array()).map_or(0, Vec::len),
-            "opponent_rows":hub.and_then(|v|v["opponents"]["players"].as_array()).map_or(0, Vec::len),
+            "opponent_rows":hub.and_then(|v|v["opponents"]["players"].as_array()).map_or(0,
+                |rows| rows.iter().filter(|row| row["status"] == "persistent_candidate"
+                    && row["name"].as_str().is_some_and(|name| !name.trim().is_empty())
+                    && row["last_seen_age_ms"].as_f64().is_none_or(|age| age <= 15000.0))
+                    .count()),
+            "opponent_raw_rows":hub.and_then(|v|v["opponents"]["players"].as_array()).map_or(0, Vec::len),
             "candidate_identity_promoted_by_bridge":false})
     }
 }
@@ -113,7 +118,9 @@ mod tests {
             "enemy_cells":[{"id":"A1"}],"own_bench":[],"enemy_bench":[]},
             "item_evidence":{"inventory":[{"candidate_name":"Warmog",
                 "identity_verified":false}],"equipped":[]},
-            "opponents":{"players":[{"name":"enemy"}]},
+            "opponents":{"players":[{"name":"enemy","status":"persistent_candidate",
+                "last_seen_age_ms":500},{"name":"old OCR","status":"persistent_candidate",
+                "last_seen_age_ms":16000},{"name":"unconfirmed","status":"observing"}]},
             "temporal_candidates":{"units":[{"candidate_id":"Zyra",
                 "identity_verified":false}]}});
         let mut hub_packed = pack(&hub);
@@ -135,6 +142,8 @@ mod tests {
         assert_eq!(evidence.diagnostics()["augment_offer_count"], 3);
         assert_eq!(evidence.diagnostics()["augment_catalog_lookup_count"], 762);
         assert_eq!(evidence.diagnostics()["augment_patch_confirmed_from_client"], false);
+        assert_eq!(evidence.diagnostics()["opponent_rows"], 1);
+        assert_eq!(evidence.diagnostics()["opponent_raw_rows"], 3);
         assert_eq!(evidence.hub.unwrap(), hub);
     }
 

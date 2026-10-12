@@ -170,6 +170,15 @@ class ReplayDecisionEngine:
                     'catalog_traits', 'trait_breakpoints') if key in row}
                   for row in (shop.get('slots') or [])[:5] if isinstance(row, dict)]
         opponents = visual.get('opponents') or {}
+        # Motor 1 retains OCR history for review, including stale aliases and
+        # one-frame noise. Only current, repeated name candidates belong in
+        # Motor 2's strategic state; they still are not verified identities.
+        fresh_opponents = [row for row in (opponents.get('players') or [])
+                           if isinstance(row, dict)
+                           and row.get('status') == 'persistent_candidate'
+                           and isinstance(row.get('name'), str) and row['name'].strip()
+                           and (not isinstance(row.get('last_seen_age_ms'), (int, float))
+                                or row['last_seen_age_ms'] <= 15000)][:8]
         equipment = visual.get('enemy_equipment') or {}
         enemy_equipment = ({key: equipment[key] for key in
             ('visible_item_icons', 'equipped_unit_tracks', 'sampled_red_bars', 'status')
@@ -197,7 +206,7 @@ class ReplayDecisionEngine:
                 opponent_board_assigned=opponents.get('opponent_board_assigned') is True,
                 players=[{key: row.get(key) for key in
                           ('name', 'hp', 'status', 'losses_observed') if key in row}
-                         for row in (opponents.get('players') or [])[:8] if isinstance(row, dict)]))
+                         for row in fresh_opponents]))
 
     @staticmethod
     def _render_native_candidate(candidate, output):
