@@ -145,6 +145,11 @@ def run(workdir: Path, command: list[str], *, seconds: int, input_identity: str 
                                 child.kill()
                             break
                         sleep(1)
+                    if stopped and child.poll() is None:
+                        try:
+                            child.wait(timeout=25)
+                        except subprocess.TimeoutExpired:
+                            child.kill()
                     code = child.wait()
                 state.update(last_exit_code=code, updated_utc=now())
                 if (workdir / "complete.flag").exists():
